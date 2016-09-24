@@ -1,0 +1,138 @@
+<style>
+	.success {
+		background-color: #bfb;
+	}
+	.failure {
+		background-color: #ffa;
+	}
+	.report p {
+		padding: 2px;
+		margin: 0;
+		border-bottom: 1px solid #aaa;
+	}
+
+	[data-bind] {
+		display: block;
+	}
+
+	input[type=radio] {
+		display: inline-block;
+	}
+</style>
+<body>
+	<h2>BOM Tests</h2>
+	<div>
+		<span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
+		<span id="c" data-bind="text=test1.sub.list[2]">A</span>
+		<span id="d" data-bind="text=test1.list[0].y">A</span>
+		<span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
+		<input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
+		<input id="f" data-bind="value=test1.sub.list[2]">
+		<select data-bind="value=test1.option">
+			<option>ONE</option>
+			<option>two</option>
+			<option>3</option>
+		</select>
+		<span id="g" data-bind="text=test1.option">A</span>
+		<input data-bind="checked=test1.checkbox" type="checkbox" checked>
+		<span id="h" data-bind="text=test1.checkbox">A</span>
+		<label>
+			<input type="radio" name="group" value="first" data-bind="value=test1.radio">
+			first
+		</label>
+		<label>
+			<input type="radio" name="group" value="second" data-bind="value=test1.radio">
+			second
+		</label>
+		<label>
+			<input type="radio" name="group" value="third" data-bind="value=test1.radio">
+			third
+		</label>
+		<span id="i" data-bind="text=test1.radio"></span>
+	</div>
+	<div>
+	</div>
+	<div class="report"></div>
+	<script src="test.js"></script>
+	<script src="bom.js"></script>
+	<script>
+	/*
+		Test(() => 2).shouldBe(2);
+		Test(() => 2).shouldBe(1);
+	*/
+		var obj = {
+			base: 17,
+			sub: {
+				list: [1,2,3],
+				prop: 'hello'
+			},
+			list: [
+				{x: 10, y: 11},
+				{x: 12, y: 13},
+			],
+			color: 'red',
+			type: 'range',
+			nested_list: [
+				[4,5,6],
+				[7,8,9]
+			],
+			option: '3',
+			checkbox: true,
+			radio: 'second',
+		};
+		Test(() => getByPath(obj, '')).shouldBe(obj);
+		Test(() => getByPath(obj, '/')).shouldBe(obj);
+		Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
+		Test(() => getByPath(obj, 'sub.prop')).shouldBe(obj.sub.prop);
+		Test(() => getByPath(obj, 'sub.list')).shouldBe(obj.sub.list);
+		Test(() => getByPath(obj, 'sub.list[1]')).shouldBe(obj.sub.list[1]);
+		Test(() => getByPath(obj, 'list[1].x')).shouldBe(obj.list[1].x);
+		Test(() => getByPath(obj, 'nested_list[1][1]')).shouldBe(obj.nested_list[1][1]);
+		setByPath(obj, 'base', 42);
+		setByPath(obj, 'kettle.black', 11);
+		Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
+		Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
+		setByPath(obj, 'sub.list[2]', 25);
+		Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
+
+		// binding (to), data mounting
+		BOM.add('test1', obj);
+		Test(() => document.getElementById('a').textContent).shouldBe('42');
+		Test(() => document.getElementById('b').textContent).shouldBe('hello');
+		Test(() => document.getElementById('c').textContent).shouldBe(obj.sub.list[2] + '');
+		Test(() => document.getElementById('d').textContent).shouldBe('11');
+		Test(() => document.getElementById('e').value).shouldBe(obj.sub.list[2] + '');
+		Test(() => document.getElementById('a').style.color).shouldBe('red');
+		Test(() => document.getElementById('e').getAttribute('type')).shouldBe('range');
+		BOM.add('test2', {color: 'green'});
+		Test(() => document.getElementById('b').style.color).shouldBe('green');
+
+		// binding (from)
+		BOM.findOne('input').value = 55;
+		Test.trigger('input', BOM.findOne('input'))
+		Test(() => document.getElementById('e').value)
+		                   .shouldBe(obj.sub.list[2] + '');
+		Test(() => document.getElementById('c').textContent)
+		                   .shouldBe(obj.sub.list[2] + '');
+		BOM.setByPath('test2', 'color', 'purple');
+		Test(() => document.getElementById('b').style.color).shouldBe('purple');
+		BOM.findOne('select').value = 'two';
+		Test.trigger('change', 'select');
+		Test(() => obj.option).shouldBe('two');
+		BOM.findOne('[type=checkbox]').checked = false;
+		Test.trigger('input', '[type=checkbox]');
+		Test(() => obj.checkbox).shouldBe(false);
+		BOM.findOne('[type=radio][value=first]').checked = true;
+		Test.trigger('change', '[type=radio][value=first]');
+		Test(() => obj.radio).shouldBe('first');
+
+		// ajax methods
+		BOM.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
+		var failures = 0;
+		BOM.ajax('test/does-not-exit.txt', 'GET')
+			.then(() => {}, () => failures++)
+			.then(() => Test(() => failures).shouldBe(1));
+		BOM.json('test/test.json', 'GET')
+			.then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
+	</script>
+</body>
