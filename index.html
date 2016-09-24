@@ -50,8 +50,7 @@
 		</label>
 		<span id="i" data-bind="text=test1.radio"></span>
 	</div>
-	<div>
-	</div>
+	<div data-component="test"></div>
 	<div class="report"></div>
 	<script src="test.js"></script>
 	<script src="bom.js"></script>
@@ -96,26 +95,26 @@
 		Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
 		// binding (to), data mounting
-		BOM.add('test1', obj);
-		Test(() => document.getElementById('a').textContent).shouldBe('42');
-		Test(() => document.getElementById('b').textContent).shouldBe('hello');
-		Test(() => document.getElementById('c').textContent).shouldBe(obj.sub.list[2] + '');
-		Test(() => document.getElementById('d').textContent).shouldBe('11');
-		Test(() => document.getElementById('e').value).shouldBe(obj.sub.list[2] + '');
-		Test(() => document.getElementById('a').style.color).shouldBe('red');
-		Test(() => document.getElementById('e').getAttribute('type')).shouldBe('range');
-		BOM.add('test2', {color: 'green'});
-		Test(() => document.getElementById('b').style.color).shouldBe('green');
+		BOM.register('test1', obj);
+		Test(() => BOM.id('a').textContent).shouldBe('42');
+		Test(() => BOM.id('b').textContent).shouldBe('hello');
+		Test(() => BOM.id('c').textContent).shouldBe(obj.sub.list[2] + '');
+		Test(() => BOM.id('d').textContent).shouldBe('11');
+		Test(() => BOM.id('e').value).shouldBe(obj.sub.list[2] + '');
+		Test(() => BOM.id('a').style.color).shouldBe('red');
+		Test(() => BOM.id('e').getAttribute('type')).shouldBe('range');
+		BOM.register('test2', {color: 'green'});
+		Test(() => BOM.id('b').style.color).shouldBe('green');
 
 		// binding (from)
 		BOM.findOne('input').value = 55;
 		Test.trigger('input', BOM.findOne('input'))
-		Test(() => document.getElementById('e').value)
+		Test(() => BOM.id('e').value)
 		                   .shouldBe(obj.sub.list[2] + '');
-		Test(() => document.getElementById('c').textContent)
+		Test(() => BOM.id('c').textContent)
 		                   .shouldBe(obj.sub.list[2] + '');
 		BOM.setByPath('test2', 'color', 'purple');
-		Test(() => document.getElementById('b').style.color).shouldBe('purple');
+		Test(() => BOM.id('b').style.color).shouldBe('purple');
 		BOM.findOne('select').value = 'two';
 		Test.trigger('change', 'select');
 		Test(() => obj.option).shouldBe('two');

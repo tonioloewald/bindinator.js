@@ -1,14 +1,10 @@
 /**
 #BindOMatic
 
-Binds your data and methods so you can concentrate on building new stuff.
-
-	BOM(); // if you like automatic magic
+Binds your data and methods so you can concentrate on your actual goals.
 */
-BOM = function(){
-	this.load();
-	this.bind();
-}
+
+function BOM(){};
 
 /**
 	BOM.find();       // syntax sugar for querySelectorAll
@@ -16,12 +12,12 @@ BOM = function(){
 BOM.find = document.querySelectorAll.bind(document)
 
 /**
-BOM.findOne();        // syntax sugar for querySelector
+	BOM.findOne();        // syntax sugar for querySelector
 */
 BOM.findOne = document.querySelector.bind(document);
 
 /**
-BOM.id();             // syntax sugar for findElementById
+	BOM.id();             // syntax sugar for findElementById
 */
 BOM.id = document.getElementById.bind(document);
 
@@ -64,16 +60,16 @@ function setByPath(obj, path, val) {
 
 var models = {};
 
-BOM.add = function(name, obj) {
+BOM.register = function(name, obj) {
 	models[name] = obj;
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
-	BOM.bind('[data-bind*="' + name + '"]')
+	BOM.find('[data-bind*="' + name + '"]').forEach(bind);
 	// play back messages
 };
 
-BOM.remove = function(name) {
+BOM.deregister = function(name) {
 	if (BOM.getByPath(models[name], 'remove')) {
 		models[name].remove();
 	}
@@ -178,26 +174,6 @@ var implicit_event_types = [
 
 implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent));
 
-/**
-	BOM.bind();           // bind all intrinsic data
-	BOM.bind(element);    // bind all intrinsic data within element
-	BOM.bind(model);	  // bind all elements matching
-*/
-
-BOM.bind = function(element) {
-	var bind_list;
-	if (typeof element === 'string') {
-		bind_list = [].slice.apply(document.querySelectorAll(element));
-	} else if (element instanceof HTMLElement) {
-		bind_list = [element];
-	} else {
-		bind_list = document.querySelectorAll('[data-bind]');
-	}
-	for (var i = 0; i < bind_list.length; i++) {
-		bind(bind_list[i]);
-	}
-}
-
 var toTargets = {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
@@ -300,7 +276,7 @@ function bind (element) {
 	}
 }
 
-BOM.add('_BOM_', {
+BOM.register('_BOM_', {
 	update: function(evt) {
 		var bindings = getBindings(evt.target);
 		for (var i = 0; i < bindings.length; i++) {
@@ -315,16 +291,13 @@ BOM.add('_BOM_', {
 /**
 	BOM.ajax(url, method, data).then(success, failure)
 	BOM.json(url, method, data).then(success, failure)
-	BOM.load();           // load all intrinsic components
-	BOM.load(element);    // load intrinsic components within element
-	BOM.load(element, url); // load intrinsic component at url into element
-	BOM.unload(element);  // unload component (tell it first, cancellable)
+	BOM.component(name, url);    // load component from url and register it with name
 */
 
 BOM.ajax = function(url, method, data) {
 	return new Promise(function(resolve, reject) {
 		var request = new XMLHttpRequest();
-		request.open(method, url, true);
+		request.open(method || 'GET', url, true);
 		request.onreadystatechange = () => {
 			if (request.readyState === XMLHttpRequest.DONE) {
 				switch (Math.floor(request.status / 100)) {
@@ -352,5 +325,13 @@ BOM.ajax = function(url, method, data) {
 BOM.json = function(url, method, data) {
 	return new Promise(function(resolve, reject) {
 		BOM.ajax(url, method, data).then(data => resolve(JSON.parse(data)), reject);
+	});
+}
+
+var components = {};
+
+BOM.component = function(name, url) {
+	return new Promise(function(resolve, reject) {
+		BOM.ajax(url + '.component.html').then(/* build component and load it where needed */);
 	});
 }

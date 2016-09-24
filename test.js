@@ -39,6 +39,20 @@ function report (message, _class_) {
 	}
 }
 
+function quote (x) {
+	if (typeof x === 'string') {
+		return '"' + x + '"';
+	} else if (typeof x === 'number') {
+		return x;
+	} else if (x instanceof Array) {
+		return '[...]';
+	} else if (typeof x === 'object') {
+		return '{...}';
+	} else {
+		return x;
+	}
+}
+
 Test.trigger = trigger;
 
 Test.prototype = {
@@ -51,9 +65,9 @@ Test.prototype = {
 		if (result instanceof Promise) {
 			result.then((final) => {
 				if (final !== this.expected) {
-					this.failure(this.fn.toString(), '==', result, 'expected', this.expected);
+					this.failure(this.fn.toString(), '==', quote(result), 'expected', this.expected);
 				} else {
-					this.success(this.fn.toString(), '==', result);
+					this.success(this.fn.toString(), '==', quote(result));
 				}
 			}, () => {
 				this.failed('Promise failed');
@@ -61,9 +75,9 @@ Test.prototype = {
 		} else {
 			setTimeout(() => {
 				if (result !== this.expected) {
-					this.failure(this.fn.toString(), '== "', result, '"" expected', this.expected);
+					this.failure(this.fn.toString(), '==', quote(result), 'expected', this.expected);
 				} else {
-					this.success(this.fn.toString(), '== "', result, '"');
+					this.success(this.fn.toString(), '==', quote(result));
 				}
 			});
 		}
