@@ -60,6 +60,10 @@ Test.prototype = {
 		this.expected = value;
 	},
 
+	shouldNotBe: function(value) {
+		this.unexpected = value;
+	},
+
 	run: function() {
 		var result = this.fn();
 		if (result instanceof Promise) {
@@ -70,7 +74,7 @@ Test.prototype = {
 					this.success(this.fn.toString(), '==', quote(result));
 				}
 			}, () => {
-				this.failed('Promise failed');
+				this.failure('Promise failed');
 			});
 		} else {
 			setTimeout(() => {

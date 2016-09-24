@@ -36,6 +36,11 @@
 		<span id="g" data-bind="text=test1.option">A</span>
 		<input data-bind="checked=test1.checkbox" type="checkbox" checked>
 		<span id="h" data-bind="text=test1.checkbox">A</span>
+		<ul>
+			<li data-list="test1.list">
+				<span style="display: inline" data-bind="text=x">x</span>, <span style="display: inline" data-bind="text=y">y</span>
+			</li>
+		</ul>
 		<label>
 			<input type="radio" name="group" value="first" data-bind="value=test1.radio">
 			first
@@ -133,5 +138,32 @@
 			.then(() => Test(() => failures).shouldBe(1));
 		BOM.json('test/test.json', 'GET')
 			.then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
+
+		function computed_color(name) {
+			var p = BOM.create(p)
+			p.style.color = name;
+			p.style.display = 'none';
+			document.body.appendChild(p);
+			var computed = window.getComputedStyle(p).color;
+			document.body.removeChild(p);
+			return computed;
+		}
+
+		// components
+		BOM.component('test', 'test/test')
+			// was it loaded?
+			.then(() => Test(() => BOM.findOne('[data-component="test"] p').textContent).shouldBe('This is a test'))
+			// automatically bound?
+			.then(() => Test(() => BOM.findOne('[data-component="test"] input').value).shouldBe('55'))
+			// did its style sheet load?
+			.then(() => Test(() => window.getComputedStyle(BOM.findOne('.test > h2')).backgroundColor).shouldBe(computed_color('purple')))
+			// did its style leak into the rest of the DOM?
+			.then(
+				() => 
+					Test(() => window.getComputedStyle(BOM.findOne('h2')).backgroundColor)
+						.shouldBe(window.getComputedStyle(document.body).backgroundColor)
+			)
+			// did its script run?
+			.then(() => Test(() => BOM.findOne('[data-component="test"] h2').textContent).shouldBe('Set on load by component'));
 	</script>
 </body>

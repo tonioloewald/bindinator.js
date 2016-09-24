@@ -7,14 +7,18 @@ Binds your data and methods so you can concentrate on your actual goals.
 function BOM(){};
 
 /**
-	BOM.find();       // syntax sugar for querySelectorAll
+	BOM.find(selector);       // syntax sugar for querySelectorAll, returns proper array
 */
-BOM.find = document.querySelectorAll.bind(document)
+BOM.find = selector => BOM.makeArray(document.querySelectorAll(selector));
 
 /**
-	BOM.findOne();        // syntax sugar for querySelector
+	BOM.findOne(selector);        // syntax sugar for querySelector
 */
 BOM.findOne = document.querySelector.bind(document);
+
+BOM.findWithin = (element, selector) => BOM.makeArray(element.querySelectorAll(selector));
+BOM.findOneWithin = (element, selector) => element.querySelector(selector);
+BOM.makeArray = arrayish => [].slice.apply(arrayish);
 
 /**
 	BOM.id();             // syntax sugar for findElementById
@@ -80,7 +84,7 @@ BOM.setByPath = function (name, path, value, source_element) {
 	if (models[name]) {
 		setByPath(models[name], path, value);
 		// this may update some false positives, but very few
-		var elements = [].slice.apply(document.querySelectorAll('[data-bind*="=' + name + '.' + path + '"]'));
+		var elements = BOM.makeArray(document.querySelectorAll('[data-bind*="=' + name + '.' + path + '"]'));
 		elements.forEach(element => element !== source_element && bind(element));
 	}
 }
@@ -330,8 +334,54 @@ BOM.json = function(url, method, data) {
 
 var components = {};
 
-BOM.component = function(name, url) {
+BOM.text = document.createTextNode.bind(document);
+
+BOM.fragment = document.createDocumentFragment.bind(document);
+
+BOM.create = document.createElement.bind(document);
+
+BOM.empty = function(element) {
+	while (element.lastChild) {
+		element.removeChild(element.lastChild);
+	}
+}
+
+BOM.copyChildren = function(source, dest) {
+	var element = source.firstChild;
+	while (element) {
+		dest.appendChild(element.cloneNode(true));
+		element = element.nextSibling;
+	}
+}
+
+BOM.component = function(name, url, data_path) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url + '.component.html').then(/* build component and load it where needed */);
+		BOM.ajax(url + '.component.html').then(html => {
+			var css = false;
+			var view;
+			var [,css, remains] = html.split(/<style>|<\/style>/);
+			var [content, script,] = remains.split(/<script>|<\/script>/);
+			var div = BOM.create('div');
+			div.innerHTML = content;
+			var load = script ? new Function('component', 'BOM', script) : false;
+			if (css) {
+				var style = BOM.create('style');
+				style.type = 'text/css';
+				style.appendChild(BOM.text(css));
+				document.head.appendChild(style);
+			}
+			var component = {style: css ? style : false, view: div, load: load};
+			components[name] = component;
+			var targets = BOM.find('[data-component="' + name + '"]');
+			targets.forEach(element => {
+				BOM.empty(element);
+				BOM.copyChildren(div, element);
+				BOM.findWithin(element, '[data-bind]').forEach(bind);
+				if (load) {
+					load(element, BOM);
+				}
+			});
+			resolve();
+		});
 	});
 }

@@ -1,8 +1,12 @@
 <style>
-	h2 { color: green; }
-	p { color: red; }
+	.test h2 { color: white; background-color: purple; }
+	.test p { color: red; }
 </style>
-<div>
-	<h2>Test Component</h2>
-	<p>This is a test</p>
-</div>
+<h2>Test Component</h2>
+Bare text!
+<p>This is a test</p>
+<input data-bind="value=test1.sub.list[2]">
+<script>
+	BOM.findOneWithin(component, 'h2').textContent = "Set on load by component";
+	component.classList.add('test');
+</script>
