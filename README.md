@@ -11,6 +11,7 @@ Makes data- and event-binding, and creating reusable components trivial so you c
 Binding is asynchronous and can be lazy.
 
 To create HTML you write HTML. You don't write pseudo-HTML that compiles to Javascript that creates HTML.
+Similarly, Bind-O-Matic does not need to parse the entire DOM before stuff starts working; you just load the HTML and it's good to go.
 
 You can see bindings in the DOM without needing to use special debugging tools.
 
@@ -61,3 +62,4 @@ to the component's container element as "component".
 
 * Record messages for not-yet-loaded controllers, play them back when the controller is registered
 * Record data-changes for not-yet-loaded models, play them back when the model is registed.
+* Composable components (i.e. components that wrap their children)
