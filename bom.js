@@ -25,10 +25,6 @@ BOM.makeArray = arrayish => [].slice.apply(arrayish);
 */
 BOM.id = document.getElementById.bind(document);
 
-/**
-	BOM.add(model_name, javascript_object); // mount model/controller object
-	BOM.remove(model_name); // remove model/controller object
-*/
 function getByPath(obj, path) {
 	if(path && path !== '/') {
 		path = path.split(/\.|\[/);
@@ -69,7 +65,8 @@ BOM.register = function(name, obj) {
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
-	BOM.find('[data-bind*="' + name + '"]').forEach(bind);
+	BOM.find('[data-bind*="' + name + '"]').forEach(elt => bind(elt));
+	BOM.find('[data-list*="' + name + '"]').forEach(elt => bindList(elt));
 	// play back messages
 };
 
@@ -252,7 +249,7 @@ function parseBinding(binding) {
 		}
 		return parts ? { target: parts[1], key: parts[3] } : null;
 	});
-	var [, model, path] = source.match(/(\w+)\.([^;]+)/);
+	var [, model,, path] = source.match(/(\w*)(\.([^;]+))?/);
 	return {targets, model, path};
 }
 
@@ -260,16 +257,21 @@ function getBindings(element) {
 	return element.getAttribute('data-bind').split(';').map(parseBinding);
 }
 
-function bind (element) {
+function findBindables(element) {
+	return BOM.findWithin(element, '[data-bind]')
+			  .filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
+}
+
+function bind (element, data) {
 	var bindings = getBindings(element);
 	for (var i = 0; i < bindings.length; i++) {
 		var {targets, model, path} = bindings[i];
-		var obj = models[model];
+		var obj = data || models[model];
 		var _toTargets = targets.filter(t => toTargets[t.target]);
 		var _fromTargets = targets.filter(t => fromTargets[t.target]);
-		if (models[model] && _toTargets.length) {
+		if (obj && _toTargets.length) {
 			_toTargets.forEach(t => {
-				toTargets[t.target](element, BOM.getByPath(model, path), t.key)
+				toTargets[t.target](element, getByPath(obj, path), t.key)
 			});
 		} else {
 			// save message for when it mounts
@@ -278,6 +280,32 @@ function bind (element) {
 			BOM.on(element, ['change', 'input'], '_BOM_', 'update');
 		}
 	}
+}
+
+function findLists (element) {
+	return BOM.findWithin(element, '[data-list]')
+			  .filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
+}
+
+function bindList (element, data) {
+	var list_path = element.getAttribute('data-list');
+	var [,model, path] = list_path.match(/^([^\.]*)?\.(.*)$/);
+	var list = data ? getByPath(data, list_path) : BOM.getByPath(model, path);
+	while(element.previousSibling && (!element.previousSibling.matches || element.previousSibling.matches('[data-list-instance]'))) {
+		element.parentElement.removeChild(element.previousSibling);
+	}
+	for (var i = 0; i < list.length; i++) {
+		var instance = element.cloneNode(true);
+		instance.removeAttribute('data-list');
+		instance.setAttribute('data-list-instance', list_path + '[' + i + ']');
+		bindAll(instance, list[i]);
+		element.parentElement.insertBefore(instance, element);
+	}
+}
+
+function bindAll (element, data) {
+	findBindables(element).forEach(elt => bind(elt, data));
+	findLists(element).forEach(elt => bindList(elt, data));
 }
 
 BOM.register('_BOM_', {
@@ -340,12 +368,18 @@ BOM.fragment = document.createDocumentFragment.bind(document);
 
 BOM.create = document.createElement.bind(document);
 
+/**
+	BOM.empty(element); // removes contents of element
+*/
 BOM.empty = function(element) {
 	while (element.lastChild) {
 		element.removeChild(element.lastChild);
 	}
 }
 
+/**
+	BOM.copyChildren(source, dest); // copies contents of source to dest
+*/
 BOM.copyChildren = function(source, dest) {
 	var element = source.firstChild;
 	while (element) {
@@ -354,34 +388,61 @@ BOM.copyChildren = function(source, dest) {
 	}
 }
 
-BOM.component = function(name, url, data_path) {
+/**
+	BOM.component(name, url); // loads component as name from url
+	  // the extension .component.html is appended to url
+	  // component will automatically be inserted automatically
+*/
+BOM.component = function(name, url) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url + '.component.html').then(html => {
-			var css = false;
-			var view;
-			var [,css, remains] = html.split(/<style>|<\/style>/);
-			var [content, script,] = remains.split(/<script>|<\/script>/);
-			var div = BOM.create('div');
-			div.innerHTML = content;
-			var load = script ? new Function('component', 'BOM', script) : false;
-			if (css) {
-				var style = BOM.create('style');
-				style.type = 'text/css';
-				style.appendChild(BOM.text(css));
-				document.head.appendChild(style);
-			}
-			var component = {style: css ? style : false, view: div, load: load};
-			components[name] = component;
-			var targets = BOM.find('[data-component="' + name + '"]');
-			targets.forEach(element => {
-				BOM.empty(element);
-				BOM.copyChildren(div, element);
-				BOM.findWithin(element, '[data-bind]').forEach(bind);
-				if (load) {
-					load(element, BOM);
-				}
-			});
+		if (components[name]) {
 			resolve();
-		});
+		} else {
+			BOM.ajax(url + '.component.html').then(html => {
+				var css = false;
+				var view;
+				var [,css, remains] = html.split(/<style>|<\/style>/);
+				var [content, script,] = remains.split(/<script>|<\/script>/);
+				var div = BOM.create('div');
+				div.innerHTML = content;
+				var load = script ? new Function('component', 'BOM', script) : false;
+				if (css) {
+					var style = BOM.create('style');
+					style.type = 'text/css';
+					style.appendChild(BOM.text(css));
+					document.head.appendChild(style);
+				}
+				var component = {style: css ? style : false, view: div, load: load};
+				components[name] = component;
+				var targets = BOM.find('[data-component="' + name + '"]');
+				targets.forEach(element => BOM.insertComponent(component, element));
+				resolve();
+			});
+		}
 	});
+}
+
+/**
+	BOM.insertComponent(component); // inserts component at end of document.body
+	BOM.insertComponent(component, element); // inserts component into element
+*/
+
+BOM.insertComponent = function (component, element) {
+	if (typeof component === 'string') {
+		if(!components[component]) {
+			console.error('could not insert component', component);
+			return;
+		}
+		component = components[component];
+	}
+	if (!element) {
+		element = BOM.create('div');
+		document.body.appendChild(element);
+	}
+	BOM.empty(element);
+	BOM.copyChildren(component.view, element);
+	bindAll(element);
+	if (component.load) {
+		component.load(element, BOM);
+	}
 }

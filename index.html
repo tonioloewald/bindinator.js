@@ -1,4 +1,18 @@
 <style>
+	body {
+		font-family: Helvetica, Sans-serif;
+		font-size: 14px;
+	}
+	h2, p, ul, li {
+		margin: 0;
+	}
+	.test_widgets {
+		display: flex;
+	}
+	.test_widgets > div {
+		flex-grow: 1;
+		padding: 8px;
+	}
 	.success {
 		background-color: #bfb;
 	}
@@ -8,54 +22,61 @@
 	.report p {
 		padding: 2px;
 		margin: 0;
-		border-bottom: 1px solid #aaa;
+		border-bottom: 1px solid rgba(0,0,0,0.2);
 	}
-
 	[data-bind] {
 		display: block;
 	}
-
 	input[type=radio] {
 		display: inline-block;
+	}
+	[data-list] {
+		display: none;
 	}
 </style>
 <body>
 	<h2>BOM Tests</h2>
-	<div>
-		<span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
-		<span id="c" data-bind="text=test1.sub.list[2]">A</span>
-		<span id="d" data-bind="text=test1.list[0].y">A</span>
-		<span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
-		<input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
-		<input id="f" data-bind="value=test1.sub.list[2]">
-		<select data-bind="value=test1.option">
-			<option>ONE</option>
-			<option>two</option>
-			<option>3</option>
-		</select>
-		<span id="g" data-bind="text=test1.option">A</span>
-		<input data-bind="checked=test1.checkbox" type="checkbox" checked>
-		<span id="h" data-bind="text=test1.checkbox">A</span>
-		<ul>
-			<li data-list="test1.list">
-				<span style="display: inline" data-bind="text=x">x</span>, <span style="display: inline" data-bind="text=y">y</span>
-			</li>
-		</ul>
-		<label>
-			<input type="radio" name="group" value="first" data-bind="value=test1.radio">
-			first
-		</label>
-		<label>
-			<input type="radio" name="group" value="second" data-bind="value=test1.radio">
-			second
-		</label>
-		<label>
-			<input type="radio" name="group" value="third" data-bind="value=test1.radio">
-			third
-		</label>
-		<span id="i" data-bind="text=test1.radio"></span>
+	<div class="test_widgets">
+		<div>
+			<span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
+			<span id="c" data-bind="text=test1.sub.list[2]">A</span>
+			<span id="d" data-bind="text=test1.list[0].y">A</span>
+			<span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
+			<input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
+			<input id="f" data-bind="value=test1.sub.list[2]">
+		</div>
+		<div>
+			<select data-bind="value=test1.option">
+				<option>ONE</option>
+				<option>two</option>
+				<option>3</option>
+			</select>
+			<span id="g" data-bind="text=test1.option">A</span>
+			<input data-bind="checked=test1.checkbox" type="checkbox" checked>
+			<span id="h" data-bind="text=test1.checkbox">A</span>
+		</div>
+		<div>
+			<ul>
+				<li data-list="test1.list">
+					<span style="display: inline" data-bind="text=.x">x</span>, <span style="display: inline" data-bind="text=.y">y</span>
+				</li>
+			</ul>
+			<label>
+				<input type="radio" name="group" value="first" data-bind="value=test1.radio">
+				first
+			</label>
+			<label>
+				<input type="radio" name="group" value="second" data-bind="value=test1.radio">
+				second
+			</label>
+			<label>
+				<input type="radio" name="group" value="third" data-bind="value=test1.radio">
+				third
+			</label>
+			<span id="i" data-bind="text=test1.radio"></span>
+		</div>
+		<div data-component="test"></div>
 	</div>
-	<div data-component="test"></div>
 	<div class="report"></div>
 	<script src="test.js"></script>
 	<script src="bom.js"></script>
@@ -111,6 +132,9 @@
 		BOM.register('test2', {color: 'green'});
 		Test(() => BOM.id('b').style.color).shouldBe('green');
 
+		// list binding
+		Test(() => BOM.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
+
 		// binding (from)
 		BOM.findOne('input').value = 55;
 		Test.trigger('input', BOM.findOne('input'))
@@ -164,6 +188,6 @@
 						.shouldBe(window.getComputedStyle(document.body).backgroundColor)
 			)
 			// did its script run?
-			.then(() => Test(() => BOM.findOne('[data-component="test"] h2').textContent).shouldBe('Set on load by component'));
+			.then(() => Test(() => BOM.findOne('[data-component="test"] h2').textContent).shouldBe('Set on load'));
 	</script>
 </body>
