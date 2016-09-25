@@ -1,35 +1,24 @@
-#BindOMatic
+# Bind-O-Matic
 
-Binds your data and methods so you can concentrate on building new stuff.
+Makes data- and event-binding, and creating reusable components trivial so you can worry about other stuff.
 
-	BOM(); // if you like automatic magic
-	
-	BOM.find();           // syntax sugar for querySelectorAll
-	BOM.findOne();        // syntax sugar for querySelector
-	BOM.id();             // syntax sugar for findElementById
-	BOM.bind();           // bind all intrinsic data
-	BOM.bind(element);    // bind all intrinsic data within element
-	BOM.register(model_name, javascript_object); // register an object (controller or data)
-	BOM.deregister(model_name); // deregister an object (controller or data)
-	BOM.load();           // load all intrinsic components
-	BOM.load(element);    // load intrinsic components within element
-	BOM.load(element, url); // load intrinsic component at url into element
-	BOM.unload(element);  // unload component (tell it first, cancellable)
-	BOM.on(event_type, model_name, method_name) // creates an implicit event binding
+* Write some HTML.
+	* Data bindings are data-bind attributes
+	* Event bindings are data-event attributes
+* Load data (object) and register it -- it's automatically synced to DOM.
+* Load controller (object) and register it -- it's already bound to events
 
 Binding is asynchronous and can be lazy.
 
-Templates are pure HTML.
+To create HTML you write HTML. You don't write pseudo-HTML that compiles to Javascript that creates HTML.
+
+You can see bindings in the DOM without needing to use special debugging tools.
 
 Templates are idempotent (a populated template is still a template with the same functionality it had before).
 
-This loads popupmenu.html and binds it to the message-actions model:
+This loads popupmenu.component.html:
 
-	<div data-load="popupmenu:message-actions"></div>
-
-This binds the input's value to the 'title' property of the bound model:
-
-	<input data-bind="value = .title">
+	<div data-component="popupmenu.component.html"></div>
 
 This binds the span's text to the 'name' property of the model 'user':
 
@@ -40,33 +29,35 @@ This binds a click on the button to the 'cancel' method of the model 'ask'
 	<button data-event="click: ask.cancel">Cancel</button>
 
 This creates one list item (cloned from the original) for each element
-in the 'list' property of the bound model.
+in the 'list' property of the bound model:
 
 	<ul>
-		<li data-list=".list" data-bind=".name">Friend</li>
+		<li data-list="some_model.list" data-bind=".name">Friend</li>
 	</ul>
 
-The components are HTML:
+If the user clicks on this button it will fire the method "bar" of the object registered as "foo":
+
+	<button data-element="click:foo.bar">Hey Now!</button>
+
+Components are HTML:
 
 	<style>
-		label.dark {
-			background-color: #444;
-			color: #ccc;
-		}
+		.test h2 { color: white; background-color: purple; }
+		.test p { color: red; }
 	</style>
-	<label class="dark">
-		<span data-bind=".label">label</span>
-		<input data-replace="_children">
-	</label>
+	<h2>Test Component</h2>
+	Bare text!
+	<p>This is a test</p>
+	<input data-bind="value=test1.sub.list[2]">
 	<script>
-		// if this had a script it would be here
-		find(label);
-		BOM.
+		BOM.findOneWithin(component, 'h2').textContent = "Set on load";
+		component.classList.add('test');
 	</script>
 
-##BindOMatic vs. Knockout
+The style tag is inserted as a stylesheet (once); the script is treated as a "load" method for the component, and is passed a reference
+to the component's container element as "component".
 
-* Superficially similar when it comes to binding data, but can asynchronously bind to models (which allows lazy, late, and out-of-order binding.
-* Different when it comes to events because they are bound the same way as data.
-Templates are deliberately simple. No inline code because inline code is evil.
-* No inline {variables} because that is not efficient for updates and requires parsing HTML before it goes into the DOM.
+## To Do
+
+* Record messages for not-yet-loaded controllers, play them back when the controller is registered
+* Record data-changes for not-yet-loaded models, play them back when the model is registed.
