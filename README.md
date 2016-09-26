@@ -1,5 +1,7 @@
 # Bind-O-Matic
 
+Right now the index page is just [unit tests](https://cdn.rawgit.com/tonioloewald/Bind-O-Matic.js/master/). Ultimately my plan is to provide a demo page, and a literate programming environment with documentation, examples, and tutorials.
+
 Makes data- and event-binding, and creating reusable components trivial so you can worry about other stuff.
 
 * Write some HTML.
