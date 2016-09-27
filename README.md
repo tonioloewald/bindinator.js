@@ -75,6 +75,6 @@ to the component's container element as "component".
 ## To Do
 
 * Record messages for not-yet-loaded controllers, play them back when the controller is registered
-* Record data-changes for not-yet-loaded models, play them back when the model is registed.
+* <del>Record data-changes for not-yet-loaded models, play them back when the model is registed.</del> (upon reflection, this seems like a very hypothetical use-case)
 * Composable components (i.e. components that wrap their children)
 * Literate programming implementation (ideally with js-fiddle-ish functionality)
