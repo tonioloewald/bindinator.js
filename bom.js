@@ -433,6 +433,16 @@ BOM.empty = function (element) {
 };
 
 /**
+	BOM.moveChildren(source, dest); // copies contents of source to dest
+*/
+BOM.moveChildren = function (source, dest) {
+	var element = source.firstChild;
+	while (source.firstChild) {
+		dest.appendChild(source.firstChild);
+	}
+};
+
+/**
 	BOM.copyChildren(source, dest); // copies contents of source to dest
 */
 BOM.copyChildren = function (source, dest) {
@@ -461,7 +471,7 @@ BOM.component = function (name, url) {
 				var [content, script,] = remains.split(/<script>|<\/script>/);
 				var div = BOM.create('div');
 				div.innerHTML = content;
-				var load = script ? new Function('component', 'BOM', script) : false;
+				var load = script ? new Function('component', 'BOM', 'find', 'findOne', script) : false;
 				if (css) {
 					var style = BOM.create('style');
 					style.type = 'text/css';
@@ -494,10 +504,20 @@ BOM.insertComponent = function (component, element) {
 		element = BOM.create('div');
 		document.body.appendChild(element);
 	}
-	BOM.empty(element);
+	var children = BOM.fragment();
+	BOM.moveChildren(element, children);
 	BOM.copyChildren(component.view, element);
+	var children_dest = BOM.findOneWithin(element, '[data-children]');
+	if (children_dest) {
+		BOM.moveChildren(children, children_dest);
+	}
 	bindAll(element);
 	if (component.load) {
-		component.load(element, BOM);
+		component.load(
+			element,
+			BOM,
+			selector => BOM.findWithin(element, selector),
+			selector => BOM.findOneWithin(element, selector)
+		);
 	}
 };
