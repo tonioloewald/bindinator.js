@@ -7,15 +7,13 @@ Binds your data and methods so you can concentrate on your actual goals.
 function BOM(){};
 
 /**
-	BOM.find(selector);       // syntax sugar for querySelectorAll, returns proper array
+	BOM.find(selector);       						// syntax sugar for querySelectorAll, returns proper array
+	BOM.findOne(selector);        				// syntax sugar for querySelector
+	BOM.findWithin(element, selector);		// find scoped within element
+	BOM.findOneWithin(element, selector);	// findOne scoped within element
 */
 BOM.find = selector => BOM.makeArray(document.querySelectorAll(selector));
-
-/**
-	BOM.findOne(selector);        // syntax sugar for querySelector
-*/
 BOM.findOne = document.querySelector.bind(document);
-
 BOM.findWithin = (element, selector) => BOM.makeArray(element.querySelectorAll(selector));
 BOM.findOneWithin = (element, selector) => element.querySelector(selector);
 BOM.makeArray = arrayish => [].slice.apply(arrayish);
@@ -60,6 +58,13 @@ function setByPath(obj, path, val) {
 
 var models = {};
 
+/**
+	BOM.register(name, obj);						// register an object by name as data or controller
+	BOM.deregister(name);								// remove a registered object
+	BOM.setByPath(name, path, value);		// set a registered object's property by path
+	BOM.getByPath(name, path);					// get a registered object's property by path
+*/
+
 BOM.register = function(name, obj) {
 	models[name] = obj;
 	if (BOM.getByPath(models[name], 'add')) {
@@ -91,9 +96,14 @@ BOM.getByPath = function (name, path) {
 		return getByPath(models[name], path);
 	}
 }
+
 /**
 	BOM.on(event_type, model_name, method_name) // creates an implicit event-binding data attribute
-	data-event="event_type:module_name.method_name" // multiple handlers are semicolon-delimited
+		// data-event="event_type:module_name.method_name"
+		// multiple handlers are semicolon-delimited
+		// you can bind multiple event types separated by commas, e.g. click,keyup:do.something
+		// NOTE if you link two event types to the same method separately they will NOT be collated
+		// TODO convenience event types, e.g. keyup(arrow) or keyup(meta-c,ctrl-y)
 */
 BOM.on = function (element, event_type, object, method) {
 	// check if handler already exists
@@ -134,6 +144,9 @@ function implicitEventHandlers(element) {
 	return handlers;
 }
 
+/**
+	BOM.callMethod(model, method, evt);	// Call a method by name from a registered method
+*/
 BOM.callMethod = function (model, method, evt) {
 	var result = null;
 	if( models[model] ) {
@@ -175,6 +188,9 @@ var implicit_event_types = [
 
 implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent));
 
+/*
+	This is where we define all the methods for binding to/from the DOM
+*/
 var toTargets = {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
@@ -323,7 +339,6 @@ BOM.register('_BOM_', {
 /**
 	BOM.ajax(url, method, data).then(success, failure)
 	BOM.json(url, method, data).then(success, failure)
-	BOM.component(name, url);    // load component from url and register it with name
 */
 
 BOM.ajax = function(url, method, data) {
@@ -362,6 +377,12 @@ BOM.json = function(url, method, data) {
 
 var components = {};
 
+/**
+	BOM.text() // syntax sugar for document.createTextNode()
+	BOM.fragment() // syntax sugar for document.createDocumentFragment();
+	BOM.create('div') // syntax sugar for document.createElement('div');
+*/
+
 BOM.text = document.createTextNode.bind(document);
 
 BOM.fragment = document.createDocumentFragment.bind(document);
@@ -389,9 +410,10 @@ BOM.copyChildren = function(source, dest) {
 }
 
 /**
-	BOM.component(name, url); // loads component as name from url
+	BOM.component(name, url); // loads component from url
+	  // registers it as "name"
 	  // the extension .component.html is appended to url
-	  // component will automatically be inserted automatically
+	  // component will automatically be inserted as expected once loaded
 */
 BOM.component = function(name, url) {
 	return new Promise(function(resolve, reject) {
