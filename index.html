@@ -56,9 +56,12 @@
 			<span id="h" data-bind="text=test1.checkbox">A</span>
 		</div>
 		<div>
+			<label>
+				<input data-bind="value=test1.list[0].y"> Test list-bound values
+			</label>
 			<ul>
 				<li data-list="test1.list">
-					<span style="display: inline" data-bind="text=.x">x</span>, <span style="display: inline" data-bind="text=.y">y</span>
+					<span style="display: inline" data-bind="text=.x">x</span>, <input style="display: inline" data-bind="value=.y">
 				</li>
 			</ul>
 			<label>

@@ -11,12 +11,22 @@ function BOM(){};
 	BOM.findOne(selector);        				// syntax sugar for querySelector
 	BOM.findWithin(element, selector);		// find scoped within element
 	BOM.findOneWithin(element, selector);	// findOne scoped within element
+	BOM.makeArray(arrayish);							// creates a proper array from something array-like
+	BOM.nearest(element, selector);				// like closest, but includes the element itself
+	BOM.succeeding(element, selector);		// next succeeding sibling matching selector
 */
 BOM.find = selector => BOM.makeArray(document.querySelectorAll(selector));
 BOM.findOne = document.querySelector.bind(document);
 BOM.findWithin = (element, selector) => BOM.makeArray(element.querySelectorAll(selector));
 BOM.findOneWithin = (element, selector) => element.querySelector(selector);
 BOM.makeArray = arrayish => [].slice.apply(arrayish);
+BOM.nearest = (element, selector) => element.matches(selector) ? element : element.closest(selector);
+BOM.succeeding = (element, selector) => {
+	while(element.nextSibling && !element.nextElementSibling.matches(selector)){
+		element = element.nextElementSibling
+	}
+	return element.nextElementSibling;
+};
 
 /**
 	BOM.id();             // syntax sugar for findElementById
@@ -65,7 +75,7 @@ var models = {};
 	BOM.getByPath(name, path);					// get a registered object's property by path
 */
 
-BOM.register = function(name, obj) {
+BOM.register = function (name, obj) {
 	models[name] = obj;
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
@@ -75,7 +85,7 @@ BOM.register = function(name, obj) {
 	// play back messages
 };
 
-BOM.deregister = function(name) {
+BOM.deregister = function (name) {
 	if (BOM.getByPath(models[name], 'remove')) {
 		models[name].remove();
 	}
@@ -89,13 +99,13 @@ BOM.setByPath = function (name, path, value, source_element) {
 		var elements = BOM.makeArray(document.querySelectorAll('[data-bind*="=' + name + '.' + path + '"]'));
 		elements.forEach(element => element !== source_element && bind(element));
 	}
-}
+};
 
 BOM.getByPath = function (name, path) {
 	if (models[name]) {
 		return getByPath(models[name], path);
 	}
-}
+};
 
 /**
 	BOM.on(event_type, model_name, method_name) // creates an implicit event-binding data attribute
@@ -120,7 +130,7 @@ BOM.on = function (element, event_type, object, method) {
 	} else {
 		element.setAttribute('data-event', handler);
 	}
-}
+};
 
 /*
  	returns an array of parsed implicit event handlers for an element
@@ -130,7 +140,7 @@ BOM.on = function (element, event_type, object, method) {
 		{ types: ["type2", "type3"], model: "model2", method: "method2"}
 	]
 */
-function implicitEventHandlers(element) {
+function implicitEventHandlers (element) {
 	var source = element.getAttribute('data-event');
 	var handlers = [];
 	if (source) {
@@ -158,9 +168,9 @@ BOM.callMethod = function (model, method, evt) {
 		result = false;
 	}
 	return result;
-}
+};
 
-function handleEvent(evt) {
+function handleEvent (evt) {
 	var target = evt.target;
 	var done = false;
 	var result;
@@ -221,7 +231,7 @@ var toTargets = {
 		}
 	},
 	// conditional styles
-}
+};
 
 var fromTargets = {
 	value: function(element){
@@ -233,9 +243,9 @@ var fromTargets = {
 	text: function(element){
 		return element.textContent;
 	}
-}
+};
 
-function toDOM(element, target, obj, path) {
+function toDOM (element, target, obj, path) {
 	var [,to,,dest] = target.match(/(\w+)(\((\w+)\))?/);
 	if (!to) {
 		console.error('bad DOM target', target);
@@ -247,7 +257,7 @@ function toDOM(element, target, obj, path) {
 	}
 }
 
-function fromDOM(element, target) {
+function fromDOM (element, target) {
 	if (fromTargets[target]) {
 		return fromTargets[target](element);
 	} else {
@@ -255,7 +265,7 @@ function fromDOM(element, target) {
 	}
 }
 
-function parseBinding(binding) {
+function parseBinding (binding) {
 	var [targets, source] = binding.split('=');
 	targets = targets.split(',').map(function(target){ 
 		var parts = target.match(/(\w+)(\((\w+)\))?/);
@@ -269,17 +279,36 @@ function parseBinding(binding) {
 	return {targets, model, path};
 }
 
-function getBindings(element) {
+function getBindings (element) {
 	return element.getAttribute('data-bind').split(';').map(parseBinding);
 }
 
-function findBindables(element) {
-	return BOM.findWithin(element, '[data-bind]')
-			  .filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
+function buildTargets (binding) {
+	return binding.targets.map(target => target.target + (target.key ? '(' + target.key + ')' : ''));
 }
 
-function bind (element, data) {
+function addBasePathToBindings(element, bindings, basePath) {
+	if (basePath) {
+		element.setAttribute(
+			'data-bind',
+			bindings.map(
+				binding => 
+				buildTargets(binding) +
+					'=' + basePath +
+					'.' + binding.model +
+					binding.path.substr(binding.path.indexOf('.'))).join(';')
+		);
+	}
+}
+
+function findBindables (element) {
+	return BOM.findWithin(element, '[data-bind]')
+						.filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
+}
+
+function bind (element, data, basePath) {
 	var bindings = getBindings(element);
+	addBasePathToBindings(element, bindings, basePath);
 	for (var i = 0; i < bindings.length; i++) {
 		var {targets, model, path} = bindings[i];
 		var obj = data || models[model];
@@ -290,7 +319,7 @@ function bind (element, data) {
 				toTargets[t.target](element, getByPath(obj, path), t.key)
 			});
 		} else {
-			// save message for when it mounts
+			// save message for when source is registered
 		}
 		if (_fromTargets.length) {
 			BOM.on(element, ['change', 'input'], '_BOM_', 'update');
@@ -303,25 +332,32 @@ function findLists (element) {
 			  .filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
 }
 
-function bindList (element, data) {
+function bindList (element, data, basePath) {
 	var list_path = element.getAttribute('data-list');
 	var [,model, path] = list_path.match(/^([^\.]*)?\.(.*)$/);
 	var list = data ? getByPath(data, list_path) : BOM.getByPath(model, path);
-	while(element.previousSibling && (!element.previousSibling.matches || element.previousSibling.matches('[data-list-instance]'))) {
+	while(
+		element.previousSibling &&
+		(
+			!element.previousSibling.matches ||
+			element.previousSibling.matches('[data-list-instance]')
+		)
+	) {
 		element.parentElement.removeChild(element.previousSibling);
 	}
 	for (var i = 0; i < list.length; i++) {
 		var instance = element.cloneNode(true);
 		instance.removeAttribute('data-list');
-		instance.setAttribute('data-list-instance', list_path + '[' + i + ']');
-		bindAll(instance, list[i]);
+		var basePath = list_path + '[' + i + ']';
+		instance.setAttribute('data-list-instance', basePath);
+		bindAll(instance, list[i], basePath);
 		element.parentElement.insertBefore(instance, element);
 	}
 }
 
-function bindAll (element, data) {
-	findBindables(element).forEach(elt => bind(elt, data));
-	findLists(element).forEach(elt => bindList(elt, data));
+function bindAll (element, data, basePath) {
+	findBindables(element).forEach(elt => bind(elt, data, basePath));
+	findLists(element).forEach(elt => bindList(elt, data, basePath));
 }
 
 BOM.register('_BOM_', {
@@ -336,12 +372,12 @@ BOM.register('_BOM_', {
 		}
 	},
 });
+
 /**
 	BOM.ajax(url, method, data).then(success, failure)
 	BOM.json(url, method, data).then(success, failure)
 */
-
-BOM.ajax = function(url, method, data) {
+BOM.ajax = function (url, method, data) {
 	return new Promise(function(resolve, reject) {
 		var request = new XMLHttpRequest();
 		request.open(method || 'GET', url, true);
@@ -367,13 +403,13 @@ BOM.ajax = function(url, method, data) {
 		}
 		request.send(request_data);
 	});
-}
+};
 
-BOM.json = function(url, method, data) {
+BOM.json = function (url, method, data) {
 	return new Promise(function(resolve, reject) {
 		BOM.ajax(url, method, data).then(data => resolve(JSON.parse(data)), reject);
 	});
-}
+};
 
 var components = {};
 
@@ -384,30 +420,28 @@ var components = {};
 */
 
 BOM.text = document.createTextNode.bind(document);
-
 BOM.fragment = document.createDocumentFragment.bind(document);
-
 BOM.create = document.createElement.bind(document);
 
 /**
 	BOM.empty(element); // removes contents of element
 */
-BOM.empty = function(element) {
+BOM.empty = function (element) {
 	while (element.lastChild) {
 		element.removeChild(element.lastChild);
 	}
-}
+};
 
 /**
 	BOM.copyChildren(source, dest); // copies contents of source to dest
 */
-BOM.copyChildren = function(source, dest) {
+BOM.copyChildren = function (source, dest) {
 	var element = source.firstChild;
 	while (element) {
 		dest.appendChild(element.cloneNode(true));
 		element = element.nextSibling;
 	}
-}
+};
 
 /**
 	BOM.component(name, url); // loads component from url
@@ -415,7 +449,7 @@ BOM.copyChildren = function(source, dest) {
 	  // the extension .component.html is appended to url
 	  // component will automatically be inserted as expected once loaded
 */
-BOM.component = function(name, url) {
+BOM.component = function (name, url) {
 	return new Promise(function(resolve, reject) {
 		if (components[name]) {
 			resolve();
@@ -442,13 +476,12 @@ BOM.component = function(name, url) {
 			});
 		}
 	});
-}
+};
 
 /**
 	BOM.insertComponent(component); // inserts component at end of document.body
 	BOM.insertComponent(component, element); // inserts component into element
 */
-
 BOM.insertComponent = function (component, element) {
 	if (typeof component === 'string') {
 		if(!components[component]) {
@@ -467,4 +500,4 @@ BOM.insertComponent = function (component, element) {
 	if (component.load) {
 		component.load(element, BOM);
 	}
-}
+};
