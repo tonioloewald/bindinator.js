@@ -78,6 +78,11 @@
 			</div>
 			<div class="content">
 				<h1>Middle</h1>
+				<div>
+					<button onclick="dialog('Dialog Test', 'Hello from dialog component.', evt => console.log(evt.target.textContent))">
+						Dialog Test
+					</button>
+				</div>
 			</div>
 			<div class="nav">
 				<h3>Documentation</h3>
@@ -92,12 +97,29 @@
 						File Name
 					</div>
 				</div>
+				<h3>Tests</h3>
+				<a href="tests.html">Unit Tests</a>
 			</div>
 		</div>
 		<div class="footer">Footer</div>
 	</div>
 	<script src="bom.js"></script>
 	<script>
+		function dialog(title, message, callback) {
+			BOM.component('modal', 'components/modal').then(
+				() =>BOM.insertComponent(
+					'modal',
+					false,
+					{
+						title: title,
+						message: message,
+						cancel: 'Cancel',
+						ok: 'OK',
+						callback: callback
+					}
+				)
+			);
+		}
 		BOM.component('hello', 'components/hello');
 		BOM.json('source-files.json').then(data => BOM.register('source_files', data));
 		BOM.json('components.json').then(data => BOM.register('components', data));

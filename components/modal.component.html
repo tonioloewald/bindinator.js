@@ -18,7 +18,7 @@
 	}
 </style>
 <div class="modal-dialog-backdrop">
-	<form class="modal-dialog">
+	<div class="modal-dialog">
 		<div data-children>
 			<h3 data-bind="text=.title">Title</h3>
 			<p data-bind="text=.message" class="message">Message</p>
@@ -27,11 +27,10 @@
 				<button type="submit" data-bind="text=.ok" data-event="click:_component_.button" class="ok">OK</button>
 			</div>
 		</div>
-	</form>
+	</div>
 </div>
 <script>
 	BOM.bindAll(component, data);
-	findOne('form').focus();
 
 	return {
 		button: function(evt) {
