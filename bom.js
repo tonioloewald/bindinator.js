@@ -7,18 +7,29 @@ Binds your data and methods so you can concentrate on your actual goals.
 function BOM(){};
 
 /**
-	BOM.find(selector);       						// syntax sugar for querySelectorAll, returns proper array
+	BOM.find(selector);       					// syntax sugar for querySelectorAll, returns proper array
 	BOM.findOne(selector);        				// syntax sugar for querySelector
-	BOM.findWithin(element, selector);		// find scoped within element
-	BOM.findOneWithin(element, selector);	// findOne scoped within element
-	BOM.makeArray(arrayish);							// creates a proper array from something array-like
+	BOM.findWithin(element, selector);			// find scoped within element
+	BOM.findWithin(element, selector, true);	// find scoped within element, including the element itself
+	BOM.findOneWithin(element, selector);		// findOne scoped within element
+	BOM.findOneWithin(element, selector, true);	// findOne scoped within element, including the element itself
+	BOM.makeArray(arrayish);					// creates a proper array from something array-like
 	BOM.nearest(element, selector);				// like closest, but includes the element itself
-	BOM.succeeding(element, selector);		// next succeeding sibling matching selector
+	BOM.succeeding(element, selector);			// next succeeding sibling matching selector
 */
+
+// TODO
+// Debug versions of findOne should throw if not exactly one match
 BOM.find = selector => BOM.makeArray(document.querySelectorAll(selector));
 BOM.findOne = document.querySelector.bind(document);
-BOM.findWithin = (element, selector) => BOM.makeArray(element.querySelectorAll(selector));
-BOM.findOneWithin = (element, selector) => element.querySelector(selector);
+BOM.findWithin = (element, selector, include_self) => {
+		var list = BOM.makeArray(element.querySelectorAll(selector));
+		if (include_self && element.matches('[data-bind]')) {
+			list.unshift(element);
+		}
+		return list;
+	};
+BOM.findOneWithin = (element, selector, include_self) => include_self && element.matches(selector) ? element : element.querySelector(selector);
 BOM.makeArray = arrayish => [].slice.apply(arrayish);
 BOM.nearest = (element, selector) => element.matches(selector) ? element : element.closest(selector);
 BOM.succeeding = (element, selector) => {
@@ -159,7 +170,11 @@ function implicitEventHandlers (element) {
 */
 BOM.callMethod = function (model, method, evt) {
 	var result = null;
-	if( models[model] ) {
+	if(model === '_component_') {
+		var uuid = BOM.nearest(evt.target, '[data-component-uuid]').getAttribute('data-component-uuid');
+		var view_controller = models['_BOM_components_'][uuid];
+		result = view_controller[method](evt);
+	} else if( models[model] ) {
 		result = models[model][method](evt);
 	} else {
 		// TODO queue if model not available
@@ -180,11 +195,12 @@ function handleEvent (evt) {
 			if (handlers[i].types.indexOf(evt.type) > -1) {
 				var handler = handlers[i];
 				result = BOM.callMethod(handler.model, handler.method, evt);
+				if (result === false) {
+					// use stopPropagation?!
+					done = true;
+					break;
+				}
 			}
-		}
-		// use stopPropagation?!
-		if (result === false) {
-			break;
 		}
 		target = target.parentElement;
 	}
@@ -268,7 +284,7 @@ function fromDOM (element, target) {
 function parseBinding (binding) {
 	var [targets, source] = binding.split('=');
 	targets = targets.split(',').map(function(target){ 
-		var parts = target.match(/(\w+)(\((\w+)\))?/);
+		var parts = target.match(/(\w+)(\(([^)]+)\))?/);
 		if(!parts) {
 			console.error('bad target', target, 'in binding', binding);
 			return;
@@ -302,8 +318,8 @@ function addBasePathToBindings(element, bindings, basePath) {
 }
 
 function findBindables (element) {
-	return BOM.findWithin(element, '[data-bind]')
-						.filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
+	return BOM.findWithin(element, '[data-bind]', true)
+			  .filter(elt => !BOM.nearest(elt, '[data-list]'));
 }
 
 function bind (element, data, basePath) {
@@ -334,7 +350,11 @@ function findLists (element) {
 
 function bindList (element, data, basePath) {
 	var list_path = element.getAttribute('data-list');
-	var [,model, path] = list_path.match(/^([^\.]*)?\.(.*)$/);
+	try {
+		var [,model,, path] = list_path.match(/^([^\.]*)?(\.(.*))?$/);
+	} catch(e) {
+		console.error('bindList failed', list_path, e);
+	}
 	var list = data ? getByPath(data, list_path) : BOM.getByPath(model, path);
 	while(
 		element.previousSibling &&
@@ -355,10 +375,12 @@ function bindList (element, data, basePath) {
 	}
 }
 
-function bindAll (element, data, basePath) {
+function bindAll(element, data, basePath) {
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
 }
+
+BOM.bindAll = bindAll;
 
 BOM.register('_BOM_', {
 	update: function(evt) {
@@ -407,7 +429,14 @@ BOM.ajax = function (url, method, data) {
 
 BOM.json = function (url, method, data) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url, method, data).then(data => resolve(JSON.parse(data)), reject);
+		BOM.ajax(url, method, data).then(data => {
+			try {
+				var parsed_data = JSON.parse(data);
+				resolve(parsed_data);
+			} catch(e) {
+				console.error('Failed to parse data', data, e);
+			}
+		}, reject);
 	});
 };
 
@@ -458,6 +487,7 @@ BOM.copyChildren = function (source, dest) {
 	  // registers it as "name"
 	  // the extension .component.html is appended to url
 	  // component will automatically be inserted as expected once loaded
+	  // resolve will be passed the loaded component
 */
 BOM.component = function (name, url) {
 	return new Promise(function(resolve, reject) {
@@ -471,7 +501,7 @@ BOM.component = function (name, url) {
 				var [content, script,] = remains.split(/<script>|<\/script>/);
 				var div = BOM.create('div');
 				div.innerHTML = content;
-				var load = script ? new Function('component', 'BOM', 'find', 'findOne', script) : false;
+				var load = script ? new Function('component', 'BOM', 'find', 'findOne', 'data', script) : false;
 				if (css) {
 					var style = BOM.create('style');
 					style.type = 'text/css';
@@ -482,17 +512,18 @@ BOM.component = function (name, url) {
 				components[name] = component;
 				var targets = BOM.find('[data-component="' + name + '"]');
 				targets.forEach(element => BOM.insertComponent(component, element));
-				resolve();
+				resolve(component);
 			});
 		}
 	});
 };
 
 /**
-	BOM.insertComponent(component); // inserts component at end of document.body
-	BOM.insertComponent(component, element); // inserts component into element
+	BOM.insertComponent(component, element, data);	// insert a component by name
+		// if no element is provided, the component will be appended to document.body
+		// data will be passed to the component's load method
 */
-BOM.insertComponent = function (component, element) {
+BOM.insertComponent = function (component, element, data) {
 	if (typeof component === 'string') {
 		if(!components[component]) {
 			console.error('could not insert component', component);
@@ -505,19 +536,44 @@ BOM.insertComponent = function (component, element) {
 		document.body.appendChild(element);
 	}
 	var children = BOM.fragment();
+	var uuid = BOM.uuid();
 	BOM.moveChildren(element, children);
 	BOM.copyChildren(component.view, element);
 	var children_dest = BOM.findOneWithin(element, '[data-children]');
 	if (children_dest) {
 		BOM.moveChildren(children, children_dest);
 	}
+	element.setAttribute('data-component-uuid', uuid)
 	bindAll(element);
 	if (component.load) {
-		component.load(
+		var view_controller = component.load(
 			element,
 			BOM,
 			selector => BOM.findWithin(element, selector),
-			selector => BOM.findOneWithin(element, selector)
+			selector => BOM.findOneWithin(element, selector),
+			data
 		);
+		if (view_controller) {
+			if (!models['_BOM_components_']) {
+				models['_BOM_components_'] = {};
+			}
+			view_controller.root_element = element;
+			models['_BOM_components_'][uuid] = view_controller;
+		}
 	}
 };
+
+/**
+	BOM.uuid();	// generate compliant and pretty random UUID
+*/
+BOM.uuid = function (){
+    var d = new Date().getTime();
+    if(window.performance && typeof window.performance.now === "function"){
+        d += performance.now(); //use high-precision timer if available
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+}
