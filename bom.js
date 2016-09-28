@@ -523,6 +523,10 @@ BOM.component = function (name, url) {
 		// if no element is provided, the component will be appended to document.body
 		// data will be passed to the component's load method
 */
+// TODO
+// - component remove method that removes the view_controller instance as well
+// - garbage collection of view_controllers (utilizing the root_element property)
+// - support remove handlers, also allow the garbage collection to trigger them
 BOM.insertComponent = function (component, element, data) {
 	if (typeof component === 'string') {
 		if(!components[component]) {
