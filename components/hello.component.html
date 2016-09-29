@@ -1,9 +1,16 @@
 <style>
+	.hello-component > h4 {
+		color: red;
+	}
 </style>
-<div>
-	<p>Test</p>
+<div class="hello-component">
+	<h4>Hello Component</h4>
 	<div data-children></div>
+	<button data-event="click:_component_.button">Click Me</button>
 </div>
 <script>
-	findOne('p').textContent = "hello world";
+	var times_clicked = 0;
+	return {
+		button: () => { findOne('h4').textContent = 'Clicked ' + ++times_clicked + ' times' }
+	}
 </script>

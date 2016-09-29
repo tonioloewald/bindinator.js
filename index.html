@@ -7,7 +7,7 @@
 
 	h1, h2, h3 {
 		color: navy;
-		font-weight: 100;
+		font-weight: 200;
 	}
 
 	.header > h1 {
@@ -78,10 +78,19 @@
 			</div>
 			<div class="content">
 				<h1>Middle</h1>
+				<div style="display: flex">
+					<div style="flex-grow: 1" data-component="hello">
+						<p>I am an inherited child</p>
+					</div>
+					<div style="flex-grow: 1" data-component="hello">
+						<p>I am a different inherited child</p>
+					</div>
+				</div>
 				<div>
-					<button onclick="dialog('Dialog Test', 'Hello from dialog component.', evt => console.log(evt.target.textContent))">
+					<button onclick="dialog('Dialog Test', 'Hello from dialog component.', evt => this.nextSibling.textContent = ' user clicked ' + evt.target.textContent)">
 						Dialog Test
 					</button>
+					<span></span>
 				</div>
 			</div>
 			<div class="nav">

@@ -1,6 +1,7 @@
 # Bind-O-Matic
 
-**Note**: right now the index page is just [unit tests](https://cdn.rawgit.com/tonioloewald/Bind-O-Matic.js/master/). Ultimately my plan is to provide a demo page, and a literate programming environment with documentation, examples, and tutorials.
+The index page is a skeletal [demo page](https://cdn.rawgit.com/tonioloewald/Bind-O-Matic.js/master/) with a link to the unit tests. 
+Ultimately my plan is to flesh out the demo page, incluing a literate programming environment with documentation, examples, and tutorials. 
 
 ## A Virtuous Circle for Web Development
 
@@ -43,7 +44,7 @@ Using components is dead easy. HTML like this will load popupmenu.component.html
 
 Javascript like this will load popupmenu.component.html dynamically:
 
-	BOM.component("popupmenu").then(() => {BOM.loadComponent(someElement, "popupmenu")});
+	BOM.component("popupmenu").then(data => {BOM.loadComponent('popupmenu', data)});
 
 This binds the span's text to the 'name' property of the model 'user':
 
@@ -67,24 +68,31 @@ If the user clicks on this button it will fire the method "bar" of the object re
 Components are HTML:
 
 	<style>
-		.test h2 { color: white; background-color: purple; }
-		.test p { color: red; }
+		.hello-component > h4 {
+			color: red;
+		}
 	</style>
-	<h2>Test Component</h2>
-	Bare text!
-	<p>This is a test</p>
-	<input data-bind="value=test1.sub.list[2]">
+	<div class="hello-component">
+		<h4>Hello Component</h4>
+		<div data-children>
+			<!-- children of the element which loaded the component go here -->
+		</div>
+		<button data-event="click:_component_.button">Click Me</button>
+	</div>
 	<script>
-		BOM.findOneWithin(component, 'h2').textContent = "Set on load";
-		component.classList.add('test');
+		var times_clicked = 0;
+		return {
+			button: () => { findOne('h4').textContent = 'Clicked ' + ++times_clicked + ' times' }
+		}
 	</script>
 
-The style tag is inserted as a stylesheet (once); the script is treated as a "load" method for the component, and is passed a reference
-to the component's container element as "component".
+The style tag is inserted as a stylesheet (once); the script is effectively treated as a "load" method for the component, and is passed references
+to BOM, component (the element containing the component), find and findOne (within the component), and the data object passed to BOM.insertComponent.
+
+Each component's script executes in a unique context.
 
 ## To Do
 
 * Record messages for not-yet-loaded controllers, play them back when the controller is registered
 * <del>Record data-changes for not-yet-loaded models, play them back when the model is registed.</del> (upon reflection, this seems like a very hypothetical use-case)
-* Composable components (i.e. components that wrap their children)
 * Literate programming implementation (ideally with js-fiddle-ish functionality)

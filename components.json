@@ -2,5 +2,9 @@
 	{
 		"name": "Hello",
 		"path": "hello"
+	},
+	{
+		"name": "Modal Dialog",
+		"path": "modal"
 	}
 ]
