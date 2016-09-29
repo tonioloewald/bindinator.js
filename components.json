@@ -4,7 +4,11 @@
 		"path": "hello"
 	},
 	{
-		"name": "Modal Dialog",
-		"path": "modal"
+		"name": "Modal Test",
+		"path": "modal-test"
+	},
+	{
+		"name": "Instance Test",
+		"path": "instance-test"
 	}
 ]

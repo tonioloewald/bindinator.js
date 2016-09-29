@@ -1,0 +1,26 @@
+<div>
+	<h4>Show a modal dialog</h4>
+	<div data-children></div>
+	<button data-event="click:_component_.dialog">Show Modal Dialog</button>
+	<p class="result"></p>
+</div>
+<script>
+	var result = findOne('.result');
+	return {
+		dialog: function(title, message, callback) {
+			BOM.component('modal', 'components/modal').then(
+				() =>BOM.insertComponent(
+					'modal',
+					false,
+					{
+						title: 'Example Modal',
+						message: 'Imagine this is an interesting message.',
+						cancel: 'Cancel',
+						ok: 'OK',
+						callback: evt => result.textContent = 'User clicked: ' + evt.target.textContent
+					}
+				)
+			);
+		}
+	} 
+</script>

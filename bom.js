@@ -376,6 +376,7 @@ function bindList (element, data, basePath) {
 }
 
 function bindAll(element, data, basePath) {
+	loadAvailableComponents(element);
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
 }
@@ -492,13 +493,29 @@ BOM.copyChildren = function (source, dest) {
 BOM.component = function (name, url) {
 	return new Promise(function(resolve, reject) {
 		if (components[name]) {
-			resolve();
+			resolve(components[name]);
 		} else {
-			BOM.ajax(url + '.component.html').then(html => {
+			BOM.ajax(url + '.component.html').then(source => {
 				var css = false;
 				var view;
-				var [,css, remains] = html.split(/<style>|<\/style>/);
-				var [content, script,] = remains.split(/<script>|<\/script>/);
+				var css = false, content, script = false, parts, remains;
+
+				// nothing <style> css </style> rest-of-component
+				parts = source.split(/<style>|<\/style>/);
+				if (parts.length === 3) {
+					[,css,remains] = parts;
+				} else {
+					remains = source;
+				}
+
+				// content <script> script </script> nothing
+				parts = remains.split(/<script>|<\/script>/);
+				if (parts.length === 3) {
+					[content, script] = parts;
+				} else {
+					content = remains;
+				}
+
 				var div = BOM.create('div');
 				div.innerHTML = content;
 				var load = script ? new Function('component', 'BOM', 'find', 'findOne', 'data', script) : false;
@@ -517,6 +534,17 @@ BOM.component = function (name, url) {
 		}
 	});
 };
+
+function loadAvailableComponents(element) {
+	BOM.findWithin(element || document.body, '[data-component]').forEach(target => {
+		if (!target.matches('[data-component-uuid]')) {
+			var name = target.getAttribute('data-component');
+			if (components[name]) {
+				BOM.insertComponent(components[name], target);
+			}
+		}
+	})
+}
 
 /**
 	BOM.insertComponent(component, element, data);	// insert a component by name

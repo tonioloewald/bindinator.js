@@ -34,7 +34,7 @@
 
 	return {
 		button: function(evt) {
-			if (data.callback) {
+			if (data && data.callback) {
 				data.callback(evt);
 			} else {
 				console.log('dialog has no callback; user pressed', evt.target.textContent);
