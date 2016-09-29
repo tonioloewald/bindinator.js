@@ -1,12 +1,14 @@
 <div>
 	<h4>Multiple Instances</h4>
-	<p>These elements have different child elements and execute their scripts in unique contexts</p>
+	<p>These elements have different child elements and execute their scripts in unique contexts.</p>
+	<p>One of the elements is nested in an element of the same type, and the two are still mutually independent.</p>
 	<div style="display: flex">
 		<div style="flex-grow: 1" data-component="hello">
 			<p>I am an inherited child</p>
 		</div>
 		<div style="flex-grow: 1" data-component="hello">
 			<p>I am a different inherited child</p>
+			<div data-component="hello"></div>
 		</div>
 	</div>
 	<div style="flex-grow: 1" data-component="hello">

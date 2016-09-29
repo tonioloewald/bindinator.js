@@ -17,19 +17,27 @@
 	}
 
 	[data-bind]:hover:after,
-	[data-list]:hover:after,
 	[data-event]:hover:after {
 		position: fixed;
 		display: block;
+		width: auto;
 		background-color: #ffc;
 		left: 2px;
 		top: 2px;
+		font-family: Menlo, Monaco, monospace;
 		font-size: 14px;
-		content: 'Bindings: ' attr(data-bind) ' ' attr(data-list) ' ' attr(data-event);
+		white-space: pre;
+		content: 'Data:  ' attr(data-bind) '\A Event: ' attr(data-event);
 	}
 
 	[data-list] {
 		display: none;
+	}
+
+	[data-children]:before {
+		font-size: 12px;
+		background-color: #ffc;
+		content: 'nested children';
 	}
 
 	.layout {

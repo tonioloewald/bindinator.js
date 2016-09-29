@@ -2,11 +2,16 @@
 	.hello-component > h4 {
 		color: red;
 	}
+	.hello-component > [data-children] {
+		margin: 4px;
+		padding: 4px;
+		border: 1px solid rgba(0,0,0,0.2);
+	}
 </style>
 <div class="hello-component">
 	<h4>Hello Component</h4>
-	<div data-children></div>
 	<button data-event="click:_component_.button">Click Me</button>
+	<div data-children></div>
 </div>
 <script>
 	var times_clicked = 0;
