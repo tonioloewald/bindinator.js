@@ -305,7 +305,6 @@ function buildTargets (binding) {
 
 function addBasePathToBindings(element, bindings, basePath) {
 	if (basePath) {
-		console.log(bindings)
 		element.setAttribute(
 			'data-bind',
 			bindings.map(
