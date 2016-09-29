@@ -34,7 +34,7 @@ In many frameworks adding an event handler to every node is an anti-pattern and 
 
 You can see bindings in the DOM without needing to use special debugging tools. An element's data and event handlers are right there in the DOM, and you can easily see what's supposed to be happening and how things are wired together without spelunking dozens of source files and turning your brain inside-out.
 
-It's easy to to add some simple CSS to make debugging even easier -- for example show bindings on mouseover.
+It's easy to to add some simple CSS to make debugging even easier -- for example to show bindings on mouseover.
 
 Templates are _idempotent_ (a populated template is still a template with the same functionality it had before).
 

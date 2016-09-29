@@ -16,6 +16,18 @@
 		text-align: center;
 	}
 
+	[data-bind]:hover:after,
+	[data-list]:hover:after,
+	[data-event]:hover:after {
+		position: fixed;
+		display: block;
+		background-color: #ffc;
+		left: 2px;
+		top: 2px;
+		font-size: 14px;
+		content: 'Bindings: ' attr(data-bind) ' ' attr(data-list) ' ' attr(data-event);
+	}
+
 	[data-list] {
 		display: none;
 	}

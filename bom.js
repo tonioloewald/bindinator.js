@@ -305,6 +305,7 @@ function buildTargets (binding) {
 
 function addBasePathToBindings(element, bindings, basePath) {
 	if (basePath) {
+		console.log(bindings)
 		element.setAttribute(
 			'data-bind',
 			bindings.map(
@@ -312,7 +313,7 @@ function addBasePathToBindings(element, bindings, basePath) {
 				buildTargets(binding) +
 					'=' + basePath +
 					'.' + binding.model +
-					binding.path.substr(binding.path.indexOf('.'))).join(';')
+					binding.path).join(';')
 		);
 	}
 }
@@ -351,7 +352,7 @@ function findLists (element) {
 function bindList (element, data, basePath) {
 	var list_path = element.getAttribute('data-list');
 	try {
-		var [,model,, path] = list_path.match(/^([^\.]*)?(\.(.*))?$/);
+		var [,model,, path] = list_path.match(/^([^\.]*)(\.(.*))?$/);
 	} catch(e) {
 		console.error('bindList failed', list_path, e);
 	}
