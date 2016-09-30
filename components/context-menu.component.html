@@ -1,0 +1,40 @@
+<style>
+	#context-menu > div > a {
+		display: block;
+		cursor: pointer;
+	}
+
+	#context-menu > div > a:hover {
+		background-color: black;
+	}
+
+	#context-menu > div > header {
+		border-bottom: 1px solid rgba(255,255,255,0.2);
+	}
+
+	#context-menu > div > footer {
+		border-top: 1px solid rgba(255,255,255,0.2);
+	}
+</style>
+<header>
+	Header
+</header>
+<a>Option 1</a>
+<a>Option 2</a>
+<a>Option 3</a>
+<a>Option 4</a>
+<footer>
+	Footer
+</footer>
+<script>
+	component.setAttribute('id', 'context-menu');
+	BOM.component('annotation', 'components/annotation').then(annotation => {
+		BOM.insertComponent(annotation, component, data);
+	});
+	BOM.on(document.body, 'mouseup', 'context-menu', 'hide');
+	BOM.register('context-menu', {
+		hide: function() {
+			BOM.id('context-menu').remove();
+		}
+	});
+</script>

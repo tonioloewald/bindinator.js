@@ -1,0 +1,48 @@
+<style>
+	.annotation {
+		position: absolute;
+		color: white;
+		background-color: rgba(0,0,0,0.6);
+		border-radius: 4px;
+		box-shadow: 0.5px 1.5px 3px rgba(0,0,0,0.25);
+	}
+
+	.annotation > div > * {
+		padding: 6px 12px;
+	}
+
+	.annotation:before {
+		position: absolute;
+		display: block;
+		border: solid transparent 8px;
+		border-bottom-color: rgba(0,0,0,0.6);
+		content: '';
+		width: 0;
+		height: 0;
+		top: -16px;
+		left: 50%;
+		margin-left: -8px;
+	}
+</style>
+<div data-children>
+	Annotation
+</div>
+<script>
+	component.classList.add('annotation');
+	function position(element) {
+		var pos = {
+			x: element.offsetLeft,
+			y: element.offsetTop
+		}
+		while (element = element.offsetParent) {
+			pos.x += element.offsetLeft;
+			pos.y += element.offsetTop;
+			return pos;
+		}
+	}
+	if (data && data.target) {
+		var target_pos = position(data.target);	
+		component.style.left = (target_pos.x + data.target.clientWidth / 2 - component.clientWidth / 2) + 'px';
+		component.style.top = (target_pos.y + data.target.clientHeight + 4) + 'px';
+	}
+</script>

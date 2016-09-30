@@ -119,7 +119,7 @@ BOM.getByPath = function (name, path) {
 };
 
 /**
-	BOM.on(event_type, model_name, method_name) // creates an implicit event-binding data attribute
+	BOM.on(element, event_type, model_name, method_name) // creates an implicit event-binding data attribute
 		// data-event="event_type:module_name.method_name"
 		// multiple handlers are semicolon-delimited
 		// you can bind multiple event types separated by commas, e.g. click,keyup:do.something
@@ -129,7 +129,7 @@ BOM.getByPath = function (name, path) {
 BOM.on = function (element, event_type, object, method) {
 	// check if handler already exists
 	// var existingHandlers = implicitEventHandlers(element);
-	if (!event_type instanceof Array) {
+	if (!(event_type instanceof Array)) {
 		event_type = [event_type];
 	}
 	var handler = event_type.sort().join(',') + ':' + object + '.' + method;
@@ -573,6 +573,7 @@ BOM.insertComponent = function (component, element, data) {
 	BOM.copyChildren(component.view, element);
 	var children_dest = BOM.findOneWithin(element, '[data-children]');
 	if (children_dest) {
+		BOM.empty(children_dest);
 		BOM.moveChildren(children, children_dest);
 	}
 	element.setAttribute('data-component-uuid', uuid)

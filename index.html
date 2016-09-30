@@ -20,12 +20,6 @@
 		display: none;
 	}
 
-	[data-children] {
-		margin: 4px;
-		padding: 4px;
-		border: 1px dotted rgba(255,0,0,0.2);
-	}
-
 	.layout {
 		position: fixed;
 		top: 0;
@@ -118,6 +112,9 @@
 			</div>
 			<div class="content">
 				<h1 id="title">Middle</h1>
+				<div id="annotation_target" style="background-color: yellow">
+					Annotate Me!
+				</div>
 				<div id="example">
 					
 				</div>
@@ -149,5 +146,8 @@
 		BOM.component('hello', 'components/hello');
 		BOM.json('source-files.json').then(data => BOM.register('source_files', data));
 		BOM.json('components.json').then(data => BOM.register('components', data));
+		BOM.component('context-menu', 'components/context-menu').then(component => {
+			BOM.insertComponent(component, false, {target: BOM.id('annotation_target')});
+		});
 	</script>
 </body>
