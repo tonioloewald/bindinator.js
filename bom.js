@@ -572,7 +572,7 @@ BOM.insertComponent = function (component, element, data) {
 	BOM.moveChildren(element, children);
 	BOM.copyChildren(component.view, element);
 	var children_dest = BOM.findOneWithin(element, '[data-children]');
-	if (children_dest) {
+	if (children.firstChild && children_dest) {
 		BOM.empty(children_dest);
 		BOM.moveChildren(children, children_dest);
 	}

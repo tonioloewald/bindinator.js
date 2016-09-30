@@ -19,10 +19,10 @@
 <header>
 	Header
 </header>
-<a>Option 1</a>
-<a>Option 2</a>
-<a>Option 3</a>
-<a>Option 4</a>
+<a tabindex=0>Option 1</a>
+<a tabindex=0>Option 2</a>
+<a tabindex=0>Option 3</a>
+<a tabindex=0>Option 4</a>
 <footer>
 	Footer
 </footer>
@@ -33,8 +33,11 @@
 	});
 	BOM.on(document.body, 'mouseup', 'context-menu', 'hide');
 	BOM.register('context-menu', {
-		hide: function() {
-			BOM.id('context-menu').remove();
+		hide: function(evt) {
+			var elt = BOM.id('context-menu');
+			if(elt && !elt.contains(evt.target)) {
+				elt && elt.remove();	
+			}
 		}
 	});
 </script>
