@@ -16,28 +16,14 @@
 		text-align: center;
 	}
 
-	[data-bind]:hover:after,
-	[data-event]:hover:after {
-		position: fixed;
-		display: block;
-		width: auto;
-		background-color: #ffc;
-		left: 2px;
-		top: 2px;
-		font-family: Menlo, Monaco, monospace;
-		font-size: 14px;
-		white-space: pre;
-		content: 'Data:  ' attr(data-bind) '\A Event: ' attr(data-event);
-	}
-
 	[data-list] {
 		display: none;
 	}
 
-	[data-children]:before {
-		font-size: 12px;
-		background-color: #ffc;
-		content: 'nested children';
+	[data-children] {
+		margin: 4px;
+		padding: 4px;
+		border: 1px dotted rgba(255,0,0,0.2);
 	}
 
 	.layout {
