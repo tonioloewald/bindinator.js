@@ -15,6 +15,7 @@
 		color: white;
 		font-weight: 100;
 		text-align: center;
+		align-self: center;
 	}
 
 	[data-list] {
@@ -45,8 +46,15 @@
 	}
 
 	.footer {
+		justify-content: center;
+		display: flex;
 		height: 40px;
 		background-color: silver;
+	}
+
+	.footer > * {
+		text-align: center;
+		align-self: center;
 	}
 
 	.three_col {
@@ -151,7 +159,11 @@
 				<a href="tests.html">Unit Tests</a>
 			</div>
 		</div>
-		<div class="footer">Footer</div>
+		<div class="footer">
+			<div>
+				&copy; 2016 Tonio Loewald | <a href="http://loewald.com">loewald.com</a>
+			</div>
+		</div>
 	</div>
 	<script src="bom.js"></script>
 	<script>
