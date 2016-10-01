@@ -1,3 +1,5 @@
+// Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald
+
 function Test(fn) {
 	if (this === window) {
 		return new Test(fn);

@@ -1,3 +1,6 @@
+Bind-O-Matic.js License
+=======================
+
 Copyright (c) 2016, Tonio Loewald
 All rights reserved.
 
