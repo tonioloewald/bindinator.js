@@ -209,6 +209,7 @@ function handleEvent (evt) {
 var implicit_event_types = [
 	'mousedown', 'mouseup', 'click',
 	'input', 'change',
+	'keydown', 'keyup',
 	'focus', // more to follow
 ];
 

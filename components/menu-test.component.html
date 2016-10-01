@@ -1,0 +1,24 @@
+<style>
+	.popover {
+		text-align: center;
+		border: 1px solid rgba(0,0,0,0.5);
+		padding: 20px;
+		cursor: pointer;
+	}
+</style>
+<div>
+	<h4>Menu Test</h4>
+	<div data-children></div>
+	<div class="popover" data-event="mouseup:_component_.context_menu">Display Context Popover</div>
+	<p class="result"></p>
+</div>
+<script>
+	var result = findOne('.result');
+	return {
+		context_menu: function(evt) {
+			BOM.component('context-menu', 'components/context-menu').then(component => {
+				BOM.insertComponent(component, false, {target: findOne('.popover')});
+			});
+		}
+	} 
+</script>

@@ -10,5 +10,9 @@
 	{
 		"name": "Instance Test",
 		"path": "instance-test"
+	},
+	{
+		"name": "Menu Test",
+		"path": "menu-test"
 	}
 ]
