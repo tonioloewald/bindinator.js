@@ -1,124 +1,9 @@
 <!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
-<title>Bind-O-Matic</title>
-<style>
-	body {
-		font: 14px "Helvetica Neue", Helvetica, Sans-serif;
-		background-color: #eee;
-	}
-
-	h1, h2, h3 {
-		color: navy;
-		font-weight: 200;
-		margin: 0;
-	}
-
-	.header > h1 {
-		color: white;
-		font-weight: 100;
-		text-align: center;
-		align-self: center;
-	}
-
-	[data-list] {
-		display: none;
-	}
-
-	.layout {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.header {
-		display: flex;
-		justify-content: center;
-		height: 60px;
-		background-color: navy;
-	}
-
-	.header > * {
-		margin: 0;
-		padding: 0;
-		width: 920px;
-	}
-
-	.footer {
-		justify-content: center;
-		display: flex;
-		height: 40px;
-		background-color: silver;
-	}
-
-	.footer > * {
-		text-align: center;
-		align-self: center;
-	}
-
-	.three_col {
-		justify-content: center;
-		display: flex;
-		flex-grow: 1;
-	}
-
-	.content {
-		width: 600px;
-		background-color: white;
-	}
-
-	.three_col > * > * {
-		padding: 12px;
-	}
-
-	.nav {
-		width: 160px;
-		flex: none;
-	}
-
-	.loadable {
-		background-color: white;
-		padding: 2px 4px;
-		margin-bottom: 4px;
-		border: 1px solid rgba(0,0,0,0.2);
-		cursor: pointer;
-	}
-
-	.loadable:hover {
-		border: 1px solid rgba(0,0,0,0.4);
-	}
-
-	button {
-		border-radius: 4px;
-		background-color: #ddd;
-		border: 0;
-		padding: 4px 8px;
-		font-size: 14px;
-		outline: none;
-	}
-
-	button.default {
-		background-color: #ccf;
-	}
-
-	button:hover {
-		background-color: #ccc;
-	}
-
-	button.default:hover {
-		background-color: #bbe;
-	}
-
-	button:active {
-		background-color: #aaa;
-	}
-
-	button.default:active {
-		background-color: #99d;
-	}
-</style>
+<head>
+	<title>Bind-O-Matic</title>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism-okaidia.css">
+	<link rel="stylesheet" type="text/css" href="bom.css">
+</head>
 <body>
 	<div class="layout">
 		<div class="header">
@@ -151,6 +36,17 @@
 			</div>
 			<div class="content">
 				<h1 id="title">Middle</h1>
+				<div><pre><code class="language-markup">&lt;style>
+	p {
+		color: red;
+	}
+&lt;/style>
+&lt;p>
+	Hello World
+&lt;/p>
+&lt;script>
+	var foo = 'bar';
+&lt;/script></code></pre></div>
 				<div id="example">
 					
 				</div>
@@ -187,4 +83,11 @@
 		BOM.json('source-files.json').then(data => BOM.register('source_files', data));
 		BOM.json('components.json').then(data => BOM.register('components', data));
 	</script>
+	<script>
+		var editor = CodeMirror.fromTextArea(BOM.findOne('textarea'), {
+	    lineNumbers: true
+	  });
+	</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js"></script>
 </body>
