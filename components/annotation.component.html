@@ -46,9 +46,11 @@
 			return pos;
 		}
 	}
-	if (data && data.target) {
-		var target_pos = position(data.target);	
-		component.style.left = (target_pos.x + data.target.clientWidth / 2 - component.clientWidth / 2) + 'px';
-		component.style.top = (target_pos.y + data.target.clientHeight + 4) + 'px';
+	data = data || {};
+	if (!data.target) {
+		data.target = component.parentElement;
 	}
+	var target_pos = position(data.target);	
+	component.style.left = (target_pos.x + data.target.clientWidth / 2 - component.clientWidth / 2) + 'px';
+	component.style.top = (target_pos.y + data.target.clientHeight + 4) + 'px';
 </script>

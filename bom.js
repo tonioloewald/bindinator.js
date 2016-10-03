@@ -527,7 +527,7 @@ BOM.component = function (name, url) {
 					style.appendChild(BOM.text(css));
 					document.head.appendChild(style);
 				}
-				var component = {style: css ? style : false, view: div, load: load};
+				var component = {name: name, style: css ? style : false, view: div, load: load};
 				components[name] = component;
 				var targets = BOM.find('[data-component="' + name + '"]');
 				targets.forEach(element => BOM.insertComponent(component, element));
@@ -543,6 +543,8 @@ function loadAvailableComponents(element) {
 			var name = target.getAttribute('data-component');
 			if (components[name]) {
 				BOM.insertComponent(components[name], target);
+			} else {
+				console.warn('component', name, 'not available');
 			}
 		}
 	})
@@ -578,7 +580,7 @@ BOM.insertComponent = function (component, element, data) {
 		BOM.empty(children_dest);
 		BOM.moveChildren(children, children_dest);
 	}
-	element.setAttribute('data-component-uuid', uuid)
+	element.setAttribute('data-component-uuid', uuid);
 	bindAll(element);
 	if (component.load) {
 		var view_controller = component.load(

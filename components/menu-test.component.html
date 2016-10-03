@@ -1,20 +1,32 @@
 <!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
 <style>
-	.popover {
+	.demo-area {
 		text-align: center;
 		border: 1px solid rgba(0,0,0,0.5);
 		padding: 20px;
 		cursor: pointer;
 	}
+
+	.annotated {
+		display: inline-block;
+		border-bottom: 1px dotted green;
+	}
 </style>
 <div>
 	<h4>Menu Test</h4>
 	<div data-children></div>
-	<div class="popover" data-event="mouseup:_component_.context_menu">Display Context Popover</div>
+	<div class="demo-area">
+		One of these words is <span class="annotated">annotated<span data-component="annotation"><div>I am an annotation</div></span></span>.
+	</div>
+	<p class="result"></p>
+	<div class="demo-area popover" data-event="mouseup:_component_.context_menu">
+		Click to show Context Popover Menu
+	</div>
 	<p class="result"></p>
 </div>
 <script>
 	var result = findOne('.result');
+	BOM.component('annotation', 'components/annotation');
 	return {
 		context_menu: function(evt) {
 			BOM.component('context-menu', 'components/context-menu').then(component => {
