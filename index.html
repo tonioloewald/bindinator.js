@@ -36,20 +36,8 @@
 			</div>
 			<div class="content">
 				<h1 id="title">Middle</h1>
-				<div><pre><code class="language-markup">&lt;style>
-	p {
-		color: red;
-	}
-&lt;/style>
-&lt;p>
-	Hello World
-&lt;/p>
-&lt;script>
-	var foo = 'bar';
-&lt;/script></code></pre></div>
-				<div id="example">
-					
-				</div>
+				<div id="example"></div>
+				<div><pre><code id="source-code" class="language-markup"></code></pre></div>
 			</div>
 			<div class="nav">
 				<h3>Tests</h3>
@@ -63,6 +51,7 @@
 		</div>
 	</div>
 	<script src="bom.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.9.3/jshint.min.js"></script>
 	<script>
 		BOM.register('demo', {
 			showDocs: function(evt) {
@@ -75,6 +64,8 @@
 					 		BOM.id('title').textContent = 'Component: ' + component_name;
 							var element = BOM.id('example');
 					 		BOM.empty(element);
+					 		BOM.id('source-code').textContent = component._source.replace(/\t/g, '  ');
+					 		Prism.highlightElement(BOM.id('source-code'));
 					 		BOM.insertComponent(component, element);
 					 });
 			},
@@ -82,11 +73,6 @@
 		BOM.component('hello', 'components/hello');
 		BOM.json('source-files.json').then(data => BOM.register('source_files', data));
 		BOM.json('components.json').then(data => BOM.register('components', data));
-	</script>
-	<script>
-		var editor = CodeMirror.fromTextArea(BOM.findOne('textarea'), {
-	    lineNumbers: true
-	  });
 	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js"></script>

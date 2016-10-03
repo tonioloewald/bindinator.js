@@ -527,7 +527,7 @@ BOM.component = function (name, url) {
 					style.appendChild(BOM.text(css));
 					document.head.appendChild(style);
 				}
-				var component = {style: css ? style : false, view: div, load: load};
+				var component = {style: css ? style : false, view: div, load: load, _source: source};
 				components[name] = component;
 				var targets = BOM.find('[data-component="' + name + '"]');
 				targets.forEach(element => BOM.insertComponent(component, element));
