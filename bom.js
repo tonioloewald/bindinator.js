@@ -378,6 +378,7 @@ function bindList (element, data, basePath) {
 }
 
 function bindAll(element, data, basePath) {
+	// consider passing data and basePath here...
 	loadAvailableComponents(element);
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
@@ -402,7 +403,7 @@ BOM.register('_BOM_', {
 	BOM.ajax(url, method, data).then(success, failure)
 	BOM.json(url, method, data).then(success, failure)
 */
-BOM.ajax = function (url, method, data) {
+BOM.ajax = function (url, method, request_data) {
 	return new Promise(function(resolve, reject) {
 		var request = new XMLHttpRequest();
 		request.open(method || 'GET', url, true);
@@ -422,20 +423,16 @@ BOM.ajax = function (url, method, data) {
 				}
 			}
 		};
-		var request_data = data;
-		if (typeof data !== 'string') {
-			request_data = data ? JSON.stringify(data) : null;
-		}
+		typeof request_data !== 'string' ? request_data || null : JSON.stringify(data);
 		request.send(request_data);
 	});
 };
 
-BOM.json = function (url, method, data) {
+BOM.json = function (url, method, request_data) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url, method, data).then(data => {
+		BOM.ajax(url, method, request_data).then(data => {
 			try {
-				var parsed_data = JSON.parse(data);
-				resolve(parsed_data);
+				resolve(JSON.parse(data));
 			} catch(e) {
 				console.error('Failed to parse data', data, e);
 			}

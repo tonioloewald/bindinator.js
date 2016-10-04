@@ -1,0 +1,9 @@
+<div>
+	<img src="circle.svg">
+</div>
+<script>
+	var circle = findOne('img'); // fixme?? -- breaks if I call component.children[0]
+		// and it works if I try it in console, and changing style on setTimeout doesn't work either
+	var diameter = component.getAttribute('diameter') || 64;
+	circle.style.width = circle.style.height = diameter + 'px';
+</script>
