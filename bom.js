@@ -89,8 +89,8 @@ var models = {};
 */
 
 BOM.register = function (name, obj) {
-	if (name === '_DATA_' || name === '_BOM_') {
-		throw "cannot register object as " + name + ", it's reserved."
+	if (name.match(/^_[^_]*_$/)) {
+		throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved."
 	}
 	models[name] = obj;
 	if (BOM.getByPath(models[name], 'add')) {
@@ -414,7 +414,7 @@ function bindList (element, data, basePath) {
 
 function bindAll(element, data, basePath) {
 	// consider passing data and basePath here...
-	loadAvailableComponents(element);
+	loadAvailableComponents(element, data);
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
 }
@@ -582,13 +582,40 @@ BOM.component = function (name, url) {
 	});
 };
 
-function loadAvailableComponents(element) {
+var data_waiting_for_components = []; // { target_element, data }
+
+function saveDataForElement(target_element, data) {
+	if (data) {
+		removeDataForElement(target_element);
+		data_waiting_for_components.push({target_element, data});	
+	}
+};
+
+function dataForElement(target_element) {
+	for (var i = 0; i < data_waiting_for_components.length; i++) {
+		if (data_waiting_for_components[i].target_element === target_element) {
+			return data_waiting_for_components[i].data;
+		}
+	}
+	return null;
+}
+
+function removeDataForElement(target_element) {
+	for (var i = 0; i < data_waiting_for_components.length; i++) {
+		if (data_waiting_for_components[i].target_element === target_element) {
+			delete data_waiting_for_components[i].data;
+		}
+	}
+};
+
+function loadAvailableComponents(element, data) {
 	BOM.findWithin(element || document.body, '[data-component]').forEach(target => {
 		if (!target.matches('[data-component-uuid]')) {
 			var name = target.getAttribute('data-component');
 			if (components[name]) {
-				BOM.insertComponent(components[name], target);
+				BOM.insertComponent(components[name], target, data);
 			} else {
+				saveDataForElement(target, data);
 				console.warn('component', name, 'not available');
 			}
 		}
@@ -612,6 +639,10 @@ BOM.insertComponent = function (component, element, data) {
 		}
 		component = components[component];
 	}
+	if (!data) {
+		data = dataForElement(element, component.name);
+	}
+	removeDataForElement(element);
 	if (!element) {
 		element = BOM.create('div');
 		document.body.appendChild(element);

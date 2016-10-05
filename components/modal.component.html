@@ -20,28 +20,28 @@
 	}
 </style>
 <div class="modal-dialog-backdrop">
-	<div class="modal-dialog">
+	<div class="modal-dialog" data-event="click:_component_.button">
 		<div data-children>
-			<h3 data-bind="text=.title">Title</h3>
-			<p data-bind="text=.message" class="message">Message</p>
+			<h3>Placeholder</h3>
+			<p>Here is some text</p>
 			<div style="text-align: right;">
-				<button data-bind="text=.cancel" data-event="click:_component_.button" class="cancel">Cancel</button>
-				<button class="default" data-bind="text=.ok" data-event="click:_component_.button" class="ok">OK</button>
+				<button>Cancel</button> <button class="default">OK</button>
 			</div>
 		</div>
 	</div>
 </div>
 <script>
-	BOM.bindAll(component, data);
-
+	console.log(data);
 	return {
 		button: function(evt) {
 			if (data && data.callback) {
-				data.callback(evt);
+				data.callback(evt, component);
 			} else {
 				console.log('dialog has no callback; user pressed', evt.target.textContent);
 			}
-			component.remove();
+			if (evt.target instanceof HTMLButtonElement) {
+				component.remove();
+			}
 		},
 	};
 </script>
