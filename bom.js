@@ -168,7 +168,16 @@ function implicitEventHandlers (element) {
 				return { types: [] };
 			}
 			var [model, method] = handler.trim().split('.');
-			return { types: type.split(',').map(s => s.trim()).sort(), model, method };
+			var types = type.split(',');
+			return { 
+				types: types.map(s => s.split('(')[0].trim()).sort(),
+				type_args: types.map(s => {
+					var args = s.match(/\(([^)]+)\)/);
+					return args && args[1].split(',');
+				}),
+				model,
+				method,
+			};
 		});
 	}
 	return handlers;
@@ -180,9 +189,18 @@ function implicitEventHandlers (element) {
 BOM.callMethod = function (model, method, evt) {
 	var result = null;
 	if(model === '_component_') {
-		var uuid = evt.target.closest('[data-component-uuid]').getAttribute('data-component-uuid');
-		var view_controller = models['_BOM_components_'][uuid];
-		result = view_controller[method](evt);
+		var view_controller;
+		var target = evt.target.closest('[data-component-uuid]');
+		while(!view_controller && target) {
+			var uuid = target.getAttribute('data-component-uuid');
+			view_controller = models['_BOM_components_'][uuid];
+			target = target.parentElement.closest('[data-component-uuid]');
+		}
+		if (!view_controller) {
+			console.error('event bound to _component_ found no view_controller', evt.target);
+		} else {
+			result = view_controller[method](evt);	
+		}
 	} else if( models[model] ) {
 		result = models[model][method](evt);
 	} else {
@@ -201,8 +219,12 @@ function handleEvent (evt) {
 	while (target && !done) {
 		var handlers = implicitEventHandlers(target);
 		for (var i = 0; i < handlers.length; i++) {
-			if (handlers[i].types.indexOf(evt.type) > -1) {
-				var handler = handlers[i];
+			var handler = handlers[i];
+			var type_index = handler.types.indexOf(evt.type);
+			if (
+				type_index > -1 &&
+				(!handler.type_args[type_index] || handler.type_args[type_index].indexOf(evt.code) > -1)
+			) {
 				result = BOM.callMethod(handler.model, handler.method, evt);
 				if (result === false) {
 					// use stopPropagation?!
