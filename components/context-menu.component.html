@@ -1,44 +1,46 @@
 <!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
 <style>
-	#context-menu > div > a {
+	.context-menu > div > a {
 		display: block;
 		cursor: pointer;
 	}
 
-	#context-menu > div > a:hover {
+	.context-menu > div > a:hover {
 		background-color: black;
 	}
 
-	#context-menu > div > header {
+	.context-menu > div > header {
 		border-bottom: 1px solid rgba(255,255,255,0.2);
 	}
 
-	#context-menu > div > footer {
+	.context-menu > div > footer {
 		border-top: 1px solid rgba(255,255,255,0.2);
 	}
 </style>
-<header>
-	Header
-</header>
-<a tabindex=0>Option 1</a>
-<a tabindex=0>Option 2</a>
-<a tabindex=0>Option 3</a>
-<a tabindex=0>Option 4</a>
-<footer>
-	Footer
-</footer>
+<div class="context-menu" data-component="annotation" data-event="keyup(Escape):_component_.hide">
+	<header>
+		Header
+	</header>
+	<a data-list="_DATA_" data-event="keyup(ArrowUp):_component_.up;keydown(ArrowDown):_component_.down;click:_component_.mouseup" data-bind="text=.caption" tabindex=0>xxxxx</a>
+	<footer>
+		Footer
+	</footer>
+</div>
 <script>
-	component.setAttribute('id', 'context-menu');
-	BOM.component('annotation', 'components/annotation').then(annotation => {
-		BOM.insertComponent(annotation, component, data);
-	});
+	BOM.component('annotation', 'components/annotation');
+	BOM.bindAll(component, data.options || [{caption: 'Option 1'}, {caption: 'Option 2'}, {caption: 'Option 3'}]);
 	BOM.on(document.body, 'mouseup', 'context-menu', 'hide');
 	BOM.register('context-menu', {
-		hide: function(evt) {
-			var elt = BOM.id('context-menu');
-			if(elt && !elt.contains(evt.target)) {
-				elt && elt.remove();	
+		hide: evt => {
+			if(!component.contains(evt.target)) {
+				component.remove();	
 			}
 		}
 	});
+	return {
+		hide: evt => component.remove(),
+		up: evt => evt.target.previousSibling.focus(),
+		down: evt => evt.target.nextSibling.focus(),
+		mouseup: evt => console.log(evt),
+	};
 </script>

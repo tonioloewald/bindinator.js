@@ -50,9 +50,11 @@
 			</div>
 		</div>
 	</div>
+	<script src="require.js"></script>
 	<script src="bom.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.9.3/jshint.min.js"></script>
 	<script>
+		// var Showdown = require("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min");
 		BOM.register('demo', {
 			showDocs: function(evt) {
 				var source_file = evt.target.getAttribute('data-path');
@@ -65,7 +67,9 @@
 							var element = BOM.id('example');
 					 		BOM.empty(element);
 					 		BOM.id('source-code').textContent = component._source.replace(/\t/g, '  ');
-					 		Prism.highlightElement(BOM.id('source-code'));
+					 		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min").then(() => {
+					 			Prism.highlightElement(BOM.id('source-code'));
+					 		});
 					 		BOM.insertComponent(component, element);
 					 });
 			},
@@ -74,6 +78,4 @@
 		BOM.json('source-files.json').then(data => BOM.register('source_files', data));
 		BOM.json('components.json').then(data => BOM.register('components', data));
 	</script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js"></script>
 </body>

@@ -1,26 +1,31 @@
 <!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
 <div>
-	<h4>Show a modal dialog</h4>
+	<h4>Modal Dialog Test</h4>
 	<div data-children></div>
-	<button data-event="click:_component_.dialog">Show Modal Dialog</button>
+	<button data-event="click:_component_.dialog">Show Dialog</button>
+	<button data-event="click:_component_.custom_dialog">Show Custom Dialog</button>
 	<p class="result"></p>
 </div>
 <script>
 	var result = findOne('.result');
 	return {
-		dialog: function(title, message, callback) {
+		dialog: () => {
 			BOM.component('modal', 'components/modal').then(
-				() =>BOM.insertComponent(
+				() => BOM.insertComponent(
 					'modal',
 					false,
-					{
-						title: 'Example Modal',
-						message: 'Imagine this is an interesting message.',
-						cancel: 'Cancel',
-						ok: 'OK',
-						callback: evt => result.textContent = 'User clicked: ' + evt.target.textContent
-					}
+					{ callback: evt => result.textContent = 'User clicked: ' + evt.target.textContent }
 				)
+			);
+		},
+
+		custom_dialog: () => {
+			BOM.component('reactor-dialog', 'components/reactor-dialog').then(
+					() => BOM.insertComponent(
+							'reactor-dialog',
+							false,
+							{ callback: (evt, component) => result.textContent = 'reactor setting: ' + BOM.findOneWithin(component, 'input').value }
+					)
 			);
 		}
 	} 

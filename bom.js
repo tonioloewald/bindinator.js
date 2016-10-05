@@ -89,8 +89,8 @@ var models = {};
 */
 
 BOM.register = function (name, obj) {
-	if (name === '_DATA_' || name === '_BOM_') {
-		throw "cannot register object as " + name + ", it's reserved."
+	if (name.match(/^_[^_]*_$/)) {
+		throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved."
 	}
 	models[name] = obj;
 	if (BOM.getByPath(models[name], 'add')) {
@@ -168,7 +168,16 @@ function implicitEventHandlers (element) {
 				return { types: [] };
 			}
 			var [model, method] = handler.trim().split('.');
-			return { types: type.split(',').map(s => s.trim()).sort(), model, method };
+			var types = type.split(',');
+			return { 
+				types: types.map(s => s.split('(')[0].trim()).sort(),
+				type_args: types.map(s => {
+					var args = s.match(/\(([^)]+)\)/);
+					return args && args[1].split(',');
+				}),
+				model,
+				method,
+			};
 		});
 	}
 	return handlers;
@@ -180,9 +189,18 @@ function implicitEventHandlers (element) {
 BOM.callMethod = function (model, method, evt) {
 	var result = null;
 	if(model === '_component_') {
-		var uuid = evt.target.closest('[data-component-uuid]').getAttribute('data-component-uuid');
-		var view_controller = models['_BOM_components_'][uuid];
-		result = view_controller[method](evt);
+		var view_controller;
+		var target = evt.target.closest('[data-component-uuid]');
+		while(!view_controller && target) {
+			var uuid = target.getAttribute('data-component-uuid');
+			view_controller = models['_BOM_components_'][uuid];
+			target = target.parentElement.closest('[data-component-uuid]');
+		}
+		if (!view_controller) {
+			console.error('event bound to _component_ found no view_controller', evt.target);
+		} else {
+			result = view_controller[method](evt);	
+		}
 	} else if( models[model] ) {
 		result = models[model][method](evt);
 	} else {
@@ -201,8 +219,12 @@ function handleEvent (evt) {
 	while (target && !done) {
 		var handlers = implicitEventHandlers(target);
 		for (var i = 0; i < handlers.length; i++) {
-			if (handlers[i].types.indexOf(evt.type) > -1) {
-				var handler = handlers[i];
+			var handler = handlers[i];
+			var type_index = handler.types.indexOf(evt.type);
+			if (
+				type_index > -1 &&
+				(!handler.type_args[type_index] || handler.type_args[type_index].indexOf(evt.code) > -1)
+			) {
 				result = BOM.callMethod(handler.model, handler.method, evt);
 				if (result === false) {
 					// use stopPropagation?!
@@ -329,7 +351,10 @@ function addBasePathToBindings(element, bindings, basePath) {
 
 function findBindables (element) {
 	return BOM.findWithin(element, '[data-bind]', true)
-			  .filter(elt => !element.parentElement || !element.contains(elt.parentElement.closest('[data-list]')));
+			  .filter(elt => {
+			  	var list = elt.closest('[data-list]');
+			  	return !list || list === element || !element.contains(list);
+			  });
 }
 
 function bind (element, data, basePath) {
@@ -355,7 +380,10 @@ function bind (element, data, basePath) {
 
 function findLists (element) {
 	return BOM.findWithin(element, '[data-list]')
-			  .filter(elt => !elt.parentElement || !elt.contains(elt.parentElement.closest('[data-list]')));
+			  .filter(elt => {
+			  	var list = elt.parentElement.closest('[data-list]');
+			  	return !list || list === element || !element.contains(list);
+			  });
 }
 
 BOM.hide = function (element) {
@@ -382,7 +410,7 @@ function bindList (element, data, basePath) {
 		return;
 	}
 	var list = data ? getByPath(data, path) : BOM.getByPath(model, path);
-	if(!list) {
+	if (!list || !list.length) {
 		return;
 	}
 	while(
@@ -408,7 +436,7 @@ function bindList (element, data, basePath) {
 
 function bindAll(element, data, basePath) {
 	// consider passing data and basePath here...
-	loadAvailableComponents(element);
+	loadAvailableComponents(element, data);
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
 }
@@ -576,13 +604,40 @@ BOM.component = function (name, url) {
 	});
 };
 
-function loadAvailableComponents(element) {
+var data_waiting_for_components = []; // { target_element, data }
+
+function saveDataForElement(target_element, data) {
+	if (data) {
+		removeDataForElement(target_element);
+		data_waiting_for_components.push({target_element, data});	
+	}
+};
+
+function dataForElement(target_element) {
+	for (var i = 0; i < data_waiting_for_components.length; i++) {
+		if (data_waiting_for_components[i].target_element === target_element) {
+			return data_waiting_for_components[i].data;
+		}
+	}
+	return null;
+}
+
+function removeDataForElement(target_element) {
+	for (var i = 0; i < data_waiting_for_components.length; i++) {
+		if (data_waiting_for_components[i].target_element === target_element) {
+			delete data_waiting_for_components[i].data;
+		}
+	}
+};
+
+function loadAvailableComponents(element, data) {
 	BOM.findWithin(element || document.body, '[data-component]').forEach(target => {
 		if (!target.matches('[data-component-uuid]')) {
 			var name = target.getAttribute('data-component');
 			if (components[name]) {
-				BOM.insertComponent(components[name], target);
+				BOM.insertComponent(components[name], target, data);
 			} else {
+				saveDataForElement(target, data);
 				console.warn('component', name, 'not available');
 			}
 		}
@@ -606,6 +661,10 @@ BOM.insertComponent = function (component, element, data) {
 		}
 		component = components[component];
 	}
+	if (!data) {
+		data = dataForElement(element, component.name);
+	}
+	removeDataForElement(element);
 	if (!element) {
 		element = BOM.create('div');
 		document.body.appendChild(element);
@@ -620,7 +679,7 @@ BOM.insertComponent = function (component, element, data) {
 		BOM.moveChildren(children, children_dest);
 	}
 	element.setAttribute('data-component-uuid', uuid);
-	bindAll(element);
+	bindAll(element, data);
 	if (component.load) {
 		var view_controller = component.load(
 			element,

@@ -1,0 +1,26 @@
+<div>
+	<h4>KeyboardEvent Code Tool</h4>
+	<label>
+		Type here&nbsp;<input data-event="keydown:_component_.showCode">
+	</label>
+	&nbsp;
+	<label>
+		Code&nbsp;<span style="font-weight: bold;" class="code">xxx</span>
+	</label>
+</div>
+<script>
+	var codeSpan = findOne('.code');
+
+	return {
+		showCode: evt => {
+			var code = [];
+			evt.metaKey && code.push('cmd');
+			evt.shiftKey && code.push('shift');
+			evt.ctrlKey && code.push('ctrl');
+			evt.altKey && code.push('alt');
+			code.push(evt.code);
+			codeSpan.textContent = code.join('-');
+			evt.preventDefault();
+		}
+	}
+</script>
