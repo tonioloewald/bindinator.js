@@ -321,7 +321,10 @@ function addBasePathToBindings(element, bindings, basePath) {
 
 function findBindables (element) {
 	return BOM.findWithin(element, '[data-bind]', true)
-			  .filter(elt => !BOM.nearest(elt, '[data-list]'));
+			  .filter(elt => {
+			  	var list = elt.closest('[data-list]');
+			  	return !list || list === element;
+			  });
 }
 
 function bind (element, data, basePath) {
@@ -346,8 +349,7 @@ function bind (element, data, basePath) {
 }
 
 function findLists (element) {
-	return BOM.findWithin(element, '[data-list]')
-			  .filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
+	return BOM.findWithin(element, '[data-list]');
 }
 
 function bindList (element, data, basePath) {
@@ -357,7 +359,10 @@ function bindList (element, data, basePath) {
 	} catch(e) {
 		console.error('bindList failed', list_path, e);
 	}
-	var list = data ? getByPath(data, list_path) : BOM.getByPath(model, path);
+	if (model === '' && !data) {
+		return;
+	}
+	var list = data ? getByPath(data, path) : BOM.getByPath(model, path);
 	while(
 		element.previousSibling &&
 		(
@@ -366,6 +371,9 @@ function bindList (element, data, basePath) {
 		)
 	) {
 		element.parentElement.removeChild(element.previousSibling);
+	}
+	if (!list || !list.length) {
+		return;
 	}
 	for (var i = 0; i < list.length; i++) {
 		var instance = element.cloneNode(true);
@@ -582,7 +590,7 @@ BOM.insertComponent = function (component, element, data) {
 		BOM.moveChildren(children, children_dest);
 	}
 	element.setAttribute('data-component-uuid', uuid);
-	bindAll(element);
+	bindAll(element, data);
 	if (component.load) {
 		var view_controller = component.load(
 			element,
