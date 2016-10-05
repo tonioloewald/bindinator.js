@@ -15,7 +15,6 @@ function BOM(){};
 	BOM.findOneWithin(element, selector);		// findOne scoped within element
 	BOM.findOneWithin(element, selector, true);	// findOne scoped within element, including the element itself
 	BOM.makeArray(arrayish);					// creates a proper array from something array-like
-	BOM.nearest(element, selector);				// like closest, but includes the element itself
 	BOM.succeeding(element, selector);			// next succeeding sibling matching selector
 */
 
@@ -32,7 +31,6 @@ BOM.findWithin = (element, selector, include_self) => {
 	};
 BOM.findOneWithin = (element, selector, include_self) => include_self && element.matches(selector) ? element : element.querySelector(selector);
 BOM.makeArray = arrayish => [].slice.apply(arrayish);
-BOM.nearest = (element, selector) => element.matches(selector) ? element : element.closest(selector);
 BOM.succeeding = (element, selector) => {
 	while(element.nextSibling && !element.nextElementSibling.matches(selector)){
 		element = element.nextElementSibling
@@ -82,12 +80,18 @@ var models = {};
 
 /**
 	BOM.register(name, obj);						// register an object by name as data or controller
+		// the names _DATA_ and _BOM_ are reserved; other similar namess may be reserved later
+		// binding to _DATA_ explicitly means you will only be bound to an explicit object
+		// _BOM_ is the name of the internal event handlers for bound variables
 	BOM.deregister(name);								// remove a registered object
 	BOM.setByPath(name, path, value);		// set a registered object's property by path
 	BOM.getByPath(name, path);					// get a registered object's property by path
 */
 
 BOM.register = function (name, obj) {
+	if (name === '_DATA_' || name === '_BOM_') {
+		throw "cannot register object as " + name + ", it's reserved."
+	}
 	models[name] = obj;
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
@@ -114,7 +118,7 @@ BOM.setByPath = function (name, path, value, source_element) {
 };
 
 BOM.getByPath = function (name, path) {
-	if (models[name]) {
+	if (name && models[name]) {
 		return getByPath(models[name], path);
 	}
 };
@@ -159,6 +163,10 @@ function implicitEventHandlers (element) {
 		source = source.split(';');
 		handlers = source.map(function(instruction){
 			var [type, handler] = instruction.split(':');
+			if (!handler) {
+				console.error('missing event handler', instruction, 'in', element);
+				return { types: [] };
+			}
 			var [model, method] = handler.trim().split('.');
 			return { types: type.split(',').map(s => s.trim()).sort(), model, method };
 		});
@@ -172,7 +180,7 @@ function implicitEventHandlers (element) {
 BOM.callMethod = function (model, method, evt) {
 	var result = null;
 	if(model === '_component_') {
-		var uuid = BOM.nearest(evt.target, '[data-component-uuid]').getAttribute('data-component-uuid');
+		var uuid = evt.target.closest('[data-component-uuid]').getAttribute('data-component-uuid');
 		var view_controller = models['_BOM_components_'][uuid];
 		result = view_controller[method](evt);
 	} else if( models[model] ) {
@@ -321,7 +329,7 @@ function addBasePathToBindings(element, bindings, basePath) {
 
 function findBindables (element) {
 	return BOM.findWithin(element, '[data-bind]', true)
-			  .filter(elt => !BOM.nearest(elt, '[data-list]'));
+			  .filter(elt => !element.parentElement || !element.contains(elt.parentElement.closest('[data-list]')));
 }
 
 function bind (element, data, basePath) {
@@ -347,7 +355,20 @@ function bind (element, data, basePath) {
 
 function findLists (element) {
 	return BOM.findWithin(element, '[data-list]')
-			  .filter(elt => !elt.matches('[data-list]') && !elt.closest('[data-list]'));
+			  .filter(elt => !elt.parentElement || !elt.contains(elt.parentElement.closest('[data-list]')));
+}
+
+BOM.hide = function (element) {
+	if (element.getAttribute('data-orig-display') !== null && (element.style.display && element.style.display !== 'none')) {
+		element.setAttribute('data-orig-display', element.style.display);
+	}
+	element.style.display = 'none';
+}
+
+BOM.show = function (element) {
+	if (element.style.display === 'none') {
+		element.style.display = element.getAttribute('data-orig-display') || '';
+	}
 }
 
 function bindList (element, data, basePath) {
@@ -357,7 +378,13 @@ function bindList (element, data, basePath) {
 	} catch(e) {
 		console.error('bindList failed', list_path, e);
 	}
-	var list = data ? getByPath(data, list_path) : BOM.getByPath(model, path);
+	if (model === '' && !data && !basePath) {
+		return;
+	}
+	var list = data ? getByPath(data, path) : BOM.getByPath(model, path);
+	if(!list) {
+		return;
+	}
 	while(
 		element.previousSibling &&
 		(
@@ -367,6 +394,7 @@ function bindList (element, data, basePath) {
 	) {
 		element.parentElement.removeChild(element.previousSibling);
 	}
+	BOM.show(element);
 	for (var i = 0; i < list.length; i++) {
 		var instance = element.cloneNode(true);
 		instance.removeAttribute('data-list');
@@ -375,6 +403,7 @@ function bindList (element, data, basePath) {
 		bindAll(instance, list[i], basePath);
 		element.parentElement.insertBefore(instance, element);
 	}
+	BOM.hide(element);
 }
 
 function bindAll(element, data, basePath) {
@@ -386,7 +415,7 @@ function bindAll(element, data, basePath) {
 
 BOM.bindAll = bindAll;
 
-BOM.register('_BOM_', {
+models['_BOM_'] = {
 	update: function(evt) {
 		var bindings = getBindings(evt.target);
 		for (var i = 0; i < bindings.length; i++) {
@@ -397,13 +426,13 @@ BOM.register('_BOM_', {
 			});
 		}
 	},
-});
+};
 
 /**
 	BOM.ajax(url, method, data).then(success, failure)
 	BOM.json(url, method, data).then(success, failure)
 */
-BOM.ajax = function (url, method, request_data) {
+BOM.ajax = function (url, method, request_data, data_type) {
 	return new Promise(function(resolve, reject) {
 		var request = new XMLHttpRequest();
 		request.open(method || 'GET', url, true);
@@ -439,6 +468,18 @@ BOM.json = function (url, method, request_data) {
 		}, reject);
 	});
 };
+
+BOM.jsonp = function (url, method, request_data) {
+	return new Promise(function(resolve, reject) {
+		BOM.ajax(url, method, request_data).then(data => {
+			try {
+				resolve(JSON.parse(data));
+			} catch(e) {
+				console.error('Failed to parse data', data, e);
+			}
+		}, reject);
+	});
+}
 
 var components = {};
 

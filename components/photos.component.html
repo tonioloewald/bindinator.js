@@ -1,0 +1,38 @@
+<style>
+	.flickr-photo {
+		border: 8px solid white;
+		margin: 4px;
+		box-shadow: 0.5px 1.5px 6px 0 rgba(0,0,0,0.5);
+		min-width: 200px;
+		max-width: 200px;
+		vertical-align: middle;
+	}
+</style>
+<div>
+	<a data-list=".items" target="_blank" data-bind="attr(href)=.link">
+		<img class="flickr-photo" data-bind="attr(src)=.media.m;attr(label)=.title" style="max-width: 200px;">
+	</a>
+</div>
+<script>
+	var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
+
+	function getFlickrData(url, callback) {
+	    window[jsonp] = function(data) {
+	        delete window[jsonp];
+	        callback(data);
+	        document.body.removeChild(script);
+	    };
+
+	    var script = document.createElement('script');
+	    script.src = url;
+	    document.body.appendChild(script);
+	}
+
+	var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json&jsoncallback=' + jsonp;
+	if (component.getAttribute('tags')) {
+		feed_url += '&tags=' + escape(component.getAttribute('tags'));
+	}
+
+	var image_template = component.children[0];
+	getFlickrData(feed_url, data => BOM.bindAll(image_template, data) );
+</script>
