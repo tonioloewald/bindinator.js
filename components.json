@@ -14,5 +14,21 @@
 	{
 		"name": "Menu Test",
 		"path": "menu-test"
+	},
+	{
+		"name": "Circle",
+		"path": "circle"
+	},
+	{
+		"name": "Photo Tabs",
+		"path": "photo-tabs"
+	},
+	{
+		"name": "Tab Selector",
+		"path": "tab-selector"
+	},
+	{
+		"name": "Photos",
+		"path": "photos"
 	}
 ]

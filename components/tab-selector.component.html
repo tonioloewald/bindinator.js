@@ -1,0 +1,65 @@
+<style>
+	.bodies > * {
+		display: none;
+	}
+
+	.bodies > .current {
+		display: block;
+	}
+
+	.tabs {
+		background-color: #aaa;
+		padding-top: 2px;
+	}
+
+	.tabs > .tab {
+		padding: 3px 8px 2px;
+		background-color: #ddd;
+		display: inline-block;
+		margin-left: 3px;
+		border-radius: 4px 4px 0 0;
+		cursor: pointer;
+	}
+
+	.tabs > .tab:hover {
+		background-color: #eee;
+	}
+
+	.tabs > .tab.current {
+		background-color: white;
+	}
+</style>
+<div>
+	<div class="tabs">
+		<div class="tab" data-list="_DATA_" data-bind="text=.name" class="tab" data-event="mouseup:_component_.select_tab">Tab Name</div>
+	</div>
+	<div class="bodies" data-children>
+		<div name="Tab A" style="text-align: center;"><span style="font-size: 200px; color: red;">A</span></div>
+		<div name="Tab B" style="text-align: center;"><span style="font-size: 200px; color: green;">B</span></div>
+		<div name="Tab C" style="text-align: center;"><span style="font-size: 200px; color: blue;">C</span></div>
+	</div>
+</div>
+<script>
+	var current_tab;
+	var bodies = BOM.makeArray(findOne('.bodies').children);
+	var untitled = {name: 'Untitled'};
+	var tab_info = bodies.map(body_element => { return { name: body_element.getAttribute('name')} || untitled; });
+	BOM.bindAll(findOne('.tabs'), tab_info);
+	var tabs = find('.tabs > .tab');
+
+	function select_tab(which) {
+		if (which === current_tab) {
+			return;
+		}
+		bodies.forEach(body_element => body_element.classList.remove('current'));
+		tabs.forEach(tab_element => tab_element.classList.remove('current'));
+		tabs[which].classList.add('current');
+		bodies[which].classList.add('current');
+		current_tab = which;
+	}
+	select_tab(parseInt(component.getAttribute('current'), 10) || 0);
+
+	return {
+		select_tab: evt => select_tab(tabs.indexOf(evt.target)),
+	};
+</script>
