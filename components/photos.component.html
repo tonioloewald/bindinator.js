@@ -48,7 +48,9 @@
 
 	var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json&jsoncallback=' + jsonp;
 	if (component.getAttribute('tags')) {
-		feed_url += '&tags=' + escape(component.getAttribute('tags'));
+		feed_url += '&tags=fave,' + escape(component.getAttribute('tags'));
+	} else {
+		feed_url += '&tags=fave';
 	}
 
 	var image_template = component.children[0];
