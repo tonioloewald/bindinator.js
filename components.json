@@ -34,5 +34,9 @@
 	{
 		"name": "KeyboardEvent Code",
 		"path": "keycodes"
+	},
+	{
+		"name": "loading",
+		"path": "loading"
 	}
 ]
