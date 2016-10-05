@@ -31,7 +31,14 @@
 </style>
 <div>
 	<div class="tabs">
-		<div class="tab" data-list="_DATA_" data-bind="text=.name" class="tab" data-event="mouseup:_component_.select_tab": >Tab Name</div>
+		<div
+			class="tab"
+			data-list="_DATA_"
+			data-bind="text=.name"
+			class="tab"
+			data-event="mouseup,keyup:_component_.select_tab"
+			tabindex="0"
+		>Tab Name</div>
 	</div>
 	<div class="bodies" data-children>
 		<div name="Tab A" style="text-align: center;"><span style="font-size: 200px; color: red;">A</span></div>
