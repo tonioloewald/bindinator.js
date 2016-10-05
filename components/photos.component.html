@@ -1,17 +1,28 @@
 <style>
-	.flickr-photo {
-		border: 8px solid white;
-		margin: 4px;
-		box-shadow: 0.5px 1.5px 6px 0 rgba(0,0,0,0.5);
-		min-width: 200px;
-		max-width: 200px;
+	.flickr-frame {
+		width: 216px;
+		max-height: 216px;
+		margin: 8px;
+		text-align: center;
+		display: inline-block;
+	}
+	.flickr-frame > a {
+		display: inline-block;
 		vertical-align: middle;
+	}
+	.flickr-frame > a > img {
+		border: 8px solid white;
+		box-shadow: 0.5px 1.5px 6px 0 rgba(0,0,0,0.5);
+		max-width: 200px;
+		max-height: 200px;
 	}
 </style>
 <div>
-	<a data-list=".items" target="_blank" data-bind="attr(href)=.link">
-		<img class="flickr-photo" data-bind="attr(src)=.media.m;attr(label)=.title" style="max-width: 200px;">
-	</a>
+	<div class="flickr-frame" data-list=".items" style="w">
+		<a target="_blank" data-bind="attr(href)=.link">
+			<img class="flickr-photo" data-bind="attr(src)=.media.m;attr(label)=.title">
+		</a>
+	</div>
 </div>
 <script>
 	var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
