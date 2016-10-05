@@ -86,13 +86,13 @@ Components are HTML:
 		}
 	</script>
 
+Everything is optional (although a component with no content is not terribly useful).
+
 The style tag is inserted as a stylesheet (once); the script is effectively treated as a "load" method for the component, and is passed references
 to BOM, component (the element containing the component), find and findOne (within the component), and the data object passed to BOM.insertComponent.
 
 Each component's script executes in a unique context.
 
-## To Do
+## Tracking Progress
 
-* Record messages for not-yet-loaded controllers, play them back when the controller is registered
-* <del>Record data-changes for not-yet-loaded models, play them back when the model is registed.</del> (upon reflection, this seems like a very hypothetical use-case)
-* Literate programming implementation (ideally with js-fiddle-ish functionality)
+I'm managing the project using [Trello](https://trello.com/b/0OBL4IjC/bind-o-matic).
