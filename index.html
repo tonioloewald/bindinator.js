@@ -97,7 +97,10 @@
 							 		BOM.insertComponent(component, element);
 							 });
 						break;
-				}
+				} 
+			} else {
+				// FIXME don't do this, behave as though there's a default hash so history behaves nicely
+				BOM.findOne('.loadable').click();
 			}
 		}
 

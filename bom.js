@@ -96,6 +96,7 @@ BOM.register = function (name, obj) {
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
+	playSavedMessages();
 	BOM.find('[data-bind*="' + name + '"]').forEach(elt => bind(elt));
 	BOM.find('[data-list*="' + name + '"]').forEach(elt => bindList(elt));
 	// play back messages
@@ -186,6 +187,27 @@ function implicitEventHandlers (element) {
 /**
 	BOM.callMethod(model, method, evt);	// Call a method by name from a registered method
 */
+
+var saved_messages = {}; // {model, method, evt}
+
+function saveMethodCall(model, method, evt) {
+	saved_messages.push({model, method, evt});
+}
+
+function playSavedMessages(model) {
+	var playbackQueue = [];
+	for (var i = saved_messages.length - 1; i >= 0; i--) {
+		if (saved_messages[i].model === model) {
+			playbackQueue.push(saved_messages[i]);
+			delete saved_messages[i];
+		}
+	}
+	while (playbackQueue.length) {
+		var {model, method, evt} = playbackQueue.pop();
+		BOM.callMethod(model, method, evt);
+	}
+}
+
 BOM.callMethod = function (model, method, evt) {
 	var result = null;
 	if(model === '_component_') {
@@ -207,7 +229,7 @@ BOM.callMethod = function (model, method, evt) {
 		// TODO queue if model not available
 		// event is stopped from further propagation
 		// provide global wrappers that can e.g. put up a spinner then call the method
-		result = false;
+		saveMethodCall(modal, method, evt);
 	}
 	return result;
 };
