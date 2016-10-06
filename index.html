@@ -56,6 +56,7 @@
 	<script>
 		BOM.register('demo', {
 			showDocs: function(evt) {
+				console.log(evt.target);
 				window.location.hash = 'source=' + evt.target.getAttribute('data-path');
 			},
 			loadComponent: function(evt) {
@@ -63,8 +64,12 @@
 			},
 		});
 		BOM.component('hello', 'components/hello');
-		BOM.json('source-files.json').then(data => BOM.register('source_files', data));
-		BOM.json('components.json').then(data => BOM.register('components', data));
+
+		BOM.json('source-files.json')
+		   .then(data => BOM.register('source_files', data))
+		   .then(() => BOM.json('components.json'))
+		   .then(data => BOM.register('components', data))
+		   .then(update);
 
 		var title = BOM.id('title');
 		var element = BOM.id('example');
@@ -75,20 +80,21 @@
 				var [key, value] = pair.split('=');
 				return {key, value};
 			});
-			if (pairs.length) {
+			var {key, value} = pairs[0];
+			if (key) {
 				BOM.empty(element);
 				BOM.hide(source_code.closest('div'));
-				switch (pairs[0].key) {
+				switch (key) {
 					case 'source':
-						title.textContent = pairs[0].value;
+						title.textContent = value;
 						BOM.component('file-viewer', 'components/file-viewer').then(viewer => {
-							BOM.insertComponent(viewer, element, {url: pairs[0].value});
+							BOM.insertComponent(viewer, element, {url: value});
 						});
 						break;
 					case 'component':
-						BOM.component(pairs[0].value, 'components/' + pairs[0].value)
+						BOM.component(value, 'components/' + value)
 							 .then(component => {
-							 		title.textContent = 'Component: ' + pairs[0].value;
+							 		title.textContent = 'Component: ' + value;
 							 		source_code.textContent = component._source.replace(/\t/g, '  ');
 							 		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min").then(() => {
 							 			Prism.highlightElement(source_code);
@@ -100,12 +106,10 @@
 				} 
 			} else {
 				// FIXME don't do this, behave as though there's a default hash so history behaves nicely
-				BOM.findOne('.loadable').click();
+				BOM.trigger('mouseup', BOM.findOne('.loadable'));
 			}
 		}
 
 		window.addEventListener('hashchange', update);
-
-		update();
 	</script>
 </body>

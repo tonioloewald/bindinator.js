@@ -96,7 +96,7 @@ BOM.register = function (name, obj) {
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
-	playSavedMessages();
+	playSavedMessages(name);
 	BOM.find('[data-bind*="' + name + '"]').forEach(elt => bind(elt));
 	BOM.find('[data-list*="' + name + '"]').forEach(elt => bindList(elt));
 	// play back messages
@@ -188,7 +188,7 @@ function implicitEventHandlers (element) {
 	BOM.callMethod(model, method, evt);	// Call a method by name from a registered method
 */
 
-var saved_messages = {}; // {model, method, evt}
+var saved_messages = []; // {model, method, evt}
 
 function saveMethodCall(model, method, evt) {
 	saved_messages.push({model, method, evt});
@@ -229,10 +229,19 @@ BOM.callMethod = function (model, method, evt) {
 		// TODO queue if model not available
 		// event is stopped from further propagation
 		// provide global wrappers that can e.g. put up a spinner then call the method
-		saveMethodCall(modal, method, evt);
+		saveMethodCall(model, method, evt);
 	}
 	return result;
 };
+
+/**
+	BOM.trigger(type, target); // trigger a synthetic implicit (only!) event
+*/
+BOM.trigger = function(type, target) {
+	var stopPropagation = () => {};
+	var preventDefault = () => {};
+	handleEvent({type, target, stopPropagation, preventDefault});
+}
 
 function handleEvent (evt) {
 	var target = evt.target;
@@ -664,7 +673,7 @@ function loadAvailableComponents(element, data) {
 				BOM.insertComponent(components[name], target, data);
 			} else {
 				saveDataForElement(target, data);
-				console.warn('component', name, 'not available');
+				console.warn('component not available: ', name);
 			}
 		}
 	})

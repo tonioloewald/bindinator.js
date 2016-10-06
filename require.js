@@ -32,7 +32,6 @@ global.require.isDefined = function(module_name) {
 }
 
 global.require.lazy = function(module_name) {
-	console.log('lazy', module_name)
 	return new Promise(function(resolve, reject){
 		if(!modules[module_name]) {
 			var request = new XMLHttpRequest();
@@ -41,7 +40,6 @@ global.require.lazy = function(module_name) {
 				if (request.readyState === 4) {
 					if (request.status === 200) {
 						resolve && resolve(define(module_name, request.responseText).exports);
-						console.log('lazy resolve', module_name)
 					} else {
 						reject && reject(request);
 					}
