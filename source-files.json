@@ -1,5 +1,13 @@
 [
 	{
+		"name": "Read Me First",
+		"path": "README.md"
+	},
+	{
+		"name": "License",
+		"path": "LICENSE.md"
+	},
+	{
 		"name": "Bind-O-Matic.js",
 		"path": "bom.js"
 	}

@@ -168,9 +168,9 @@ function implicitEventHandlers (element) {
 				return { types: [] };
 			}
 			var [model, method] = handler.trim().split('.');
-			var types = type.split(',');
+			var types = type.split(',').sort();
 			return { 
-				types: types.map(s => s.split('(')[0].trim()).sort(),
+				types: types.map(s => s.split('(')[0].trim()),
 				type_args: types.map(s => {
 					var args = s.match(/\(([^)]+)\)/);
 					return args && args[1].split(',');
@@ -221,15 +221,19 @@ function handleEvent (evt) {
 		for (var i = 0; i < handlers.length; i++) {
 			var handler = handlers[i];
 			var type_index = handler.types.indexOf(evt.type);
-			if (
-				type_index > -1 &&
-				(!handler.type_args[type_index] || handler.type_args[type_index].indexOf(evt.code) > -1)
-			) {
-				result = BOM.callMethod(handler.model, handler.method, evt);
-				if (result === false) {
-					// use stopPropagation?!
-					done = true;
-					break;
+			for (var type_index = 0; type_index < handler.types.length; type_index++) {
+				if(
+					handler.types[type_index] === evt.type
+					&& (!handler.type_args[type_index] || handler.type_args[type_index].indexOf(evt.code) > -1)
+				) {
+					result = BOM.callMethod(handler.model, handler.method, evt);
+					if (result !== true) {
+						// use stopPropagation?!
+						evt.stopPropagation();
+						evt.preventDefault();
+						done = true;
+						break;
+					}
 				}
 			}
 		}

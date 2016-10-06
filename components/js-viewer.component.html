@@ -1,0 +1,17 @@
+<pre style="display: none;"><code style="font-size: 12px" class="language-js"></code></pre>
+<div data-component="loading"></div>
+<script>
+	var pre = findOne('pre');
+	var code = findOne('code');
+	var loading = findOne('[data-component="loading"]');
+
+	BOM.component('loading', 'components/loading')
+		.then(() => BOM.ajax(data.url))
+		.then(content => code.textContent = content)
+		.then(() => require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min"))
+		.then(() => {
+			Prism.highlightElement(code);
+			BOM.hide(loading);
+			BOM.show(pre);
+		});
+</script>

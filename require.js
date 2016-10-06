@@ -32,29 +32,29 @@ global.require.isDefined = function(module_name) {
 }
 
 global.require.lazy = function(module_name) {
-	var callback = () => {};
-	var failure = request => console.error(module_name, 'failed, error', request.statusText);
-	if(!modules[module_name]) {
-		var request = new XMLHttpRequest();
-		request.open("GET", module_name + '.js', true);
-		request.onload = function (e) {
-			if (request.readyState === 4) {
-				if (request.status === 200) {
-					callback(define(module_name, request.responseText).exports);
-				} else {
-					failure(request);
+	console.log('lazy', module_name)
+	return new Promise(function(resolve, reject){
+		if(!modules[module_name]) {
+			var request = new XMLHttpRequest();
+			request.open("GET", module_name + '.js', true);
+			request.onload = function (e) {
+				if (request.readyState === 4) {
+					if (request.status === 200) {
+						resolve && resolve(define(module_name, request.responseText).exports);
+						console.log('lazy resolve', module_name)
+					} else {
+						reject && reject(request);
+					}
 				}
-			}
-		};
-		request.onerror = function (e) {
-			failure(request);
-		};
-		request.send(null);
-	} else {
-		setTimeout(() => callback(modules[module_name].exports));
-	}
-
-	return new Promise(resolve => callback = resolve, reject => failure = reject);
+			};
+			request.onerror = function (e) {
+				failure(request);
+			};
+			request.send(null);
+		} else {
+			setTimeout(() => resolve && resolve(modules[module_name].exports));
+		}
+	});
 }
 
 }(window));

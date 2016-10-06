@@ -1,0 +1,12 @@
+<div data-component="loading"></div>
+<script>
+	var text;
+	BOM.component('loading', 'components/loading')
+		.then(() => BOM.ajax(data.url))
+	  .then(content => text = content)
+	  .then(() => require.lazy("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min"))
+		.then(() => {
+	 		var converter = new showdown.Converter();
+    	component.innerHTML = converter.makeHtml(text);
+		});
+</script>

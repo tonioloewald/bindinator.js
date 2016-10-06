@@ -36,7 +36,11 @@
 		"path": "keycodes"
 	},
 	{
-		"name": "loading",
+		"name": "Loading",
 		"path": "loading"
+	},
+	{
+		"name": "Slider",
+		"path": "slider"
 	}
 ]

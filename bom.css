@@ -12,6 +12,11 @@ h1, h2, h3 {
 	margin: 0;
 }
 
+h4 {
+	font-weight: normal;
+	margin: 0;
+}
+
 .header > h1 {
 	color: white;
 	font-weight: 100;
