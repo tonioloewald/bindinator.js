@@ -1,8 +1,10 @@
 <script>
-/* note this is a zero content component! */
-	component.textContent = data.url;
+/**
+	This is a contentless component -- in effect it routes to other components
+	based on the filename (or specified file_type)
+*/
 	BOM.ajax(data.url).then(content => {
-		switch (data.url.split('.').pop()) {
+		switch (data.file_type || data.url.split('.').pop()) {
 			case 'md':
 			case 'markdown':
 				BOM.component('markdown-viewer', 'components/markdown-viewer').then(viewer => {
