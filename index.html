@@ -35,7 +35,7 @@
 				</div>
 			</div>
 			<div class="content">
-				<h1 id="title">Middle</h1>
+				<h2 style="text-align: right;" id="title"></h2>
 				<div id="example"></div>
 				<div><pre><code style="font-size: 12px" id="source-code" class="language-markup"></code></pre></div>
 			</div>
@@ -94,7 +94,7 @@
 					case 'component':
 						BOM.component(value, 'components/' + value)
 							 .then(component => {
-							 		title.textContent = 'Component: ' + value;
+							 		title.textContent = value + '.component.html';
 							 		source_code.textContent = component._source.replace(/\t/g, '  ');
 							 		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min").then(() => {
 							 			Prism.highlightElement(source_code);
