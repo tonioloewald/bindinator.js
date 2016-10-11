@@ -4,7 +4,6 @@
 	var pre = findOne('pre');
 	var code = findOne('code');
 	var loading = findOne('[data-component="loading"]');
-debugger;
 	BOM.component('loading', 'components/loading')
 		.then(() => BOM.ajax(data.url))
 		.then(content => code.textContent = content)

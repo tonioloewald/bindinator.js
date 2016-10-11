@@ -42,5 +42,9 @@
 	{
 		"name": "Slider",
 		"path": "slider"
+	},
+	{
+		"name": "carousel",
+		"path": "carousel"
 	}
 ]

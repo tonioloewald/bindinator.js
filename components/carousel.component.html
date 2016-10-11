@@ -1,0 +1,141 @@
+<style>
+	.carousel {
+		width: 100%;
+		min-height: 400px;
+		position: relative;
+		text-align: center;
+		perspective: 1000px;
+	}
+
+	.carousel > div {
+		color: white;
+		font-size: 48px;
+		position: absolute;
+		width: 280px;
+		margin-left: -140px;
+		top: 0;
+		bottom: 0;
+		left: 50%;
+		border-radius: 6px;
+	}
+
+	.carousel > div:after {
+		content: " ";
+		position :absolute;
+		display: block;
+		background-color: rgba(255,255,255,0.5);
+		top: 44px;
+		bottom: 22px;
+		left: 4px;
+		right: 4px;
+	}
+
+	.carousel > .left_moster {
+		background-color: brown;
+		transform: translateX(-330px) translateZ(-200px) rotateY(60deg);
+	}
+
+	.carousel > .left_most {
+		background-color: orange;
+		transform: translateX(-220px) translateZ(-200px) rotateY(60deg);
+	}
+
+	.carousel > .left {
+		transform: translateX(-110px) translateZ(-200px) rotateY(30deg);
+		background-color: red;
+	}
+
+	.carousel > .mid {
+		background-color: green;
+	}
+
+	.carousel > .right {
+		background-color: blue;
+		transform: translateX(110px) translateZ(-200px) rotateY(-30deg);
+	}
+</style>
+<div class="carousel" data-event="mouseup:_component_.setTarget" data-children>
+	<div class="left_moster">
+	</div>
+	<div class="left_most">
+	</div>
+	<div class="left">
+	</div>
+	<div class="right">
+	</div>
+	<div class="mid">
+	</div>
+</div>
+<div style="text-align: center; padding: 20px;">
+	<input type="range" min=0 max=1 step=0.01 data-event="input,change:_component_.update" />
+</div>
+<script>
+	function ease_in_out(t) {
+		return (1 - Math.cos(t * Math.PI)) * 0.5
+	}
+	// offset 0: element is in the center
+	// offset 1: the element is one to the right of center
+	// offset 0.5: element is halfway between center and offset 1
+	// offset -2: the element is two to the left of center
+	function setItemPosition(element, offset) {
+		var abs_offset = Math.abs(offset);
+		var dx = 0;
+		var dz = 0;
+		var ry = 0;
+		if( abs_offset > 0.01) {
+			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -160 : 160);
+			if (abs_offset < 1) {
+				dz = -100 * ease_in_out(abs_offset);
+				ry = offset * -80;
+			} else {
+				dz = -100;
+				ry = offset < 0 ? 80 : -80;
+			}
+		} else {
+			offset = 0;
+			abs_offset = 0;
+		}
+		element.style.transform = 'translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg)';
+		element.style.zIndex = Math.round(30 - 10 * abs_offset);
+	}
+
+	var test_elt = findOne('.test');
+	var position = 0;
+	var target = 0;
+	var items = find('.carousel > div');
+
+	function updateItems(){
+		items.forEach((element, idx) => {
+			setItemPosition(element, idx - position);
+		});
+	}
+
+	function snapToTarget(){
+		if (Math.abs(position - target) < 0.01) {
+			position = target;
+		} else {
+			position = (position * 15 + target) / 16;
+			requestAnimationFrame(snapToTarget);
+		}
+		updateItems();
+	}
+
+	updateItems();
+
+	var slider = findOne('input');
+	return {
+		setTarget: (evt) => {
+			target = items.indexOf(evt.target);
+			snapToTarget();
+			console.log('taget set')
+		},
+		update: (evt) => {
+			position = slider.value * (items.length - 1);
+			updateItems();
+			if(evt.type === 'change') {
+				target = Math.round(position);
+				snapToTarget();
+			}
+		}
+	}
+</script>
