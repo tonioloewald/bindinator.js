@@ -115,6 +115,7 @@
 			position = target;
 		} else {
 			position = (position * 15 + target) / 16;
+			slider.value = position / (items.length - 1);
 			requestAnimationFrame(snapToTarget);
 		}
 		updateItems();
