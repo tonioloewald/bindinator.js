@@ -36,15 +36,15 @@
 		"path": "keycodes"
 	},
 	{
-		"name": "Loading",
+		"name": "Loading Spinner",
 		"path": "loading"
 	},
 	{
-		"name": "Slider",
+		"name": "Checkbox Slider",
 		"path": "slider"
 	},
 	{
-		"name": "carousel",
+		"name": "Carousel",
 		"path": "carousel"
 	}
 ]

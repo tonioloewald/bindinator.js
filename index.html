@@ -68,7 +68,10 @@
 		BOM.json('source-files.json')
 		   .then(data => BOM.register('source_files', data))
 		   .then(() => BOM.json('components.json'))
-		   .then(data => BOM.register('components', data))
+		   .then(data => {
+		   		data.sort((a, b) => a.name > b.name ? 1 : -1);
+		   		BOM.register('components', data);
+		 		})
 		   .then(update);
 
 		var title = BOM.id('title');
