@@ -4,7 +4,7 @@
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism-okaidia.css">
 	<link rel="stylesheet" type="text/css" href="bom.css">
 </head>
-<body>
+<body data-event="keydown(alt-meta-KeyK):demo.alertKeystroke">
 	<div class="layout">
 		<div class="header">
 			<h1>Bind-O-Matic.js</h1>
@@ -62,6 +62,7 @@
 			loadComponent: function(evt) {
 				window.location.hash = 'component=' + evt.target.getAttribute('data-path');
 			},
+			alertKeystroke: evt => alert(BOM.keystroke(evt))
 		});
 		BOM.component('hello', 'components/hello');
 

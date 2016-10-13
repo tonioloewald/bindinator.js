@@ -243,8 +243,33 @@ BOM.trigger = function(type, target) {
 	handleEvent({type, target, stopPropagation, preventDefault});
 }
 
+/**
+	## Keystrokes
+
+	BOM leverages the modern browser's event "code" to identify keystrokes,
+	and uses a normalized representation of modifier keys (in alphabetical)
+	order.
+
+	* __alt__ represents the alt or option keys
+	* __ctrl__ represents the control key
+	* __meta__ represents the windows, command, or meta keys
+	* __shift__ represents the shift keys
+
+	BOM.keystroke(event) // returns normalized keystroke representation
+*/
+BOM.keystroke = function(evt) {
+	var code = [];
+	evt.altKey && code.push('alt');
+	evt.ctrlKey && code.push('ctrl');
+	evt.metaKey && code.push('meta');
+	evt.shiftKey && code.push('shift');
+	code.push(evt.code || '');
+	return code.join('-');
+}
+
 function handleEvent (evt) {
 	var target = evt.target;
+	var keystroke = BOM.keystroke(evt);
 	var done = false;
 	var result;
 	while (target && !done) {
@@ -255,7 +280,7 @@ function handleEvent (evt) {
 			for (var type_index = 0; type_index < handler.types.length; type_index++) {
 				if(
 					handler.types[type_index] === evt.type
-					&& (!handler.type_args[type_index] || handler.type_args[type_index].indexOf(evt.code) > -1)
+					&& (!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
 				) {
 					result = BOM.callMethod(handler.model, handler.method, evt);
 					if (result !== true) {

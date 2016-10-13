@@ -1,27 +1,34 @@
 <div>
-	<h4>KeyboardEvent Code Tool</h4>
+	<h3>KeyboardEvent Code Tool</h3>
+	<p>
+		This is a utility component to determine the keyboard event <b>code</b> of a given keystroke.
+	</p>
 	<label>
 		Type here&nbsp;<input data-event="keydown:_component_.showCode">
 	</label>
 	&nbsp;
-	<label>
-		Code&nbsp;<span style="font-weight: bold;" class="code">xxx</span>
-	</label>
+	<div class="keycodes" style="margin-top: 1em;">
+		<h4>Keystrokes</h4>
+		<div></div>
+		<button style="margin-top: 0.5em;" data-event="click:_component_.clear">Clear</button>
+	</div>
 </div>
 <script>
-	var codeSpan = findOne('.code');
+	var keycodes = findOne('.keycodes');
 	findOne('input').focus();
+	BOM.hide(keycodes);
 
 	return {
 		showCode: evt => {
-			var code = [];
-			evt.metaKey && code.push('cmd');
-			evt.shiftKey && code.push('shift');
-			evt.ctrlKey && code.push('ctrl');
-			evt.altKey && code.push('alt');
-			code.push(evt.code);
-			codeSpan.textContent = code.join('-');
+			var div = BOM.create('div');
+			div.textContent = BOM.keystroke(evt); 
+			BOM.findOneWithin(keycodes, 'div').appendChild(div);
+			BOM.show(keycodes);
 			evt.preventDefault();
+		},
+		clear: () => {
+			find('.keycodes > div > div').forEach(elt => elt.remove());
+			findOne('input').focus();
 		}
 	}
 </script>
