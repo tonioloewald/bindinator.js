@@ -1,12 +1,19 @@
 <div data-component="loading"></div>
 <script>
-	var text;
-	BOM.component('loading', 'components/loading')
-		.then(() => BOM.ajax(data.url))
-	  .then(content => text = content)
-	  .then(() => require.lazy("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min"))
-		.then(() => {
-	 		var converter = new showdown.Converter();
-    	component.innerHTML = converter.makeHtml(text);
-		});
+	function render(source_text){
+		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min")
+					.then(() => {
+				 		var converter = new showdown.Converter();
+				  	component.innerHTML = converter.makeHtml(source_text);
+					});
+	}
+
+	if (data.markdown_source) {
+		BOM.component('loading', 'components/loading')
+			.then(() => render(data.markdown_source));
+	} else {
+		BOM.component('loading', 'components/loading')
+			.then(() => BOM.ajax(data.url))
+		  .then(content => render(content));
+	}
 </script>
