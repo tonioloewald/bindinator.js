@@ -31,7 +31,8 @@
 	return {
 		context_menu: function(evt) {
 			BOM.component('context-menu', 'components/context-menu').then(component => {
-				BOM.insertComponent(component, false, {target: findOne('.popover')});
+				var target = findOne('.popover');
+				BOM.insertComponent(component, false, {target});
 			});
 		}
 	} 

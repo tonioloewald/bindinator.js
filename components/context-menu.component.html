@@ -21,7 +21,7 @@
 	<header>
 		Header
 	</header>
-	<a data-list="_DATA_" data-event="keyup(ArrowUp):_component_.up;keydown(ArrowDown):_component_.down;click:_component_.mouseup" data-bind="text=.caption" tabindex=0>xxxxx</a>
+	<a data-list="_DATA_" data-event="keyup(ArrowUp):_component_.up;keydown(ArrowDown):_component_.down;keydown(Space),click:_component_.action" data-bind="text=.caption" tabindex=0>xxxxx</a>
 	<footer>
 		Footer
 	</footer>
@@ -33,6 +33,7 @@
 	BOM.find('.context-menu').forEach(elt => elt.parentElement === component || elt.parentElement.remove());
 	BOM.bindAll(component, data.options || [{caption: 'Option 1'}, {caption: 'Option 2'}, {caption: 'Option 3'}]);
 	BOM.on(document.body, 'mouseup', 'context-menu', 'hide');
+	findOne('[tabindex]').focus();
 	BOM.register('context-menu', {
 		hide: evt => {
 			if(!component.contains(evt.target)) {
@@ -44,6 +45,6 @@
 		hide: evt => component.remove(),
 		up: evt => evt.target.previousSibling.focus(),
 		down: evt => evt.target.nextSibling.focus(),
-		mouseup: evt => console.log(evt),
+		action: evt => console.log(evt),
 	};
 </script>
