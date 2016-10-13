@@ -4,13 +4,22 @@
 	var pre = findOne('pre');
 	var code = findOne('code');
 	var loading = findOne('[data-component="loading"]');
-	BOM.component('loading', 'components/loading')
-		.then(() => BOM.ajax(data.url))
-		.then(content => code.textContent = content)
-		.then(() => require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min"))
-		.then(() => {
-			Prism.highlightElement(code);
-			BOM.hide(loading);
-			BOM.show(pre);
-		});
+
+	function render(source) {
+		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min")
+					 	.then(() => {
+					 		code.textContent = source;
+							Prism.highlightElement(code);
+							BOM.hide(loading);
+							BOM.show(pre);
+						})
+	}
+
+	if(data.source) {
+		render(data.source);
+	} else if (data.url) {
+		BOM.component('loading', 'components/loading')
+			.then(() => BOM.ajax(data.url))
+			.then(source => render(source));
+	}
 </script>

@@ -4,26 +4,24 @@
 	based on the filename (or specified file_type)
 -->
 <script>
-	BOM.ajax(data.url).then(content => {
-		switch (data.file_type || data.url.split('.').pop()) {
-			case 'md':
-			case 'markdown':
-				BOM.component('markdown-viewer', 'components/markdown-viewer').then(viewer => {
-					BOM.insertComponent(viewer, component, data);
-				});
-				break;
+	switch (data.file_type || data.url.split('.').pop()) {
+		case 'md':
+		case 'markdown':
+			BOM.component('markdown-viewer', 'components/markdown-viewer').then(viewer => {
+				BOM.insertComponent(viewer, component, data);
+			});
+			break;
 
-			case 'text':
-				BOM.component('text-viewer', 'components/text-viewer').then(viewer => {
-					BOM.insertComponent(viewer, component, data);
-				});
-				break;
+		case 'text':
+			BOM.component('text-viewer', 'components/text-viewer').then(viewer => {
+				BOM.insertComponent(viewer, component, data);
+			});
+			break;
 
-			case 'js':
-				BOM.component('js-viewer', 'components/js-viewer').then(viewer => {
-					BOM.insertComponent(viewer, component, data);
-				});
-				break;
-		}
-	})
+		case 'js':
+			BOM.component('js-viewer', 'components/js-viewer').then(viewer => {
+				BOM.insertComponent(viewer, component, data);
+			});
+			break;
+	}
 </script>
