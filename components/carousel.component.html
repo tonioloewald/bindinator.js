@@ -103,11 +103,13 @@
 	var position = 0;
 	var target = 0;
 	var items = find('.carousel > div');
+	var slider = findOne('input');
 
 	function updateItems(){
 		items.forEach((element, idx) => {
 			setItemPosition(element, idx - position);
 		});
+		slider.value = position / (items.length - 1);
 	}
 
 	function snapToTarget(){
@@ -115,7 +117,6 @@
 			position = target;
 		} else {
 			position = (position * 15 + target) / 16;
-			slider.value = position / (items.length - 1);
 			requestAnimationFrame(snapToTarget);
 		}
 		updateItems();
@@ -123,7 +124,6 @@
 
 	updateItems();
 
-	var slider = findOne('input');
 	return {
 		setTarget: (evt) => {
 			target = items.indexOf(evt.target);
