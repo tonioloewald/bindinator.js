@@ -71,8 +71,21 @@
 </div>
 <script>
 	function ease_in_out(t) {
-		return (1 - Math.cos(t * Math.PI)) * 0.5
+		var s = t > 0 ? 0.5 : -0.5;
+		var a = Math.abs(t);
+		return (1 - Math.cos(a * Math.PI)) * s;
 	}
+
+	function ease_out(t) {
+		var s = t > 0 ? 1 : -1;
+		var a = Math.abs(t);
+		return (1 - Math.cos(a * 0.5 * Math.PI)) * s;
+	}
+
+	function ease_in(t) {
+		return 1 - ease_out(1 - t);
+	}
+
 	// offset 0: element is in the center
 	// offset 1: the element is one to the right of center
 	// offset 0.5: element is halfway between center and offset 1
@@ -86,7 +99,7 @@
 			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -160 : 160);
 			if (abs_offset < 1) {
 				dz = -100 * ease_in_out(abs_offset);
-				ry = offset * -80;
+				ry = ease_in(offset) * -80;
 			} else {
 				dz = -100;
 				ry = offset < 0 ? 80 : -80;
