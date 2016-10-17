@@ -1,0 +1,59 @@
+<style>
+	.flickr-frame {
+		width: 216px;
+		max-height: 216px;
+		margin: 8px;
+		text-align: center;
+		display: inline-block;
+	}
+	.flickr-frame > a {
+		display: inline-block;
+		vertical-align: middle;
+	}
+	.flickr-frame > a > img {
+		border: 8px solid white;
+		box-shadow: 0.5px 1.5px 6px 0 rgba(0,0,0,0.5);
+		max-width: 200px;
+		max-height: 200px;
+		min-width: 150px;
+		min-height: 150px;
+		background-color: gray;
+	}
+	.flickr-frame > a > img[src] {
+		min-width: default;
+		min-height: default;
+	}
+</style>
+<div data-component="carousel" style="text-align: center; padding: 8px 0;">
+	<div class="flickr-frame" data-list=".items">
+		<a target="_blank" data-bind="attr(href)=.link">
+			<img class="flickr-photo" data-bind="attr(src)=.media.m;attr(label)=.title">
+		</a>
+	</div>
+</div>
+<script>
+	BOM.component('carousel', 'carousel');
+	var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
+
+	function getFlickrData(url, callback) {
+	    window[jsonp] = function(data) {
+	        delete window[jsonp];
+	        callback(data);
+	        document.body.removeChild(script);
+	    };
+
+	    var script = document.createElement('script');
+	    script.src = url;
+	    document.body.appendChild(script);
+	}
+
+	var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json&jsoncallback=' + jsonp;
+	if (component.getAttribute('tags')) {
+		feed_url += '&tags=fave,' + escape(component.getAttribute('tags'));
+	} else {
+		feed_url += '&tags=fave';
+	}
+
+	var image_template = component.children[0];
+	getFlickrData(feed_url, data => BOM.bindAll(image_template, data) );
+</script>

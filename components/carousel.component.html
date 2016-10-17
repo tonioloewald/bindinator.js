@@ -19,7 +19,7 @@
 		border-radius: 6px;
 	}
 
-	.carousel > div:after {
+	.carousel > .windoid:after {
 		content: " ";
 		position :absolute;
 		display: block;
@@ -29,41 +29,31 @@
 		left: 4px;
 		right: 4px;
 	}
-
-	.carousel > .left_moster {
-		background-color: brown;
-		transform: translateX(-330px) translateZ(-200px) rotateY(60deg);
-	}
-
-	.carousel > .left_most {
-		background-color: orange;
-		transform: translateX(-220px) translateZ(-200px) rotateY(60deg);
-	}
-
-	.carousel > .left {
-		transform: translateX(-110px) translateZ(-200px) rotateY(30deg);
-		background-color: red;
-	}
-
-	.carousel > .mid {
-		background-color: green;
-	}
-
-	.carousel > .right {
-		background-color: blue;
-		transform: translateX(110px) translateZ(-200px) rotateY(-30deg);
-	}
 </style>
 <div class="carousel" data-event="mouseup:_component_.setTarget" data-children>
-	<div class="left_moster">
+	<div class="windoid" style="background-color: #d00">
 	</div>
-	<div class="left_most">
+	<div class="windoid" style="background-color: #d70">
 	</div>
-	<div class="left">
+	<div class="windoid" style="background-color: #dd0">
 	</div>
-	<div class="right">
+	<div class="windoid" style="background-color: #7d0">
 	</div>
-	<div class="mid">
+	<div class="windoid" style="background-color: #0d0">
+	</div>
+	<div class="windoid" style="background-color: #0d7">
+	</div>
+	<div class="windoid" style="background-color: #0dd">
+	</div>
+	<div class="windoid" style="background-color: #07d">
+	</div>
+	<div class="windoid" style="background-color: #00d">
+	</div>
+	<div class="windoid" style="background-color: #70d">
+	</div>
+	<div class="windoid" style="background-color: #d0d">
+	</div>
+	<div class="windoid" style="background-color: #d07">
 	</div>
 </div>
 <div style="text-align: center; padding: 20px;">
@@ -141,7 +131,6 @@
 		setTarget: (evt) => {
 			target = items.indexOf(evt.target);
 			snapToTarget();
-			console.log('taget set')
 		},
 		update: (evt) => {
 			position = slider.value * (items.length - 1);

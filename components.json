@@ -46,5 +46,9 @@
 	{
 		"name": "Carousel",
 		"path": "carousel"
+	},
+	{
+		"name": "Photo Carousel",
+		"path": "photo-carousel"
 	}
 ]

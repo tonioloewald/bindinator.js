@@ -36,21 +36,35 @@
 <script>
 	component.classList.add('annotation');
 	function position(element) {
-		var pos = {
-			x: element.offsetLeft,
-			y: element.offsetTop
-		}
-		while (element = element.offsetParent) {
+		var pos = { x:0, y:0 };
+		while (element) {
 			pos.x += element.offsetLeft;
 			pos.y += element.offsetTop;
-			return pos;
+			element = element.offsetParent;
 		}
+		return pos;
+	}
+	function scrollOffset(element) {
+		var offset = { x:0, y:0 };
+		while (element && element.scrollLeft !== undefined) {
+			offset.x += element.scrollLeft;
+			offset.y += element.scrollTop;
+			element = element.parentNode;
+		}
+		return offset;
+	}
+	function subtractPoint(p, q) {
+		return {x: p.x - q.x, y: p.y - q.y};
+	}
+	function addPoint(p, q) {
+		return {x: p.x + q.x, y: p.y + q.y};
 	}
 	data = data || {};
 	if (!data.target) {
 		data.target = component.parentElement;
 	}
-	var target_pos = position(data.target);	
+
+	var target_pos = subtractPoint(position(data.target), scrollOffset(data.target));
 	component.style.left = (target_pos.x + data.target.clientWidth / 2 - component.clientWidth / 2) + 'px';
 	component.style.top = (target_pos.y + data.target.clientHeight + 4) + 'px';
 </script>
