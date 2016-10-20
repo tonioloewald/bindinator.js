@@ -539,8 +539,11 @@ BOM.ajax = function (url, method, request_data, data_type) {
 						break;
 				}
 			}
-		};
-		typeof request_data !== 'string' ? request_data || null : JSON.stringify(data);
+		}
+		if (typeof request_data === 'object') {
+			request_data = JSON.stringify(request_data);
+			request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+		}
 		request.send(request_data);
 	});
 };
