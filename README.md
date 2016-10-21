@@ -6,6 +6,7 @@ Ultimately my plan is to flesh out the demo page, incluing a literate programmin
 ## A Virtuous Circle for Web Development
 
 * The browser is good at parsing and rendering HTML as a DOM, so use HTML to represent the DOM
+* Separate logic from presentation (avoid code in templates, avoid markup in code)
 * Don't fight the browser's native functionality, leverage it
 * Event and data-binding should be easy to do, fast and cheap (computationally), and easy to debug
 * Impose as few restrictions as possible on the developer
@@ -63,7 +64,7 @@ in the 'list' property of the bound model:
 
 If the user clicks on this button it will fire the method "bar" of the object registered as "foo":
 
-	<button data-element="click:foo.bar">Hey Now!</button>
+	<button data-event="click:foo.bar">Hey Now!</button>
 
 Components are HTML:
 
