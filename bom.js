@@ -102,6 +102,10 @@ BOM.register = function (name, obj) {
 	// play back messages
 };
 
+BOM.isRegistered = function(name) {
+	return models[name] !== undefined;
+}
+
 BOM.deregister = function (name) {
 	if (BOM.getByPath(models[name], 'remove')) {
 		models[name].remove();
@@ -383,7 +387,7 @@ function parseBinding (binding) {
 		}
 		return parts ? { target: parts[1], key: parts[3] } : null;
 	});
-	var [, model,, path] = source.match(/(\w*)(\.([^;]+))?/);
+	var [, model,, path] = source.match(/([^.;]*)(\.([^.;]+))?/);
 	return {targets, model, path};
 }
 
