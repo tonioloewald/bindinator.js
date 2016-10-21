@@ -217,7 +217,7 @@ BOM.callMethod = function (model, method, evt) {
 	if(model === '_component_') {
 		var view_controller;
 		var target = evt.target.closest('[data-component-uuid]');
-		while(!view_controller && target) {
+		while(!(view_controller && view_controller[method]) && target) {
 			var uuid = target.getAttribute('data-component-uuid');
 			view_controller = models['_BOM_components_'][uuid];
 			target = target.parentElement.closest('[data-component-uuid]');
@@ -456,6 +456,7 @@ function findLists (element) {
 BOM.hide = function (element) {
 	if (element.getAttribute('data-orig-display') !== null && (element.style.display && element.style.display !== 'none')) {
 		element.setAttribute('data-orig-display', element.style.display);
+		BOM.trigger('hide', hide);
 	}
 	element.style.display = 'none';
 }
@@ -463,6 +464,7 @@ BOM.hide = function (element) {
 BOM.show = function (element) {
 	if (element.style.display === 'none') {
 		element.style.display = element.getAttribute('data-orig-display') || '';
+		BOM.trigger('show', element);
 	}
 }
 

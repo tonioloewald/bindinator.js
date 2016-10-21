@@ -4,7 +4,7 @@
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism-okaidia.css">
 	<link rel="stylesheet" type="text/css" href="bom.css">
 </head>
-<body data-event="keydown(alt-meta-KeyK):demo.alertKeystroke">
+<body data-event="keydown(alt-meta-KeyK):demo.alertKeystroke;keydown(alt-Space):demo.fullscreen">
 	<div class="layout">
 		<div class="header">
 			<h1>Bind-O-Matic.js</h1>
@@ -58,6 +58,10 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.9.3/jshint.min.js"></script>
 	-->
 	<script>
+		var title = BOM.id('title');
+		var element = BOM.id('example');
+		var source_code = BOM.id('source-code');
+
 		BOM.register('demo', {
 			showDocs: function(evt) {
 				console.log(evt.target);
@@ -66,7 +70,15 @@
 			loadComponent: function(evt) {
 				window.location.hash = 'component=' + evt.target.getAttribute('data-path');
 			},
-			alertKeystroke: evt => alert(BOM.keystroke(evt))
+			alertKeystroke: evt => alert(BOM.keystroke(evt)),
+			fullscreen: () => {
+				console.log('toggling fullscreen');
+				if (!element.matches('.fullscreen')) {
+					element.classList.add('fullscreen');
+				} else {
+					element.classList.remove('fullscreen');
+				}
+			}
 		});
 		BOM.component('hello', 'components/hello');
 
@@ -78,10 +90,6 @@
 		   		BOM.register('components', data);
 		 		})
 		   .then(update);
-
-		var title = BOM.id('title');
-		var element = BOM.id('example');
-		var source_code = BOM.id('source-code');
 
 		function update() {
 			var pairs = window.location.hash.substr(1).split('&').map(pair => {

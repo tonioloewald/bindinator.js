@@ -30,7 +30,7 @@
 		margin-left: -8px;
 	}
 </style>
-<div data-children>
+<div data-children data-event="show:_component_.updatePosition">
 	Annotation
 </div>
 <script>
@@ -64,7 +64,13 @@
 		data.target = component.parentElement;
 	}
 
-	var target_pos = subtractPoint(position(data.target), scrollOffset(data.target));
-	component.style.left = (target_pos.x + data.target.clientWidth / 2 - component.clientWidth / 2) + 'px';
-	component.style.top = (target_pos.y + data.target.clientHeight + 4) + 'px';
+	function updatePosition() {
+		var target_pos = subtractPoint(position(data.target), scrollOffset(data.target));
+		component.style.left = (target_pos.x + data.target.clientWidth / 2 - component.clientWidth / 2) + 'px';
+		component.style.top = (target_pos.y + data.target.clientHeight + 4) + 'px';	
+	}
+
+	updatePosition();
+
+	return { updatePosition }
 </script>
