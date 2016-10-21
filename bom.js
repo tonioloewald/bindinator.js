@@ -387,7 +387,7 @@ function parseBinding (binding) {
 		}
 		return parts ? { target: parts[1], key: parts[3] } : null;
 	});
-	var [, model,, path] = source.match(/([^.;]*)(\.([^.;]+))?/);
+	var [, model,, path] = source.match(/([^.;]*)(\.(.+))?/);
 	return {targets, model, path};
 }
 
@@ -524,8 +524,12 @@ models['_BOM_'] = {
 	BOM.ajax(url, method, data).then(success, failure)
 	BOM.json(url, method, data).then(success, failure)
 */
-BOM.ajax = function (url, method, request_data, data_type) {
+BOM.ajax = function (url, method, request_data, config) {
 	return new Promise(function(resolve, reject) {
+		config = config || {};
+		if (!config.headers) {
+			config.headers = [];
+		}
 		var request = new XMLHttpRequest();
 		request.open(method || 'GET', url, true);
 		request.onreadystatechange = () => {
@@ -546,17 +550,21 @@ BOM.ajax = function (url, method, request_data, data_type) {
 		}
 		if (typeof request_data === 'object') {
 			request_data = JSON.stringify(request_data);
-			request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+			config.headers.push({
+				prop: 'Content-Type',
+				value: 'application/json; charset=utf-8'
+			});
 		}
+		config.headers.forEach(header => request.setRequestHeader(header.prop, header.value));
 		request.send(request_data);
 	});
 };
 
-BOM.json = function (url, method, request_data) {
+BOM.json = function (url, method, request_data, config) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url, method, request_data).then(data => {
+		BOM.ajax(url, method, request_data, config).then(data => {
 			try {
-				resolve(JSON.parse(data));
+				resolve(JSON.parse(data || 'null'));
 			} catch(e) {
 				console.error('Failed to parse data', data, e);
 			}
@@ -564,11 +572,11 @@ BOM.json = function (url, method, request_data) {
 	});
 };
 
-BOM.jsonp = function (url, method, request_data) {
+BOM.jsonp = function (url, method, request_data, config) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url, method, request_data).then(data => {
+		BOM.ajax(url, method, request_data, config).then(data => {
 			try {
-				resolve(JSON.parse(data));
+				resolve(JSON.parse(data || 'null'));
 			} catch(e) {
 				console.error('Failed to parse data', data, e);
 			}
