@@ -342,7 +342,10 @@ var toTargets = {
 			element.classList.remove(class_to_toggle);
 		}
 	},
-	// conditional styles
+	method: function(element, value, dest) {
+		[model, method] = dest.split('.');
+		BOM.getByPath(model, method)(element, value);
+	}
 };
 
 var fromTargets = {
