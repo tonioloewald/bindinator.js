@@ -50,5 +50,9 @@
 	{
 		"name": "Photo Carousel",
 		"path": "photo-carousel"
+	},
+	{
+		"name": "iframe",
+		"path": "iframe"
 	}
 ]

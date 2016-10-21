@@ -37,7 +37,7 @@
 			<div class="content">
 				<h2 style="text-align: right;" id="title"></h2>
 				<div id="example"></div>
-				<div><pre><code style="font-size: 12px" id="source-code" class="language-markup"></code></pre></div>
+				<div><pre><code style="font-size: 12px; white-space: pre-wrap;" id="source-code" class="language-markup"></code></pre></div>
 			</div>
 			<div class="nav">
 				<h3>Tests</h3>
@@ -74,7 +74,7 @@
 		   .then(data => BOM.register('source_files', data))
 		   .then(() => BOM.json('components.json'))
 		   .then(data => {
-		   		data.sort((a, b) => a.name > b.name ? 1 : -1);
+		   		data.sort((a, b) => a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1);
 		   		BOM.register('components', data);
 		 		})
 		   .then(update);
