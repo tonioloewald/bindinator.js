@@ -313,6 +313,24 @@ implicit_event_types.forEach(type => document.body.addEventListener(type, handle
 /*
 	This is where we define all the methods for binding to/from the DOM
 */
+
+/**
+	## data-bind
+
+	### flushing data to the DOM
+
+	* value -- sets the element's value (works for input, select, textarea)
+	* checked -- toggles the element's checked based on truthiness of value
+	* text -- sets the element's textContent
+	* attr(some_attribute) -- sets the element's specified attribute
+	* style -- sets the element's specified style property
+	* class(class_name) -- toggles the specified class based on the truthiness of value
+	* show_if -- shows the (otherwise hidden) element base on the truthiness of the value
+	* show_if(value) -- shows the (otherwise hidden) element for matching value
+	* method(model.method) -- calls the specified registered method, passing the element, valuem and the data object as parameters
+	* component_map(value:component|other_value:other_component|yet_another_component) -- loads and binds the first matching component
+	* json -- dumps the value stringified into the textContent of the element (mainly for debugging)
+*/
 var toTargets = {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
@@ -325,6 +343,9 @@ var toTargets = {
 			default:
 				element.value = value;
 		}
+	},
+	checked: function(element, value) {
+		element.checked = !!value;
 	},
 	text: function(element, value){
 		element.textContent = value;
@@ -342,11 +363,46 @@ var toTargets = {
 			element.classList.remove(class_to_toggle);
 		}
 	},
-	method: function(element, value, dest) {
-		[model, method] = dest.split('.');
-		BOM.getByPath(model, method)(element, value);
+	show_if: function(element, value, dest) {
+		if (dest !== undefined ? value == dest : value) {
+			BOM.show(element);
+		} else {
+			BOM.hide(element);
+		}
+	},
+	method: function(element, value, dest, data) {
+		var [model, method] = dest.split('.');
+		BOM.getByPath(model, method)(element, value, data);
+	},
+	json: function(element, value) {
+		element.textContent = JSON.stringify(value, false, 2);
+	},
+	component_map: function(element, value, dest, data) {
+		if (element.getAttribute('data-component-uuid')) {
+			return;
+		}
+		var component_options = dest.split('|');
+		var component_name;
+		for (var i = 0; i < component_options.length; i++) {
+			var parts = component_options[i].split(':');
+			if (parts.length === 1 || parts[0] == value) {
+				component_name = parts.pop();
+				break;
+			}
+		}
+		if (component_name) {
+			BOM.insertComponent(component_name, element, data);
+		}
 	}
 };
+
+/**
+	### collecting data from the DOM
+
+	* value -- pulls the element's value from the DOM
+	* checked -- pulls the element's checked value from the DOM
+	* text -- pulls the element's textContent from the DOM
+*/
 
 var fromTargets = {
 	value: function(element){
@@ -390,6 +446,9 @@ function parseBinding (binding) {
 		}
 		return parts ? { target: parts[1], key: parts[3] } : null;
 	});
+	if (!source) {
+		debugger;
+	}
 	var [, model,, path] = source.match(/([^.;]*)(\.(.+))?/);
 	return {targets, model, path};
 }
@@ -434,7 +493,7 @@ function bind (element, data, basePath) {
 		var _fromTargets = targets.filter(t => fromTargets[t.target]);
 		if (obj && _toTargets.length) {
 			_toTargets.forEach(t => {
-				toTargets[t.target](element, getByPath(obj, path), t.key)
+				toTargets[t.target](element, getByPath(obj, path), t.key, obj)
 			});
 		} else {
 			// save message for when source is registered
@@ -469,7 +528,7 @@ BOM.show = function (element) {
 }
 
 function bindList (element, data, basePath) {
-	var list_path = element.getAttribute('data-list');
+	var [list_path, component_map] = element.getAttribute('data-list').split(':');
 	try {
 		var [,model,, path] = list_path.match(/^([^\.]*)(\.(.*))?$/);
 	} catch(e) {
@@ -714,12 +773,7 @@ function loadAvailableComponents(element, data) {
 	BOM.findWithin(element || document.body, '[data-component]').forEach(target => {
 		if (!target.matches('[data-component-uuid]')) {
 			var name = target.getAttribute('data-component');
-			if (components[name]) {
-				BOM.insertComponent(components[name], target, data);
-			} else {
-				saveDataForElement(target, data);
-				console.warn('component not available: ', name);
-			}
+			BOM.insertComponent(name, target, data);
 		}
 	})
 }
@@ -736,7 +790,10 @@ function loadAvailableComponents(element, data) {
 BOM.insertComponent = function (component, element, data) {
 	if (typeof component === 'string') {
 		if(!components[component]) {
-			console.error('could not insert component', component);
+			console.warn('component not available: ', name);
+			if (data) {
+				saveDataForElement(element, data);
+			}
 			return;
 		}
 		component = components[component];
