@@ -351,7 +351,11 @@ var toTargets = {
 		element.textContent = value;
 	},
 	attr: function(element, value, dest) {
-		element.setAttribute(dest, value);
+		if (value === undefined) {
+			element.removeAttribute(dest);
+		} else {
+			element.setAttribute(dest, value);	
+		}
 	},
 	style: function(element, value, dest) {
 		element.style[dest] = value;
