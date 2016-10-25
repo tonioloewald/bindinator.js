@@ -351,7 +351,7 @@ var toTargets = {
 		element.textContent = value;
 	},
 	attr: function(element, value, dest) {
-		if (value === undefined) {
+		if (value === undefined || value === null) {
 			element.removeAttribute(dest);
 		} else {
 			element.setAttribute(dest, value);	
