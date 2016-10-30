@@ -26,13 +26,13 @@
 </style>
 <div data-component="carousel" style="text-align: center; padding: 8px 0;">
 	<div class="flickr-frame" data-list=".items">
-		<a target="_blank" data-bind="attr(href)=.link">
+		<!-- <a target="_blank" data-bind="attr(href)=.link"> -->
 			<img class="flickr-photo" data-bind="attr(src)=.media.m;attr(label)=.title">
-		</a>
+		<!-- </a> -->
 	</div>
 </div>
 <script>
-	BOM.component('carousel', 'carousel');
+	BOM.component('carousel', 'components/carousel');
 	var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
 
 	function getFlickrData(url, callback) {
@@ -55,5 +55,8 @@
 	}
 
 	var image_template = component.children[0];
-	getFlickrData(feed_url, data => BOM.bindAll(image_template, data) );
+	getFlickrData(feed_url, data => {
+		BOM.bindAll(image_template, data);
+		BOM.trigger('change', findOne('.carousel'));
+	});
 </script>

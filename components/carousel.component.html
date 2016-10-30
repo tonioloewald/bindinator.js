@@ -30,7 +30,7 @@
 		right: 4px;
 	}
 </style>
-<div class="carousel" data-event="mouseup:_component_.setTarget" data-children>
+<div class="carousel" data-event="mouseup:_component_.setTarget;change:_component_.change" data-children>
 	<div class="windoid" style="background-color: #d00">
 	</div>
 	<div class="windoid" style="background-color: #d70">
@@ -102,13 +102,19 @@
 		element.style.zIndex = Math.round(30 - 10 * abs_offset);
 	}
 
-	var test_elt = findOne('.test');
 	var position = 0;
 	var target = 0;
-	var items = find('.carousel > div');
+	var items;
 	var slider = findOne('input');
 
+	function init() {
+		items = find('.carousel > div:not([data-list]');
+		target = Math.min(target, items.length - 1);
+		updateItems();
+	}
+
 	function updateItems(){
+		var items = find('.carousel > div').filter(elt => !elt.matches('[data-list]'));
 		items.forEach((element, idx) => {
 			setItemPosition(element, idx - position);
 		});
@@ -125,13 +131,14 @@
 		updateItems();
 	}
 
-	updateItems();
+	init();
 
 	return {
 		setTarget: (evt) => {
 			target = items.indexOf(evt.target);
-			snapToTarget();
+			snapToTarget(evt.target);
 		},
+		change: init,
 		update: (evt) => {
 			position = slider.value * (items.length - 1);
 			updateItems();
