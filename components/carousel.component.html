@@ -105,6 +105,7 @@
 	var position = 0;
 	var target = 0;
 	var items;
+	var carousel = findOne('.carousel');
 	var slider = findOne('input');
 
 	function init() {
@@ -135,8 +136,12 @@
 
 	return {
 		setTarget: (evt) => {
-			target = items.indexOf(evt.target);
-			snapToTarget(evt.target);
+			child = evt.target;
+			while (child.parentElement && items.indexOf(child) === -1) {
+				child = child.parentElement;
+			}
+			target = items.indexOf(child);
+			snapToTarget(child);
 		},
 		change: init,
 		update: (evt) => {

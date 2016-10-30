@@ -1,27 +1,10 @@
 <style>
-	.flickr-frame {
-		width: 216px;
-		max-height: 216px;
-		margin: 8px;
-		text-align: center;
+	.flickr-frame img {
 		display: inline-block;
-	}
-	.flickr-frame > a {
-		display: inline-block;
-		vertical-align: middle;
-	}
-	.flickr-frame > a > img {
 		border: 8px solid white;
 		box-shadow: 0.5px 1.5px 6px 0 rgba(0,0,0,0.5);
-		max-width: 200px;
-		max-height: 200px;
-		min-width: 150px;
-		min-height: 150px;
 		background-color: gray;
-	}
-	.flickr-frame > a > img[src] {
-		min-width: default;
-		min-height: default;
+		max-width: 100%;
 	}
 </style>
 <div data-component="carousel" style="text-align: center; padding: 8px 0;">
@@ -51,7 +34,7 @@
 	if (component.getAttribute('tags')) {
 		feed_url += '&tags=fave,' + escape(component.getAttribute('tags'));
 	} else {
-		feed_url += '&tags=fave';
+		feed_url += '&tags=fave,cityscape';
 	}
 
 	var image_template = component.children[0];
