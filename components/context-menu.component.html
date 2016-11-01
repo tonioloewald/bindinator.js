@@ -21,7 +21,7 @@
 	<header>
 		Header
 	</header>
-	<a data-list="_DATA_" data-event="keyup(ArrowUp):_component_.up;keydown(ArrowDown):_component_.down;keydown(Space),click:_component_.action" data-bind="text=.caption" tabindex=0>xxxxx</a>
+	<a data-list="_DATA_" data-event="keyup(ArrowUp):_component_.up;keydown(ArrowDown):_component_.down;keydown(Space),click:_component_.action" data-bind="text=.caption" tabindex=0>Menu Item</a>
 	<footer>
 		Footer
 	</footer>
@@ -41,6 +41,9 @@
 			}
 		}
 	});
+
+	// this is kind of a hack
+	BOM.trigger('show', findOne('[data-event*="show"]'));
 	return {
 		hide: evt => component.remove(),
 		up: evt => evt.target.previousSibling.focus(),

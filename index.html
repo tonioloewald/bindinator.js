@@ -33,17 +33,15 @@
 						File Name
 					</div>
 				</div>
+				<h3>Tests</h3>
+				<a target="_blank" href="tests.html">Unit Tests</a>
+				<h3>Project</h3>
+				<a target="_blank" href="https://trello.com/b/0OBL4IjC/bind-o-matic">Trello</a>
 			</div>
 			<div class="content">
 				<h2 style="text-align: right;" id="title"></h2>
 				<div id="example"></div>
 				<div><pre><code style="font-size: 12px; white-space: pre-wrap;" id="source-code" class="language-markup"></code></pre></div>
-			</div>
-			<div class="nav">
-				<h3>Tests</h3>
-				<a target="_blank" href="tests.html">Unit Tests</a>
-				<h3>Project</h3>
-				<a target="_blank" href="https://trello.com/b/0OBL4IjC/bind-o-matic">Trello</a>
 			</div>
 		</div>
 		<div class="footer">
@@ -91,8 +89,16 @@
 		 		})
 		   .then(update);
 
+		var last_component_path;
 		function update() {
-			var pairs = window.location.hash.substr(1).split('&').map(pair => {
+			var component_path = window.location.hash.substr(1).split('?')[0];
+			if(component_path === last_component_path) {
+				console.warn('ignoring hash change within component');
+				return;
+			}
+			last_component_path = component_path;
+
+			var pairs = component_path.split('&').map(pair => {
 				var [key, value] = pair.split('=');
 				return {key, value};
 			});
@@ -110,7 +116,7 @@
 					case 'component':
 						BOM.component(value, 'components/' + value)
 							 .then(component => {
-							 		title.textContent = value + '.component.html';
+							 		title.textContent = value.split('/').pop() + '.component.html';
 							 		source_code.textContent = component._source.replace(/\t/g, '  ');
 							 		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min").then(() => {
 							 			Prism.highlightElement(source_code);

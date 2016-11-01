@@ -96,10 +96,15 @@ BOM.register = function (name, obj) {
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
+	BOM.find('[data-bind*="' + name + '"]').forEach(elt => {
+		bind(elt);
+		BOM.trigger('change', elt);
+	});
+	BOM.find('[data-list*="' + name + '"]').forEach(elt => {
+		bindList(elt);
+		BOM.trigger('change', elt);
+	});
 	playSavedMessages(name);
-	BOM.find('[data-bind*="' + name + '"]').forEach(elt => bind(elt));
-	BOM.find('[data-list*="' + name + '"]').forEach(elt => bindList(elt));
-	// play back messages
 };
 
 BOM.isRegistered = function(name) {
@@ -124,7 +129,7 @@ BOM.setByPath = function (name, path, value, source_element) {
 
 BOM.getByPath = function (name, path) {
 	if (name && models[name]) {
-		return getByPath(models[name], path);
+		return getByPath(models[name], path || '/');
 	}
 };
 
@@ -139,8 +144,23 @@ BOM.getByPath = function (name, path) {
 BOM.on = function (element, event_type, object, method) {
 	// check if handler already exists
 	// var existingHandlers = implicitEventHandlers(element);
-	if (!(event_type instanceof Array)) {
+	if (typeof object === 'object' && object.model) {
+		return BOM.on(element, event_type, object.model, object.method);
+	}
+	if (!element instanceof HTMLElement) {
+		console.error('bind bare elements please, not', element);
+		return;
+	}
+	if(typeof object !== 'string' || typeof method !== 'string') {
+		console.error('implicit bindings are by name, not', object, method);
+		return;
+	}
+	if(typeof event_type === 'string') {
 		event_type = [event_type];
+	}
+	if(!Array.isArray(event_type)) {
+		console.error('bind to event type (string) or array of event types', event_type);
+		return;
 	}
 	var handler = event_type.sort().join(',') + ':' + object + '.' + method;
 	var existing = element.getAttribute('data-event');
@@ -242,9 +262,13 @@ BOM.callMethod = function (model, method, evt) {
 	BOM.trigger(type, target); // trigger a synthetic implicit (only!) event
 */
 BOM.trigger = function(type, target) {
-	var stopPropagation = () => {};
-	var preventDefault = () => {};
-	handleEvent({type, target, stopPropagation, preventDefault});
+	if (target) {
+		var stopPropagation = () => {};
+		var preventDefault = () => {};
+		handleEvent({type, target, stopPropagation, preventDefault});	
+	} else {
+		console.warn('BOM.trigger called with no specified target');
+	}
 }
 
 /**
@@ -519,7 +543,7 @@ function findLists (element) {
 BOM.hide = function (element) {
 	if (element.getAttribute('data-orig-display') !== null && (element.style.display && element.style.display !== 'none')) {
 		element.setAttribute('data-orig-display', element.style.display);
-		BOM.trigger('hide', hide);
+		BOM.findWithin(element, '[data-event*="hide"]').forEach(elt => BOM.trigger('hide', elt));
 	}
 	element.style.display = 'none';
 }
@@ -527,7 +551,7 @@ BOM.hide = function (element) {
 BOM.show = function (element) {
 	if (element.style.display === 'none') {
 		element.style.display = element.getAttribute('data-orig-display') || '';
-		BOM.trigger('show', element);
+		BOM.findWithin(element, '[data-event*="show"]').forEach(elt => BOM.trigger('show', elt));
 	}
 }
 
@@ -571,6 +595,7 @@ function bindAll(element, data, basePath) {
 	loadAvailableComponents(element, data);
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
+	BOM.trigger('change', element);
 }
 
 BOM.bindAll = bindAll;

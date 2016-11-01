@@ -3,7 +3,8 @@
 	Simple implementation of CommonJS Require
 */
 
-(function(global){
+(function(){
+var global = this;
 var modules = {};
 
 function define(module_name, source_code) {
@@ -21,7 +22,7 @@ global.require = function(module_name) {
 		if (request.status === 200) {
 			define(module_name, request.responseText);
 		} else {
-			console.error(module_name, 'failed, error', request.statusText);
+			return {};
 		}
 	}
 	return modules[module_name].exports;
@@ -54,5 +55,4 @@ global.require.lazy = function(module_name) {
 		}
 	});
 }
-
-}(window));
+}());
