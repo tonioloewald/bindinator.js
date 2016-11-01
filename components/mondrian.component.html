@@ -1,5 +1,65 @@
-<div style="display: flex; width: 100%;">
+<style>
+	.mondrian {
+		display: flex;
+		flex-flow: row-reverse wrap;
+		height: 600px;
+	}
+	.mondrian > div {
+		width: 10px;
+		color: rgba(0,0,0,0.3);
+		flex-grow: 1;
+		flex-shrink: 0;
+		font-size: 48px;
+		line-height: 100px;
+		text-align: center;
+		position: relative;
+		transition: 1s ease-out;
+	}
+</style>
+<div class="mondrian">
 	<div style="background-color: red">A</div>
 	<div style="background-color: green">B</div>
 	<div style="background-color: blue">C</div>
+	<div style="background-color: yellow">D</div>
+	<div style="background-color: orange">E</div>
+	<div style="background-color: indigo">F</div>
+	<div style="background-color: turquoise">G</div>
+	<div style="background-color: magenta">H</div>
+	<div style="background-color: olive">I</div>
+	<div style="background-color: purple">J</div>
 </div>
+<button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
+<button class="show" data-event="click:_component_.show_random">Show Random</button>
+<script>
+	const visible = () => find('.mondrian > div').filter(div => !div.matches('.hidden'));
+	const hidden = () => find('.mondrian > .hidden');
+
+	function update() {
+		const hidden_list = hidden();
+		const visible_list = visible();
+		findOne('.show').disabled = hidden_list.length === 0;
+		findOne('.hide').disabled = visible_list.length === 0;
+		const minWidth = Math.floor(100 / Math.ceil(Math.sqrt(visible().length)));
+		visible_list.forEach(div => {
+			div.style.minWidth = minWidth + '%';
+		});
+		hidden_list.forEach(div => div.style.minWidth = '');
+	}
+
+	function pick_random(arr) {
+		return arr[Math.floor(Math.random() * arr.length)];
+	}
+
+	update();
+
+	return {
+		hide_random: () => {
+			pick_random(visible()).classList.add('hidden');
+			update();
+		},
+		show_random: () => {
+			pick_random(hidden()).classList.remove('hidden');
+			update();
+		}
+	}
+</script>
