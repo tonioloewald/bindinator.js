@@ -40,8 +40,8 @@
 		"path": "loading"
 	},
 	{
-		"name": "Checkbox Slider",
-		"path": "slider"
+		"name": "Checkbox Switch",
+		"path": "switch"
 	},
 	{
 		"name": "Carousel",
