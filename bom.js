@@ -239,8 +239,10 @@ BOM.callMethod = function (model, method, evt) {
 		var target = evt.target.closest('[data-component-uuid]');
 		while(!(view_controller && view_controller[method]) && target) {
 			var uuid = target.getAttribute('data-component-uuid');
-			view_controller = models['_BOM_components_'][uuid];
-			target = target.parentElement.closest('[data-component-uuid]');
+			if (models['_BOM_components_'] && uuid) {
+				view_controller = models['_BOM_components_'][uuid];
+				target = target.parentElement.closest('[data-component-uuid]');
+			}
 		}
 		if (!view_controller) {
 			console.error('event bound to _component_ found no view_controller', evt.target);
