@@ -4,7 +4,7 @@
 
 Binds your data and methods so you can concentrate on your actual goals.
 */
-/* jshint esnext:true */
+/* jshint esnext:true, loopfunc:true */
 /* globals console, window */
 
 'use strict';
@@ -344,10 +344,10 @@ BOM.trigger = function(type, target) {
 */
 BOM.keystroke = function(evt) {
 	var code = [];
-	evt.altKey && code.push('alt');
-	evt.ctrlKey && code.push('ctrl');
-	evt.metaKey && code.push('meta');
-	evt.shiftKey && code.push('shift');
+	if(evt.altKey){ code.push('alt'); }
+	if(evt.ctrlKey){ code.push('ctrl'); }
+	if(evt.metaKey){ code.push('meta'); }
+	if(evt.shiftKey){ code.push('shift'); }
 	code.push(evt.code || '');
 	return code.join('-');
 };
