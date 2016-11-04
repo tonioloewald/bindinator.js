@@ -22,6 +22,10 @@
 		width: 100%;
 		height: 100%;
 	}
+
+	.ew-sizer {
+		background-color: rgba(0,0,0,0.05);
+	}
 </style>
 <div class="bom-fiddle" style="display: flex; position: relative;">
 	<div style="flex-grow: 1; width: 50%; position: relative; min-width: 200px; display: flex; flex-direction: column;">
@@ -42,10 +46,7 @@
 
 	require.lazy('https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace').then(() => {
 	    editor = ace.edit(code_elt);
-	    ace.config.set("packaged", true);
 		ace.config.set("basePath", "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/");
-	    editor.setTheme("monokai");
-	    editor.getSession().setMode("html");
 	}, () => {
 		code_elt.contentEditable = true;
 	});
