@@ -60,12 +60,27 @@
 		var element = BOM.id('example');
 		var source_code = BOM.id('source-code');
 
+		function markCurrent(doc) {
+			BOM.find('.current').forEach(elt => {
+				elt.classList.remove('current');
+			});
+			const current = BOM.findOne('[data-path="' + doc + '"]');
+			if (current) {
+				current.classList.add('current');
+			}
+		}
+
 		BOM.register('demo', {
 			showDocs: function(evt) {
-				console.log(evt.target);
+				if (evt.target.matches('.current')) {
+					return;
+				}
 				window.location.hash = 'source=' + evt.target.getAttribute('data-path');
 			},
 			loadComponent: function(evt) {
+				if (evt.target.matches('.current')) {
+					return;
+				}
 				window.location.hash = 'component=' + evt.target.getAttribute('data-path');
 			},
 			alertKeystroke: evt => alert(BOM.keystroke(evt)),
@@ -97,6 +112,8 @@
 				return;
 			}
 			last_component_path = component_path;
+
+			markCurrent(component_path.split('=').pop());
 
 			var pairs = component_path.split('&').map(pair => {
 				var [key, value] = pair.split('=');

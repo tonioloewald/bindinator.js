@@ -7,9 +7,16 @@
 		cursor: pointer;
 	}
 
-	.annotated {
+	[data-tooltip] {
 		display: inline-block;
 		border-bottom: 1px dotted green;
+		padding: 4px;
+		margin: -4px;
+	}
+
+	.annotation.gone {
+		opacity: 0;
+		transition: 0.5s ease-in;
 	}
 </style>
 <div>
@@ -22,12 +29,47 @@
 	</div>
 	<p class="result"></p>
 	<div class="demo-area">
-		One of these words is <span class="annotated">annotated<span data-component="annotation"><div>I am an annotation</div></span></span>.
+		Two of these <span data-tooltip="Word!">words</span> are <span data-tooltip="This is an annotation!">annotated</span></span>.
 	</div>
 </div>
 <script>
 	var result = findOne('.result');
-	BOM.component('annotation', 'components/annotation');
+
+	var tooltip;
+	var target;
+	var last_target;
+
+	function showTip(evt) {
+		if(!target && evt.target.matches('[data-tooltip]')) {
+			target = evt.target;
+			if (target === last_target) {
+				tooltip.classList.remove('gone');
+				return;
+			} else if (tooltip) {
+				tooltip.remove();
+				tooltip = null;
+			}
+			const content = BOM.create('div');
+			content.style.padding = '4px 8px';
+			content.textContent = target.getAttribute('data-tooltip');
+			BOM.component('annotation', 'components/annotation').then(note => {
+				tooltip = BOM.insertComponent('annotation', false, {target, content});
+			});
+		}
+	}
+
+	function hideTip(evt) {
+		if (evt.target === target) {
+			tooltip.classList.add('gone');
+			last_target = target;
+			target = null;
+		}
+	}
+
+	BOM.register('tooltips', {showTip, hideTip});
+	BOM.on(document.body, 'mouseover', 'tooltips', 'showTip');
+	BOM.on(document.body, 'mouseout', 'tooltips', 'hideTip');
+
 	return {
 		context_menu: function(evt) {
 			BOM.component('context-menu', 'components/context-menu').then(component => {

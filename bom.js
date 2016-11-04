@@ -4,8 +4,12 @@
 
 Binds your data and methods so you can concentrate on your actual goals.
 */
+/* jshint esnext:true, loopfunc:true */
+/* globals console, window */
 
-function BOM(){};
+'use strict';
+
+function BOM(){}
 
 /**
 	BOM.find(selector);       					// syntax sugar for querySelectorAll, returns proper array
@@ -33,7 +37,7 @@ BOM.findOneWithin = (element, selector, include_self) => include_self && element
 BOM.makeArray = arrayish => [].slice.apply(arrayish);
 BOM.succeeding = (element, selector) => {
 	while(element.nextSibling && !element.nextElementSibling.matches(selector)){
-		element = element.nextElementSibling
+		element = element.nextElementSibling;
 	}
 	return element.nextElementSibling;
 };
@@ -90,7 +94,7 @@ var models = {};
 
 BOM.register = function (name, obj) {
 	if (name.match(/^_[^_]*_$/)) {
-		throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved."
+		throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved.";
 	}
 	models[name] = obj;
 	if (BOM.getByPath(models[name], 'add')) {
@@ -109,7 +113,7 @@ BOM.register = function (name, obj) {
 
 BOM.isRegistered = function(name) {
 	return models[name] !== undefined;
-}
+};
 
 BOM.deregister = function (name) {
 	if (BOM.getByPath(models[name], 'remove')) {
@@ -150,13 +154,30 @@ BOM.getByPath = function (name, path) {
 		// NOTE if you link two event types to the same method separately they will NOT be collated
 		// TODO convenience event types, e.g. keyup(arrow) or keyup(meta-c,ctrl-y)
 */
+function getEventHandlers(element) {
+	const source = element.getAttribute('data-event');
+	const existing = source ? source.replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';') : [];
+	return existing;
+}
+
+function makeHandler(event_type, object, method) {
+	if (typeof event_type === 'string') {
+		event_type = [event_type];
+	}
+	if(!Array.isArray(event_type)) {
+		console.error('makeHandler failed; bad event_type', event_type);
+		return;
+	}
+	return event_type.sort().join(',') + ':' + object + '.' + method;
+}
+
 BOM.on = function (element, event_type, object, method) {
 	// check if handler already exists
 	// var existingHandlers = implicitEventHandlers(element);
 	if (typeof object === 'object' && object.model) {
 		return BOM.on(element, event_type, object.model, object.method);
 	}
-	if (!element instanceof HTMLElement) {
+	if (!(element instanceof HTMLElement)) {
 		console.error('bind bare elements please, not', element);
 		return;
 	}
@@ -164,21 +185,55 @@ BOM.on = function (element, event_type, object, method) {
 		console.error('implicit bindings are by name, not', object, method);
 		return;
 	}
-	if(typeof event_type === 'string') {
-		event_type = [event_type];
+	const handler = makeHandler(event_type, object, method);
+	const existing = getEventHandlers(element);
+	if(existing.indexOf(handler) === -1) {
+		existing.push(handler);
 	}
-	if(!Array.isArray(event_type)) {
-		console.error('bind to event type (string) or array of event types', event_type);
-		return;
-	}
-	var handler = event_type.sort().join(',') + ':' + object + '.' + method;
-	var existing = element.getAttribute('data-event');
-	if (existing) {
-		if (existing.replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';').indexOf(handler) === -1) {
-			element.setAttribute('data-event', existing + ';' + handler);
-		}
+	if (existing.length) {
+		element.setAttribute('data-event', existing.join(';'));
 	} else {
-		element.setAttribute('data-event', handler);
+		element.removeAttribute('data-event');
+	}
+};
+
+BOM.off = function(element, event_type, object, method) {
+	const existing = element.getAttribute('data-event').split(';');
+	const handler = makeHandler(event_type, object, method);
+	const idx = existing.indexOf(handler);
+	if (idx > -1) {
+		existing.splice(idx, 1);
+		if (existing.length) {
+			element.setAttribute('data-event', existing.join(';'));
+		} else {
+			element.removeAttribute('data-event');
+		}
+	}
+};
+
+/**
+	### Special event handling
+	BOM.onAny(event_type, object, method) => handlerRef // creates an event handler that will get first access to any event
+		// returns a reference for purposes of removal
+	BOM.offAny(handlerRef,...) // removes all the handlerRefs passed
+
+	Note that this works *exactly* like an invisible element in front of everything else
+	for purposes of propagation.
+*/
+var anyElement = null;
+BOM.onAny = function(event_type, object, method) {
+	if (!anyElement) {
+		anyElement = BOM.create('div');
+	}
+	BOM.on(anyElement, event_type, object, method);
+};
+
+BOM.offAny = function (event_type, object, method) {
+	if (anyElement) {
+		BOM.off(anyElement, event_type, object, method);
+		if (!anyElement.getAttribute('data-event')) {
+			anyElement = null;
+		}
 	}
 };
 
@@ -227,10 +282,10 @@ function saveMethodCall(model, method, evt) {
 	saved_messages.push({model, method, evt});
 }
 
-function playSavedMessages(model) {
+function playSavedMessages(for_model) {
 	var playbackQueue = [];
 	for (var i = saved_messages.length - 1; i >= 0; i--) {
-		if (saved_messages[i].model === model) {
+		if (saved_messages[i].model === for_model) {
 			playbackQueue.push(saved_messages[i]);
 			delete saved_messages[i];
 		}
@@ -248,17 +303,17 @@ BOM.callMethod = function (model, method, evt) {
 		var target = evt.target.closest('[data-component-uuid]');
 		while(!(view_controller && view_controller[method]) && target) {
 			var uuid = target.getAttribute('data-component-uuid');
-			if (models['_BOM_components_'] && uuid) {
-				view_controller = models['_BOM_components_'][uuid];
+			if (models._BOM_components_ && uuid) {
+				view_controller = models._BOM_components_[uuid];
 				target = target.parentElement.closest('[data-component-uuid]');
-			}
+      }
 		}
 		if (!view_controller) {
 			console.error('event bound to _component_ found no view_controller', evt.target);
 		} else {
 			result = view_controller[method](evt);	
 		}
-	} else if( models[model] ) {
+	} else if ( models[model] ) {
 		result = models[model][method](evt);
 	} else {
 		// TODO queue if model not available
@@ -280,7 +335,7 @@ BOM.trigger = function(type, target) {
 	} else {
 		console.warn('BOM.trigger called with no specified target');
 	}
-}
+};
 
 /**
 	## Keystrokes
@@ -298,16 +353,16 @@ BOM.trigger = function(type, target) {
 */
 BOM.keystroke = function(evt) {
 	var code = [];
-	evt.altKey && code.push('alt');
-	evt.ctrlKey && code.push('ctrl');
-	evt.metaKey && code.push('meta');
-	evt.shiftKey && code.push('shift');
+	if(evt.altKey){ code.push('alt'); }
+	if(evt.ctrlKey){ code.push('ctrl'); }
+	if(evt.metaKey){ code.push('meta'); }
+	if(evt.shiftKey){ code.push('shift'); }
 	code.push(evt.code || '');
 	return code.join('-');
-}
+};
 
 function handleEvent (evt) {
-	var target = evt.target;
+	var target = anyElement ? anyElement : evt.target;
 	var keystroke = BOM.keystroke(evt);
 	var done = false;
 	var result;
@@ -315,11 +370,10 @@ function handleEvent (evt) {
 		var handlers = implicitEventHandlers(target);
 		for (var i = 0; i < handlers.length; i++) {
 			var handler = handlers[i];
-			var type_index = handler.types.indexOf(evt.type);
 			for (var type_index = 0; type_index < handler.types.length; type_index++) {
 				if(
-					handler.types[type_index] === evt.type
-					&& (!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
+					handler.types[type_index] === evt.type && 
+						(!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
 				) {
 					if( handler.model && handler.method ) {
 						result = BOM.callMethod(handler.model, handler.method, evt);
@@ -337,12 +391,12 @@ function handleEvent (evt) {
 				}
 			}
 		}
-		target = target.parentElement;
+		target = target === anyElement ? evt.target : target.parentElement;
 	}
 }
 
 var implicit_event_types = [
-	'mousedown', 'mouseup', 'click',
+	'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
 	'input', 'change',
 	'keydown', 'keyup',
 	'focus', // more to follow
@@ -460,26 +514,6 @@ var fromTargets = {
 	}
 };
 
-function toDOM (element, target, obj, path) {
-	var [,to,,dest] = target.match(/(\w+)(\((\w+)\))?/);
-	if (!to) {
-		console.error('bad DOM target', target);
-	}
-	if (toTargets[to]) {
-		toTargets[to](element, getByPath(obj, path), dest);
-	} else {
-		console.error('unknown data target', target);
-	}
-}
-
-function fromDOM (element, target) {
-	if (fromTargets[target]) {
-		return fromTargets[target](element);
-	} else {
-		console.error('unknown data source target', target);
-	}
-}
-
 function parseBinding (binding) {
 	var [targets, source] = binding.split('=');
 	targets = targets.split(',').map(function(target){ 
@@ -491,7 +525,7 @@ function parseBinding (binding) {
 		return parts ? { target: parts[1], key: parts[3] } : null;
 	});
 	if (!source) {
-		debugger;
+		console.error('binding does not specify source', binding);
 	}
 	var [, model,, path] = source.match(/([^.;]*)(\.(.+))?/);
 	return {targets, model, path};
@@ -537,7 +571,7 @@ function bind (element, data, basePath) {
 		var _fromTargets = targets.filter(t => fromTargets[t.target]);
 		if (obj && _toTargets.length) {
 			_toTargets.forEach(t => {
-				toTargets[t.target](element, getByPath(obj, path), t.key, obj)
+				toTargets[t.target](element, getByPath(obj, path), t.key, obj);
 			});
 		} else {
 			// save message for when source is registered
@@ -562,19 +596,20 @@ BOM.hide = function (element) {
 		BOM.findWithin(element, '[data-event*="hide"]').forEach(elt => BOM.trigger('hide', elt));
 	}
 	element.style.display = 'none';
-}
+};
 
 BOM.show = function (element) {
 	if (getComputedStyle(element).display === 'none') {
 		element.style.display = element.getAttribute('data-orig-display') || '';
 		BOM.findWithin(element, '[data-event*="show"]').forEach(elt => BOM.trigger('show', elt));
 	}
-}
+};
 
 function bindList (element, data, basePath) {
-	var [list_path, component_map] = element.getAttribute('data-list').split(':');
+	var [list_path] = element.getAttribute('data-list').split(':');
+	var model, path;
 	try {
-		var [,model,, path] = list_path.match(/^([^\.]*)(\.(.*))?$/);
+		[,model,, path] = list_path.match(/^([^\.]*)(\.(.*))?$/);
 	} catch(e) {
 		console.error('bindList failed', list_path, e);
 	}
@@ -598,9 +633,9 @@ function bindList (element, data, basePath) {
 	for (var i = 0; i < list.length; i++) {
 		var instance = element.cloneNode(true);
 		instance.removeAttribute('data-list');
-		var basePath = list_path + '[' + i + ']';
-		instance.setAttribute('data-list-instance', basePath);
-		bindAll(instance, list[i], basePath);
+		const itemPath = list_path + '[' + i + ']';
+		instance.setAttribute('data-list-instance', itemPath);
+		bindAll(instance, list[i], itemPath);
 		element.parentElement.insertBefore(instance, element);
 	}
 	BOM.hide(element);
@@ -616,7 +651,7 @@ function bindAll(element, data, basePath) {
 
 BOM.bindAll = bindAll;
 
-models['_BOM_'] = {
+models._BOM_ = {
 	update: function(evt) {
 		var bindings = getBindings(evt.target);
 		for (var i = 0; i < bindings.length; i++) {
@@ -656,7 +691,7 @@ BOM.ajax = function (url, method, request_data, config) {
 						break;
 				}
 			}
-		}
+		};
 		if (typeof request_data === 'object') {
 			request_data = JSON.stringify(request_data);
 			config.headers.push({
@@ -691,7 +726,7 @@ BOM.jsonp = function (url, method, request_data, config) {
 			}
 		}, reject);
 	});
-}
+};
 
 var components = {};
 
@@ -718,7 +753,6 @@ BOM.empty = function (element) {
 	BOM.moveChildren(source, dest); // copies contents of source to dest
 */
 BOM.moveChildren = function (source, dest) {
-	var element = source.firstChild;
 	while (source.firstChild) {
 		dest.appendChild(source.firstChild);
 	}
@@ -748,44 +782,48 @@ BOM.component = function (name, url) {
 			resolve(components[name]);
 		} else {
 			BOM.ajax(url + '.component.html').then(source => {
-				var css = false;
-				var view;
-				var css = false, content, script = false, parts, remains;
-
-				// nothing <style> css </style> rest-of-component
-				parts = source.split(/<style>|<\/style>/);
-				if (parts.length === 3) {
-					[,css,remains] = parts;
-				} else {
-					remains = source;
-				}
-
-				// content <script> script </script> nothing
-				parts = remains.split(/<script>|<\/script>/);
-				if (parts.length === 3) {
-					[content, script] = parts;
-				} else {
-					content = remains;
-				}
-
-				var div = BOM.create('div');
-				div.innerHTML = content;
-				var load = script ? new Function('component', 'BOM', 'find', 'findOne', 'data', script) : false;
-				if (css) {
-					var style = BOM.create('style');
-					style.type = 'text/css';
-					style.appendChild(BOM.text(css));
-					document.head.appendChild(style);
-				}
-				var component = {name: name, style: css ? style : false, view: div, load: load};
-				var component = {name: name, style: css ? style : false, view: div, load: load, _source: source};
-				components[name] = component;
-				var targets = BOM.find('[data-component="' + name + '"]');
-				targets.forEach(element => BOM.insertComponent(component, element));
-				resolve(component);
-			});
+				resolve(BOM.makeComponent(name, source));
+			}, err => reject(err));
 		}
 	});
+};
+
+BOM.makeComponent = function(name, source) {
+	var css = false, content, script = false, parts, remains;
+
+	// nothing <style> css </style> rest-of-component
+	parts = source.split(/<style>|<\/style>/);
+	if (parts.length === 3) {
+		[,css,remains] = parts;
+	} else {
+		remains = source;
+	}
+
+	// content <script> script </script> nothing
+	parts = remains.split(/<script>|<\/script>/);
+	if (parts.length === 3) {
+		[content, script] = parts;
+	} else {
+		content = remains;
+	}
+
+	var div = BOM.create('div');
+	div.innerHTML = content;
+/*jshint evil: true */
+	var load = script ? new Function('component', 'BOM', 'find', 'findOne', 'data', script) : false;
+/*jshint evil: false */
+	var style;
+	if (css) {
+		style = BOM.create('style');
+		style.type = 'text/css';
+		style.appendChild(BOM.text(css));
+		document.head.appendChild(style);
+	}
+	var component = {name: name, style: css ? style : false, view: div, load: load, _source: source};
+	components[name] = component;
+	var targets = BOM.find('[data-component="' + name + '"]');
+	targets.forEach(element => BOM.insertComponent(component, element));
+	return component;
 };
 
 var data_waiting_for_components = []; // { target_element, data }
@@ -795,7 +833,7 @@ function saveDataForElement(target_element, data) {
 		removeDataForElement(target_element);
 		data_waiting_for_components.push({target_element, data});	
 	}
-};
+}
 
 function dataForElement(target_element) {
 	for (var i = 0; i < data_waiting_for_components.length; i++) {
@@ -812,7 +850,7 @@ function removeDataForElement(target_element) {
 			delete data_waiting_for_components[i].data;
 		}
 	}
-};
+}
 
 function loadAvailableComponents(element, data) {
 	BOM.findWithin(element || document.body, '[data-component]').forEach(target => {
@@ -820,7 +858,7 @@ function loadAvailableComponents(element, data) {
 			var name = target.getAttribute('data-component');
 			BOM.insertComponent(name, target, data);
 		}
-	})
+	});
 }
 
 /**
@@ -871,13 +909,14 @@ BOM.insertComponent = function (component, element, data) {
 			data
 		);
 		if (view_controller) {
-			if (!models['_BOM_components_']) {
-				models['_BOM_components_'] = {};
+			if (!models._BOM_components_) {
+				models._BOM_components_ = {};
 			}
 			view_controller.root_element = element;
-			models['_BOM_components_'][uuid] = view_controller;
+			models._BOM_components_[uuid] = view_controller;
 		}
 	}
+	return element;
 };
 
 /**
@@ -893,4 +932,4 @@ BOM.uuid = function (){
         d = Math.floor(d/16);
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
-}
+};

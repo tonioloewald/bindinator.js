@@ -64,6 +64,12 @@
 		data.target = component.parentElement;
 	}
 
+	if (data.content) {
+		const container = findOne('[data-children]');
+		BOM.empty(container);
+		container.appendChild(data.content);
+	}
+
 	function updatePosition() {
 		var target_pos = subtractPoint(position(data.target), scrollOffset(data.target));
 		component.style.left = (target_pos.x + data.target.clientWidth / 2 - component.clientWidth / 2) + 'px';

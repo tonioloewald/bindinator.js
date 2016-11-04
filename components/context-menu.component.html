@@ -27,25 +27,31 @@
 	</footer>
 </div>
 <script>
+	/* globals BOM, component, data, find, findOne, console, window */
+	'use strict';
+
 	BOM.component('annotation', 'components/annotation');
 
 	// there can be only one!
 	BOM.find('.context-menu').forEach(elt => elt.parentElement === component || elt.parentElement.remove());
 	BOM.bindAll(component, data.options || [{caption: 'Option 1'}, {caption: 'Option 2'}, {caption: 'Option 3'}]);
-	BOM.on(document.body, 'mouseup', 'context-menu', 'hide');
+	BOM.onAny('mousedown', 'context-menu', 'hide');
 	findOne('[tabindex]').focus();
-	BOM.register('context-menu', {
-		hide: evt => {
-			if(!component.contains(evt.target)) {
-				component.remove();	
-			}
+
+	function hide(evt) {
+		if(!component.contains(evt.target)) {
+			component.remove();	
+			BOM.offAny('mousedown', 'context-menu', 'hide');
+			return true;
 		}
-	});
+	}
+
+	BOM.register('context-menu', {hide});
 
 	// this is kind of a hack
 	BOM.trigger('show', findOne('[data-event*="show"]'));
 	return {
-		hide: evt => component.remove(),
+		hide,
 		up: evt => evt.target.previousSibling.focus(),
 		down: evt => evt.target.nextSibling.focus(),
 		action: evt => console.log(evt),
