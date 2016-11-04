@@ -565,7 +565,7 @@ BOM.hide = function (element) {
 }
 
 BOM.show = function (element) {
-	if (element.style.display === 'none') {
+	if (getComputedStyle(element).display === 'none') {
 		element.style.display = element.getAttribute('data-orig-display') || '';
 		BOM.findWithin(element, '[data-event*="show"]').forEach(elt => BOM.trigger('show', elt));
 	}
