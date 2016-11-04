@@ -223,7 +223,7 @@ BOM.offAny = function (event_type, object, method) {
 	if (anyElement) {
 		BOM.off(anyElement, event_type, object, method);
 		if (!anyElement.getAttribute('data-event')) {
-			anyElement = null
+			anyElement = null;
 		}
 	}
 };
