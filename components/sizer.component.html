@@ -1,0 +1,67 @@
+<!--
+	Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald
+	This is a sizer component. Place it between two elements in a flex (row)
+	and it lets the user dynamically resize them.
+-->
+<style>
+	.ew-sizer {
+		width: 8px;
+		cursor: ew-resize;
+		margin: 0 0 -10000px;
+		padding: 0 0 10000px;
+	}
+	.ew-sizer:hover {
+		background-color: rgba(0,0,0,0.15);
+	}
+
+	.ew-sizer.active {
+		background-color: rgba(0,0,0,0.25);
+	}
+</style>
+<div data-event="mousedown:sizer.beginSizing" class="ew-sizer"> </div>
+<script>
+	component.style.overflow = 'hidden';
+	var ew_sizer = findOne('.ew-sizer');
+	var next_elt;
+	var prev_elt;
+	var orig_x;
+	var prev_width;
+	var next_width;
+	var total_width;
+	var total_percentage;
+	var parent_width;
+	var prev_min;
+	var next_min;
+
+	function beginSizing(evt) {
+		orig_x = evt.clientX;
+		prev_elt = component.previousElementSibling;
+		next_elt = component.nextElementSibling;
+		parent_width = component.offsetParent.offsetWidth;
+		prev_width = prev_elt.offsetWidth;
+		next_width = next_elt.offsetWidth;
+		total_width = prev_width + next_width + component.offsetWidth;
+		total_percentage = total_width * 100 / parent_width;
+		prev_min = parseInt(getComputedStyle(prev_elt).minWidth, 10) || 40;
+		next_min = parseInt(getComputedStyle(next_elt).minWidth, 10) || 40;
+		ew_sizer.classList.add('active');
+		BOM.onAny('mousemove', 'sizer', 'sizing');
+		BOM.onAny('mouseup', 'sizer', 'endSizing');
+	}
+
+	function sizing(evt) {
+		var offset = evt.clientX - orig_x;
+		offset = Math.min(offset, next_width - next_min); // min width for next element
+		offset = Math.max(offset, prev_min - prev_width); // min width for previous element
+		prev_elt.style.width = (prev_width + offset) / total_width * total_percentage + '%';
+		next_elt.style.width = (next_width - offset) / total_width * total_percentage + '%';
+	}
+
+	function endSizing(evt) {
+		ew_sizer.classList.remove('active');
+		BOM.offAny('mousemove', 'sizer', 'sizing');
+		BOM.offAny('mouseup', 'sizer', 'endSizing');
+	}
+
+	BOM.register('sizer', {beginSizing, sizing, endSizing});
+</script>

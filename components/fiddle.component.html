@@ -1,0 +1,52 @@
+<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<style>
+	textarea.code {
+		font-size: 13px;
+		font-family: Menlo, Monaco, monospace;
+		background-color: #272822;
+		color: #ddd;
+		padding: 4px 8px;
+	}
+
+	.container {
+		min-width: 100px;
+	}
+
+	button.run {
+		position: absolute;
+		bottom: 4px;
+		right: 4px;
+	}
+</style>
+<div>
+	<div style="display: flex; position: relative;">
+		<div style="flex-grow: 1; width: 50%; position: relative; min-width: 200px;">
+			<textarea style="width: 100%; min-height: 300px;" class="code" data-event="keydown(Tab):_component_.indent"></textarea>
+			<button class="run" data-event="click:_component_.run">Run</button>
+		</div>
+		<div data-component="sizer"></div>
+		<div class="container" style="margin-left: 8px; flex-grow: 1; width: 50%;"></div>
+	</div>
+</div>
+<script>
+	const code_elt = findOne('.code');
+	const container = findOne('.container');
+
+	BOM.component('sizer', 'components/sizer');
+	BOM.component('hello', '/components/hello').then(hello => {
+		code_elt.value = hello._source.replace(/\t/g, '  ');
+		BOM.insertComponent(hello, container);
+	});
+
+	function indent(evt) {
+		document.execCommand('insertText', false, '  ');
+	}
+
+	function run() {
+		BOM.makeComponent('fiddle-example', code_elt.value);
+	}
+
+	run();
+
+	return {run, indent}
+</script>
