@@ -118,12 +118,21 @@ BOM.deregister = function (name) {
 	delete(models[name]);
 };
 
+BOM.touchByPath = function(name, path, source_element) {
+	if (Array.isArray(BOM.getByPath(name, path))) {
+		const lists = BOM.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
+		lists.forEach(element => element !== source_element && bindList(element));
+	} else {
+		const elements = BOM.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
+		elements.forEach(element => element !== source_element && bind(element));
+	}
+}
+
 BOM.setByPath = function (name, path, value, source_element) {
 	if (models[name]) {
 		setByPath(models[name], path, value);
 		// this may update some false positives, but very few
-		var elements = BOM.makeArray(document.querySelectorAll('[data-bind*="=' + name + '.' + path + '"]'));
-		elements.forEach(element => element !== source_element && bind(element));
+		BOM.touchByPath(name, path, source_element);
 	}
 };
 
@@ -198,7 +207,7 @@ function implicitEventHandlers (element) {
 				types: types.map(s => s.split('(')[0].trim()),
 				type_args: types.map(s => {
 					var args = s.match(/\(([^)]+)\)/);
-					return args && args[1].split(',');
+					return args && args[1] ? args[1].split(',') : false;
 				}),
 				model,
 				method,
@@ -312,7 +321,12 @@ function handleEvent (evt) {
 					handler.types[type_index] === evt.type
 					&& (!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
 				) {
-					result = BOM.callMethod(handler.model, handler.method, evt);
+					if( handler.model && handler.method ) {
+						result = BOM.callMethod(handler.model, handler.method, evt);
+					} else {
+						console.error('incomplete event handler on', target);
+						break;
+					}
 					if (result !== true) {
 						// use stopPropagation?!
 						evt.stopPropagation();
