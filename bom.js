@@ -382,7 +382,7 @@ function handleEvent (evt) {
 }
 
 var implicit_event_types = [
-	'mousedown', 'mouseup', 'mousemove', 'click',
+	'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
 	'input', 'change',
 	'keydown', 'keyup',
 	'focus', // more to follow
@@ -902,6 +902,7 @@ BOM.insertComponent = function (component, element, data) {
 			models._BOM_components_[uuid] = view_controller;
 		}
 	}
+	return element;
 };
 
 /**

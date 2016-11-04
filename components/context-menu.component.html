@@ -29,19 +29,20 @@
 <script>
 	/* globals BOM, component, data, find, findOne, console, window */
 	'use strict';
-	
+
 	BOM.component('annotation', 'components/annotation');
 
 	// there can be only one!
 	BOM.find('.context-menu').forEach(elt => elt.parentElement === component || elt.parentElement.remove());
 	BOM.bindAll(component, data.options || [{caption: 'Option 1'}, {caption: 'Option 2'}, {caption: 'Option 3'}]);
-	BOM.onAny('mouseup', 'context-menu', 'hide');
+	BOM.onAny('mousedown', 'context-menu', 'hide');
 	findOne('[tabindex]').focus();
 
 	function hide(evt) {
 		if(!component.contains(evt.target)) {
 			component.remove();	
-			BOM.offAny('mouseup', 'context-menu', 'hide');
+			BOM.offAny('mousedown', 'context-menu', 'hide');
+			return true;
 		}
 	}
 
