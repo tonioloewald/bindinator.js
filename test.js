@@ -1,7 +1,10 @@
 // Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald
+/* globals console */
+
+'use strict';
 
 function Test(fn) {
-	if (this === window) {
+	if (!this || this === window) {
 		return new Test(fn);
 	} else if (typeof fn === 'function') {
 		this.fn = fn;
@@ -18,13 +21,12 @@ function trigger (event_type, target) {
 	} else if (!target.length) {
 		targets = [target];
 	}
-	if (!targets instanceof Array) {
+	if (!(targets instanceof Array)) {
 		targets = [].slice.apply(targets);	
 	}
 	targets.forEach(target => {
 		target.dispatchEvent(new Event(event_type, {bubbles: true, view: window}));
 	});
-	return this;
 }
 
 function report (message, _class_) {
@@ -96,4 +98,4 @@ Test.prototype = {
 	failure: function() {
 		report([].slice.apply(arguments).join(' '), 'failure');
 	}
-}
+};
