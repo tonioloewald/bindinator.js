@@ -164,7 +164,7 @@
 		// ajax methods
 		BOM.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
 		var failures = 0;
-		BOM.ajax('test/does-not-exit.txt', 'GET')
+		BOM.ajax('test/does-not-exist.txt', 'GET')
 			.then(() => {}, () => failures++)
 			.then(() => Test(() => failures).shouldBe(1));
 		BOM.json('test/test.json', 'GET')
