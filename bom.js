@@ -222,6 +222,9 @@ BOM.onAny = function(event_type, object, method) {
 BOM.offAny = function (event_type, object, method) {
 	if (anyElement) {
 		BOM.off(anyElement, event_type, object, method);
+		if (!anyElement.getAttribute('data-event')) {
+			anyElement = null
+		}
 	}
 };
 
@@ -292,7 +295,7 @@ BOM.callMethod = function (model, method, evt) {
 		while(!(view_controller && view_controller[method]) && target) {
 			var uuid = target.getAttribute('data-component-uuid');
 			if (models._BOM_components_ && uuid) {
-				view_controller = models._BOM_components_.uuid;
+				view_controller = models._BOM_components_[uuid];
 				target = target.parentElement.closest('[data-component-uuid]');
       }
 		}
@@ -896,7 +899,7 @@ BOM.insertComponent = function (component, element, data) {
 				models._BOM_components_ = {};
 			}
 			view_controller.root_element = element;
-			models._BOM_components_.uuid = view_controller;
+			models._BOM_components_[uuid] = view_controller;
 		}
 	}
 };
