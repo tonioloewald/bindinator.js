@@ -3,15 +3,19 @@
 	Simple implementation of CommonJS Require
 */
 
-(function(){
-var global = this;
+(function(global){
+'use strict';
 var modules = {};
+const noop = () => {};
 
 function define(module_name, source_code) {
 	var module = {};
+/* jshint evil:true */
 	var factory = new Function('module', source_code);
+/* jshint evil:false */
 	factory(module);
-	return modules[module_name] = module;
+	modules[module_name] = module;
+	return module;
 }
 
 global.require = function(module_name) {
@@ -26,33 +30,33 @@ global.require = function(module_name) {
 		}
 	}
 	return modules[module_name].exports;
-}
+};
 
 global.require.isDefined = function(module_name) {
 	return !!modules[module_name];
-}
+};
 
 global.require.lazy = function(module_name) {
 	return new Promise(function(resolve, reject){
 		if(!modules[module_name]) {
 			var request = new XMLHttpRequest();
 			request.open("GET", module_name + '.js', true);
-			request.onload = function (e) {
+			request.onload = function (data) {
 				if (request.readyState === 4) {
 					if (request.status === 200) {
-						resolve && resolve(define(module_name, request.responseText).exports);
+						(resolve || noop)(define(module_name, request.responseText).exports);
 					} else {
-						reject && reject(request);
+						(reject || noop)(request, data);
 					}
 				}
 			};
-			request.onerror = function (e) {
-				failure(request);
+			request.onerror = function (data) {
+				(reject || noop)(request, data);
 			};
 			request.send(null);
 		} else {
 			setTimeout(() => resolve && resolve(modules[module_name].exports));
 		}
 	});
-}
-}());
+};
+}(this));
