@@ -638,7 +638,6 @@ function bindList (element, data, basePath) {
 		bindAll(instance, list[i], itemPath);
 		element.parentElement.insertBefore(instance, element);
 	}
-	BOM.hide(element);
 }
 
 function bindAll(element, data, basePath) {
@@ -894,7 +893,6 @@ BOM.insertComponent = function (component, element, data) {
 	BOM.moveChildren(element, children);
 	BOM.copyChildren(component.view, element);
 	var children_dest = BOM.findOneWithin(element, '[data-children]');
-	console.error(children.firstElementChild, children_dest);
 	if (children.firstChild && children_dest) {
 		BOM.empty(children_dest);
 		BOM.moveChildren(children, children_dest);
