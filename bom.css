@@ -85,6 +85,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav h3 {
+	margin-left: 8px;
 	font-weight: 500;
 	color: #666;
 	text-transform: uppercase;

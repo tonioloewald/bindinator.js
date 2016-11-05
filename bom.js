@@ -591,7 +591,8 @@ function findLists (element) {
 }
 
 BOM.hide = function (element) {
-	if (element.getAttribute('data-orig-display') !== null && (element.style.display && element.style.display !== 'none')) {
+	const elt_style = getComputedStyle(element);
+	if (element.getAttribute('data-orig-display') !== null && (elt_style.display && elt_style.display !== 'none')) {
 		element.setAttribute('data-orig-display', element.style.display);
 		BOM.findWithin(element, '[data-event*="hide"]').forEach(elt => BOM.trigger('hide', elt));
 	}
@@ -638,6 +639,7 @@ function bindList (element, data, basePath) {
 		bindAll(instance, list[i], itemPath);
 		element.parentElement.insertBefore(instance, element);
 	}
+	BOM.hide(element);
 }
 
 function bindAll(element, data, basePath) {
