@@ -8,27 +8,20 @@
 		perspective: 1000px;
 	}
 
-	.carousel > div {
+	.carousel-item {
 		color: white;
 		font-size: 48px;
 		position: absolute;
-		width: 280px;
-		margin-left: -140px;
-		top: 0;
-		bottom: 0;
+		top: 50%;
 		left: 50%;
-		border-radius: 6px;
 	}
 
-	.carousel > .windoid:after {
-		content: " ";
-		position :absolute;
+	.carousel > .windoid {
 		display: block;
 		background-color: rgba(255,255,255,0.5);
-		top: 44px;
-		bottom: 22px;
-		left: 4px;
-		right: 4px;
+		width: 30%;
+		height: 90%;
+		border-radius: 6px;
 	}
 </style>
 <div class="carousel" data-event="mouseup:_component_.setTarget;change:_component_.change" data-children>
@@ -99,7 +92,7 @@
 			offset = 0;
 			abs_offset = 0;
 		}
-		element.style.transform = 'translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg)';
+		element.style.transform = 'translateX(-50%) translateY(-50%) translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg)';
 		element.style.zIndex = Math.round(30 - 10 * abs_offset);
 	}
 
@@ -110,13 +103,14 @@
 	var slider = findOne('input');
 
 	function init() {
-		items = find('.carousel > div:not([data-list]');
+		const child_selector = component.getAttribute('child-selector') || '.carousel > div';
+		items = find(child_selector).filter(elt => !elt.matches('[data-list]'));
+		items.forEach(element => element.classList.add('carousel-item'));
 		target = Math.min(target, items.length - 1);
 		updateItems();
 	}
 
 	function updateItems(){
-		var items = find('.carousel > div').filter(elt => !elt.matches('[data-list]'));
 		items.forEach((element, idx) => {
 			setItemPosition(element, idx - position);
 		});

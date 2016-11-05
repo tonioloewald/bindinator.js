@@ -1,38 +1,28 @@
 <style>
-	.flickr-frame {
-		width: 216px;
-		max-height: 216px;
-		margin: 8px;
-		text-align: center;
-		display: inline-block;
-	}
-	.flickr-frame > a {
-		display: inline-block;
+	.flickr-image {
+		box-sizing: border-box;
+		padding: 1%;
+		box-shadow: 0.5px 1.5px 6px 0 rgba(0,0,0,0.5);
+		margin: 1%;
+		min-width: 31%;
+		max-width: 31%;
 		vertical-align: middle;
 	}
-	.flickr-frame > a > img {
-		border: 8px solid white;
-		box-shadow: 0.5px 1.5px 6px 0 rgba(0,0,0,0.5);
-		max-width: 200px;
-		max-height: 200px;
-		min-width: 150px;
-		min-height: 150px;
-		background-color: gray;
+
+	.fade-in-when-loaded {
+		opacity: 0;
+		transition: 0.5s ease-out;
 	}
-	.flickr-frame > a > img[src] {
-		min-width: default;
-		min-height: default;
+
+	.fade-in-when-loaded.loaded {
+		opacity: 1;
 	}
 </style>
-<div style="text-align: center; padding: 8px 0;">
-	<div class="flickr-frame" data-list=".items">
-		<a target="_blank" data-bind="attr(href)=.link">
-			<img class="flickr-photo" data-bind="attr(src)=.media.m;attr(label)=.title">
-		</a>
-	</div>
-</div>
+<img class="fade-in-when-loaded" data-list=".items" data-bind="method(images.src_fadein)=.media.m;attr(label)=.title">
 <script>
 	var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
+
+	findOne('img').classList.add(component.getAttribute('img-class') || 'flickr-image');
 
 	function getFlickrData(url, callback) {
 	    window[jsonp] = function(data) {
@@ -46,6 +36,15 @@
 	    document.body.appendChild(script);
 	}
 
+	BOM.register('images', {
+		src_fadein: (element, value, data) => {
+			const image = new Image();
+			image.src = value;
+			element.setAttribute('src', value);
+			image.onload = () => element.classList.add('loaded');
+		},
+	});
+
 	var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json&jsoncallback=' + jsonp;
 	if (component.getAttribute('tags')) {
 		feed_url += '&tags=fave,' + escape(component.getAttribute('tags'));
@@ -53,6 +52,5 @@
 		feed_url += '&tags=fave,airshow';
 	}
 
-	var image_template = component.children[0];
-	getFlickrData(feed_url, data => BOM.bindAll(image_template, data) );
+	getFlickrData(feed_url, data => BOM.bindAll(component, data) );
 </script>
