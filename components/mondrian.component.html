@@ -3,9 +3,11 @@
 		display: flex;
 		flex-flow: row-reverse wrap;
 		height: 600px;
+		overflow: hidden;
 	}
 	.mondrian > div {
 		width: 10px;
+		overflow: hidden;
 		color: rgba(0,0,0,0.3);
 		flex-grow: 1;
 		flex-shrink: 0;
@@ -13,7 +15,11 @@
 		line-height: 100px;
 		text-align: center;
 		position: relative;
-		transition: 1s ease-out;
+	}
+
+	.mondrian-label {
+		padding: 4px;
+		display: inline-block;
 	}
 </style>
 <div class="mondrian">
@@ -30,16 +36,37 @@
 </div>
 <button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
 <button class="show" data-event="click:_component_.show_random">Show Random</button>
+<label class="mondrian-label">
+	<input class="random_changes" type="checkbox" checked>Randomly add and remove items
+</label>
+<label class="mondrian-label">
+	<select class="desired_aspect_ratio">
+		<option value="0.33">3:1 Extreme Portrait</option>
+		<option value="0.67">3:2 Portrait</option>
+		<option value="1" selected>Square</option>
+		<option value="1.33">4:3 Landscape</option>
+		<option value="1.78">16:9 Widescreen</option>
+		<option value="2">2:1 Extreme Widescreen</option>
+		<option value="4">4:1 Extreme Widescreen</option>
+	</select> Desired Aspect Ratio
+</label>
 <script>
 	const visible = () => find('.mondrian > div').filter(div => !div.matches('.hidden'));
 	const hidden = () => find('.mondrian > .hidden');
+	const desired_aspect_ratio = () => parseInt(findOne('.desired_aspect_ratio').value, 10);
+	const adjusted_aspect_ratio = () => component.offsetWidth / component.offsetHeight / desired_aspect_ratio();
+	var last_adjusted_aspect_ratio;
 
 	function update() {
+		last_adjusted_aspect_ratio = adjusted_aspect_ratio();
 		const hidden_list = hidden();
 		const visible_list = visible();
+		if(visible_list.length === 0) {
+			return;
+		}
 		findOne('.show').disabled = hidden_list.length === 0;
 		findOne('.hide').disabled = visible_list.length === 0;
-		const minWidth = Math.floor(100 / Math.ceil(Math.sqrt(visible().length)));
+		const minWidth = Math.floor(100 / Math.ceil(Math.sqrt(visible().length * last_adjusted_aspect_ratio)));
 		visible_list.forEach(div => {
 			div.style.minWidth = minWidth + '%';
 		});
@@ -50,16 +77,47 @@
 		return arr[Math.floor(Math.random() * arr.length)];
 	}
 
-	update();
+	function random_behavior () {
+		if(findOne('.random_changes').checked) {
+			switch (Math.floor(Math.random() * 3)) {
+				case 0:
+					hide_random();
+					break;
+				case 1:
+					show_random();
+					break;
+			}
+		}
+	}
 
-	return {
-		hide_random: () => {
-			pick_random(visible()).classList.add('hidden');
+	const	interval = setInterval(() => {
+		if (!component.closest('body')) {
+			console.log('mondrian interval cleared');
+			clearInterval(interval);
+		}
+		random_behavior();
+		if (last_adjusted_aspect_ratio !== adjusted_aspect_ratio()) {
 			update();
-		},
-		show_random: () => {
-			pick_random(hidden()).classList.remove('hidden');
+		}
+	}, 500);
+
+	function hide_random () {
+		const elt = pick_random(visible());
+		if (elt) {
+			elt.classList.add('hidden');
 			update();
 		}
 	}
+
+	function show_random () {
+		const elt = pick_random(visible());
+		if (elt) {
+			elt.classList.remove('hidden');
+			update();
+		}
+	}
+
+	update();
+
+	return {hide_random, show_random}
 </script>
