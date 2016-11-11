@@ -638,6 +638,7 @@ function bindList (element, data, basePath) {
 		bindAll(instance, list[i], itemPath);
 		element.parentElement.insertBefore(instance, element);
 	}
+	BOM.hide(element);
 }
 
 function bindAll(element, data, basePath) {
@@ -678,6 +679,7 @@ BOM.ajax = function (url, method, request_data, config) {
 		request.onreadystatechange = () => {
 			if (request.readyState === XMLHttpRequest.DONE) {
 				switch (Math.floor(request.status / 100)) {
+					case 0:
 					case 5:
 					case 4:
 						reject(request);
