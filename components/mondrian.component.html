@@ -91,9 +91,10 @@
 	}
 
 	const	interval = setInterval(() => {
-		if (!component.closest('body')) {
+		if (!findOne('.mondrian')) {
 			console.log('mondrian interval cleared');
 			clearInterval(interval);
+			return;
 		}
 		random_behavior();
 		if (last_adjusted_aspect_ratio !== adjusted_aspect_ratio()) {

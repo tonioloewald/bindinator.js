@@ -28,7 +28,7 @@
 	}
 </style>
 <div class="bom-fiddle" style="display: flex; position: relative;">
-	<div style="flex-grow: 1; width: 50%; position: relative; min-width: 200px; display: flex; flex-direction: column;">
+	<div style="flex-grow: 1; width: 60%; position: relative; min-width: 200px; display: flex; flex-direction: column;">
 		<div style="width: 100%; min-height: 300px; flex-grow: 1" class="code" data-event="keydown(Tab):_component_.indent"></div>
 		<div class="controls">
 			<button data-event="click:_component_.fullscreen">Toggle Fullscreen</button>
@@ -36,7 +36,7 @@
 		</div>
 	</div>
 	<div data-component="sizer"></div>
-	<div class="container" style="margin-left: 8px; flex-grow: 1; width: 50%;"></div>
+	<div class="container" style="margin-left: 8px; flex-grow: 1; width: 40%;"></div>
 </div>
 <script>
 
@@ -44,6 +44,7 @@
 	const container = findOne('.container');
 	var editor;
 
+	// ACE editor -- bleargh
 	require.lazy('https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace').then(() => {
 	    editor = ace.edit(code_elt);
 		ace.config.set("basePath", "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/");
