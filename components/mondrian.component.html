@@ -55,6 +55,7 @@
 	const hidden = () => find('.mondrian > .hidden');
 	const desired_aspect_ratio = () => parseInt(findOne('.desired_aspect_ratio').value, 10);
 	const adjusted_aspect_ratio = () => component.offsetWidth / component.offsetHeight / desired_aspect_ratio();
+	const random_changes = findOne('.random_changes');
 	var last_adjusted_aspect_ratio;
 
 	function update() {
@@ -78,7 +79,7 @@
 	}
 
 	function random_behavior () {
-		if(findOne('.random_changes').checked) {
+		if(random_changes.checked) {
 			switch (Math.floor(Math.random() * 3)) {
 				case 0:
 					hide_random();

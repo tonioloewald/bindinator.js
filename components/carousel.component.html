@@ -80,7 +80,7 @@
 		var dz = 0;
 		var ry = 0;
 		if( abs_offset > 0.01) {
-			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -160 : 160);
+			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -200 : 200);
 			if (abs_offset < 1) {
 				dz = -100 * ease_in_out(abs_offset);
 				ry = ease_in(offset) * -80;
@@ -92,7 +92,8 @@
 			offset = 0;
 			abs_offset = 0;
 		}
-		element.style.transform = 'translateX(-50%) translateY(-50%) translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg)';
+		var s = 1 - Math.min(abs_offset, 0.3);
+		element.style.transform = 'translateX(-50%) translateY(-50%) translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg) scale(' + s + ')';
 		element.style.zIndex = Math.round(30 - 10 * abs_offset);
 	}
 

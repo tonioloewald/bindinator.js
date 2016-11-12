@@ -591,8 +591,7 @@ function findLists (element) {
 }
 
 BOM.hide = function (element) {
-	const elt_style = getComputedStyle(element);
-	if (element.getAttribute('data-orig-display') !== null && (elt_style.display && elt_style.display !== 'none')) {
+	if (element.getAttribute('data-orig-display') !== null && (element.style.display && element.style.display !== 'none')) {
 		element.setAttribute('data-orig-display', element.style.display);
 		BOM.findWithin(element, '[data-event*="hide"]').forEach(elt => BOM.trigger('hide', elt));
 	}
@@ -600,7 +599,7 @@ BOM.hide = function (element) {
 };
 
 BOM.show = function (element) {
-	if (getComputedStyle(element).display === 'none') {
+	if (element.style.display === 'none') {
 		element.style.display = element.getAttribute('data-orig-display') || '';
 		BOM.findWithin(element, '[data-event*="show"]').forEach(elt => BOM.trigger('show', elt));
 	}
@@ -680,6 +679,7 @@ BOM.ajax = function (url, method, request_data, config) {
 		request.onreadystatechange = () => {
 			if (request.readyState === XMLHttpRequest.DONE) {
 				switch (Math.floor(request.status / 100)) {
+					case 0:
 					case 5:
 					case 4:
 						reject(request);
