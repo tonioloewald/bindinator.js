@@ -8,7 +8,7 @@
 
 	.checkbox-slider > input {
 		position: absolute;
-		top: -100px;
+		top: -10000px;
 	}
 
 	.checkbox-slider > input + span {
@@ -54,6 +54,7 @@
 		left: 12px;
 	}
 </style>
-<label class="checkbox-slider">
-	<input type="checkbox"><span><span>&nbsp;</span></span><span data-children></span>
+<label class="checkbox-slider" style="overflow: visible;">
+	<input type="checkbox"><span class="focus-follower"><span>&nbsp;</span></span><span data-children></span>
+	This is a checkbox
 </label>

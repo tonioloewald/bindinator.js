@@ -1,7 +1,7 @@
 /* Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald */
 
 body {
-	font: 14px "Helvetica Neue", Helvetica, Sans-serif;
+	font: 13px "Helvetica Neue", Helvetica, Sans-serif;
 	background-color: #BBCDE5;
 	color: #222222;
 }
@@ -101,8 +101,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .loadable:hover {
-	padding-left: 4px;
-	margin-left: -8px;
 	background-color: rgba(0,0,0,0.25);
 }
 
@@ -112,23 +110,69 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: white;
 }
 
-button {
-	border-radius: 4px;
-	background-color: #ddd;
-	border: 0;
-	padding: 4px 8px;
-	font-size: 14px;
+label {
+	font: 13px System, Sans-serif;
+	vertical-align: baseline;
+}
+
+button, .button,
+select, .select,
+input, textarea, [contenteditable="true"] {
+	box-sizing: border-box;
+	font: 13px System, Sans-serif;
+	color: black;
+	border: 1px solid rgba(0,0,0,0.1);
 	outline: none;
-	border-bottom: 1px solid #bbb;
+	vertical-align: baseline;
+}
+
+input, textarea {
+	padding: 2px 4px;
+	border-radius: 2px;
+}
+
+textarea {
 	vertical-align: bottom;
 }
 
-button.default {
+input[type=range] {
+	vertical-align: bottom;
+}
+
+[currency]:before {
+	content: attr(currency);
+	display: inline-block;
+}
+
+input.search {
+	border-radius: 50px;
+	padding: 2px 12px;
+}
+
+button:hover, .button:hover {
+	background-color: #ddd;
+	border: 1px solid rgba(0,0,0,0.2);
+}
+
+button:active, .button:active {
+	background-color: #aaa;
+	border: 1px solid rgba(0,0,0,0.4);
+}
+
+button {
+	border-radius: 4px;
+	padding: 4px 8px;
+	font-size: 14px;
+	outline: none;
+	vertical-align: bottom;
+}
+
+button.default, button[type="submit"] {
 	background-color: #ccf;
 }
 
-button:hover {
-	background-color: #ccc;
+button.cancel, button[type="cancel"] {
+	background-color: #fdd;
 }
 
 button.default:hover {
@@ -137,12 +181,32 @@ button.default:hover {
 
 button:active {
 	background-color: #aaa;
-	border-top: 1px solid #bbb;
-	border-bottom: 0;
+	border: 1px solid rgba(0,0,0,0.4);
 }
 
 button.default:active {
 	background-color: #99d;
+}
+
+hr {
+	border: 0;
+	border-top: 1px solid rgba(0,0,0,0.25);
+}
+
+form {
+	padding: 4px 8px;
+	margin: 8px 0;
+}
+
+fieldset {
+	border: 1px solid rgba(0,0,0,0.25);
+	margin: 4px 0;
+	padding: 4px 8px;
+}
+
+:focus, :focus+.focus-follower {
+	box-shadow: 0 0 0 4px rgba(0,0,255,0.4);
+	outline: none;
 }
 
 .fullscreen {

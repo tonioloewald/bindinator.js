@@ -44,6 +44,10 @@
 		"path": "switch"
 	},
 	{
+		"name": "Radio Button Set",
+		"path": "radioset"
+	},
+	{
 		"name": "Carousel",
 		"path": "carousel"
 	},
@@ -62,5 +66,9 @@
 	{
 		"name": "Fiddle",
 		"path": "fiddle"
+	},
+	{
+		"name": "Kitchen Sink",
+		"path": "kitchen-sink"
 	}
 ]

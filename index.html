@@ -17,7 +17,8 @@
 						class="loadable"
 						data-list="source_files" 
 						data-bind="text=.name;attr(data-path)=.path"
-						data-event="mouseup:demo.showDocs"
+						data-event="mouseup,keydown(Space):demo.showDocs"
+						tabindex="0"
 					>
 						File Name
 					</div>
@@ -28,7 +29,8 @@
 						class="loadable"
 						data-list="components"
 						data-bind="text=.name;attr(data-path)=.path"
-						data-event="mouseup:demo.loadComponent"
+						data-event="mouseup,keydown(Space):demo.loadComponent"
+						tabindex="0"
 					>
 						File Name
 					</div>
