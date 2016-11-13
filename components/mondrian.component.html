@@ -92,7 +92,7 @@
 	}
 
 	const	interval = setInterval(() => {
-		if (!random_changes.closest('body')) {
+		if (!findOne('.mondrian')) {
 			console.log('mondrian interval cleared');
 			clearInterval(interval);
 			return;
@@ -112,7 +112,7 @@
 	}
 
 	function show_random () {
-		const elt = pick_random(hidden());
+		const elt = pick_random(visible());
 		if (elt) {
 			elt.classList.remove('hidden');
 			update();
