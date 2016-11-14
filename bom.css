@@ -253,6 +253,7 @@ fieldset {
 	display: flex;
 	flex-direction: column;
 	display: none;
+	box-shadow: 1px 3px 4px 0 rgba(0,0,0,0.5);
 }
 
 .menubar ul ul {

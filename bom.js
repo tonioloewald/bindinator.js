@@ -63,6 +63,14 @@ BOM.findAbove = (elt, selector, until_elt) => {
 	return found;
 };
 
+BOM.modifierKeys = {
+	meta: '⌘',
+	control: '⌃',
+	alt: '⌥',
+	escape: '⎋',
+	shift: '⇧'
+}
+
 /**
 	BOM.id();             // syntax sugar for findElementById
 */

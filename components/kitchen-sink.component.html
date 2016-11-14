@@ -5,11 +5,11 @@
 			<ul>
 				<li>
 					<span>New</span>
-					<span class="shortcut">Cmd-N</span>
+					<span class="shortcut">meta-N</span>
 				</li>
 				<li>
 					<span>Open…</span>
-					<span class="shortcut">Cmd-O</span>
+					<span class="shortcut">meta-O</span>
 				</li>
 				<li>
 					<span>Open Recent</span>
@@ -20,13 +20,16 @@
 				</li>
 				<li>
 					<span>Save</span>
-					<span class="shortcut">Cmd-S</span>
+					<span class="shortcut">meta-S</span>
 				</li>
-				<li>Save As…</li>
+				<li>
+					<span>Save As…</span>
+					<span class="shortcut">meta-shift-S</span>
+				</li>
 				<li class="separator"></li>
 				<li>
 					<span>Quit</span>
-					<span class="shortcut">Cmd-Q</span>
+					<span class="shortcut">meta-Q</span>
 				</li>
 			</ul>
 		</li>
@@ -35,20 +38,20 @@
 			<ul>
 				<li>
 					<span>Undo</span>
-					<span class="shortcut">Cmd-Z</span>
+					<span class="shortcut">meta-Z</span>
 				</li>
 				<li class="separator"></li>
 				<li>
 					<span>Cut</span>
-					<span class="shortcut">Cmd-X</span>
+					<span class="shortcut">meta-X</span>
 				</li>
 				<li>
 					<span>Copy</span>
-					<span class="shortcut">Cmd-C</span>
+					<span class="shortcut">meta-C</span>
 				</li>
 				<li>
 					<span>Paste</span>
-					<span class="shortcut">Cmd-V</span>
+					<span class="shortcut">meta-V</span>
 				</li>
 			</ul>
 		</li>
@@ -164,6 +167,13 @@
 	</form>
 </div>
 <script>
+	find('.shortcut').forEach(elt => {
+		var caption = elt.textContent.split('-');
+		caption.forEach((s, i) => {
+			caption[i] = BOM.modifierKeys[s] || s;
+		});
+		elt.textContent = caption.join('');
+	});
 	BOM.register('menubar', {
 		disclose(evt) {
 			BOM.findWithin(evt.target.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
