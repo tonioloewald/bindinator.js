@@ -11,6 +11,11 @@ Binds your data and methods so you can concentrate on your actual goals.
 
 function BOM(){}
 
+var module;
+if (module) {
+	module.exports = BOM;
+}
+
 /**
 	BOM.find(selector);       					// syntax sugar for querySelectorAll, returns proper array
 	BOM.findOne(selector);        				// syntax sugar for querySelector
@@ -100,12 +105,12 @@ BOM.register = function (name, obj) {
 	if (BOM.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
-	BOM.find('[data-bind*="' + name + '"]').forEach(elt => {
-		bind(elt);
-		BOM.trigger('change', elt);
-	});
 	BOM.find('[data-list*="' + name + '"]').forEach(elt => {
 		bindList(elt);
+		BOM.trigger('change', elt);
+	});
+	BOM.find('[data-bind*="' + name + '"]').forEach(elt => {
+		bind(elt);
 		BOM.trigger('change', elt);
 	});
 	playSavedMessages(name);
@@ -144,6 +149,12 @@ BOM.getByPath = function (name, path) {
 	if (name && models[name]) {
 		return getByPath(models[name], path || '/');
 	}
+};
+
+BOM.getInstance = function(element) {
+	const ref = element.closest('[data-list-instance]').getAttribute('data-list-instance');
+	const [model, ...pathParts] = ref.split('.');
+	return BOM.getByPath(model, pathParts.join('.'));
 };
 
 /**
@@ -402,6 +413,10 @@ var implicit_event_types = [
 	'focus', // more to follow
 ];
 
+if (window.TouchEvent) {
+	implicit_event_types = implicit_event_types.concat(['touchstart', 'touchcancel', 'touchmove', 'touchend']);
+}
+
 implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent));
 
 /*
@@ -425,6 +440,13 @@ implicit_event_types.forEach(type => document.body.addEventListener(type, handle
 	* component_map(value:component|other_value:other_component|yet_another_component) -- loads and binds the first matching component
 	* json -- dumps the value stringified into the textContent of the element (mainly for debugging)
 */
+const special_values = {
+	_undefined_: x => x === undefined,
+	_null_: x => x === null,
+	_false_: x => x === false,
+	_true_: x => x === true
+}
+
 var toTargets = {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
@@ -452,17 +474,32 @@ var toTargets = {
 		}
 	},
 	style: function(element, value, dest) {
-		element.style[dest] = value;
-	},
-	class: function(element, value, class_to_toggle) {
-		if (value) {
-			element.classList.add(class_to_toggle);
-		} else {
-			element.classList.remove(class_to_toggle);
+		if (!dest) {
+			if(typeof value === 'string') {
+				element.setAttribute('style', dest);
+			} else if (typeof value === 'object') {
+				Object.assign(element.style, value);
+			}
+		} else if (value !== undefined) {
+			element.style[dest] = value;
 		}
 	},
+	class: function(element, value, class_to_toggle) {
+		if (class_to_toggle) {
+			if (value) {
+				element.classList.add(class_to_toggle);
+			} else {
+				element.classList.remove(class_to_toggle);
+			}
+		} else {
+			element.setAttribute('class', value);
+		}
+	},
+	enabled_if: function(element, value, dest) {
+		element.disabled = dest ? value != dest : value === undefined;
+	},
 	show_if: function(element, value, dest) {
-		if (dest !== undefined ? value == dest : value) {
+		if (dest !== undefined ? value == dest : value !== undefined) {
 			BOM.show(element);
 		} else {
 			BOM.hide(element);
@@ -532,7 +569,7 @@ function parseBinding (binding) {
 }
 
 function getBindings (element) {
-	return element.getAttribute('data-bind').split(';').map(parseBinding);
+	return element.getAttribute('data-bind').split(';').filter(s => !!s).map(parseBinding);
 }
 
 function buildTargets (binding) {
@@ -652,6 +689,7 @@ function bindAll(element, data, basePath) {
 BOM.bindAll = bindAll;
 
 models._BOM_ = {
+	stopEvent: () => {},
 	update: function(evt) {
 		var bindings = getBindings(evt.target);
 		for (var i = 0; i < bindings.length; i++) {
@@ -661,6 +699,7 @@ models._BOM_ = {
 				BOM.setByPath(model, path, fromTargets[t.target](evt.target, t.key), evt.target);
 			});
 		}
+		return true;
 	},
 };
 
