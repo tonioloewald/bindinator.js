@@ -434,14 +434,14 @@ var implicit_event_types = [
 	'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
 	'input', 'change',
 	'keydown', 'keyup',
-	'focus', // more to follow
+	'focus', 'blur' // more to follow
 ];
 
 if (window.TouchEvent) {
 	implicit_event_types = implicit_event_types.concat(['touchstart', 'touchcancel', 'touchmove', 'touchend']);
 }
 
-implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent));
+implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent, true));
 
 /*
 	This is where we define all the methods for binding to/from the DOM

@@ -139,6 +139,12 @@ input[type=range] {
 	vertical-align: bottom;
 }
 
+input[type=color] {
+	border: none;
+	width: 24px;
+	height: 24px;
+}
+
 [currency]:before {
 	content: attr(currency);
 	display: inline-block;
@@ -194,8 +200,9 @@ hr {
 }
 
 form {
-	padding: 4px 8px;
+	padding: 8px 12px;
 	margin: 8px 0;
+	background-color: rgba(0,0,0,0.05);
 }
 
 fieldset {
@@ -225,6 +232,7 @@ fieldset {
 
 .menubar * {
 	box-sizing: border-box;
+	transition: 0.1s;
 }
 
 .menubar li {
@@ -243,6 +251,11 @@ fieldset {
 	background-color: rgba(0,0,0,0.1);
 }
 
+.menubar li.active {
+	color: white;
+	background-color: #444;
+}
+
 .menubar ul {
 	position: absolute;
 	padding: 0;
@@ -254,6 +267,7 @@ fieldset {
 	flex-direction: column;
 	display: none;
 	box-shadow: 1px 3px 4px 0 rgba(0,0,0,0.5);
+	opacity: 0;
 }
 
 .menubar ul ul {
@@ -263,6 +277,7 @@ fieldset {
 
 .menubar .disclosed > ul, .menubar li:hover > ul {
 	display: block;
+	opacity: 1.0;
 }
 
 .menubar li.separator {

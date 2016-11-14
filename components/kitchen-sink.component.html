@@ -1,5 +1,21 @@
-<div style="position: relative; border: 1px solid rgba(0,0,0,0.25);">
-	<ul class="menubar" data-event="mouseup:menubar.disclose">
+<style>
+	.kitchen-sink {
+		padding: 0 8px;
+		position: relative;
+		border: 1px solid rgba(0,0,0,0.25);
+	}
+
+	.kitchen-sink > hr {
+		margin-left: -8px;
+		margin-right: -8px;
+	}
+
+	.kitchen-sink > .menubar {
+		background: #eee;
+	}
+</style>
+<div class="kitchen-sink">
+	<ul class="menubar" data-event="mouseup,focus,keydown(Space):menubar.disclose;mousedown:menubar.mousedown;blur:menubar.deactivate;keydown(Escape):menubar.escape">
 		<li>
 			File
 			<ul>
@@ -135,7 +151,7 @@
 		<progress value="33" max="100"></progress>
 	</label>
 	<br>
-	<form>
+	<form onsubmit="return false;">
 		<label>
 			What is your quest?
 			<input>
@@ -164,9 +180,9 @@
 		<button type="cancel">Cancel</button>
 		<button type="submit">OK</button>
 	</form>
-	</form>
 </div>
 <script>
+	// menubar stuff
 	find('.shortcut').forEach(elt => {
 		var caption = elt.textContent.split('-');
 		caption.forEach((s, i) => {
@@ -174,18 +190,41 @@
 		});
 		elt.textContent = caption.join('');
 	});
+	function deactivate_menubar(elt_in_menubar) {
+		BOM.findWithin(elt_in_menubar.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
+		BOM.findWithin(elt_in_menubar.closest('.menubar'), '.active').forEach(elt => elt.classList.remove('active'));
+	}
+	BOM.makeArray(findOne('.menubar').querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
 	BOM.register('menubar', {
+		mousedown(evt) {
+			const menuitem = evt.target.closest('li');
+			if(BOM.makeArray(menuitem.children).filter(elt => elt.matches('ul')).length === 0) {
+				menuitem.classList.add('active');
+			}
+		},
 		disclose(evt) {
-			BOM.findWithin(evt.target.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
-			const submenu = BOM.makeArray(evt.target.children).filter(elt => elt.matches('ul'));
+			deactivate_menubar(evt.target);
+			const menuitem = evt.target.closest('li');
+			const submenu = BOM.makeArray(menuitem.children).filter(elt => elt.matches('ul'));
 			if (submenu.length === 1) {
 				evt.target.classList.add('disclosed');
-			} else {
+			} else if (evt.type !== 'focus') {
 				setTimeout(() => {
-					BOM.findWithin(evt.target.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
+					BOM.findWithin(menuitem.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
 				}, 500);
 			}
-			BOM.findAbove(evt.target, 'li', '.menubar').forEach(elt => elt.classList.add('disclosed'));
+			menuitem.classList.add('disclosed');
+			BOM.findAbove(menuitem, 'li', '.menubar').forEach(elt => elt.classList.add('disclosed'));
+		},
+		deactivate(evt) {
+			// FIXME -- Firefox doesn't support relatedTarget
+			if(evt.relatedTarget && !evt.relatedTarget.closest('.menubar')) {
+				deactivate_menubar(evt.target);
+			}
+		},
+		escape(evt) {
+			// FIXME -- move focus to next element after menubar?
+			deactivate_menubar(evt.target);
 		}
 	});
 </script>
