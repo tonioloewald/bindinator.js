@@ -41,6 +41,22 @@ BOM.succeeding = (element, selector) => {
 	}
 	return element.nextElementSibling;
 };
+BOM.findAbove = (elt, selector, until_elt) => {
+	var current_elt = elt.parentElement;
+	var found = [];
+	while(
+		until_elt && 
+		typeof until_elt === 'string' ? 
+			!current_elt.matches(until_elt) : 
+			current_elt !== until_elt
+	) {
+		if(current_elt.matches(selector)) {
+			found.push(current_elt);
+		}
+		current_elt = current_elt.parentElement;
+	}
+	return found;
+};
 
 /**
 	BOM.id();             // syntax sugar for findElementById

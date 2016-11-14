@@ -1,4 +1,96 @@
-<div>
+<div style="position: relative; border: 1px solid rgba(0,0,0,0.25);">
+	<ul class="menubar" data-event="mouseup:menubar.disclose">
+		<li>
+			File
+			<ul>
+				<li>
+					<span>New</span>
+					<span class="shortcut">Cmd-N</span>
+				</li>
+				<li>
+					<span>Open…</span>
+					<span class="shortcut">Cmd-O</span>
+				</li>
+				<li>
+					<span>Open Recent</span>
+					<ul>
+						<li>Recent File</li>
+						<li>Another Recent File</li>
+					</ul>
+				</li>
+				<li>
+					<span>Save</span>
+					<span class="shortcut">Cmd-S</span>
+				</li>
+				<li>Save As…</li>
+				<li class="separator"></li>
+				<li>
+					<span>Quit</span>
+					<span class="shortcut">Cmd-Q</span>
+				</li>
+			</ul>
+		</li>
+		<li>
+			Edit
+			<ul>
+				<li>
+					<span>Undo</span>
+					<span class="shortcut">Cmd-Z</span>
+				</li>
+				<li class="separator"></li>
+				<li>
+					<span>Cut</span>
+					<span class="shortcut">Cmd-X</span>
+				</li>
+				<li>
+					<span>Copy</span>
+					<span class="shortcut">Cmd-C</span>
+				</li>
+				<li>
+					<span>Paste</span>
+					<span class="shortcut">Cmd-V</span>
+				</li>
+			</ul>
+		</li>
+		<li>
+			Format
+			<ul>
+				<li>
+					<span>Document</span>
+				</li>
+				<li>
+					<span>Section</span>
+				</li>
+				<li>
+					<span>Page</span>
+				</li>
+				<li>
+					<span>Paragraph</span>
+				</li>
+				<li>
+					<span>Character</span>
+					<ul>
+						<li>
+							<v>Bold</v>
+						</li>
+						<li>
+							<i>Italic</i>
+						</li>
+						<li>
+							<u>Underline</u>
+						</li>
+						<li class="separator"></li>
+						<li>
+							<span>Plain</span>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+	</ul>
+	<div style="height: 32px">&nbsp;</div>
+	<div class="toolbar">
+	</div>
 	<button class="cancel">Cancel</button> <button>Whatever</button> <button class="default">Default</button>
 	<hr>
 	<select>
@@ -71,3 +163,19 @@
 	</form>
 	</form>
 </div>
+<script>
+	BOM.register('menubar', {
+		disclose(evt) {
+			BOM.findWithin(evt.target.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
+			const submenu = BOM.makeArray(evt.target.children).filter(elt => elt.matches('ul'));
+			if (submenu.length === 1) {
+				evt.target.classList.add('disclosed');
+			} else {
+				setTimeout(() => {
+					BOM.findWithin(evt.target.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
+				}, 500);
+			}
+			BOM.findAbove(evt.target, 'li', '.menubar').forEach(elt => elt.classList.add('disclosed'));
+		}
+	});
+</script>
