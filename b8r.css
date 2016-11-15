@@ -301,7 +301,7 @@ fieldset {
 }
 
 :focus, :focus+.focus-follower {
-	box-shadow: 0 0 0 4px rgba(0,0,255,0.4);
+	box-shadow: 0 0 0 4px rgba(64,255,0,0.5);
 	outline: none;
 }
 
