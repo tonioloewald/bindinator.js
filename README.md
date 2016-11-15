@@ -21,6 +21,13 @@
 
 The input field will receive the property "bar" of whatever object is registered as "foo" (when it is registed).
 
+Multiple bindings can be separated by semicolons, e.g.
+
+```
+	<input data-bind="value=foo.bar;enabled_if(_true_)=privileges.edit">
+	<input type="range" data-event="input=slider.live_preview;change=slider.update">
+```
+
 ```
 	b8r.register('foo', {bar: 'hello world'});
 ```
