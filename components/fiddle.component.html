@@ -1,4 +1,4 @@
-<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <style>
 	.code {
 		font-size: 13px;
@@ -18,7 +18,7 @@
 		padding: 8px;
 	}
 
-	.fullscreen > .bom-fiddle {
+	.fullscreen > .b8r-fiddle {
 		width: 100%;
 		height: 100%;
 	}
@@ -27,7 +27,7 @@
 		background-color: rgba(0,0,0,0.05);
 	}
 </style>
-<div class="bom-fiddle" style="display: flex; position: relative;">
+<div class="b8r-fiddle" style="display: flex; position: relative;">
 	<div style="flex-grow: 1; width: 60%; position: relative; min-width: 200px; display: flex; flex-direction: column;">
 		<div style="width: 100%; min-height: 300px; flex-grow: 1" class="code" data-event="keydown(Tab):_component_.indent"></div>
 		<div class="controls">
@@ -52,10 +52,10 @@
 		code_elt.contentEditable = true;
 	});
 
-	BOM.component('sizer', 'components/sizer');
-	BOM.component('hello', '/components/hello').then(hello => {
+	b8r.component('sizer', 'components/sizer');
+	b8r.component('hello', '/components/hello').then(hello => {
 		code_elt.textContent = hello._source.replace(/\t/g, '  ');
-		BOM.insertComponent(hello, container);
+		b8r.insertComponent(hello, container);
 	});
 
 	function indent(evt) {
@@ -66,9 +66,9 @@
 	}
 
 	function run() {
-		BOM.empty(container);
-		BOM.insertComponent(
-			BOM.makeComponent('fiddle-example', editor ? editor.getValue() : code_elt.textContent),
+		b8r.empty(container);
+		b8r.insertComponent(
+			b8r.makeComponent('fiddle-example', editor ? editor.getValue() : code_elt.textContent),
 			container
 		);
 	}

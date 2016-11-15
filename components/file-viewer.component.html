@@ -1,5 +1,5 @@
 <!--
-	Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald
+	bindinator.js Copyright (c) 2016 Tonio Loewald
 	This is a contentless component - in effect it routes to other components
 	based on the filename (or specified file_type)
 -->
@@ -7,20 +7,20 @@
 	switch (data.file_type || data.url.split('.').pop()) {
 		case 'md':
 		case 'markdown':
-			BOM.component('markdown-viewer', 'components/markdown-viewer').then(viewer => {
-				BOM.insertComponent(viewer, component, data);
+			b8r.component('markdown-viewer', 'components/markdown-viewer').then(viewer => {
+				b8r.insertComponent(viewer, component, data);
 			});
 			break;
 
 		case 'text':
-			BOM.component('text-viewer', 'components/text-viewer').then(viewer => {
-				BOM.insertComponent(viewer, component, data);
+			b8r.component('text-viewer', 'components/text-viewer').then(viewer => {
+				b8r.insertComponent(viewer, component, data);
 			});
 			break;
 
 		case 'js':
-			BOM.component('js-viewer', 'components/js-viewer').then(viewer => {
-				BOM.insertComponent(viewer, component, data);
+			b8r.component('js-viewer', 'components/js-viewer').then(viewer => {
+				b8r.insertComponent(viewer, component, data);
 			});
 			break;
 	}

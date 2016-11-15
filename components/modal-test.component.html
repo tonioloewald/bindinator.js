@@ -1,4 +1,4 @@
-<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <div>
 	<h4>Modal Dialog Test</h4>
 	<div data-children></div>
@@ -10,8 +10,8 @@
 	var result = findOne('.result');
 	return {
 		dialog: () => {
-			BOM.component('modal', 'components/modal').then(
-				() => BOM.insertComponent(
+			b8r.component('modal', 'components/modal').then(
+				() => b8r.insertComponent(
 					'modal',
 					false,
 					{ callback: evt => result.textContent = 'User clicked: ' + evt.target.textContent }
@@ -20,11 +20,11 @@
 		},
 
 		custom_dialog: () => {
-			BOM.component('reactor-dialog', 'components/reactor-dialog').then(
-					() => BOM.insertComponent(
+			b8r.component('reactor-dialog', 'components/reactor-dialog').then(
+					() => b8r.insertComponent(
 							'reactor-dialog',
 							false,
-							{ callback: (evt, component) => result.textContent = 'reactor setting: ' + BOM.findOneWithin(component, 'input').value }
+							{ callback: (evt, component) => result.textContent = 'reactor setting: ' + b8r.findOneWithin(component, 'input').value }
 					)
 			);
 		}

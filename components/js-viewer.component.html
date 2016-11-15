@@ -10,16 +10,16 @@
 					 	.then(() => {
 					 		code.textContent = source;
 							Prism.highlightElement(code);
-							BOM.hide(loading);
-							BOM.show(pre);
+							b8r.hide(loading);
+							b8r.show(pre);
 						})
 	}
 
 	if(data.source) {
 		render(data.source);
 	} else if (data.url) {
-		BOM.component('loading', 'components/loading')
-			.then(() => BOM.ajax(data.url))
+		b8r.component('loading', 'components/loading')
+			.then(() => b8r.ajax(data.url))
 			.then(source => render(source));
 	}
 </script>

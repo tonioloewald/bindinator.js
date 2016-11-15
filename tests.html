@@ -1,4 +1,4 @@
-<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <style>
 	body {
 		font-family: Helvetica, Sans-serif;
@@ -36,7 +36,7 @@
 	}
 </style>
 <body>
-	<h2>BOM Tests</h2>
+	<h2>b8r Tests</h2>
 	<div class="test_widgets">
 		<div>
 			<span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
@@ -86,7 +86,7 @@
 	</div>
 	<div class="report"></div>
 	<script src="test.js"></script>
-	<script src="bom.js"></script>
+	<script src="b8r.js"></script>
 	<script>
 	/*
 		Test(() => 2).shouldBe(2);
@@ -128,50 +128,50 @@
 		Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
 		// binding (to), data mounting
-		BOM.register('test1', obj);
-		Test(() => BOM.id('a').textContent).shouldBe('42');
-		Test(() => BOM.id('b').textContent).shouldBe('hello');
-		Test(() => BOM.id('c').textContent).shouldBe(obj.sub.list[2] + '');
-		Test(() => BOM.id('d').textContent).shouldBe('11');
-		Test(() => BOM.id('e').value).shouldBe(obj.sub.list[2] + '');
-		Test(() => BOM.id('a').style.color).shouldBe('red');
-		Test(() => BOM.id('e').getAttribute('type')).shouldBe('range');
-		BOM.register('test2', {color: 'green'});
-		Test(() => BOM.id('b').style.color).shouldBe('green');
+		b8r.register('test1', obj);
+		Test(() => b8r.id('a').textContent).shouldBe('42');
+		Test(() => b8r.id('b').textContent).shouldBe('hello');
+		Test(() => b8r.id('c').textContent).shouldBe(obj.sub.list[2] + '');
+		Test(() => b8r.id('d').textContent).shouldBe('11');
+		Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
+		Test(() => b8r.id('a').style.color).shouldBe('red');
+		Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
+		b8r.register('test2', {color: 'green'});
+		Test(() => b8r.id('b').style.color).shouldBe('green');
 
 		// list binding
-		Test(() => BOM.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
+		Test(() => b8r.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
 
 		// binding (from)
-		BOM.findOne('input').value = 55;
-		Test.trigger('input', BOM.findOne('input'))
-		Test(() => BOM.id('e').value)
+		b8r.findOne('input').value = 55;
+		Test.trigger('input', b8r.findOne('input'))
+		Test(() => b8r.id('e').value)
 		                   .shouldBe(obj.sub.list[2] + '');
-		Test(() => BOM.id('c').textContent)
+		Test(() => b8r.id('c').textContent)
 		                   .shouldBe(obj.sub.list[2] + '');
-		BOM.setByPath('test2', 'color', 'purple');
-		Test(() => BOM.id('b').style.color).shouldBe('purple');
-		BOM.findOne('select').value = 'two';
+		b8r.setByPath('test2', 'color', 'purple');
+		Test(() => b8r.id('b').style.color).shouldBe('purple');
+		b8r.findOne('select').value = 'two';
 		Test.trigger('change', 'select');
 		Test(() => obj.option).shouldBe('two');
-		BOM.findOne('[type=checkbox]').checked = false;
+		b8r.findOne('[type=checkbox]').checked = false;
 		Test.trigger('input', '[type=checkbox]');
 		Test(() => obj.checkbox).shouldBe(false);
-		BOM.findOne('[type=radio][value=first]').checked = true;
+		b8r.findOne('[type=radio][value=first]').checked = true;
 		Test.trigger('change', '[type=radio][value=first]');
 		Test(() => obj.radio).shouldBe('first');
 
 		// ajax methods
-		BOM.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
+		b8r.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
 		var failures = 0;
-		BOM.ajax('test/does-not-exist.txt', 'GET')
+		b8r.ajax('test/does-not-exist.txt', 'GET')
 			.then(() => {}, () => failures++)
 			.then(() => Test(() => failures).shouldBe(1));
-		BOM.json('test/test.json', 'GET')
+		b8r.json('test/test.json', 'GET')
 			.then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
 
 		function computed_color(name) {
-			var p = BOM.create(p)
+			var p = b8r.create(p)
 			p.style.color = name;
 			p.style.display = 'none';
 			document.body.appendChild(p);
@@ -181,22 +181,22 @@
 		}
 
 		// components
-		BOM.component('test', 'test/test')
+		b8r.component('test', 'test/test')
 			// was it loaded?
-			.then(() => Test(() => BOM.findOne('[data-component="test"] p').textContent).shouldBe('This is a test'))
+			.then(() => Test(() => b8r.findOne('[data-component="test"] p').textContent).shouldBe('This is a test'))
 			// automatically bound?
-			.then(() => Test(() => BOM.findOne('[data-component="test"] input').value).shouldBe('55'))
+			.then(() => Test(() => b8r.findOne('[data-component="test"] input').value).shouldBe('55'))
 			// did its style sheet load?
-			.then(() => Test(() => window.getComputedStyle(BOM.findOne('.test > h2')).backgroundColor).shouldBe(computed_color('purple')))
+			.then(() => Test(() => window.getComputedStyle(b8r.findOne('.test > h2')).backgroundColor).shouldBe(computed_color('purple')))
 			// did its style leak into the rest of the DOM?
 			.then(
 				() => 
-					Test(() => window.getComputedStyle(BOM.findOne('h2')).backgroundColor)
+					Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor)
 						.shouldBe(window.getComputedStyle(document.body).backgroundColor)
 			)
 			// did its script run?
-			.then(() => Test(() => BOM.findOne('[data-component="test"] h2').textContent).shouldBe('Set on load'))
+			.then(() => Test(() => b8r.findOne('[data-component="test"] h2').textContent).shouldBe('Set on load'))
 			// did it receive the children of the original element?
-			.then(() => Test(() => BOM.find('[data-component="test"] [data-children] p').length).shouldBe(2));
+			.then(() => Test(() => b8r.find('[data-component="test"] [data-children] p').length).shouldBe(2));
 	</script>
 </body>

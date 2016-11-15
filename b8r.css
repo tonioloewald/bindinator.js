@@ -1,4 +1,4 @@
-/* Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald */
+/* bindinator.js Copyright (c) 2016 Tonio Loewald */
 
 body {
 	font: 13px "Helvetica Neue", Helvetica, Sans-serif;
@@ -302,6 +302,16 @@ fieldset {
 :focus, :focus+.focus-follower {
 	box-shadow: 0 0 0 4px rgba(0,0,255,0.4);
 	outline: none;
+}
+
+pre {
+	padding: 4px 0;
+	background-color: #444;
+	color: #ddd;
+}
+
+pre > code {
+	font-family: Menlo, Monaco, Monospace;
 }
 
 .fullscreen {

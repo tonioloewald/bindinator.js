@@ -1,6 +1,6 @@
-// Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald
+// bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
-#BindOMatic
+#bindinator
 
 Binds your data and methods so you can concentrate on your actual goals.
 */
@@ -9,44 +9,44 @@ Binds your data and methods so you can concentrate on your actual goals.
 
 'use strict';
 
-function BOM(){}
+function b8r(){}
 
 var module;
 if (module) {
-	module.exports = BOM;
+	module.exports = b8r;
 }
 
 /**
-	BOM.find(selector);       					// syntax sugar for querySelectorAll, returns proper array
-	BOM.findOne(selector);        				// syntax sugar for querySelector
-	BOM.findWithin(element, selector);			// find scoped within element
-	BOM.findWithin(element, selector, true);	// find scoped within element, including the element itself
-	BOM.findOneWithin(element, selector);		// findOne scoped within element
-	BOM.findOneWithin(element, selector, true);	// findOne scoped within element, including the element itself
-	BOM.makeArray(arrayish);					// creates a proper array from something array-like
-	BOM.succeeding(element, selector);			// next succeeding sibling matching selector
+	b8r.find(selector);       					// syntax sugar for querySelectorAll, returns proper array
+	b8r.findOne(selector);        				// syntax sugar for querySelector
+	b8r.findWithin(element, selector);			// find scoped within element
+	b8r.findWithin(element, selector, true);	// find scoped within element, including the element itself
+	b8r.findOneWithin(element, selector);		// findOne scoped within element
+	b8r.findOneWithin(element, selector, true);	// findOne scoped within element, including the element itself
+	b8r.makeArray(arrayish);					// creates a proper array from something array-like
+	b8r.succeeding(element, selector);			// next succeeding sibling matching selector
 */
 
 // TODO
 // Debug versions of findOne should throw if not exactly one match
-BOM.find = selector => BOM.makeArray(document.querySelectorAll(selector));
-BOM.findOne = document.querySelector.bind(document);
-BOM.findWithin = (element, selector, include_self) => {
-		var list = BOM.makeArray(element.querySelectorAll(selector));
+b8r.find = selector => b8r.makeArray(document.querySelectorAll(selector));
+b8r.findOne = document.querySelector.bind(document);
+b8r.findWithin = (element, selector, include_self) => {
+		var list = b8r.makeArray(element.querySelectorAll(selector));
 		if (include_self && element.matches('[data-bind]')) {
 			list.unshift(element);
 		}
 		return list;
 	};
-BOM.findOneWithin = (element, selector, include_self) => include_self && element.matches(selector) ? element : element.querySelector(selector);
-BOM.makeArray = arrayish => [].slice.apply(arrayish);
-BOM.succeeding = (element, selector) => {
+b8r.findOneWithin = (element, selector, include_self) => include_self && element.matches(selector) ? element : element.querySelector(selector);
+b8r.makeArray = arrayish => [].slice.apply(arrayish);
+b8r.succeeding = (element, selector) => {
 	while(element.nextSibling && !element.nextElementSibling.matches(selector)){
 		element = element.nextElementSibling;
 	}
 	return element.nextElementSibling;
 };
-BOM.findAbove = (elt, selector, until_elt) => {
+b8r.findAbove = (elt, selector, until_elt) => {
 	var current_elt = elt.parentElement;
 	var found = [];
 	while(
@@ -63,7 +63,7 @@ BOM.findAbove = (elt, selector, until_elt) => {
 	return found;
 };
 
-BOM.modifierKeys = {
+b8r.modifierKeys = {
 	meta: '⌘',
 	control: '⌃',
 	alt: '⌥',
@@ -72,9 +72,9 @@ BOM.modifierKeys = {
 }
 
 /**
-	BOM.id();             // syntax sugar for findElementById
+	b8r.id();             // syntax sugar for findElementById
 */
-BOM.id = document.getElementById.bind(document);
+b8r.id = document.getElementById.bind(document);
 
 function getByPath(obj, path) {
 	if(path && path !== '/') {
@@ -112,77 +112,77 @@ function setByPath(obj, path, val) {
 var models = {};
 
 /**
-	BOM.register(name, obj);						// register an object by name as data or controller
-		// the names _DATA_ and _BOM_ are reserved; other similar namess may be reserved later
+	b8r.register(name, obj);						// register an object by name as data or controller
+		// the names _DATA_ and _b8r_ are reserved; other similar namess may be reserved later
 		// binding to _DATA_ explicitly means you will only be bound to an explicit object
-		// _BOM_ is the name of the internal event handlers for bound variables
-	BOM.deregister(name);								// remove a registered object
-	BOM.setByPath(name, path, value);		// set a registered object's property by path
-	BOM.getByPath(name, path);					// get a registered object's property by path
+		// _b8r_ is the name of the internal event handlers for bound variables
+	b8r.deregister(name);								// remove a registered object
+	b8r.setByPath(name, path, value);		// set a registered object's property by path
+	b8r.getByPath(name, path);					// get a registered object's property by path
 */
 
-BOM.register = function (name, obj) {
+b8r.register = function (name, obj) {
 	if (name.match(/^_[^_]*_$/)) {
 		throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved.";
 	}
 	models[name] = obj;
-	if (BOM.getByPath(models[name], 'add')) {
+	if (b8r.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
-	BOM.find('[data-list*="' + name + '"]').forEach(elt => {
+	b8r.find('[data-list*="' + name + '"]').forEach(elt => {
 		bindList(elt);
-		BOM.trigger('change', elt);
+		b8r.trigger('change', elt);
 	});
-	BOM.find('[data-bind*="' + name + '"]').forEach(elt => {
+	b8r.find('[data-bind*="' + name + '"]').forEach(elt => {
 		bind(elt);
-		BOM.trigger('change', elt);
+		b8r.trigger('change', elt);
 	});
 	playSavedMessages(name);
 };
 
-BOM.isRegistered = function(name) {
+b8r.isRegistered = function(name) {
 	return models[name] !== undefined;
 };
 
-BOM.deregister = function (name) {
-	if (BOM.getByPath(models[name], 'remove')) {
+b8r.deregister = function (name) {
+	if (b8r.getByPath(models[name], 'remove')) {
 		models[name].remove();
 	}
 	delete(models[name]);
 };
 
-BOM.touchByPath = function(name, path, source_element) {
-	if (Array.isArray(BOM.getByPath(name, path))) {
-		const lists = BOM.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
+b8r.touchByPath = function(name, path, source_element) {
+	if (Array.isArray(b8r.getByPath(name, path))) {
+		const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
 		lists.forEach(element => element !== source_element && bindList(element));
 	} else {
-		const elements = BOM.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
+		const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
 		elements.forEach(element => element !== source_element && bind(element));
 	}
 }
 
-BOM.setByPath = function (name, path, value, source_element) {
+b8r.setByPath = function (name, path, value, source_element) {
 	if (models[name]) {
 		setByPath(models[name], path, value);
 		// this may update some false positives, but very few
-		BOM.touchByPath(name, path, source_element);
+		b8r.touchByPath(name, path, source_element);
 	}
 };
 
-BOM.getByPath = function (name, path) {
+b8r.getByPath = function (name, path) {
 	if (name && models[name]) {
 		return getByPath(models[name], path || '/');
 	}
 };
 
-BOM.getInstance = function(element) {
+b8r.getInstance = function(element) {
 	const ref = element.closest('[data-list-instance]').getAttribute('data-list-instance');
 	const [model, ...pathParts] = ref.split('.');
-	return BOM.getByPath(model, pathParts.join('.'));
+	return b8r.getByPath(model, pathParts.join('.'));
 };
 
 /**
-	BOM.on(element, event_type, model_name, method_name) // creates an implicit event-binding data attribute
+	b8r.on(element, event_type, model_name, method_name) // creates an implicit event-binding data attribute
 		// data-event="event_type:module_name.method_name"
 		// multiple handlers are semicolon-delimited
 		// you can bind multiple event types separated by commas, e.g. click,keyup:do.something
@@ -206,11 +206,11 @@ function makeHandler(event_type, object, method) {
 	return event_type.sort().join(',') + ':' + object + '.' + method;
 }
 
-BOM.on = function (element, event_type, object, method) {
+b8r.on = function (element, event_type, object, method) {
 	// check if handler already exists
 	// var existingHandlers = implicitEventHandlers(element);
 	if (typeof object === 'object' && object.model) {
-		return BOM.on(element, event_type, object.model, object.method);
+		return b8r.on(element, event_type, object.model, object.method);
 	}
 	if (!(element instanceof HTMLElement)) {
 		console.error('bind bare elements please, not', element);
@@ -232,7 +232,7 @@ BOM.on = function (element, event_type, object, method) {
 	}
 };
 
-BOM.off = function(element, event_type, object, method) {
+b8r.off = function(element, event_type, object, method) {
 	const existing = element.getAttribute('data-event').split(';');
 	const handler = makeHandler(event_type, object, method);
 	const idx = existing.indexOf(handler);
@@ -248,24 +248,24 @@ BOM.off = function(element, event_type, object, method) {
 
 /**
 	### Special event handling
-	BOM.onAny(event_type, object, method) => handlerRef // creates an event handler that will get first access to any event
+	b8r.onAny(event_type, object, method) => handlerRef // creates an event handler that will get first access to any event
 		// returns a reference for purposes of removal
-	BOM.offAny(handlerRef,...) // removes all the handlerRefs passed
+	b8r.offAny(handlerRef,...) // removes all the handlerRefs passed
 
 	Note that this works *exactly* like an invisible element in front of everything else
 	for purposes of propagation.
 */
 var anyElement = null;
-BOM.onAny = function(event_type, object, method) {
+b8r.onAny = function(event_type, object, method) {
 	if (!anyElement) {
-		anyElement = BOM.create('div');
+		anyElement = b8r.create('div');
 	}
-	BOM.on(anyElement, event_type, object, method);
+	b8r.on(anyElement, event_type, object, method);
 };
 
-BOM.offAny = function (event_type, object, method) {
+b8r.offAny = function (event_type, object, method) {
 	if (anyElement) {
-		BOM.off(anyElement, event_type, object, method);
+		b8r.off(anyElement, event_type, object, method);
 		if (!anyElement.getAttribute('data-event')) {
 			anyElement = null;
 		}
@@ -308,7 +308,7 @@ function implicitEventHandlers (element) {
 }
 
 /**
-	BOM.callMethod(model, method, evt);	// Call a method by name from a registered method
+	b8r.callMethod(model, method, evt);	// Call a method by name from a registered method
 */
 
 var saved_messages = []; // {model, method, evt}
@@ -327,19 +327,19 @@ function playSavedMessages(for_model) {
 	}
 	while (playbackQueue.length) {
 		var {model, method, evt} = playbackQueue.pop();
-		BOM.callMethod(model, method, evt);
+		b8r.callMethod(model, method, evt);
 	}
 }
 
-BOM.callMethod = function (model, method, evt) {
+b8r.callMethod = function (model, method, evt) {
 	var result = null;
 	if(model === '_component_') {
 		var view_controller;
 		var target = evt.target.closest('[data-component-uuid]');
 		while(!(view_controller && view_controller[method]) && target) {
 			var uuid = target.getAttribute('data-component-uuid');
-			if (models._BOM_components_ && uuid) {
-				view_controller = models._BOM_components_[uuid];
+			if (models._b8r_components_ && uuid) {
+				view_controller = models._b8r_components_[uuid];
 				target = target.parentElement.closest('[data-component-uuid]');
       }
 		}
@@ -360,22 +360,22 @@ BOM.callMethod = function (model, method, evt) {
 };
 
 /**
-	BOM.trigger(type, target); // trigger a synthetic implicit (only!) event
+	b8r.trigger(type, target); // trigger a synthetic implicit (only!) event
 */
-BOM.trigger = function(type, target) {
+b8r.trigger = function(type, target) {
 	if (target) {
 		var stopPropagation = () => {};
 		var preventDefault = () => {};
 		handleEvent({type, target, stopPropagation, preventDefault});	
 	} else {
-		console.warn('BOM.trigger called with no specified target');
+		console.warn('b8r.trigger called with no specified target');
 	}
 };
 
 /**
 	## Keystrokes
 
-	BOM leverages the modern browser's event "code" to identify keystrokes,
+	b8r leverages the modern browser's event "code" to identify keystrokes,
 	and uses a normalized representation of modifier keys (in alphabetical)
 	order.
 
@@ -384,9 +384,9 @@ BOM.trigger = function(type, target) {
 	* __meta__ represents the windows, command, or meta keys
 	* __shift__ represents the shift keys
 
-	BOM.keystroke(event) // returns normalized keystroke representation
+	b8r.keystroke(event) // returns normalized keystroke representation
 */
-BOM.keystroke = function(evt) {
+b8r.keystroke = function(evt) {
 	var code = [];
 	if(evt.altKey){ code.push('alt'); }
 	if(evt.ctrlKey){ code.push('ctrl'); }
@@ -398,7 +398,7 @@ BOM.keystroke = function(evt) {
 
 function handleEvent (evt) {
 	var target = anyElement ? anyElement : evt.target;
-	var keystroke = BOM.keystroke(evt);
+	var keystroke = b8r.keystroke(evt);
 	var done = false;
 	var result;
 	while (target && !done) {
@@ -411,7 +411,7 @@ function handleEvent (evt) {
 						(!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
 				) {
 					if( handler.model && handler.method ) {
-						result = BOM.callMethod(handler.model, handler.method, evt);
+						result = b8r.callMethod(handler.model, handler.method, evt);
 					} else {
 						console.error('incomplete event handler on', target);
 						break;
@@ -465,12 +465,11 @@ implicit_event_types.forEach(type => document.body.addEventListener(type, handle
 	* json -- dumps the value stringified into the textContent of the element (mainly for debugging)
 */
 const special_values = {
-	_undefined_: x => x === undefined,
-	_null_: x => x === null,
-	_false_: x => x === false,
-	_true_: x => x === true
+	'_true_': true,
+	'_false_': false,
+	'_undefined_': undefined,
+	'_null_': null,
 }
-
 var toTargets = {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
@@ -520,18 +519,23 @@ var toTargets = {
 		}
 	},
 	enabled_if: function(element, value, dest) {
-		element.disabled = dest ? value != dest : value === undefined;
+		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
+		element.disabled = dest ? value != dest : !value;
+	},
+	enabled_unless: function(element, value, dest) {
+		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
+		element.disabled = test(value);
 	},
 	show_if: function(element, value, dest) {
 		if (dest !== undefined ? value == dest : value !== undefined) {
-			BOM.show(element);
+			b8r.show(element);
 		} else {
-			BOM.hide(element);
+			b8r.hide(element);
 		}
 	},
 	method: function(element, value, dest, data) {
 		var [model, method] = dest.split('.');
-		BOM.getByPath(model, method)(element, value, data);
+		b8r.getByPath(model, method)(element, value, data);
 	},
 	json: function(element, value) {
 		element.textContent = JSON.stringify(value, false, 2);
@@ -550,7 +554,7 @@ var toTargets = {
 			}
 		}
 		if (component_name) {
-			BOM.insertComponent(component_name, element, data);
+			b8r.insertComponent(component_name, element, data);
 		}
 	}
 };
@@ -615,7 +619,7 @@ function addBasePathToBindings(element, bindings, basePath) {
 }
 
 function findBindables (element) {
-	return BOM.findWithin(element, '[data-bind]', true)
+	return b8r.findWithin(element, '[data-bind]', true)
 			  .filter(elt => {
 			  	var list = elt.closest('[data-list]');
 			  	return !list || list === element || !element.contains(list);
@@ -638,31 +642,31 @@ function bind (element, data, basePath) {
 			// save message for when source is registered
 		}
 		if (_fromTargets.length) {
-			BOM.on(element, ['change', 'input'], '_BOM_', 'update');
+			b8r.on(element, ['change', 'input'], '_b8r_', 'update');
 		}
 	}
 }
 
 function findLists (element) {
-	return BOM.findWithin(element, '[data-list]')
+	return b8r.findWithin(element, '[data-list]')
 			  .filter(elt => {
 			  	var list = elt.parentElement.closest('[data-list]');
 			  	return !list || list === element || !element.contains(list);
 			  });
 }
 
-BOM.hide = function (element) {
+b8r.hide = function (element) {
 	if (element.getAttribute('data-orig-display') !== null && (element.style.display && element.style.display !== 'none')) {
 		element.setAttribute('data-orig-display', element.style.display);
-		BOM.findWithin(element, '[data-event*="hide"]').forEach(elt => BOM.trigger('hide', elt));
+		b8r.findWithin(element, '[data-event*="hide"]').forEach(elt => b8r.trigger('hide', elt));
 	}
 	element.style.display = 'none';
 };
 
-BOM.show = function (element) {
+b8r.show = function (element) {
 	if (element.style.display === 'none') {
 		element.style.display = element.getAttribute('data-orig-display') || '';
-		BOM.findWithin(element, '[data-event*="show"]').forEach(elt => BOM.trigger('show', elt));
+		b8r.findWithin(element, '[data-event*="show"]').forEach(elt => b8r.trigger('show', elt));
 	}
 };
 
@@ -677,7 +681,7 @@ function bindList (element, data, basePath) {
 	if (model === '' && !data && !basePath) {
 		return;
 	}
-	var list = data ? getByPath(data, path) : BOM.getByPath(model, path);
+	var list = data ? getByPath(data, path) : b8r.getByPath(model, path);
 	if (!list || !list.length) {
 		return;
 	}
@@ -690,7 +694,7 @@ function bindList (element, data, basePath) {
 	) {
 		element.parentElement.removeChild(element.previousSibling);
 	}
-	BOM.show(element);
+	b8r.show(element);
 	for (var i = 0; i < list.length; i++) {
 		var instance = element.cloneNode(true);
 		instance.removeAttribute('data-list');
@@ -699,7 +703,7 @@ function bindList (element, data, basePath) {
 		bindAll(instance, list[i], itemPath);
 		element.parentElement.insertBefore(instance, element);
 	}
-	BOM.hide(element);
+	b8r.hide(element);
 }
 
 function bindAll(element, data, basePath) {
@@ -707,12 +711,12 @@ function bindAll(element, data, basePath) {
 	loadAvailableComponents(element, data);
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
-	BOM.trigger('change', element);
+	b8r.trigger('change', element);
 }
 
-BOM.bindAll = bindAll;
+b8r.bindAll = bindAll;
 
-models._BOM_ = {
+models._b8r_ = {
 	stopEvent: () => {},
 	update: function(evt) {
 		var bindings = getBindings(evt.target);
@@ -720,7 +724,7 @@ models._BOM_ = {
 			var {targets, model, path} = bindings[i];
 			targets = targets.filter(t => fromTargets[t.target]);
 			targets.forEach(t => {
-				BOM.setByPath(model, path, fromTargets[t.target](evt.target, t.key), evt.target);
+				b8r.setByPath(model, path, fromTargets[t.target](evt.target, t.key), evt.target);
 			});
 		}
 		return true;
@@ -728,10 +732,10 @@ models._BOM_ = {
 };
 
 /**
-	BOM.ajax(url, method, data).then(success, failure)
-	BOM.json(url, method, data).then(success, failure)
+	b8r.ajax(url, method, data).then(success, failure)
+	b8r.json(url, method, data).then(success, failure)
 */
-BOM.ajax = function (url, method, request_data, config) {
+b8r.ajax = function (url, method, request_data, config) {
 	return new Promise(function(resolve, reject) {
 		config = config || {};
 		if (!config.headers) {
@@ -768,9 +772,9 @@ BOM.ajax = function (url, method, request_data, config) {
 	});
 };
 
-BOM.json = function (url, method, request_data, config) {
+b8r.json = function (url, method, request_data, config) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url, method, request_data, config).then(data => {
+		b8r.ajax(url, method, request_data, config).then(data => {
 			try {
 				resolve(JSON.parse(data || 'null'));
 			} catch(e) {
@@ -780,9 +784,9 @@ BOM.json = function (url, method, request_data, config) {
 	});
 };
 
-BOM.jsonp = function (url, method, request_data, config) {
+b8r.jsonp = function (url, method, request_data, config) {
 	return new Promise(function(resolve, reject) {
-		BOM.ajax(url, method, request_data, config).then(data => {
+		b8r.ajax(url, method, request_data, config).then(data => {
 			try {
 				resolve(JSON.parse(data || 'null'));
 			} catch(e) {
@@ -795,37 +799,37 @@ BOM.jsonp = function (url, method, request_data, config) {
 var components = {};
 
 /**
-	BOM.text() // syntax sugar for document.createTextNode()
-	BOM.fragment() // syntax sugar for document.createDocumentFragment();
-	BOM.create('div') // syntax sugar for document.createElement('div');
+	b8r.text() // syntax sugar for document.createTextNode()
+	b8r.fragment() // syntax sugar for document.createDocumentFragment();
+	b8r.create('div') // syntax sugar for document.createElement('div');
 */
 
-BOM.text = document.createTextNode.bind(document);
-BOM.fragment = document.createDocumentFragment.bind(document);
-BOM.create = document.createElement.bind(document);
+b8r.text = document.createTextNode.bind(document);
+b8r.fragment = document.createDocumentFragment.bind(document);
+b8r.create = document.createElement.bind(document);
 
 /**
-	BOM.empty(element); // removes contents of element
+	b8r.empty(element); // removes contents of element
 */
-BOM.empty = function (element) {
+b8r.empty = function (element) {
 	while (element.lastChild) {
 		element.removeChild(element.lastChild);
 	}
 };
 
 /**
-	BOM.moveChildren(source, dest); // copies contents of source to dest
+	b8r.moveChildren(source, dest); // copies contents of source to dest
 */
-BOM.moveChildren = function (source, dest) {
+b8r.moveChildren = function (source, dest) {
 	while (source.firstChild) {
 		dest.appendChild(source.firstChild);
 	}
 };
 
 /**
-	BOM.copyChildren(source, dest); // copies contents of source to dest
+	b8r.copyChildren(source, dest); // copies contents of source to dest
 */
-BOM.copyChildren = function (source, dest) {
+b8r.copyChildren = function (source, dest) {
 	var element = source.firstChild;
 	while (element) {
 		dest.appendChild(element.cloneNode(true));
@@ -834,25 +838,25 @@ BOM.copyChildren = function (source, dest) {
 };
 
 /**
-	BOM.component(name, url); // loads component from url
+	b8r.component(name, url); // loads component from url
 	  // registers it as "name"
 	  // the extension .component.html is appended to url
 	  // component will automatically be inserted as expected once loaded
 	  // resolve will be passed the loaded component
 */
-BOM.component = function (name, url) {
+b8r.component = function (name, url) {
 	return new Promise(function(resolve, reject) {
 		if (components[name]) {
 			resolve(components[name]);
 		} else {
-			BOM.ajax(url + '.component.html').then(source => {
-				resolve(BOM.makeComponent(name, source));
+			b8r.ajax(url + '.component.html').then(source => {
+				resolve(b8r.makeComponent(name, source));
 			}, err => reject(err));
 		}
 	});
 };
 
-BOM.makeComponent = function(name, source) {
+b8r.makeComponent = function(name, source) {
 	var css = false, content, script = false, parts, remains;
 
 	// nothing <style> css </style> rest-of-component
@@ -871,22 +875,22 @@ BOM.makeComponent = function(name, source) {
 		content = remains;
 	}
 
-	var div = BOM.create('div');
+	var div = b8r.create('div');
 	div.innerHTML = content;
 /*jshint evil: true */
-	var load = script ? new Function('component', 'BOM', 'find', 'findOne', 'data', script) : false;
+	var load = script ? new Function('component', 'b8r', 'find', 'findOne', 'data', script) : false;
 /*jshint evil: false */
 	var style;
 	if (css) {
-		style = BOM.create('style');
+		style = b8r.create('style');
 		style.type = 'text/css';
-		style.appendChild(BOM.text(css));
+		style.appendChild(b8r.text(css));
 		document.head.appendChild(style);
 	}
 	var component = {name: name, style: css ? style : false, view: div, load: load, _source: source};
 	components[name] = component;
-	var targets = BOM.find('[data-component="' + name + '"]');
-	targets.forEach(element => BOM.insertComponent(component, element));
+	var targets = b8r.find('[data-component="' + name + '"]');
+	targets.forEach(element => b8r.insertComponent(component, element));
 	return component;
 };
 
@@ -917,16 +921,16 @@ function removeDataForElement(target_element) {
 }
 
 function loadAvailableComponents(element, data) {
-	BOM.findWithin(element || document.body, '[data-component]').forEach(target => {
+	b8r.findWithin(element || document.body, '[data-component]').forEach(target => {
 		if (!target.matches('[data-component-uuid]')) {
 			var name = target.getAttribute('data-component');
-			BOM.insertComponent(name, target, data);
+			b8r.insertComponent(name, target, data);
 		}
 	});
 }
 
 /**
-	BOM.insertComponent(component, element, data);	// insert a component by name
+	b8r.insertComponent(component, element, data);	// insert a component by name
 		// if no element is provided, the component will be appended to document.body
 		// data will be passed to the component's load method
 */
@@ -934,7 +938,7 @@ function loadAvailableComponents(element, data) {
 // - component remove method that removes the view_controller instance as well
 // - garbage collection of view_controllers (utilizing the root_element property)
 // - support remove handlers, also allow the garbage collection to trigger them
-BOM.insertComponent = function (component, element, data) {
+b8r.insertComponent = function (component, element, data) {
 	if (typeof component === 'string') {
 		if(!components[component]) {
 			console.warn('component not available: ', name);
@@ -950,44 +954,44 @@ BOM.insertComponent = function (component, element, data) {
 	}
 	removeDataForElement(element);
 	if (!element) {
-		element = BOM.create('div');
+		element = b8r.create('div');
 		document.body.appendChild(element);
 	}
-	var children = BOM.fragment();
-	var uuid = BOM.uuid();
-	BOM.moveChildren(element, children);
-	BOM.copyChildren(component.view, element);
-	var children_dest = BOM.findOneWithin(element, '[data-children]');
+	var children = b8r.fragment();
+	var uuid = b8r.uuid();
+	b8r.moveChildren(element, children);
+	b8r.copyChildren(component.view, element);
+	var children_dest = b8r.findOneWithin(element, '[data-children]');
 	if (children.firstChild && children_dest) {
-		BOM.empty(children_dest);
-		BOM.moveChildren(children, children_dest);
+		b8r.empty(children_dest);
+		b8r.moveChildren(children, children_dest);
 	}
-	var uuid = BOM.uuid();
+	var uuid = b8r.uuid();
 	element.setAttribute('data-component-uuid', uuid);
 	bindAll(element, data);
 	if (component.load) {
 		var view_controller = component.load(
 			element,
-			BOM,
-			selector => BOM.findWithin(element, selector),
-			selector => BOM.findOneWithin(element, selector),
+			b8r,
+			selector => b8r.findWithin(element, selector),
+			selector => b8r.findOneWithin(element, selector),
 			data
 		);
 		if (view_controller) {
-			if (!models._BOM_components_) {
-				models._BOM_components_ = {};
+			if (!models._b8r_components_) {
+				models._b8r_components_ = {};
 			}
 			view_controller.root_element = element;
-			models._BOM_components_[uuid] = view_controller;
+			models._b8r_components_[uuid] = view_controller;
 		}
 	}
 	return element;
 };
 
 /**
-	BOM.uuid();	// generate compliant and pretty random UUID
+	b8r.uuid();	// generate compliant and pretty random UUID
 */
-BOM.uuid = function (){
+b8r.uuid = function (){
     var d = new Date().getTime();
     if(window.performance && typeof window.performance.now === "function"){
         d += performance.now(); //use high-precision timer if available

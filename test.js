@@ -1,4 +1,4 @@
-// Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald
+// bindinator.js Copyright (c) 2016 Tonio Loewald
 /* globals console */
 
 'use strict';

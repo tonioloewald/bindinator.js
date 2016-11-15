@@ -186,35 +186,35 @@
 	find('.shortcut').forEach(elt => {
 		var caption = elt.textContent.split('-');
 		caption.forEach((s, i) => {
-			caption[i] = BOM.modifierKeys[s] || s;
+			caption[i] = b8r.modifierKeys[s] || s;
 		});
 		elt.textContent = caption.join('');
 	});
 	function deactivate_menubar(elt_in_menubar) {
-		BOM.findWithin(elt_in_menubar.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
-		BOM.findWithin(elt_in_menubar.closest('.menubar'), '.active').forEach(elt => elt.classList.remove('active'));
+		b8r.findWithin(elt_in_menubar.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
+		b8r.findWithin(elt_in_menubar.closest('.menubar'), '.active').forEach(elt => elt.classList.remove('active'));
 	}
-	BOM.makeArray(findOne('.menubar').querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
-	BOM.register('menubar', {
+	b8r.makeArray(findOne('.menubar').querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
+	b8r.register('menubar', {
 		mousedown(evt) {
 			const menuitem = evt.target.closest('li');
-			if(BOM.makeArray(menuitem.children).filter(elt => elt.matches('ul')).length === 0) {
+			if(b8r.makeArray(menuitem.children).filter(elt => elt.matches('ul')).length === 0) {
 				menuitem.classList.add('active');
 			}
 		},
 		disclose(evt) {
 			deactivate_menubar(evt.target);
 			const menuitem = evt.target.closest('li');
-			const submenu = BOM.makeArray(menuitem.children).filter(elt => elt.matches('ul'));
+			const submenu = b8r.makeArray(menuitem.children).filter(elt => elt.matches('ul'));
 			if (submenu.length === 1) {
 				evt.target.classList.add('disclosed');
 			} else if (evt.type !== 'focus') {
 				setTimeout(() => {
-					BOM.findWithin(menuitem.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
+					b8r.findWithin(menuitem.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
 				}, 500);
 			}
 			menuitem.classList.add('disclosed');
-			BOM.findAbove(menuitem, 'li', '.menubar').forEach(elt => elt.classList.add('disclosed'));
+			b8r.findAbove(menuitem, 'li', '.menubar').forEach(elt => elt.classList.add('disclosed'));
 		},
 		deactivate(evt) {
 			// FIXME -- Firefox doesn't support relatedTarget

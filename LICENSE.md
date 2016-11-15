@@ -1,4 +1,4 @@
-Bind-O-Matic.js License
+bindinator.js License
 =======================
 
 Copyright (c) 2016, Tonio Loewald

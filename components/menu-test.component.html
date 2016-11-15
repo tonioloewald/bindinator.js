@@ -1,4 +1,4 @@
-<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <style>
 	.demo-area {
 		text-align: center;
@@ -49,11 +49,11 @@
 				tooltip.remove();
 				tooltip = null;
 			}
-			const content = BOM.create('div');
+			const content = b8r.create('div');
 			content.style.padding = '4px 8px';
 			content.textContent = target.getAttribute('data-tooltip');
-			BOM.component('annotation', 'components/annotation').then(note => {
-				tooltip = BOM.insertComponent('annotation', false, {target, content});
+			b8r.component('annotation', 'components/annotation').then(note => {
+				tooltip = b8r.insertComponent('annotation', false, {target, content});
 			});
 		}
 	}
@@ -66,15 +66,15 @@
 		}
 	}
 
-	BOM.register('tooltips', {showTip, hideTip});
-	BOM.on(document.body, 'mouseover', 'tooltips', 'showTip');
-	BOM.on(document.body, 'mouseout', 'tooltips', 'hideTip');
+	b8r.register('tooltips', {showTip, hideTip});
+	b8r.on(document.body, 'mouseover', 'tooltips', 'showTip');
+	b8r.on(document.body, 'mouseout', 'tooltips', 'hideTip');
 
 	return {
 		context_menu: function(evt) {
-			BOM.component('context-menu', 'components/context-menu').then(component => {
+			b8r.component('context-menu', 'components/context-menu').then(component => {
 				var target = findOne('.popover');
-				BOM.insertComponent(component, false, {target});
+				b8r.insertComponent(component, false, {target});
 			});
 		}
 	} 

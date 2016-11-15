@@ -1,13 +1,13 @@
-<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <head>
-	<title>Bind-O-Matic</title>
+	<title>bindinator</title>
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism-okaidia.css">
-	<link rel="stylesheet" type="text/css" href="bom.css">
+	<link rel="stylesheet" type="text/css" href="b8r.css">
 </head>
 <body data-event="keydown(alt-meta-KeyK):demo.alertKeystroke;keydown(alt-Space):demo.fullscreen">
 	<div class="layout">
 		<div class="header">
-			<h1>Bind-O-Matic.js</h1>
+			<h1>bindinator.js</h1>
 		</div>
 		<div class="three_col">
 			<div class="nav">
@@ -38,7 +38,7 @@
 				<h3>Tests</h3>
 				<a target="_blank" href="tests.html">Unit Tests</a>
 				<h3>Project</h3>
-				<a target="_blank" href="https://trello.com/b/0OBL4IjC/bind-o-matic">Trello</a>
+				<a target="_blank" href="https://trello.com/b/0OBL4IjC/bindinator">Trello</a>
 			</div>
 			<div class="content">
 				<h2 style="text-align: right;" id="title"></h2>
@@ -53,26 +53,26 @@
 		</div>
 	</div>
 	<script src="require.js"></script>
-	<script src="bom.js"></script>
+	<script src="b8r.js"></script>
 	<!--
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.9.3/jshint.min.js"></script>
 	-->
 	<script>
-		var title = BOM.id('title');
-		var element = BOM.id('example');
-		var source_code = BOM.id('source-code');
+		var title = b8r.id('title');
+		var element = b8r.id('example');
+		var source_code = b8r.id('source-code');
 
 		function markCurrent(doc) {
-			BOM.find('.current').forEach(elt => {
+			b8r.find('.current').forEach(elt => {
 				elt.classList.remove('current');
 			});
-			const current = BOM.findOne('[data-path="' + doc + '"]');
+			const current = b8r.findOne('[data-path="' + doc + '"]');
 			if (current) {
 				current.classList.add('current');
 			}
 		}
 
-		BOM.register('demo', {
+		b8r.register('demo', {
 			showDocs: function(evt) {
 				if (evt.target.matches('.current')) {
 					return;
@@ -85,7 +85,7 @@
 				}
 				window.location.hash = 'component=' + evt.target.getAttribute('data-path');
 			},
-			alertKeystroke: evt => alert(BOM.keystroke(evt)),
+			alertKeystroke: evt => alert(b8r.keystroke(evt)),
 			fullscreen: () => {
 				console.log('toggling fullscreen');
 				if (!element.matches('.fullscreen')) {
@@ -95,14 +95,14 @@
 				}
 			}
 		});
-		BOM.component('hello', 'components/hello');
+		b8r.component('hello', 'components/hello');
 
-		BOM.json('source-files.json')
-		   .then(data => BOM.register('source_files', data))
-		   .then(() => BOM.json('components.json'))
+		b8r.json('source-files.json')
+		   .then(data => b8r.register('source_files', data))
+		   .then(() => b8r.json('components.json'))
 		   .then(data => {
 		   		data.sort((a, b) => a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1);
-		   		BOM.register('components', data);
+		   		b8r.register('components', data);
 		 		})
 		   .then(update);
 
@@ -123,31 +123,31 @@
 			});
 			var {key, value} = pairs[0];
 			if (key) {
-				BOM.empty(element);
-				BOM.hide(source_code.closest('div'));
+				b8r.empty(element);
+				b8r.hide(source_code.closest('div'));
 				switch (key) {
 					case 'source':
 						title.textContent = value;
-						BOM.component('file-viewer', 'components/file-viewer').then(viewer => {
-							BOM.insertComponent(viewer, element, {url: value});
+						b8r.component('file-viewer', 'components/file-viewer').then(viewer => {
+							b8r.insertComponent(viewer, element, {url: value});
 						});
 						break;
 					case 'component':
-						BOM.component(value, 'components/' + value)
+						b8r.component(value, 'components/' + value)
 							 .then(component => {
 							 		title.textContent = value.split('/').pop() + '.component.html';
 							 		source_code.textContent = component._source.replace(/\t/g, '  ');
 							 		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min").then(() => {
 							 			Prism.highlightElement(source_code);
-							 			BOM.show(source_code.closest('div'));
+							 			b8r.show(source_code.closest('div'));
 							 		});
-							 		BOM.insertComponent(component, element);
+							 		b8r.insertComponent(component, element);
 							 });
 						break;
 				} 
 			} else {
 				// FIXME don't do this, behave as though there's a default hash so history behaves nicely
-				BOM.trigger('mouseup', BOM.findOne('.loadable'));
+				b8r.trigger('mouseup', b8r.findOne('.loadable'));
 			}
 		}
 

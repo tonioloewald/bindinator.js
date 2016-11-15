@@ -36,7 +36,7 @@
 	    document.body.appendChild(script);
 	}
 
-	BOM.register('images', {
+	b8r.register('images', {
 		src_fadein: (element, value, data) => {
 			const image = new Image();
 			image.src = value;
@@ -52,5 +52,5 @@
 		feed_url += '&tags=fave,airshow';
 	}
 
-	getFlickrData(feed_url, data => BOM.bindAll(component, data) );
+	getFlickrData(feed_url, data => b8r.bindAll(component, data) );
 </script>

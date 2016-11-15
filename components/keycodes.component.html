@@ -16,14 +16,14 @@
 <script>
 	var keycodes = findOne('.keycodes');
 	findOne('input').focus();
-	BOM.hide(keycodes);
+	b8r.hide(keycodes);
 
 	return {
 		showCode: evt => {
-			var div = BOM.create('div');
-			div.textContent = BOM.keystroke(evt); 
-			BOM.findOneWithin(keycodes, 'div').appendChild(div);
-			BOM.show(keycodes);
+			var div = b8r.create('div');
+			div.textContent = b8r.keystroke(evt); 
+			b8r.findOneWithin(keycodes, 'div').appendChild(div);
+			b8r.show(keycodes);
 			evt.preventDefault();
 		},
 		clear: () => {

@@ -9,11 +9,11 @@
 	}
 
 	if (data.content) {
-		BOM.component('loading', 'components/loading')
+		b8r.component('loading', 'components/loading')
 			.then(() => render(data.content));
 	} else if (data.url) {
-		BOM.component('loading', 'components/loading')
-			.then(() => BOM.ajax(data.url))
+		b8r.component('loading', 'components/loading')
+			.then(() => b8r.ajax(data.url))
 		  .then(content => render(content));
 	}
 </script>

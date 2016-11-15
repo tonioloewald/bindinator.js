@@ -55,10 +55,10 @@
 </div>
 <script>
 	var current_tab;
-	var bodies = BOM.makeArray(findOne('.bodies').children);
+	var bodies = b8r.makeArray(findOne('.bodies').children);
 	var untitled = {name: 'Untitled'};
 	var tab_info = bodies.map(body_element => { return { name: body_element.getAttribute('name')} || untitled; });
-	BOM.bindAll(findOne('.tabs'), tab_info);
+	b8r.bindAll(findOne('.tabs'), tab_info);
 	var tabs = find('.tabs > .tab[data-list-instance]');
 
 	function select_tab(which) {

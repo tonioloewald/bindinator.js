@@ -1,4 +1,4 @@
-<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <style>
 	.context-menu > div > a {
 		display: block;
@@ -27,29 +27,29 @@
 	</footer>
 </div>
 <script>
-	/* globals BOM, component, data, find, findOne, console, window */
+	/* globals b8r, component, data, find, findOne, console, window */
 	'use strict';
 
-	BOM.component('annotation', 'components/annotation');
+	b8r.component('annotation', 'components/annotation');
 
 	// there can be only one!
-	BOM.find('.context-menu').forEach(elt => elt.parentElement === component || elt.parentElement.remove());
-	BOM.bindAll(component, data.options || [{caption: 'Option 1'}, {caption: 'Option 2'}, {caption: 'Option 3'}]);
-	BOM.onAny('mousedown', 'context-menu', 'hide');
+	b8r.find('.context-menu').forEach(elt => elt.parentElement === component || elt.parentElement.remove());
+	b8r.bindAll(component, data.options || [{caption: 'Option 1'}, {caption: 'Option 2'}, {caption: 'Option 3'}]);
+	b8r.onAny('mousedown', 'context-menu', 'hide');
 	findOne('[tabindex]').focus();
 
 	function hide(evt) {
 		if(!component.contains(evt.target)) {
 			component.remove();	
-			BOM.offAny('mousedown', 'context-menu', 'hide');
+			b8r.offAny('mousedown', 'context-menu', 'hide');
 			return true;
 		}
 	}
 
-	BOM.register('context-menu', {hide});
+	b8r.register('context-menu', {hide});
 
 	// this is kind of a hack
-	BOM.trigger('show', findOne('[data-event*="show"]'));
+	b8r.trigger('show', findOne('[data-event*="show"]'));
 	return {
 		hide,
 		up: evt => evt.target.previousSibling.focus(),

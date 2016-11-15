@@ -1,4 +1,4 @@
-<!-- Bind-O-Matic.js Copyright (c) 2016 Tonio Loewald -->
+<!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <style>
 	.test h2 { color: white; background-color: purple; }
 	.test p { color: red; }
@@ -9,6 +9,6 @@ Bare text!
 <div data-children></div>
 <input data-bind="value=test1.sub.list[2]">
 <script>
-	BOM.findOneWithin(component, 'h2').textContent = "Set on load";
+	b8r.findOneWithin(component, 'h2').textContent = "Set on load";
 	component.classList.add('test');
 </script>
