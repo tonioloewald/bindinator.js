@@ -69,7 +69,7 @@ b8r.modifierKeys = {
 	alt: '⌥',
 	escape: '⎋',
 	shift: '⇧'
-}
+};
 
 /**
 	b8r.id();             // syntax sugar for findElementById
@@ -159,7 +159,7 @@ b8r.touchByPath = function(name, path, source_element) {
 		const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
 		elements.forEach(element => element !== source_element && bind(element));
 	}
-}
+};
 
 b8r.setByPath = function (name, path, value, source_element) {
 	if (models[name]) {
@@ -469,7 +469,7 @@ const special_values = {
 	'_false_': false,
 	'_undefined_': undefined,
 	'_null_': null,
-}
+};
 var toTargets = {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
@@ -520,7 +520,7 @@ var toTargets = {
 	},
 	enabled_if: function(element, value, dest) {
 		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
-		element.disabled = dest ? value != dest : !value;
+		element.disabled = test(value);
 	},
 	enabled_unless: function(element, value, dest) {
 		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
@@ -958,7 +958,6 @@ b8r.insertComponent = function (component, element, data) {
 		document.body.appendChild(element);
 	}
 	var children = b8r.fragment();
-	var uuid = b8r.uuid();
 	b8r.moveChildren(element, children);
 	b8r.copyChildren(component.view, element);
 	var children_dest = b8r.findOneWithin(element, '[data-children]');
