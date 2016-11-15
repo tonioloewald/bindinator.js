@@ -1,6 +1,8 @@
-# bindinator
+![bindinator b∞r logo](bindinator-logo.svg)
 
-[Home Page](http://bindinator.com/) | [Demo](https://cdn.rawgit.com/tonioloewald/bindinator.js/master/) | [Repo](https://github.com/tonioloewald/bindinator.js) | [Trello](https://trello.com/b/0OBL4IjC/bindinator)
+#bindinator
+
+[Home Page](http://bindinator.com/) | [Demo (cdn.rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [Repo](https://github.com/tonioloewald/bindinator.js) | [Trello](https://trello.com/b/0OBL4IjC/bindinator)
 
 ## Better, Faster, Cheaper
 
