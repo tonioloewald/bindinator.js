@@ -43,14 +43,24 @@
 			data-list="_DATA_"
 			data-bind="text=.name"
 			class="tab"
-			data-event="mouseup,keydown(Space):_component_.select_tab;keydown(ArrowLeft):_component_.previous_tab;keydown(ArrowRight):_component_.next_tab"
+			data-event="
+				mouseup,keydown(Space):_component_.select_tab;
+				keydown(ArrowLeft):_component_.previous_tab;
+				keydown(ArrowRight):_component_.next_tab
+			"
 			tabindex="0"
 		>Tab Name</h4>
 	</div>
 	<div class="bodies" data-children>
-		<div name="Tab A" style="text-align: center;"><span style="font-size: 200px; color: red;">A</span></div>
-		<div name="Tab B" style="text-align: center;"><span style="font-size: 200px; color: green;">B</span></div>
-		<div name="Tab C" style="text-align: center;"><span style="font-size: 200px; color: blue;">C</span></div>
+		<div name="Tab A" style="text-align: center;">
+			<span style="font-size: 200px; color: red;">A</span>
+		</div>
+		<div name="Tab B" style="text-align: center;">
+			<span style="font-size: 200px; color: green;">B</span>
+		</div>
+		<div name="Tab C" style="text-align: center;">
+			<span style="font-size: 200px; color: blue;">C</span>
+		</div>
 	</div>
 </div>
 <script>
