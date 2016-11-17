@@ -7,11 +7,11 @@ Binds your data and methods so you can concentrate on your actual goals.
 /* jshint esnext:true, loopfunc:true */
 /* globals console, window */
 
+(function(module){
 'use strict';
 
 function b8r(){}
 
-var module;
 if (module) {
 	module.exports = b8r;
 }
@@ -112,7 +112,8 @@ function setByPath(obj, path, val) {
 	}
 }
 
-var models = {};
+const models = {};
+console.log('models', models)
 
 /**
 	b8r.register(name, obj);						// register an object by name as data or controller
@@ -403,9 +404,9 @@ function handleEvent (evt) {
 	var target = anyElement ? anyElement : evt.target;
 	var keystroke = b8r.keystroke(evt);
 	var done = false;
-	var result;
 	while (target && !done) {
 		var handlers = implicitEventHandlers(target);
+		var result = false;
 		for (var i = 0; i < handlers.length; i++) {
 			var handler = handlers[i];
 			for (var type_index = 0; type_index < handler.types.length; type_index++) {
@@ -421,6 +422,10 @@ function handleEvent (evt) {
 					}
 					if (result !== true) {
 						// use stopPropagation?!
+						if(evt.type === 'keydown') {
+							console.log(models.shortcuts);
+						}
+						console.log('stopped', evt.type);
 						evt.stopPropagation();
 						evt.preventDefault();
 						done = true;
@@ -961,12 +966,14 @@ b8r.insertComponent = function (component, element, data) {
 		document.body.appendChild(element);
 	}
 	var children = b8r.fragment();
-	b8r.moveChildren(element, children);
-	b8r.copyChildren(component.view, element);
-	var children_dest = b8r.findOneWithin(element, '[data-children]');
-	if (children.firstChild && children_dest) {
-		b8r.empty(children_dest);
-		b8r.moveChildren(children, children_dest);
+	if (component.view.children.length) {
+		b8r.moveChildren(element, children);
+		b8r.copyChildren(component.view, element);
+		var children_dest = b8r.findOneWithin(element, '[data-children]');
+		if (children.firstChild && children_dest) {
+			b8r.empty(children_dest);
+			b8r.moveChildren(children, children_dest);
+		}
 	}
 	var uuid = b8r.uuid();
 	element.setAttribute('data-component-uuid', uuid);
@@ -1004,3 +1011,4 @@ b8r.uuid = function (){
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
 };
+}(module));

@@ -1,0 +1,162 @@
+<style>
+	.menubar {
+		height: 24px;
+		background-color: #eee;
+		list-style: none;
+		margin: 0;
+		padding: 0 4px;
+		border-bottom: 1px solid rgba(0,0,0,0.25);
+		box-sizing: border-box;
+	}
+
+	.menubar .shortcut,
+	.menubar [data-shortcut]+span {
+		display: inline-block;
+		padding-left: 8px;
+		color: #57A700;
+	}
+
+	.menubar * {
+		box-sizing: border-box;
+		transition: 0.1s;
+	}
+
+	.menubar li {
+		position: relative;
+		cursor: default;
+		margin: 0;
+		padding: 2px 8px;
+		display: inline-block;
+		height: 24px;
+		line-height: 20px;
+		white-space: nowrap;
+		min-width: 40px;
+	}
+
+	.menubar li.open {
+		background-color: #BCED85;
+	}
+
+	.menubar li:active {
+		background-color: #7ED321;
+	}
+
+	.menubar ul {
+		position: absolute;
+		padding: 0;
+		margin: 0 -8px;
+		top: 23px;
+		background-color: white;
+		border: 1px solid rgba(0,0,0,0.25);
+		display: flex;
+		flex-direction: column;
+		display: none;
+		box-shadow: 1px 3px 4px 0 rgba(0,0,0,0.5);
+		opacity: 0;
+	}
+
+	.menubar ul ul {
+		z-index: 1;
+		left: 40px;
+	}
+
+	.menubar li.open > ul {
+		display: block;
+		opacity: 1.0;
+	}
+
+	.menubar li.separator {
+		background-color: rgba(0,0,0,0.25);
+		height: 1px;
+		padding: 0;
+		margin: 4px 0;
+	}
+
+	.menubar ul li {
+		display: flex;
+	}
+
+	.menubar ul li > *:first-child {
+		flex-grow: 1;
+	}
+
+	.menubar ul li > *:not(:first-child) {
+		margin-left: 8px;
+	}
+</style>
+<script>
+	component.classList.add('menubar');
+	b8r.on(component, ['mouseup', 'keydown(Space)'], 'menubar', 'action');
+	b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open');
+	b8r.on(component, ['blur', 'keydown(Escape)'], 'menubar', 'close');
+
+	const add_shortcut_span = elt => {
+		var caption = elt.getAttribute('data-shortcut').split('-');
+		caption.forEach((s, i) => {
+			caption[i] = b8r.modifierKeys[s] || s.replace(/Key|Digit/, '');
+		});
+		caption = caption.join('');
+		const span = b8r.create('span');
+		span.textContent = caption;
+		elt.parentElement.appendChild(span);
+	}
+
+	find('[data-shortcut').forEach(add_shortcut_span);
+
+	find('[data-event]').forEach(elt => {
+		if (elt.getAttribute('data-shortcut')) {
+			elt.setAttribute(
+				'data-event', 
+				elt.getAttribute('data-event').replace(/\bmenuclick:/, 'click,keydown(Space):')
+			);
+		} else {
+			elt.setAttribute(
+				'data-event', 
+				elt.getAttribute('data-event').replace(/\bmenuclick:/, 'shortcut,click,keydown(Space):')
+			);
+		}
+	});
+
+	// keyboard navigation
+	b8r.makeArray(component.querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
+
+	require('shortcuts').setup();
+
+	function close_all_menus() {
+		b8r.off(document.body, 'mousedown', 'menubar', 'close');
+		b8r.find('.menubar.open,.menubar .open').forEach(elt => elt.classList.remove('open'));
+	}
+
+	b8r.register('menubar', {
+		action(evt){
+			if(!evt.target.matches('.menubar') && !evt.target.parentElement.matches('.menubar')) {
+				close_all_menus();
+			}
+		},
+		open(evt){
+			const li = evt.target.closest('li');
+			if(!li) {
+				return;
+			}
+			if(li.parentElement.matches('.menubar.open') && evt.type === 'mousedown') {
+				close_all_menus();
+				return;
+			}
+			if(li.closest('.menubar.open') || evt.type !== 'mouseover') {
+				const menubar = evt.target.closest('.menubar');
+				menubar.classList.add('open');
+				b8r.on(document.body, 'mousedown', 'menubar', 'close');
+				menubar.querySelectorAll('.open').forEach(elt => elt.classList.remove('open'));
+				if(evt.target.matches('li')) {
+					evt.target.classList.add('open');
+				}
+				b8r.findAbove(evt.target, 'li', '.menubar').forEach(elt => elt.classList.add('open'));
+			}
+		},
+		close(evt){
+			if (!evt.relatedTarget || !evt.relatedTarget.closest('.menubar')) {
+				close_all_menus();
+			}
+		}
+	});
+</script>

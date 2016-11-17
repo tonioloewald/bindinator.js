@@ -1,0 +1,34 @@
+<style>
+	.toolbar {
+		margin: 0;
+		padding: 2px 4px;
+		height: 32px;
+		background-color: #f7f7f7;
+		box-sizing: border-box;
+		border-bottom: 1px solid rgba(0,0,0,0.25);
+		display: flex;
+	}
+
+	.toolbar hr {
+		border: 0;
+		display: block;
+		flex-grow: 1;
+	}
+
+	.toolbar hr.fixed {
+		flex-grow: 0;
+		width: 16px;
+	}
+
+	.toolbar > button {
+		min-width: 26px;
+	}
+
+	.toolbar > button + button {
+		margin-left: 2px;
+	}
+</style>
+<script>
+	component.classList.add('toolbar');
+	require('shortcuts').setup();
+</script>
