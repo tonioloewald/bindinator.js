@@ -1,13 +1,37 @@
 <div>
-	<svg viewBox="0, 0, 32, 32">
-	   <path d="M16,32 C7.163,32 0,24.837 0,16 C0,7.163 7.163,0 16,0 C24.837,0 32,7.163 32,16 C32,24.837 24.837,32 16,32 z" />
+	<svg viewBox="0, 0, 128, 128">
+  		<path d="M 0 64 a 64 64, 0, 0, 0, 128 0 a 64 64, 0, 0, 0, -128 0 z" fill="black" fill-opacity="0.5">
 	</svg>
 </div>
 <script>
-	var circle = findOne('svg');
-	var diameter = component.getAttribute('diameter') || 64;
+	const r = 64 * (parseFloat(component.getAttribute('radius')) || 1);
+	const c = 64;
+	const degrees_to_radians = Math.PI / 180;
+	const circle = findOne('svg');
+	const path = findOne('path');
+	const diameter = component.getAttribute('diameter') || 64;
+	const fill = component.getAttribute('fill') || 'green';
+	const arc = parseFloat(component.getAttribute('arc') || 330);
+	const opacity = component.getAttribute('opacity') || 0.5;
+	const ir = parseFloat(component.getAttribute('inner-radius')) * r || 16; //false;
+	if (arc > 0 && (arc < 360 || ir)) {
+		const angle = (parseInt(component.getAttribute('angle') || 0, 10)) * degrees_to_radians;
+		const f = arc > 180 ? 1 : 0;
+		// 359.9 is close enough to 360 for hollow circles.
+		const end_angle = angle + (arc > 360 ? 359.9 : arc) * degrees_to_radians;
+		const x = Math.sin(angle);
+		const y = Math.cos(angle);
+		const x1 = Math.sin(end_angle);
+		const y1 = Math.cos(end_angle);
+		if (ir) {
+			path.setAttribute('d', `M ${x * r + c} ${y * r + c} a ${r} ${r}, 0, ${f}, 0, ${(x1-x) * r} ${(y1-y) * r} L ${x1*ir + c} ${y1 * ir + c} a ${ir} ${ir}, 0, ${f}, 1, ${(x-x1) * ir} ${(y-y1) * ir} z`);
+		} else {
+			path.setAttribute('d', `M ${x * r + c} ${y * r + c} a ${r} ${r}, 0, ${f}, 0, ${(x1-x) * r} ${(y1-y) * r} L ${c} ${c} z`);
+		}
+	}
+	circle.style.display = arc > 0 ? '' : 'none';
 	circle.setAttribute('width', diameter + 'px');
 	circle.setAttribute('height', diameter + 'px');
-	findOne('path').setAttribute('fill', component.getAttribute('fill') || 'black');
-	findOne('path').setAttribute('fill-opacity', component.getAttribute('fill-opacity') || 0.5);
+	findOne('path').setAttribute('fill', fill);
+	findOne('path').setAttribute('fill-opacity', opacity);
 </script>
