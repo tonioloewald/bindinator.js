@@ -1,6 +1,6 @@
 <div>
 	<svg viewBox="0, 0, 128, 128">
-  		<path d="M 0 64 a 64 64, 0, 0, 0, 128 0 a 64 64, 0, 0, 0, -128 0 z" fill="black" fill-opacity="0.5">
+  		<path d="M 0 64 a 64 64, 0, 0, 0, 128 0 a 64 64, 0, 0, 0, -128 0 z">
 	</svg>
 </div>
 <script>
@@ -10,12 +10,12 @@
 	const circle = findOne('svg');
 	const path = findOne('path');
 	const diameter = component.getAttribute('diameter') || 64;
-	const fill = component.getAttribute('fill') || 'green';
+	const fill = component.getAttribute('fill') || '#7ED321';
 	const arc = parseFloat(component.getAttribute('arc') || 330);
-	const opacity = component.getAttribute('opacity') || 0.5;
+	const opacity = component.getAttribute('opacity') || 0.75;
 	const ir = parseFloat(component.getAttribute('inner-radius')) * r || 16; //false;
 	if (arc > 0 && (arc < 360 || ir)) {
-		const angle = (parseInt(component.getAttribute('angle') || 0, 10)) * degrees_to_radians;
+		const angle = parseFloat(component.getAttribute('angle') || 15) * degrees_to_radians;
 		const f = arc > 180 ? 1 : 0;
 		// 359.9 is close enough to 360 for hollow circles.
 		const end_angle = angle + (arc > 360 ? 359.9 : arc) * degrees_to_radians;

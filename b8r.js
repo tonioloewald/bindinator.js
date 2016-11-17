@@ -49,12 +49,15 @@ b8r.succeeding = (element, selector) => {
 b8r.findAbove = (elt, selector, until_elt) => {
 	var current_elt = elt.parentElement;
 	var found = [];
-	while(
-		until_elt && 
-		typeof until_elt === 'string' ? 
-			!current_elt.matches(until_elt) : 
-			current_elt !== until_elt
-	) {
+	while(until_elt && current_elt) {
+		if (current_elt === document.body) {
+			break;
+		}
+		if (typeof until_elt === 'string' && current_elt.matches(until_elt)) {
+			break;
+		} else if (current_elt === until_elt) {
+			break;
+		}
 		if(current_elt.matches(selector)) {
 			found.push(current_elt);
 		}
@@ -65,7 +68,7 @@ b8r.findAbove = (elt, selector, until_elt) => {
 
 b8r.modifierKeys = {
 	meta: '⌘',
-	control: '⌃',
+	ctrl: '⌃',
 	alt: '⌥',
 	escape: '⎋',
 	shift: '⇧'
@@ -284,7 +287,7 @@ function implicitEventHandlers (element) {
 	var source = element.getAttribute('data-event');
 	var handlers = [];
 	if (source) {
-		source = source.split(';');
+		source = source.split(';').filter(elt => !!elt);
 		handlers = source.map(function(instruction){
 			var [type, handler] = instruction.split(':');
 			if (!handler) {

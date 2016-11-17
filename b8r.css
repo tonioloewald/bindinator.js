@@ -7,9 +7,12 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	color: #57A700;
 	font-weight: 200;
 	margin: 0 0 8px 0;
+}
+
+h1, h2, h3, h4, h5, h6, b, strong {
+	color: #57A700;
 }
 
 .header > h1 {
@@ -102,7 +105,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .loadable:hover {
-	background-color: rgba(0,0,0,0.25);
+	background-color: #7ED321;
 }
 
 .loadable.current {
@@ -156,16 +159,6 @@ input.search {
 	padding: 2px 12px;
 }
 
-button:hover, .button:hover {
-	background-color: #ddd;
-	border: 1px solid rgba(0,0,0,0.2);
-}
-
-button:active, .button:active {
-	background-color: #aaa;
-	border: 1px solid rgba(0,0,0,0.4);
-}
-
 button {
 	border-radius: 4px;
 	padding: 4px 8px;
@@ -182,10 +175,25 @@ button.cancel, button[type="cancel"] {
 	background-color: #fdd;
 }
 
-button.default:hover {
-	background-color: #bbe;
+button:hover, .button:hover
+button.cancel:hover, .button.cancel:hover,
+button.default:hover, .button.default:hover {
+	background-color: #7ED321;
+	border: 1px solid rgba(0,0,0,0.2);
 }
 
+button:active, .button:active,
+button.cancel:active, .button.cancel:active,
+button.default:active, .button.default:active {
+	background-color: #57A700;
+	color: white;
+	border: 1px solid rgba(0,0,0,0.4);
+}
+
+/*
+button.default:hover {
+	background-color: #7ED321;
+}
 button:active {
 	background-color: #aaa;
 	border: 1px solid rgba(0,0,0,0.4);
@@ -194,7 +202,7 @@ button:active {
 button.default:active {
 	background-color: #99d;
 }
-
+*/
 hr {
 	border: 0;
 	border-top: 1px solid rgba(0,0,0,0.25);
@@ -226,9 +234,11 @@ fieldset {
 	box-sizing: border-box;
 }
 
-.menubar .shortcut {
-	padding-left: 8px;
+.menubar .shortcut,
+.menubar [data-shortcut]+span {
 	display: inline-block;
+	padding-left: 8px;
+	color: #57A700;
 }
 
 .menubar * {
@@ -248,13 +258,12 @@ fieldset {
 	min-width: 40px;
 }
 
-.menubar li:hover {
-	background-color: rgba(0,0,0,0.1);
+li.open {
+	background-color: #BCED85;
 }
 
-.menubar li.active {
-	color: white;
-	background-color: #444;
+li:active {
+	background-color: #7ED321;
 }
 
 .menubar ul {
@@ -276,7 +285,7 @@ fieldset {
 	left: 40px;
 }
 
-.menubar .disclosed > ul, .menubar li:hover > ul {
+li.open > ul {
 	display: block;
 	opacity: 1.0;
 }
@@ -307,8 +316,8 @@ fieldset {
 
 pre {
 	padding: 4px 0;
-	background-color: #444;
-	color: #ddd;
+	background-color: #2C5400;
+	color: #eee;
 }
 
 pre > code {

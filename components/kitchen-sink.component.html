@@ -15,17 +15,15 @@
 	}
 </style>
 <div class="kitchen-sink">
-	<ul class="menubar" data-event="mouseup,focus,keydown(Space):menubar.disclose;mousedown:menubar.mousedown;blur:menubar.deactivate;keydown(Escape):menubar.escape">
+	<ul class="menubar" data-event="mouseup,keydown(Space):menubar.action;focus,mouseover,mousedown:menubar.open;blur,keydown(Escape):menubar.close;">
 		<li>
 			File
 			<ul>
 				<li>
-					<span>New</span>
-					<span class="shortcut">meta-N</span>
+					<a data-shortcut="ctrl-KeyN" data-event="shortcut,mouseup:_component_.test">New</a>
 				</li>
 				<li>
-					<span>Open…</span>
-					<span class="shortcut">meta-O</span>
+					<a data-shortcut="ctrl-KeyO" data-event="shortcut,mouseup:_component_.test">Open…</a>
 				</li>
 				<li>
 					<span>Open Recent</span>
@@ -35,17 +33,16 @@
 					</ul>
 				</li>
 				<li>
-					<span>Save</span>
-					<span class="shortcut">meta-S</span>
+					<span data-shortcut="ctrl-KeyS">Save</span>
 				</li>
 				<li>
 					<span>Save As…</span>
-					<span class="shortcut">meta-shift-S</span>
+					<span class="shortcut">ctrl-shift-S</span>
 				</li>
 				<li class="separator"></li>
 				<li>
 					<span>Quit</span>
-					<span class="shortcut">meta-Q</span>
+					<span class="shortcut">ctrl-Q</span>
 				</li>
 			</ul>
 		</li>
@@ -53,21 +50,20 @@
 			Edit
 			<ul>
 				<li>
-					<span>Undo</span>
-					<span class="shortcut">meta-Z</span>
+					<a data-shortcut="meta-KeyZ" data-event="shortcut,mouseup:_component_.test">Undo</a>
 				</li>
 				<li class="separator"></li>
 				<li>
 					<span>Cut</span>
-					<span class="shortcut">meta-X</span>
+					<span class="shortcut">ctrl-X</span>
 				</li>
 				<li>
 					<span>Copy</span>
-					<span class="shortcut">meta-C</span>
+					<span class="shortcut">ctrl-C</span>
 				</li>
 				<li>
 					<span>Paste</span>
-					<span class="shortcut">meta-V</span>
+					<span class="shortcut">ctrl-V</span>
 				</li>
 			</ul>
 		</li>
@@ -143,7 +139,7 @@
 	</label>
 	<label>
 		Color
-		<input type="color" value="#ff0000">
+		<input type="color" value="#57A700">
 	</label>
 	<br>
 	<label>
@@ -182,6 +178,30 @@
 	</form>
 </div>
 <script>
+
+	// shortcuts
+	b8r.on(document.body, 'keydown', 'shortcuts', 'key');
+	b8r.register('shortcuts', {
+		key(evt) {
+			const shortcuts = b8r.find('[data-shortcut]');
+			const keystroke = b8r.keystroke(evt);
+			console.log(keystroke);
+			const matches = shortcuts.filter(elt => elt.getAttribute('data-shortcut') === keystroke);
+			if (matches.length > 0) {
+				b8r.trigger('focus', matches[0]);
+				b8r.trigger('shortcut', matches[0]);
+				setTimeout(() => {
+					b8r.trigger('blur', matches[0]);
+				}, 250);
+				if (matches.length > 1) {
+					console.warn('shortcut has more than one match', keystroke, matches);
+				}
+			} else {
+				return true;
+			}
+		}
+	});
+
 	// menubar stuff
 	find('.shortcut').forEach(elt => {
 		var caption = elt.textContent.split('-');
@@ -190,41 +210,53 @@
 		});
 		elt.textContent = caption.join('');
 	});
-	function deactivate_menubar(elt_in_menubar) {
-		b8r.findWithin(elt_in_menubar.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
-		b8r.findWithin(elt_in_menubar.closest('.menubar'), '.active').forEach(elt => elt.classList.remove('active'));
-	}
-	b8r.makeArray(findOne('.menubar').querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
-	b8r.register('menubar', {
-		mousedown(evt) {
-			const menuitem = evt.target.closest('li');
-			if(b8r.makeArray(menuitem.children).filter(elt => elt.matches('ul')).length === 0) {
-				menuitem.classList.add('active');
-			}
-		},
-		disclose(evt) {
-			deactivate_menubar(evt.target);
-			const menuitem = evt.target.closest('li');
-			const submenu = b8r.makeArray(menuitem.children).filter(elt => elt.matches('ul'));
-			if (submenu.length === 1) {
-				evt.target.classList.add('disclosed');
-			} else if (evt.type !== 'focus') {
-				setTimeout(() => {
-					b8r.findWithin(menuitem.closest('.menubar'), '.disclosed').forEach(elt => elt.classList.remove('disclosed'));
-				}, 500);
-			}
-			menuitem.classList.add('disclosed');
-			b8r.findAbove(menuitem, 'li', '.menubar').forEach(elt => elt.classList.add('disclosed'));
-		},
-		deactivate(evt) {
-			// FIXME -- Firefox doesn't support relatedTarget
-			if(evt.relatedTarget && !evt.relatedTarget.closest('.menubar')) {
-				deactivate_menubar(evt.target);
-			}
-		},
-		escape(evt) {
-			// FIXME -- move focus to next element after menubar?
-			deactivate_menubar(evt.target);
+	find ('[data-shortcut]').forEach(elt => {
+		var caption = elt.getAttribute('data-shortcut').split('-');
+		caption.forEach((s, i) => {
+			caption[i] = b8r.modifierKeys[s] || s.replace(/Key|Digit/, '');
+		});
+		caption = caption.join('');
+		if(elt.closest('.menubar')) {
+			const span = b8r.create('span');
+			span.textContent = caption;
+			elt.parentElement.appendChild(span);
+		} else {
+			elt.setAttribute('title', caption);
 		}
 	});
+	b8r.makeArray(findOne('.menubar').querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
+	b8r.register('menubar', {
+		action(evt){
+			if(!evt.target.matches('.menubar') && !evt.target.parentElement.matches('.menubar')) {
+				b8r.find('.menubar.open,.menubar .open').forEach(elt => elt.classList.remove('open'));
+				b8r.off(document.body, 'mousedown', 'menubar', 'close');
+			}
+		},
+		open(evt){
+			const li = evt.target.closest('li');
+			if(li && (li.closest('.menubar.open') || evt.type !== 'mouseover')) {
+				const menubar = evt.target.closest('.menubar');
+				menubar.classList.add('open');
+				b8r.on(document.body, 'mousedown', 'menubar', 'close');
+				menubar.querySelectorAll('.open').forEach(elt => elt.classList.remove('open'));
+				if(evt.target.matches('li')) {
+					evt.target.classList.add('open');
+				}
+				b8r.findAbove(evt.target, 'li', '.menubar').forEach(elt => elt.classList.add('open'));
+			}
+		},
+		close(evt){
+			if (!evt.relatedTarget || !evt.relatedTarget.closest('.menubar')) {
+				b8r.find('.menubar.open,.menubar .open').forEach(elt => elt.classList.remove('open'));
+				b8r.off(document.body, 'mousedown', 'menubar', 'close');
+				return true;
+			}
+		}
+	});
+	return {
+		test: evt => {
+			console.log('menu pick', evt.target.textContent);
+			return true;
+		},
+	}
 </script>
