@@ -1,7 +1,10 @@
 // bindinator.js Copyright (c) 2016 Tonio Loewald
 /* globals console */
 
+(function(module){
 'use strict';
+
+const {getByPath, setByPath} = require('b8r.byPath');
 
 function Test(fn) {
 	if (!this || this === window) {
@@ -99,3 +102,6 @@ Test.prototype = {
 		report([].slice.apply(arguments).join(' '), 'failure');
 	}
 };
+
+module.exports = Test;
+}(module));

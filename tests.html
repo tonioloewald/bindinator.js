@@ -85,9 +85,11 @@
 		</div>
 	</div>
 	<div class="report"></div>
-	<script src="test.js"></script>
-	<script src="b8r.js"></script>
+	<script src="require.js"></script>
 	<script>
+		const b8r = require('b8r');
+		const Test = require('test');
+		const {getByPath, setByPath} = require('b8r.byPath');
 	/*
 		Test(() => 2).shouldBe(2);
 		Test(() => 2).shouldBe(1);

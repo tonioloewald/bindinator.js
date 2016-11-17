@@ -10,6 +10,8 @@ Binds your data and methods so you can concentrate on your actual goals.
 (function(module){
 'use strict';
 
+const {getByPath, setByPath} = require('b8r.byPath');
+
 function b8r(){}
 
 if (module) {
@@ -78,39 +80,6 @@ b8r.modifierKeys = {
 	b8r.id();             // syntax sugar for findElementById
 */
 b8r.id = document.getElementById.bind(document);
-
-function getByPath(obj, path) {
-	if(path && path !== '/') {
-		path = path.split(/\.|\[/);
-		while (path.length && obj) {
-			var key = path.shift();
-			if (key.substr(-1) === ']') {
-				key = parseInt(key, 10);
-			}
-			obj = obj[key];
-		} 
-	}
-	return obj;
-}
-
-function setByPath(obj, path, val) {
-	path = path.split(/\.|\[/);
-	while (path.length > 1) {
-		var key = path.shift();
-		if (key.substr(-1) === ']') {
-			key = parseInt(key, 10);
-		}
-		if (!obj[key]) {
-			obj[key] = path[0].substr(-1) === ']' ? [] : {};
-		}
-		obj = obj[key];
-	}
-	if (path[0].substr(-1) === ']') {
-		obj[parseInt(path[0], 10)] = val;
-	} else {
-		obj[path[0]] = val;
-	}
-}
 
 const models = {};
 console.log('models', models)
