@@ -8,7 +8,11 @@
 		"path": "LICENSE.md"
 	},
 	{
-		"name": "bindinator.js",
-		"path": "b8r.js"
+		"name": "Bindinator",
+		"path": "source/b8r.js"
+	},
+	{
+		"name": "Object Paths",
+		"path": "source/b8r.byPath.js"
 	}
 ]

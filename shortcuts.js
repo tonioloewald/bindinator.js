@@ -12,7 +12,7 @@
 	and then shortly afterward blurring it.)
 */
 (function() {
-const b8r = require('b8r');
+const b8r = require('source/b8r');
 b8r.on(document.body, 'keydown', 'shortcuts', 'key');
 
 var shortcut_targets;
@@ -20,7 +20,6 @@ var shortcut_targets;
 b8r.register('shortcuts', {
 	key(evt) {
 		const keystroke = b8r.keystroke(evt);
-		console.log(keystroke);
 		const matches = shortcut_targets.filter(elt => elt.getAttribute('data-shortcut') === keystroke);
 
 		if (matches.length > 0) {
