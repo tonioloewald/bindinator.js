@@ -10,7 +10,7 @@ Binds your data and methods so you can concentrate on your actual goals.
 (function(module){
 'use strict';
 
-const {getByPath, setByPath} = require('b8r.byPath');
+const {getByPath, setByPath} = require('source/b8r.byPath');
 
 function b8r(){}
 
@@ -394,7 +394,6 @@ function handleEvent (evt) {
 						if(evt.type === 'keydown') {
 							console.log(models.shortcuts);
 						}
-						console.log('stopped', evt.type);
 						evt.stopPropagation();
 						evt.preventDefault();
 						done = true;
