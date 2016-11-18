@@ -496,18 +496,15 @@ var toTargets = {
 	},
 	enabled_if: function(element, value, dest) {
 		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
-		element.disabled = test(value);
+		element.disabled = !test(value);
 	},
 	enabled_unless: function(element, value, dest) {
 		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
 		element.disabled = test(value);
 	},
 	show_if: function(element, value, dest) {
-		if (dest !== undefined ? value == dest : value !== undefined) {
-			b8r.show(element);
-		} else {
-			b8r.hide(element);
-		}
+		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
+		test ? b8r.show(element) : b8r.hide(element);
 	},
 	method: function(element, value, dest, data) {
 		var [model, method] = dest.split('.');
