@@ -104,16 +104,17 @@
 	find('[data-shortcut').forEach(add_shortcut_span);
 
 	find('[data-event]').forEach(elt => {
+		var handler_def = elt.getAttribute('data-event');
 		if (elt.getAttribute('data-shortcut')) {
-			elt.setAttribute(
-				'data-event', 
-				elt.getAttribute('data-event').replace(/\bmenuclick:/, 'click,keydown(Space):')
-			);
+			handler_def = handler_def.replace(/\bmenuclick\b([^:]*):/, 'shortcut,click,keydown(Space)\1:');
 		} else {
-			elt.setAttribute(
-				'data-event', 
-				elt.getAttribute('data-event').replace(/\bmenuclick:/, 'shortcut,click,keydown(Space):')
-			);
+			handler_def = handler_def.replace(/\bmenuclick\b([^:]*):/, 'click,keydown(Space)\1:');
+		}
+		if (elt.matches('li')) {
+			elt.setAttribute('data-event', handler_def);
+		} else {
+			elt.closest('li').setAttribute('data-event', handler_def);
+			elt.removeAttribute('data-event');
 		}
 	});
 
