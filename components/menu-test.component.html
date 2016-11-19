@@ -33,6 +33,7 @@
 	</div>
 </div>
 <script>
+console.log('annotation', data)
 	var result = findOne('.result');
 
 	var tooltip;
@@ -70,12 +71,13 @@
 	b8r.on(document.body, 'mouseover', 'tooltips', 'showTip');
 	b8r.on(document.body, 'mouseout', 'tooltips', 'hideTip');
 
-	return {
+	register({
 		context_menu: function(evt) {
 			b8r.component('context-menu', 'components/context-menu').then(component => {
 				var target = findOne('.popover');
+				console.log({target})
 				b8r.insertComponent(component, false, {target});
 			});
 		}
-	} 
+	});
 </script>

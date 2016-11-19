@@ -11,12 +11,11 @@
 </style>
 <div class="hello">
 	<h4>Hello Component</h4>
-	<button data-event="click:_component_.button">Click Me</button>
+	<button data-event="click:_component_.click">Click Me</button>
 	<div data-children></div>
 </div>
 <script>
 	var times_clicked = 0;
-	return {
-		button: () => findOne('h4').textContent = 'Clicked ' + ++times_clicked + ' times'
-	}
+	const click = () => findOne('h4').textContent = 'Clicked ' + ++times_clicked + ' times';
+	register({click});
 </script>

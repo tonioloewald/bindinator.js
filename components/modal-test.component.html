@@ -8,7 +8,7 @@
 </div>
 <script>
 	var result = findOne('.result');
-	return {
+	register({
 		dialog: () => {
 			b8r.component('modal', 'components/modal').then(
 				() => b8r.insertComponent(
@@ -28,5 +28,5 @@
 					)
 			);
 		}
-	} 
+	});
 </script>

@@ -50,10 +50,11 @@
 
 	// this is kind of a hack
 	b8r.trigger('show', findOne('[data-event*="show"]'));
-	return {
+	
+	register({
 		hide,
 		up: evt => evt.target.previousSibling.focus(),
 		down: evt => evt.target.nextSibling.focus(),
 		action: evt => console.log(evt),
-	};
+	});
 </script>

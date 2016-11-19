@@ -18,7 +18,7 @@
 	findOne('input').focus();
 	b8r.hide(keycodes);
 
-	return {
+	register({
 		showCode: evt => {
 			var div = b8r.create('div');
 			div.textContent = b8r.keystroke(evt); 
@@ -30,5 +30,5 @@
 			find('.keycodes > div > div').forEach(elt => elt.remove());
 			findOne('input').focus();
 		}
-	}
+	});
 </script>

@@ -31,8 +31,7 @@
 	</div>
 </div>
 <script>
-	console.log(data);
-	return {
+	register({
 		button: function(evt) {
 			if (data && data.callback) {
 				data.callback(evt, component);
@@ -43,5 +42,5 @@
 				component.remove();
 			}
 		},
-	};
+	});
 </script>

@@ -84,9 +84,9 @@
 	}
 	select_tab(parseInt(component.getAttribute('current'), 10) || 0);
 
-	return {
+	register({
 		select_tab: evt => select_tab(tabs.indexOf(evt.target)),
 		next_tab: evt => select_tab((current_tab + 1) % tabs.length),
 		previous_tab: evt => select_tab((current_tab + tabs.length - 1) % tabs.length),
-	};
+	});
 </script>
