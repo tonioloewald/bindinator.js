@@ -303,22 +303,7 @@ function playSavedMessages(for_model) {
 
 b8r.callMethod = function (model, method, evt) {
 	var result = null;
-	if(model === '_component_') {
-		var view_controller;
-		var target = evt.target.closest('[data-component-uuid]');
-		while(!(view_controller && view_controller[method]) && target) {
-			var uuid = target.getAttribute('data-component-uuid');
-			if (models._b8r_components_ && uuid) {
-				view_controller = models._b8r_components_[uuid];
-				target = target.parentElement.closest('[data-component-uuid]');
-      }
-		}
-		if (!view_controller) {
-			console.error('event bound to _component_ found no view_controller', evt.target);
-		} else {
-			result = view_controller[method](evt);	
-		}
-	} else if ( models[model] ) {
+	if ( models[model] ) {
 		result = models[model][method](evt);
 	} else {
 		// TODO queue if model not available
@@ -387,10 +372,6 @@ function handleEvent (evt) {
 						break;
 					}
 					if (result !== true) {
-						// use stopPropagation?!
-						if(evt.type === 'keydown') {
-							console.log(models.shortcuts);
-						}
 						evt.stopPropagation();
 						evt.preventDefault();
 						done = true;
@@ -511,7 +492,7 @@ var toTargets = {
 		element.textContent = JSON.stringify(value, false, 2);
 	},
 	component_map: function(element, value, dest, data) {
-		if (element.getAttribute('data-component-uuid')) {
+		if (element.getAttribute('data-component-id')) {
 			return;
 		}
 		var component_options = dest.split('|');
@@ -687,6 +668,7 @@ function bindAll(element, data, basePath) {
 b8r.bindAll = bindAll;
 
 models._b8r_ = {
+	echo: evt => { console.log(evt); return true; },
 	stopEvent: () => {},
 	update: function(evt) {
 		var bindings = getBindings(evt.target);
@@ -848,7 +830,7 @@ b8r.makeComponent = function(name, source) {
 	var div = b8r.create('div');
 	div.innerHTML = content;
 /*jshint evil: true */
-	var load = script ? new Function('component', 'b8r', 'find', 'findOne', 'data', script) : false;
+	var load = script ? new Function('component', 'b8r', 'find', 'findOne', 'data', 'register', script) : false;
 /*jshint evil: false */
 	var style;
 	if (css) {
@@ -892,7 +874,7 @@ function removeDataForElement(target_element) {
 
 function loadAvailableComponents(element, data) {
 	b8r.findWithin(element || document.body, '[data-component]').forEach(target => {
-		if (!target.matches('[data-component-uuid]')) {
+		if (!target.matches('[data-component-id]')) {
 			var name = target.getAttribute('data-component');
 			b8r.insertComponent(name, target, data);
 		}
@@ -908,6 +890,7 @@ function loadAvailableComponents(element, data) {
 // - component remove method that removes the view_controller instance as well
 // - garbage collection of view_controllers (utilizing the root_element property)
 // - support remove handlers, also allow the garbage collection to trigger them
+var component_count = 0;
 b8r.insertComponent = function (component, element, data) {
 	if (!element) {
 		element = b8r.create('div');
@@ -916,7 +899,7 @@ b8r.insertComponent = function (component, element, data) {
 		if(!components[component]) {
 			console.warn('component not available: ', name);
 			if (data) {
-				console.log('saving', data, 'for', element);
+				saveDataForElement(element, data);
 			}
 			return;
 		}
@@ -924,55 +907,50 @@ b8r.insertComponent = function (component, element, data) {
 	}
 	if (!data) {
 		data = dataForElement(element, component.name);
+		if (data) {
+			removeDataForElement(element);
+		}
 	}
 	if (!document.body.contains(element)) {
 		document.body.appendChild(element);
 	}
-	removeDataForElement(element);
 	var children = b8r.fragment();
+	const component_id = 'c#' + component.name + '#' + (++component_count);
 	if (component.view.children.length) {
 		b8r.moveChildren(element, children);
 		b8r.copyChildren(component.view, element);
+		b8r.findWithin(element, '[data-bind*="_component_"],[data-event*="_component_"]').forEach(elt => {
+			['data-bind', 'data-event'].forEach(attr => {
+				const val = elt.getAttribute(attr);
+				if(val) {
+					elt.setAttribute(attr, val.replace('_component_', component_id));
+				}
+			});
+		});
 		var children_dest = b8r.findOneWithin(element, '[data-children]');
 		if (children.firstChild && children_dest) {
 			b8r.empty(children_dest);
 			b8r.moveChildren(children, children_dest);
 		}
 	}
-	var uuid = b8r.uuid();
-	element.setAttribute('data-component-uuid', uuid);
+	element.setAttribute('data-component-id', component_id);
 	bindAll(element, data);
 	if (component.load) {
-		var view_controller = component.load(
+		const register = data => b8r.register(component_id, data);
+		var view_obj = component.load(
 			element,
 			b8r,
 			selector => b8r.findWithin(element, selector),
 			selector => b8r.findOneWithin(element, selector),
-			data
+			data,
+			register
 		);
-		if (view_controller) {
-			if (!models._b8r_components_) {
-				models._b8r_components_ = {};
-			}
-			view_controller.root_element = element;
-			models._b8r_components_[uuid] = view_controller;
+		if (view_obj) {
+			console.warn('returning from views is deprecated; please use register() instead');
+			b8r.register(component_id, view_obj);
 		}
 	}
 	return element;
 };
 
-/**
-	b8r.uuid();	// generate compliant and pretty random UUID
-*/
-b8r.uuid = function (){
-    var d = new Date().getTime();
-    if(window.performance && typeof window.performance.now === "function"){
-        d += performance.now(); //use high-precision timer if available
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-};
 }(module));
