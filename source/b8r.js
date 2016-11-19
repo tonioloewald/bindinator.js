@@ -912,11 +912,14 @@ function loadAvailableComponents(element, data) {
 // - garbage collection of view_controllers (utilizing the root_element property)
 // - support remove handlers, also allow the garbage collection to trigger them
 b8r.insertComponent = function (component, element, data) {
+	if (!element) {
+		element = b8r.create('div');
+	}
 	if (typeof component === 'string') {
 		if(!components[component]) {
 			console.warn('component not available: ', name);
 			if (data) {
-				saveDataForElement(element, data);
+				console.log('saving', data, 'for', element);
 			}
 			return;
 		}
@@ -925,11 +928,10 @@ b8r.insertComponent = function (component, element, data) {
 	if (!data) {
 		data = dataForElement(element, component.name);
 	}
-	removeDataForElement(element);
-	if (!element) {
-		element = b8r.create('div');
+	if (!document.body.contains(element)) {
 		document.body.appendChild(element);
 	}
+	removeDataForElement(element);
 	var children = b8r.fragment();
 	if (component.view.children.length) {
 		b8r.moveChildren(element, children);
