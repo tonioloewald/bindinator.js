@@ -14,9 +14,7 @@ const {getByPath, setByPath} = require('source/b8r.byPath');
 
 function b8r(){}
 
-if (module) {
-	module.exports = b8r;
-}
+module.exports = b8r;
 
 /**
 	b8r.find(selector);       					// syntax sugar for querySelectorAll, returns proper array
@@ -82,7 +80,6 @@ b8r.modifierKeys = {
 b8r.id = document.getElementById.bind(document);
 
 const models = {};
-console.log('models', models)
 
 /**
 	b8r.register(name, obj);						// register an object by name as data or controller
