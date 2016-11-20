@@ -924,7 +924,7 @@ b8r.insertComponent = function (component, element, data) {
 			['data-bind', 'data-event'].forEach(attr => {
 				const val = elt.getAttribute(attr);
 				if(val) {
-					elt.setAttribute(attr, val.replace('_component_', component_id));
+					elt.setAttribute(attr, val.replace(/_component_/g, component_id));
 				}
 			});
 		});

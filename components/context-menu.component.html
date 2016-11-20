@@ -21,9 +21,9 @@
 	<header>
 		Header
 	</header>
-	<a tabindex="0">Action One</a>
-	<a tabindex="0">Action Two</a>
-	<a tabindex="0">Action Three</a>
+	<a data-event="keydown(Space),click:_component_.action" tabindex="0">Action One</a>
+	<a data-event="keydown(Space),click:_component_.action" tabindex="0">Action Two</a>
+	<a data-event="keydown(Space),click:_component_.action" tabindex="0">Action Three</a>
 	<label>
 		<input type="radio" name="option" checked>Option A
 	</label>
@@ -65,6 +65,6 @@
 		hide,
 		up: evt => evt.target.previousSibling.focus(),
 		down: evt => evt.target.nextSibling.focus(),
-		action: evt => console.log(evt),
+		action: evt => console.log(evt.target, evt.target.textContent),
 	});
 </script>
