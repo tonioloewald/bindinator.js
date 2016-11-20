@@ -66,6 +66,11 @@ b8r.findAbove = (elt, selector, until_elt) => {
 	return found;
 };
 
+/**
+	b8r.id();             // syntax sugar for findElementById
+*/
+b8r.id = document.getElementById.bind(document);
+
 b8r.modifierKeys = {
 	meta: '⌘',
 	ctrl: '⌃',
@@ -73,11 +78,6 @@ b8r.modifierKeys = {
 	escape: '⎋',
 	shift: '⇧'
 };
-
-/**
-	b8r.id();             // syntax sugar for findElementById
-*/
-b8r.id = document.getElementById.bind(document);
 
 const models = {};
 
@@ -387,6 +387,7 @@ function handleEvent (evt) {
 
 var implicit_event_types = [
 	'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
+	'scroll',
 	'input', 'change',
 	'keydown', 'keyup',
 	'focus', 'blur' // more to follow
@@ -920,8 +921,8 @@ b8r.insertComponent = function (component, element, data) {
 	if (component.view.children.length) {
 		b8r.moveChildren(element, children);
 		b8r.copyChildren(component.view, element);
-		b8r.findWithin(element, '[data-bind*="_component_"],[data-event*="_component_"]').forEach(elt => {
-			['data-bind', 'data-event'].forEach(attr => {
+		b8r.findWithin(element, '[data-bind*="_component_"],[data-list*="_component_"],[data-event*="_component_"]').forEach(elt => {
+			['data-bind', 'data-list', 'data-event'].forEach(attr => {
 				const val = elt.getAttribute(attr);
 				if(val) {
 					elt.setAttribute(attr, val.replace(/_component_/g, component_id));

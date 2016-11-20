@@ -1,0 +1,86 @@
+<style>
+	.biglist-viewport {
+		overflow-y: scroll;
+		position: relative;
+		height: 600px;
+		background-color: #eee;
+		opacity: 1;
+	}
+
+	.biglist-visible-items {
+		background-color: white;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+	}
+
+	.biglist-visible-items > * {
+		border-bottom: 1px solid rgba(0,0,0,0.1);
+	}
+
+	.biglist-info {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		background-color: #444;
+		color: white;
+		padding: 2px 6px;
+	}
+</style>
+<div class="biglist-viewport" data-event="scroll:_component_.update">
+	<div class="biglist-scroller">
+		<div class="biglist-visible-items" data-children>
+			<div data-list="_component_.visible_items" style="padding: 8px;">
+				<span data-bind="style(fontSize)=.fontSize;text=.caption"></span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="biglist-info">
+	Scroll Position: 
+	<span data-bind="text=_component_.position"></span>
+	Items in DOM:
+	<span data-bind="text=_component_.rows_to_show"></span>
+	Total Items: 
+	<span data-bind="text=_component_.list.length"></span>
+</div>
+<script>
+	const viewport = findOne('.biglist-viewport');
+	const scroller = findOne('.biglist-scroller');
+	const visible_item_container = findOne('.biglist-visible-items');
+
+	if(!component.style.position || !component.style.position.matches(/absolute|fixed|relative/)) {
+		component.style.position = 'relative';
+	}
+
+	if (!data) {
+		data = {};
+	}
+	if (!data.list) {
+		data.minRowHeight = 35;
+		data.list = [];
+		for (var i = 0; i < 1000; i++) {
+			data.list.push({
+				caption: "Item " + i,
+				fontSize: (Math.random() * 36 + 12) + 'px',
+			});
+		}
+	}
+
+	data.update = update;
+	register(data);
+
+	function update() {
+		const rows_to_show = Math.floor(viewport.offsetHeight / data.minRowHeight + 1);
+		scroller.style.height = (data.list.length + rows_to_show) * data.minRowHeight + 'px';
+		const position = viewport.scrollTop / data.minRowHeight;
+		const visible_items = data.list.slice(Math.floor(position), Math.floor(position) + rows_to_show);
+		set('visible_items', visible_items);
+		set('position', position.toFixed(2));
+		set('rows_to_show', rows_to_show);
+		visible_item_container.style.top = viewport.scrollTop - (position % 1) * visible_item_container.children[0].offsetHeight + 'px';
+	}
+
+	update();
+</script>

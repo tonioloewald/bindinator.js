@@ -70,5 +70,9 @@
 	{
 		"name": "Kitchen Sink",
 		"path": "kitchen-sink"
+	},
+	{
+		"name": "Big List",
+		"path": "biglist"
 	}
 ]
