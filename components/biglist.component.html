@@ -37,9 +37,16 @@
 <div class="biglist-viewport" data-event="scroll:_component_.update">
 	<div class="biglist-scroller">
 		<div class="biglist-visible-items" data-children>
-			<div data-list="_component_.visible_items" data-bind="class(selected)=.selected" style="padding: 8px; display: flex;">
-				<input type="checkbox" data-bind="value=.selected">
-				<input style="border: 0; background: transparent; border-color: rgba(0,0,0,0.25);" data-bind="style(fontSize)=.fontSize;value=.caption">
+			<div data-list="_component_.visible_items" data-bind="class(selected)=.selected;style(borderColor)=.color" style="padding: 4px; border: 4px solid black; display: flex; box-sizing: border-box;">
+				<div>
+					<input type="checkbox" data-bind="checked=.selected">
+				</div>
+				<div style="flex-grow: 1;">
+					<input style="border: 0; background: transparent; border-color: rgba(0,0,0,0.25);" data-bind="style(fontSize)=.fontSize;value=.caption">
+				</div>
+				<div>
+					<input type="color" data-bind="value=.color">
+				</div>
 			</div>
 		</div>
 	</div>
@@ -78,6 +85,9 @@
 			data.list.push({
 				caption: "Item " + i,
 				fontSize: (Math.random() * 36 + 12) + 'px',
+				borderWidth: Math.random() * 4 + 'px',
+				color: '#eeeeee',
+				selected: false,
 			});
 		}
 	}
@@ -89,21 +99,22 @@
 		const rows_to_show = Math.min(data.list.length, Math.floor(viewport.offsetHeight / data.minRowHeight + 2));
 		const scroller_height = data.list.length * data.minRowHeight;
 		scroller.style.height = scroller_height + 'px';
-		const position = viewport.scrollTop / data.minRowHeight;
-		const t = viewport.scrollTop / (scroller_height - viewport.offsetHeight);
-		const visible_items = data.list.slice(Math.floor(position), Math.floor(position) + rows_to_show);
+		// const position = viewport.scrollTop / data.minRowHeight;
+		const t = Math.min(1, viewport.scrollTop / (scroller_height - viewport.offsetHeight));
+		const position = t * (data.list.length - rows_to_show + 1);
+		// const position = t * data.list.length - rows_to_show + 1;
+		const first_visible_item = Math.max(Math.min(Math.floor(position) - 1, data.list.length - rows_to_show), 0);
+		const visible_items = data.list.slice(first_visible_item, first_visible_item + rows_to_show);
+
 		set('visible_items', visible_items);
 		set('position', position.toFixed(2));
 		set('rows_to_show', rows_to_show);
 		set('t', (t * 100).toFixed(2) + '%' );
-		const total_height = b8r.makeArray(visible_item_container.children)
-													  .map(elt => elt.offsetHeight).reduce((a, b) => a + b);
     const rows = b8r.makeArray(visible_item_container.children).filter(elt => !elt.matches('[data-list]'));
     const offsetElementIndex = Math.floor(rows.length * t);
 		const offsetElement = rows[offsetElementIndex] || rows.pop();
 		const pin_top_offset = viewport.scrollTop;
-		const pin_bottom_offset = viewport.scrollTop + viewport.offsetHeight - total_height + offsetElement.offsetHeight;
-		console.log(position % 1, offsetElement);
+		const pin_bottom_offset = viewport.scrollTop + viewport.offsetHeight - visible_item_container.offsetHeight;
 		const offset = t * pin_bottom_offset + (1 - t) * pin_top_offset - (position % 1) * offsetElement.offsetHeight;
 		visible_item_container.style.top = offset + 'px';
 	}
