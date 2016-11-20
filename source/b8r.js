@@ -609,7 +609,7 @@ function findLists (element) {
 }
 
 b8r.hide = function (element) {
-	if (element.getAttribute('data-orig-display') !== null && (element.style.display && element.style.display !== 'none')) {
+	if (element.getAttribute('data-orig-display') === null && (element.style.display && element.style.display !== 'none')) {
 		element.setAttribute('data-orig-display', element.style.display);
 		b8r.findWithin(element, '[data-event*="hide"]').forEach(elt => b8r.trigger('hide', elt));
 	}
