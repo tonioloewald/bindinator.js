@@ -292,7 +292,7 @@ function playSavedMessages(for_model) {
 	for (var i = saved_messages.length - 1; i >= 0; i--) {
 		if (saved_messages[i].model === for_model) {
 			playbackQueue.push(saved_messages[i]);
-			delete saved_messages[i];
+			saved_messages.splice(i,1);
 		}
 	}
 	while (playbackQueue.length) {
