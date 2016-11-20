@@ -5,6 +5,7 @@
 		height: 600px;
 		background-color: #eee;
 		opacity: 1;
+		border: 1px solid rgba(0,0,0,0.1);
 	}
 
 	.biglist-visible-items {
@@ -94,7 +95,7 @@
 		set('visible_items', visible_items);
 		set('position', position.toFixed(2));
 		set('rows_to_show', rows_to_show);
-		set('t', t);
+		set('t', (t * 100).toFixed(2) + '%' );
 		const total_height = b8r.makeArray(visible_item_container.children)
 													  .map(elt => elt.offsetHeight).reduce((a, b) => a + b);
     const rows = b8r.makeArray(visible_item_container.children).filter(elt => !elt.matches('[data-list]'));
