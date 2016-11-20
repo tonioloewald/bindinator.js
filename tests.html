@@ -158,7 +158,13 @@
 		Test(() => obj.option).shouldBe('two');
 		b8r.findOne('[type=checkbox]').checked = false;
 		Test.trigger('input', '[type=checkbox]');
-		Test(() => obj.checkbox).shouldBe(false);
+		Test(() => obj.checkbox).shouldBe('false');
+
+		// verify type-matching
+		obj.checkbox = false;
+		b8r.findOne('[type=checkbox]').checked = true;
+		Test.trigger('input', '[type=checkbox]');
+		Test(() => obj.checkbox).shouldBe(true);
 		b8r.findOne('[type=radio][value=first]').checked = true;
 		Test.trigger('change', '[type=radio][value=first]');
 		Test(() => obj.radio).shouldBe('first');

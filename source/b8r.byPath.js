@@ -49,6 +49,10 @@ function matchTypes(value, oldValue, info) {
 		return value;
 	} else if (typeof value === 'string' && typeof oldValue === 'number') {
 		return parseFloat(value);
+	} else if (typeof oldValue === 'string') {
+		return value + '';
+	} else if (typeof oldBalue === 'boolean') {
+		return value === 'false' || !!value;
 	} else if (oldValue !== undefined && oldValue !== null) {
 		console.warn('setByPath found non-matching types');
 		return value;
