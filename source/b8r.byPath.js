@@ -52,7 +52,7 @@ function matchTypes(value, oldValue, info) {
 	} else if (typeof oldValue === 'string') {
 		return value + '';
 	} else if (typeof oldBalue === 'boolean') {
-		return value === 'false' || !!value;
+		return value === 'false' || !!value; // maps undefined || null || '' || 0 => false
 	} else if (oldValue !== undefined && oldValue !== null) {
 		console.warn('setByPath found non-matching types');
 		return value;
