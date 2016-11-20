@@ -323,6 +323,7 @@ b8r.trigger = function(type, target) {
 		var preventDefault = () => {};
 		handleEvent({type, target, stopPropagation, preventDefault});	
 	} else {
+		debugger;
 		console.warn('b8r.trigger called with no specified target');
 	}
 };
@@ -830,7 +831,7 @@ b8r.makeComponent = function(name, source) {
 	var div = b8r.create('div');
 	div.innerHTML = content;
 /*jshint evil: true */
-	var load = script ? new Function('component', 'b8r', 'find', 'findOne', 'data', 'register', script) : false;
+	var load = script ? new Function('component', 'b8r', 'find', 'findOne', 'data', 'register', 'get', 'set', script) : false;
 /*jshint evil: false */
 	var style;
 	if (css) {
@@ -934,16 +935,24 @@ b8r.insertComponent = function (component, element, data) {
 		}
 	}
 	element.setAttribute('data-component-id', component_id);
+	// it would be nice to eliminate quasi-magical binding to .foo and
+	// replace it with concrete binding to _component_.foo, but will this
+	// break async nesting?
 	bindAll(element, data);
 	if (component.load) {
 		const register = data => b8r.register(component_id, data);
+		const get = path => b8r.getByPath(component_id, path);
+		const set = (path, value) => b8r.setByPath(component_id, path, value);
+		register(data);
 		var view_obj = component.load(
 			element,
 			b8r,
 			selector => b8r.findWithin(element, selector),
 			selector => b8r.findOneWithin(element, selector),
 			data,
-			register
+			register,
+			get,
+			set
 		);
 		if (view_obj) {
 			console.warn('returning from views is deprecated; please use register() instead');

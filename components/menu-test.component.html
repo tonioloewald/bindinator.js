@@ -33,7 +33,6 @@
 	</div>
 </div>
 <script>
-console.log('annotation', data)
 	var result = findOne('.result');
 
 	var tooltip;
@@ -75,7 +74,6 @@ console.log('annotation', data)
 		context_menu: function(evt) {
 			b8r.component('context-menu', 'components/context-menu').then(component => {
 				var target = findOne('.popover');
-				console.log({target})
 				b8r.insertComponent(component, false, {target});
 			});
 		}

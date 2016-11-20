@@ -1,8 +1,8 @@
 <!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <style>
-	.context-menu > div > a {
-		display: block;
+	.context-menu > [data-children] > * {
 		cursor: pointer;
+		display: block;
 	}
 
 	.context-menu > div > a:hover {
@@ -17,11 +17,22 @@
 		border-top: 1px solid rgba(255,255,255,0.2);
 	}
 </style>
-<div class="context-menu" data-component="annotation" data-event="keyup(Escape):_component_.hide">
+<div class='context-menu' data-component="annotation" data-event="keyup(Escape):_component_.hide">
 	<header>
 		Header
 	</header>
-	<a data-list="_DATA_" data-event="keyup(ArrowUp):_component_.up;keydown(ArrowDown):_component_.down;keydown(Space),click:_component_.action" data-bind="text=.caption" tabindex=0>Menu Item</a>
+	<a tabindex="0">Action One</a>
+	<a tabindex="0">Action Two</a>
+	<a tabindex="0">Action Three</a>
+	<label>
+		<input type="radio" name="option" checked>Option A
+	</label>
+	<label>
+		<input type="radio" name="option" checked>Option B
+	</label>
+	<label>
+		<input type="radio" name="option" checked>Option C
+	</label>
 	<footer>
 		Footer
 	</footer>
@@ -30,11 +41,13 @@
 	/* globals b8r, component, data, find, findOne, console, window */
 	'use strict';
 
-	b8r.component('annotation', 'components/annotation');
+	b8r.component('annotation', 'components/annotation').then(() => {
+		// this is kind of a hack
+		b8r.trigger('show', findOne('[data-event*="show"]'));
+	})
 
 	// there can be only one!
 	b8r.find('.context-menu').forEach(elt => elt.parentElement === component || elt.parentElement.remove());
-	b8r.bindAll(component, data.options || [{caption: 'Option 1'}, {caption: 'Option 2'}, {caption: 'Option 3'}]);
 	b8r.onAny('mousedown', 'context-menu', 'hide');
 	findOne('[tabindex]').focus();
 
@@ -48,9 +61,6 @@
 
 	b8r.register('context-menu', {hide});
 
-	// this is kind of a hack
-	b8r.trigger('show', findOne('[data-event*="show"]'));
-	
 	register({
 		hide,
 		up: evt => evt.target.previousSibling.focus(),
