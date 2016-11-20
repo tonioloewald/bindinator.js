@@ -46,6 +46,12 @@
 	<span data-bind="text=_component_.list.length"></span>
 </div>
 <script>
+/*
+	TODO
+	- implement lists that are bottom-pinned
+	- handle items being added to the top/bottom of the list gracefully
+	- implement binding transparently -- so you can just data-bind="value=path.to.list"
+*/
 	const viewport = findOne('.biglist-viewport');
 	const scroller = findOne('.biglist-scroller');
 	const visible_item_container = findOne('.biglist-visible-items');
