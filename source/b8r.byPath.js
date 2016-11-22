@@ -1,5 +1,7 @@
 // bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
+	# Object Path Methods
+	
 	getByPath(obj, path) -- obtains a value inside an object by a path, e.g.
 	getByPath(obj, "foo.bar") is the equivalent of obj.foo.bar
 	if path is not set or is set to '/' then obj is returned.
