@@ -638,7 +638,7 @@ b8r.insertComponent = function (component, element, data) {
 			removeDataForElement(element);
 		}
 	}
-	if (!document.body.contains(element)) {
+	if (element.parentElement === null) {
 		document.body.appendChild(element);
 	}
 	var children = b8r.fragment();
