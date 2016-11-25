@@ -28,6 +28,7 @@ b8r.modifierKeys = {
 };
 
 const models = {};
+const noop = () => {};
 
 /**
 	b8r.register(name, obj);						// register an object by name as data or controller
@@ -58,15 +59,25 @@ b8r.register = function (name, obj) {
 	playSavedMessages(name);
 };
 
+b8r.models = () => Object.keys(models);
+
 b8r.isRegistered = function(name) {
 	return models[name] !== undefined;
 };
 
 b8r.deregister = function (name) {
-	if (b8r.getByPath(models[name], 'remove')) {
-		models[name].remove();
+	if (name && models[name]) {
+		(models[name].remove || noop)();
+		delete(models[name]);
 	}
-	delete(models[name]);
+	// garbage collect models
+	const instances = b8r.find('[data-component-id]').map(elt => elt.getAttribute('data-component-id'));
+	for (var name in models) {
+		if (name.substr(0,2) === 'c#' && instances.indexOf(name) === -1) {
+			(models[name].remove || noop)();
+			delete(models[name]);
+		}
+	}
 };
 
 b8r.touchByPath = function(name, path, source_element) {
@@ -669,7 +680,7 @@ b8r.insertComponent = function (component, element, data) {
 		const register = data => b8r.register(component_id, data);
 		const get = path => b8r.getByPath(component_id, path);
 		const set = (path, value) => b8r.setByPath(component_id, path, value);
-		register(data);
+		if (data) register(data);
 		var view_obj = component.load(
 			element,
 			b8r,
