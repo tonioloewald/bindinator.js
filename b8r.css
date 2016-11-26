@@ -2,7 +2,7 @@
 
 body {
 	font: 13px "Helvetica Neue", Helvetica, Sans-serif;
-	background-color: #7ED321;
+	background-color: #5c7050;
 	color: #222222;
 }
 
@@ -30,8 +30,10 @@ h1, h2, h3, h4, h5, h6, b, strong {
 .layout {
 	position: fixed;
 	top: 0;
-	left: 0;
-	right: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 60em;
+	max-width: 100%;
 	bottom: 0;
 	display: flex;
 	flex-direction: column;
@@ -55,7 +57,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 .footer {
 	justify-content: center;
 	display: flex;
-	height: 40px;
+	height: 32px;
 	background-color: #7ED321;
 	flex-shrink: 0;
 }
