@@ -29,12 +29,13 @@ h1, h2, h3, h4, h5, h6, b, strong {
 
 .layout {
 	position: fixed;
-	top: 0;
+	top: 8px;
 	left: 50%;
 	transform: translateX(-50%);
 	width: 60em;
 	max-width: 100%;
-	bottom: 0;
+	bottom: 8px;
+	box-shadow: 0 1px 2px black;
 	display: flex;
 	flex-direction: column;
 }
@@ -46,6 +47,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	height: 60px;
 	background-color: #57A700;
 	flex-shrink: 0;
+	border-radius: 5px 5px 0 0;
 }
 
 .header > * {
@@ -57,6 +59,8 @@ h1, h2, h3, h4, h5, h6, b, strong {
 .footer {
 	justify-content: center;
 	display: flex;
+	flex-shrink: 0;
+	border-radius: 0 0 5px 5px;
 	height: 32px;
 	background-color: #7ED321;
 	flex-shrink: 0;
