@@ -40,6 +40,23 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	flex-direction: column;
 }
 
+.fullscreen .layout,
+.fullscreen #example {
+	position: fixed;
+	transform: none;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: 0;
+	max-width: none;
+	background: white;
+}
+
+.fullscreen #example {
+	overflow-y: scroll;
+}
+
 .header {
 	position: relative;
 	display: flex;
@@ -244,12 +261,3 @@ pre > code {
 	font-family: Menlo, Monaco, Monospace;
 }
 
-.fullscreen {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: 0;
-	background: white;
-}

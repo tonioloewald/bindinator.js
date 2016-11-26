@@ -2,10 +2,14 @@
 	.biglist-viewport {
 		overflow-y: scroll;
 		position: relative;
-		height: 600px;
+		height: 400px;
 		background-color: #eee;
 		opacity: 1;
 		border: 1px solid rgba(0,0,0,0.1);
+	}
+
+	.fullscreen #example .biglist-viewport {
+		height: 100%;
 	}
 
 	.biglist-visible-items {
@@ -75,11 +79,6 @@
 	const viewport = findOne('.biglist-viewport');
 	const scroller = findOne('.biglist-scroller');
 	const visible_item_container = findOne('.biglist-visible-items');
-
-	const position = component.style.position;
-	if (!position || !(position.match(/absolute|fixed|relative/))) {
-		component.style.position = 'relative';
-	}
 
 	if (!data) {
 		data = {};
