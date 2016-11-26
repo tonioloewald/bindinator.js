@@ -1,6 +1,8 @@
-![bindinator b∞r logo](bindinator-logo.svg)
+<img alt="bindinator b∞r logo" style="width: 90%; padding: 5%;" src="bindinator-logo.svg">
 
+<div style="text-align: center;"
 [Home Page](http://bindinator.com/) | [Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [Demo (cdn.rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [github](https://github.com/tonioloewald/bindinator.js) | [Trello](https://trello.com/b/0OBL4IjC/bindinator)
+</div>
 
 ## A Virtuous Cycle
 
