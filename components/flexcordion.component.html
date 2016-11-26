@@ -1,0 +1,62 @@
+<style>
+  .flexcordion {
+    display: flex;
+    min-height: 400px;
+  }
+
+  .flexcordion.column {
+    flex-direction: column;
+  }
+
+  .flexcordion > .sample {
+    font-size: 128px;
+    color: red;
+    width: 16px;
+    padding: 8px;
+    border: 8px solid #ddd;
+    overflow: hidden;
+    box-sizing: border-box;
+    cursor: default;
+  }
+
+  .flexcordion.column > * {
+    width: 100%;
+    height: 16px;
+  }
+
+  .flexcordion > * {
+    transition: 0.5s ease-out;
+  }
+
+  .flexcordion > *:hover {
+    border-color: yellow;
+  }
+
+  .flexcordion > .current {
+    flex-grow: 1;
+  }
+</style>
+<div class="flexcordion" data-event="mouseup,touchend:_component_.select" data-children>
+  <div class="sample">
+    A
+  </div>
+  <div class="sample">
+    B
+  </div>
+  <div class="sample current">
+    C
+  </div>
+  <div class="sample">
+    D
+  </div>
+  <div  class="sample">
+    E
+  </div>
+</div>
+<script>
+  function select(evt) {
+    find('.flexcordion > .current').forEach(elt => elt.classList.remove('current'));
+    evt.target.closest('.flexcordion > *').classList.add('current');
+  }
+  register({select});
+</script>

@@ -74,5 +74,9 @@
 	{
 		"name": "Big List",
 		"path": "biglist"
+	},
+	{
+		"name": "Flexcordion",
+		"path": "flexcordion"
 	}
 ]
