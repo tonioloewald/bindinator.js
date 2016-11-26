@@ -78,5 +78,9 @@
 	{
 		"name": "Flexcordion",
 		"path": "flexcordion"
+	},
+	{
+		"name": "Slider Numeric",
+		"path": "slider-numeric"
 	}
 ]

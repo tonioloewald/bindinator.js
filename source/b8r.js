@@ -533,13 +533,18 @@ const components = {};
 	  // the extension .component.html is appended to url
 	  // component will automatically be inserted as expected once loaded
 	  // resolve will be passed the loaded component
+	b8r.component(url); // as per above, name is used as url
 */
 b8r.component = function (name, url) {
+	if (url === undefined) {
+		url = name;
+		name = url.split('/').pop();
+	}
 	return new Promise(function(resolve, reject) {
 		if (components[name]) {
 			resolve(components[name]);
 		} else {
-			b8r.ajax(url + '.component.html').then(source => {
+			b8r.ajax((url || name) + '.component.html').then(source => {
 				resolve(b8r.makeComponent(name, source));
 			}, err => reject(err));
 		}
@@ -672,10 +677,6 @@ b8r.insertComponent = function (component, element, data) {
 		}
 	}
 	element.setAttribute('data-component-id', component_id);
-	// it would be nice to eliminate quasi-magical binding to .foo and
-	// replace it with concrete binding to _component_.foo, but will this
-	// break async nesting?
-	bindAll(element, data);
 	if (component.load) {
 		const register = data => b8r.register(component_id, data);
 		const get = path => b8r.getByPath(component_id, path);
@@ -696,6 +697,10 @@ b8r.insertComponent = function (component, element, data) {
 			b8r.register(component_id, view_obj);
 		}
 	}
+	// it would be nice to eliminate quasi-magical binding to .foo and
+	// replace it with concrete binding to _component_.foo, but will this
+	// break async nesting?
+	bindAll(element, data);
 	return element;
 };
 

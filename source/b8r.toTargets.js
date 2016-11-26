@@ -120,6 +120,19 @@ module.exports = {
 	json: function(element, value) {
 		element.textContent = JSON.stringify(value, false, 2);
 	},
+	component: function(element, value, dest) {
+		debugger;
+		const id = element.getAttribute('data-component-id');
+		if (id) {
+			if(b8r.models().indexOf(id) > -1) {
+				b8r.setByPath(id, dest, value);
+			} else {
+				console.error('component is not registered but is bound', element);
+			}
+		} else if (!element.getAttribute('data-component')) {	
+			console.error('component toTarget found on non componennt', element);
+		}
+	},
 	component_map: function(element, value, dest, data) {
 		if (element.getAttribute('data-component-id')) {
 			return;
