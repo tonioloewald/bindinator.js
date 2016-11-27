@@ -77,12 +77,13 @@
 				<input type="radio" name="group" value="third" data-bind="value=test1.radio">
 				third
 			</label>
-			<span id="i" data-bind="text=test1.radio"></span>
+			<span data-bind="text=test1.radio"></span>
 		</div>
 		<div data-component="test">
 			<p>First Child</p>
 			<p>Second Child</p>
 		</div>
+		<div id="method_binding" data-bind="method(method_binding.test)=method_binding.val"></div>
 	</div>
 	<div class="report"></div>
 	<script src="lib/require.js"></script>
@@ -177,6 +178,27 @@
 			.then(() => Test(() => failures).shouldBe(1));
 		b8r.json('test/test.json', 'GET')
 			.then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
+
+		// method to and from targets
+		b8r.register('method_binding', {
+			test: (elt, value) => {
+				if (value) {
+					const [first,second] = value.split(',');
+					elt.setAttribute('first', first);
+					elt.setAttribute('second', second);
+				} else {
+					return elt.getAttribute('first') + ',' + elt.getAttribute('second');
+				}
+			},
+			val: 'A,B',
+		});
+		elt = b8r.id('method_binding');
+		Test(() => elt.getAttribute('first')).shouldBe('A');
+		b8r.setByPath('method_binding', 'val', 'C,D');
+		Test(() => elt.getAttribute('second')).shouldBe('D');
+		elt.setAttribute('second', 'Q');
+		b8r.trigger('change', elt);
+		Test(() => b8r.getByPath('method_binding', 'val')).shouldBe('C,Q');
 
 		function computed_color(name) {
 			var p = b8r.create(p)

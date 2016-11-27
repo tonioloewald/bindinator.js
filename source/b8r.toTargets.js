@@ -114,14 +114,14 @@ module.exports = {
 		equals(dest, value) ? b8r.show(element) : b8r.hide(element);
 	},
 	method: function(element, value, dest, data) {
-		var [model, method] = dest.split('.');
+		var [model, ...method] = dest.split('.');
+		method = method.join('.');
 		b8r.getByPath(model, method)(element, value, data);
 	},
 	json: function(element, value) {
 		element.textContent = JSON.stringify(value, false, 2);
 	},
 	component: function(element, value, dest) {
-		debugger;
 		const id = element.getAttribute('data-component-id');
 		if (id) {
 			if(b8r.models().indexOf(id) > -1) {
