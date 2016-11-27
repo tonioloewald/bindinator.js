@@ -20,7 +20,7 @@ module.exports = {
 	text: function(element){
 		return element.textContent;
 	},
-	method: function(element, path) {
+	fromMethod: function(element, path) {
 		var [model, ...method] = path.split('.');
 		method = method.join('.');
 		return b8r.getByPath(model, method)(element);

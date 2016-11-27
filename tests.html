@@ -83,7 +83,7 @@
 			<p>First Child</p>
 			<p>Second Child</p>
 		</div>
-		<div id="method_binding" data-bind="method(method_binding.test)=method_binding.val"></div>
+		<div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
 	</div>
 	<div class="report"></div>
 	<script src="lib/require.js"></script>
