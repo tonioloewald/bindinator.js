@@ -10,13 +10,13 @@ Binds your data and methods so you can concentrate on your actual goals.
 (function(module){
 'use strict';
 
-const {getByPath, setByPath} = require('source/b8r.byPath.js');
+const {getByPath, setByPath} = require('b8r.byPath.js');
 
 function b8r(){}
 
 module.exports = b8r;
 
-const dom = require('source/b8r.dom.js');
+const dom = require('b8r.dom.js');
 Object.assign(b8r, dom);
 
 b8r.modifierKeys = {
@@ -366,8 +366,8 @@ implicit_event_types.forEach(type => document.body.addEventListener(type, handle
 	## data-bind
 */
 
-const toTargets = require('source/b8r.toTargets.js');
-const fromTargets = require('source/b8r.fromTargets.js');
+const toTargets = require('b8r.toTargets.js');
+const fromTargets = require('b8r.fromTargets.js');
 
 function parseBinding (binding) {
 	var [targets, source] = binding.split('=');
@@ -522,7 +522,7 @@ models._b8r_ = {
 	},
 };
 
-const ajax = require('source/b8r.ajax.js');
+const ajax = require('b8r.ajax.js');
 Object.assign(b8r, ajax);
 
 const components = {};

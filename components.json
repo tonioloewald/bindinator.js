@@ -12,10 +12,6 @@
 		"path": "instance-test"
 	},
 	{
-		"name": "Menu Test",
-		"path": "menu-test"
-	},
-	{
 		"name": "Circle",
 		"path": "circle"
 	},

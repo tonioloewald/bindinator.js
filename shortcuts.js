@@ -12,7 +12,7 @@
 	and then shortly afterward blurring it.)
 */
 (function() {
-const b8r = require('source/b8r.js');
+const b8r = require('./source/b8r.js');
 b8r.on(document.body, 'keydown', 'shortcuts', 'key');
 
 var shortcut_targets;
