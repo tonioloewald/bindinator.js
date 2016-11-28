@@ -1,5 +1,9 @@
 <!-- bindinator.js Copyright (c) 2016 Tonio Loewald -->
 <style>
+	.b8r-fiddle {
+		background-color: #eee;
+	}
+
 	.code {
 		font-size: 13px;
 		font-family: Menlo, Monaco, monospace;
@@ -15,7 +19,7 @@
 	}
 
 	.controls {
-		padding: 8px;
+		margin-top: 8px;
 	}
 
 	.fullscreen > .b8r-fiddle {
@@ -27,16 +31,16 @@
 		background-color: rgba(0,0,0,0.05);
 	}
 </style>
-<div class="b8r-fiddle" style="display: flex; position: relative;">
-	<div style="flex-grow: 1; width: 60%; position: relative; min-width: 200px; display: flex; flex-direction: column;">
+<div class="b8r-fiddle" style="display: flex; height: 100%; position: relative;">
+	<div style="flex-grow: 1; padding: 4px; width: 60%; position: relative; min-width: 200px; display: flex; flex-direction: column;">
 		<div style="width: 100%; min-height: 300px; flex-grow: 1" class="code" data-event="keydown(Tab):_component_.indent"></div>
 		<div class="controls">
-			<button data-event="click:_component_.fullscreen">Toggle Fullscreen</button>
+			<button data-event="click:demo.fullscreen">Toggle Fullscreen</button>
 			<button data-event="click:_component_.run">Run</button>
 		</div>
 	</div>
 	<div data-component="sizer"></div>
-	<div class="container" style="margin-left: 8px; flex-grow: 1; width: 40%;"></div>
+	<div class="container" style="padding: 4px; flex-grow: 1; width: 40%;"></div>
 </div>
 <script>
 

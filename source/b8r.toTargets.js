@@ -36,6 +36,13 @@ const special_values = {
 	'_null_': null,
 };
 
+function equals(value_to_match, value) {
+	if (typeof value === 'string') value = value.replace(/\&nbsp;/g, '').trim();
+	return special_values.hasOwnProperty(value_to_match) ? 
+				 value_to_match === special_values[value] :
+				 !!value;
+}
+
 module.exports = {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
@@ -62,6 +69,18 @@ module.exports = {
 			element.setAttribute(dest, value);	
 		}
 	},
+	img: function(element, value) {
+		element.style.opacity = 0;
+		if(!getComputedStyle(element).transition) {
+			element.style.transition = '0.25s ease-out';
+		}
+		if (value) {
+			const image = new Image();
+			image.src = value;
+			element.setAttribute('src', value);
+			image.onload = () => element.style.opacity = 1;
+		}
+	},
 	style: function(element, value, dest) {
 		if (!dest) {
 			if(typeof value === 'string') {
@@ -86,23 +105,33 @@ module.exports = {
 		}
 	},
 	enabled_if: function(element, value, dest) {
-		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
-		element.disabled = !test(value);
+		element.disabled = !equals(dest, value);
 	},
 	enabled_unless: function(element, value, dest) {
-		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
-		element.disabled = test(value);
+		element.disabled = equals(dest, value);
 	},
 	show_if: function(element, value, dest) {
-		const test = special_values.hasOwnProperty(dest) ? x => x == special_values[dest] : x => !!x;
-		test ? b8r.show(element) : b8r.hide(element);
+		equals(dest, value) ? b8r.show(element) : b8r.hide(element);
 	},
 	method: function(element, value, dest, data) {
-		var [model, method] = dest.split('.');
+		var [model, ...method] = dest.split('.');
+		method = method.join('.');
 		b8r.getByPath(model, method)(element, value, data);
 	},
 	json: function(element, value) {
 		element.textContent = JSON.stringify(value, false, 2);
+	},
+	component: function(element, value, dest) {
+		const id = element.getAttribute('data-component-id');
+		if (id) {
+			if(b8r.models().indexOf(id) > -1) {
+				b8r.setByPath(id, dest, value);
+			} else {
+				console.error('component is not registered but is bound', element);
+			}
+		} else if (!element.getAttribute('data-component')) {	
+			console.error('component toTarget found on non componennt', element);
+		}
 	},
 	component_map: function(element, value, dest, data) {
 		if (element.getAttribute('data-component-id')) {

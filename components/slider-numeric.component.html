@@ -1,0 +1,8 @@
+<input type="range" data-bind="value=_component_.value">
+<input type="number" data-bind="value=_component_.value">
+<script>
+  const slider = findOne('[type="range"]');
+  slider.setAttribute('min', component.getAttribute('min') || 0);
+  slider.setAttribute('max', component.getAttribute('max') || 10);
+  register(data || {value: 5});
+</script>

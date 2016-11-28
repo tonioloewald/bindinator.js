@@ -137,6 +137,12 @@
 		Range
 		<input type="range">
 	</label>
+	<br>
+	<label>
+		Slider Numeric
+		<span min=0 max=25 data-component="slider-numeric" data-bind="component(value)=reactor.fuelrods"></span>
+	</label>
+	<br>
 	<label>
 		Date
 		<input type="date" value="2014-04-01">
@@ -188,6 +194,8 @@
 <script>
 	b8r.component('menubar', 'components/menubar');
 	b8r.component('toolbar', 'components/toolbar');
+	b8r.component('components/slider-numeric');
+	b8r.register('reactor', {fuelrods: 10});
 	register({
 		test: evt => {
 			console.log('menu pick', evt.target.textContent);

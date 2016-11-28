@@ -12,10 +12,6 @@
 		"path": "instance-test"
 	},
 	{
-		"name": "Menu Test",
-		"path": "menu-test"
-	},
-	{
 		"name": "Circle",
 		"path": "circle"
 	},
@@ -74,5 +70,13 @@
 	{
 		"name": "Big List",
 		"path": "biglist"
+	},
+	{
+		"name": "Flexcordion",
+		"path": "flexcordion"
+	},
+	{
+		"name": "Slider Numeric",
+		"path": "slider-numeric"
 	}
 ]
