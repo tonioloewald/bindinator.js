@@ -140,7 +140,7 @@ module.exports = {
 		var component_options = dest.split('|');
 		var component_name;
 		for (var i = 0; i < component_options.length; i++) {
-			var parts = component_options[i].split(':');
+			var parts = component_options[i].split(':').map(s => s.trim());
 			if (parts.length === 1 || parts[0] == value) {
 				component_name = parts.pop();
 				break;
