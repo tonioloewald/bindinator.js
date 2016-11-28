@@ -255,20 +255,21 @@ function playSavedMessages(for_model) {
 		}
 	}
 	while (playbackQueue.length) {
-		var {model, method, evt} = playbackQueue.pop();
-		b8r.callMethod(model, method, evt);
+		var {model, method, args} = playbackQueue.pop();
+		b8r.callMethod(model, method, args);
 	}
 }
 
-b8r.callMethod = function (model, method, evt) {
+b8r.callMethod = function () {
+	const [model, method, ...args] = arguments;
 	var result = null;
 	if ( models[model] ) {
-		result = models[model][method](evt);
+		result = models[model][method].apply(null, args);
 	} else {
 		// TODO queue if model not available
 		// event is stopped from further propagation
 		// provide global wrappers that can e.g. put up a spinner then call the method
-		saveMethodCall(model, method, evt);
+		saveMethodCall(model, method, args);
 	}
 	return result;
 };

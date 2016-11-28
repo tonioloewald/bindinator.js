@@ -116,7 +116,7 @@ module.exports = {
 	method: function(element, value, dest, data) {
 		var [model, ...method] = dest.split('.');
 		method = method.join('.');
-		b8r.getByPath(model, method)(element, value, data);
+		b8r.callMethod(model, method, element, value, data);
 	},
 	json: function(element, value) {
 		element.textContent = JSON.stringify(value, false, 2);
