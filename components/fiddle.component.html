@@ -57,7 +57,7 @@
 	});
 
 	b8r.component('sizer', 'components/sizer');
-	b8r.component('hello', '/components/hello').then(hello => {
+	b8r.component('hello', 'components/hello').then(hello => {
 		code_elt.textContent = hello._source.replace(/\t/g, '  ');
 		b8r.insertComponent(hello, container);
 	});
