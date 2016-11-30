@@ -98,10 +98,39 @@ b8r.setByPath = function (name, path, value, source_element) {
 	}
 };
 
-b8r.pushByPath = function(name, path, value) {
+b8r.pushByPath = function(name, path, value, callback) {
 	if (models[name]) {
-		getByPath(models[name], path).push(value);
+		const list = getByPath(models[name], path);
+		list.push(value);
+		if (callback) {
+			callback(list);
+		}
 		b8r.touchByPath(name, path);
+	}
+}
+
+b8r.removeListInstance = function(elt) {
+  elt = elt.closest('[data-list-instance]');
+  if (elt) {
+	  const ref = elt.getAttribute('data-list-instance');
+	  const [,model,path,key] = ref.match(/^(\w+)\.(.+)\[(\d+)\]$/);
+	  b8r.removeByPath(model, path, key);
+  } else {
+  	console.error('cannot remove list instance for', elt);
+  }
+}
+
+b8r.removeByPath = function(name, path, key, callback) {
+	if (models[name]) {
+		const list = getByPath(models[name], path);
+		if (list && list[key]) {
+			if (Array.isArray(list)) {
+				list.splice(key, 1);
+			} else {
+				delete list[key];
+			}
+			b8r.touchByPath(name, path);
+		}
 	}
 }
 
@@ -142,7 +171,7 @@ function makeHandler(event_type, object, method) {
 	return event_type.sort().join(',') + ':' + object + '.' + method;
 }
 
-b8r.on = function (element, event_type, object, method) {
+b8r.on = function (element, event_type, object, method, prepend) {
 	// check if handler already exists
 	// var existingHandlers = implicitEventHandlers(element);
 	if (typeof object === 'object' && object.model) {
@@ -159,7 +188,11 @@ b8r.on = function (element, event_type, object, method) {
 	const handler = makeHandler(event_type, object, method);
 	const existing = getEventHandlers(element);
 	if(existing.indexOf(handler) === -1) {
-		existing.push(handler);
+		if (prepend) {
+			existing.unshift(handler);
+		} else {
+			existing.push(handler);
+		}
 	}
 	if (existing.length) {
 		element.setAttribute('data-event', existing.join(';'));
@@ -440,7 +473,7 @@ function bind (element, data, basePath) {
 			// save message for when source is registered
 		}
 		if (_fromTargets.length) {
-			b8r.on(element, ['change', 'input'], '_b8r_', 'update');
+			b8r.on(element, ['change', 'input'], '_b8r_', 'update', true);
 		}
 	}
 }

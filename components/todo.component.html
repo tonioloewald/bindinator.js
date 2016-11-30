@@ -1,0 +1,45 @@
+<div data-list="app.todolist">
+    <input type="checkbox" data-bind="checked=.done" data-event="change:app.prioritySort">
+    <input data-bind="value=.text">
+    <select data-bind="value=.priority" data-event="change:app.prioritySort">
+        <option value="1">Important!</option>
+        <option value="2">Normal</option>
+        <option value="3">Low</option>
+    </select>
+    <button data-event="click:app.remove">&times;</button>
+</div>
+<select data-bind="value=app.composer.priority">
+    <option value="1">Important!</option>
+    <option value="2">Normal</option>
+    <option value="3">Low</option>
+</select>
+<input 
+    data-bind="value=app.composer.text" 
+    data-event="keydown(Enter):app.addItem"
+>
+<script>
+    function comparePriority(a, b) {
+        return (a.done ? a.priority + 3 : a.priority) - (b.done ? b.priority + 3 : b.priority);
+    }
+
+    function prioritySort (evt) {
+        setTimeout(() => {
+            b8r.getByPath('app', 'todolist').sort(comparePriority);
+            b8r.touchByPath('app', 'todolist');
+        })
+    }
+
+    function addItem(){
+        const item = Object.assign({done: false}, b8r.getByPath('app', 'composer'));
+        b8r.pushByPath('app', 'todolist', item, list => list.sort(comparePriority));
+        b8r.setByPath('app', 'composer.text', '');
+    }
+
+    b8r.register('app', {
+        todolist: [],
+        composer: {text: '', priority: 2},
+        addItem,
+        prioritySort,
+        remove: evt => b8r.removeListInstance(evt.target)
+    });
+</script>
