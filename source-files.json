@@ -8,11 +8,23 @@
 		"path": "LICENSE.md"
 	},
 	{
-		"name": "Bindinator",
+		"name": "Bindinator Core",
 		"path": "source/b8r.js"
+	},
+	{
+		"name": "AJAX",
+		"path": "source/b8r.ajax.js"
 	},
 	{
 		"name": "Object Paths",
 		"path": "source/b8r.byPath.js"
+	},
+	{
+		"name": "Binding to DOM",
+		"path": "source/b8r.toTargets.js"
+	},
+	{
+		"name": "Binding from DOM",
+		"path": "source/b8r.fromTargets.js"
 	}
 ]

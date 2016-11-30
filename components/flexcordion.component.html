@@ -26,6 +26,16 @@
 
   .flexcordion > * {
     transition: 0.5s ease-out;
+    animation: fade-in 1s;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .flexcordion > *:hover {
@@ -54,6 +64,9 @@
   </div>
 </div>
 <script>
+  if (component.getAttribute('direction') === 'column') {
+    findOne('.flexcordion').classList.add('column');
+  }
   function select(evt) {
     find('.flexcordion > .current').forEach(elt => elt.classList.remove('current'));
     evt.target.closest('.flexcordion > *').classList.add('current');

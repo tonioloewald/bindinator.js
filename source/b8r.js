@@ -59,7 +59,9 @@ b8r.register = function (name, obj) {
 	playSavedMessages(name);
 };
 
-b8r.models = () => Object.keys(models);
+b8r.models = () => Object.keys(models); //.filter(key => key.indexOf(/^c#/) === -1);
+
+b8r.componentInstances = () => Object.keys(models).filter(key => key.indexOf(/^c#/) !== -1);
 
 b8r.isRegistered = function(name) {
 	return models[name] !== undefined;
@@ -670,10 +672,6 @@ function loadAvailableComponents(element, data) {
 		// if no element is provided, the component will be appended to document.body
 		// data will be passed to the component's load method
 */
-// TODO
-// - component remove method that removes the view_controller instance as well
-// - garbage collection of view_controllers (utilizing the root_element property)
-// - support remove handlers, also allow the garbage collection to trigger them
 var component_count = 0;
 b8r.insertComponent = function (component, element, data) {
 	if (!element) {
