@@ -98,6 +98,13 @@ b8r.setByPath = function (name, path, value, source_element) {
 	}
 };
 
+b8r.pushByPath = function(name, path, value) {
+	if (models[name]) {
+		getByPath(models[name], path).push(value);
+		b8r.touchByPath(name, path);
+	}
+}
+
 b8r.getByPath = function (name, path) {
 	if (name && models[name]) {
 		return getByPath(models[name], path || '/');
