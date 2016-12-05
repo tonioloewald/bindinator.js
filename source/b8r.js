@@ -528,15 +528,17 @@ function bindList (element, data, basePath) {
 		element.parentElement.removeChild(element.previousSibling);
 	}
 	b8r.show(element);
+	const fragment = b8r.fragment();
 	for (var i = 0; i < list.length; i++) {
 		var instance = element.cloneNode(true);
 		instance.removeAttribute('data-list');
 		const itemPath = list_path + '[' + i + ']';
 		instance.setAttribute('data-list-instance', itemPath);
 		bindAll(instance, list[i], itemPath);
-		element.parentElement.insertBefore(instance, element);
+		fragment.appendChild(instance);
 	}
 	b8r.hide(element);
+	element.parentElement.insertBefore(fragment, element);
 }
 
 function bindAll(element, data, basePath) {

@@ -82,5 +82,9 @@
 	{
 		"name": "To Do",
 		"path": "todo"
+	},
+	{
+		"name": "Stack",
+		"path": "stack"
 	}
 ]

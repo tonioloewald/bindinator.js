@@ -33,6 +33,16 @@
 	<div style="background-color: magenta">H</div>
 	<div style="background-color: olive">I</div>
 	<div style="background-color: purple">J</div>
+	<div style="background-color: red">K</div>
+	<div style="background-color: green">L</div>
+	<div style="background-color: blue">M</div>
+	<div style="background-color: yellow">N</div>
+	<div style="background-color: orange">O</div>
+	<div style="background-color: indigo">P</div>
+	<div style="background-color: turquoise">Q</div>
+	<div style="background-color: magenta">R</div>
+	<div style="background-color: olive">S</div>
+	<div style="background-color: purple">T</div>
 </div>
 <button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
 <button class="show" data-event="click:_component_.show_random">Show Random</button>
@@ -51,6 +61,52 @@
 	</select> Desired Aspect Ratio
 </label>
 <script>
+	// orig, container, and partition are dimensions (i.e. {w, h})
+	// orig -- the thing we're trying to display
+	// container -- the total space available
+	// partition --the space being considered
+	// totalPartitions -- the total number of things we're displaying
+	// returns a value from 0–1 which is the product of:
+	// F -- fairness -- proportion of "fair" space received (), max 1.
+	// C -- crop -- proportion of total image visible after crop
+	// Clearly 1 is the highest score and 0 is the lowest
+	function fitMeasure(orig, container, partition, totalPartitions) {
+		const A = container.w * container.h;
+		const a = partition.w * partition.w;
+		const f = Math.min(a / A * totalPartitions, 1);
+		const r = orig.w / orig.h;
+		const r0 = partition.w / partition.h;
+		const c = r && r0 ? Math.min(r/r0, r0/r) : 0;
+		return c * f;
+	}
+
+	class Partition {
+		static get horizontal () { return 'horizontal' }
+		static get vertical () { return 'vertical' }
+
+		constructor(x, y, w, h, direction, position) {
+			Object.assign(this, {x, y, w, h, direction, position});
+		}
+
+		get r0 () {
+			const {x, y, w, h, direction, position} = this;
+			if(direction === Partition.horizontal) {
+				return {x, y, w: w *position, h};
+			} else {
+				return {x, y, w, h: h * position};
+			}
+		}
+
+		get r1 () {
+			const {x, y, w, h, direction, position} = this;
+			if(direction === Partition.horizontal) {
+				return {x: x + w * position, y, w: w * (1-position), h}
+			} else {
+				return {x, y: y + h * position, w, h: h * (1-position)}
+			}
+		}
+	}
+
 	const visible = () => find('.mondrian > div').filter(div => !div.matches('.hidden'));
 	const hidden = () => find('.mondrian > .hidden');
 	const desired_aspect_ratio = () => parseInt(findOne('.desired_aspect_ratio').value, 10);
@@ -112,7 +168,7 @@
 	}
 
 	function show_random () {
-		const elt = pick_random(visible());
+		const elt = pick_random(hidden());
 		if (elt) {
 			elt.classList.remove('hidden');
 			update();

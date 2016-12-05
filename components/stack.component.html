@@ -1,0 +1,23 @@
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column-reverse;
+    height: 400px;
+    overflow-y: overlay;
+  }
+  .stack > * {
+    flex-shrink: 0;
+    font-size: 60px;
+    text-align: center;
+    height: 150px;
+  }
+</style>
+<div class="stack" data-children>
+  <div style="background: red">A</div>
+  <div style="background: orange">B</div>
+  <div style="background: yellow">C</div>
+  <div style="background: green">D</div>
+  <div style="background: blue">E</div>
+  <div style="background: indigo">F</div>
+  <div style="background: violet">G</div>
+</div>
