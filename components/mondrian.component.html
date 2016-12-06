@@ -61,22 +61,25 @@
 	</select> Desired Aspect Ratio
 </label>
 <script>
-	// orig, container, and partition are dimensions (i.e. {w, h})
-	// orig -- the thing we're trying to display
-	// container -- the total space available
-	// partition --the space being considered
-	// totalPartitions -- the total number of things we're displaying
-	// returns a value from 0–1 which is the product of:
-	// F -- fairness -- proportion of "fair" space received (), max 1.
-	// C -- crop -- proportion of total image visible after crop
-	// Clearly 1 is the highest score and 0 is the lowest
+/*
+	orig, container, and partition are dimensions (i.e. {w, h})
+	orig -- the thing we're trying to display
+	container -- the total space available
+	partition --the space being considered
+	totalPartitions -- the total number of things we're displaying
+	returns a value from 0–1 which is the product of:
+	f -- fairness -- proportion of "fair" space received (), max 1.
+	c -- crop -- proportion of total image visible after crop, scaled by fairness
+	Clearly 1 is the highest score and 0 is the lowest
+*/
 	function fitMeasure(orig, container, partition, totalPartitions) {
 		const A = container.w * container.h;
-		const a = partition.w * partition.w;
+		const a = partition.w * partition.h;
 		const f = Math.min(a / A * totalPartitions, 1);
 		const r = orig.w / orig.h;
 		const r0 = partition.w / partition.h;
-		const c = r && r0 ? Math.min(r/r0, r0/r) : 0;
+		const c = Math.min(r/r0, r0/r) * f;
+		console.log({A,a,f,c});
 		return c * f;
 	}
 
@@ -104,6 +107,10 @@
 			} else {
 				return {x, y: y + h * position, w, h: h * (1-position)}
 			}
+		}
+
+		fairness (orig0, orig1) {
+			return fitMeasure(orig0, this, this.r0, 2) * fitMeasure(orig1, this, this.r0, 2);
 		}
 	}
 
