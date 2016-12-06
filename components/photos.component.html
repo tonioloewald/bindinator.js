@@ -18,7 +18,7 @@
 		opacity: 1;
 	}
 </style>
-<img class="fade-in-when-loaded" data-list=".items" data-bind="method(images.src_fadein)=.media.m;attr(label)=.title">
+<img class="fade-in-when-loaded" data-list=".items" data-bind="img=.media.m;attr(label)=.title">
 <script>
 	var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
 
@@ -35,15 +35,6 @@
 	    script.src = url;
 	    document.body.appendChild(script);
 	}
-
-	b8r.register('images', {
-		src_fadein: (element, value, data) => {
-			const image = new Image();
-			image.src = value;
-			element.setAttribute('src', value);
-			image.onload = () => element.classList.add('loaded');
-		},
-	});
 
 	var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json&jsoncallback=' + jsonp;
 	if (component.getAttribute('tags')) {

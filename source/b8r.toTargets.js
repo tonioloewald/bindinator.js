@@ -29,6 +29,8 @@
 */
 (function(module){
 
+const img = require('./b8r.imgSrc.js');
+
 const special_values = {
 	'_true_': true,
 	'_false_': false,
@@ -69,18 +71,7 @@ module.exports = {
 			element.setAttribute(dest, value);	
 		}
 	},
-	img: function(element, value) {
-		element.style.opacity = 0;
-		if(!getComputedStyle(element).transition) {
-			element.style.transition = '0.25s ease-out';
-		}
-		if (value) {
-			const image = new Image();
-			image.src = value;
-			element.setAttribute('src', value);
-			image.onload = () => element.style.opacity = 1;
-		}
-	},
+	img,
 	style: function(element, value, dest) {
 		if (!dest) {
 			if(typeof value === 'string') {
