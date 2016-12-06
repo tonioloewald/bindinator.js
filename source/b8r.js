@@ -115,8 +115,12 @@ b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
   if (elt) {
 	  const ref = elt.getAttribute('data-list-instance');
-	  const [,model,path,key] = ref.match(/^(\w+)\.(.+)\[(\d+)\]$/);
-	  b8r.removeByPath(model, path, key);
+	  try {
+		  const [,model,path,key] = ref.match(/^(\w+)\.(.+)\[(\d+)\]$/);
+		  b8r.removeByPath(model, path, key);	
+	  } catch(e) {
+	  	console.error('cannot find list item for instance', ref);
+	  }
   } else {
   	console.error('cannot remove list instance for', elt);
   }
@@ -325,7 +329,6 @@ b8r.trigger = function(type, target) {
 		var preventDefault = () => {};
 		handleEvent({type, target, stopPropagation, preventDefault});	
 	} else {
-		debugger;
 		console.warn('b8r.trigger called with no specified target');
 	}
 };
@@ -389,6 +392,7 @@ function handleEvent (evt) {
 
 var implicit_event_types = [
 	'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
+	'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
 	'scroll',
 	'input', 'change',
 	'keydown', 'keyup',
@@ -515,7 +519,7 @@ function bindList (element, data, basePath) {
 		return;
 	}
 	var list = data ? getByPath(data, path) : b8r.getByPath(model, path);
-	if (!list || !list.length) {
+	if (!list) {
 		return;
 	}
 	while(
@@ -681,7 +685,7 @@ b8r.insertComponent = function (component, element, data) {
 	}
 	if (typeof component === 'string') {
 		if(!components[component]) {
-			console.warn('component not available: ', name);
+			console.warn('component not available: ', component);
 			if (data) {
 				saveDataForElement(element, data);
 			}
