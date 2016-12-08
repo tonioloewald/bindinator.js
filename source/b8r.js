@@ -5,7 +5,7 @@
 Binds your data and methods so you can concentrate on your actual goals.
 */
 /* jshint esnext:true, loopfunc:true */
-/* globals console, window */
+/* globals console, window, require, module */
 
 (function(module){
 'use strict';
@@ -74,10 +74,10 @@ b8r.deregister = function (name) {
 	}
 	// garbage collect models
 	const instances = b8r.find('[data-component-id]').map(elt => elt.getAttribute('data-component-id'));
-	for (var name in models) {
-		if (name.substr(0,2) === 'c#' && instances.indexOf(name) === -1) {
-			(models[name].remove || noop)();
-			delete(models[name]);
+	for (var model in models) {
+		if (model.substr(0,2) === 'c#' && instances.indexOf(model) === -1) {
+			(models[model].remove || noop)();
+			delete(models[model]);
 		}
 	}
 };
@@ -85,7 +85,12 @@ b8r.deregister = function (name) {
 b8r.touchByPath = function(name, path, source_element) {
 	if (Array.isArray(b8r.getByPath(name, path))) {
 		const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
-		lists.forEach(element => element !== source_element && bindList(element));
+		lists.forEach(element => {
+			if(element !== source_element){
+				bindList(element);
+				b8r.trigger('change', element);
+			}
+		});
 	} else {
 		const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
 		elements.forEach(element => element !== source_element && bind(element));
@@ -109,7 +114,7 @@ b8r.pushByPath = function(name, path, value, callback) {
 		}
 		b8r.touchByPath(name, path);
 	}
-}
+};
 
 b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
@@ -117,16 +122,16 @@ b8r.removeListInstance = function(elt) {
 	  const ref = elt.getAttribute('data-list-instance');
 	  try {
 		  const [,model,path,key] = ref.match(/^(\w+)\.(.+)\[(\d+)\]$/);
-		  b8r.removeByPath(model, path, key);	
+		  b8r.removeByPath(model, path, key);
 	  } catch(e) {
 	  	console.error('cannot find list item for instance', ref);
 	  }
   } else {
   	console.error('cannot remove list instance for', elt);
   }
-}
+};
 
-b8r.removeByPath = function(name, path, key, callback) {
+b8r.removeByPath = function(name, path, key) {
 	if (models[name]) {
 		const list = getByPath(models[name], path);
 		if (list && list[key]) {
@@ -138,7 +143,7 @@ b8r.removeByPath = function(name, path, key, callback) {
 			b8r.touchByPath(name, path);
 		}
 	}
-}
+};
 
 b8r.getByPath = function (name, path) {
 	if (name && models[name]) {
@@ -263,7 +268,11 @@ function implicitEventHandlers (element) {
 		handlers = source.map(function(instruction){
 			var [type, handler] = instruction.split(':');
 			if (!handler) {
-				console.error('missing event handler', instruction, 'in', element);
+				if(instruction.indexOf('.')) {
+					console.error('bad event handler (missing event type)', instruction, 'in', element);
+				} else {
+					console.error('bad event handler (missing handler)', instruction, 'in', element);
+				}
 				return { types: [] };
 			}
 			var [model, method] = handler.trim().split('.');
@@ -310,7 +319,11 @@ b8r.callMethod = function () {
 	const [model, method, ...args] = arguments;
 	var result = null;
 	if ( models[model] ) {
-		result = models[model][method].apply(null, args);
+		if (models[model][method] instanceof Function) {
+			result = models[model][method].apply(null, args);
+		} else {
+			console.error(`callMethod failed: ${model}.${method} is not a function`);
+		}
 	} else {
 		// TODO queue if model not available
 		// event is stopped from further propagation
@@ -458,7 +471,7 @@ function addBasePathToBindings(element, bindings, basePath) {
 function findBindables (element) {
 	return b8r.findWithin(element, '[data-bind]', true)
 			  .filter(elt => {
-			  	var list = elt.closest('[data-list]');
+			  	var list = elt.closest('[data-list],[data-list-instance]');
 			  	return !list || list === element || !element.contains(list);
 			  });
 }
@@ -575,6 +588,7 @@ const ajax = require('./b8r.ajax.js');
 Object.assign(b8r, ajax);
 
 const components = {};
+const component_timeouts = {};
 
 /**
 	b8r.component(name, url); // loads component from url
@@ -622,7 +636,17 @@ b8r.makeComponent = function(name, source) {
 	var div = b8r.create('div');
 	div.innerHTML = content;
 /*jshint evil: true */
-	var load = script ? new Function('component', 'b8r', 'find', 'findOne', 'data', 'register', 'get', 'set', script) : false;
+	var load = script ? new Function(
+		'component',
+		'b8r',
+		'find',
+		'findOne',
+		'data',
+		'register',
+		'get',
+		'set',
+		`${script}\n//# sourceURL=${name}.component.html`
+	) : false;
 /*jshint evil: false */
 	var style;
 	if (css) {
@@ -632,6 +656,9 @@ b8r.makeComponent = function(name, source) {
 		document.head.appendChild(style);
 	}
 	var component = {name: name, style: css ? style : false, view: div, load: load, _source: source};
+	if (component_timeouts[name]) {
+		clearInterval(component_timeouts[name]);
+	}
 	components[name] = component;
 	var targets = b8r.find('[data-component="' + name + '"]');
 	targets.forEach(element => b8r.insertComponent(component, element));
@@ -685,7 +712,10 @@ b8r.insertComponent = function (component, element, data) {
 	}
 	if (typeof component === 'string') {
 		if(!components[component]) {
-			console.warn('component not available: ', component);
+			if (!component_timeouts[component]) {
+				// if this doesn't happen for five seconds, we have a problem
+				component_timeouts[component] = setTimeout(() => console.error('component timed out: ', component), 5000);
+			}
 			if (data) {
 				saveDataForElement(element, data);
 			}
