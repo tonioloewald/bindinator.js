@@ -16,6 +16,14 @@
 		"path": "source/b8r.ajax.js"
 	},
 	{
+		"name": "DOM",
+		"path": "source/b8r.dom.js"
+	},
+	{
+		"name": "imgSrc",
+		"path": "source/b8r.imgSrc.js"
+	},
+	{
 		"name": "Object Paths",
 		"path": "source/b8r.byPath.js"
 	},
