@@ -106,9 +106,9 @@
 	find('[data-event]').forEach(elt => {
 		var handler_def = elt.getAttribute('data-event');
 		if (elt.getAttribute('data-shortcut')) {
-			handler_def = handler_def.replace(/\bmenuclick\b([^:]*):/, 'shortcut,click,keydown(Space)\1:');
+			handler_def = handler_def.replace(/\bmenuclick\b([^:]*):/, 'shortcut,mouseup,keydown(Space)\1:');
 		} else {
-			handler_def = handler_def.replace(/\bmenuclick\b([^:]*):/, 'click,keydown(Space)\1:');
+			handler_def = handler_def.replace(/\bmenuclick\b([^:]*):/, 'mouseup,keydown(Space)\1:');
 		}
 		if (elt.matches('li')) {
 			elt.setAttribute('data-event', handler_def);
