@@ -67,6 +67,9 @@ module.exports = {
       element.removeChild(element.lastChild);
     }
   },
+  elementIndex (element) {
+    return b8r.makeArray(element.parentElement.children).indexOf(element);
+  },
   moveChildren (source, dest) {
     while (source.firstChild) {
       dest.appendChild(source.firstChild);

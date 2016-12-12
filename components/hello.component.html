@@ -14,10 +14,13 @@
 <div class="hello">
 	<h4>Hello Component</h4>
 	<button data-event="click:_component_.click">Click Me</button>
+	<p data-bind="show_if=_component_.click_count">
+		Number of times clicked: 
+		<span data-bind="text=_component_.click_count"></span>
+	</p>
 	<div data-children></div>
 </div>
 <script>
-	var times_clicked = 0;
-	const click = () => findOne('h4').textContent = 'Clicked ' + ++times_clicked + ' times';
-	register({click});
+	const click = () => set('click_count', get('click_count') + 1);
+	set({click, click_count: 0});
 </script>

@@ -39,9 +39,8 @@
 <div>
 	<div class="tabs">
 		<h4
-			class="tab"
-			data-list="_DATA_"
-			data-bind="text=.name"
+			data-list="_component_.tabs"
+			data-bind="text=.name;class(current)=.active"
 			class="tab"
 			data-event="
 				mouseup,keydown(Space):_component_.select_tab;
@@ -64,29 +63,34 @@
 	</div>
 </div>
 <script>
-	var current_tab;
-	var bodies = b8r.makeArray(findOne('.bodies').children);
-	var untitled = {name: 'Untitled'};
-	var tab_info = bodies.map(body_element => { return { name: body_element.getAttribute('name')} || untitled; });
-	b8r.bindAll(findOne('.tabs'), tab_info);
-	var tabs = find('.tabs > .tab[data-list-instance]');
+/* global b8r, findOne, set, get, touch, data */
+'use strict';
+	const bodies = () => b8r.makeArray(findOne('.bodies').children);
 
 	function select_tab(which) {
-		if (which === current_tab) {
+		if (which instanceof Event) {
+			which = b8r.listIndex(which.target);
+		}
+
+		const active_tab = which || 0;
+		if (active_tab === get('active_tab')) {
 			return;
 		}
-		bodies.forEach(body_element => body_element.classList.remove('current'));
-		tabs.forEach(tab_element => tab_element.classList.remove('current'));
-		tabs[which].classList.add('current');
-		tabs[which].focus();
-		bodies[which].classList.add('current');
-		current_tab = which;
-	}
-	select_tab(parseInt(component.getAttribute('current'), 10) || 0);
 
-	register({
-		select_tab: evt => select_tab(tabs.indexOf(evt.target)),
-		next_tab: evt => select_tab((current_tab + 1) % tabs.length),
-		previous_tab: evt => select_tab((current_tab + tabs.length - 1) % tabs.length),
+		set({active_tab});
+		get('tabs').forEach((tab, idx) => tab.active = active_tab === idx);
+		touch('tabs');
+		b8r.listItems(findOne('.tabs'))[active_tab].focus();
+
+		bodies().forEach((body, idx) => active_tab === idx ? body.classList.add('current') : body.classList.remove('current'));
+	}
+
+	set({
+		tabs: bodies().map(element => { return { name: element.getAttribute('name') || 'Untitled' }; }),
+		select_tab,
+		next_tab: () => select_tab((get('active_tab') + 1) % get('tabs').length),
+		previous_tab: () => select_tab((get('active_tab') + get('tabs').length - 1) % get('tabs').length),
 	});
+
+	select_tab();
 </script>

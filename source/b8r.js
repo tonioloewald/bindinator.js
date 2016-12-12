@@ -32,8 +32,8 @@ const noop = () => {};
 
 /**
 	b8r.register(name, obj);						// register an object by name as data or controller
-		// the names _DATA_ and _b8r_ are reserved; other similar namess may be reserved later
-		// binding to _DATA_ explicitly means you will only be bound to an explicit object
+		// the names _component_ and _b8r_ are reserved; other similar namess may be reserved later
+		// binding to explicitly means you will only be bound to an explicit object
 		// _b8r_ is the name of the internal event handlers for bound variables
 	b8r.deregister(name);								// remove a registered object
 	b8r.setByPath(name, path, value);		// set a registered object's property by path
@@ -50,11 +50,9 @@ b8r.register = function (name, obj) {
 	}
 	b8r.find('[data-list*="' + name + '"]').forEach(elt => {
 		bindList(elt);
-		b8r.trigger('change', elt);
 	});
 	b8r.find('[data-bind*="' + name + '"]').forEach(elt => {
 		bind(elt);
-		b8r.trigger('change', elt);
 	});
 	playSavedMessages(name);
 };
@@ -83,25 +81,32 @@ b8r.deregister = function (name) {
 };
 
 b8r.touchByPath = function(name, path, source_element) {
-	if (Array.isArray(b8r.getByPath(name, path))) {
-		const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
-		lists.forEach(element => {
-			if(element !== source_element){
-				bindList(element);
-				b8r.trigger('change', element);
-			}
-		});
-	} else {
-		const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
-		elements.forEach(element => element !== source_element && bind(element));
+	if (path === '/') {
+		path = '';
 	}
+	const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
+	lists.forEach(element => {
+		if(element !== source_element){
+			bindList(element);
+			b8r.trigger('change', element);
+		}
+	});
+	const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
+	elements.forEach(element => element !== source_element && bind(element));
 };
 
 b8r.setByPath = function (name, path, value, source_element) {
 	if (models[name]) {
-		setByPath(models[name], path, value);
+		const model = models[name];
+		var assignments;
+		if(typeof path === 'object'){
+			Object.assign(model, path);
+			b8r.touchByPath(name, '/', source_element);
+		} else {
+			setByPath(model, path, value);
+			b8r.touchByPath(name, path, source_element);
+		}
 		// this may update some false positives, but very few
-		b8r.touchByPath(name, path, source_element);
 	}
 };
 
@@ -156,6 +161,10 @@ b8r.getInstance = function(element) {
 	const [model, ...pathParts] = ref.split('.');
 	return b8r.getByPath(model, pathParts.join('.'));
 };
+
+b8r.listItems = element => b8r.makeArray(element.children)
+                              .filter(elt => elt.matches('[data-list-instance]'));
+b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element);
 
 /**
 	b8r.on(element, event_type, model_name, method_name) // creates an implicit event-binding data attribute
@@ -337,6 +346,9 @@ b8r.callMethod = function () {
 	b8r.trigger(type, target); // trigger a synthetic implicit (only!) event
 */
 b8r.trigger = function(type, target) {
+	if (typeof type !== 'string' || !(target instanceof HTMLElement)) {
+		console.error ('expected trigger(event_type, target_element)', type, target);
+	}
 	if (target) {
 		var stopPropagation = () => {};
 		var preventDefault = () => {};
@@ -645,6 +657,7 @@ b8r.makeComponent = function(name, source) {
 		'register',
 		'get',
 		'set',
+		'touch',
 		`${script}\n//# sourceURL=${name}.component.html`
 	) : false;
 /*jshint evil: false */
@@ -727,6 +740,13 @@ b8r.insertComponent = function (component, element, data) {
 		data = dataForElement(element, component.name);
 		if (data) {
 			removeDataForElement(element);
+		} else {
+			const json = element.getAttribute('data-json');
+			if (json) {
+				data = JSON.parse(json);
+			} else {
+				data = {};
+			}
 		}
 	}
 	if (element.parentElement === null) {
@@ -741,7 +761,7 @@ b8r.insertComponent = function (component, element, data) {
 			['data-bind', 'data-list', 'data-event'].forEach(attr => {
 				const val = elt.getAttribute(attr);
 				if(val) {
-					elt.setAttribute(attr, val.replace(/_component_/g, component_id));
+					elt.setAttribute(attr, val.replace(/_component_|_component_/g, component_id));
 				}
 			});
 		});
@@ -755,9 +775,13 @@ b8r.insertComponent = function (component, element, data) {
 	if (component.load) {
 		const register = data => b8r.register(component_id, data);
 		const get = path => b8r.getByPath(component_id, path);
-		const set = (path, value) => b8r.setByPath(component_id, path, value);
-		if (data) register(data);
-		var view_obj = component.load(
+		const set = (path, value) => {
+			b8r.setByPath(component_id, path, value);
+			b8r.trigger('change', element);
+		};
+		const touch = (path) => b8r.touchByPath(component_id, path);
+		register(data);
+		const view_obj = component.load(
 			element,
 			b8r,
 			selector => b8r.findWithin(element, selector),
@@ -765,7 +789,8 @@ b8r.insertComponent = function (component, element, data) {
 			data,
 			register,
 			get,
-			set
+			set,
+			touch
 		);
 		if (view_obj) {
 			console.warn('returning from views is deprecated; please use register() instead');
@@ -775,7 +800,7 @@ b8r.insertComponent = function (component, element, data) {
 	// it would be nice to eliminate quasi-magical binding to .foo and
 	// replace it with concrete binding to _component_.foo, but will this
 	// break async nesting?
-	bindAll(element, data);
+	bindAll(element);
 	return element;
 };
 

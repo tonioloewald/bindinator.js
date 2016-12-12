@@ -31,7 +31,7 @@
 		border-radius: 2px;
 	}
 </style>
-<label class="radioset" data-list="_DATA_.options"><input type="radio" data-bind="value=.value"><span class="focus-follower">&nbsp;</span> <span data-bind="text=.caption"></span></label>
+<label class="radioset" data-list="_component_.options"><input type="radio" data-bind="value=.value"><span class="focus-follower">&nbsp;</span> <span data-bind="text=.caption"></span></label>
 <script>
 	const config = data && data.name && data.options ? data : {name: 'test', value: 1, options: [{caption: 'first', value: 1}, {caption: 'second', value: 2}, {caption: 'third', value: 3}]};
 	b8r.bindAll(component, config);

@@ -2,7 +2,7 @@
 <input type="number" data-bind="value=_component_.value">
 <script>
   const slider = findOne('[type="range"]');
-  slider.setAttribute('min', component.getAttribute('min') || 0);
-  slider.setAttribute('max', component.getAttribute('max') || 10);
-  register(data || {value: 5});
+  slider.setAttribute('min', component.getAttribute('min') || get('min') || 0);
+  slider.setAttribute('max', component.getAttribute('max') || get('max') || 10);
+  set('value', data.value || 5)
 </script>

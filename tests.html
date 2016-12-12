@@ -147,7 +147,7 @@
 
 		// binding (from)
 		b8r.findOne('input').value = 55;
-		Test.trigger('input', b8r.findOne('input'))
+		Test.trigger('input', b8r.findOne('input'));
 		Test(() => b8r.id('e').value)
 		                   .shouldBe(obj.sub.list[2] + '');
 		Test(() => b8r.id('c').textContent)
@@ -159,7 +159,7 @@
 		Test(() => obj.option).shouldBe('two');
 		b8r.findOne('[type=checkbox]').checked = false;
 		Test.trigger('input', '[type=checkbox]');
-		Test(() => obj.checkbox).shouldBe('false');
+		Test(() => obj.checkbox).shouldBe(false);
 
 		// verify type-matching
 		obj.checkbox = false;
