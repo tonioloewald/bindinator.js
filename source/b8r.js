@@ -445,7 +445,7 @@ const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 function parseBinding (binding) {
-	var [targets, source] = binding.split('=');
+	var [,targets, source] = binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
 	targets = targets.split(',').map(function(target){ 
 		var parts = target.match(/(\w+)(\(([^)]+)\))?/);
 		if(!parts) {
@@ -536,7 +536,7 @@ b8r.show = function (element) {
 };
 
 function bindList (element, data, basePath) {
-	var [list_path] = element.getAttribute('data-list').split(':');
+	const [list_path, id_path] = element.getAttribute('data-list').split(':');
 	var model, path;
 	try {
 		[,model,, path] = list_path.match(/^([^\.]*)(\.(.*))?$/);
@@ -562,10 +562,15 @@ function bindList (element, data, basePath) {
 	b8r.show(element);
 	const fragment = b8r.fragment();
 	for (var i = 0; i < list.length; i++) {
-		var instance = element.cloneNode(true);
-		instance.removeAttribute('data-list');
-		const itemPath = list_path + '[' + i + ']';
-		instance.setAttribute('data-list-instance', itemPath);
+		var instance;
+		const id = id_path ? id_path + '=' + getByPath(list[i], id_path): i;
+		const itemPath = list_path + '[' + id + ']';
+		instance = element.parentElement.querySelector(`[data-list-instance="${itemPath}"]`);
+		if(!instance) {
+			instance = element.cloneNode(true);
+			instance.removeAttribute('data-list');
+			instance.setAttribute('data-list-instance', itemPath);
+		}
 		bindAll(instance, list[i], itemPath);
 		fragment.appendChild(instance);
 	}

@@ -50,7 +50,6 @@ function pathParts(path) {
 }
 
 function getByPath(obj, path) {
-  console.log(obj, path);
   const parts = pathParts(path);
   var found = obj;
   var i, max_i, j, max_j;
