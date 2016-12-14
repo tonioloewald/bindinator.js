@@ -80,7 +80,7 @@ b8r.deregister = function (name) {
 };
 
 b8r.touchByPath = function(name, path, source_element) {
-	if (path === '/') {
+	if (!path || path === '/') {
 		path = '';
 	}
 	const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
@@ -154,10 +154,15 @@ b8r.getByPath = function (name, path) {
 	}
 };
 
-b8r.getInstance = function(element) {
+b8r.getInstancePath = function(element) {
 	const ref = element.closest('[data-list-instance]').getAttribute('data-list-instance');
 	const [model, ...pathParts] = ref.split('.');
-	return b8r.getByPath(model, pathParts.join('.'));
+	return {model, path: pathParts.join('.')};
+};
+
+b8r.getInstance = function(element) {
+	const {model, path} = b8r.getInstancePath(element);
+	return b8r.getByPath(model, path);
 };
 
 b8r.listItems = element => b8r.makeArray(element.children)
