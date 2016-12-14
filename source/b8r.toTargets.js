@@ -139,7 +139,7 @@ return {
 				console.error('component is not registered but is bound', element);
 			}
 		} else if (!element.getAttribute('data-component')) {	
-			console.error('component toTarget found on non componennt', element);
+			console.error('component toTarget found on non component', element);
 		}
 	},
 	component_map: function(element, value, dest, data) {
