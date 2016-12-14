@@ -17,6 +17,13 @@
 
 ## Core Concepts
 
+**Objects are registered by name** and then can have their properties and events bound to DOM elements with attributes:
+
+- **data-bind** lets you bind data inside registered objects to targets within a DOM node (targets include text, value, checked state, visibility, class, attributes, style settings, and so forth).
+- **data-event** lets you bind events to event handlers inside registered objects.
+- **data-component** lets you bind composable component instances to DOM elements by name.
+- **data-list** lets you bind a list to cloned instances of the bound element.
+
 **Data bindings** are simply DOM attributes:
 
 ```
@@ -87,3 +94,34 @@ The component's script executes in a private scope, so each instance will count 
 ```
 
 When a component is loaded as "click-counter" it will automatically populate appropriately attributed divs.
+
+Data can be bound to components:
+
+```
+	<div 
+		data-component="click-counter" 
+		data-bind="component=path.to.data"
+	></div>
+```
+
+Components can bind to their own private data objects by using "_component_" so a component with:
+
+```
+	<p data-bind="text=_component_.message"></p>
+	<button 
+		data-event="click:_component_.doSomething"
+	>
+		Click Me!
+	</button>
+```
+
+Can simply set its own properties and method:
+
+```
+	set({
+		message: 'hello',
+		doSomething: () => {...} 
+	});
+```
+
+(Or have them set by bound data, etc.)
