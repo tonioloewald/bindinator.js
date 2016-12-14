@@ -16,8 +16,7 @@ function b8r(){}
 
 module.exports = b8r;
 
-const dom = require('./b8r.dom.js');
-Object.assign(b8r, dom);
+require('./b8r.dom.js')(b8r);
 
 b8r.modifierKeys = {
 	meta: '⌘',
@@ -98,7 +97,6 @@ b8r.touchByPath = function(name, path, source_element) {
 b8r.setByPath = function (name, path, value, source_element) {
 	if (models[name]) {
 		const model = models[name];
-		var assignments;
 		if(typeof path === 'object'){
 			Object.assign(model, path);
 			b8r.touchByPath(name, '/', source_element);
@@ -126,7 +124,7 @@ b8r.removeListInstance = function(elt) {
   if (elt) {
 	  const ref = elt.getAttribute('data-list-instance');
 	  try {
-		  const [,model,path,key] = ref.match(/^(\w+)\.(.+)\[(\d+)\]$/);
+		  const [,model,path,key] = ref.match(/^([^.]+)\.(.+)\[(\d+)\]$/);
 		  b8r.removeByPath(model, path, key);
 	  } catch(e) {
 	  	console.error('cannot find list item for instance', ref);
@@ -306,8 +304,8 @@ function implicitEventHandlers (element) {
 
 var saved_messages = []; // {model, method, evt}
 
-function saveMethodCall(model, method, evt) {
-	saved_messages.push({model, method, evt});
+function saveMethodCall(model, method, args) {
+	saved_messages.push({model, method, args});
 }
 
 function playSavedMessages(for_model) {
@@ -320,7 +318,7 @@ function playSavedMessages(for_model) {
 	}
 	while (playbackQueue.length) {
 		var {model, method, args} = playbackQueue.pop();
-		b8r.callMethod(model, method, args);
+		b8r.callMethod(model, method, ...args);
 	}
 }
 
@@ -438,8 +436,8 @@ implicit_event_types.forEach(type => document.body.addEventListener(type, handle
 	## data-bind
 */
 
-const toTargets = require('./b8r.toTargets.js');
-const fromTargets = require('./b8r.fromTargets.js');
+const toTargets = require('./b8r.toTargets.js')(b8r);
+const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 function parseBinding (binding) {
 	var [targets, source] = binding.split('=');
@@ -688,12 +686,26 @@ function saveDataForElement(target_element, data) {
 }
 
 function dataForElement(target_element) {
+	var data;
 	for (var i = 0; i < data_waiting_for_components.length; i++) {
 		if (data_waiting_for_components[i].target_element === target_element) {
-			return data_waiting_for_components[i].data;
+			data = data_waiting_for_components[i].data;
+			removeDataForElement(target_element);
+			return data;
 		}
 	}
-	return null;
+
+	const json = target_element.getAttribute('data-json');
+	if (json) {
+		return JSON.parse(json);
+	}
+
+	const parent_component = target_element.closest('[data-component-id]');
+	if (parent_component) {
+		return b8r.getByPath(parent_component.getAttribute('data-component-id'));
+	}
+
+	return {};
 }
 
 function removeDataForElement(target_element) {
@@ -738,16 +750,6 @@ b8r.insertComponent = function (component, element, data) {
 	}
 	if (!data) {
 		data = dataForElement(element, component.name);
-		if (data) {
-			removeDataForElement(element);
-		} else {
-			const json = element.getAttribute('data-json');
-			if (json) {
-				data = JSON.parse(json);
-			} else {
-				data = {};
-			}
-		}
 	}
 	if (element.parentElement === null) {
 		document.body.appendChild(element);
@@ -772,8 +774,8 @@ b8r.insertComponent = function (component, element, data) {
 		}
 	}
 	element.setAttribute('data-component-id', component_id);
+	const register = data => b8r.register(component_id, data);
 	if (component.load) {
-		const register = data => b8r.register(component_id, data);
 		const get = path => b8r.getByPath(component_id, path);
 		const set = (path, value) => {
 			b8r.setByPath(component_id, path, value);
@@ -796,6 +798,8 @@ b8r.insertComponent = function (component, element, data) {
 			console.warn('returning from views is deprecated; please use register() instead');
 			b8r.register(component_id, view_obj);
 		}
+	} else {
+		register(data);
 	}
 	// it would be nice to eliminate quasi-magical binding to .foo and
 	// replace it with concrete binding to _component_.foo, but will this

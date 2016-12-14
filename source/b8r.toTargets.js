@@ -15,6 +15,7 @@
 	* show_if -- shows the (otherwise hidden) element base on the truthiness of the value
 	* show_if(value) -- shows the (otherwise hidden) element for matching value
 	* method(model.method) -- calls the specified registered method, passing the element, valuem and the data object as parameters
+	* data(path.to.value) -- will set the component's instance data (or a path within it, if provided) to the value
 	* component_map(value:component|other_value:other_component|yet_another_component) -- loads and binds the first matching component
 	* json -- dumps the value stringified into the textContent of the element (mainly for debugging)
 
@@ -27,7 +28,11 @@
 	* \_undefined\_
 	* \_null\_
 */
-(function(module){
+/* jshint expr: true */
+/* global require, module, console */
+'use strict';
+
+module.exports = function(b8r){
 
 const img = require('./b8r.imgSrc.js');
 
@@ -45,7 +50,7 @@ function equals(value_to_match, value) {
 				 !!value;
 }
 
-module.exports = {
+return {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
 			case 'radio': 
@@ -98,11 +103,14 @@ module.exports = {
 	enabled_if: function(element, value, dest) {
 		element.disabled = !equals(dest, value);
 	},
-	enabled_unless: function(element, value, dest) {
+	disabled_if: function(element, value, dest) {
 		element.disabled = equals(dest, value);
 	},
 	show_if: function(element, value, dest) {
 		equals(dest, value) ? b8r.show(element) : b8r.hide(element);
+	},
+	hide_if: function(element, value, dest) {
+		equals(dest, value) ? b8r.hide(element) : b8r.show(element);
 	},
 	method: function(element, value, dest, data) {
 		var [model, ...method] = dest.split('.');
@@ -112,11 +120,21 @@ module.exports = {
 	json: function(element, value) {
 		element.textContent = JSON.stringify(value, false, 2);
 	},
+	data: function(element, value, dest) {
+		const id = element.getAttribute('data-component-id');
+		if (id) {
+			b8r.setByPath(id, dest || '', value);
+		}
+	},
 	component: function(element, value, dest) {
 		const id = element.getAttribute('data-component-id');
 		if (id) {
 			if(b8r.models().indexOf(id) > -1) {
-				b8r.setByPath(id, dest, value);
+				if (dest) {
+					b8r.setByPath(id, dest, value);
+				} else if (typeof value === 'object') {
+					b8r.setByPath(id, value);
+				}
 			} else {
 				console.error('component is not registered but is bound', element);
 			}
@@ -143,4 +161,4 @@ module.exports = {
 	}
 };
 
-}(module));
+};

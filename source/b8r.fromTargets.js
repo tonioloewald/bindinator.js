@@ -8,9 +8,12 @@
 	* checked -- pulls the element's checked value from the DOM
 	* text -- pulls the element's textContent from the DOM
 */
-(function(module){
+/* global module */
+'use strict';
 
-module.exports = {
+module.exports = function(b8r) {
+
+return {
 	value: function(element){
 		return element.value;
 	},
@@ -27,4 +30,4 @@ module.exports = {
 	}
 };
 
-}(module));
+};

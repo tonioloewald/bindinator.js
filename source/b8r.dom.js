@@ -17,11 +17,14 @@
   copyChildren(source, dest);             // copies contents of source to dest
   moveChildren(source, dest);             // moves contents of source to dest
 */
-(function(module){
+/* global module */
+'use strict';
+
+module.exports = function(b8r){
 
 // TODO
 // Debug versions of findOne should throw if not exactly one match
-module.exports = {
+Object.assign(b8r, {
   find: selector => b8r.makeArray(document.querySelectorAll(selector)),
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
@@ -82,6 +85,6 @@ module.exports = {
       element = element.nextSibling;
     }
   },
-};
+});
 
-}(module));
+};
