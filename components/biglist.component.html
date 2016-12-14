@@ -73,22 +73,19 @@
 	- implement binding transparently -- so you can just data-bind="value=path.to.list"
 */
 
-/* global findOne, b8r, component, data, register, set */
+/* global findOne, b8r, component, data, set */
 	'use strict';
 
 	const viewport = findOne('.biglist-viewport');
 	const scroller = findOne('.biglist-scroller');
 	const visible_item_container = findOne('.biglist-visible-items');
 
-	if (!data) {
-		data = {};
-	}
-	if (data.pin === undefined) {
-		data.pin = component.getAttribute('pin') || 'top';
-	}
+	set({
+		pin: data.pin || component.getAttribute('pin') || 'top',
+		minRowHeight: data.minRowHeight || 35
+	});
 
 	if (!data.list) {
-		data.minRowHeight = 35;
 		data.list = [];
 		for (var i = 0; i < 1000; i++) {
 			data.list.push({
@@ -103,9 +100,6 @@
 	function clamp(x) {
 		return x < 0 ? 0 : (x > 1 ? 1 : x);
 	}
-
-	data.update = update;
-	register(data);
 
 	function update(specified_progress) {
 		const rows_to_show = Math.min(data.list.length, Math.floor(viewport.offsetHeight / data.minRowHeight + 2));
@@ -139,6 +133,8 @@
 		const offset = t * pin_bottom_offset + (1 - t) * pin_top_offset - (position % 1) * offsetElement.offsetHeight;
 		visible_item_container.style.top = offset + 'px';
 	}
+
+	set({update});
 
 	update(data.pin === 'bottom' ? 1 : 0);
 </script>
