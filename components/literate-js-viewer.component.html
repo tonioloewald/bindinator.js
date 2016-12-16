@@ -26,10 +26,8 @@
     const parts = [];
     var factory = false, module = {};
     try {
-      
       console.log(data.url)
       if(data.url.indexOf('b8r') === -1) {
-        debugger;
         factory = new Function('module', 'require', complete_source + `\n//# sourceURL=${data.url}`); // jshint ignore:line
         // factory = __d(data.url, complete_source);
         factory(module, require);

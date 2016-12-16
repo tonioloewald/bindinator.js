@@ -641,6 +641,16 @@ b8r.component = function (name, url) {
 	});
 };
 
+b8r.removeComponent = function(name) {
+	const component = components[name];
+	if (component) {
+		if(component.style) {
+			component.style.remove();
+		}
+		delete components[name];
+	}
+}
+
 b8r.makeComponent = function(name, source) {
 	var css = false, content, script = false, parts, remains;
 
@@ -687,6 +697,10 @@ b8r.makeComponent = function(name, source) {
 	if (component_timeouts[name]) {
 		clearInterval(component_timeouts[name]);
 	}
+	if (components[name]) {
+		console.warn('component %s has been redefined', name);
+	}
+	b8r.removeComponent(name);
 	components[name] = component;
 	var targets = b8r.find('[data-component="' + name + '"]');
 	targets.forEach(element => b8r.insertComponent(component, element));

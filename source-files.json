@@ -38,5 +38,9 @@
 	{
 		"name": "JS Viewer Test",
 		"path": "test/literate-test.js"
+	},
+	{
+		"name": "Exemplar",
+		"path": "lib/exemplar.js"
 	}
 ]

@@ -11,11 +11,19 @@
 	.failure {
 		background-color: #faa;
 	}
+
+	.test-report {
+		display: none;
+	}
+
+	.test-report.test-show {
+		display: block;
+	}
 </style>
-<h3>Test Results</h3>
-<div class="test-report"></div>
+<h3><label><input type="checkbox" data-bind="checked=_component_.show">Test Results</label></h3>
+<div class="test-report" data-bind="class(test-show)=_component_.show"></div>
 <script>
-	/* global require, findOne, b8r, data, console */
+	/* global require, findOne, b8r, data, set */
 	'use strict';
 
 	const report_container = findOne('.test-report');
@@ -28,4 +36,6 @@
 	} catch(e) {
 		Test.report(`test runner threw exception: ${e}`, 'failure');
 	}
+
+	set({show: false});
 </script>

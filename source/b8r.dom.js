@@ -1,18 +1,6 @@
 /**
 # DOM Methods
 
-```
-<h4>DOM Examples</h4>
-<ul>
-  <li data-list="_component_.messages" data-bind="text=/"></li>
-</ul>
-<script>
-  const messages = [];
-  set({messages});
-</script>
-
-```
-
   find(selector);                         // syntax sugar for querySelectorAll, returns proper array
   findOne(selector);                      // syntax sugar for querySelector
   findWithin(element, selector);          // find scoped within element

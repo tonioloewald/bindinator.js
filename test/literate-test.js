@@ -19,10 +19,10 @@ as a component, as below:
 
 ```
 <style>
-  input { width: 100px; }
+  .test-calculator input { width: 100px; }
 
 </style>
-<div data-event="input,change:_component_.calculate">
+<div class="test-calculator" data-event="input,change:_component_.calculate">
   <input data-bind="value=_component_.a" type="number"> + 
   <input data-bind="value=_component_.b" type="number"> == 
   <input disabled data-bind="value=_component_.sum">
@@ -45,6 +45,7 @@ const {add} = _required_;
 
 Test(() => add(1,1)).shouldBe(2);
 Test(() => add(1,-1)).shouldBe(0);
+Test(() => add(1,1)).shouldBe(3); // fails!
 ~~~~
 */
 
