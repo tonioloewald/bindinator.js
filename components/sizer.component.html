@@ -34,13 +34,14 @@
 	var next_min;
 
 	function beginSizing(evt) {
+		const sizer = evt.target.closest('.ew-sizer').parentElement;
 		orig_x = evt.clientX;
-		prev_elt = component.previousElementSibling;
-		next_elt = component.nextElementSibling;
-		parent_width = component.offsetParent.offsetWidth;
+		prev_elt = sizer.previousElementSibling;
+		next_elt = sizer.nextElementSibling;
+		parent_width = sizer.offsetParent.offsetWidth;
 		prev_width = prev_elt.offsetWidth;
 		next_width = next_elt.offsetWidth;
-		total_width = prev_width + next_width + component.offsetWidth;
+		total_width = prev_width + next_width + sizer.offsetWidth;
 		total_percentage = total_width * 100 / parent_width;
 		prev_min = parseInt(getComputedStyle(prev_elt).minWidth, 10) || 40;
 		next_min = parseInt(getComputedStyle(next_elt).minWidth, 10) || 40;

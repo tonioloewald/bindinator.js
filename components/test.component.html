@@ -17,25 +17,42 @@
 	}
 
 	.test-report.test-show {
-		display: block;
+		display: flex;
+	}
+
+	.test-sizable {
+		flex-grow: 1;
+		min-width: 100px;
+	}
+
+	.test-transcript > p {
+		margin: 0;
+		padding: 2px;
 	}
 </style>
 <h3><label><input type="checkbox" data-bind="checked=_component_.show">Test Results</label></h3>
-<div class="test-report" data-bind="class(test-show)=_component_.show"></div>
+<div class="test-report" data-bind="class(test-show)=_component_.show">
+	<pre class="test-sizable" data-bind="text=_component_.source" style="overflow:hidden"></pre>
+	<div data-component="sizer"></div>
+	<div class="test-transcript test-sizable"></div>
+</div>
 <script>
 	/* global require, findOne, b8r, data, set */
 	'use strict';
+	
+	b8r.component('sizer', 'components/sizer');
 
-	const report_container = findOne('.test-report');
+	set({show: false});
 
 	const Test = require('lib/test.js');
-	Test.setReportContainer(report_container);
+	Test.onError = () => set({show: true});
+	Test.setReportContainer(findOne('.test-transcript'));
 	const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.getAttribute('data-component-id')}`); // jshint ignore:line
+
 	try {
 		test_runner.call(null, Test, b8r, data._required_);
 	} catch(e) {
+		set({show: true});
 		Test.report(`test runner threw exception: ${e}`, 'failure');
 	}
-
-	set({show: false});
 </script>

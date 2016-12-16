@@ -28,7 +28,7 @@
 		"path": "photos"
 	},
 	{
-		"name": "KeyboardEvent Code",
+		"name": "Keyboard Event Utility",
 		"path": "keycodes"
 	},
 	{
