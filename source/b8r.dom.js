@@ -1,21 +1,21 @@
 /**
 # DOM Methods
 
-  find(selector);                         // syntax sugar for querySelectorAll, returns proper array
-  findOne(selector);                      // syntax sugar for querySelector
-  findWithin(element, selector);          // find scoped within element
-  findWithin(element, selector, true);    // find scoped within element, including the element itself
-  findOneWithin(element, selector);       // findOne scoped within element
-  findOneWithin(element, selector, true); // findOne scoped within element, including the element itself
-  makeArray(arrayish);                    // creates a proper array from something array-like
-  succeeding(element, selector);          // next succeeding sibling matching selector
-  id(id_string);                          // => document.getElementById(id_string)
-  text(textContent)                       // => document.createTextNode(textContent)
-  fragment()                              // => document.createDocumentFragment();
-  create(type)                            // => document.createElement(type);
-  empty(element);                         // removes contents of element
-  copyChildren(source, dest);             // copies contents of source to dest
-  moveChildren(source, dest);             // moves contents of source to dest
+- find(selector);                         // syntax sugar for querySelectorAll, returns proper array
+- findOne(selector);                      // syntax sugar for querySelector
+- findWithin(element, selector);          // find scoped within element
+- findWithin(element, selector, true);    // find scoped within element, including the element itself
+- findOneWithin(element, selector);       // findOne scoped within element
+- findOneWithin(element, selector, true); // findOne scoped within element, including the element itself
+- makeArray(arrayish);                    // creates a proper array from something array-like
+- succeeding(element, selector);          // next succeeding sibling matching selector
+- id(id_string);                          // => document.getElementById(id_string)
+- text(textContent)                       // => document.createTextNode(textContent)
+- fragment()                              // => document.createDocumentFragment();
+- create(type)                            // => document.createElement(type);
+- empty(element);                         // removes contents of element
+- copyChildren(source, dest);             // copies contents of source to dest
+- moveChildren(source, dest);             // moves contents of source to dest
 */
 /* global module */
 'use strict';

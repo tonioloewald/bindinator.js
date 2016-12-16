@@ -30,13 +30,34 @@ const models = {};
 const noop = () => {};
 
 /**
-	b8r.register(name, obj);						// register an object by name as data or controller
-		// the names _component_ and _b8r_ are reserved; other similar namess may be reserved later
-		// binding to explicitly means you will only be bound to an explicit object
-		// _b8r_ is the name of the internal event handlers for bound variables
-	b8r.deregister(name);								// remove a registered object
-	b8r.setByPath(name, path, value);		// set a registered object's property by path
-	b8r.getByPath(name, path);					// get a registered object's property by path
+	b8r.register(name, obj);
+
+register an object by name as data or controller. 
+The names `_component_` and `_b8r_` are reserved; other similar namess may be reserved later.
+
+Binding to explicitly means you will only be bound to an explicit object
+`_b8r_` is the name of the internal event handlers for bound variables
+
+	b8r.deregister(name);
+
+Remove a registered object. deregister also removes component instance objects for components no longer in the DOM,
+(and it can also be called without any parameters)
+
+	b8r.setByPath(name, path, value);
+
+Set a registered object's property by path. Bound elements will automatically be updated.
+
+	b8r.getByPath(name, path);
+
+Get a registered object's property by path.
+
+	b8r.pushByPath(name, path, item);
+
+Insert an item into the specified array property. (Automatically updates bound lists).
+
+	b8r.removeListInstance(element);
+
+Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
 
 b8r.register = function (name, obj) {
@@ -154,28 +175,29 @@ b8r.getByPath = function (name, path) {
 	}
 };
 
-b8r.getInstancePath = function(element) {
-	const ref = element.closest('[data-list-instance]').getAttribute('data-list-instance');
-	const [model, ...pathParts] = ref.split('.');
-	return {model, path: pathParts.join('.')};
-};
-
-b8r.getInstance = function(element) {
-	const {model, path} = b8r.getInstancePath(element);
-	return b8r.getByPath(model, path);
-};
-
 b8r.listItems = element => b8r.makeArray(element.children)
                               .filter(elt => elt.matches('[data-list-instance]'));
 b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element);
 
 /**
-	b8r.on(element, event_type, model_name, method_name) // creates an implicit event-binding data attribute
-		// data-event="event_type:module_name.method_name"
-		// multiple handlers are semicolon-delimited
-		// you can bind multiple event types separated by commas, e.g. click,keyup:do.something
-		// NOTE if you link two event types to the same method separately they will NOT be collated
-		// TODO convenience event types, e.g. keyup(arrow) or keyup(meta-c,ctrl-y)
+	b8r.on(element, event_type, model_name, method_name);
+
+creates an implicit event-binding data attribute:
+	
+	data-event="event_type:module_name.method_name"
+
+Multiple handlers are semicolon-delimited.
+You can bind multiple event types separated by commas, e.g. click,keyup:do.something
+
+**Note**: if you link two event types to the same method separately they will NOT be collated.
+
+### Keyboard Events
+
+To make it easy to handle specific keystrokes, you can bind to keystrokes by name, e.g.
+
+	data-bind="keydown(meta-KeyS)"
+
+For your convenience, there's a *Keyboard Event Utility*.
 */
 function getEventHandlers(element) {
 	const source = element.getAttribute('data-event');
@@ -239,13 +261,19 @@ b8r.off = function(element, event_type, object, method) {
 };
 
 /**
-	### Special event handling
-	b8r.onAny(event_type, object, method) => handlerRef // creates an event handler that will get first access to any event
-		// returns a reference for purposes of removal
-	b8r.offAny(handlerRef,...) // removes all the handlerRefs passed
+### Special event handling
 
-	Note that this works *exactly* like an invisible element in front of everything else
-	for purposes of propagation.
+	b8r.onAny(event_type, object, method) => handlerRef
+
+creates an event handler that will get first access to any event; returns a reference for purposes of removal
+	
+	b8r.offAny(handlerRef,...)
+
+removes all the handlerRefs passed
+
+**Note** that this works *exactly* like an invisible element in front of everything else
+for purposes of propagation.
+
 */
 var anyElement = null;
 b8r.onAny = function(event_type, object, method) {
@@ -265,8 +293,15 @@ b8r.offAny = function (event_type, object, method) {
 };
 
 /*
- 	returns an array of parsed implicit event handlers for an element
- 	data-event="type1:model1.method1;type2,type3:model2.method2" is returned as
+
+	b8r.implicitEventHandlers(element)
+
+returns an array of parsed implicit event handlers for an element, e.g.
+
+ 	data-event="type1:model1.method1;type2,type3:model2.method2"
+
+is returned as
+
  	[
 		{ types: ["type1"], model: "model1", method: "method1"},
 		{ types: ["type2", "type3"], model: "model2", method: "method2"}
@@ -304,7 +339,10 @@ function implicitEventHandlers (element) {
 }
 
 /**
-	b8r.callMethod(model, method, evt);	// Call a method by name from a registered method
+	b8r.callMethod(model, method, evt);
+
+Call a method by name from a registered method. If the relevant model has not yet been registered
+(e.g. it's being loaded asynchronously) it will get the message when it's registered.
 */
 
 var saved_messages = []; // {model, method, evt}
@@ -346,7 +384,12 @@ b8r.callMethod = function () {
 };
 
 /**
-	b8r.trigger(type, target); // trigger a synthetic implicit (only!) event
+	b8r.trigger(type, target);
+
+Trigger a synthetic implicit (only!) event. Note that you can trigger and handle
+completely made-up events, but if you trigger events that occur naturally the goal
+is for them to be handled exactly as if they were "real".
+
 */
 b8r.trigger = function(type, target) {
 	if (typeof type !== 'string' || !(target instanceof HTMLElement)) {
@@ -362,18 +405,36 @@ b8r.trigger = function(type, target) {
 };
 
 /**
-	## Keystrokes
+## Keystrokes
 
-	b8r leverages the modern browser's event "code" to identify keystrokes,
-	and uses a normalized representation of modifier keys (in alphabetical)
-	order.
+b8r leverages the modern browser's event "code" to identify keystrokes,
+and uses a normalized representation of modifier keys (in alphabetical)
+order.
 
-	* __alt__ represents the alt or option keys
-	* __ctrl__ represents the control key
-	* __meta__ represents the windows, command, or meta keys
-	* __shift__ represents the shift keys
+	* **alt** represents the alt or option keys
+	* **ctrl** represents the control key
+	* **meta** represents the windows, command, or meta keys
+	* **shift** represents the shift keys
 
-	b8r.keystroke(event) // returns normalized keystroke representation
+To get a normalized representation of a keystroke, there's:
+
+	b8r.keystroke(event)
+
+```
+<label>
+	Type in here
+	<input style="width: 60px;" data-event="keydown:_component_.key">
+</label>
+
+<div data-bind="text=_component_.keystroke"></div>
+<script>
+	const key = evt => {
+		set('keystroke', b8r.keystroke(evt));
+		return true; // process keystroke normally
+	};
+	set ({key})
+</script>
+```
 */
 b8r.keystroke = function(evt) {
 	var code = [];
@@ -438,7 +499,9 @@ implicit_event_types.forEach(type => document.body.addEventListener(type, handle
 */
 
 /**
-	## data-bind
+## Data Binding
+
+Data biding is implemented via the data-bind and data-list attributes.
 */
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
@@ -618,12 +681,24 @@ const components = {};
 const component_timeouts = {};
 
 /**
-	b8r.component(name, url); // loads component from url
-	  // registers it as "name"
-	  // the extension .component.html is appended to url
-	  // component will automatically be inserted as expected once loaded
-	  // resolve will be passed the loaded component
-	b8r.component(url); // as per above, name is used as url
+	b8r.component(name, url);
+
+Loads component from url registers it as "name". (Components are registered separately from other objects.)
+Returns a promise of the component once loaded.
+
+	b8r.component('path/to/name');
+
+If just a url parameter is provided, the name of the component will be inferred.
+
+**Note**: the extension .component.html is appended to url
+
+Instances of the component will automatically be inserted as expected once loaded.
+
+**Also note**: you can usually avoid the pattern:
+
+	b8r.component(...).then(c => b8r.insertComponent(c, target))
+
+By simply binding the component to the target and letting nature take its course.
 */
 b8r.component = function (name, url) {
 	if (url === undefined) {
@@ -640,16 +715,6 @@ b8r.component = function (name, url) {
 		}
 	});
 };
-
-b8r.removeComponent = function(name) {
-	const component = components[name];
-	if (component) {
-		if(component.style) {
-			component.style.remove();
-		}
-		delete components[name];
-	}
-}
 
 b8r.makeComponent = function(name, source) {
 	var css = false, content, script = false, parts, remains;
@@ -698,9 +763,12 @@ b8r.makeComponent = function(name, source) {
 		clearInterval(component_timeouts[name]);
 	}
 	if (components[name]) {
+		// don't want to leak stylesheets
+		if (components[name].style) {
+			components[name].style.remove();
+		}
 		console.warn('component %s has been redefined', name);
 	}
-	b8r.removeComponent(name);
 	components[name] = component;
 	var targets = b8r.find('[data-component="' + name + '"]');
 	targets.forEach(element => b8r.insertComponent(component, element));
@@ -755,11 +823,17 @@ function loadAvailableComponents(element, data) {
 		}
 	});
 }
-
+bind
 /**
-	b8r.insertComponent(component, element, data);	// insert a component by name
-		// if no element is provided, the component will be appended to document.body
-		// data will be passed to the component's load method
+	b8r.insertComponent(component, element, data);
+
+insert a component by name or by passing a component record (e.g. promised by component() or produced by makeComponent)
+
+If no element is provided, the component will be appended to document.body
+
+Data will be passed to the component's load method and registered as the component's private instance data. (Usually
+data is passed automatically from parent components or via binding, e.g. `data-bind="component=path.to.data` binds that
+data to the component").
 */
 var component_count = 0;
 b8r.insertComponent = function (component, element, data) {
@@ -832,9 +906,6 @@ b8r.insertComponent = function (component, element, data) {
 	} else {
 		register(data);
 	}
-	// it would be nice to eliminate quasi-magical binding to .foo and
-	// replace it with concrete binding to _component_.foo, but will this
-	// break async nesting?
 	bindAll(element);
 	return element;
 };
