@@ -464,7 +464,7 @@ function parseBinding (binding) {
 		console.error('binding does not specify source', binding);
 	}
 	var [, model,, path] = source.match(/([^.;]*)(\.(.+))?/);
-	return {targets, model, path};
+	return {targets, model, path: path};
 }
 
 function getBindings (element) {
@@ -585,11 +585,12 @@ function bindList (element, data, basePath) {
 }
 
 function bindAll(element, data, basePath) {
-	// consider passing data and basePath here...
 	loadAvailableComponents(element, data);
 	findBindables(element).forEach(elt => bind(elt, data, basePath));
 	findLists(element).forEach(elt => bindList(elt, data, basePath));
-	b8r.trigger('change', element);
+	if(element.parentElement) {
+		b8r.trigger('change', element.parentElement);
+	}
 }
 
 b8r.bindAll = bindAll;

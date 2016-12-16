@@ -1,12 +1,14 @@
 /**
-  # DOM Methods
+# DOM Methods
 
 ```
 <h4>DOM Examples</h4>
 <ul>
-  <li data-list="_component_.results" data-bind="text=/"></li>
+  <li data-list="_component_.messages" data-bind="text=/"></li>
 </ul>
 <script>
+  const messages = [];
+  set({messages});
 </script>
 
 ```
