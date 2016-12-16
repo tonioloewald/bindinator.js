@@ -1,32 +1,94 @@
 // bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
-	# toTargets
+# toTargets
 
-	### flushing data to the DOM
+## Flushing data to the DOM
 
-	* value -- sets the element's value (works for input, select, textarea)
-	* checked -- toggles the element's checked based on truthiness of value
-	* text -- sets the element's textContent
-	* attr(some_attribute) -- sets the element's specified attribute
-	* style -- sets the element's specified style property
-	* style(camelcaseProperty) -- sets the specified style attribute
-	* style(camelcaseProperty,units) -- sets the specified style attribute, adding the units suffix (e.g. style(borderWidth,px)=.borderWidth)
-	* class(class_name) -- toggles the specified class based on the truthiness of value
-	* show_if -- shows the (otherwise hidden) element base on the truthiness of the value
-	* show_if(value) -- shows the (otherwise hidden) element for matching value
-	* method(model.method) -- calls the specified registered method, passing the element, valuem and the data object as parameters
-	* data(path.to.value) -- will set the component's instance data (or a path within it, if provided) to the value
-	* component_map(value:component|other_value:other_component|yet_another_component) -- loads and binds the first matching component
-	* json -- dumps the value stringified into the textContent of the element (mainly for debugging)
+The following targets (attributes of a DOM element) can be bound to object data:
 
-	### Comparison Values
+### value
 
-	Used for comparison to certain values in conditional toTargets
+	data-bind="value=message.text"
 
-	* \_true\_
-	* \_false\_
-	* \_undefined\_
-	* \_null\_
+This is the value of `<input>` and `<textarea>` elements.
+
+### checked
+
+	data-bind="checked=message.private"
+
+This is the checked proprity on `<input type="checked">` and `<input type="radio">` elements.
+
+### text
+
+	data-bind="text=message.sender.name"
+
+This is the textContent property of most standard elements.
+
+### attr()
+
+	data-bind="attr(alt)=image.name"
+
+This is the specified attribute. This can also be used to set "special" properties like id, class, and style.
+
+### style()
+
+	data-bind="style(color)=message.textColor"
+	data-bind="style(padding-left,px)=message.leftPad"
+
+This sets styles (via `element.style[stringValue]`) so be warned that hyphenated properties (in CSS) 
+become camelcase in Javascript (e.g. background-color is backgroundColor).
+
+The optional second parameter lets you specify units.
+
+### class()
+
+	data-bind="class(name)=message.truthyValue"
+
+This lets you toggle a class based on a bound property.
+
+### show_if, show_if(), hide_if, hide_if()
+
+	data-bind="hide_if(_undefined_)=message.priority"
+
+This shows (or hides) an element based on whether a bound value is truthy or matches 
+the provided parameter.
+
+### method()
+
+	data-bind="method(model.notify)=message.priority"
+
+Calls the specified method, passing it the bound value. The method will receive
+the element, value, and data source as parameters. (This means that methods registered
+as event handlers will need to deal with being passed a naked element instead of an event)
+
+### component()
+
+	data-bind="component=model.property"
+	data-bind="component(path.to.property)=model.property"
+
+This *sets* the component's private data, or the specified value in the 
+component's private data, *by path*.
+
+### component_map()
+
+	data-bind="component-map(value:component_name;other:value:other_name|default_component)=message.type"
+
+This allows a component to be bound dynamically based on a property.
+
+### json
+
+	data-bind="json=path.to.object"
+
+Dumps a nicely formatted stringified object in an element (for debugging purposes);
+
+## Comparison Values
+
+These terms are used for comparison to certain values in conditional toTargets.
+
+* \_true\_
+* \_false\_
+* \_undefined\_
+* \_null\_
 */
 /* jshint expr: true */
 /* global require, module, console */
@@ -119,12 +181,6 @@ return {
 	},
 	json: function(element, value) {
 		element.textContent = JSON.stringify(value, false, 2);
-	},
-	data: function(element, value, dest) {
-		const id = element.getAttribute('data-component-id');
-		if (id) {
-			b8r.setByPath(id, dest || '', value);
-		}
 	},
 	component: function(element, value, dest) {
 		const id = element.getAttribute('data-component-id');

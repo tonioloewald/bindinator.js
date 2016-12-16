@@ -1,15 +1,43 @@
 // bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
-	# Object Path Methods
-	
-	getByPath(obj, path) -- obtains a value inside an object by a path, e.g.
-	getByPath(obj, "foo.bar") is the equivalent of obj.foo.bar
-	if path is not set or is set to '/' then obj is returned.
+# Object Path Methods
 
-	setByPath(obj, path, value) -- sets a value inside an object by a path,
-	e.g. setByPath(obj, "foo.bar", 17) is the equivalent of obj.foo.bar = 17.
+  getByPath(obj, path)
 
-	Paths include support for array dereferencing: "foo.bar[2]" will work as expected.
+Obtains a value inside an object by a path, e.g.
+getByPath(obj, "foo.bar") is the equivalent of obj.foo.bar
+if path is not set or is set to '/' then obj is returned.
+
+  setByPath(obj, path, value)
+
+sets a value inside an object by a path,
+e.g. setByPath(obj, "foo.bar", 17) is the equivalent of obj.foo.bar = 17.
+
+Paths include support for array dereferencing: "foo.bar[2]" will work as expected.
+
+## id paths
+
+When dealing with objects of arrays, it is possible to reference elements
+by an id path and corresponding value rather than simple indices. This allows
+efficient updating of lists, e.g.
+
+```
+<p>Inspect the DOM to see what's going on!</p>
+<ul>
+  <li 
+    data-list="_component_.list:id"
+    data-bind="text=.name"
+  ></li>
+</ul>
+<script>
+  list = [
+    {id: 5, name: "Tom"},
+    {id: 75, name: 'Dick'},
+    {id: 12, name: 'Harry'}
+  ];
+  set({list});
+</script>
+```
 */
 /* global module, console */
 (function(module){

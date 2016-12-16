@@ -1,5 +1,11 @@
 /**
-  imgSrc(img, url) -- assign url to img src attribute and fade it in when loaded
+# imgSrc
+
+    imgSrc(img, url)
+
+Gracefully populates an `<img>` element's src attribute to a url,
+sets the element to `opacity: 0`, and then fads it in when the image
+is loaded.
 */
 
 module.exports = function imageSrc(img, url){

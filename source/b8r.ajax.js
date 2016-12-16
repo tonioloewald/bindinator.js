@@ -1,9 +1,11 @@
 /**
 # Ajax Methods
 
-- ajax(url, method, data).then(success, failure)
-- json(url, method, data).then(success, failure)
-- jsonp(url, method, data).then(success, failure)
+    b8r.ajax(url, method, request_data, config)
+    b8r.json(url, method, request_data, config)
+    b8r.jsonp(url, method, request_data, config)
+
+These methods generate promises of the specified response.
 */
 
 (function(module){

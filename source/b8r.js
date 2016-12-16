@@ -60,6 +60,8 @@ Insert an item into the specified array property. (Automatically updates bound l
 Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
 
+b8r.makeArray = arrayish => [].slice.apply(arrayish);
+
 b8r.register = function (name, obj) {
 	if (name.match(/^_[^_]*_$/)) {
 		throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved.";

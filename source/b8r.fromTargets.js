@@ -1,12 +1,24 @@
 // bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
-	# fromTargets
+# fromTargets
 
-	### collecting data from the DOM
+## collecting data from the DOM
 
-	* value -- pulls the element's value from the DOM
-	* checked -- pulls the element's checked value from the DOM
-	* text -- pulls the element's textContent from the DOM
+The following binding *targets* will automatically copy data from the DOM to bound objects
+when an input or change event fires on the bound element:
+
+### value
+
+The **value** of `<input>` and `<textarea>` elements
+
+### checked
+
+The **checked** of an `<input type="checkbox">` or `<input type="radio">` element.
+
+### text
+
+The **textContent** of a typical element (including div, span, and so forth). Note 
+that these elements will only get change events if you send them.
 */
 /* global module */
 'use strict';

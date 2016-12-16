@@ -1,13 +1,21 @@
 /**
 # DOM Methods
 
-- find(selector);                         // syntax sugar for querySelectorAll, returns proper array
-- findOne(selector);                      // syntax sugar for querySelector
-- findWithin(element, selector);          // find scoped within element
-- findWithin(element, selector, true);    // find scoped within element, including the element itself
-- findOneWithin(element, selector);       // findOne scoped within element
-- findOneWithin(element, selector, true); // findOne scoped within element, including the element itself
-- makeArray(arrayish);                    // creates a proper array from something array-like
+    find(selector);
+
+wrapper for document.querySelectorAll, returns true array
+
+    findOne(selector);
+
+syntax sugar for document.querySelector
+
+    findWithin(element, selector);
+
+wrapper for element.querySelectorAll, returns a true array
+
+    findOneWithin(element, selector);
+
+syntax sugar for element.querySelector
 - succeeding(element, selector);          // next succeeding sibling matching selector
 - id(id_string);                          // => document.getElementById(id_string)
 - text(textContent)                       // => document.createTextNode(textContent)
@@ -35,7 +43,6 @@ Object.assign(b8r, {
     return list;
   },
   findOneWithin: (element, selector, include_self) => include_self && element.matches(selector) ? element : element.querySelector(selector),
-  makeArray: arrayish => [].slice.apply(arrayish),
   succeeding: (element, selector) => {
     while(element.nextSibling && !element.nextElementSibling.matches(selector)){
       element = element.nextElementSibling;
