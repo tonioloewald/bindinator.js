@@ -1,0 +1,31 @@
+<style>
+	.test-report > * {
+		padding: 2px 0;
+		margin: 0;
+	}
+
+	.success {
+		background-color: #afa;
+	}
+
+	.failure {
+		background-color: #faa;
+	}
+</style>
+<h3>Test Results</h3>
+<div class="test-report"></div>
+<script>
+	/* global require, findOne, b8r, data, console */
+	'use strict';
+
+	const report_container = findOne('.test-report');
+
+	const Test = require('lib/test.js');
+	Test.setReportContainer(report_container);
+	const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.getAttribute('data-component-id')}`); // jshint ignore:line
+	try {
+		test_runner.call(null, Test, b8r, data._required_);
+	} catch(e) {
+		Test.report(`test runner threw exception: ${e}`, 'failure');
+	}
+</script>

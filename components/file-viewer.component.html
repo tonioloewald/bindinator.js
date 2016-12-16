@@ -2,24 +2,26 @@
 	bindinator.js Copyright (c) 2016 Tonio Loewald
 	This is a contentless component - in effect it routes to other components
 	based on the filename (or specified file_type)
+
+	Note that it could just as easily be implemented using a component_map binding
 -->
 <script>
 	switch (data.file_type || data.url.split('.').pop()) {
 		case 'md':
 		case 'markdown':
-			b8r.component('markdown-viewer', 'components/markdown-viewer').then(viewer => {
+			b8r.component('components/markdown-viewer').then(viewer => {
 				b8r.insertComponent(viewer, component, data);
 			});
 			break;
 
 		case 'text':
-			b8r.component('text-viewer', 'components/text-viewer').then(viewer => {
+			b8r.component('components/text-viewer').then(viewer => {
 				b8r.insertComponent(viewer, component, data);
 			});
 			break;
 
 		case 'js':
-			b8r.component('js-viewer', 'components/js-viewer').then(viewer => {
+			b8r.component('components/literate-js-viewer').then(viewer => {
 				b8r.insertComponent(viewer, component, data);
 			});
 			break;

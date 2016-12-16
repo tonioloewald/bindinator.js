@@ -445,6 +445,12 @@ const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 function parseBinding (binding) {
+	if(!binding.trim()) {
+		throw 'empty binding';
+	}
+	if(binding.indexOf('=') === -1) {
+		throw 'binding is missing = sign; probably need a source or target';
+	}
 	var [,targets, source] = binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
 	targets = targets.split(',').map(function(target){ 
 		var parts = target.match(/(\w+)(\(([^)]+)\))?/);

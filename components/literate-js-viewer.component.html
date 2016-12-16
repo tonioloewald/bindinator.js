@@ -1,0 +1,84 @@
+<div
+  data-list="_component_.parts"
+  data-bind="component_map(js:js-viewer|markdown:markdown-viewer|component:fiddle|test:test)=.type">
+  <div data-component="loading"></div>
+</div>
+<script>
+  /* global b8r, set, data, console, require */
+  'use strict';
+
+  b8r.component('components/loading');
+  b8r.component('components/js-viewer');
+  b8r.component('components/markdown-viewer');
+  b8r.component('components/fiddle');
+  b8r.component('components/test');
+
+  function process(complete_source) {
+    // const parts = [];
+    const pieces = complete_source.split('/**')
+                                   .map((text, idx) => {
+                                      return {
+                                        type: idx ? 'docs' : 'js', 
+                                        text
+                                      };
+                                    })
+                                   .filter(piece => piece.text);
+    const parts = [];
+    var factory = false, module = {};
+    try {
+      
+      console.log(data.url)
+      if(data.url.indexOf('b8r') === -1) {
+        debugger;
+        factory = new Function('module', 'require', complete_source + `\n//# sourceURL=${data.url}`); // jshint ignore:line
+        // factory = __d(data.url, complete_source);
+        factory(module, require);
+      } else {
+        module.exports = {};
+      }
+    } catch(e) {
+      console.error(data.url, 'threw error');
+    }
+    pieces.forEach(piece => {
+      if (piece.type === 'js') {
+        parts.push({type: 'js', source: piece.text});
+      } else {
+        var cutoff = piece.text.indexOf('*/');
+        if (cutoff < 0) {
+          console.error('no end of comment found');
+          throw 'no end of comment found';
+        }
+        var content = piece.text.substr(0, cutoff);
+        const source = piece.text.substr(cutoff + 2);
+        while(true) {
+          var before, example;
+          cutoff = content.search(/`{3,}|~{4,}/);
+          if (cutoff < 1) {
+            break;
+          }
+          if(content[cutoff] === '`') {
+            [, before, example, content] = content.match(/^([\s\S]*)`{3,}([\s\S]*)`{3,}([\s\S]*)$/);
+            parts.push({type: 'markdown', content: before});
+            parts.push({type: 'component', source: example});
+          } else {
+            [, before, example, content] = content.match(/^([\s\S]*)~{4,}([\s\S]*)~{4,}([\s\S]*)$/);
+            parts.push({type: 'markdown', content: before});
+            parts.push({type: 'test', source: example, complete_source, _required_: module.exports});
+          }
+        }
+        parts.push({type: 'markdown', content});
+        parts.push({type: 'js', source});
+      }
+    });
+    console.log(parts);
+    set({parts});
+  }
+
+  if(data.source) {
+    process(data.source);
+  } else if (data.url) {
+    b8r.component('loading', 'components/loading')
+      .then(() => b8r.ajax(data.url))
+      .then(source => process(source));
+  }
+</script>

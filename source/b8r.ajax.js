@@ -1,9 +1,9 @@
 /**
-  # Ajax Methods
+# Ajax Methods
 
-  ajax(url, method, data).then(success, failure)
-  json(url, method, data).then(success, failure)
-  jsonp(url, method, data).then(success, failure)
+- ajax(url, method, data).then(success, failure)
+- json(url, method, data).then(success, failure)
+- jsonp(url, method, data).then(success, failure)
 */
 
 (function(module){

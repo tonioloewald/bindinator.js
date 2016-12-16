@@ -1,6 +1,16 @@
 /**
   # DOM Methods
 
+```
+<h4>DOM Examples</h4>
+<ul>
+  <li data-list="_component_.results" data-bind="text=/"></li>
+</ul>
+<script>
+</script>
+
+```
+
   find(selector);                         // syntax sugar for querySelectorAll, returns proper array
   findOne(selector);                      // syntax sugar for querySelector
   findWithin(element, selector);          // find scoped within element

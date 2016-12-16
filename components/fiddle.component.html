@@ -43,7 +43,6 @@
 	<div class="container" style="padding: 4px; flex-grow: 1; width: 40%;"></div>
 </div>
 <script>
-
 	const code_elt = findOne('.code');
 	const container = findOne('.container');
 	var editor;
@@ -57,10 +56,16 @@
 	});
 
 	b8r.component('sizer', 'components/sizer');
-	b8r.component('hello', 'components/hello').then(hello => {
-		code_elt.textContent = hello._source.replace(/\t/g, '  ');
-		b8r.insertComponent(hello, container);
-	});
+
+	if(data.source) {
+		code_elt.textContent = data.source;
+		setTimeout(run);
+	} else {
+		b8r.component('hello', 'components/hello').then(hello => {
+			code_elt.textContent = hello._source.replace(/\t/g, '  ');
+			b8r.insertComponent(hello, container);
+		});
+	}
 
 	function indent(evt) {
 		if (editor) {

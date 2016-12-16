@@ -91,6 +91,8 @@
 		const b8r = require('source/b8r.js');
 		const Test = require('lib/test.js');
 		const {getByPath, setByPath} = require('source/b8r.byPath.js');
+
+		Test.setReportContainer(b8r.findOne('.report'));
 	/*
 		Test(() => 2).shouldBe(2);
 		Test(() => 2).shouldBe(1);
