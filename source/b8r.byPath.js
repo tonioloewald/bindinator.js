@@ -2,13 +2,13 @@
 # Object Path Methods
 Copyright © 2016 Tonio Loewald
 
-  getByPath(obj, path)
+    getByPath(obj, 'path.to.value')
 
 Obtains a value inside an object by a path, e.g.
 getByPath(obj, "foo.bar") is the equivalent of obj.foo.bar
 if path is not set or is set to '/' then obj is returned.
 
-  setByPath(obj, path, value)
+    setByPath(obj, 'path.to.value', new_value)
 
 sets a value inside an object by a path,
 e.g. setByPath(obj, "foo.bar", 17) is the equivalent of obj.foo.bar = 17.
@@ -29,6 +29,7 @@ efficient updating of lists, e.g.
     data-bind="text=.name"
   ></li>
 </ul>
+<input data-bind="value=_component_.list[id=12].name">
 <script>
   list = [
     {id: 5, name: "Tom"},
