@@ -73,9 +73,6 @@
 		}
 
 		const active_tab = which || 0;
-		if (active_tab === get('active_tab')) {
-			return;
-		}
 
 		set({active_tab});
 		get('tabs').forEach((tab, idx) => tab.active = active_tab === idx);

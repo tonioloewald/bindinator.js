@@ -1,5 +1,6 @@
 /**
 # Test Me!
+Copyright (c) 2016 Tonio Loewald
 
 This file exists for the sole purpose of testing the b8r *literate programming* component.
 */

@@ -1,5 +1,6 @@
 /**
 # Ajax Methods
+Copyright © 2016 Tonio Loewald
 
     b8r.ajax(url, method, request_data, config)
     b8r.json(url, method, request_data, config)

@@ -1,6 +1,6 @@
-// bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
 #bindinator
+Copyright © 2016 Tonio Loewald
 
 Binds your data and methods so you can concentrate on your actual goals.
 */

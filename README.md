@@ -125,3 +125,5 @@ Can simply set its own properties and method:
 ```
 
 (Or have them set by bound data, etc.)
+
+Copyright © 2016 Tonio Loewald

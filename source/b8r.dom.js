@@ -1,5 +1,6 @@
 /**
 # DOM Methods
+Copyright © 2016 Tonio Loewald
 
     b8r.find(selector);
 

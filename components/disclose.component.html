@@ -11,7 +11,7 @@
     height: 0;
     display: inline-block;
     border: 6px solid transparent;
-    border-left: 6px solid black;
+    border-left: 6px solid #57A700;
     transition: 0.25s ease-out;
     transform-origin: 15% 50%;
     transform: scaleY(0.8) translateX(50%);
@@ -29,8 +29,9 @@
     title="disclose"
   >
   <span>&nbsp;</span>
+  <span data-children></span>
 </label>
 <script>
   const triangle = findOne('.disclose > input+span');
-  triangle.style.borderColorLeft = data.color || 'black';
+  triangle.style.borderColorLeft = data.color || '#57A700';
 </script>

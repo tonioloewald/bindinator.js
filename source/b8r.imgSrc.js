@@ -1,5 +1,6 @@
 /**
 # imgSrc
+Copyright © 2016 Tonio Loewald
 
     imgSrc(img, url)
 

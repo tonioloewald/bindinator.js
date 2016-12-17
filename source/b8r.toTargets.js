@@ -1,6 +1,6 @@
-// bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
 # toTargets
+Copyright © 2016 Tonio Loewald
 
 ## Flushing data to the DOM
 
@@ -85,10 +85,10 @@ Dumps a nicely formatted stringified object in an element (for debugging purpose
 
 These terms are used for comparison to certain values in conditional toTargets.
 
-* \_true\_
-* \_false\_
-* \_undefined\_
-* \_null\_
+* `_true_`
+* `_false_`
+* `_undefined_`
+* `_null_`
 */
 /* jshint expr: true */
 /* global require, module, console */

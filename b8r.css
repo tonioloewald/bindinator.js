@@ -261,7 +261,12 @@ pre {
 	border-radius: 4px;
 }
 
-pre > code {
+code {
+	color: #57A700;
 	font-family: Menlo, Monaco, Monospace;
+}
+
+pre > code {
+	color: #444;
 }
 

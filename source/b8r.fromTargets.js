@@ -1,6 +1,6 @@
-// bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
 # fromTargets
+Copyright © 2016 Tonio Loewald
 
 ## collecting data from the DOM
 

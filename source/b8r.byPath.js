@@ -1,6 +1,6 @@
-// bindinator.js Copyright (c) 2016 Tonio Loewald
 /**
 # Object Path Methods
+Copyright © 2016 Tonio Loewald
 
   getByPath(obj, path)
 
