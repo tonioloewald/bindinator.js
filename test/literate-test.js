@@ -45,7 +45,9 @@ const {add} = _required_;
 
 Test(() => add(1,1)).shouldBe(2);
 Test(() => add(1,-1)).shouldBe(0);
-Test(() => add(1,1)).shouldBe(3); // fails!
+
+// Expect failure!
+Test(() => add(1,1)).shouldBe(3);
 ~~~~
 */
 

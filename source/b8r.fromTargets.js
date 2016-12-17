@@ -39,6 +39,11 @@ return {
 		var [model, ...method] = path.split('.');
 		method = method.join('.');
 		return b8r.getByPath(model, method)(element);
+	},
+	component: function(element, path) {
+		const component = element.closest('[data-component-id]');
+		const id = component.getAttribute('data-component-id');
+		return b8r.getByPath(id, path);
 	}
 };
 

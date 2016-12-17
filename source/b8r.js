@@ -463,7 +463,7 @@ function handleEvent (evt) {
 						(!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
 				) {
 					if( handler.model && handler.method ) {
-						result = b8r.callMethod(handler.model, handler.method, evt);
+						result = b8r.callMethod(handler.model, handler.method, evt, target);
 					} else {
 						console.error('incomplete event handler on', target);
 						break;
@@ -663,13 +663,13 @@ b8r.bindAll = bindAll;
 models._b8r_ = {
 	echo: evt => { console.log(evt); return true; },
 	stopEvent: () => {},
-	update: function(evt) {
-		var bindings = getBindings(evt.target);
+	update: function(evt, target) {
+		var bindings = getBindings(target);
 		for (var i = 0; i < bindings.length; i++) {
 			var {targets, model, path} = bindings[i];
 			targets = targets.filter(t => fromTargets[t.target]);
 			targets.forEach(t => {
-				b8r.setByPath(model, path, fromTargets[t.target](evt.target, t.key), evt.target);
+				b8r.setByPath(model, path, fromTargets[t.target](target, t.key), target);
 			});
 		}
 		return true;

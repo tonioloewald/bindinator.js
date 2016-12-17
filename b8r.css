@@ -254,6 +254,7 @@ fieldset {
 }
 
 pre {
+	font-family: Menlo, Monaco, Monospace;
 	padding: 4px 8px;
 	background-color: #dfd;
 	color: #444;

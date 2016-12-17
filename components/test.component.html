@@ -13,24 +13,40 @@
 	}
 
 	.test-report {
+		font-family: Menlo, Monaco, monospace;
+		font-size: 12px;
 		display: none;
 	}
 
 	.test-report.test-show {
 		display: flex;
+		animation: test-report-appear ease-out 0.5s;
+	}
+
+	@keyframes test-report-appear {
+		from {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
+		}
 	}
 
 	.test-sizable {
 		flex-grow: 1;
 		min-width: 100px;
+		width: 50%;
 	}
 
 	.test-transcript > p {
 		margin: 0;
-		padding: 2px;
 	}
 </style>
-<h3><label><input type="checkbox" data-bind="checked=_component_.show">Test Results</label></h3>
+<h3>
+	<span data-component="disclose" data-bind="component(disclosed)=_component_.show"></span>
+	Test Results
+</h3>
 <div class="test-report" data-bind="class(test-show)=_component_.show">
 	<pre class="test-sizable" data-bind="text=_component_.source" style="overflow:hidden"></pre>
 	<div data-component="sizer"></div>
@@ -39,8 +55,9 @@
 <script>
 	/* global require, findOne, b8r, data, set */
 	'use strict';
-	
-	b8r.component('sizer', 'components/sizer');
+
+	b8r.component('components/disclose');
+	b8r.component('components/sizer');
 
 	set({show: false});
 
