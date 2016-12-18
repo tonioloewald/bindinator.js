@@ -2,7 +2,7 @@
 
 ## Registered Objects
 
-Registered — **named** — objects are *the central idea* in b8r's architecture. A named object is anh object that is registered as having a specific **name**.
+Registered — **named** — objects are *the central idea* in b8r's architecture. A named object is an object that is registered as having a specific **name**.
 
 Registered objects are a kind of **observable**. But it's the name that's observed, not the object (i.e. you can start interacting with a registered object by name before the object itself is registered).
 
@@ -24,7 +24,7 @@ These references are intended to be exactly what a javascript programmer would e
 	b8r.getByPath('fib', '[3]') === 5;
 		// will be true
 
-Sometimes you'll need to simply tell b8r that something has changed (e.g. you might have completely rewritten a complex object, or not know exactly what was changed, or simply not want to bother figuring out what has changed in which case:
+Sometimes you'll need to simply tell b8r that something has changed (e.g. you might have completely rewritten a complex object, or not know exactly what was changed, or simply not want to bother figuring out what has changed), in which case:
 
 	b8r.touchByPath('bob', 'foo');
 		// tells b8r that the object registered as bob
@@ -38,7 +38,7 @@ Note that b8r tries to minimize DOM updates, but it doesn't maintain a "virtual 
 
 b8r places one event handler for each type of event it handles on the **document.body** element, and each of those handlers is **captured** (i.e. cascades up the DOM hierarchy).
 
-	need diagram showing hierarchy
+(TO DO need diagram showing hierarchy)
 
 When an event is received, b8r looks at the event's target (the first element that received the event) and looks for a data-event on that element and its ancestors. 
 
