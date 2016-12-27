@@ -4,13 +4,13 @@ b8r is a small javascript library that is designed to make working in vanilla ja
 
 ## Registered Objects
 
-Registered — **named** — objects are *the central idea* in b8r's architecture. A named object is an object that is registered as having a specific **name**.
+Registered — **named** — objects are *the central idea* in b8r's architecture.
 
-Registered objects are a kind of **observable**. But it's the name that's observed, not the object (i.e. you can start interacting with a registered object by name before the object itself is registered).
+Registered objects are a kind of **observable**. But it's the *name* that's observed, not the *object* (i.e. you can bind to a registered object *by name* before the object itself is registered). This means you can bind to data before it's loaded, and events can trigger methods belonging to controllers before they are loaded, parsed, etc.
 
 ### Path References
 
-b8r needs to know when things happen to registered objects (including their being registered in the first place). So, properties can be accessed (get and set) by **path** — where path is exactly what you'd expect:
+b8r needs to know when things happen to registered objects (including their being registered in the first place). So, properties can be accessed (get and set) by **path** — where path is exactly what you'd expect.
 
 	const obj = {foo: {bar: 'baz'}};
 	b8r.register('bob', obj);
@@ -33,6 +33,24 @@ Sometimes you'll need to simply tell b8r that something has changed (e.g. you mi
 		// has had the contents of foo changed
 
 > Note that b8r tries to minimize DOM updates, but it doesn't maintain a "virtual DOM" of any kind. (If it becomes a performance issue, b8r may one day maintain a look-up table of bound elements rather than query the DOM when performing updates, but so far this has not been needed.)
+
+### id paths
+
+There's one wrinkle on paths that goes beyond javascript programming norms, and that is id paths. Instead of binding by index (e.g. `foo.bar[17]`) you can bind by an **id path**, e.g. `foo.bar[user.id=12341234]`. This is essentially saying, "give me the item in the list foo.bar that has user.name equal to 'podperson'".
+
+Instead of binding a list by index (the default) which would look like this:
+
+	<li data-list="foo.bar:user.id">
+		<span data-bind="text=.user.name"></span>
+	</li>
+
+You can provide an id path:
+
+	<li data-list="foo.bar:user.id">
+		<span data-bind="text=.user.name"></span>
+	</li>
+
+Id paths allow lists to be updated more efficiently.
 
 ## Events
 
