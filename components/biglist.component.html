@@ -1,3 +1,10 @@
+<!--
+# biglist
+
+This implements support for arbitrarily large scrolling lists (of items that can be
+constant or variable row height). Only a minimal number of elements are in the DOM at
+any given time.
+-->
 <style>
 	.biglist-viewport {
 		overflow-y: scroll;
@@ -68,9 +75,7 @@
 <script>
 /*
 	TODO
-	- implement lists that are bottom-pinned
 	- handle items being added to the top/bottom of the list gracefully
-	- implement binding transparently -- so you can just data-bind="value=path.to.list"
 */
 
 /* global findOne, b8r, component, data, set */
