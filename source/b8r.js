@@ -203,7 +203,11 @@ For your convenience, there's a *Keyboard Event Utility*.
 */
 function getEventHandlers(element) {
 	const source = element.getAttribute('data-event');
-	const existing = source ? source.replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';') : [];
+	const existing = source ? 
+									 source.
+									 replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';').
+									 filter(handler => handler.trim()) : 
+									 [];
 	return existing;
 }
 
@@ -825,7 +829,7 @@ function loadAvailableComponents(element, data) {
 		}
 	});
 }
-bind
+
 /**
 	b8r.insertComponent(component, element, data);
 
