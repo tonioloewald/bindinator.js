@@ -32,7 +32,7 @@ Sometimes you'll need to simply tell b8r that something has changed (e.g. you mi
 		// tells b8r that the object registered as bob
 		// has had the contents of foo changed
 
-Note that b8r tries to minimize DOM updates, but it doesn't maintain a "virtual DOM" of any kind.
+> Note that b8r tries to minimize DOM updates, but it doesn't maintain a "virtual DOM" of any kind. (If it becomes a performance issue, b8r may one day maintain a look-up table of bound elements rather than query the DOM when performing updates, but so far this has not been needed.)
 
 ## Events
 
@@ -48,21 +48,30 @@ When an event is received, b8r looks at the event's target (the first element th
 
 Events are bound to methods of registered objects by path name, the binding in effect says "when the button receives mouseup_event, b8r.getByPath('model', 'method')(mouseup_event)".
 
-It's a little cleverer than that, see the note below.
+It's a little cleverer than that, see the note on *Asynchronous Event Binding* below.
 
-A **data-event** attribute may have multiple (semicolon-delimited) handlers in it, in which case they are examined from left-to-right. (You could even have two handlers for the same kind of event.)
+
+#### Multiple Event Handers
+
+	data-event="
+		mouseover:_component_.show_info;
+		mouseout:_component_.hide_info;
+		click,keydown(Space):_component_.action;
+	"
+
+A **data-event** attribute may have multiple (semicolon-delimited) handlers in it, in which case they are examined from left-to-right. (Just as with the native event handlers, you can have multiple event handlers for the same kind of event if you so desire; but unlike adding an event listener you can see what's going on in the DOM, and so won't chase your tail as much if this situation arises accidentally.)
 
 If b8r finds a suitable handler, it calls the method specified. 
 
 If the method does *not* return **true**, the event has been handled, otherwise b8r keeps walking up the DOM hierarchy until it reaches the topmost (body) element.
 
-#### Note: Asynchronous Event Binding
+> ####Asynchronous Event Binding
 
-When an event is bound to an object, callMethod is used:
+> When an event is bound to an object, callMethod is used:
 
-	b8r.callMethod('model', 'method', mouse_event);
+>		b8r.callMethod('model', 'method', mouse_event);
 
-And callMethod uses findByPath to check if model has been registered. If it has then it calls it on mouse_event. If it hasn't been registered, it records the message and plays it back (in order) *when the object is registered*.
+> And callMethod uses findByPath to check if model has been registered. If it has then it calls it on mouse_event. If it hasn't been registered, it records the message and plays it back (in order) *when the object is registered*.
 
 ### Any Event
 
@@ -325,8 +334,12 @@ A component can also be explicitly inserted into an element using:
 
 ### Components and Binding
 
-Elements in components can be bound to registered objects in the normal way, but there are a number of additional conveniences.
+A component's unique id is stored in its `data-component-id` attribute, which is the name under which its private data is registered.
 
-- The component's bound data object can be referred to in bindings as _component_. (This works for both data and event bindings, of course.)
+Elements in components can be bound to registered objects in the normal way, but there are a few extra conveniences.
+
+- The component's bound data object can be referred to in bindings as _component_. (This works for both data and event bindings, of course.) '_component_' will automatically be replaced with the component's id when the component is loaded.
 - A component will receive its parent's bound data if no specific data is provided to it.
 - Data can be explicitly bound to a component by using the **component** binding target (e.g. `data-bind="component=path.to.value"`)
+- Data can be passed to a component as (url-escaped) json via the `data-json` attribute.
+
