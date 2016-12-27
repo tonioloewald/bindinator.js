@@ -4,6 +4,10 @@
 		"path": "README.md"
 	},
 	{
+		"name": "Overview",
+		"path": "docs/overview.md"
+	},
+	{
 		"name": "License",
 		"path": "LICENSE.md"
 	},

@@ -2,7 +2,8 @@
 #bindinator
 Copyright © 2016 Tonio Loewald
 
-Binds your data and methods so you can concentrate on your actual goals.
+Binds data and methods to the DOM and lets you quickly turn chunks of markup, style, and code
+into reusable components so you can concentrate on your project.
 */
 /* jshint esnext:true, loopfunc:true */
 /* globals console, window, require, module */
