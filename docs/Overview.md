@@ -1,6 +1,6 @@
 # Bindinator Overview
 
-b8r is a small javascript library that is designed to make working in vanilla javascript, html, and css as easy and productive -- perhaps even easier and more productive -- than working with far more complex, bloated frameworks. As a bonus, the demo page and demo components provide the basis for integrating documentation, example, and tests with code ("literate programming").
+b8r is a small javascript library that is designed to make working in vanilla javascript, html, and css as easy and productive -- perhaps even easier and more productive -- than working with far more complex, bloated frameworks. As a bonus, the demo page and demo components provide the basis for integrating documentation, examples, and tests with code ("literate programming").
 
 ## Registered Objects
 
