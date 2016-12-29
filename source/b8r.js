@@ -136,6 +136,20 @@ b8r.pushByPath = function(name, path, value, callback) {
 	}
 };
 
+b8r.getComponentData = function(elt) {
+	const component = elt.closest('[data-component-id]');
+	return component ? b8r.getByPath(component.getAttribute('data-component-id')) : null;
+};
+
+b8r.getListInstance = function(elt) {
+	try {
+		const [,model,path] = elt.closest('[data-list-instance]').getAttribute('data-list-instance').match(/^([^\.]*)\.(.*)$/);
+		return b8r.getByPath(model, path);
+	} catch(e) {
+		return null;
+	}
+};
+
 b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
   if (elt) {
@@ -799,12 +813,7 @@ function dataForElement(target_element) {
 		return JSON.parse(json);
 	}
 
-	const parent_component = target_element.closest('[data-component-id]');
-	if (parent_component) {
-		return b8r.getByPath(parent_component.getAttribute('data-component-id'));
-	}
-
-	return {};
+	return b8r.getComponentData(target_element) || {};
 }
 
 function removeDataForElement(target_element) {
