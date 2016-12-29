@@ -107,9 +107,13 @@ const special_values = {
 
 function equals(value_to_match, value) {
 	if (typeof value === 'string') value = value.replace(/\&nbsp;/g, '').trim();
-	return special_values.hasOwnProperty(value_to_match) ? 
-				 value_to_match === special_values[value] :
-				 !!value;
+	if (special_values.hasOwnProperty(value_to_match)) {
+		return value === special_values[value_to_match];
+	} else if (value_to_match !== undefined) {
+		return value == value_to_match; 
+	} else {
+		return !!value;
+	}
 }
 
 return {
