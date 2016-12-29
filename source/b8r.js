@@ -136,20 +136,6 @@ b8r.pushByPath = function(name, path, value, callback) {
 	}
 };
 
-b8r.getComponentData = function(elt) {
-	const component = elt.closest('[data-component-id]');
-	return component ? b8r.getByPath(component.getAttribute('data-component-id')) : null;
-};
-
-b8r.getListInstance = function(elt) {
-	try {
-		const [,model,path] = elt.closest('[data-list-instance]').getAttribute('data-list-instance').match(/^([^\.]*)\.(.*)$/);
-		return b8r.getByPath(model, path);
-	} catch(e) {
-		return null;
-	}
-};
-
 b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
   if (elt) {
@@ -190,16 +176,51 @@ b8r.listItems = element => b8r.makeArray(element.children)
 b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element);
 
 /**
+### Finding Bound Data
+
+To quickly obtain bound data a component from an element inside it:
+
+		b8r.getComponentData(elt)
+
+To quickly obtain bound data a list instance from an element inside it:
+
+		b8r.getListInstance(elt)
+*/
+
+b8r.getComponentData = function(elt) {
+	const component = elt.closest('[data-component-id]');
+	return component ? b8r.getByPath(component.getAttribute('data-component-id')) : null;
+};
+
+b8r.getListInstance = function(elt) {
+	try {
+		const [,model,path] = elt.closest('[data-list-instance]').getAttribute('data-list-instance').match(/^([^\.]*)\.(.*)$/);
+		return b8r.getByPath(model, path);
+	} catch(e) {
+		return null;
+	}
+};
+
+/**
 	b8r.on(element, event_type, model_name, method_name);
 
 creates an implicit event-binding data attribute:
 	
 	data-event="event_type:module_name.method_name"
 
-Multiple handlers are semicolon-delimited.
-You can bind multiple event types separated by commas, e.g. click,keyup:do.something
+Multiple handlers are semicolon-delimited, e.g.
+	
+	data-event="mouseover:_component_.show;mouseover:_component_.hide"
+
+You can bind multiple event types separated by commas, e.g. 
+
+	data-event="click,keyup:do.something"
 
 **Note**: if you link two event types to the same method separately they will NOT be collated.
+
+You can remove an implicit event binding using:
+
+	b8r.off(element, event_type, model_name, method_name);
 
 ### Keyboard Events
 
