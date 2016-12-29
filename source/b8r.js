@@ -71,12 +71,7 @@ b8r.register = function (name, obj) {
 	if (b8r.getByPath(models[name], 'add')) {
 		models[name].add();
 	}
-	b8r.find('[data-list*="' + name + '"]').forEach(elt => {
-		bindList(elt);
-	});
-	b8r.find('[data-bind*="' + name + '"]').forEach(elt => {
-		bind(elt);
-	});
+	b8r.touchByPath(name);
 	playSavedMessages(name);
 };
 
@@ -104,17 +99,15 @@ b8r.deregister = function (name) {
 };
 
 b8r.touchByPath = function(name, path, source_element) {
-	if (!path || path === '/') {
-		path = '';
-	}
-	const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + name + '.' + path + '"]'));
+	const full_path = !path || path === '/' ? name : name + '.' + path;
+	const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + full_path + '"]'));
 	lists.forEach(element => {
 		if(element !== source_element){
 			bindList(element);
 			b8r.trigger('change', element);
 		}
 	});
-	const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + name + '.' + path + '"]'));
+	const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'));
 	elements.forEach(element => element !== source_element && bind(element));
 };
 
