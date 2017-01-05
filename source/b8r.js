@@ -52,7 +52,11 @@ Set a registered object's property by path. Bound elements will automatically be
 
 Get a registered object's property by path.
 
-	b8r.pushByPath(name, path, item);
+	b8r.pushByPath(name, path, item, callback);
+
+As above, but unshift (and no callback).
+
+	b8r.unshiftByPath(name, path, item);
 
 Insert an item into the specified array property. (Automatically updates bound lists).
 
@@ -136,12 +140,20 @@ b8r.pushByPath = function(name, path, value, callback) {
 	}
 };
 
+b8r.unshiftByPath = function(name, path, value) {
+	if (models[name]) {
+		const list = getByPath(models[name], path);
+		list.unshift(value);
+		b8r.touchByPath(name, path);
+	}
+};
+
 b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
   if (elt) {
 	  const ref = elt.getAttribute('data-list-instance');
 	  try {
-		  const [,model,path,key] = ref.match(/^([^.]+)\.(.+)\[(\d+)\]$/);
+		  const [,model,path,key] = ref.match(/^([^.]+)\.(.+)\[([^\]]+)\]$/);
 		  b8r.removeByPath(model, path, key);
 	  } catch(e) {
 	  	console.error('cannot find list item for instance', ref);
@@ -151,17 +163,24 @@ b8r.removeListInstance = function(elt) {
   }
 };
 
+function indexFromKey (list, key) {
+	if (typeof key === 'number') {
+		return key;
+	}
+	const [id_path, value] = key.split('=');
+	return list.findIndex(elt => getByPath(elt, id_path) == value);
+}
+
 b8r.removeByPath = function(name, path, key) {
 	if (models[name]) {
 		const list = getByPath(models[name], path);
-		if (list && list[key]) {
-			if (Array.isArray(list)) {
-				list.splice(key, 1);
-			} else {
-				delete list[key];
-			}
-			b8r.touchByPath(name, path);
+		const index = indexFromKey(list, key);
+		if (Array.isArray(list) && index > -1) {
+			list.splice(index, 1);
+		} else {
+			delete list[key];
 		}
+		b8r.touchByPath(name, path);
 	}
 };
 
@@ -566,7 +585,7 @@ function parseBinding (binding) {
 }
 
 function getBindings (element) {
-	return element.getAttribute('data-bind').split(';').filter(s => !!s).map(parseBinding);
+	return element.getAttribute('data-bind').split(';').filter(s => !!s.trim()).map(parseBinding);
 }
 
 function buildTargets (binding) {
