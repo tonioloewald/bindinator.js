@@ -152,6 +152,15 @@ input, textarea, [contenteditable="true"] {
 	color: black;
 	border: 1px solid rgba(0,0,0,0.1);
 	outline: none;
+}
+
+
+select, .select {
+	vertical-align: top;
+}
+
+button, .button,
+input, textarea, [contenteditable="true"] {
 	vertical-align: baseline;
 }
 
@@ -162,6 +171,7 @@ input, textarea {
 
 textarea {
 	vertical-align: bottom;
+	resize: none;
 }
 
 input[type=range] {

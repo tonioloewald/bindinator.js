@@ -628,7 +628,7 @@ function bind (element, data, basePath) {
 				toTargets[t.target](element, value, t.key, obj);
 			});
 		} else {
-			// save message for when source is registered
+			// TODO save message for when source is registered
 		}
 		if (_fromTargets.length) {
 			b8r.on(element, ['change', 'input'], '_b8r_', 'update', true);
@@ -674,16 +674,10 @@ function bindList (element, data, basePath) {
 	if (!list) {
 		return;
 	}
-	while(
-		element.previousSibling &&
-		(
-			!element.previousSibling.matches ||
-			element.previousSibling.matches('[data-list-instance]')
-		)
-	) {
-		element.parentElement.removeChild(element.previousSibling);
-	}
 	b8r.show(element);
+	// efficient list update:
+	// we walk the list, moving existing bound list instances into the fragment
+	// and creating new clones as needed
 	const fragment = b8r.fragment();
 	for (var i = 0; i < list.length; i++) {
 		var instance;
@@ -694,9 +688,24 @@ function bindList (element, data, basePath) {
 			instance = element.cloneNode(true);
 			instance.removeAttribute('data-list');
 			instance.setAttribute('data-list-instance', itemPath);
+			bindAll(instance, list[i], itemPath);
+		} else {
+			(function(){
+				const [model, path] = itemPath.match(/^([^.]+)[\.\[](.+)\]?$/);
+				b8r.touchByPath(model, path);
+			}());
 		}
-		bindAll(instance, list[i], itemPath);
 		fragment.appendChild(instance);
+	}
+	// anything still there is no longer in the list and can be removed
+	while(
+		element.previousSibling &&
+		(
+			!element.previousSibling.matches ||
+			element.previousSibling.matches('[data-list-instance]')
+		)
+	) {
+		element.parentElement.removeChild(element.previousSibling);
 	}
 	b8r.hide(element);
 	element.parentElement.insertBefore(fragment, element);
@@ -722,7 +731,7 @@ models._b8r_ = {
 			var {targets, model, path} = bindings[i];
 			targets = targets.filter(t => fromTargets[t.target]);
 			targets.forEach(t => {
-				b8r.setByPath(model, path, fromTargets[t.target](target, t.key), target);
+				b8r.setByPath(model, path, fromTargets[t.target](target, t.key), target);	
 			});
 		}
 		return true;
