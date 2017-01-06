@@ -1,6 +1,6 @@
 # b8r — require.js
 
-I didn't set out to write my own commonjs implementation, but when I tried to pick on off the shelf it just seemed like too much work to decide and "how hard can it be?" It's not like a production website delivers requirejs to the end user anyway, right?
+I didn't set out to write my own commonjs implementation, but when I tried to pick one off the shelf it just seemed like too much work to decide and "how hard can it be?" It's not like a production website delivers requirejs to the end user anyway, right?
 
 	<script="lib/require.js"></script>
 	<script>
@@ -37,3 +37,5 @@ So now if you require('lib/foo.js') and foo.js needs bar.js inside lib, you can 
 Also **require.lazy** is there mainly for pulling in stuff from outside sources. (I should probably rename it require.async or require.promise, I guess.)
 
 Internally, require implements define in just the way you'd want if you were going to compile a bunch of javascript files into a single file for efficiency, so one day I might have another bout of Not Invented Here and do that.
+
+Copyright ©2016-2017 Tonio Loewald

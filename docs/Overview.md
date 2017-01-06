@@ -361,3 +361,4 @@ Elements in components can be bound to registered objects in the normal way, but
 - Data can be explicitly bound to a component by using the **component** binding target (e.g. `data-bind="component=path.to.value"`)
 - Data can be passed to a component as (url-escaped) json via the `data-json` attribute.
 
+Copyright ©2016-2017 Tonio Loewald

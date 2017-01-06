@@ -32,3 +32,4 @@ So its parameter type is something like
 
 (Where ? connotes an optional parameter.)
 
+Copyright ©2016-2017 Tonio Loewald
