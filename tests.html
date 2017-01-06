@@ -151,13 +151,6 @@
 		Test(() => b8r.id('a').style.color).shouldBe('red');
 		Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
 
-		// computed properties
-		Test(() => b8r.id('computed').value).shouldBe('');
-		b8r.id('computed').value = 'hello';
-		b8r.trigger('change', b8r.id('computed'));
-		Test(() => _private._is_computed).shouldBe('hello');
-		Test(() => b8r.id('computed').nextElementSibling.textContent).shouldBe('hello');
-
 		b8r.register('test2', {color: 'green'});
 		Test(() => b8r.id('b').style.color).shouldBe('green');
 

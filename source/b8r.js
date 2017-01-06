@@ -621,9 +621,6 @@ function bind (element, data, basePath) {
 		var {targets, model, path} = bindings[i];
 		var obj = data || models[model];
 		var value = getByPath(obj, path);
-		if (typeof value === 'function') {
-			value = value(element, obj, path);
-		}
 		var _toTargets = targets.filter(t => toTargets[t.target]);
 		var _fromTargets = targets.filter(t => fromTargets[t.target]);
 		if (obj && _toTargets.length) {
@@ -725,13 +722,7 @@ models._b8r_ = {
 			var {targets, model, path} = bindings[i];
 			targets = targets.filter(t => fromTargets[t.target]);
 			targets.forEach(t => {
-				const existing = b8r.getByPath(model, path);
-				if(typeof existing === 'function') {
-					existing(target, models[model], path, t.target, t.key);
-					b8r.touchByPath(model, path);
-				} else {
-					b8r.setByPath(model, path, fromTargets[t.target](target, t.key), target);	
-				}
+				b8r.setByPath(model, path, fromTargets[t.target](target, t.key), target);
 			});
 		}
 		return true;
