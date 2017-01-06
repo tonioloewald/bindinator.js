@@ -45,7 +45,6 @@
 			<span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
 			<input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
 			<input id="f" data-bind="value=test1.sub.list[2]">
-			<input id="computed" data-bind="value=test1.computed"> <span data-bind="text=test1.computed"></span>
 		</div>
 		<div>
 			<select data-bind="value=test1.option">
@@ -98,7 +97,6 @@
 		Test(() => 2).shouldBe(2);
 		Test(() => 2).shouldBe(1);
 	*/
-		var _private = {};
 		var obj = {
 			base: 17,
 			sub: {
@@ -109,13 +107,6 @@
 				{x: 10, y: 11},
 				{x: 12, y: 13},
 			],
-			computed: (elt, model, path, target) => {
-				if(target) {
-					_private._is_computed = elt.value;
-				} else {
-					return _private._is_computed || '';
-				}
-			},
 			color: 'red',
 			type: 'range',
 			nested_list: [
