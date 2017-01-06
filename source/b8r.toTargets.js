@@ -1,6 +1,6 @@
 /**
 # toTargets
-Copyright © 2016 Tonio Loewald
+Copyright ©2016-2017 Tonio Loewald
 
 ## Flushing data to the DOM
 

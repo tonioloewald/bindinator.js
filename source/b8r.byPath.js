@@ -1,6 +1,6 @@
 /**
 # Object Path Methods
-Copyright © 2016 Tonio Loewald
+Copyright ©2016-2017 Tonio Loewald
 
     getByPath(obj, 'path.to.value')
 

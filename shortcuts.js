@@ -1,4 +1,4 @@
-// bindinator.js Copyright (c) 2016 Tonio Loewald
+// bindinator.js Copyright ©2016-2017 Tonio Loewald
 /**
 	Shortcuts allows shortcut or accelerator keytrokes to be assigned to any control
 

@@ -1,6 +1,6 @@
 /**
 # fromTargets
-Copyright © 2016 Tonio Loewald
+Copyright ©2016-2017 Tonio Loewald
 
 ## collecting data from the DOM
 
