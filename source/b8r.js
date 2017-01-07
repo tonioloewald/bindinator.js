@@ -607,11 +607,12 @@ function addBasePathToBindings(element, bindings, basePath) {
 }
 
 function findBindables (element) {
-	return b8r.findWithin(element, '[data-bind]', true)
-			  .filter(elt => {
-			  	var list = elt.closest('[data-list],[data-list-instance]');
-			  	return !list || list === element || !element.contains(list);
-			  });
+	return b8r.
+		findWithin(element, '[data-bind]', true).
+		filter(elt => {
+	  	var list = elt.closest('[data-list],[data-list-instance]');
+	  	return !list || list === element || !element.contains(list);
+	  });
 }
 
 function bind (element, data, basePath) {
@@ -659,6 +660,18 @@ b8r.show = function (element) {
 	}
 };
 
+function removeListInstances(element) {
+	while(
+		element.previousSibling &&
+		(
+			!element.previousSibling.matches ||
+			element.previousSibling.matches('[data-list-instance]')
+		)
+	) {
+		element.parentElement.removeChild(element.previousSibling);
+	}
+}
+
 function bindList (element, data, basePath) {
 	const [list_path, id_path] = element.getAttribute('data-list').split(':');
 	var model, path;
@@ -675,6 +688,9 @@ function bindList (element, data, basePath) {
 		return;
 	}
 	b8r.show(element);
+	if(!id_path) {
+		removeListInstances(element);
+	}
 	// efficient list update:
 	// we walk the list, moving existing bound list instances into the fragment
 	// and creating new clones as needed
@@ -698,14 +714,8 @@ function bindList (element, data, basePath) {
 		fragment.appendChild(instance);
 	}
 	// anything still there is no longer in the list and can be removed
-	while(
-		element.previousSibling &&
-		(
-			!element.previousSibling.matches ||
-			element.previousSibling.matches('[data-list-instance]')
-		)
-	) {
-		element.parentElement.removeChild(element.previousSibling);
+	if (id_path) {
+		removeListInstances(element);
 	}
 	b8r.hide(element);
 	element.parentElement.insertBefore(fragment, element);
@@ -927,7 +937,7 @@ b8r.insertComponent = function (component, element, data) {
 			['data-bind', 'data-list', 'data-event'].forEach(attr => {
 				const val = elt.getAttribute(attr);
 				if(val) {
-					elt.setAttribute(attr, val.replace(/_component_|_component_/g, component_id));
+					elt.setAttribute(attr, val.replace(/_component_/g, component_id));
 				}
 			});
 		});
