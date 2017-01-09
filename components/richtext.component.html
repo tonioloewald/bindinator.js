@@ -1,0 +1,157 @@
+<style>
+	.richtext {
+		overlow-y: overlay;
+		height: 600px;
+		border: 0;
+		padding: 8px;
+		background-color: #f8f8f8;
+	}
+	.richtext:focus {
+		box-shadow: none;
+	}
+</style>
+<ul data-component="menubar">
+	<li>
+		File
+		<ul>
+			<li>
+				<a data-shortcut="ctrl-KeyN" data-event="menuclick:_component_.new_doc">New</a>
+			</li>
+			<li>
+				<a data-shortcut="ctrl-KeyO" data-event="menuclick:_component_.open">Open…</a>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Edit
+		<ul>
+			<li>
+				<a data-shortcut="meta-KeyZ" data-event="menuclick:_component_.exec" data-command="undo">Undo</a>
+			</li>
+			<li>
+				<a data-shortcut="meta-shift-KeyZ" data-event="menuclick:_component_.exec" data-command="redo">Redo</a>
+			</li>
+			<li class="separator"></li>
+			<li>
+				<a data-shortcut="meta-X" data-event="menuclick:_component_.exec" data-command="cut">Cut</a>
+			</li>
+			<li>
+				<a data-shortcut="meta-C" data-event="menuclick:_component_.exec" data-command="copy">Copy</a>
+			</li>
+			<li>
+				<a data-shortcut="meta-V" data-event="menuclick:_component_.exec" data-command="paste">Paste</a>
+			</li>
+			<li class="separator"></li>
+			<li>
+				<a data-shortcut="meta-A" data-event="menuclick:_component_.exec" data-command="selectAll">Select All</a>
+			</li>
+		</ul>
+	</li>
+	<li>
+		Format
+		<ul>
+			<li>
+				<span>Paragraph</span>
+				<ul>
+					<li>
+						<a data-shortcut="meta-Digit1" data-event="menuclick:_component_.exec" data-command="formatBlock,h1">
+							<b>Major Heading</b>
+						</a>
+					</li>
+					<li>
+						<a data-shortcut="meta-Digit2" data-event="menuclick:_component_.exec" data-command="formatBlock,h2">
+							<b>Heading</b>
+						</a>
+					</li>
+					<li>
+						<a data-shortcut="meta-Digit3" data-event="menuclick:_component_.exec" data-command="formatBlock,h3">
+							<b>Subheading</b>
+						</a>
+					</li>
+					<li class="separator"></li>
+					<li>
+						<a data-shortcut="meta-BracketRight" data-event="menuclick:_component_.exec" data-command="indent">
+							<span style="padding: 0 12px">Indent</span>
+						</a>
+					</li>
+					<li>
+						<a data-shortcut="meta-BracketLeft" data-event="menuclick:_component_.exec" data-command="outdent">
+							<span">Outdent</span>
+						</a>
+					</li>
+					<li>
+						<a data-shortcut="meta-Digit0" data-event="menuclick:_component_.exec" data-command="formatBlock,p">
+							Body
+						</a>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<span>Character</span>
+				<ul>
+					<li>
+						<a data-shortcut="meta-KeyB" data-event="menuclick:_component_.exec" data-command="bold">
+							<b>Bold</b>
+						</a>
+					</li>
+					<li>
+						<a data-shortcut="meta-KeyI" data-event="menuclick:_component_.exec" data-command="italic">
+							<i>Italic</i>
+						</a>
+					</li>
+					<li>
+						<a data-shortcut="meta-KeyU" data-event="menuclick:_component_.exec" data-command="underline">
+							<u>Underline</u>
+						</a>
+					</li>
+					<li>
+						<a data-event="menuclick:_component_.exec" data-command="strikeThrough">
+							<del>Strikethrough</del>
+						</a>
+					</li>
+					<li class="separator"></li>
+					<li>
+						<a data-shortcut="meta-KeyP" data-event="menuclick:_component_.exec" data-command="removeFormat">
+							<span>Plain</span>
+						</a>
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+</ul>
+<div data-component="toolbar">
+	<button data-event="click:_component_.exec" data-command="justifyLeft"><span class="icon-paragraph-left3"></span></button>
+	<button data-event="click:_component_.exec" data-command="justifyCenter"><span class="icon-paragraph-center3"></span></button>
+	<button data-event="click:_component_.exec" data-command="justifyRight"><span class="icon-paragraph-right3"></span></button>
+	<hr class="fixed">
+	<button data-event="click:_component_.exec" data-command="removeFormat">P</button>
+	<button data-event="click:_component_.exec" data-command="bold"><span class="icon-bold2"></span></button>
+	<button data-event="click:_component_.exec" data-command="italic"><span class="icon-italic2"></span></button>
+	<hr class="fixed">
+	<button data-event="click:_component_.exec" data-command="insertUnorderedList"><span class="icon-list2"></span></button>
+	<button data-event="click:_component_.exec" data-command="insertOrderedList"><span class="icon-list-numbered"></span></button>
+	<hr>
+	<button data-event="click:_component_.exec" data-command="undo"><span class="icon-undo"></span></button>
+	<button data-event="click:_component_.exec" data-command="redo"><span class="icon-redo"></span></button>
+</div>
+<div class="richtext" contenteditable="true" spellcheck="true" data-children>
+<h1>Test</h1>
+<p>This is a test</p>
+</div>
+<script>
+	b8r.component('components/menubar');
+	b8r.component('components/toolbar');
+
+	const doc = findOne('.richtext');
+	const new_doc = () => doc.innerHTML = '';
+	const open = () => {};
+	const exec = evt => {
+		doc.focus();
+		const args = evt.target.closest('[data-command]').getAttribute('data-command').split(',');
+		document.execCommand(args[0], false, args[1]);
+	}
+
+
+	set({new_doc, open, exec});
+</script>

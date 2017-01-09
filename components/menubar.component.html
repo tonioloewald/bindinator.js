@@ -6,7 +6,7 @@
 		list-style: none;
 		margin: 0;
 		padding: 0 4px;
-		border-bottom: 1px solid rgba(0,0,0,0.25);
+		border-bottom: 1px solid rgba(0,0,0,0.1);
 		box-sizing: border-box;
 	}
 
@@ -91,10 +91,15 @@
 	b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open');
 	b8r.on(component, ['blur', 'keydown(Escape)'], 'menubar', 'close');
 
+	const specialKeys = {
+		BracketLeft: '[',
+		BracketRight: ']',
+	}
+
 	const add_shortcut_span = elt => {
 		var caption = elt.getAttribute('data-shortcut').split('-');
 		caption.forEach((s, i) => {
-			caption[i] = b8r.modifierKeys[s] || s.replace(/Key|Digit/, '');
+			caption[i] = b8r.modifierKeys[s] || specialKeys[s] || s.replace(/Key|Digit/, '');
 		});
 		caption = caption.join('');
 		const span = b8r.create('span');

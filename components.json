@@ -20,6 +20,10 @@
 		"path": "photo-tabs"
 	},
 	{
+		"name": "Rich Text",
+		"path": "richtext"
+	},
+	{
 		"name": "Tab Selector",
 		"path": "tab-selector"
 	},
