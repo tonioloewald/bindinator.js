@@ -62,7 +62,7 @@ Object.assign(b8r, {
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
     var list = b8r.makeArray(element.querySelectorAll(selector));
-    if (include_self && element.matches('[data-bind]')) {
+    if (include_self && element.matches(selector)) {
       list.unshift(element);
     }
     return list;

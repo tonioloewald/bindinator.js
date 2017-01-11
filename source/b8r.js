@@ -882,8 +882,8 @@ function removeDataForElement(target_element) {
 }
 
 function loadAvailableComponents(element, data) {
-	b8r.findWithin(element || document.body, '[data-component]').forEach(target => {
-		if (!target.matches('[data-component-id]')) {
+	b8r.findWithin(element || document.body, '[data-component]', true).forEach(target => {
+		if (!target.matches('[data-component-id]') && !target.closest('[data-list]')) {
 			var name = target.getAttribute('data-component');
 			b8r.insertComponent(name, target, data);
 		}
