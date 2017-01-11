@@ -10,11 +10,11 @@ document.querySelectorAll(selector) converted to a true array
 
 document.querySelector(selector)
 
-    b8r.findWithin(element, selector);
+    b8r.findWithin(element, selector, include_self);
 
 element.querySelectorAll(selector) converted to a true array
 
-    b8r.findOneWithin(element, selector);
+    b8r.findOneWithin(element, selector, include_self);
 
 element.querySelector(selector)
 
@@ -75,7 +75,7 @@ Object.assign(b8r, {
     return element.nextElementSibling;
   },
   findAbove: (elt, selector, until_elt) => {
-    var current_elt = elt.parentElement;
+  var current_elt = elt.parentElement;
     var found = [];
     while(current_elt) {
       if (current_elt === document.body) {

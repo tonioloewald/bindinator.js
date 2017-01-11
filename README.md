@@ -45,13 +45,13 @@ Bindomatic lets you compose and reuse views as "components", where each componen
 **Data bindings** are simply DOM attributes:
 
 ```
-	<input data-bind="value=foo.bar">
+<input data-bind="value=foo.bar">
 ```
 
 The input field will receive the property "bar" of whatever object is registered as "foo" (when it is registered), like this:
 
 ```
-	b8r.register('foo', {bar: 'hello world'});
+b8r.register('foo', {bar: 'hello world'});
 ```
 
 Registering an object with a name causes it to be treated like a model, and bound (both ways) automatically.
@@ -59,13 +59,13 @@ Registering an object with a name causes it to be treated like a model, and boun
 **Event bindings** are just as straightforward:
 
 ```
-	<button event-bind="click:some.action">Click</button>
+<button event-bind="click:some.action">Click</button>
 ```
 
 When the button is clicked the "action" method of whatever object is registered as "some" will be called, like this:
 
 ```
-	b8r.register('some', {action: () => alert('hello world')});
+b8r.register('some', {action: () => alert('hello world')});
 ```
 
 Registering an object with a name causes it to be treated like a controller as well. If an event occurs before the 
@@ -74,8 +74,8 @@ relevant controller is bound, the event will be replayed (in order) for the cont
 **Multiple bindings** can be separated by semicolons, e.g.
 
 ```
-	<input data-bind="value=foo.bar;enabled_if(_true_)=privileges.edit">
-	<input type="range" data-event="input=slider.live_preview;change=slider.update">
+<input data-bind="value=foo.bar;enabled_if(_true_)=privileges.edit">
+<input type="range" data-event="input=slider.live_preview;change=slider.update">
 ```
 
 **Multiple targets or event types** can be separated by commas, e.g.
@@ -88,19 +88,19 @@ relevant controller is bound, the event will be replayed (in order) for the cont
 **Components** are just like web pages:
 
 ```
-	<style>
-		/* style rules */
-	</style>
-	<button data-event="mouseup:_component_.count">Hello World</button>
-	<span></span>
-	<script>
-		var times_clicked = 0;
-		function count(){
-			times_clicked += 1;
-			findOne('span').textContent = times_clicked;
-		}
-		return {count};
-	</script>
+<style>
+	/* style rules */
+</style>
+<button data-event="mouseup:_component_.count">Hello World</button>
+<span></span>
+<script>
+	var times_clicked = 0;
+	function count(){
+		times_clicked += 1;
+		findOne('span').textContent = times_clicked;
+	}
+	return {count};
+</script>
 ```
 
 The component's script executes in a private scope, so each instance will count its own clicks.
@@ -108,7 +108,7 @@ The component's script executes in a private scope, so each instance will count 
 **Components are embedded** using attributes as well:
 
 ```
-	<div data-component="click-counter"></div>
+<div data-component="click-counter"></div>
 ```
 
 When a component is loaded as "click-counter" it will automatically populate appropriately attributed divs.
@@ -116,30 +116,30 @@ When a component is loaded as "click-counter" it will automatically populate app
 Data can be bound to components:
 
 ```
-	<div 
-		data-component="click-counter" 
-		data-bind="component=path.to.data"
-	></div>
+<div 
+	data-component="click-counter" 
+	data-bind="component=path.to.data"
+></div>
 ```
 
 Components can bind to their own private data objects by using "_component_" so a component with:
 
 ```
-	<p data-bind="text=_component_.message"></p>
-	<button 
-		data-event="click:_component_.doSomething"
-	>
-		Click Me!
-	</button>
+<p data-bind="text=_component_.message"></p>
+<button 
+	data-event="click:_component_.doSomething"
+>
+	Click Me!
+</button>
 ```
 
 Can simply set its own properties and method:
 
 ```
-	set({
-		message: 'hello',
-		doSomething: () => {...} 
-	});
+set({
+	message: 'hello',
+	doSomething: () => {...} 
+});
 ```
 
 (Or have them set by bound data, etc.)
