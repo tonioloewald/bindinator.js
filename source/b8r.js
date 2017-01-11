@@ -706,10 +706,7 @@ function bindList (element, data, basePath) {
 			instance.setAttribute('data-list-instance', itemPath);
 			bindAll(instance, list[i], itemPath);
 		} else {
-			(function(){
-				const [model, path] = itemPath.match(/^([^.]+)[\.\[](.+)\]?$/);
-				b8r.touchByPath(model, path);
-			}());
+			bindAll(instance, list[i]);
 		}
 		fragment.appendChild(instance);
 	}
