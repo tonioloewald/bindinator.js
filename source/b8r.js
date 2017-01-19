@@ -940,6 +940,7 @@ function replaceInBindings(element, needle, replacement) {
 
 var component_count = 0;
 b8r.insertComponent = function (component, element, data) {
+  const data_path = typeof data === 'string' ? data : false;
   if (!element) {
     element = b8r.create('div');
   }
@@ -956,7 +957,7 @@ b8r.insertComponent = function (component, element, data) {
     }
     component = components[component];
   }
-  if (!data) {
+  if (!data || data_path) {
     data = dataForElement(element, component.name);
   }
   if (element.parentElement === null) {
@@ -968,7 +969,7 @@ b8r.insertComponent = function (component, element, data) {
     b8r.moveChildren(element, children);
     b8r.copyChildren(component.view, element);
     replaceInBindings(element, '_component_', component_id);
-    replaceInBindings(element, '_data_', typeof data === 'string' ? data : b8r.getListInstancePath(element) || component_id);
+    replaceInBindings(element, '_data_', data_path || component_id);
     var children_dest = b8r.findOneWithin(element, '[data-children]');
     if (children.firstChild && children_dest) {
       b8r.empty(children_dest);
@@ -977,6 +978,7 @@ b8r.insertComponent = function (component, element, data) {
   }
   element.setAttribute('data-component-id', component_id);
   const register = component_data => b8r.register(component_id, component_data);
+  Object.assign(data, {data_path, component_id});
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
     const set = (path, value) => {
