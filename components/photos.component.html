@@ -15,20 +15,10 @@ component's "tags" attribute.
 		max-width: 31%;
 		vertical-align: middle;
 	}
-
-	.fade-in-when-loaded {
-		opacity: 0;
-		transition: 0.5s ease-out;
-	}
-
-	.fade-in-when-loaded.loaded {
-		opacity: 1;
-	}
 </style>
-<img class="fade-in-when-loaded" data-list=".items" data-bind="img=.media.m;attr(label)=.title">
+<img data-list="_component_.photos.items" data-bind="img=.media.m;attr(label)=.title">
 <script>
 	var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
-
 	findOne('img').classList.add(component.getAttribute('img-class') || 'flickr-image');
 
 	function getFlickrData(url, callback) {
@@ -50,5 +40,5 @@ component's "tags" attribute.
 		feed_url += '&tags=fave,airshow';
 	}
 
-	getFlickrData(feed_url, data => b8r.bindAll(component, data) );
+	getFlickrData(feed_url, photos => set({photos}) );
 </script>
