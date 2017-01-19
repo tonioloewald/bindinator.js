@@ -44,7 +44,7 @@ return {
 		const component = element.closest('[data-component-id]');
 		const id = component.getAttribute('data-component-id');
 		return b8r.getByPath(id, path);
-	},
+	}
 };
 
 };
