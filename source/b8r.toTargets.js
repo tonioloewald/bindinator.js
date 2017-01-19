@@ -143,6 +143,9 @@ return {
 		}
 	},
 	img,
+	bgImg: function(element, value) {
+		element.style.backgroundImage = `url("${value}")`;
+	},
 	style: function(element, value, dest) {
 		if (!dest) {
 			if(typeof value === 'string') {
