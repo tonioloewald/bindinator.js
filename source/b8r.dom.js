@@ -28,7 +28,7 @@ document.createTextNode(textContent)
 
     b8r.fragment()
 
-document.crateDocumentFragment()
+document.createDocumentFragment()
 
     b8r.empty()
 
@@ -62,7 +62,7 @@ Object.assign(b8r, {
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
     var list = b8r.makeArray(element.querySelectorAll(selector));
-    if (include_self && element.matches(selector)) {
+    if (include_self && element.matches('[data-bind]')) {
       list.unshift(element);
     }
     return list;
@@ -75,7 +75,7 @@ Object.assign(b8r, {
     return element.nextElementSibling;
   },
   findAbove: (elt, selector, until_elt) => {
-  var current_elt = elt.parentElement;
+    var current_elt = elt.parentElement;
     var found = [];
     while(current_elt) {
       if (current_elt === document.body) {
