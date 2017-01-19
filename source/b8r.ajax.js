@@ -38,6 +38,9 @@ module.exports = {
         }
       };
       if (typeof request_data === 'object') {
+        if (method === 'GET') {
+          throw 'GET requests do not support request body data';
+        }
         request_data = JSON.stringify(request_data);
         config.headers.push({
           prop: 'Content-Type',
