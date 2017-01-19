@@ -92,7 +92,7 @@ function getByPath(obj, path) {
     } else {
       if (!found.length) {
         found = undefined;
-      } else if (path.indexOf('=') > -1) {
+      } else if (part.indexOf('=') > -1) {
         const [path, value] = part.split('=');
         const list = found;
         found = undefined;
@@ -171,14 +171,12 @@ function matchTypes(value, oldValue) {
 		return parseFloat(value);
 	} else if (typeof oldValue === 'string') {
 		return value + '';
-	} else if (typeof oldBalue === 'boolean') {
-		return value === 'false' || !!value; // maps undefined || null || '' || 0 => false
+	} else if (typeof oldValue === 'boolean') {
+		return value === 'false' ? false : !!value; // maps undefined || null || '' || 0 => false
 	} else if (oldValue !== undefined && oldValue !== null) {
 		console.warn('setByPath found non-matching types');
-		return value;
-	} else {
-		return value;
 	}
+	return value;
 }
 
 module.exports = {getByPath, setByPath, matchTypes, pathParts};
