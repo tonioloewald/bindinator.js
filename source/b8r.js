@@ -31,7 +31,7 @@ const models = {};
 const noop = () => {};
 
 /**
-    b8r.register(name, obj);
+  b8r.register(name, obj);
 
 register an object by name as data or controller. 
 The names `_component_` and `_b8r_` are reserved; other similar namess may be reserved later.
@@ -39,28 +39,28 @@ The names `_component_` and `_b8r_` are reserved; other similar namess may be re
 Binding to explicitly means you will only be bound to an explicit object
 `_b8r_` is the name of the internal event handlers for bound variables
 
-    b8r.deregister(name);
+  b8r.deregister(name);
 
 Remove a registered object. deregister also removes component instance objects for components no longer in the DOM,
 (and it can also be called without any parameters)
 
-    b8r.setByPath(name, path, value);
+  b8r.setByPath(name, path, value);
 
 Set a registered object's property by path. Bound elements will automatically be updated.
 
-    b8r.getByPath(name, path);
+  b8r.getByPath(name, path);
 
 Get a registered object's property by path.
 
-    b8r.pushByPath(name, path, item, callback);
+  b8r.pushByPath(name, path, item, callback);
 
 As above, but unshift (and no callback).
 
-    b8r.unshiftByPath(name, path, item);
+  b8r.unshiftByPath(name, path, item);
 
 Insert an item into the specified array property. (Automatically updates bound lists).
 
-    b8r.removeListInstance(element);
+  b8r.removeListInstance(element);
 
 Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
@@ -111,11 +111,20 @@ b8r.touchByPath = function(name, path, source_element) {
       b8r.trigger('change', element);
     }
   });
-  const elements = b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'));
+  const elements = b8r.
+                      makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]')).
+                      filter(notInListTemplate);
   elements.forEach(element => element !== source_element && bind(element));
 };
 
 b8r.setByPath = function (name, path, value, source_element) {
+  if (value instanceof HTMLElement || arguments.length < 3) {
+    source_element = value;
+    value = path;
+    const split = pathSplit(name);
+    name = split.model;
+    path = split.path;
+  }
   if (models[name]) {
     const model = models[name];
     if(typeof path === 'object'){
@@ -147,6 +156,8 @@ b8r.unshiftByPath = function(name, path, value) {
     b8r.touchByPath(name, path);
   }
 };
+
+const notInListTemplate = elt => !elt.closest('[data-list]');
 
 b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
@@ -184,10 +195,8 @@ b8r.removeByPath = function(name, path, key) {
   }
 };
 
-b8r.getByPath = function (name, path) {
-  if (name && models[name]) {
-    return getByPath(models[name], path || '/');
-  }
+b8r.getByPath = function (model, path) {
+  return getByPath(models, path ? model + '.' + path : model);
 };
 
 b8r.listItems = element => b8r.makeArray(element.children)
@@ -206,18 +215,24 @@ To quickly obtain bound data a list instance from an element inside it:
     b8r.getListInstance(elt)
 */
 
-b8r.getComponentData = function(elt) {
+b8r.getComponentId = function(elt) {
   const component = elt.closest('[data-component-id]');
-  return component ? b8r.getByPath(component.getAttribute('data-component-id')) : null;
+  return component ? component.getAttribute('data-component-id') : null;
+};
+
+b8r.getComponentData = function(elt) {
+  const id = b8r.getComponentId(elt);
+  return id ? b8r.getByPath(id) : null;
+};
+
+b8r.getListInstancePath = function(elt) {
+  const component = elt.closest('[data-list-instance]');
+  return component ? component.getAttribute('data-list-instance') : null;
 };
 
 b8r.getListInstance = function(elt) {
-  try {
-    const [,model,path] = elt.closest('[data-list-instance]').getAttribute('data-list-instance').match(/^([^\.]*)\.(.*)$/);
-    return b8r.getByPath(model, path);
-  } catch(e) {
-    return null;
-  }
+  const instancePath = b8r.getListInstancePath(elt);
+  return instancePath ? b8r.getByPath(instancePath) : null;
 };
 
 /**
@@ -450,9 +465,8 @@ b8r.trigger = function(type, target) {
     console.error ('expected trigger(event_type, target_element)', type, target);
   }
   if (target) {
-    var stopPropagation = () => {};
-    var preventDefault = () => {};
-    handleEvent({type, target, stopPropagation, preventDefault}); 
+    const event = new Event(type);
+    target.dispatchEvent(event);
   } else {
     console.warn('b8r.trigger called with no specified target');
   }
@@ -566,9 +580,9 @@ function parseBinding (binding) {
     throw 'empty binding';
   }
   if(binding.indexOf('=') === -1) {
-    throw `binding is missing = sign; probably need a source or target`;
+    throw 'binding is missing = sign; probably need a source or target';
   }
-  var [,targets, source] = binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
+  var [,targets, path] = binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
   targets = targets.split(',').map(function(target){ 
     var parts = target.match(/(\w+)(\(([^)]+)\))?/);
     if(!parts) {
@@ -577,35 +591,27 @@ function parseBinding (binding) {
     }
     return parts ? { target: parts[1], key: parts[3] } : null;
   });
-  if (!source) {
+  if (!path) {
     console.error('binding does not specify source', binding);
   }
-  var [, model,, path] = source.match(/([^.;]*)(\.(.+))?/);
-  return {targets, model, path: path, raw: binding};
+  return {targets, path};
+}
+
+function pathSplit(full_path) {
+  const [,model,,path] = full_path.match(/^(.*?)(\.(.*))?$/);
+  return {model, path};
 }
 
 function getBindings (element) {
-  return element.getAttribute('data-bind').split(';').filter(s => !!s.trim()).map(parseBinding);
-}
-
-function buildTargets (binding) {
-  return binding.targets.map(target => target.target + (target.key ? '(' + target.key + ')' : ''));
-}
-
-function addBasePathToBindings(element, bindings, basePath) {
-  if (basePath) {
-    element.setAttribute(
-      'data-bind',
-      bindings.map(
-        binding => 
-        binding.model ?
-        binding.raw :
-        buildTargets(binding) +
-          '=' + basePath +
-          '.' + binding.path
-        ).join(';')
-    );
+  var binding_source = element.getAttribute('data-bind');
+  if(binding_source.indexOf('=.') > -1) {
+    const instance_path = b8r.getListInstancePath(element);
+    if(instance_path) {
+      binding_source = binding_source.replace(/\=\./g, `=${instance_path}.`);
+      element.setAttribute('data-bind', binding_source);
+    }
   }
+  return binding_source.split(';').filter(s => !!s.trim()).map(parseBinding);
 }
 
 function findBindables (element) {
@@ -617,18 +623,16 @@ function findBindables (element) {
     });
 }
 
-function bind (element, data, basePath) {
+function bind (element) {
   var bindings = getBindings(element);
-  addBasePathToBindings(element, bindings, basePath);
   for (var i = 0; i < bindings.length; i++) {
-    var {targets, model, path} = bindings[i];
-    var obj = data || models[model];
-    var value = getByPath(obj, path);
+    var {targets, path} = bindings[i];
+    const value = b8r.getByPath(path);
     var _toTargets = targets.filter(t => toTargets[t.target]);
     var _fromTargets = targets.filter(t => fromTargets[t.target]);
-    if (obj && _toTargets.length) {
+    if (_toTargets.length) {
       _toTargets.forEach(t => {
-        toTargets[t.target](element, value, t.key, obj);
+        toTargets[t.target](element, value, t.key);
       });
     } else {
       // TODO save message for when source is registered
@@ -674,20 +678,36 @@ function removeListInstances(element) {
   }
 }
 
-function bindList (element, data, basePath) {
-  const [list_path, id_path] = element.getAttribute('data-list').split(':');
-  var model, path;
+function bindList (element, data) {
+  const [source_path, id_path] = element.getAttribute('data-list').split(':');
+  var method_path, list_path;
   try {
-    [,model,, path] = list_path.match(/^([^\.]*)(\.(.*))?$/);
+    // parse computed list method if any
+    [,, method_path, list_path] = source_path.match(/^(([^()]*)\()?([^()]*)(\))?$/);
   } catch(e) {
-    console.error('bindList failed', list_path, e);
+    console.error('bindList failed; bad source path', source_path);
   }
-  if (model === '' && !data && !basePath) {
+  const {model, path} = pathSplit(list_path);
+  if (model === '' && !data) {
     return;
   }
   var list = data ? getByPath(data, path) : b8r.getByPath(model, path);
   if (!list) {
     return;
+  }
+  // compute list
+  if (method_path) {
+    (function(){
+      try {
+        const [,method,path] = method_path.match(/^(.*?)\.(.*)$/);
+        list = b8r.callMethod(method, path, list);
+        if(list === null) {
+          throw 'could not compute list; async computed list methods not supported (yet)';
+        }
+      } catch(e) {
+        console.error('bindList failed; bad method path', method_path, e);
+      }
+    }());
   }
   b8r.show(element);
   if(!id_path) {
@@ -706,9 +726,9 @@ function bindList (element, data, basePath) {
       instance = element.cloneNode(true);
       instance.removeAttribute('data-list');
       instance.setAttribute('data-list-instance', itemPath);
-      bindAll(instance, list[i], itemPath);
+      bindAll(instance, itemPath);
     } else {
-      bindAll(instance, list[i]);
+      bindAll(instance);
     }
     fragment.appendChild(instance);
   }
@@ -720,10 +740,10 @@ function bindList (element, data, basePath) {
   element.parentElement.insertBefore(fragment, element);
 }
 
-function bindAll(element, data, basePath) {
+function bindAll(element, data) {
   loadAvailableComponents(element, data);
-  findBindables(element).forEach(elt => bind(elt, data, basePath));
-  findLists(element).forEach(elt => bindList(elt, data, basePath));
+  findBindables(element).forEach(elt => bind(elt, data));
+  findLists(element).forEach(elt => bindList(elt, data));
   if(element.parentElement) {
     b8r.trigger('change', element.parentElement);
   }
@@ -737,10 +757,10 @@ models._b8r_ = {
   update: function(evt, target) {
     var bindings = getBindings(target);
     for (var i = 0; i < bindings.length; i++) {
-      var {targets, model, path} = bindings[i];
+      var {targets, path} = bindings[i];
       targets = targets.filter(t => fromTargets[t.target]);
       targets.forEach(t => {
-        b8r.setByPath(model, path, fromTargets[t.target](target, t.key), target); 
+        b8r.setByPath(path, fromTargets[t.target](target, t.key), target); 
       });
     }
     return true;
@@ -821,7 +841,7 @@ b8r.makeComponent = function(name, source) {
     'get',
     'set',
     'touch',
-    `${script}\n//# sourceURL=${name}.component.html`
+    `${script}\n//# sourceURL=${name}(component)`
   ) : false;
 /*jshint evil: false */
   var style;
@@ -843,10 +863,10 @@ b8r.makeComponent = function(name, source) {
     console.warn('component %s has been redefined', name);
   }
   components[name] = component;
-  var targets = b8r.
-                  find('[data-component="' + name + '"]').
-                  filter(elt => !elt.closest('[data-list]'));
-  targets.forEach(element => b8r.insertComponent(component, element));
+  b8r.
+    find('[data-component="' + name + '"]').
+    filter(notInListTemplate).
+    forEach(element => b8r.insertComponent(component, element));
   return component;
 };
 
@@ -874,7 +894,7 @@ function dataForElement(target_element) {
     return JSON.parse(json);
   }
 
-  return b8r.getComponentData(target_element) || {};
+  return b8r.getComponentData(target_element) || b8r.getListInstance(target_element) || {};
 }
 
 function removeDataForElement(target_element) {
@@ -886,8 +906,8 @@ function removeDataForElement(target_element) {
 }
 
 function loadAvailableComponents(element, data) {
-  b8r.findWithin(element || document.body, '[data-component]', true).forEach(target => {
-    if (!target.matches('[data-component-id]') && !target.closest('[data-list]')) {
+  b8r.findWithin(element || document.body, '[data-component]').forEach(target => {
+    if (!target.closest('[data-list]') && !target.matches('[data-component-id]')) {
       var name = target.getAttribute('data-component');
       b8r.insertComponent(name, target, data);
     }
@@ -905,6 +925,19 @@ Data will be passed to the component's load method and registered as the compone
 data is passed automatically from parent components or via binding, e.g. `data-bind="component=path.to.data` binds that
 data to the component").
 */
+
+function replaceInBindings(element, needle, replacement) {
+  const needle_regexp = new RegExp(needle, 'g');
+  b8r.findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-event*="${needle}"]`).forEach(elt => {
+    ['data-bind', 'data-list', 'data-event'].forEach(attr => {
+      const val = elt.getAttribute(attr);
+      if(val) {
+        elt.setAttribute(attr, val.replace(needle_regexp, replacement));
+      }
+    });
+  });
+}
+
 var component_count = 0;
 b8r.insertComponent = function (component, element, data) {
   if (!element) {
@@ -934,14 +967,8 @@ b8r.insertComponent = function (component, element, data) {
   if (component.view.children.length) {
     b8r.moveChildren(element, children);
     b8r.copyChildren(component.view, element);
-    b8r.findWithin(element, '[data-bind*="_component_"],[data-list*="_component_"],[data-event*="_component_"]').forEach(elt => {
-      ['data-bind', 'data-list', 'data-event'].forEach(attr => {
-        const val = elt.getAttribute(attr);
-        if(val) {
-          elt.setAttribute(attr, val.replace(/_component_/g, component_id));
-        }
-      });
-    });
+    replaceInBindings(element, '_component_', component_id);
+    replaceInBindings(element, '_data_', typeof data === 'string' ? data : b8r.getListInstancePath(element) || component_id);
     var children_dest = b8r.findOneWithin(element, '[data-children]');
     if (children.firstChild && children_dest) {
       b8r.empty(children_dest);
@@ -949,7 +976,7 @@ b8r.insertComponent = function (component, element, data) {
     }
   }
   element.setAttribute('data-component-id', component_id);
-  const register = data => b8r.register(component_id, data);
+  const register = component_data => b8r.register(component_id, component_data);
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
     const set = (path, value) => {
