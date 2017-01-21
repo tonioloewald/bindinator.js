@@ -1,3 +1,11 @@
+<!--
+# Rich Text Editor
+
+This is a simple and fairly robust rich text editor. It has all the
+usual issues of contenteditable / execCommand-based rich text editors
+in that it doesn't accurately reflect the selection state in the
+controls, but at least it's simple.
+-->
 <style>
 	.richtext {
 		overlow-y: overlay;
@@ -6,9 +14,27 @@
 		padding: 8px;
 		background-color: white;
 		border: 1px solid rgba(0,0,0,0.1);
+		font-family: Helvetica Neue, Helvetica, Sans-serif;
+		color: black;
 	}
 	.richtext:focus {
 		box-shadow: none;
+	}
+	.richtext h1,
+	.richtext h2,
+	.richtext h3,
+	.richtext h4,
+	.richtext h5,
+	.richtext h6,
+	.richtext b,
+	.richtext strong {
+		font-weight: bold;
+		color: black;
+	}
+
+	.richtext em,
+	.richtext i {
+		color: black;
 	}
 </style>
 <ul data-component="menubar">
@@ -138,7 +164,7 @@
 </div>
 <div class="richtext" contenteditable="true" spellcheck="true" data-children>
 <h1>Test</h1>
-<p>This is a test</p>
+<p>This is a <b>test</b>.</p>
 </div>
 <script>
 	b8r.component('components/menubar');
@@ -151,8 +177,7 @@
 		doc.focus();
 		const args = evt.target.closest('[data-command]').getAttribute('data-command').split(',');
 		document.execCommand(args[0], false, args[1]);
-	}
-
+	};
 
 	set({new_doc, open, exec});
 </script>
