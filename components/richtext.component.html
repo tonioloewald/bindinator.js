@@ -14,12 +14,17 @@ controls, but at least it's simple.
 		padding: 8px;
 		background-color: white;
 		border: 1px solid rgba(0,0,0,0.1);
-		font-family: Helvetica Neue, Helvetica, Sans-serif;
-		color: black;
 	}
+	
 	.richtext:focus {
 		box-shadow: none;
 	}
+
+	.richtext * {
+		font-family: Helvetica Neue, Helvetica, Sans-serif;
+		color: black;
+	}
+
 	.richtext h1,
 	.richtext h2,
 	.richtext h3,
@@ -29,12 +34,6 @@ controls, but at least it's simple.
 	.richtext b,
 	.richtext strong {
 		font-weight: bold;
-		color: black;
-	}
-
-	.richtext em,
-	.richtext i {
-		color: black;
 	}
 </style>
 <ul data-component="menubar">
