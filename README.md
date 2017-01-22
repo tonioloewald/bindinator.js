@@ -1,7 +1,7 @@
-<img alt="bindinator b∞r logo" style="width: 90%; padding: 5%;" src="http://bindinator.com/bindinator-logo.svg">
+<img alt="Bindinator b∞r logo" style="width: 90%; padding: 5%;" src="http://Bindinator.com/Bindinator-logo.svg">
 
 <div style="text-align: center;"
-[Home Page](http://bindinator.com/) | [Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [Demo (cdn.rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [github](https://github.com/tonioloewald/bindinator.js) | [Trello](https://trello.com/b/0OBL4IjC/bindinator)
+[Home Page](http://Bindinator.com/) | [Demo (rawgit)](https://rawgit.com/tonioloewald/Bindinator.js/master/) | [Demo (cdn.rawgit)](https://rawgit.com/tonioloewald/Bindinator.js/master/) | [github](https://github.com/tonioloewald/Bindinator.js) | [Trello](https://trello.com/b/0OBL4IjC/Bindinator)
 </div>
 
 ## A Virtuous Cycle
@@ -19,7 +19,7 @@
 
 A web application comprises DOM elements, in a web browser, styled with CSS and wired up to behaviors implemented in Javascript and data obtained from services.
 
-bindinator lets you build *views* using any mechanics you like, but HTML works just fine, style the *views* using CSS, and attach data and behavior to those views using DOM attributes, and implement the behavior using Javascript.
+Bindinator lets you build *views* using any mechanics you like, but HTML works just fine, style the *views* using CSS, and attach data and behavior to those views using DOM attributes, and implement the behavior using Javascript.
 
 - You can create and destroy bindings using code, but this just creates and removes the relevant DOM attributes
 - You can create the DOM elements using Javascript, but it's simpler and more direct to just write HTML
@@ -27,11 +27,11 @@ bindinator lets you build *views* using any mechanics you like, but HTML works j
 	- bindings and the things they're bound to can be loaded asynchronously
 	- you don't need to tear down bindings when you throw away the associated view components, because the bindings are intrinsic to the view components
 
-bindinator lets you compose and reuse views as "components", where each component is a (hopefully) small self-contained file comprising the required HTML, CSS, and Javascript.
+Bindinator lets you compose and reuse views as "components", where each component is a (hopefully) small self-contained file comprising the required HTML, CSS, and Javascript.
 
 - Components strongly resemble simple web pages
 - It's easy to break apart monolithic views into reusable components
-- You don't need to "think in the bindinator way" -- create what you want and it will work as expected
+- You don't need to "think in the Bindinator way" -- create what you want and it will work as expected
 
 ## Core Concepts
 
