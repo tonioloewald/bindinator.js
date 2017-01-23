@@ -138,7 +138,14 @@ b8r.setByPath = function (...args) {
   }
 };
 
-b8r.pushByPath = function(name, path, value, callback) {
+b8r.pushByPath = function(...args) {
+  var name, path, value, callback;
+  if(args.length === 2 || typeof args[2] === 'function') {
+    [path, value, callback] = args;
+    [name, path] = pathSplit(path);
+  } else {
+    [name, path, value, callback] = args;
+  }
   if (models[name]) {
     const list = getByPath(models[name], path);
     list.push(value);
@@ -149,7 +156,14 @@ b8r.pushByPath = function(name, path, value, callback) {
   }
 };
 
-b8r.unshiftByPath = function(name, path, value) {
+b8r.unshiftByPath = function(...args) {
+  var name, path, value;
+  if (args.length === 2) {
+    [path, value] = args;
+    [name, path] = pathSplit(path);
+  } else {
+    [name, path, value] = args;
+  }
   if (models[name]) {
     const list = getByPath(models[name], path);
     list.unshift(value);
