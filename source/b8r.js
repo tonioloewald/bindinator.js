@@ -117,13 +117,13 @@ b8r.touchByPath = function(name, path, source_element) {
   elements.forEach(element => element !== source_element && bind(element));
 };
 
-b8r.setByPath = function (name, path, value, source_element) {
-  if (value instanceof HTMLElement || arguments.length < 3) {
-    source_element = value;
-    value = path;
-    const split = pathSplit(name);
-    name = split.model;
-    path = split.path;
+b8r.setByPath = function (...args) {
+  var name, path, value, source_element;
+  if (args.length === 2 || args[2] instanceof HTMLElement) {
+    [path, value, source_element] = args;
+    [name, path] = pathSplit(path);
+  } else {
+    [name, path, value, source_element] = args;
   }
   if (models[name]) {
     const model = models[name];
@@ -434,8 +434,7 @@ function playSavedMessages(for_model) {
   }
 }
 
-b8r.callMethod = function () {
-  const [model, method, ...args] = arguments;
+b8r.callMethod = function (model, method, ...args) {
   var result = null;
   if ( models[model] ) {
     if (models[model][method] instanceof Function) {
@@ -599,7 +598,7 @@ function parseBinding (binding) {
 
 function pathSplit(full_path) {
   const [,model,,path] = full_path.match(/^(.*?)(\.(.*))?$/);
-  return {model, path};
+  return [model, path];
 }
 
 function getBindings (element) {
@@ -687,7 +686,7 @@ function bindList (element, data) {
   } catch(e) {
     console.error('bindList failed; bad source path', source_path);
   }
-  const {model, path} = pathSplit(list_path);
+  const [model, path] = pathSplit(list_path);
   if (model === '' && !data) {
     return;
   }
