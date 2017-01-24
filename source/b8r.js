@@ -196,7 +196,14 @@ function indexFromKey (list, key) {
   return list.findIndex(elt => getByPath(elt, id_path) == value);
 }
 
-b8r.removeByPath = function(name, path, key) {
+b8r.removeByPath = function(...args) {
+  var name, path, key;
+  if (args.length === 2) {
+    [path, key] = args;
+    [name, path] = pathSplit(path);
+  } else {
+    [name, path, key] = args;
+  }
   if (models[name]) {
     const list = getByPath(models[name], path);
     const index = indexFromKey(list, key);
@@ -422,7 +429,8 @@ function implicitEventHandlers (element) {
 }
 
 /**
-  b8r.callMethod(model, method, evt);
+  b8r.callMethod(method_path, ...args)
+  b8r.callMethod(model, method, ...args);
 
 Call a method by name from a registered method. If the relevant model has not yet been registered
 (e.g. it's being loaded asynchronously) it will get the message when it's registered.
@@ -448,7 +456,18 @@ function playSavedMessages(for_model) {
   }
 }
 
-b8r.callMethod = function (model, method, ...args) {
+b8r.callMethod = function (...args) {
+  var model, method;
+  try {
+    if (args[0].match(/[\[.]/)) {
+      [method, ...args] = args;
+      [model, method] = pathSplit(method);
+    } else {
+      [model, method, ...args] = args;
+    }
+  } catch(e) {
+    debugger;
+  }
   var result = null;
   if ( models[model] ) {
     if (models[model][method] instanceof Function) {
