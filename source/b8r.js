@@ -295,7 +295,7 @@ function getEventHandlers(element) {
   return existing;
 }
 
-function makeHandler(event_type, object, method) {
+function makeHandler(event_type, method) {
   if (typeof event_type === 'string') {
     event_type = [event_type];
   }
@@ -303,24 +303,30 @@ function makeHandler(event_type, object, method) {
     console.error('makeHandler failed; bad event_type', event_type);
     return;
   }
-  return event_type.sort().join(',') + ':' + object + '.' + method;
+  return event_type.sort().join(',') + ':' + method;
 }
 
-b8r.on = function (element, event_type, object, method, prepend) {
-  // check if handler already exists
-  // var existingHandlers = implicitEventHandlers(element);
-  if (typeof object === 'object' && object.model) {
+b8r.on = function (...args) {
+  var element, event_type, object, method, prepend;
+  if(typeof args[2] === 'object') {
+    console.warn('b8r.on(element, type, OBJECT) is deprecated');
+    [element, event_type, object] = args;
     return b8r.on(element, event_type, object.model, object.method);
+  } else if(args.length > 4 || typeof args[3] === 'string') {
+    [element, event_type, object, method, prepend] = args;
+    if(typeof object !== 'string' || typeof method !== 'string') {
+      console.error('implicit bindings are by name, not', object, method);
+      return;
+    }
+    method = object + '.' + method;
+  } else {
+    [element, event_type, method, prepend] = args;
   }
   if (!(element instanceof HTMLElement)) {
     console.error('bind bare elements please, not', element);
     return;
   }
-  if(typeof object !== 'string' || typeof method !== 'string') {
-    console.error('implicit bindings are by name, not', object, method);
-    return;
-  }
-  const handler = makeHandler(event_type, object, method);
+  const handler = makeHandler(event_type, method);
   const existing = getEventHandlers(element);
   if(existing.indexOf(handler) === -1) {
     if (prepend) {
@@ -329,16 +335,21 @@ b8r.on = function (element, event_type, object, method, prepend) {
       existing.push(handler);
     }
   }
-  if (existing.length) {
-    element.setAttribute('data-event', existing.join(';'));
-  } else {
-    element.removeAttribute('data-event');
-  }
+  element.setAttribute('data-event', existing.join(';'));
 };
 
-b8r.off = function(element, event_type, object, method) {
+b8r.off = function(...args) {
+  var element, event_type, object, method;
+  if(args.length === 4) {
+    [element, event_type, object, method] = args;
+    method = object + method;
+  } else if (args.length === 3) {
+    [element, event_type, method] = args;
+  } else {
+    throw 'b8r.off requires three or four arguments';
+  }
   const existing = element.getAttribute('data-event').split(';');
-  const handler = makeHandler(event_type, object, method);
+  const handler = makeHandler(event_type, method);
   const idx = existing.indexOf(handler);
   if (idx > -1) {
     existing.splice(idx, 1);
@@ -774,7 +785,7 @@ function bindList (element, data) {
 
 function bindAll(element, data) {
   loadAvailableComponents(element, data);
-  findBindables(element).forEach(elt => bind(elt, data));
+  findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, data));
   if(element.parentElement) {
     b8r.trigger('change', element.parentElement);
