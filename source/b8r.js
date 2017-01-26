@@ -48,7 +48,7 @@ Remove a registered object. deregister also removes component instance objects f
 
 Set a registered object's property by path. Bound elements will automatically be updated.
 
-  b8r.getByPath(name, path);
+    b8r.getByPath(name, path);
 
 Get a registered object's property by path.
 
