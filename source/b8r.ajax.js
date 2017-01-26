@@ -55,11 +55,14 @@ module.exports = {
   json (url, method, request_data, config) {
     return new Promise(function(resolve, reject) {
       b8r.ajax(url, method, request_data, config).then(data => {
+        let parsed = "null";
         try {
-          resolve(JSON.parse(data || 'null'));
+          parsed = JSON.parse(data);
         } catch(e) {
           console.error('Failed to parse data', data, e);
+          reject(e, data);
         }
+        resolve(parsed);
       }, reject);
     });
   },
@@ -67,11 +70,14 @@ module.exports = {
   jsonp (url, method, request_data, config) {
     return new Promise(function(resolve, reject) {
       b8r.ajax(url, method, request_data, config).then(data => {
+        let parsed = "null";
         try {
-          resolve(JSON.parse(data || 'null'));
+          parsed = JSON.parse(data);
         } catch(e) {
           console.error('Failed to parse data', data, e);
+          reject(e, data);
         }
+        resolve(parsed);
       }, reject);
     });
   },
