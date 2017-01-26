@@ -22,6 +22,8 @@ and it lets the user dynamically resize them.
 </style>
 <div data-event="mousedown:sizer.beginSizing" class="ew-sizer"> </div>
 <script>
+/* global component, findOne, b8r */
+'use strict';
 	component.style.overflow = 'hidden';
 	var ew_sizer = findOne('.ew-sizer');
 	var next_elt;
@@ -60,8 +62,7 @@ and it lets the user dynamically resize them.
 		next_elt.style.width = (next_width - offset) / total_width * total_percentage + '%';
 	}
 
-	function endSizing(evt) {
-		console.log(ew_sizer)
+	function endSizing() {
 		ew_sizer.classList.remove('active');
 		b8r.offAny('mousemove', 'sizer', 'sizing');
 		b8r.offAny('mouseup', 'sizer', 'endSizing');
