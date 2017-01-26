@@ -10,12 +10,28 @@ binding, but for more complex heterogeneous collections, something like this cou
 implement a more sophisticated approach
 -->
 <script>
+/* global data, b8r, component */
+'use strict';
 	switch (data.file_type || data.url.split('.').pop()) {
 		case 'md':
 		case 'markdown':
 			b8r.component('components/markdown-viewer').then(viewer => {
 				b8r.insertComponent(viewer, component, data);
 			});
+			break;
+
+		case 'html':
+
+			if(data.url.match(/\.component\.html$/)) {
+				data.url = data.url.substr(0, data.url.length - 15);
+				b8r.component('components/component-viewer').then(viewer => {
+					b8r.insertComponent(viewer, component, data);
+				});
+			} else {
+				b8r.component('components/iframe').then(iframe => {
+					b8r.insertComponent(iframe, component, data);
+				});	
+			}
 			break;
 
 		case 'text':

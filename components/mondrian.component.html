@@ -1,4 +1,7 @@
-<!-- Copyright ©2016-2017 Tonio Loewald -->
+<!--
+# mondrian
+Copyright ©2016-2017 Tonio Loewald
+-->
 <style>
 	.mondrian {
 		display: flex;
@@ -62,6 +65,23 @@
 	</select> Desired Aspect Ratio
 </label>
 <script>
+
+/*
+	a and b are children
+*/
+class PartitionedRect {
+	constructor(left, top, width, height, a, b) {
+		this.left = left || 0;
+		this.top = top || 0;
+		this.width = width || 100;
+		this.height = height || 100;
+		Object.assign(this, {a, b});
+	}
+
+	add(elt) {
+
+	}
+}
 /*
 	orig, container, and partition are dimensions (i.e. {w, h})
 	orig -- the thing we're trying to display
@@ -129,6 +149,17 @@
 		if(visible_list.length === 0) {
 			return;
 		}
+
+		var rows = 1, cols = 1, partition = Math.round(last_adjusted_aspect_ratio);
+		if(partition > 1) {
+			rows = Math.round(visible_list.length / partition);
+			cols = Math.ceil(visible_list.length / rows);
+		} else {
+			cols = Math.floor(visible_list.length / partition);
+			rows = Math.ceil(visible_list.length / cols);
+		}
+		console.log(rows, cols);
+
 		findOne('.show').disabled = hidden_list.length === 0;
 		findOne('.hide').disabled = visible_list.length === 0;
 		const minWidth = Math.floor(100 / Math.ceil(Math.sqrt(visible().length * last_adjusted_aspect_ratio)));

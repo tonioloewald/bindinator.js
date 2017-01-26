@@ -1,0 +1,38 @@
+<div class="info"></div>
+<div class="example"></div>
+<div>
+  <pre>
+    <code style="font-size: 12px; white-space: pre-wrap;" id="source-code" class="language-markup"></code>
+  </pre>
+</div>
+<script>
+/* global b8r, data, findOne, require */
+'use strict';
+
+  b8r.component(data.url).then(component => {
+    b8r.insertComponent(component, findOne('.example'));
+    const code = findOne('code');
+    var info, source;
+    if (component._source.indexOf('<!--') === 0) {
+      [info, source] = component._source.substr(4).split('-->');
+    } else {
+      info = `# ${data.url}`;
+      source = component._source;
+    }
+    if(info) {
+      require.
+      lazy("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min").
+      then(() => {
+        var converter = new showdown.Converter(); // jshint ignore:line
+        findOne('.info').innerHTML = converter.makeHtml(info);
+      });
+    }
+    code.textContent = source.replace(/\t/g, '  ');
+
+    require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min").then(() => {
+      Prism.highlightElement(code); // jshint ignore:line
+      b8r.show(code.closest('div'));
+    });
+
+  });
+</script>

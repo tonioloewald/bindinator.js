@@ -45,11 +45,7 @@
 				<h3>Project</h3>
 				<a target="_blank" href="https://trello.com/b/0OBL4IjC/bindinator">Trello</a>
 			</div>
-			<div class="content">
-				<h2 style="text-align: right;" id="title"></h2>
-				<div id="example"></div>
-				<div><pre><code style="font-size: 12px; white-space: pre-wrap;" id="source-code" class="language-markup"></code></pre></div>
-			</div>
+			<div class="content" id="example"></div>
 		</div>
 		<div class="footer">
 			<div>
@@ -61,7 +57,7 @@
 	<script>
 		const b8r = require('source/b8r.js');
 		var title = b8r.id('title');
-		var element = b8r.id('example');
+		var content = b8r.id('example');
 		var source_code = b8r.id('source-code');
 
 		function markCurrent(doc) {
@@ -123,29 +119,13 @@
 				return {key, value};
 			});
 			var {key, value} = pairs[0];
-			if (key) {
-				b8r.empty(element);
-				b8r.hide(source_code.closest('div'));
-				switch (key) {
-					case 'source':
-						title.textContent = value;
-						b8r.component('file-viewer', 'components/file-viewer').then(viewer => {
-							b8r.insertComponent(viewer, element, {url: value});
-						});
-						break;
-					case 'component':
-						b8r.component(value, 'components/' + value)
-							 .then(component => {
-							 		title.textContent = value.split('/').pop() + '.component.html';
-							 		source_code.textContent = component._source.replace(/\t/g, '  ');
-							 		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min").then(() => {
-							 			Prism.highlightElement(source_code);
-							 			b8r.show(source_code.closest('div'));
-							 		});
-							 		b8r.insertComponent(component, element);
-							 });
-						break;
-				} 
+			if (key && value) {
+				if(key === 'component') {
+					value = `components/${value}.component.html`;
+				}
+				b8r.component('components/file-viewer').then(viewer => {
+					b8r.insertComponent(viewer, content, {url: value});
+				});
 			} else {
 				// FIXME don't do this, behave as though there's a default hash so history behaves nicely
 				b8r.trigger('mouseup', b8r.findOne('.loadable'));
