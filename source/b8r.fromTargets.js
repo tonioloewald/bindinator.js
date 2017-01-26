@@ -9,7 +9,8 @@ when an input or change event fires on the bound element:
 
 ### value
 
-The **value** of `<input>` and `<textarea>` elements
+The **value** of `<input>` and `<textarea>` elements; it will correctly return
+the value of `<input type="radio" ...>` elements.
 
 ### checked
 

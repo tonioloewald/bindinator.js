@@ -10,7 +10,8 @@ The following targets (attributes of a DOM element) can be bound to object data:
 
 	data-bind="value=message.text"
 
-This is the value of `<input>` and `<textarea>` elements.
+This is the value of `<input>` and `<textarea>` elements. It will correctly check the
+appropriate member of a set of radio inputs.
 
 ### checked
 
