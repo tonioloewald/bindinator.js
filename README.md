@@ -79,8 +79,8 @@ relevant controller is bound, the event will be replayed (in order) for the cont
 **Multiple targets or event types** can be separated by commas, e.g.
 
 ```
-	<span data-bind="style(backgroundColor),text=settings.color">#000000</span>
-	<button data-event="mouseup,touchend:some.action">Click</button>
+<span data-bind="style(backgroundColor),text=settings.color">#000000</span>
+<button data-event="mouseup,touchend:some.action">Click</button>
 ```
 
 **Components** are just like web pages:
