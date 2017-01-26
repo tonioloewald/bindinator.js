@@ -24,7 +24,7 @@ b8r.modifierKeys = {
   ctrl: '⌃',
   alt: '⌥',
   escape: '⎋',
-  shift: '⇧'
+  shift: '⇧',
 };
 
 const models = {};
@@ -342,7 +342,7 @@ b8r.off = function(...args) {
   var element, event_type, object, method;
   if(args.length === 4) {
     [element, event_type, object, method] = args;
-    method = object + method;
+    method = object + '.' + method;
   } else if (args.length === 3) {
     [element, event_type, method] = args;
   } else {
@@ -836,20 +836,27 @@ Instances of the component will automatically be inserted as expected once loade
 
 By simply binding the component to the target and letting nature take its course.
 */
+const component_promises = {};
 b8r.component = function (name, url) {
   if (url === undefined) {
     url = name;
     name = url.split('/').pop();
   }
-  return new Promise(function(resolve, reject) {
-    if (components[name]) {
-      resolve(components[name]);
-    } else {
-      b8r.ajax((url || name) + '.component.html').then(source => {
-        resolve(b8r.makeComponent(name, source));
-      }, err => reject(err));
-    }
-  });
+  if(!component_promises[name]) {
+    component_promises[name] = new Promise(function(resolve, reject) {
+      if (components[name]) {
+        resolve(components[name]);
+      } else {
+        b8r.ajax((url || name) + '.component.html').then(source => {
+          resolve(b8r.makeComponent(name, source));
+        }, err => {
+          delete component_promises[name];
+          reject(err);
+        });
+      }
+    });
+  }
+  return component_promises[name];
 };
 
 b8r.makeComponent = function(name, source) {

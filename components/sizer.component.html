@@ -61,6 +61,7 @@ and it lets the user dynamically resize them.
 	}
 
 	function endSizing(evt) {
+		console.log(ew_sizer)
 		ew_sizer.classList.remove('active');
 		b8r.offAny('mousemove', 'sizer', 'sizing');
 		b8r.offAny('mouseup', 'sizer', 'endSizing');

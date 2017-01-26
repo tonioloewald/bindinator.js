@@ -50,5 +50,9 @@
 	{
 		"name": "uuid",
 		"path": "lib/uuid.js"
+	},
+	{
+		"name": "Test",
+		"path": "lib/test.js"
 	}
 ]
