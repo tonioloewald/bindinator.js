@@ -182,6 +182,14 @@
 			.then(() => Test(() => failures).shouldBe(1));
 		b8r.json('test/test.json', 'GET')
 			.then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
+		// loads malformed response, should reject with error
+		b8r.json('test/malformed.json', 'GET')
+			.then(() => {}, () => failures++)
+			.then(() => Test(() => failures).shouldBe(2));
+		// loads empty response, resolves with valid JSON "null" string
+		b8r.json('test/empty.json', 'GET')
+			.then(() => {}, () => failures++)
+			.then(() => Test(() => failures).shouldBe(2));
 
 		// method to and from targets
 		b8r.register('method_binding', {
