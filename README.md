@@ -6,7 +6,7 @@
 
 * To get views, write (reusable) HTML
 * To get behavior, write (reusable) code.
-* Models and controllers are just named objects
+* Models and controllers are just registered (named) objects
 * Event and data bindings are just DOM attributes
 * No new languages, templating languages, javascript extensions
 * No compile step
