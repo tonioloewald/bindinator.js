@@ -176,20 +176,28 @@
 
 		// ajax methods
 		b8r.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
-		var failures = 0;
-		b8r.ajax('test/does-not-exist.txt', 'GET')
-			.then(() => {}, () => failures++)
-			.then(() => Test(() => failures).shouldBe(1));
+		{
+			var failures = 0;
+			b8r.ajax('test/does-not-exist.txt', 'GET')
+				.then(() => {}, () => failures++)
+				.then(() => Test(() => failures).shouldBe(1));
+		}
 		b8r.json('test/test.json', 'GET')
 			.then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
-		// loads malformed response, should reject with error
-		b8r.json('test/malformed.json', 'GET')
-			.then(() => {}, () => failures++)
-			.then(() => Test(() => failures).shouldBe(2));
-		// loads empty response, resolves with valid JSON "null" string
-		b8r.json('test/empty.json', 'GET')
-			.then(() => {}, () => failures++)
-			.then(() => Test(() => failures).shouldBe(2));
+		{
+			// loads malformed response, should reject with error
+			let failures = 0;
+			b8r.json('test/malformed.json', 'GET')
+				.then(() => {}, () => failures++)
+				.then(() => Test(() => failures).shouldBe(1));
+		}
+		{
+			// loads empty response, resolves with valid JSON "null" string
+			let failures = 0;
+			b8r.json('test/empty.json', 'GET')
+				.then(() => {}, () => failures++)
+				.then(() => Test(() => failures).shouldBe(0));
+		}
 
 		// method to and from targets
 		b8r.register('method_binding', {
