@@ -2,13 +2,19 @@
 <style>
   .literate-errors {
     display: none;
-    position: relative;
+    position: absolute;
+    bottom: 0;
+    right: 0;
     background-color: red;
     color: white;
     padding: 2px 6px;
+    cursor: pointer;
   }
 </style>
-<div class="literate-errors">There are test errors</div>
+<div 
+  class="literate-errors"
+  data-event="click:_component_.show_error"
+>There are test failures…</div>
 <div
   data-list="_component_.parts"
   data-bind="component_map(js:js-viewer|markdown:markdown-viewer|component:fiddle|test:test)=.type">
@@ -92,4 +98,6 @@
       .then(() => b8r.ajax(data.url))
       .then(source => process(source));
   }
+
+  set({show_error: () => b8r.findOne('.test-transcript .failure').scrollIntoViewIfNeeded()});
 </script>
