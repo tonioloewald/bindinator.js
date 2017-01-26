@@ -27,7 +27,13 @@ module.exports = function(b8r) {
 
 return {
 	value: function(element){
-		return element.value;
+		if(element.matches('input[type=radio]')){
+			const name = element.getAttribute('name');
+			const checked = b8r.find(`input[type=radio][name=${name}]`).find(elt => elt.checked);
+			return checked ? checked.value : null;
+		} else {
+			return element.value;
+		} 
 	},
 	checked: function(element) {
 		return element.checked;
