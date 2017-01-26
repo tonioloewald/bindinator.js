@@ -973,7 +973,7 @@ If no element is provided, the component will be appended to document.body
 
 Data will be passed to the component's load method and registered as the component's private instance data. (Usually
 data is passed automatically from parent components or via binding, e.g. `data-bind="component=path.to.data` binds that
-data to the component").
+data to the component).
 */
 
 function replaceInBindings(element, needle, replacement) {
