@@ -1,5 +1,5 @@
 /**
-# Test Me!
+# Literate JS Viewer Test
 Copyright ©2016-2017 Tonio Loewald
 
 This file exists for the sole purpose of testing the b8r *literate programming* component.
@@ -14,7 +14,7 @@ This file exists for the sole purpose of testing the b8r *literate programming* 
 
 The add methods adds its (numeric) argument and returns the result.
 
-Here is an example. An example with no <\w+> in the text is treated
+Here is an example. An example with no `\w+` in the text is treated
 as pure javascript. Anything that looks like a tag will be treated
 as a component, as below:
 
@@ -46,9 +46,7 @@ const {add} = _required_;
 
 Test(() => add(1,1)).shouldBe(2);
 Test(() => add(1,-1)).shouldBe(0);
-
-// Expect failure!
-Test(() => add(1,1)).shouldBe(3);
+Test(() => add(1,1)).shouldNotBe(3);
 ~~~~
 */
 

@@ -71,7 +71,10 @@ in a private context with _required_ and Test (the test.js module) passed as loc
 	set({show: false});
 
 	const Test = require('lib/test.js');
-	Test.onError = () => set({show: true});
+	Test.onError = () => {
+		b8r.findOne('.literate-errors').style.display = 'block';
+		set({show: true});	
+	}
 	Test.setReportContainer(findOne('.test-transcript'));
 	const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.getAttribute('data-component-id')}`); // jshint ignore:line
 

@@ -1,4 +1,14 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
+<style>
+  .literate-errors {
+    display: none;
+    position: relative;
+    background-color: red;
+    color: white;
+    padding: 2px 6px;
+  }
+</style>
+<div class="literate-errors">There are test errors</div>
 <div
   data-list="_component_.parts"
   data-bind="component_map(js:js-viewer|markdown:markdown-viewer|component:fiddle|test:test)=.type">
@@ -7,6 +17,9 @@
 <script>
   /* global b8r, set, data, console, require */
   'use strict';
+
+  const Test = require('lib/test.js');
+  Test.reset();
 
   b8r.component('components/loading');
   b8r.component('components/js-viewer');
