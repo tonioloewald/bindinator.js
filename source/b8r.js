@@ -31,7 +31,7 @@ const models = {};
 const noop = () => {};
 
 /**
-  b8r.register(name, obj);
+    b8r.register(name, obj);
 
 register an object by name as data or controller. 
 The names `_component_` and `_b8r_` are reserved; other similar namess may be reserved later.
@@ -39,12 +39,12 @@ The names `_component_` and `_b8r_` are reserved; other similar namess may be re
 Binding to explicitly means you will only be bound to an explicit object
 `_b8r_` is the name of the internal event handlers for bound variables
 
-  b8r.deregister(name);
+    b8r.deregister(name);
 
 Remove a registered object. deregister also removes component instance objects for components no longer in the DOM,
 (and it can also be called without any parameters)
 
-  b8r.setByPath(name, path, value);
+    b8r.setByPath(name, path, value);
 
 Set a registered object's property by path. Bound elements will automatically be updated.
 
@@ -52,15 +52,15 @@ Set a registered object's property by path. Bound elements will automatically be
 
 Get a registered object's property by path.
 
-  b8r.pushByPath(name, path, item, callback);
+    b8r.pushByPath(name, path, item, callback);
 
 As above, but unshift (and no callback).
 
-  b8r.unshiftByPath(name, path, item);
+    b8r.unshiftByPath(name, path, item);
 
 Insert an item into the specified array property. (Automatically updates bound lists).
 
-  b8r.removeListInstance(element);
+    b8r.removeListInstance(element);
 
 Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
@@ -257,31 +257,31 @@ b8r.getListInstance = function(elt) {
 };
 
 /**
-  b8r.on(element, event_type, model_name, method_name);
+    b8r.on(element, event_type, model_name, method_name);
 
 creates an implicit event-binding data attribute:
   
-  data-event="event_type:module_name.method_name"
+    data-event="event_type:module_name.method_name"
 
 Multiple handlers are semicolon-delimited, e.g.
   
-  data-event="mouseover:_component_.show;mouseover:_component_.hide"
+    data-event="mouseover:_component_.show;mouseover:_component_.hide"
 
 You can bind multiple event types separated by commas, e.g. 
 
-  data-event="click,keyup:do.something"
+    data-event="click,keyup:do.something"
 
 **Note**: if you link two event types to the same method separately they will NOT be collated.
 
 You can remove an implicit event binding using:
 
-  b8r.off(element, event_type, model_name, method_name);
+    b8r.off(element, event_type, model_name, method_name);
 
 ### Keyboard Events
 
 To make it easy to handle specific keystrokes, you can bind to keystrokes by name, e.g.
 
-  data-bind="keydown(meta-KeyS)"
+    data-bind="keydown(meta-KeyS)"
 
 For your convenience, there's a *Keyboard Event Utility*.
 */
@@ -364,11 +364,11 @@ b8r.off = function(...args) {
 /**
 ### Special event handling
 
-  b8r.onAny(event_type, object, method) => handlerRef
+    b8r.onAny(event_type, object, method) => handlerRef
 
 creates an event handler that will get first access to any event; returns a reference for purposes of removal
   
-  b8r.offAny(handlerRef,...)
+    b8r.offAny(handlerRef,...)
 
 removes all the handlerRefs passed
 
@@ -395,18 +395,18 @@ b8r.offAny = function (event_type, object, method) {
 
 /*
 
-  b8r.implicitEventHandlers(element)
+    b8r.implicitEventHandlers(element)
 
 returns an array of parsed implicit event handlers for an element, e.g.
 
-  data-event="type1:model1.method1;type2,type3:model2.method2"
+    data-event="type1:model1.method1;type2,type3:model2.method2"
 
 is returned as
 
-  [
-    { types: ["type1"], model: "model1", method: "method1"},
-    { types: ["type2", "type3"], model: "model2", method: "method2"}
-  ]
+    [
+      { types: ["type1"], model: "model1", method: "method1"},
+      { types: ["type2", "type3"], model: "model2", method: "method2"}
+    ]
 */
 function implicitEventHandlers (element) {
   var source = element.getAttribute('data-event');
@@ -440,8 +440,8 @@ function implicitEventHandlers (element) {
 }
 
 /**
-  b8r.callMethod(method_path, ...args)
-  b8r.callMethod(model, method, ...args);
+    b8r.callMethod(method_path, ...args)
+    b8r.callMethod(model, method, ...args);
 
 Call a method by name from a registered method. If the relevant model has not yet been registered
 (e.g. it's being loaded asynchronously) it will get the message when it's registered.
@@ -496,7 +496,7 @@ b8r.callMethod = function (...args) {
 };
 
 /**
-  b8r.trigger(type, target);
+    b8r.trigger(type, target);
 
 Trigger a synthetic implicit (only!) event. Note that you can trigger and handle
 completely made-up events, but if you trigger events that occur naturally the goal
@@ -529,7 +529,7 @@ order.
 
 To get a normalized representation of a keystroke, there's:
 
-  b8r.keystroke(event)
+    b8r.keystroke(event)
 
 ```
 <label>
@@ -817,12 +817,12 @@ const components = {};
 const component_timeouts = {};
 
 /**
-  b8r.component(name, url);
+    b8r.component(name, url);
 
 Loads component from url registers it as "name". (Components are registered separately from other objects.)
 Returns a promise of the component once loaded.
 
-  b8r.component('path/to/name');
+    b8r.component('path/to/name');
 
 If just a url parameter is provided, the name of the component will be inferred.
 
@@ -832,7 +832,7 @@ Instances of the component will automatically be inserted as expected once loade
 
 **Also note**: you can usually avoid the pattern:
 
-  b8r.component(...).then(c => b8r.insertComponent(c, target))
+    b8r.component(...).then(c => b8r.insertComponent(c, target))
 
 By simply binding the component to the target and letting nature take its course.
 */
@@ -965,7 +965,7 @@ function loadAvailableComponents(element, data) {
 }
 
 /**
-  b8r.insertComponent(component, element, data);
+    b8r.insertComponent(component, element, data);
 
 insert a component by name or by passing a component record (e.g. promised by component() or produced by makeComponent)
 
