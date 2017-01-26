@@ -13,6 +13,9 @@ build/*
 *.xcworkspace
 xcuserdata
 
+# intellij noise
+.idea/
+
 # svn & cvs
 .svn
 CVS
