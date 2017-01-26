@@ -477,7 +477,7 @@ b8r.callMethod = function (...args) {
       [model, method, ...args] = args;
     }
   } catch(e) {
-    debugger;
+    debugger; // jshint ignore:line
   }
   var result = null;
   if ( models[model] ) {
