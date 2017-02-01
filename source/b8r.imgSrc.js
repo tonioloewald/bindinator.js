@@ -10,6 +10,9 @@ is loaded.
 */
 
 module.exports = function imageSrc(img, url, opacity){
+  if(img.src === url) {
+    return;
+  }
   if(!getComputedStyle(img).transition) {
     img.style.transition = '0.25s ease-out';
   }
