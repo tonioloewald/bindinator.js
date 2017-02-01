@@ -485,7 +485,7 @@ b8r.callMethod = function (...args) {
   var result = null;
   if ( models[model] ) {
     if (models[model][method] instanceof Function) {
-      result = models[model][method].apply(null, args);
+      result = models[model][method](...args);
     } else {
       console.error(`callMethod failed: ${model}.${method} is not a function`);
     }
@@ -772,11 +772,15 @@ function bindList (element, data) {
   // we walk the list, moving existing bound list instances into the fragment
   // and creating new clones as needed
   const fragment = b8r.fragment();
+  const existing_list_instances = b8r.
+                                  makeArray(element.parentElement.children).
+                                  filter(elt => elt.matches('[data-list-instance]'));
   for (var i = 0; i < list.length; i++) {
     var instance;
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path): i;
     const itemPath = list_path + '[' + id + ']';
-    instance = element.parentElement.querySelector(`[data-list-instance="${itemPath}"]`);
+    instance = existing_list_instances.
+               find(elt => elt.getAttribute('data-list-instance') === itemPath);
     if(!instance) {
       instance = element.cloneNode(true);
       instance.removeAttribute('data-list');
@@ -902,6 +906,7 @@ b8r.makeComponent = function(name, source) {
     'register',
     'get',
     'set',
+    'on',
     'touch',
     `${script}\n//# sourceURL=${name}(component)`
   ) : false;
@@ -1047,6 +1052,7 @@ b8r.insertComponent = function (component, element, data) {
       b8r.setByPath(component_id, path, value);
       b8r.trigger('change', element);
     };
+    const on = (...args) => b8r.on(element, ...args);
     const touch = (path) => b8r.touchByPath(component_id, path);
     register(data);
     const view_obj = component.load(
@@ -1058,6 +1064,7 @@ b8r.insertComponent = function (component, element, data) {
       register,
       get,
       set,
+      on,
       touch
     );
     if (view_obj) {
