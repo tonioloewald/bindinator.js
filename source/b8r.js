@@ -6,7 +6,7 @@ Binds data and methods to the DOM and lets you quickly turn chunks of markup, st
 into reusable components so you can concentrate on your project.
 */
 /* jshint esnext:true, loopfunc:true */
-/* globals console, window, require, module */
+/* globals console, window, require, module, KeyboardEvent */
 
 (function(module){
 'use strict';
@@ -428,6 +428,9 @@ function implicitEventHandlers (element) {
       return { 
         types: types.map(s => s.split('(')[0].trim()),
         type_args: types.map(s => {
+          if (s.substr(0,3) === 'key') {
+            s = s.replace(/Key|Digit/g, '');
+          }
           var args = s.match(/\(([^)]+)\)/);
           return args && args[1] ? args[1].split(',') : false;
         }),
@@ -553,13 +556,22 @@ b8r.keystroke = function(evt) {
   if(evt.ctrlKey){ code.push('ctrl'); }
   if(evt.metaKey){ code.push('meta'); }
   if(evt.shiftKey){ code.push('shift'); }
-  code.push(evt.code || '');
+  if(evt.code) {
+    code.push(evt.code.replace(/Key|Digit/, '')); 
+  } else {
+    var synthetic_code = evt.keyIdentifier;
+    if (synthetic_code.substr(0,2) === 'U+') {
+      synthetic_code = String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
+    }
+    console.log(evt);
+    code.push(synthetic_code);
+  }
   return code.join('-');
 };
 
 function handleEvent (evt) {
   var target = anyElement ? anyElement : evt.target;
-  var keystroke = b8r.keystroke(evt);
+  var keystroke = evt instanceof KeyboardEvent ? b8r.keystroke(evt) : {};
   var done = false;
   while (target && !done) {
     var handlers = implicitEventHandlers(target);
