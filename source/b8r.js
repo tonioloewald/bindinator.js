@@ -563,7 +563,6 @@ b8r.keystroke = function(evt) {
     if (synthetic_code.substr(0,2) === 'U+') {
       synthetic_code = String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
     }
-    console.log(evt);
     code.push(synthetic_code);
   }
   return code.join('-');
