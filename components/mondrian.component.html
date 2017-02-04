@@ -5,7 +5,7 @@ Copyright ©2016-2017 Tonio Loewald
 <style>
 	.mondrian {
 		position: relative;
-		height: 600px;
+		height: 400px;
 		overflow: hidden;
 	}
 	.mondrian > * {
@@ -52,75 +52,8 @@ Copyright ©2016-2017 Tonio Loewald
 	</select> Desired Aspect Ratio
 </label>
 <script>
-
-/*
-	a and b are children
-*/
-class PartitionedRect {
-	constructor(left, top, width, height, a, b) {
-		this.left = left || 0;
-		this.top = top || 0;
-		this.width = width || 100;
-		this.height = height || 100;
-		Object.assign(this, {a, b});
-	}
-
-	add(elt) {
-
-	}
-}
-/*
-	orig, container, and partition are dimensions (i.e. {w, h})
-	orig -- the thing we're trying to display
-	container -- the total space available
-	partition --the space being considered
-	totalPartitions -- the total number of things we're displaying
-	returns a value from 0–1 which is the product of:
-	f -- fairness -- proportion of "fair" space received (), max 1.
-	c -- crop -- proportion of total image visible after crop, scaled by fairness
-	Clearly 1 is the highest score and 0 is the lowest
-*/
-	function fitMeasure(orig, container, partition, totalPartitions) {
-		const A = container.w * container.h;
-		const a = partition.w * partition.h;
-		const f = Math.min(a / A * totalPartitions, 1);
-		const r = orig.w / orig.h;
-		const r0 = partition.w / partition.h;
-		const c = Math.min(r/r0, r0/r) * f;
-		console.log({A,a,f,c});
-		return c * f;
-	}
-
-	class Partition {
-		static get horizontal () { return 'horizontal' }
-		static get vertical () { return 'vertical' }
-
-		constructor(x, y, w, h, direction, position) {
-			Object.assign(this, {x, y, w, h, direction, position});
-		}
-
-		get r0 () {
-			const {x, y, w, h, direction, position} = this;
-			if(direction === Partition.horizontal) {
-				return {x, y, w: w *position, h};
-			} else {
-				return {x, y, w, h: h * position};
-			}
-		}
-
-		get r1 () {
-			const {x, y, w, h, direction, position} = this;
-			if(direction === Partition.horizontal) {
-				return {x: x + w * position, y, w: w * (1-position), h}
-			} else {
-				return {x, y: y + h * position, w, h: h * (1-position)}
-			}
-		}
-
-		fairness (orig0, orig1) {
-			return fitMeasure(orig0, this, this.r0, 2) * fitMeasure(orig1, this, this.r0, 2);
-		}
-	}
+/* global console, find, findOne, component, require, register */
+'use strict';
 
 	const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
 	const hidden = () => find('.mondrian > .hidden');
@@ -129,47 +62,11 @@ class PartitionedRect {
 	const random_changes = findOne('.random_changes');
 	var last_adjusted_aspect_ratio;
 
+	const Mondrian = require('lib/mondrian.js');
+
 	function update() {
-		const aspect_ratio = adjusted_aspect_ratio(); //0.2;
-		console.log(findOne('.desired_aspect_ratio').value, aspect_ratio);
-		const hidden_list = hidden();
-		const visible_list = visible();
-		const item_count = visible_list.length;
-		if(visible_list.length === 0) {
-			return;
-		}
-
-		var row_count = 1;
-		var col_count = 1;
-		const rows = [[]];
-		while(row_count * col_count < item_count) {
-			// aspect ratio adjustment
-			if(row_count * aspect_ratio < col_count) {
-				row_count += 1;
-				rows.push([]);
-			} else {
-				col_count += 1;
-			}
-		}
-
-		const ave_items_per_row = item_count / row_count;
-		for(var i = 0; i < item_count; i++) {
-			var row = Math.floor(i / ave_items_per_row);
-			rows[row].push(visible_list[i]);
-		}
-
-		const row_height = 100 / rows.length;
-		rows.forEach((row, row_index) => {
-			var left = 0;
-			row.forEach((elt, col_index) => {
-				var width = Math.round(100 / row.length)
-				elt.style.width = width + '%';
-				elt.style.height = row_height + '%';
-				elt.style.top = (row_height * row_index) + '%';
-				elt.style.left = left + '%';
-				left += width;
-			});
-		});
+		const aspect_ratio = adjusted_aspect_ratio();
+		Mondrian.arrange(visible(), aspect_ratio);
 	}
 
 	function pick_random(arr) {
@@ -189,7 +86,7 @@ class PartitionedRect {
 		}
 	}
 
-	const	interval = setInterval(() => {
+	const interval = setInterval(() => {
 		if (!findOne('.mondrian')) {
 			console.log('mondrian interval cleared');
 			clearInterval(interval);
