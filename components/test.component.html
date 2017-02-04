@@ -72,7 +72,8 @@ in a private context with _required_ and Test (the test.js module) passed as loc
 
 	const Test = require('lib/test.js');
 	Test.onError = () => {
-		if(component && component.closest('body')) {
+		const test_error = b8r.findOne('.literate-errors');
+		if(test_error) {
 			b8r.findOne('.literate-errors').style.display = 'block';
 			set({show: true});
 		}
