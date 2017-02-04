@@ -4,21 +4,22 @@ Copyright ©2016-2017 Tonio Loewald
 -->
 <style>
 	.mondrian {
-		display: flex;
-		flex-flow: row-reverse wrap;
+		position: relative;
 		height: 600px;
 		overflow: hidden;
 	}
-	.mondrian > div {
-		width: 10px;
+	.mondrian > * {
 		overflow: hidden;
+		position: absolute;
 		color: rgba(0,0,0,0.3);
-		flex-grow: 1;
-		flex-shrink: 0;
+		transition: 0.2s ease-out;
+		object-fit: cover;
 		font-size: 48px;
-		line-height: 100px;
 		text-align: center;
-		position: relative;
+	}
+
+	.mondrian video {
+		border-radius: 2px;
 	}
 
 	.mondrian-label {
@@ -27,31 +28,17 @@ Copyright ©2016-2017 Tonio Loewald
 	}
 </style>
 <div class="mondrian">
-	<div style="background-color: red">A</div>
-	<div style="background-color: green">B</div>
-	<div style="background-color: blue">C</div>
-	<div style="background-color: yellow">D</div>
-	<div style="background-color: orange">E</div>
-	<div style="background-color: indigo">F</div>
-	<div style="background-color: turquoise">G</div>
-	<div style="background-color: magenta">H</div>
-	<div style="background-color: olive">I</div>
-	<div style="background-color: purple">J</div>
-	<div style="background-color: red">K</div>
-	<div style="background-color: green">L</div>
-	<div style="background-color: blue">M</div>
-	<div style="background-color: yellow">N</div>
-	<div style="background-color: orange">O</div>
-	<div style="background-color: indigo">P</div>
-	<div style="background-color: turquoise">Q</div>
-	<div style="background-color: magenta">R</div>
-	<div style="background-color: olive">S</div>
-	<div style="background-color: purple">T</div>
+	<video src="test/video/portrait1.mov" autoplay=true loop=true></video>
+	<video src="test/video/portrait2.mov" autoplay=true loop=true></video>
+	<video src="test/video/portrait3.mov" autoplay=true loop=true></video>
+	<video src="test/video/landscape1.mov" autoplay=true loop=true></video>
+	<video src="test/video/landscape2.mov" autoplay=true loop=true></video>
+	<video src="test/video/landscape3.mov" autoplay=true loop=true></video>
 </div>
 <button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
 <button class="show" data-event="click:_component_.show_random">Show Random</button>
 <label class="mondrian-label">
-	<input class="random_changes" type="checkbox" checked>Randomly add and remove items
+	<input class="random_changes" type="checkbox">Randomly add and remove items
 </label>
 <label class="mondrian-label">
 	<select class="desired_aspect_ratio">
@@ -135,38 +122,54 @@ class PartitionedRect {
 		}
 	}
 
-	const visible = () => find('.mondrian > div').filter(div => !div.matches('.hidden'));
+	const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
 	const hidden = () => find('.mondrian > .hidden');
-	const desired_aspect_ratio = () => parseInt(findOne('.desired_aspect_ratio').value, 10);
+	const desired_aspect_ratio = () => parseFloat(findOne('.desired_aspect_ratio').value);
 	const adjusted_aspect_ratio = () => component.offsetWidth / component.offsetHeight / desired_aspect_ratio();
 	const random_changes = findOne('.random_changes');
 	var last_adjusted_aspect_ratio;
 
 	function update() {
-		last_adjusted_aspect_ratio = adjusted_aspect_ratio();
+		const aspect_ratio = adjusted_aspect_ratio(); //0.2;
+		console.log(findOne('.desired_aspect_ratio').value, aspect_ratio);
 		const hidden_list = hidden();
 		const visible_list = visible();
+		const item_count = visible_list.length;
 		if(visible_list.length === 0) {
 			return;
 		}
 
-		var rows = 1, cols = 1, partition = Math.round(last_adjusted_aspect_ratio);
-		if(partition > 1) {
-			rows = Math.round(visible_list.length / partition);
-			cols = Math.ceil(visible_list.length / rows);
-		} else {
-			cols = Math.floor(visible_list.length / partition);
-			rows = Math.ceil(visible_list.length / cols);
+		var row_count = 1;
+		var col_count = 1;
+		const rows = [[]];
+		while(row_count * col_count < item_count) {
+			// aspect ratio adjustment
+			if(row_count * aspect_ratio < col_count) {
+				row_count += 1;
+				rows.push([]);
+			} else {
+				col_count += 1;
+			}
 		}
-		console.log(rows, cols);
 
-		findOne('.show').disabled = hidden_list.length === 0;
-		findOne('.hide').disabled = visible_list.length === 0;
-		const minWidth = Math.floor(100 / Math.ceil(Math.sqrt(visible().length * last_adjusted_aspect_ratio)));
-		visible_list.forEach(div => {
-			div.style.minWidth = minWidth + '%';
+		const ave_items_per_row = item_count / row_count;
+		for(var i = 0; i < item_count; i++) {
+			var row = Math.floor(i / ave_items_per_row);
+			rows[row].push(visible_list[i]);
+		}
+
+		const row_height = 100 / rows.length;
+		rows.forEach((row, row_index) => {
+			var left = 0;
+			row.forEach((elt, col_index) => {
+				var width = Math.round(100 / row.length)
+				elt.style.width = width + '%';
+				elt.style.height = row_height + '%';
+				elt.style.top = (row_height * row_index) + '%';
+				elt.style.left = left + '%';
+				left += width;
+			});
 		});
-		hidden_list.forEach(div => div.style.minWidth = '');
 	}
 
 	function pick_random(arr) {

@@ -134,6 +134,7 @@
 		b8r.find('.menubar.open,.menubar .open').forEach(elt => elt.classList.remove('open'));
 	}
 
+	debugger;
 	b8r.register('menubar', {
 		action(evt){
 			if(!evt.target.matches('.menubar') && !evt.target.parentElement.matches('.menubar')) {
@@ -141,6 +142,7 @@
 			}
 		},
 		open(evt){
+			debugger;
 			const li = evt.target.closest('li');
 			if(!li) {
 				return;
