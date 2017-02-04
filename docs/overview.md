@@ -36,7 +36,7 @@ Sometimes you'll need to simply tell b8r that something has changed (e.g. you mi
 
 ### id paths
 
-There's one wrinkle on paths that goes beyond javascript programming norms, and that is id paths. Instead of binding by index (e.g. `foo.bar[17]`) you can bind by an **id path**, e.g. `foo.bar[user.id=12341234]`. This is essentially saying, "give me the item in the list foo.bar that has user.name equal to 'podperson'".
+There's one wrinkle on paths that goes beyond javascript programming norms, and that is id paths. Instead of binding by index (e.g. `foo.bar[17]`) you can bind by an **id path**, e.g. `foo.bar[user.id=12341234]`. This is essentially saying, "give me the item in the list foo.bar that has user.id equal to '12341234'".
 
 Instead of binding a list by index (the default) which would look like this:
 
@@ -50,7 +50,8 @@ You can provide an id path:
 		<span data-bind="text=.user.name"></span>
 	</li>
 
-Id paths allow lists to be updated more efficiently.
+Among other things, paths allow lists to be updated more efficiently in the DOM, but they are also very useful for simply accessing
+objects in lists using arbitrary keys.
 
 ## Events
 
