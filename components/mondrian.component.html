@@ -42,7 +42,7 @@ Copyright ©2016-2017 Tonio Loewald
 <button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
 <button class="show" data-event="click:_component_.show_random">Show Random</button>
 <label class="mondrian-label">
-	<input class="random_changes" type="checkbox">Randomly add and remove items
+	<input class="random_changes" type="checkbox" checked>Randomly add and remove items
 </label>
 <label class="mondrian-label">
 	<select class="desired_aspect_ratio">
@@ -78,6 +78,11 @@ Copyright ©2016-2017 Tonio Loewald
 	}
 
 	function random_behavior () {
+		if(hidden().length === 0) {
+			hide_random();
+		} else if (visible().length === 0) {
+			show_random();
+		}
 		if(random_changes.checked) {
 			switch (Math.floor(Math.random() * 3)) {
 				case 0:
@@ -100,7 +105,7 @@ Copyright ©2016-2017 Tonio Loewald
 		if (last_adjusted_aspect_ratio !== adjusted_aspect_ratio()) {
 			update();
 		}
-	}, 500);
+	}, 2000);
 
 	function hide_random () {
 		const elt = pick_random(visible());
