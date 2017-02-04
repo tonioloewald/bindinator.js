@@ -10,7 +10,7 @@
 	var loading = findOne('[data-component="loading"]');
 
 	function render(source) {
-		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min")
+		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js")
 					  .then(() => {
 					 		code.textContent = source.trim();
 							Prism.highlightElement(code);

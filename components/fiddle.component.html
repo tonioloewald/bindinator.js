@@ -54,7 +54,7 @@ of awesome that this works at all.
 	var editor;
 
 	// ACE editor -- bleargh
-	require.lazy('https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace').then(() => {
+	require.lazy('https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js').then(() => {
 	    editor = ace.edit(code_elt);
 		ace.config.set("basePath", "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/");
 	}, () => {
