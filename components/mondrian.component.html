@@ -18,10 +18,6 @@ Copyright ©2016-2017 Tonio Loewald
 		text-align: center;
 	}
 
-	.mondrian .hidden {
-		opacity: 0;
-	}
-
 	.mondrian video {
 		border-radius: 2px;
 	}
@@ -78,19 +74,20 @@ Copyright ©2016-2017 Tonio Loewald
 	}
 
 	function random_behavior () {
-		if(hidden().length === 0) {
-			hide_random();
-		} else if (visible().length === 0) {
-			show_random();
-		}
 		if(random_changes.checked) {
-			switch (Math.floor(Math.random() * 3)) {
-				case 0:
-					hide_random();
-					break;
-				case 1:
-					show_random();
-					break;
+			if(hidden().length === 0) {
+				show_random();
+			} else if (visible().length === 0) {
+				show_random();
+			} else {
+				switch (Math.floor(Math.random() * 3)) {
+					case 0:
+						hide_random();
+						break;
+					case 1:
+						show_random();
+						break;
+				}
 			}
 		}
 	}
