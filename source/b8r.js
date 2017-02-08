@@ -507,12 +507,15 @@ is for them to be handled exactly as if they were "real".
 
 */
 b8r.trigger = function(type, target) {
-  if (typeof type !== 'string' || !(target instanceof HTMLElement)) {
+  if (typeof type !== 'string' || !(target.dispatchEvent instanceof Function)) {
     console.error ('expected trigger(event_type, target_element)', type, target);
   }
   if (target) {
     const event = new Event(type);
     target.dispatchEvent(event);
+    if(target instanceof HTMLElement && implicit_event_types.indexOf(type) === -1) {
+      handleEvent(event);
+    }
   } else {
     console.warn('b8r.trigger called with no specified target');
   }
