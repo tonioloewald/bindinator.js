@@ -119,7 +119,11 @@ b8r.touchByPath = function(name, path, source_element) {
 
 b8r.setByPath = function (...args) {
   var name, path, value, source_element;
-  if (args.length === 2 || args[2] instanceof HTMLElement) {
+  if (args.length === 2 && typeof args[1] === 'object') {
+    [name, value] = args;
+    Object.keys(value).forEach(path => b8r.setByPath(name, path, value[path]));
+    return;
+  } else if (args.length === 2 || args[2] instanceof HTMLElement) {
     [path, value, source_element] = args;
     [name, path] = pathSplit(path);
   } else {

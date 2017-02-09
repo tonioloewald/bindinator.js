@@ -8,8 +8,13 @@ Gracefully populates an `<img>` element's src attribute to a url,
 sets the element to `opacity: 0`, and then fads it in when the image
 is loaded.
 */
+/* global module */
+'use strict';
 
 module.exports = function imageSrc(img, url, opacity){
+  if (!url) {
+    debugger;
+  }
   if(img.src === url) {
     return;
   }
@@ -21,4 +26,4 @@ module.exports = function imageSrc(img, url, opacity){
   image.src = url;
   image.onload = () => img.style.opacity = opacity || 1;
   img.setAttribute('src', url);
-}
+};
