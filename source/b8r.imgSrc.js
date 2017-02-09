@@ -12,9 +12,6 @@ is loaded.
 'use strict';
 
 module.exports = function imageSrc(img, url, opacity){
-  if (!url) {
-    debugger;
-  }
   if(img.src === url) {
     return;
   }
@@ -23,7 +20,11 @@ module.exports = function imageSrc(img, url, opacity){
   }
   const image = new Image();
   img.style.opacity = 0;
-  image.src = url;
-  image.onload = () => img.style.opacity = opacity || 1;
-  img.setAttribute('src', url);
+  if (url) {
+    image.src = url;
+    image.onload = () => img.style.opacity = opacity || 1;
+    img.setAttribute('src', url);
+  } else {
+    img.removeAttribute('src');
+  }
 };
