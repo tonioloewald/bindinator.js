@@ -58,15 +58,13 @@ Copyright ©2016-2017 Tonio Loewald
 	const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
 	const hidden = () => find('.mondrian > .hidden');
 	const desired_aspect_ratio = () => parseFloat(findOne('.desired_aspect_ratio').value);
-	const adjusted_aspect_ratio = () => component.offsetWidth / component.offsetHeight / desired_aspect_ratio();
 	const random_changes = findOne('.random_changes');
 
 	const mondrian = require('lib/mondrian.js');
 	const resize = require('lib/resize.js');
 
 	function update() {
-		console.log('updating', adjusted_aspect_ratio());
-		mondrian.arrange(visible(), adjusted_aspect_ratio());
+		mondrian.arrange(visible(), desired_aspect_ratio());
 	}
 
 	const container = findOne('.mondrian');

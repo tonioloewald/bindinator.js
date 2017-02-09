@@ -2,7 +2,7 @@
 # loading
 Copyright ©2016-2017 Tonio Loewald
 -->
-<div style="text-align: center; padding: 10%" class="loading-spinner">
+<div style="text-align: center; padding: 10%;" class="loading-spinner">
 	<svg style="width: 64px; height: 64px;" viewBox="0, 0, 128, 128">
     <path d="M81.8,108.5 L87.7,123.3 C80.2,126.6 72.1,127.7 64,128 L64,112 L64,112 C70.0,111.9 76.1,110.9 81.8,108.5 z" fill-opacity="0.1"/>
     <path d="M39.7,105.4 C45.0,108.3 50.8,110.8 56.9,111.4 L54.6,127.1 C46.5,126.2 38.9,123.1 31.7,119.3 L39.7,105.4 z" fill-opacity="0.2"/>
@@ -20,7 +20,7 @@ Copyright ©2016-2017 Tonio Loewald
 	var interval = parseInt(component.getAttribute('interval') || '250', 10);
 	var fill = component.getAttribute('fill') || 'white';
 	var div = findOne('div');
-	div.style.background = component.getAttribute('background') || 'rgba(0,0,0,0.5)';
+	div.style.background = component.getAttribute('background') || 'rgba(0,0,0,0.25)';
 	find('path').forEach(elt => elt.style.fill = fill);
 	var rot = 0;
 	var interval = setInterval(() => {
