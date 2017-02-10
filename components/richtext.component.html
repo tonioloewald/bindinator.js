@@ -46,6 +46,9 @@ controls, but at least it's simple.
 			<li>
 				<a data-shortcut="ctrl-O" data-event="menuclick:_component_.open_doc">Open…</a>
 			</li>
+			<li>
+				<a data-shortcut="ctrl-O" data-event="menuclick:_component_.save_doc">Save…</a>
+			</li>
 		</ul>
 	</li>
 	<li>
@@ -147,6 +150,8 @@ controls, but at least it's simple.
 	</li>
 </ul>
 <div data-component="toolbar">
+	<input title="file name" placeholder="file name" data-bind="value=_component_.filename" data-event="focus:_component_.all">
+	<hr class="fixed">
 	<button data-event="click:_component_.exec" data-command="justifyLeft"><span class="icon-paragraph-left3"></span></button>
 	<button data-event="click:_component_.exec" data-command="justifyCenter"><span class="icon-paragraph-center3"></span></button>
 	<button data-event="click:_component_.exec" data-command="justifyRight"><span class="icon-paragraph-right3"></span></button>
@@ -172,6 +177,8 @@ controls, but at least it's simple.
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
 
+	set('filename', 'Untitled.html');
+
 	const doc = findOne('.richtext');
 	const new_doc = () => doc.innerHTML = '';
 	const open_doc = () => {
@@ -184,6 +191,7 @@ controls, but at least it's simple.
 				reader.onload = e => {
 					doc.innerHTML = '';
 					doc.focus();
+					set('filename', input.files[9].name);
 					// could use type to decide whether to tread at text, markdown, or html
 					document.execCommand('insertHTML', false, e.target.result);
 				};
@@ -193,11 +201,22 @@ controls, but at least it's simple.
 		input.click();
 		b8r.callMethod('menubar.close');
 	};
+	const all = evt => {
+		evt.target.select();
+	}
+	const save_doc = () => {
+		const a = b8r.create('a');
+		a.setAttribute('download', get('filename') || 'Untitled.html');
+		const data_url = 'data:application/octet-stream;base64,' + btoa(doc.innerHTML);
+		a.setAttribute('href', data_url);
+		a.click();
+		b8r.callMethod('menubar.close');
+	};
 	const exec = evt => {
 		doc.focus();
 		const args = evt.target.closest('[data-command]').getAttribute('data-command').split(',');
 		document.execCommand(args[0], false, args[1]);
 	};
 
-	set({new_doc, open_doc, exec});
+	set({new_doc, open_doc, save_doc, exec, all});
 </script>
