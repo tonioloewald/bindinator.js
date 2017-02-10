@@ -3,8 +3,8 @@
 
 This is a simple and fairly robust rich text editor. It has all the
 usual issues of contenteditable / execCommand-based rich text editors
-in that it doesn't accurately reflect the selection state in the
-controls, but at least it's simple.
+in that it has lots of subtle issues and doesn't accurately reflect 
+the selection state in the controls, but at least it's simple.
 -->
 <style>
 	.richtext {
@@ -47,7 +47,8 @@ controls, but at least it's simple.
 				<a data-shortcut="ctrl-O" data-event="menuclick:_component_.open_doc">Open…</a>
 			</li>
 			<li>
-				<a data-shortcut="ctrl-O" data-event="menuclick:_component_.save_doc">Save…</a>
+				<a data-shortcut="ctrl-S" data-event="menuclick:_component_.save_doc">Save</a>
+				<i data-bind="text=_component_.filename">filename</i>
 			</li>
 		</ul>
 	</li>
@@ -171,7 +172,7 @@ controls, but at least it's simple.
 <p>This is a <b>test</b>.</p>
 </div>
 <script>
-/*global b8r, findOne, set */
+/*global b8r, findOne, set, get */
 'use strict';
 
 	b8r.component('components/menubar');
@@ -203,7 +204,7 @@ controls, but at least it's simple.
 	};
 	const all = evt => {
 		evt.target.select();
-	}
+	};
 	const save_doc = () => {
 		const a = b8r.create('a');
 		a.setAttribute('download', get('filename') || 'Untitled.html');
