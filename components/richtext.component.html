@@ -41,10 +41,10 @@ controls, but at least it's simple.
 		File
 		<ul>
 			<li>
-				<a data-shortcut="ctrl-KeyN" data-event="menuclick:_component_.new_doc">New</a>
+				<a data-shortcut="ctrl-N" data-event="menuclick:_component_.new_doc">New</a>
 			</li>
 			<li>
-				<a data-shortcut="ctrl-KeyO" data-event="menuclick:_component_.open">Open…</a>
+				<a data-shortcut="ctrl-O" data-event="menuclick:_component_.open_doc">Open…</a>
 			</li>
 		</ul>
 	</li>
@@ -52,10 +52,10 @@ controls, but at least it's simple.
 		Edit
 		<ul>
 			<li>
-				<a data-shortcut="meta-KeyZ" data-event="menuclick:_component_.exec" data-command="undo">Undo</a>
+				<a data-shortcut="meta-Z" data-event="menuclick:_component_.exec" data-command="undo">Undo</a>
 			</li>
 			<li>
-				<a data-shortcut="meta-shift-KeyZ" data-event="menuclick:_component_.exec" data-command="redo">Redo</a>
+				<a data-shortcut="meta-shift-Z" data-event="menuclick:_component_.exec" data-command="redo">Redo</a>
 			</li>
 			<li class="separator"></li>
 			<li>
@@ -116,17 +116,17 @@ controls, but at least it's simple.
 				<span>Character</span>
 				<ul>
 					<li>
-						<a data-shortcut="meta-KeyB" data-event="menuclick:_component_.exec" data-command="bold">
+						<a data-shortcut="meta-B" data-event="menuclick:_component_.exec" data-command="bold">
 							<b>Bold</b>
 						</a>
 					</li>
 					<li>
-						<a data-shortcut="meta-KeyI" data-event="menuclick:_component_.exec" data-command="italic">
+						<a data-shortcut="meta-I" data-event="menuclick:_component_.exec" data-command="italic">
 							<i>Italic</i>
 						</a>
 					</li>
 					<li>
-						<a data-shortcut="meta-KeyU" data-event="menuclick:_component_.exec" data-command="underline">
+						<a data-shortcut="meta-U" data-event="menuclick:_component_.exec" data-command="underline">
 							<u>Underline</u>
 						</a>
 					</li>
@@ -137,7 +137,7 @@ controls, but at least it's simple.
 					</li>
 					<li class="separator"></li>
 					<li>
-						<a data-shortcut="meta-KeyP" data-event="menuclick:_component_.exec" data-command="removeFormat">
+						<a data-shortcut="meta-P" data-event="menuclick:_component_.exec" data-command="removeFormat">
 							<span>Plain</span>
 						</a>
 					</li>
@@ -166,17 +166,38 @@ controls, but at least it's simple.
 <p>This is a <b>test</b>.</p>
 </div>
 <script>
+/*global b8r, findOne, set */
+'use strict';
+
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
 
 	const doc = findOne('.richtext');
 	const new_doc = () => doc.innerHTML = '';
-	const open = () => {};
+	const open_doc = () => {
+		const input = b8r.create('input');
+		input.setAttribute('type', 'file');
+		input.setAttribute('accept', 'text/*');
+		input.addEventListener('change', () => {
+			if (input.value) {
+				const reader = new FileReader();
+				reader.onload = e => {
+					doc.innerHTML = '';
+					doc.focus();
+					// could use type to decide whether to tread at text, markdown, or html
+					document.execCommand('insertHTML', false, e.target.result);
+				};
+				reader.readAsText(input.files[0]);
+			}
+		});
+		input.click();
+		b8r.callMethod('menubar.close');
+	};
 	const exec = evt => {
 		doc.focus();
 		const args = evt.target.closest('[data-command]').getAttribute('data-command').split(',');
 		document.execCommand(args[0], false, args[1]);
 	};
 
-	set({new_doc, open, exec});
+	set({new_doc, open_doc, exec});
 </script>

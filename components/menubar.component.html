@@ -161,7 +161,7 @@
 			}
 		},
 		close(evt){
-			if (!evt.relatedTarget || !evt.relatedTarget.closest('.menubar')) {
+			if (!evt || !evt.relatedTarget || !evt.relatedTarget.closest('.menubar')) {
 				close_all_menus();
 			}
 		}
