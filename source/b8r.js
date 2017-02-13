@@ -739,8 +739,8 @@ function removeListInstances(element) {
   }
 }
 
-function bindList (element, data) {
-  const [source_path, id_path] = element.getAttribute('data-list').split(':');
+function bindList (list_template, data) {
+  const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
   var method_path, list_path;
   try {
     // parse computed list method if any
@@ -770,39 +770,50 @@ function bindList (element, data) {
       }
     }());
   }
-  b8r.show(element);
+  b8r.show(list_template);
   if(!id_path) {
-    removeListInstances(element);
+    removeListInstances(list_template);
   }
   // efficient list update:
-  // we walk the list, moving existing bound list instances into the fragment
-  // and creating new clones as needed
-  const fragment = b8r.fragment();
-  const existing_list_instances = b8r.
-                                  makeArray(element.parentElement.children).
-                                  filter(elt => elt.matches('[data-list-instance]'));
+  // if we have an id_path we grab existing instances, and re-use those with matching ids
+  const existing_list_instances = id_path ?
+                                  b8r.
+                                  makeArray(list_template.parentElement.children).
+                                  filter(elt => elt.matches('[data-list-instance]')) :
+                                  [];
+
+  // we record the order of the list items so we can fix the DOM order afterwards if necessary
+  const correct_sequence = [];
   for (var i = 0; i < list.length; i++) {
-    var instance;
+    var instance_idx, instance;
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path): i;
     const itemPath = list_path + '[' + id + ']';
-    instance = existing_list_instances.
-               find(elt => elt.getAttribute('data-list-instance') === itemPath);
-    if(!instance) {
-      instance = element.cloneNode(true);
+    instance_idx = existing_list_instances.
+                   findIndex(elt => elt.getAttribute('data-list-instance') === itemPath);
+    if(instance_idx === -1) {
+      instance = list_template.cloneNode(true);
       instance.removeAttribute('data-list');
       instance.setAttribute('data-list-instance', itemPath);
       bindAll(instance, itemPath);
+      list_template.parentElement.insertBefore(instance, list_template); 
     } else {
+      instance = existing_list_instances[instance_idx];
+      existing_list_instances.splice(instance_idx, 1);
       bindAll(instance);
     }
-    fragment.appendChild(instance);
+    correct_sequence.push(instance);
+  }
+  /* minimal reordering of DOM to match list order */
+  for(i = 1; i < correct_sequence.length; i++) {
+    if (correct_sequence[i-1].nextSibling !== correct_sequence[i].nextSibling) {
+      list_template.parentElement.insertBefore(correct_sequence[i-1], correct_sequence[i]);
+    }
   }
   // anything still there is no longer in the list and can be removed
   if (id_path) {
-    removeListInstances(element);
+    existing_list_instances.forEach(instance => instance.remove());
   }
-  b8r.hide(element);
-  element.parentElement.insertBefore(fragment, element);
+  b8r.hide(list_template);
 }
 
 function bindAll(element, data) {
@@ -881,6 +892,16 @@ b8r.component = function (name, url) {
   return component_promises[name];
 };
 
+b8r.makeStylesheet = function(source) {
+  const style = source ? b8r.create('style') : false;
+  if (style) {
+    style.type = 'text/css';
+    style.appendChild(b8r.text(source));
+    document.head.appendChild(style);
+  }
+  return style;
+};
+
 b8r.makeComponent = function(name, source) {
   var css = false, content, script = false, parts, remains;
 
@@ -917,14 +938,8 @@ b8r.makeComponent = function(name, source) {
     `${script}\n//# sourceURL=${name}(component)`
   ) : false;
 /*jshint evil: false */
-  var style;
-  if (css) {
-    style = b8r.create('style');
-    style.type = 'text/css';
-    style.appendChild(b8r.text(css));
-    document.head.appendChild(style);
-  }
-  var component = {name: name, style: css ? style : false, view: div, load: load, _source: source};
+  const style = b8r.makeStylesheet(css);
+  var component = {name: name, style, view: div, load: load, _source: source};
   if (component_timeouts[name]) {
     clearInterval(component_timeouts[name]);
   }
@@ -1054,8 +1069,8 @@ b8r.insertComponent = function (component, element, data) {
   Object.assign(data, {data_path, component_id});
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
-    const set = (path, value) => {
-      b8r.setByPath(component_id, path, value);
+    const set = (...args) => {
+      b8r.setByPath(component_id, ...args);
       b8r.trigger('change', element);
     };
     const on = (...args) => b8r.on(element, ...args);
