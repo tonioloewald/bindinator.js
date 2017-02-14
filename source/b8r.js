@@ -944,7 +944,7 @@ b8r.makeComponent = function(name, source) {
     `${script}\n//# sourceURL=${name}(component)`
   ) : false;
 /*jshint evil: false */
-  const style = b8r.makeStylesheet(css);
+  const style = b8r.makeStylesheet(`/* ${name} component */\n` + css);
   var component = {name: name, style, view: div, load: load, _source: source};
   if (component_timeouts[name]) {
     clearInterval(component_timeouts[name]);
