@@ -739,6 +739,16 @@ function removeListInstances(element) {
   }
 }
 
+b8r.listInstances = list_template => {
+  const instances = [];
+  var instance = list_template.previousSibling;
+  while(instance && instance instanceof HTMLElement && instance.matches('[data-list-instance]')) {
+    instances.push(instance);
+    instance = instance.previousSibling;
+  }
+  return instances.reverse();
+};
+
 function bindList (list_template, data) {
   const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
   var method_path, list_path;
@@ -762,13 +772,13 @@ function bindList (list_template, data) {
       try {
         const [,method,path] = method_path.match(/^(.*?)\.(.*)$/);
         list = b8r.callMethod(method, path, list);
-        if(list === null) {
-          throw 'could not compute list; async computed list methods not supported (yet)';
-        }
       } catch(e) {
         console.error('bindList failed; bad method path', method_path, e);
       }
     }());
+    if(!list) {
+      throw 'could not compute list; async computed list methods not supported (yet)';
+    }
   }
   b8r.show(list_template);
   if(!id_path) {
@@ -776,11 +786,7 @@ function bindList (list_template, data) {
   }
   // efficient list update:
   // if we have an id_path we grab existing instances, and re-use those with matching ids
-  const existing_list_instances = id_path ?
-                                  b8r.
-                                  makeArray(list_template.parentElement.children).
-                                  filter(elt => elt.matches('[data-list-instance]')) :
-                                  [];
+  const existing_list_instances = id_path ? b8r.listInstances(list_template) : [];
 
   // we record the order of the list items so we can fix the DOM order afterwards if necessary
   const correct_sequence = [];
@@ -1066,6 +1072,7 @@ b8r.insertComponent = function (component, element, data) {
   }
   element.setAttribute('data-component-id', component_id);
   const register = component_data => b8r.register(component_id, component_data);
+  data = Object.assign({}, data);
   Object.assign(data, {data_path, component_id});
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
@@ -1073,7 +1080,10 @@ b8r.insertComponent = function (component, element, data) {
       b8r.setByPath(component_id, ...args);
       b8r.trigger('change', element);
     };
-    const on = (...args) => b8r.on(element, ...args);
+    const on = (...args) => {
+      args[1] = args[1].replace(/_component_/, component_id);
+      b8r.on(element, ...args);
+    };
     const touch = (path) => b8r.touchByPath(component_id, path);
     register(data);
     const view_obj = component.load(
