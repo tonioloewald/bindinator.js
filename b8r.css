@@ -273,6 +273,7 @@ pre {
 code {
 	color: #57A700;
 	font-family: Menlo, Monaco, Monospace;
+	font-size: 90%;
 }
 
 pre > code {
