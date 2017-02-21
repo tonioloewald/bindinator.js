@@ -14,14 +14,16 @@
 <div 
   class="literate-errors"
   data-event="click:_component_.show_error"
->There are test failures…</div>
+>
+  There are test failures…
+</div>
 <div
   data-list="_component_.parts"
   data-bind="component_map(js:js-viewer|markdown:markdown-viewer|component:fiddle|test:test)=.type">
   <div data-component="loading"></div>
 </div>
 <script>
-  /* global b8r, set, data, console, require */
+  /* global b8r, set, data, console, require, findOne */
   'use strict';
 
   const Test = require('lib/test.js');
@@ -34,6 +36,7 @@
   b8r.component('components/test');
 
   function process(complete_source) {
+    b8r.hide(findOne('.literate-errors'));
     try {
       const pieces = complete_source.split('/**')
                                      .map((text, idx) => {
