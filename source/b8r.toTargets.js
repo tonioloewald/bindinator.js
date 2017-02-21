@@ -10,8 +10,7 @@ The following targets (attributes of a DOM element) can be bound to object data:
 
 	data-bind="value=message.text"
 
-This is the value of `<input>` and `<textarea>` elements. It will correctly check the
-appropriate member of a set of radio inputs.
+This is the value of `<input>` and `<textarea>` elements.
 
 ### checked
 
@@ -121,7 +120,7 @@ return {
 	value: function(element, value){
 		switch (element.getAttribute('type')) {
 			case 'radio': 
-				element.checked = element.value == value;
+				element.checked = element.value === value;
 				break;
 			case 'checkbox':
 				element.checked = value;
@@ -145,7 +144,11 @@ return {
 	},
 	img,
 	bgImg: function(element, value) {
-		element.style.backgroundImage = `url("${value}")`;
+		if (value) {
+			element.style.backgroundImage = `url("${value}")`;
+		} else {
+			element.style.backgroundImage = '';
+		}
 	},
 	style: function(element, value, dest) {
 		if (!dest) {
@@ -207,9 +210,6 @@ return {
 		}
 	},
 	component_map: function(element, value, dest, data) {
-		if (element.getAttribute('data-component-id')) {
-			return;
-		}
 		var component_options = dest.split('|');
 		var component_name;
 		for (var i = 0; i < component_options.length; i++) {
@@ -220,7 +220,10 @@ return {
 			}
 		}
 		if (component_name) {
-			b8r.insertComponent(component_name, element, data);
+			const existing = element.getAttribute('data-component-id') || '';
+			if (existing.indexOf(`c#${component_name}#`) === -1) {
+				b8r.insertComponent(component_name, element, data);
+			}
 		}
 	}
 };

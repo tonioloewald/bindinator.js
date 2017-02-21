@@ -788,9 +788,8 @@ function bindList (list_template, data) {
   // if we have an id_path we grab existing instances, and re-use those with matching ids
   const existing_list_instances = id_path ? b8r.listInstances(list_template) : [];
 
-  // we record the order of the list items so we can fix the DOM order afterwards if necessary
-  const correct_sequence = [];
-  for (var i = 0; i < list.length; i++) {
+  var previous_instance = list_template;
+  for (var i = list.length - 1; i >= 0; i--) {
     var instance_idx, instance;
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path): i;
     const itemPath = list_path + '[' + id + ']';
@@ -801,19 +800,16 @@ function bindList (list_template, data) {
       instance.removeAttribute('data-list');
       instance.setAttribute('data-list-instance', itemPath);
       bindAll(instance, itemPath);
-      list_template.parentElement.insertBefore(instance, list_template); 
+      list_template.parentElement.insertBefore(instance, previous_instance); 
     } else {
       instance = existing_list_instances[instance_idx];
       existing_list_instances.splice(instance_idx, 1);
       bindAll(instance);
+      if(instance.nextSibling !== previous_instance) {
+        list_template.parentElement.insertBefore(instance, previous_instance); 
+      }
     }
-    correct_sequence.push(instance);
-  }
-  /* minimal reordering of DOM to match list order */
-  for(i = 1; i < correct_sequence.length; i++) {
-    if (correct_sequence[i-1].nextSibling !== correct_sequence[i].nextSibling) {
-      list_template.parentElement.insertBefore(correct_sequence[i-1], correct_sequence[i]);
-    }
+    previous_instance = instance;
   }
   // anything still there is no longer in the list and can be removed
   if (id_path) {
