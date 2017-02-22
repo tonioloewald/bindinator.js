@@ -209,7 +209,7 @@ return {
 			console.error('component toTarget found on non component', element);
 		}
 	},
-	component_map: function(element, value, dest, data) {
+	component_map: function(element, value, dest) {
 		var component_options = dest.split('|');
 		var component_name;
 		for (var i = 0; i < component_options.length; i++) {
@@ -222,7 +222,7 @@ return {
 		if (component_name) {
 			const existing = element.getAttribute('data-component-id') || '';
 			if (existing.indexOf(`c#${component_name}#`) === -1) {
-				b8r.insertComponent(component_name, element, data);
+				b8r.insertComponent(component_name, element);
 			}
 		}
 	}
