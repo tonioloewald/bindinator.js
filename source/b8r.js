@@ -474,6 +474,19 @@ function playSavedMessages(for_model) {
   }
 }
 
+b8r.getComponentMethod = function(element, path) {
+  var component_id = false;
+  element = element.closest('[data-component-id]');
+  while (element instanceof HTMLElement) {
+    if(b8r.getByPath(element.getAttribute('data-component-id'), path) instanceof Function) {
+      component_id = element.getAttribute('data-component-id');
+      break;
+    }
+    element = element.parentElement.closest('[data-component-id]');
+  }
+  return component_id;
+};
+
 b8r.callMethod = function (...args) {
   var model, method;
   try {
@@ -590,6 +603,9 @@ function handleEvent (evt) {
             (!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
         ) {
           if( handler.model && handler.method ) {
+            if(handler.model === '_component_') {
+              handler.model = b8r.getComponentMethod(target, handler.method);
+            }
             result = b8r.callMethod(handler.model, handler.method, evt, target);
           } else {
             console.error('incomplete event handler on', target);
@@ -611,6 +627,7 @@ function handleEvent (evt) {
 var implicit_event_types = [
   'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
   'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
+  'transitionend', 'animationend',
   'scroll',
   'input', 'change',
   'keydown', 'keyup',
@@ -1018,8 +1035,8 @@ data to the component).
 
 function replaceInBindings(element, needle, replacement) {
   const needle_regexp = new RegExp(needle, 'g');
-  b8r.findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-event*="${needle}"]`).forEach(elt => {
-    ['data-bind', 'data-list', 'data-event'].forEach(attr => {
+  b8r.findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"]`).forEach(elt => {
+    ['data-bind', 'data-list'].forEach(attr => {
       const val = elt.getAttribute(attr);
       if(val) {
         elt.setAttribute(attr, val.replace(needle_regexp, replacement));
