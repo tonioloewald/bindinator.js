@@ -1051,6 +1051,9 @@ b8r.insertComponent = function (component, element, data) {
   if (!element) {
     element = b8r.create('div');
   }
+  if (element.getAttribute('data-component') !== component.name || component) {
+    element.setAttribute('data-component', component.name || component);
+  }
   if (typeof component === 'string') {
     if(!components[component]) {
       if (!component_timeouts[component]) {
