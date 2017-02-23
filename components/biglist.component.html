@@ -5,6 +5,11 @@ Copyright ©2016-2017 Tonio Loewald
 This implements support for arbitrarily large scrolling lists (of items that can be
 constant or variable row height). Only a minimal number of elements are in the DOM at
 any given time.
+
+## TODO
+
+* fix breakage for efficient list updates (try using :id)
+* efficient list updates should get you nicer selection behavior on scroll
 -->
 <style>
 	.biglist-viewport {
@@ -99,6 +104,7 @@ any given time.
 				fontSize: (Math.random() * 36 + 12) + 'px',
 				color: '#eeeeee',
 				selected: false,
+				id: i,
 			});
 		}
 	}
