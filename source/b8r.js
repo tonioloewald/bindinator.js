@@ -33,7 +33,7 @@ const noop = () => {};
 /**
     b8r.register(name, obj);
 
-register an object by name as data or controller. 
+register an object by name as data or controller.
 The names `_component_` and `_b8r_` are reserved; other similar namess may be reserved later.
 
 Binding to explicitly means you will only be bound to an explicit object
@@ -264,14 +264,14 @@ b8r.getListInstance = function(elt) {
     b8r.on(element, event_type, model_name, method_name);
 
 creates an implicit event-binding data attribute:
-  
+
     data-event="event_type:module_name.method_name"
 
 Multiple handlers are semicolon-delimited, e.g.
-  
+
     data-event="mouseover:_component_.show;mouseover:_component_.hide"
 
-You can bind multiple event types separated by commas, e.g. 
+You can bind multiple event types separated by commas, e.g.
 
     data-event="click,keyup:do.something"
 
@@ -291,10 +291,10 @@ For your convenience, there's a *Keyboard Event Utility*.
 */
 function getEventHandlers(element) {
   const source = element.getAttribute('data-event');
-  const existing = source ? 
+  const existing = source ?
                    source.
                    replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';').
-                   filter(handler => handler.trim()) : 
+                   filter(handler => handler.trim()) :
                    [];
   return existing;
 }
@@ -371,7 +371,7 @@ b8r.off = function(...args) {
     b8r.onAny(event_type, object, method) => handlerRef
 
 creates an event handler that will get first access to any event; returns a reference for purposes of removal
-  
+
     b8r.offAny(handlerRef,...)
 
 removes all the handlerRefs passed
@@ -399,7 +399,7 @@ b8r.offAny = function (event_type, object, method) {
 
 /*
 
-    b8r.implicitEventHandlers(element)
+    b8r.getParsedEventHandlers(element)
 
 returns an array of parsed implicit event handlers for an element, e.g.
 
@@ -412,38 +412,33 @@ is returned as
       { types: ["type2", "type3"], model: "model2", method: "method2"}
     ]
 */
-function implicitEventHandlers (element) {
-  var source = element.getAttribute('data-event');
-  var handlers = [];
-  if (source) {
-    source = source.split(';').filter(elt => !!elt);
-    handlers = source.map(function(instruction){
-      var [type, handler] = instruction.split(':');
-      if (!handler) {
-        if(instruction.indexOf('.')) {
-          console.error('bad event handler (missing event type)', instruction, 'in', element);
-        } else {
-          console.error('bad event handler (missing handler)', instruction, 'in', element);
-        }
-        return { types: [] };
+function getParsedEventHandlers (element) {
+  var handlers = getEventHandlers(element);
+  return handlers.map(function(instruction){
+    var [type, handler] = instruction.split(':');
+    if (!handler) {
+      if(instruction.indexOf('.')) {
+        console.error('bad event handler (missing event type)', instruction, 'in', element);
+      } else {
+        console.error('bad event handler (missing handler)', instruction, 'in', element);
       }
-      var [model, method] = handler.trim().split('.');
-      var types = type.split(',').sort();
-      return { 
-        types: types.map(s => s.split('(')[0].trim()),
-        type_args: types.map(s => {
-          if (s.substr(0,3) === 'key') {
-            s = s.replace(/Key|Digit/g, '');
-          }
-          var args = s.match(/\(([^)]+)\)/);
-          return args && args[1] ? args[1].split(',') : false;
-        }),
-        model,
-        method,
-      };
-    });
-  }
-  return handlers;
+      return { types: [] };
+    }
+    var [model, method] = handler.trim().split('.');
+    var types = type.split(',').sort();
+    return {
+      types: types.map(s => s.split('(')[0].trim()),
+      type_args: types.map(s => {
+        if (s.substr(0,3) === 'key') {
+          s = s.replace(/Key|Digit/g, '');
+        }
+        var args = s.match(/\(([^)]+)\)/);
+        return args && args[1] ? args[1].split(',') : false;
+      }),
+      model,
+      method,
+    };
+  });
 }
 
 /**
@@ -577,7 +572,7 @@ b8r.keystroke = function(evt) {
   if(evt.metaKey){ code.push('meta'); }
   if(evt.shiftKey){ code.push('shift'); }
   if(evt.code) {
-    code.push(evt.code.replace(/Key|Digit/, '')); 
+    code.push(evt.code.replace(/Key|Digit/, ''));
   } else {
     var synthetic_code = evt.keyIdentifier;
     if (synthetic_code.substr(0,2) === 'U+') {
@@ -593,13 +588,13 @@ function handleEvent (evt) {
   var keystroke = evt instanceof KeyboardEvent ? b8r.keystroke(evt) : {};
   var done = false;
   while (target && !done) {
-    var handlers = implicitEventHandlers(target);
+    var handlers = getParsedEventHandlers(target);
     var result = false;
     for (var i = 0; i < handlers.length; i++) {
       var handler = handlers[i];
       for (var type_index = 0; type_index < handler.types.length; type_index++) {
         if(
-          handler.types[type_index] === evt.type && 
+          handler.types[type_index] === evt.type &&
             (!handler.type_args[type_index] || handler.type_args[type_index].indexOf(keystroke) > -1)
         ) {
           if( handler.model && handler.method ) {
@@ -626,9 +621,9 @@ function handleEvent (evt) {
 
 var implicit_event_types = [
   'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
+  'mousewheel', 'scroll',
   'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
   'transitionend', 'animationend',
-  'scroll',
   'input', 'change',
   'keydown', 'keyup',
   'focus', 'blur' // more to follow
@@ -661,7 +656,7 @@ function parseBinding (binding) {
     throw 'binding is missing = sign; probably need a source or target';
   }
   var [,targets, path] = binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
-  targets = targets.split(',').map(function(target){ 
+  targets = targets.split(',').map(function(target){
     var parts = target.match(/(\w+)(\(([^)]+)\))?/);
     if(!parts) {
       console.error('bad target', target, 'in binding', binding);
@@ -817,13 +812,13 @@ function bindList (list_template, data) {
       instance.removeAttribute('data-list');
       instance.setAttribute('data-list-instance', itemPath);
       bindAll(instance, itemPath);
-      list_template.parentElement.insertBefore(instance, previous_instance); 
+      list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
       instance = existing_list_instances[instance_idx];
       existing_list_instances.splice(instance_idx, 1);
       bindAll(instance);
       if(instance.nextSibling !== previous_instance) {
-        list_template.parentElement.insertBefore(instance, previous_instance); 
+        list_template.parentElement.insertBefore(instance, previous_instance);
       }
     }
     previous_instance = instance;
@@ -855,7 +850,7 @@ models._b8r_ = {
       var {targets, path} = bindings[i];
       targets = targets.filter(t => fromTargets[t.target]);
       targets.forEach(t => {
-        b8r.setByPath(path, fromTargets[t.target](target, t.key), target); 
+        b8r.setByPath(path, fromTargets[t.target](target, t.key), target);
       });
     }
     return true;
@@ -982,7 +977,7 @@ var data_waiting_for_components = []; // { target_element, data }
 function saveDataForElement(target_element, data) {
   if (data) {
     removeDataForElement(target_element);
-    data_waiting_for_components.push({target_element, data}); 
+    data_waiting_for_components.push({target_element, data});
   }
 }
 
