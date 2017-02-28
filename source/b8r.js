@@ -320,8 +320,8 @@ function makeHandler(event_type, method) {
   return event_type.sort().join(',') + ':' + method;
 }
 
-b8r.on = function (...args) {
-  var element, event_type, object, method, prepend;
+const onOffArgs = args => {
+  var element, event_type, object, method, prepend = false;
   if(typeof args[2] === 'object') {
     console.warn('b8r.on(element, type, OBJECT) is deprecated');
     [element, event_type, object] = args;
@@ -338,9 +338,14 @@ b8r.on = function (...args) {
   }
   if (!(element instanceof HTMLElement)) {
     console.error('bind bare elements please, not', element);
-    return;
+    throw 'bad argument';
   }
-  const handler = makeHandler(event_type, method);
+  return {element, event_type, path: method, prepend};
+};
+
+b8r.on = function (...args) {
+  const {element, event_type, path, prepend} = onOffArgs(args);
+  const handler = makeHandler(event_type, path);
   const existing = getEventHandlers(element);
   if(existing.indexOf(handler) === -1) {
     if (prepend) {
@@ -390,17 +395,30 @@ removes all the handlerRefs passed
 for purposes of propagation.
 
 */
+const anyArgs = args => {
+  var event_type, object, method, path;
+  if (args.length === 2) {
+    [event_type, path] = args;
+  } else {
+    [event_type, object, method] = args;
+    path = object + '.' + method;
+  }
+  return {event_type, path};
+};
+
 var anyElement = null;
-b8r.onAny = function(event_type, object, method) {
+b8r.onAny = function(...args) {
+  const {event_type, path} = anyArgs(args);
   if (!anyElement) {
     anyElement = b8r.create('div');
   }
-  b8r.on(anyElement, event_type, object, method);
+  b8r.on(anyElement, event_type, path);
 };
 
-b8r.offAny = function (event_type, object, method) {
+b8r.offAny = function (...args) {
+  const {event_type, path} = anyArgs(args);
   if (anyElement) {
-    b8r.off(anyElement, event_type, object, method);
+    b8r.off(anyElement, event_type, path);
     if (!anyElement.getAttribute('data-event')) {
       anyElement = null;
     }
@@ -1054,7 +1072,7 @@ function getDataPath(data, element) {
   if (typeof data === 'string') {
     return data;
   }
-  const data_parent = element.closest('[data-path],[data-list-instance]');
+  const data_parent = element ? element.closest('[data-path],[data-list-instance]') : false;
   return data_parent ? data_parent.getAttribute('data-path') || data_parent.getAttribute('data-list-instance') : false;
 }
 
