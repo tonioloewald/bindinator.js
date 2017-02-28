@@ -842,7 +842,7 @@ function bindAll(element, data) {
 b8r.bindAll = bindAll;
 
 models._b8r_ = {
-  echo: evt => { console.log(evt); return true; },
+  echo: evt => console.log(evt) || true,
   stopEvent: () => {},
   update: function(evt, target) {
     var bindings = getBindings(target);
