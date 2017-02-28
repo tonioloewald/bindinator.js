@@ -66,7 +66,7 @@ When the button is clicked the "action" method of whatever object is registered 
 b8r.register('some', {action: () => alert('hello world')});
 ```
 
-Registering an object with a name causes it to be treated like a controller as well. If an event occurs before the 
+Registering an object with a name causes it to be treated like a controller as well. If an event occurs before the
 relevant controller is bound, the event will be replayed (in order) for the controller when it is registered.
 
 **Multiple bindings** can be separated by semicolons, e.g.
@@ -114,8 +114,8 @@ When a component is loaded as "click-counter" it will automatically populate app
 Data can be bound to components:
 
 ```
-<div 
-	data-component="click-counter" 
+<div
+	data-component="click-counter"
 	data-bind="component=path.to.data"
 ></div>
 ```
@@ -124,7 +124,7 @@ Components can bind to their own private data objects by using "_component_" so 
 
 ```
 <p data-bind="text=_component_.message"></p>
-<button 
+<button
 	data-event="click:_component_.doSomething"
 >
 	Click Me!
@@ -136,7 +136,7 @@ Can simply set its own properties and method:
 ```
 set({
 	message: 'hello',
-	doSomething: () => {...} 
+	doSomething: () => {...}
 });
 ```
 
