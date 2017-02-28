@@ -1040,9 +1040,17 @@ function replaceInBindings(element, needle, replacement) {
   });
 }
 
+function getDataPath(data, element) {
+  if (typeof data === 'string') {
+    return data;
+  }
+  const data_parent = element && element.closest('[data-path]');
+  return data_parent ? data_parent.getAttribute('data-path') : false;
+}
+
 var component_count = 0;
 b8r.insertComponent = function (component, element, data) {
-  const data_path = typeof data === 'string' ? data : false;
+  const data_path = getDataPath(data, element);
   if (!element) {
     element = b8r.create('div');
   }
@@ -1074,7 +1082,9 @@ b8r.insertComponent = function (component, element, data) {
     b8r.moveChildren(element, children);
     b8r.copyChildren(component.view, element);
     replaceInBindings(element, '_component_', component_id);
-    replaceInBindings(element, '_data_', data_path || component_id);
+    if (data_path) {
+      replaceInBindings(element, '_data_', data_path);
+    }
     var children_dest = b8r.findOneWithin(element, '[data-children]');
     if (children.firstChild && children_dest) {
       b8r.empty(children_dest);
@@ -1082,6 +1092,9 @@ b8r.insertComponent = function (component, element, data) {
     }
   }
   element.setAttribute('data-component-id', component_id);
+  if(data_path) {
+    element.setAttribute('data-path', data_path);
+  }
   const register = component_data => b8r.register(component_id, component_data);
   data = Object.assign({}, data);
   Object.assign(data, {data_path, component_id});
