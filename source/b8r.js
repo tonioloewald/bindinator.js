@@ -44,19 +44,23 @@ Binding to explicitly means you will only be bound to an explicit object
 Remove a registered object. deregister also removes component instance objects for components no longer in the DOM,
 (and it can also be called without any parameters)
 
-    b8r.setByPath(name, path, value);
+    b8r.setByPath('model', 'data.path, value);
+    b8r.setByPath('model.data.path', value);
 
 Set a registered object's property by path. Bound elements will automatically be updated.
 
-    b8r.getByPath(name, path);
+    b8r.getByPath('model', 'data.path');
+    b8r.getByPath('model.data.path');
 
 Get a registered object's property by path.
 
-    b8r.pushByPath(name, path, item, callback);
+    b8r.pushByPath('model', 'data.path', item, callback);
+    b8r.pushByPath('model.data.path', item, callback);
 
 As above, but unshift (and no callback).
 
-    b8r.unshiftByPath(name, path, item);
+    b8r.unshiftByPath('model', 'data.path, item);
+    b8r.unshiftByPath('model.data.path, item);
 
 Insert an item into the specified array property. (Automatically updates bound lists).
 
@@ -139,6 +143,8 @@ b8r.setByPath = function (...args) {
       b8r.touchByPath(name, path, source_element);
     }
     // this may update some false positives, but very few
+  } else {
+    console.error(`setByPath failed; ${name} is not a registered model`);
   }
 };
 
@@ -157,6 +163,8 @@ b8r.pushByPath = function(...args) {
       callback(list);
     }
     b8r.touchByPath(name, path);
+  } else {
+    console.error(`pushByPath failed; ${name} is not a registered model`);
   }
 };
 
@@ -172,6 +180,8 @@ b8r.unshiftByPath = function(...args) {
     const list = getByPath(models[name], path);
     list.unshift(value);
     b8r.touchByPath(name, path);
+  } else {
+    console.error(`unshiftByPath failed; ${name} is not a registered model`);
   }
 };
 
@@ -1044,8 +1054,8 @@ function getDataPath(data, element) {
   if (typeof data === 'string') {
     return data;
   }
-  const data_parent = element && element.closest('[data-path]');
-  return data_parent ? data_parent.getAttribute('data-path') : false;
+  const data_parent = element.closest('[data-path],[data-list-instance]');
+  return data_parent ? data_parent.getAttribute('data-path') || data_parent.getAttribute('data-list-instance') : false;
 }
 
 var component_count = 0;
