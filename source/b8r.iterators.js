@@ -52,5 +52,4 @@ Test(() => {
   };
 
   module.exports = {makeArray, forEachKey, mapEachKey};
-console.log(module);
 }(module));
