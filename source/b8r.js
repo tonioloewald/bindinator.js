@@ -172,7 +172,7 @@ b8r.showLogs = which => {
       }
       return {count, best, median, worst, total_time};
     });
-    console.table(mapped, ['count', 'best', 'median', 'word', 'total_time']);
+    console.table(mapped, ['count', 'best', 'median', 'worst', 'total_time']);
   } else {
     console.table(logs, []);
   }
