@@ -69,7 +69,7 @@ Insert an item into the specified array property. (Automatically updates bound l
 Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
 
-b8r.makeArray = arrayish => [].slice.apply(arrayish);
+Object.assign(b8r, require('source/b8r.iterators.js'));
 
 b8r.register = function (name, obj) {
   if (name.match(/^_[^_]*_$/)) {
@@ -108,6 +108,9 @@ b8r.deregister = function (name) {
 
 b8r.touchByPath = function(name, path, source_element) {
   const full_path = !path || path === '/' ? name : name + '.' + path;
+
+  b8r.logStart('touchByPath', full_path);
+
   const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + full_path + '"]'));
   lists.forEach(element => {
     if(element !== source_element){
@@ -119,13 +122,67 @@ b8r.touchByPath = function(name, path, source_element) {
                       makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]')).
                       filter(notInListTemplate);
   elements.forEach(element => element !== source_element && bind(element));
+
+  b8r.logEnd('touchByPath', full_path);
+};
+
+const logs = {};
+
+b8r.log = (log_name, entry_name) => {
+  if(!logs[log_name]) {
+    logs[log_name] = {};
+  }
+  const log = logs[log_name];
+  if (!log[entry_name]) {
+    log[entry_name] = {count: 0, times: [], total_time: 0};
+  }
+  log[entry_name].count += 1;
+  return log[entry_name];
+};
+
+b8r.logStart = (log_name, entry_name) => {
+  b8r.log(log_name, entry_name).start = Date.now();
+};
+
+b8r.logEnd = (log_name, entry_name) => {
+  const log = logs[log_name][entry_name];
+  const elapsed = Date.now() - log.start;
+  delete(log.start);
+  log.times.push(elapsed);
+  log.total_time += elapsed;
+};
+
+const medianOfSortedArray = values => (
+  values[Math.floor(values.length / 2)] +
+  values[Math.floor(values.length / 2 - 0.5)]
+)/2;
+
+b8r.showLogs = which => {
+  if (which) {
+    const mapped = b8r.mapEachKey(logs[which], val => {
+      const {count, times, total_time} = val;
+      var best, worst, median;
+      if (times.length) {
+        const sorted = times.sort();
+        best = sorted[0];
+        worst = sorted[sorted.length - 1];
+        median = medianOfSortedArray(sorted);
+      } else {
+        best = worst = median = '';
+      }
+      return {count, best, median, worst, total_time};
+    });
+    console.table(mapped, ['count', 'best', 'median', 'word', 'total_time']);
+  } else {
+    console.table(logs, []);
+  }
 };
 
 b8r.setByPath = function (...args) {
   var name, path, value, source_element;
   if (args.length === 2 && typeof args[1] === 'object') {
     [name, value] = args;
-    Object.keys(value).forEach(path => b8r.setByPath(name, path, value[path]));
+    b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val));
     return;
   } else if (args.length === 2 || args[2] instanceof HTMLElement) {
     [path, value, source_element] = args;
@@ -804,6 +861,7 @@ function bindList (list_template, data) {
   } catch(e) {
     console.error('bindList failed; bad source path', source_path);
   }
+  b8r.logStart('bindList', list_path);
   const [model, path] = pathSplit(list_path);
   if (model === '' && !data) {
     return;
@@ -862,15 +920,19 @@ function bindList (list_template, data) {
     existing_list_instances.forEach(instance => instance.remove());
   }
   b8r.hide(list_template);
+  b8r.logEnd('bindList', list_path);
 }
 
 function bindAll(element, data) {
+  const random_entry = Math.random();
+  b8r.logStart('bindAll', random_entry);
   loadAvailableComponents(element, data);
   findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, data));
   if(element.parentElement) {
     b8r.trigger('change', element.parentElement);
   }
+  b8r.logEnd('bindAll', random_entry);
 }
 
 b8r.bindAll = bindAll;

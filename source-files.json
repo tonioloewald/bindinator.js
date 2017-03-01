@@ -28,6 +28,10 @@
 		"path": "source/b8r.imgSrc.js"
 	},
 	{
+		"name": "iterators",
+		"path": "source/b8r.iterators.js"
+	},
+	{
 		"name": "Object Paths",
 		"path": "source/b8r.byPath.js"
 	},

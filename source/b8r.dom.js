@@ -97,6 +97,23 @@ Object.assign(b8r, {
   text: document.createTextNode.bind(document),
   fragment: document.createDocumentFragment.bind(document),
   create: document.createElement.bind(document),
+  classes: (...args) => {
+    var elt, settings, class_name, on_off;
+    if (args.length === 2) {
+      [elt, settings] = args;
+    } else if (args.length === 3) {
+      [elt, class_name, on_off] = args;
+      settings = {};
+      settings[class_name] = on_off;
+    }
+    b8r.forEachKey((on_off, class_name) => {
+      if (on_off) {
+        elt.classList.add(class_name);
+      } else {
+        elt.classList.remove(class_name);
+      }
+    });
+  },
   empty (element) {
     while (element.lastChild) {
       element.removeChild(element.lastChild);
