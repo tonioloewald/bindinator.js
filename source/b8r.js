@@ -391,6 +391,10 @@ creates an event handler that will get first access to any event; returns a refe
 
 removes all the handlerRefs passed
 
+    b8r.anyListeners()
+
+returns active any listeners.
+
 **Note** that this works *exactly* like an invisible element in front of everything else
 for purposes of propagation.
 
@@ -424,6 +428,8 @@ b8r.offAny = function (...args) {
     }
   }
 };
+
+b8r.anyListeners = () => getEventHandlers(anyElement);
 
 /*
 
