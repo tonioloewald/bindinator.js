@@ -67,7 +67,9 @@ Object.assign(b8r, {
     }
     return list;
   },
-  findOneWithin: (element, selector, include_self) => include_self && element.matches(selector) ? element : element.querySelector(selector),
+  findOneWithin: (element, selector, include_self) =>
+    include_self &&
+    element.matches(selector) ? element : element.querySelector(selector),
   succeeding: (element, selector) => {
     while(element.nextSibling && !element.nextElementSibling.matches(selector)){
       element = element.nextElementSibling;
@@ -106,7 +108,7 @@ Object.assign(b8r, {
       settings = {};
       settings[class_name] = on_off;
     }
-    b8r.forEachKey((on_off, class_name) => {
+    b8r.forEachKey(settings, (on_off, class_name) => {
       if (on_off) {
         elt.classList.add(class_name);
       } else {
