@@ -18,9 +18,9 @@
 			<div class="nav">
 				<h3>Documentation</h3>
 				<div data-component="list">
-					<div 
+					<div
 						class="loadable"
-						data-list="source_files" 
+						data-list="source_files"
 						data-bind="text=.name;attr(data-path)=.path"
 						data-event="mouseup,keydown(Space):demo.showDocs"
 						tabindex="0"
@@ -55,84 +55,106 @@
 	</div>
 	<script src="lib/require.js"></script>
 	<script>
-		const b8r = require('source/b8r.js');
-		var title = b8r.id('title');
-		var content = b8r.id('example');
-		var source_code = b8r.id('source-code');
+		const preload_data = [
+		  [
+		    "source/b8r.byPath.js",
+		    "source/b8r.dom.js",
+		    "source/b8r.iterators.js",
+		    "source/b8r.imgSrc.js",
+		    "source/b8r.fromTargets.js",
+		    "source/b8r.ajax.js",
+		    "lib/test.js",
+		    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js",
+		    "https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js"
+		  ],
+		  [
+		    "source/b8r.toTargets.js"
+		  ],
+		  [
+		    "source/b8r.js"
+		  ]
+		];
+		require.preload(preload_data).
+		then(() => {
+			const b8r = require('source/b8r.js');
+			var title = b8r.id('title');
+			var content = b8r.id('example');
+			var source_code = b8r.id('source-code');
 
-		function markCurrent(doc) {
-			b8r.find('.current').forEach(elt => {
-				elt.classList.remove('current');
-			});
-			const current = b8r.findOne('[data-path="' + doc + '"]');
-			if (current) {
-				current.classList.add('current');
-			}
-		}
-
-		b8r.register('demo', {
-			showDocs: function(evt) {
-				if (evt.target.matches('.current')) {
-					return;
-				}
-				window.location.hash = 'source=' + evt.target.getAttribute('data-path');
-			},
-			loadComponent: function(evt) {
-				if (evt.target.matches('.current')) {
-					return;
-				}
-				window.location.hash = 'component=' + evt.target.getAttribute('data-path');
-			},
-			alertKeystroke: evt => alert(b8r.keystroke(evt)),
-			fullscreen: () => {
-				console.log('toggling fullscreen');
-				if (!document.body.matches('.fullscreen')) {
-					document.body.classList.add('fullscreen');
-				} else {
-					document.body.classList.remove('fullscreen');
-				}
-				b8r.trigger('resize', window);
-			}
-		});
-
-		b8r.json('source-files.json')
-		   .then(data => b8r.register('source_files', data))
-		   .then(() => b8r.json('components.json'))
-		   .then(data => {
-		   		data.sort((a, b) => a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1);
-		   		b8r.register('components', data);
-		 		})
-		   .then(update);
-
-		var last_component_path;
-		function update() {
-			var component_path = window.location.hash.substr(1).split('?')[0];
-			if(component_path === last_component_path) {
-				console.warn('ignoring hash change within component');
-				return;
-			}
-			last_component_path = component_path;
-
-			markCurrent(component_path.split('=').pop());
-
-			var pairs = component_path.split('&').map(pair => {
-				var [key, value] = pair.split('=');
-				return {key, value};
-			});
-			var {key, value} = pairs[0];
-			if (key && value) {
-				if(key === 'component') {
-					value = `components/${value}.component.html`;
-				}
-				b8r.component('components/file-viewer').then(viewer => {
-					b8r.insertComponent(viewer, content, {url: value});
+			function markCurrent(doc) {
+				b8r.find('.current').forEach(elt => {
+					elt.classList.remove('current');
 				});
-			} else {
-				// FIXME don't do this, behave as though there's a default hash so history behaves nicely
-				b8r.trigger('mouseup', b8r.findOne('.loadable'));
+				const current = b8r.findOne('[data-path="' + doc + '"]');
+				if (current) {
+					current.classList.add('current');
+				}
 			}
-		}
 
-		window.addEventListener('hashchange', update);
+			b8r.register('demo', {
+				showDocs: function(evt) {
+					if (evt.target.matches('.current')) {
+						return;
+					}
+					window.location.hash = 'source=' + evt.target.getAttribute('data-path');
+				},
+				loadComponent: function(evt) {
+					if (evt.target.matches('.current')) {
+						return;
+					}
+					window.location.hash = 'component=' + evt.target.getAttribute('data-path');
+				},
+				alertKeystroke: evt => alert(b8r.keystroke(evt)),
+				fullscreen: () => {
+					console.log('toggling fullscreen');
+					if (!document.body.matches('.fullscreen')) {
+						document.body.classList.add('fullscreen');
+					} else {
+						document.body.classList.remove('fullscreen');
+					}
+					b8r.trigger('resize', window);
+				}
+			});
+
+			b8r.json('source-files.json')
+			   .then(data => b8r.register('source_files', data))
+			   .then(() => b8r.json('components.json'))
+			   .then(data => {
+			   		data.sort((a, b) => a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1);
+			   		b8r.register('components', data);
+			 		})
+			   .then(update);
+
+			var last_component_path;
+			function update() {
+				var component_path = window.location.hash.substr(1).split('?')[0];
+				if(component_path === last_component_path) {
+					console.warn('ignoring hash change within component');
+					return;
+				}
+				last_component_path = component_path;
+
+				markCurrent(component_path.split('=').pop());
+
+				var pairs = component_path.split('&').map(pair => {
+					var [key, value] = pair.split('=');
+					return {key, value};
+				});
+				var {key, value} = pairs[0];
+				if (key && value) {
+					if(key === 'component') {
+						value = `components/${value}.component.html`;
+					}
+					b8r.component('components/file-viewer').then(viewer => {
+						b8r.insertComponent(viewer, content, {url: value});
+					});
+				} else {
+					// FIXME don't do this, behave as though there's a default hash so history behaves nicely
+					b8r.trigger('mouseup', b8r.findOne('.loadable'));
+				}
+			}
+
+			window.addEventListener('hashchange', update);
+		});
 	</script>
 </body>
