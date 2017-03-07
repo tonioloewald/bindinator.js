@@ -69,7 +69,7 @@ Insert an item into the specified array property. (Automatically updates bound l
 Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
 
-Object.assign(b8r, require('source/b8r.iterators.js'));
+Object.assign(b8r, require('./b8r.iterators.js'));
 
 b8r.register = function (name, obj) {
   if (name.match(/^_[^_]*_$/)) {
