@@ -63,9 +63,7 @@
 		    "source/b8r.imgSrc.js",
 		    "source/b8r.fromTargets.js",
 		    "source/b8r.ajax.js",
-		    "lib/test.js",
-		    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js",
-		    "https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js"
+		    "lib/test.js"
 		  ],
 		  [
 		    "source/b8r.toTargets.js"
@@ -76,6 +74,10 @@
 		];
 		require.preload(preload_data).
 		then(() => {
+			[
+		    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js",
+		    "https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js"
+		  ].map(require.lazy);
 			const b8r = require('source/b8r.js');
 			var title = b8r.id('title');
 			var content = b8r.id('example');
