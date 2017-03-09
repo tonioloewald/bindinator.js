@@ -203,15 +203,15 @@ built-in functionality but augment it.
 				What is your favorite color?
 			</label>
 			<label>
-				<input name="favorite-color" value="red" type="radio">
+				<input name="favorite-color" value="red" type="radio" data-bind="value=_component_.color">
 				Red
 			</label>
 			<label>
-				<input name="favorite-color" value="blue" type="radio">
+				<input name="favorite-color" value="blue" type="radio" data-bind="value=_component_.color">
 				Blue
 			</label>
 			<label>
-				<input name="favorite-color" value="pink" type="radio">
+				<input name="favorite-color" value="pink" type="radio" data-bind="value=_component_.color">
 				Pink
 			</label>
 		</fieldset>
@@ -244,6 +244,7 @@ console.log('hello')
 	      selected: true
 	    }
 	  ],
+	  color: 'pink',
 		test: evt => {
 			console.log('menu pick', evt.target.textContent);
 			return true;

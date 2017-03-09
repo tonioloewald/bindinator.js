@@ -76,8 +76,8 @@ Object.assign(b8r, {
     }
     return element.nextElementSibling;
   },
-  findAbove: (elt, selector, until_elt) => {
-    var current_elt = elt.parentElement;
+  findAbove: (elt, selector, until_elt, include_self) => {
+    var current_elt = include_self ? elt : elt.parentElement;
     var found = [];
     while(current_elt) {
       if (current_elt === document.body) {

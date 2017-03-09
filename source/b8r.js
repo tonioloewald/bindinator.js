@@ -199,7 +199,6 @@ b8r.setByPath = function (...args) {
       setByPath(model, path, value);
       b8r.touchByPath(name, path, source_element);
     }
-    // this may update some false positives, but very few
   } else {
     console.error(`setByPath failed; ${name} is not a registered model`);
   }
@@ -733,7 +732,7 @@ implicit_event_types.forEach(type => document.body.addEventListener(type, handle
 /**
 ## Data Binding
 
-Data biding is implemented via the data-bind and data-list attributes.
+Data binding is implemented via the data-bind and data-list attributes.
 */
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
@@ -768,7 +767,7 @@ function pathSplit(full_path) {
 
 function getBindings (element) {
   var binding_source = element.getAttribute('data-bind');
-  if(binding_source.indexOf('=.') > -1) {
+  if(!element.matches('[data-list]') && binding_source.indexOf('=.') > -1) {
     const instance_path = b8r.getListInstancePath(element);
     if(instance_path) {
       binding_source = binding_source.replace(/\=\./g, `=${instance_path}.`);
@@ -787,6 +786,7 @@ function findBindables (element) {
     });
 }
 
+b8r.onAny(['change', 'input'], '_b8r_', 'update', true);
 function bind (element) {
   var bindings = getBindings(element);
   for (var i = 0; i < bindings.length; i++) {
@@ -800,9 +800,6 @@ function bind (element) {
       });
     } else {
       // TODO save message for when source is registered
-    }
-    if (_fromTargets.length) {
-      b8r.on(element, ['change', 'input'], '_b8r_', 'update', true);
     }
   }
 }
@@ -940,15 +937,24 @@ b8r.bindAll = bindAll;
 models._b8r_ = {
   echo: evt => console.log(evt) || true,
   stopEvent: () => {},
-  update: function(evt, target) {
-    var bindings = getBindings(target);
-    for (var i = 0; i < bindings.length; i++) {
-      var {targets, path} = bindings[i];
-      targets = targets.filter(t => fromTargets[t.target]);
-      targets.forEach(t => {
-        b8r.setByPath(path, fromTargets[t.target](target, t.key), target);
-      });
+  update: evt => {
+    var elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
+    if (evt.target.tagName === 'SELECT') {
+      const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
+      elements = elements.concat(options);
     }
+    elements.
+      filter(elt => !elt.matches('[data-list]')).
+      forEach(elt => {
+        var bindings = getBindings(elt);
+        for (var i = 0; i < bindings.length; i++) {
+          var {targets, path} = bindings[i];
+          targets = targets.filter(t => fromTargets[t.target]);
+          targets.forEach(t => {
+            b8r.setByPath(path, fromTargets[t.target](elt, t.key), elt);
+          });
+        }
+      });
     return true;
   },
 };
