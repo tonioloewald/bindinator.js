@@ -148,11 +148,13 @@ built-in functionality but augment it.
 		<option>Yet Another Option</option>
 	</select>
 	<select multiple>
-		<option>Default</option>
-		<option selected>Another Option</option>
-		<option>Yet Another Option</option>
-		<option selected>And Yet Another Option</option>
-		<option>Final Option</option>
+	  <option
+	    data-list="_component_.multiselect"
+	    data-bind="
+	      text=.text;
+	      selected=.selected
+	    "
+	  ></option>
 	</select>
 	<hr>
 	<textarea>Text Area</textarea>
@@ -166,7 +168,7 @@ built-in functionality but augment it.
 	<br>
 	<label>
 		Slider Numeric
-		<span min=0 max=25 data-component="slider-numeric" data-bind="component(value)=reactor.fuelrods"></span>
+		<span min=0 max=25 data-component="slider-numeric" data-bind="component(value)=_component_.fuelrods"></span>
 	</label>
 	<br>
 	<label>
@@ -222,8 +224,26 @@ console.log('hello')
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
 	b8r.component('components/slider-numeric');
-	b8r.register('reactor', {fuelrods: 10});
 	register({
+	  fuelrods: 17,
+	  multiselect: [
+	    {
+	      text: 'Default',
+	      selected: false
+	    },
+	    {
+	      text: 'Another Option',
+	      selected: true
+	    },
+	    {
+	      text: 'Yet Another Option',
+	      selected: false
+	    },
+	    {
+	      text: 'And Yet Another Option',
+	      selected: true
+	    }
+	  ],
 		test: evt => {
 			console.log('menu pick', evt.target.textContent);
 			return true;

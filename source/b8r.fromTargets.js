@@ -16,6 +16,10 @@ the value of `<input type="radio" ...>` elements.
 
 The **checked** of an `<input type="checkbox">` or `<input type="radio">` element.
 
+### selected
+
+The **selected** attribute on an `<option>`.
+
 ### text
 
 The **textContent** of a typical element (including div, span, and so forth). Note 
@@ -36,9 +40,8 @@ return {
 			return element.value;
 		} 
 	},
-	checked: function(element) {
-		return element.checked;
-	},
+	checked: element => element.checked,
+	selected: element => element.selected,
 	text: function(element){
 		return element.textContent;
 	},
@@ -48,8 +51,7 @@ return {
 		return b8r.getByPath(model, method)(element);
 	},
 	component: function(element, path) {
-		const component = element.closest('[data-component-id]');
-		const id = component.getAttribute('data-component-id');
+		const id = b8r.getComponentId(element);
 		return b8r.getByPath(id, path);
 	}
 };
