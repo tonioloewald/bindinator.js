@@ -41,7 +41,7 @@ This is the specified attribute. This can also be used to set "special" properti
     data-bind="style(color)=message.textColor"
     data-bind="style(padding-left,px)=message.leftPad"
 
-This sets styles (via `element.style[stringValue]`) so be warned that hyphenated properties (in CSS) 
+This sets styles (via `element.style[stringValue]`) so be warned that hyphenated properties (in CSS)
 become camelcase in Javascript (e.g. background-color is backgroundColor).
 
 The optional second parameter lets you specify units.
@@ -56,7 +56,7 @@ This lets you toggle a class based on a bound property.
 
     data-bind="hide_if(_undefined_)=message.priority"
 
-This shows (or hides) an element based on whether a bound value is truthy or matches 
+This shows (or hides) an element based on whether a bound value is truthy or matches
 the provided parameter.
 
 ### method()
@@ -72,7 +72,7 @@ as event handlers will need to deal with being passed a naked element instead of
     data-bind="component=model.property"
     data-bind="component(path.to.property)=model.property"
 
-This *sets* the component's private data, or the specified value in the 
+This *sets* the component's private data, or the specified value in the
 component's private data, *by path*.
 
 ### component_map()
@@ -116,7 +116,7 @@ function equals(value_to_match, value) {
     if (special_values.hasOwnProperty(value_to_match)) {
         return value === special_values[value_to_match];
     } else if (value_to_match !== undefined) {
-        return value == value_to_match; 
+        return value == value_to_match;
     } else {
         return !!value;
     }
@@ -125,7 +125,7 @@ function equals(value_to_match, value) {
 return {
     value: function(element, value){
         switch (element.getAttribute('type')) {
-            case 'radio': 
+            case 'radio':
                 element.checked = element.value === value;
                 break;
             case 'checkbox':
@@ -144,7 +144,7 @@ return {
         if (value === undefined || value === null) {
             element.removeAttribute(dest);
         } else {
-            element.setAttribute(dest, value);    
+            element.setAttribute(dest, value);
         }
     },
     img,
@@ -193,6 +193,9 @@ return {
     method: function(element, value, dest, data) {
         var [model, ...method] = dest.split('.');
         method = method.join('.');
+        if(model === '_component_') {
+          model = b8r.getComponentWithMethod(element, method);
+        }
         b8r.callMethod(model, method, element, value, data);
     },
     json: function(element, value) {
@@ -211,7 +214,7 @@ return {
             } else {
                 console.error('component is not registered but is bound', element);
             }
-        } else if (!element.getAttribute('data-component')) {    
+        } else if (!element.getAttribute('data-component')) {
             console.error('component toTarget found on non component', element);
         }
     },
