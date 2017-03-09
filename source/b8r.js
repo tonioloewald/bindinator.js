@@ -343,6 +343,14 @@ You can bind multiple event types separated by commas, e.g.
 
 **Note**: if you link two event types to the same method separately they will NOT be collated.
 
+You can programmatically add a data binding using:
+
+    b8r.addDataBinding(element, toTarget, path);
+
+And remove a data binding using:
+
+    b8r.removeDataBinding(element, toTarget, path);
+
 You can remove an implicit event binding using:
 
     b8r.off(element, event_type, model_name, method_name);
@@ -397,6 +405,28 @@ const onOffArgs = args => {
     throw 'bad argument';
   }
   return {element, event_type, path: method, prepend};
+};
+
+b8r.addDataBinding = (element, toTarget, path) => {
+  const binding = `${toTarget}=${path}`;
+  const existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
+  if(existing.indexOf(binding) === -1) {
+    existing.push(binding);
+    element.setAttribute('data-bind', existing.join(';'));
+  }
+};
+
+b8r.removeDataBinding = (element, toTarget, path) => {
+  const binding = `${toTarget}=${path}`;
+  const existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
+  if(existing.indexOf(binding) > -1) {
+    existing = existing.filter(exists => exists !== binding);
+    if (existing.length) {
+      element.setAttribute('data-bind', existing.join(';'));
+    } else {
+      element.removeAttribute('data-bind');
+    }
+  }
 };
 
 b8r.on = function (...args) {
@@ -559,7 +589,7 @@ function playSavedMessages(for_model) {
   }
 }
 
-b8r.getComponentMethod = function(element, path) {
+b8r.getComponentWithMethod = function(element, path) {
   var component_id = false;
   element = element.closest('[data-component-id]');
   while (element instanceof HTMLElement) {
@@ -689,7 +719,7 @@ function handleEvent (evt) {
         ) {
           if( handler.model && handler.method ) {
             if(handler.model === '_component_') {
-              handler.model = b8r.getComponentMethod(target, handler.method);
+              handler.model = b8r.getComponentWithMethod(target, handler.method);
             }
             result = b8r.callMethod(handler.model, handler.method, evt, target);
           } else {
