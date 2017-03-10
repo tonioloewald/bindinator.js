@@ -36,6 +36,10 @@
 		"path": "source/b8r.iterators.js"
 	},
 	{
+		"name": "keystroke",
+		"path": "source/b8r.keystroke.js"
+	},
+	{
 		"name": "Object Paths",
 		"path": "source/b8r.byPath.js"
 	},
