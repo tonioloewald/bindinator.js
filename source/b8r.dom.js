@@ -2,66 +2,64 @@
 # DOM Methods
 Copyright ©2016-2017 Tonio Loewald
 
-    b8r.find(selector);
+    find(selector);
 
 document.querySelectorAll(selector) converted to a true array
 
-    b8r.findOne(selector);
+    findOne(selector);
 
 document.querySelector(selector)
 
-    b8r.findWithin(element, selector, include_self);
+    findWithin(element, selector, include_self);
 
 element.querySelectorAll(selector) converted to a true array
 
-    b8r.findOneWithin(element, selector, include_self);
+    findOneWithin(element, selector, include_self);
 
 element.querySelector(selector)
 
-    b8r.id(id_string)
+    id(id_string)
 
 document.getElementById(id_string)
 
-    b8r.text(textContent)
+    text(textContent)
 
 document.createTextNode(textContent)
 
-    b8r.fragment()
+    fragment()
 
 document.createDocumentFragment()
 
-    b8r.empty()
+    empty()
 
 remove all child elements from the element
 
-    b8r.create(tagName)
+    create(tagName)
 
 document.createElement(tagName)
 
-    b8r. succeeding(element, selector);
+     succeeding(element, selector);
 
 next sibling matching selector
 
-    b8r.copyChildren(source, dest);
+    copyChildren(source, dest);
 
 copies children of source to dest (by cloning)
 
-    b8r.moveChildren(source, dest);
+    moveChildren(source, dest);
 
 moves children of source to dest
 */
-/* global module */
+/* global module, require */
 'use strict';
 
-module.exports = function(b8r){
+const {makeArray, forEachKey} = require('./b8r.iterators.js');
 
-// TODO
-// Debug versions of findOne should throw if not exactly one match
-Object.assign(b8r, {
-  find: selector => b8r.makeArray(document.querySelectorAll(selector)),
+module.exports = {
+  find: selector => makeArray(document.querySelectorAll(selector)),
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
-    var list = b8r.makeArray(element.querySelectorAll(selector));
+    var list = makeArray(element.querySelectorAll(selector));
     if (include_self && element.matches('[data-bind]')) {
       list.unshift(element);
     }
@@ -108,7 +106,7 @@ Object.assign(b8r, {
       settings = {};
       settings[class_name] = on_off;
     }
-    b8r.forEachKey(settings, (on_off, class_name) => {
+    forEachKey(settings, (on_off, class_name) => {
       if (on_off) {
         elt.classList.add(class_name);
       } else {
@@ -122,7 +120,7 @@ Object.assign(b8r, {
     }
   },
   elementIndex (element) {
-    return b8r.makeArray(element.parentElement.children).indexOf(element);
+    return makeArray(element.parentElement.children).indexOf(element);
   },
   moveChildren (source, dest) {
     while (source.firstChild) {
@@ -136,6 +134,4 @@ Object.assign(b8r, {
       element = element.nextSibling;
     }
   },
-});
-
 };

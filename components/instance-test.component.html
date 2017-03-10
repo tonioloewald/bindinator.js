@@ -5,24 +5,40 @@ Copyright ©2016-2017 Tonio Loewald
 This component nests a bunch of instances of the hello component, showing
 their private scopes in action, and also
 -->
+<style>
+	[data-id] {
+		position: relative;
+	}
+
+	[data-id]:after {
+		position: absolute;
+		top: 4px;
+		right: 4px;
+		padding: 2px 4px;
+		color: white;
+		background-color: red;
+		display: block;
+		content: attr(data-id);
+	}
+</style>
 <div>
 	<h4>Multiple Instances</h4>
 	<p>These elements have different child elements and execute their scripts in unique contexts.</p>
 	<p>One of the elements is nested in an element of the same type, and the two are still mutually independent.</p>
 	<div style="display: flex">
-		<div style="flex-grow: 1" data-component="hello">
+		<div data-id="a" style="flex-grow: 1" data-component="hello">
 			<p>I am an inherited child</p>
 		</div>
-		<div style="flex-grow: 1" data-component="hello">
+		<div data-id="b" style="flex-grow: 1" data-component="hello">
 			<p>I am a different inherited child</p>
-			<div data-component="hello">
+			<div data-id="c" data-component="hello">
 				<p>
 					And I am a child of another instance of myself
 				</p>
 			</div>
 		</div>
 	</div>
-	<div style="flex-grow: 1" data-component="hello">
+	<div data-id="d" style="flex-grow: 1" data-component="hello">
 		<p>Amongst our weaponry are such diverse elements as</p>
 		<ul>
 			<li>Fear</li>

@@ -17,7 +17,37 @@ function b8r(){}
 
 module.exports = b8r;
 
-require('./b8r.dom.js')(b8r);
+const {
+  find,
+  findOne,
+  findWithin,
+  findOneWithin,
+  findAbove,
+  id,
+  text,
+  fragment,
+  create,
+  classes,
+  empty,
+  elementIndex,
+  moveChildren,
+  copyChildren
+} = require('./b8r.dom.js');
+
+b8r.find = find;
+b8r.findOne = findOne;
+b8r.findWithin = findWithin;
+b8r.findOneWithin = findOneWithin;
+b8r.findAbove = findAbove;
+b8r.id = id;
+b8r.text = text;
+b8r.fragment = fragment;
+b8r.create = create;
+b8r.classes = classes;
+b8r.empty = empty;
+b8r.elementIndex = elementIndex;
+b8r.moveChildren = moveChildren;
+b8r.copyChildren = copyChildren;
 
 b8r.modifierKeys = {
   meta: '⌘',
@@ -157,9 +187,9 @@ const medianOfSortedArray = values => (
   values[Math.floor(values.length / 2 - 0.5)]
 )/2;
 
-b8r.showLogs = which => {
+b8r.showLogs = (which, threshold) => {
   if (which) {
-    const mapped = b8r.mapEachKey(logs[which], val => {
+    var mapped = b8r.mapEachKey(logs[which], val => {
       const {count, times, total_time} = val;
       var best, worst, median;
       if (times.length) {
@@ -172,6 +202,9 @@ b8r.showLogs = which => {
       }
       return {count, best, median, worst, total_time};
     });
+    if(threshold) {
+      mapped = b8r.filterObject(mapped, entry => entry.total_time > threshold);
+    }
     console.table(mapped, ['count', 'best', 'median', 'worst', 'total_time']);
   } else {
     console.table(logs, []);
@@ -327,22 +360,6 @@ b8r.getListInstance = function(elt) {
 };
 
 /**
-    b8r.on(element, event_type, model_name, method_name);
-
-creates an implicit event-binding data attribute:
-
-    data-event="event_type:module_name.method_name"
-
-Multiple handlers are semicolon-delimited, e.g.
-
-    data-event="mouseover:_component_.show;mouseover:_component_.hide"
-
-You can bind multiple event types separated by commas, e.g.
-
-    data-event="click,keyup:do.something"
-
-**Note**: if you link two event types to the same method separately they will NOT be collated.
-
 You can programmatically add a data binding using:
 
     b8r.addDataBinding(element, toTarget, path);
@@ -350,62 +367,7 @@ You can programmatically add a data binding using:
 And remove a data binding using:
 
     b8r.removeDataBinding(element, toTarget, path);
-
-You can remove an implicit event binding using:
-
-    b8r.off(element, event_type, model_name, method_name);
-
-### Keyboard Events
-
-To make it easy to handle specific keystrokes, you can bind to keystrokes by name, e.g.
-
-    data-bind="keydown(meta-KeyS)"
-
-For your convenience, there's a *Keyboard Event Utility*.
 */
-function getEventHandlers(element) {
-  const source = element.getAttribute('data-event');
-  const existing = source ?
-                   source.
-                   replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';').
-                   filter(handler => handler.trim()) :
-                   [];
-  return existing;
-}
-
-function makeHandler(event_type, method) {
-  if (typeof event_type === 'string') {
-    event_type = [event_type];
-  }
-  if(!Array.isArray(event_type)) {
-    console.error('makeHandler failed; bad event_type', event_type);
-    return;
-  }
-  return event_type.sort().join(',') + ':' + method;
-}
-
-const onOffArgs = args => {
-  var element, event_type, object, method, prepend = false;
-  if(typeof args[2] === 'object') {
-    console.warn('b8r.on(element, type, OBJECT) is deprecated');
-    [element, event_type, object] = args;
-    return b8r.on(element, event_type, object.model, object.method);
-  } else if(args.length > 4 || typeof args[3] === 'string') {
-    [element, event_type, object, method, prepend] = args;
-    if(typeof object !== 'string' || typeof method !== 'string') {
-      console.error('implicit bindings are by name, not', object, method);
-      return;
-    }
-    method = object + '.' + method;
-  } else {
-    [element, event_type, method, prepend] = args;
-  }
-  if (!(element instanceof HTMLElement)) {
-    console.error('bind bare elements please, not', element);
-    throw 'bad argument';
-  }
-  return {element, event_type, path: method, prepend};
-};
 
 b8r.addDataBinding = (element, toTarget, path) => {
   const binding = `${toTarget}=${path}`;
@@ -418,7 +380,7 @@ b8r.addDataBinding = (element, toTarget, path) => {
 
 b8r.removeDataBinding = (element, toTarget, path) => {
   const binding = `${toTarget}=${path}`;
-  const existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
+  var existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
   if(existing.indexOf(binding) > -1) {
     existing = existing.filter(exists => exists !== binding);
     if (existing.length) {
@@ -429,42 +391,11 @@ b8r.removeDataBinding = (element, toTarget, path) => {
   }
 };
 
-b8r.on = function (...args) {
-  const {element, event_type, path, prepend} = onOffArgs(args);
-  const handler = makeHandler(event_type, path);
-  const existing = getEventHandlers(element);
-  if(existing.indexOf(handler) === -1) {
-    if (prepend) {
-      existing.unshift(handler);
-    } else {
-      existing.push(handler);
-    }
-  }
-  element.setAttribute('data-event', existing.join(';'));
-};
-
-b8r.off = function(...args) {
-  var element, event_type, object, method;
-  if(args.length === 4) {
-    [element, event_type, object, method] = args;
-    method = object + '.' + method;
-  } else if (args.length === 3) {
-    [element, event_type, method] = args;
-  } else {
-    throw 'b8r.off requires three or four arguments';
-  }
-  const existing = element.getAttribute('data-event').split(';');
-  const handler = makeHandler(event_type, method);
-  const idx = existing.indexOf(handler);
-  if (idx > -1) {
-    existing.splice(idx, 1);
-    if (existing.length) {
-      element.setAttribute('data-event', existing.join(';'));
-    } else {
-      element.removeAttribute('data-event');
-    }
-  }
-};
+const {getEventHandlers, getParsedEventHandlers, on, off, enable, disable, implicit_event_types} = require('./b8r.events.js');
+b8r.on = on;
+b8r.off = off;
+b8r.enable = enable;
+b8r.disable = disable;
 
 /**
 ### Special event handling
@@ -516,50 +447,6 @@ b8r.offAny = function (...args) {
 };
 
 b8r.anyListeners = () => getEventHandlers(anyElement);
-
-/*
-
-    b8r.getParsedEventHandlers(element)
-
-returns an array of parsed implicit event handlers for an element, e.g.
-
-    data-event="type1:model1.method1;type2,type3:model2.method2"
-
-is returned as
-
-    [
-      { types: ["type1"], model: "model1", method: "method1"},
-      { types: ["type2", "type3"], model: "model2", method: "method2"}
-    ]
-*/
-function getParsedEventHandlers (element) {
-  var handlers = getEventHandlers(element);
-  return handlers.map(function(instruction){
-    var [type, handler] = instruction.split(':');
-    if (!handler) {
-      if(instruction.indexOf('.')) {
-        console.error('bad event handler (missing event type)', instruction, 'in', element);
-      } else {
-        console.error('bad event handler (missing handler)', instruction, 'in', element);
-      }
-      return { types: [] };
-    }
-    var [model, method] = handler.trim().split('.');
-    var types = type.split(',').sort();
-    return {
-      types: types.map(s => s.split('(')[0].trim()),
-      type_args: types.map(s => {
-        if (s.substr(0,3) === 'key') {
-          s = s.replace(/Key|Digit/g, '');
-        }
-        var args = s.match(/\(([^)]+)\)/);
-        return args && args[1] ? args[1].split(',') : false;
-      }),
-      model,
-      method,
-    };
-  });
-}
 
 /**
     b8r.callMethod(method_path, ...args)
@@ -628,29 +515,6 @@ b8r.callMethod = function (...args) {
     saveMethodCall(model, method, args);
   }
   return result;
-};
-
-/**
-    b8r.trigger(type, target);
-
-Trigger a synthetic implicit (only!) event. Note that you can trigger and handle
-completely made-up events, but if you trigger events that occur naturally the goal
-is for them to be handled exactly as if they were "real".
-
-*/
-b8r.trigger = function(type, target) {
-  if (typeof type !== 'string' || !(target.dispatchEvent instanceof Function)) {
-    console.error ('expected trigger(event_type, target_element)', type, target);
-  }
-  if (target) {
-    const event = new Event(type);
-    target.dispatchEvent(event);
-    if(target instanceof HTMLElement && implicit_event_types.indexOf(type) === -1) {
-      handleEvent(event);
-    }
-  } else {
-    console.warn('b8r.trigger called with no specified target');
-  }
 };
 
 /**
@@ -739,18 +603,31 @@ function handleEvent (evt) {
   }
 }
 
-var implicit_event_types = [
-  'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
-  'mousewheel', 'scroll',
-  'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
-  'transitionend', 'animationend',
-  'input', 'change',
-  'keydown', 'keyup',
-  'focus', 'blur' // more to follow
-];
+/**
+    trigger(type, target);
+
+Trigger a synthetic implicit (only!) event. Note that you can trigger and handle
+completely made-up events, but if you trigger events that occur naturally the goal
+is for them to be handled exactly as if they were "real".
+
+*/
+b8r.trigger = (type, target) => {
+  if (typeof type !== 'string' || !(target.dispatchEvent instanceof Function)) {
+    console.error ('expected trigger(event_type, target_element)', type, target);
+  }
+  if (target) {
+    const event = new Event(type);
+    target.dispatchEvent(event);
+    if(target instanceof HTMLElement && implicit_event_types.indexOf(type) === -1) {
+      handleEvent(event);
+    }
+  } else {
+    console.warn('b8r.trigger called with no specified target');
+  }
+};
 
 if (window.TouchEvent) {
-  implicit_event_types = implicit_event_types.concat(['touchstart', 'touchcancel', 'touchmove', 'touchend']);
+  ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(type => implicit_event_types.push(type));
 }
 
 implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent, true));
@@ -823,7 +700,6 @@ function bind (element) {
     var {targets, path} = bindings[i];
     const value = b8r.getByPath(path);
     var _toTargets = targets.filter(t => toTargets[t.target]);
-    var _fromTargets = targets.filter(t => fromTargets[t.target]);
     if (_toTargets.length) {
       _toTargets.forEach(t => {
         toTargets[t.target](element, value, t.key);
@@ -842,20 +718,9 @@ function findLists (element) {
         });
 }
 
-b8r.hide = function (element) {
-  if (element.getAttribute('data-orig-display') === null && (element.style.display && element.style.display !== 'none')) {
-    element.setAttribute('data-orig-display', element.style.display);
-    b8r.findWithin(element, '[data-event*="hide"]').forEach(elt => b8r.trigger('hide', elt));
-  }
-  element.style.display = 'none';
-};
-
-b8r.show = function (element) {
-  if (element.style.display === 'none') {
-    element.style.display = element.getAttribute('data-orig-display') || '';
-    b8r.findWithin(element, '[data-event*="show"]').forEach(elt => b8r.trigger('show', elt));
-  }
-};
+const {show, hide} = require('./b8r.show.js');
+b8r.show = show;
+b8r.hide = hide;
 
 function removeListInstances(element) {
   while(
@@ -951,7 +816,7 @@ function bindList (list_template, data) {
 }
 
 function bindAll(element, data) {
-  const random_entry = Math.random();
+  const random_entry = b8r.getComponentId(element) + '-' + Math.random();
   b8r.logStart('bindAll', random_entry);
   loadAvailableComponents(element, data);
   findBindables(element).forEach(elt => bind(elt));

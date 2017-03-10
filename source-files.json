@@ -24,6 +24,10 @@
 		"path": "source/b8r.dom.js"
 	},
 	{
+		"name": "events",
+		"path": "source/b8r.events.js"
+	},
+	{
 		"name": "imgSrc",
 		"path": "source/b8r.imgSrc.js"
 	},
