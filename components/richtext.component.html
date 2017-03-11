@@ -215,7 +215,7 @@ the selection state in the controls, but at least it's simple.
 				reader.onload = e => {
 					doc.innerHTML = '';
 					doc.focus();
-					set('filename', input.files[9].name);
+					set('filename', input.files[0].name);
 					// could use type to decide whether to tread at text, markdown, or html
 					document.execCommand('insertHTML', false, e.target.result);
 				};
