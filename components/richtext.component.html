@@ -7,8 +7,23 @@ in that it has lots of subtle issues and doesn't accurately reflect
 the selection state in the controls, but at least it's simple.
 -->
 <style>
+	.fullscreen .richtext-container {
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		background-color: white;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.fullscreen .richtext {
+		flex-grow: 1;
+	}
+
 	.richtext {
-		overlow-y: overlay;
+		overflow-y: overlay;
 		min-height: 200px;
 		border: 0;
 		padding: 8px;
@@ -36,140 +51,143 @@ the selection state in the controls, but at least it's simple.
 		font-weight: bold;
 	}
 </style>
-<ul data-component="menubar">
-	<li>
-		File
-		<ul>
-			<li>
-				<a data-shortcut="ctrl-N" data-event="menuclick:_component_.new_doc">New</a>
-			</li>
-			<li>
-				<a data-shortcut="ctrl-O" data-event="menuclick:_component_.open_doc">Open…</a>
-			</li>
-			<li>
-				<a data-shortcut="ctrl-S" data-event="menuclick:_component_.save_doc">Save</a>
-				<i data-bind="text=_component_.filename">filename</i>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Edit
-		<ul>
-			<li>
-				<a data-shortcut="meta-Z" data-event="menuclick:_component_.exec" data-command="undo">Undo</a>
-			</li>
-			<li>
-				<a data-shortcut="meta-shift-Z" data-event="menuclick:_component_.exec" data-command="redo">Redo</a>
-			</li>
-			<li class="separator"></li>
-			<li>
-				<a data-shortcut="meta-X" data-event="menuclick:_component_.exec" data-command="cut">Cut</a>
-			</li>
-			<li>
-				<a data-shortcut="meta-C" data-event="menuclick:_component_.exec" data-command="copy">Copy</a>
-			</li>
-			<li>
-				<a data-shortcut="meta-V" data-event="menuclick:_component_.exec" data-command="paste">Paste</a>
-			</li>
-			<li class="separator"></li>
-			<li>
-				<a data-shortcut="meta-A" data-event="menuclick:_component_.exec" data-command="selectAll">Select All</a>
-			</li>
-		</ul>
-	</li>
-	<li>
-		Format
-		<ul>
-			<li>
-				<span>Paragraph</span>
-				<ul>
-					<li>
-						<a data-shortcut="meta-1" data-event="menuclick:_component_.exec" data-command="formatBlock,h1">
-							<b>Major Heading</b>
-						</a>
-					</li>
-					<li>
-						<a data-shortcut="meta-2" data-event="menuclick:_component_.exec" data-command="formatBlock,h2">
-							<b>Heading</b>
-						</a>
-					</li>
-					<li>
-						<a data-shortcut="meta-3" data-event="menuclick:_component_.exec" data-command="formatBlock,h3">
-							<b>Subheading</b>
-						</a>
-					</li>
-					<li class="separator"></li>
-					<li>
-						<a data-shortcut="meta-BracketRight" data-event="menuclick:_component_.exec" data-command="indent">
-							<span style="padding: 0 12px">Indent</span>
-						</a>
-					</li>
-					<li>
-						<a data-shortcut="meta-BracketLeft" data-event="menuclick:_component_.exec" data-command="outdent">
-							<span">Outdent</span>
-						</a>
-					</li>
-					<li>
-						<a data-shortcut="meta-Digit0" data-event="menuclick:_component_.exec" data-command="formatBlock,p">
-							Body
-						</a>
-					</li>
-				</ul>
-			</li>
-			<li>
-				<span>Character</span>
-				<ul>
-					<li>
-						<a data-shortcut="meta-B" data-event="menuclick:_component_.exec" data-command="bold">
-							<b>Bold</b>
-						</a>
-					</li>
-					<li>
-						<a data-shortcut="meta-I" data-event="menuclick:_component_.exec" data-command="italic">
-							<i>Italic</i>
-						</a>
-					</li>
-					<li>
-						<a data-shortcut="meta-U" data-event="menuclick:_component_.exec" data-command="underline">
-							<u>Underline</u>
-						</a>
-					</li>
-					<li>
-						<a data-event="menuclick:_component_.exec" data-command="strikeThrough">
-							<del>Strikethrough</del>
-						</a>
-					</li>
-					<li class="separator"></li>
-					<li>
-						<a data-shortcut="meta-P" data-event="menuclick:_component_.exec" data-command="removeFormat">
-							<span>Plain</span>
-						</a>
-					</li>
-				</ul>
-			</li>
-		</ul>
-	</li>
-</ul>
-<div data-component="toolbar">
-	<input title="file name" placeholder="file name" data-bind="value=_component_.filename" data-event="focus:_component_.all">
-	<hr class="fixed">
-	<button data-event="click:_component_.exec" data-command="justifyLeft"><span class="icon-paragraph-left3"></span></button>
-	<button data-event="click:_component_.exec" data-command="justifyCenter"><span class="icon-paragraph-center3"></span></button>
-	<button data-event="click:_component_.exec" data-command="justifyRight"><span class="icon-paragraph-right3"></span></button>
-	<hr class="fixed">
-	<button data-event="click:_component_.exec" data-command="removeFormat">P</button>
-	<button data-event="click:_component_.exec" data-command="bold"><span class="icon-bold2"></span></button>
-	<button data-event="click:_component_.exec" data-command="italic"><span class="icon-italic2"></span></button>
-	<hr class="fixed">
-	<button data-event="click:_component_.exec" data-command="insertUnorderedList"><span class="icon-list2"></span></button>
-	<button data-event="click:_component_.exec" data-command="insertOrderedList"><span class="icon-list-numbered"></span></button>
-	<hr>
-	<button data-event="click:_component_.exec" data-command="undo"><span class="icon-undo"></span></button>
-	<button data-event="click:_component_.exec" data-command="redo"><span class="icon-redo"></span></button>
-</div>
-<div class="richtext" contenteditable="true" spellcheck="true" data-children>
-<h1>Test</h1>
-<p>This is a <b>test</b>.</p>
+<div class="richtext-container">
+	<ul data-component="menubar">
+		<li>
+			File
+			<ul>
+				<li>
+					<a data-shortcut="ctrl-N" data-event="menuclick:_component_.new_doc">New</a>
+				</li>
+				<li>
+					<a data-shortcut="ctrl-O" data-event="menuclick:_component_.open_doc">Open…</a>
+				</li>
+				<li>
+					<a data-shortcut="ctrl-S" data-event="menuclick:_component_.save_doc">Save</a>
+					<i data-bind="text=_component_.filename">filename</i>
+				</li>
+			</ul>
+		</li>
+		<li>
+			Edit
+			<ul>
+				<li>
+					<a data-shortcut="meta-Z" data-event="menuclick:_component_.exec" data-command="undo">Undo</a>
+				</li>
+				<li>
+					<a data-shortcut="meta-shift-Z" data-event="menuclick:_component_.exec" data-command="redo">Redo</a>
+				</li>
+				<li class="separator"></li>
+				<li>
+					<a data-shortcut="meta-X" data-event="menuclick:_component_.exec" data-command="cut">Cut</a>
+				</li>
+				<li>
+					<a data-shortcut="meta-C" data-event="menuclick:_component_.exec" data-command="copy">Copy</a>
+				</li>
+				<li>
+					<a data-shortcut="meta-V" data-event="menuclick:_component_.exec" data-command="paste">Paste</a>
+				</li>
+				<li class="separator"></li>
+				<li>
+					<a data-shortcut="meta-A" data-event="menuclick:_component_.exec" data-command="selectAll">Select All</a>
+				</li>
+			</ul>
+		</li>
+		<li>
+			Format
+			<ul>
+				<li>
+					<span>Paragraph</span>
+					<ul>
+						<li>
+							<a data-shortcut="meta-1" data-event="menuclick:_component_.exec" data-command="formatBlock,h1">
+								<b>Major Heading</b>
+							</a>
+						</li>
+						<li>
+							<a data-shortcut="meta-2" data-event="menuclick:_component_.exec" data-command="formatBlock,h2">
+								<b>Heading</b>
+							</a>
+						</li>
+						<li>
+							<a data-shortcut="meta-3" data-event="menuclick:_component_.exec" data-command="formatBlock,h3">
+								<b>Subheading</b>
+							</a>
+						</li>
+						<li class="separator"></li>
+						<li>
+							<a data-shortcut="meta-BracketRight" data-event="menuclick:_component_.exec" data-command="indent">
+								<span style="padding: 0 12px">Indent</span>
+							</a>
+						</li>
+						<li>
+							<a data-shortcut="meta-BracketLeft" data-event="menuclick:_component_.exec" data-command="outdent">
+								<span>Outdent</span>
+							</a>
+						</li>
+						<li>
+							<a data-shortcut="meta-Digit0" data-event="menuclick:_component_.exec" data-command="formatBlock,p">
+								Body
+							</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<span>Character</span>
+					<ul>
+						<li>
+							<a data-shortcut="meta-B" data-event="menuclick:_component_.exec" data-command="bold">
+								<b>Bold</b>
+							</a>
+						</li>
+						<li>
+							<a data-shortcut="meta-I" data-event="menuclick:_component_.exec" data-command="italic">
+								<i>Italic</i>
+							</a>
+						</li>
+						<li>
+							<a data-shortcut="meta-U" data-event="menuclick:_component_.exec" data-command="underline">
+								<u>Underline</u>
+							</a>
+						</li>
+						<li>
+							<a data-event="menuclick:_component_.exec" data-command="strikeThrough">
+								<del>Strikethrough</del>
+							</a>
+						</li>
+						<li class="separator"></li>
+						<li>
+							<a data-shortcut="meta-P" data-event="menuclick:_component_.exec" data-command="removeFormat">
+								<span>Plain</span>
+							</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+	</ul>
+	<div data-component="toolbar">
+		<input title="file name" placeholder="file name" data-bind="value=_component_.filename" data-event="focus:_component_.all">
+		<hr class="fixed">
+		<button data-event="click:_component_.exec" data-command="justifyLeft"><span class="icon-paragraph-left3"></span></button>
+		<button data-event="click:_component_.exec" data-command="justifyCenter"><span class="icon-paragraph-center3"></span></button>
+		<button data-event="click:_component_.exec" data-command="justifyRight"><span class="icon-paragraph-right3"></span></button>
+		<hr class="fixed">
+		<button data-event="click:_component_.exec" data-command="removeFormat">P</button>
+		<button data-event="click:_component_.exec" data-command="bold"><span class="icon-bold2"></span></button>
+		<button data-event="click:_component_.exec" data-command="italic"><span class="icon-italic2"></span></button>
+		<hr class="fixed">
+		<button data-event="click:_component_.exec" data-command="insertUnorderedList"><span class="icon-list2"></span></button>
+		<button data-event="click:_component_.exec" data-command="insertOrderedList"><span class="icon-list-numbered"></span></button>
+		<hr>
+		<button data-event="click:_component_.exec" data-command="undo"><span class="icon-undo"></span></button>
+		<button data-event="click:_component_.exec" data-command="redo"><span class="icon-redo"></span></button>
+	</div>
+	<div class="richtext" contenteditable="true" spellcheck="true" data-children>
+	<h1>Test</h1>
+	<p>This is a <b>test</b>.</p>
+	</div>
+	<div data-component="maxtoggle"></div>
 </div>
 <script>
 /*global b8r, findOne, set, get */
@@ -177,6 +195,7 @@ the selection state in the controls, but at least it's simple.
 
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
+	b8r.component('components/maxtoggle');
 
 	set('filename', 'Untitled.html');
 
