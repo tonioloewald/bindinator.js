@@ -1,0 +1,38 @@
+<style>
+	.maxtoggle {
+		position: fixed;
+		top: 4px;
+		right: 4px;
+		border-radius: 2px;
+		content: "+";
+		text-align: center;
+		width: 16px;
+		height: 16px;
+		cursor: pointer;
+		color: white;
+		background-color: rgba(0,0,0,0.25);
+	}
+
+	.maxtoggle:hover {
+		background-color: rgba(0,0,0,0.35);
+	}
+
+	.maximized .maxtoggle {
+		content: "–";
+	}
+
+	body.fullscreen .maxtoggle-maximize {
+		display: none;
+	}
+
+	body:not(.fullscreen) .maxtoggle-minimize {
+		display: none;
+	}
+</style>
+	<span class="maxtoggle-maximize">+</span>
+	<span class="maxtoggle-minimize">–</span>
+<script>
+	component.classList.add('maxtoggle');
+	component.setAttribute('title', 'Toggle Maximize (alt-space)');
+	on('mouseup', 'demo.fullscreen');
+</script>

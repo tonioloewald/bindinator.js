@@ -13,6 +13,12 @@ built-in functionality but augment it.
 		border: 1px solid rgba(0,0,0,0.25);
 	}
 
+	.kitchen-sink input,
+	.kitchen-sink textarea,
+	.kitchen-sink select {
+		background-color: white;
+	}
+
 	.kitchen-sink > hr,
 	.kitchen-sink > .menubar,
 	.kitchen-sink > .toolbar {
@@ -219,10 +225,12 @@ built-in functionality but augment it.
 		<button type="submit">OK</button>
 	</form>
 </div>
+<div data-component="maxtoggle"></div>
 <script>
 console.log('hello')
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
+	b8r.component('components/maxtoggle');
 	b8r.component('components/slider-numeric');
 	register({
 	  fuelrods: 17,

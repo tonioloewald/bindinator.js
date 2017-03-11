@@ -52,6 +52,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	margin: 0;
 	max-width: none;
 	background: white;
+	box-sizing: content-box;
 }
 
 .fullscreen #example {
@@ -100,6 +101,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	flex-grow: 1;
 	background-color: white;
 	overflow-y: scroll;
+	position: relative;
 }
 
 .three_col > * > * {
