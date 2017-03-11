@@ -15,7 +15,7 @@
 const b8r = require('source/b8r.js');
 b8r.on(document.body, 'keydown', 'shortcuts', 'key');
 
-var shortcut_targets;
+var shortcut_targets = b8r.find('[data-shortcut]');
 
 b8r.register('shortcuts', {
 	key(evt) {
@@ -37,6 +37,6 @@ b8r.register('shortcuts', {
 	}
 });
 
-module.exports = {setup: () => shortcut_targets = b8r.find('[data-shortcut]')};
+module.exports = {update: () => shortcut_targets = b8r.find('[data-shortcut]')};
 }())
 

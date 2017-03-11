@@ -20,8 +20,28 @@
 		"path": "source/b8r.ajax.js"
 	},
 	{
+		"name": "bindings",
+		"path": "source/b8r.bindings.js"
+	},
+	{
+		"name": "Binding to DOM",
+		"path": "source/b8r.toTargets.js"
+	},
+	{
+		"name": "Binding from DOM",
+		"path": "source/b8r.fromTargets.js"
+	},
+	{
+		"name": "byPath",
+		"path": "source/b8r.byPath.js"
+	},
+	{
 		"name": "DOM",
 		"path": "source/b8r.dom.js"
+	},
+	{
+		"name": "events",
+		"path": "source/b8r.events.js"
 	},
 	{
 		"name": "imgSrc",
@@ -32,16 +52,16 @@
 		"path": "source/b8r.iterators.js"
 	},
 	{
-		"name": "Object Paths",
-		"path": "source/b8r.byPath.js"
+		"name": "keystroke",
+		"path": "source/b8r.keystroke.js"
 	},
 	{
-		"name": "Binding to DOM",
-		"path": "source/b8r.toTargets.js"
+		"name": "perf",
+		"path": "source/b8r.perf.js"
 	},
 	{
-		"name": "Binding from DOM",
-		"path": "source/b8r.fromTargets.js"
+		"name": "registry",
+		"path": "source/b8r.registry.js"
 	},
 	{
 		"name": "JS Viewer Test",

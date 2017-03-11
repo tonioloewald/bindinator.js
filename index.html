@@ -57,26 +57,44 @@
 	<script>
 		const preload_data = [
 		  [
-		    "source/b8r.byPath.js",
-		    "source/b8r.dom.js",
 		    "source/b8r.iterators.js",
 		    "source/b8r.imgSrc.js",
 		    "source/b8r.fromTargets.js",
 		    "source/b8r.ajax.js",
-		    "lib/test.js"
+		    "source/b8r.byPath.js",
+		    "lib/test.js",
+		    "source/b8r.events.js",
+		    "source/b8r.keystroke.js",
+		    "lib/mondrian.js",
+		    "lib/domInterval.js",
+    		"source/b8r.dataForElement.js",
 		  ],
 		  [
-		    "source/b8r.toTargets.js"
+		    "source/b8r.dom.js",
+		    "source/b8r.toTargets.js",
+		    "source/b8r.perf.js",
+		    "source/b8r.registry.js"
+		  ],
+		  [
+		    "source/b8r.show.js",
+		    "source/b8r.bindings.js",
+		    "source/b8r.anyEvent.js",
+		    "source/b8r.makeStylesheet.js"
 		  ],
 		  [
 		    "source/b8r.js"
+		  ],
+		  [
+		    "shortcuts.js",
+		    "lib/resize.js"
 		  ]
 		];
 		require.preload(preload_data).
 		then(() => {
 			[
 		    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js",
-		    "https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js"
+		    "https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js",
+		    "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js",
 		  ].map(require.lazy);
 			const b8r = require('source/b8r.js');
 			var title = b8r.id('title');

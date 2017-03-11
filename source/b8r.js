@@ -17,18 +17,24 @@ function b8r(){}
 
 module.exports = b8r;
 
-require('./b8r.dom.js')(b8r);
-
-b8r.modifierKeys = {
-  meta: '⌘',
-  ctrl: '⌃',
-  alt: '⌥',
-  escape: '⎋',
-  shift: '⇧',
-};
-
-const models = {};
-const noop = () => {};
+Object.assign(b8r, require('./b8r.dom.js'));
+Object.assign(b8r, require('./b8r.perf.js'));
+Object.assign(b8r, require('./b8r.iterators.js'));
+const {
+  on, off, enable, disable,
+  dispatch, getParsedEventHandlers, implicit_event_types
+} = require('./b8r.events.js');
+Object.assign(b8r, {on, off, enable, disable});
+const {
+  addDataBinding, removeDataBinding, getListInstancePath,
+  findLists, findBindables, getBindings, replaceInBindings
+} = require('./b8r.bindings.js');
+Object.assign(b8r, {addDataBinding, removeDataBinding, getListInstancePath});
+const {saveDataForElement, dataForElement} = require('./b8r.dataForElement.js');
+const {onAny, offAny, anyListeners, anyElement} = require('./b8r.anyEvent.js');
+Object.assign(b8r, {onAny, offAny, anyListeners});
+Object.assign(b8r, require('./b8r.registry.js'));
+b8r.observe(() => true, (path, source_element) => b8r.touchByPath(path, source_element));
 
 /**
     b8r.register(name, obj);
@@ -69,39 +75,27 @@ Insert an item into the specified array property. (Automatically updates bound l
 Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
 
-Object.assign(b8r, require('./b8r.iterators.js'));
 
 b8r.register = function (name, obj) {
   if (name.match(/^_[^_]*_$/)) {
     throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved.";
   }
-  models[name] = obj;
-  if (b8r.getByPath(models[name], 'add')) {
-    models[name].add();
-  }
-  b8r.touchByPath(name);
+  b8r.set(name, obj);
   playSavedMessages(name);
 };
 
-b8r.models = () => Object.keys(models); //.filter(key => key.indexOf(/^c#/) === -1);
-
-b8r.componentInstances = () => Object.keys(models).filter(key => key.indexOf(/^c#/) !== -1);
-
-b8r.isRegistered = function(name) {
-  return models[name] !== undefined;
-};
+b8r.componentInstances = () => b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 b8r.deregister = function (name) {
-  if (name && models[name]) {
-    (models[name].remove || noop)();
-    delete(models[name]);
+  if (name) {
+    b8r.remove(name);
   }
+  const models = b8r.models();
   // garbage collect models
   const instances = b8r.find('[data-component-id]').map(elt => elt.getAttribute('data-component-id'));
   for (var model in models) {
     if (model.substr(0,2) === 'c#' && instances.indexOf(model) === -1) {
-      (models[model].remove || noop)();
-      delete(models[model]);
+      b8r.remove(model);
     }
   }
 };
@@ -126,58 +120,6 @@ b8r.touchByPath = function(name, path, source_element) {
   b8r.logEnd('touchByPath', full_path);
 };
 
-const logs = {};
-
-b8r.log = (log_name, entry_name) => {
-  if(!logs[log_name]) {
-    logs[log_name] = {};
-  }
-  const log = logs[log_name];
-  if (!log[entry_name]) {
-    log[entry_name] = {count: 0, times: [], total_time: 0};
-  }
-  log[entry_name].count += 1;
-  return log[entry_name];
-};
-
-b8r.logStart = (log_name, entry_name) => {
-  b8r.log(log_name, entry_name).start = Date.now();
-};
-
-b8r.logEnd = (log_name, entry_name) => {
-  const log = logs[log_name][entry_name];
-  const elapsed = Date.now() - log.start;
-  delete(log.start);
-  log.times.push(elapsed);
-  log.total_time += elapsed;
-};
-
-const medianOfSortedArray = values => (
-  values[Math.floor(values.length / 2)] +
-  values[Math.floor(values.length / 2 - 0.5)]
-)/2;
-
-b8r.showLogs = which => {
-  if (which) {
-    const mapped = b8r.mapEachKey(logs[which], val => {
-      const {count, times, total_time} = val;
-      var best, worst, median;
-      if (times.length) {
-        const sorted = times.sort();
-        best = sorted[0];
-        worst = sorted[sorted.length - 1];
-        median = medianOfSortedArray(sorted);
-      } else {
-        best = worst = median = '';
-      }
-      return {count, best, median, worst, total_time};
-    });
-    console.table(mapped, ['count', 'best', 'median', 'worst', 'total_time']);
-  } else {
-    console.table(logs, []);
-  }
-};
-
 b8r.setByPath = function (...args) {
   var name, path, value, source_element;
   if (args.length === 2 && typeof args[1] === 'object') {
@@ -190,8 +132,8 @@ b8r.setByPath = function (...args) {
   } else {
     [name, path, value, source_element] = args;
   }
-  if (models[name]) {
-    const model = models[name];
+  if (b8r.registered(name)) {
+    const model = b8r.get(name);
     if(typeof path === 'object'){
       Object.assign(model, path);
       b8r.touchByPath(name, '/', source_element);
@@ -212,8 +154,8 @@ b8r.pushByPath = function(...args) {
   } else {
     [name, path, value, callback] = args;
   }
-  if (models[name]) {
-    const list = getByPath(models[name], path);
+  if (b8r.registered(name)) {
+    const list = b8r.get(path ? `${name}.${path}` : name);
     list.push(value);
     if (callback) {
       callback(list);
@@ -232,8 +174,8 @@ b8r.unshiftByPath = function(...args) {
   } else {
     [name, path, value] = args;
   }
-  if (models[name]) {
-    const list = getByPath(models[name], path);
+  if (b8r.registered(name)) {
+    const list = getByPath(b8r.get(name), path);
     list.unshift(value);
     b8r.touchByPath(name, path);
   } else {
@@ -274,8 +216,8 @@ b8r.removeByPath = function(...args) {
   } else {
     [name, path, key] = args;
   }
-  if (models[name]) {
-    const list = getByPath(models[name], path);
+  if (b8r.registered(name)) {
+    const list = getByPath(b8r.get(name), path);
     const index = indexFromKey(list, key);
     if (Array.isArray(list) && index > -1) {
       list.splice(index, 1);
@@ -287,7 +229,7 @@ b8r.removeByPath = function(...args) {
 };
 
 b8r.getByPath = function (model, path) {
-  return getByPath(models, path ? model + '.' + path : model);
+  return b8r.get(path ? model + '.' + path : model);
 };
 
 b8r.listItems = element => b8r.makeArray(element.children)
@@ -297,9 +239,21 @@ b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element)
 /**
 ### Finding Bound Data
 
+To get a component's id (which you should not need to do very often)
+you can call getComponentId:
+
+    b8r.getComponentId(elt)
+
+The component id looks like c# _component name_ # _n_ where _n_ is the
+simply the creation order. It follows that component ids are guaranteed
+to be unique.
+
 To quickly obtain bound data a component from an element inside it:
 
     b8r.getComponentData(elt)
+
+In effect this simply gets the component id and then finds the corresponding
+registered data object (or "model").
 
 To quickly obtain bound data a list instance from an element inside it:
 
@@ -316,250 +270,10 @@ b8r.getComponentData = function(elt) {
   return id ? b8r.getByPath(id) : null;
 };
 
-b8r.getListInstancePath = function(elt) {
-  const component = elt.closest('[data-list-instance]');
-  return component ? component.getAttribute('data-list-instance') : null;
-};
-
 b8r.getListInstance = function(elt) {
   const instancePath = b8r.getListInstancePath(elt);
   return instancePath ? b8r.getByPath(instancePath) : null;
 };
-
-/**
-    b8r.on(element, event_type, model_name, method_name);
-
-creates an implicit event-binding data attribute:
-
-    data-event="event_type:module_name.method_name"
-
-Multiple handlers are semicolon-delimited, e.g.
-
-    data-event="mouseover:_component_.show;mouseover:_component_.hide"
-
-You can bind multiple event types separated by commas, e.g.
-
-    data-event="click,keyup:do.something"
-
-**Note**: if you link two event types to the same method separately they will NOT be collated.
-
-You can programmatically add a data binding using:
-
-    b8r.addDataBinding(element, toTarget, path);
-
-And remove a data binding using:
-
-    b8r.removeDataBinding(element, toTarget, path);
-
-You can remove an implicit event binding using:
-
-    b8r.off(element, event_type, model_name, method_name);
-
-### Keyboard Events
-
-To make it easy to handle specific keystrokes, you can bind to keystrokes by name, e.g.
-
-    data-bind="keydown(meta-KeyS)"
-
-For your convenience, there's a *Keyboard Event Utility*.
-*/
-function getEventHandlers(element) {
-  const source = element.getAttribute('data-event');
-  const existing = source ?
-                   source.
-                   replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';').
-                   filter(handler => handler.trim()) :
-                   [];
-  return existing;
-}
-
-function makeHandler(event_type, method) {
-  if (typeof event_type === 'string') {
-    event_type = [event_type];
-  }
-  if(!Array.isArray(event_type)) {
-    console.error('makeHandler failed; bad event_type', event_type);
-    return;
-  }
-  return event_type.sort().join(',') + ':' + method;
-}
-
-const onOffArgs = args => {
-  var element, event_type, object, method, prepend = false;
-  if(typeof args[2] === 'object') {
-    console.warn('b8r.on(element, type, OBJECT) is deprecated');
-    [element, event_type, object] = args;
-    return b8r.on(element, event_type, object.model, object.method);
-  } else if(args.length > 4 || typeof args[3] === 'string') {
-    [element, event_type, object, method, prepend] = args;
-    if(typeof object !== 'string' || typeof method !== 'string') {
-      console.error('implicit bindings are by name, not', object, method);
-      return;
-    }
-    method = object + '.' + method;
-  } else {
-    [element, event_type, method, prepend] = args;
-  }
-  if (!(element instanceof HTMLElement)) {
-    console.error('bind bare elements please, not', element);
-    throw 'bad argument';
-  }
-  return {element, event_type, path: method, prepend};
-};
-
-b8r.addDataBinding = (element, toTarget, path) => {
-  const binding = `${toTarget}=${path}`;
-  const existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
-  if(existing.indexOf(binding) === -1) {
-    existing.push(binding);
-    element.setAttribute('data-bind', existing.join(';'));
-  }
-};
-
-b8r.removeDataBinding = (element, toTarget, path) => {
-  const binding = `${toTarget}=${path}`;
-  const existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
-  if(existing.indexOf(binding) > -1) {
-    existing = existing.filter(exists => exists !== binding);
-    if (existing.length) {
-      element.setAttribute('data-bind', existing.join(';'));
-    } else {
-      element.removeAttribute('data-bind');
-    }
-  }
-};
-
-b8r.on = function (...args) {
-  const {element, event_type, path, prepend} = onOffArgs(args);
-  const handler = makeHandler(event_type, path);
-  const existing = getEventHandlers(element);
-  if(existing.indexOf(handler) === -1) {
-    if (prepend) {
-      existing.unshift(handler);
-    } else {
-      existing.push(handler);
-    }
-  }
-  element.setAttribute('data-event', existing.join(';'));
-};
-
-b8r.off = function(...args) {
-  var element, event_type, object, method;
-  if(args.length === 4) {
-    [element, event_type, object, method] = args;
-    method = object + '.' + method;
-  } else if (args.length === 3) {
-    [element, event_type, method] = args;
-  } else {
-    throw 'b8r.off requires three or four arguments';
-  }
-  const existing = element.getAttribute('data-event').split(';');
-  const handler = makeHandler(event_type, method);
-  const idx = existing.indexOf(handler);
-  if (idx > -1) {
-    existing.splice(idx, 1);
-    if (existing.length) {
-      element.setAttribute('data-event', existing.join(';'));
-    } else {
-      element.removeAttribute('data-event');
-    }
-  }
-};
-
-/**
-### Special event handling
-
-    b8r.onAny(event_type, object, method) => handlerRef
-
-creates an event handler that will get first access to any event; returns a reference for purposes of removal
-
-    b8r.offAny(handlerRef,...)
-
-removes all the handlerRefs passed
-
-    b8r.anyListeners()
-
-returns active any listeners.
-
-**Note** that this works *exactly* like an invisible element in front of everything else
-for purposes of propagation.
-
-*/
-const anyArgs = args => {
-  var event_type, object, method, path;
-  if (args.length === 2) {
-    [event_type, path] = args;
-  } else {
-    [event_type, object, method] = args;
-    path = object + '.' + method;
-  }
-  return {event_type, path};
-};
-
-var anyElement = null;
-b8r.onAny = function(...args) {
-  const {event_type, path} = anyArgs(args);
-  if (!anyElement) {
-    anyElement = b8r.create('div');
-  }
-  b8r.on(anyElement, event_type, path);
-};
-
-b8r.offAny = function (...args) {
-  const {event_type, path} = anyArgs(args);
-  if (anyElement) {
-    b8r.off(anyElement, event_type, path);
-    if (!anyElement.getAttribute('data-event')) {
-      anyElement = null;
-    }
-  }
-};
-
-b8r.anyListeners = () => getEventHandlers(anyElement);
-
-/*
-
-    b8r.getParsedEventHandlers(element)
-
-returns an array of parsed implicit event handlers for an element, e.g.
-
-    data-event="type1:model1.method1;type2,type3:model2.method2"
-
-is returned as
-
-    [
-      { types: ["type1"], model: "model1", method: "method1"},
-      { types: ["type2", "type3"], model: "model2", method: "method2"}
-    ]
-*/
-function getParsedEventHandlers (element) {
-  var handlers = getEventHandlers(element);
-  return handlers.map(function(instruction){
-    var [type, handler] = instruction.split(':');
-    if (!handler) {
-      if(instruction.indexOf('.')) {
-        console.error('bad event handler (missing event type)', instruction, 'in', element);
-      } else {
-        console.error('bad event handler (missing handler)', instruction, 'in', element);
-      }
-      return { types: [] };
-    }
-    var [model, method] = handler.trim().split('.');
-    var types = type.split(',').sort();
-    return {
-      types: types.map(s => s.split('(')[0].trim()),
-      type_args: types.map(s => {
-        if (s.substr(0,3) === 'key') {
-          s = s.replace(/Key|Digit/g, '');
-        }
-        var args = s.match(/\(([^)]+)\)/);
-        return args && args[1] ? args[1].split(',') : false;
-      }),
-      model,
-      method,
-    };
-  });
-}
 
 /**
     b8r.callMethod(method_path, ...args)
@@ -615,12 +329,8 @@ b8r.callMethod = function (...args) {
     debugger; // jshint ignore:line
   }
   var result = null;
-  if ( models[model] ) {
-    if (models[model][method] instanceof Function) {
-      result = models[model][method](...args);
-    } else {
-      console.error(`callMethod failed: ${model}.${method} is not a function`);
-    }
+  if ( b8r.registered(model) ) {
+    result = b8r.call(`${model}.${method}`, ...args);
   } else {
     // TODO queue if model not available
     // event is stopped from further propagation
@@ -630,81 +340,12 @@ b8r.callMethod = function (...args) {
   return result;
 };
 
-/**
-    b8r.trigger(type, target);
-
-Trigger a synthetic implicit (only!) event. Note that you can trigger and handle
-completely made-up events, but if you trigger events that occur naturally the goal
-is for them to be handled exactly as if they were "real".
-
-*/
-b8r.trigger = function(type, target) {
-  if (typeof type !== 'string' || !(target.dispatchEvent instanceof Function)) {
-    console.error ('expected trigger(event_type, target_element)', type, target);
-  }
-  if (target) {
-    const event = new Event(type);
-    target.dispatchEvent(event);
-    if(target instanceof HTMLElement && implicit_event_types.indexOf(type) === -1) {
-      handleEvent(event);
-    }
-  } else {
-    console.warn('b8r.trigger called with no specified target');
-  }
-};
-
-/**
-## Keystrokes
-
-b8r leverages the modern browser's event "code" to identify keystrokes,
-and uses a normalized representation of modifier keys (in alphabetical)
-order.
-
-  * **alt** represents the alt or option keys
-  * **ctrl** represents the control key
-  * **meta** represents the windows, command, or meta keys
-  * **shift** represents the shift keys
-
-To get a normalized representation of a keystroke, there's:
-
-    b8r.keystroke(event)
-
-```
-<label>
-  Type in here
-  <input style="width: 60px;" data-event="keydown:_component_.key">
-</label>
-
-<div data-bind="text=_component_.keystroke"></div>
-<script>
-  const key = evt => {
-    set('keystroke', b8r.keystroke(evt));
-    return true; // process keystroke normally
-  };
-  set ({key})
-</script>
-```
-*/
-b8r.keystroke = function(evt) {
-  var code = [];
-  if(evt.altKey){ code.push('alt'); }
-  if(evt.ctrlKey){ code.push('ctrl'); }
-  if(evt.metaKey){ code.push('meta'); }
-  if(evt.shiftKey){ code.push('shift'); }
-  if(evt.code) {
-    code.push(evt.code.replace(/Key|Digit/, ''));
-  } else {
-    var synthetic_code = evt.keyIdentifier;
-    if (synthetic_code.substr(0,2) === 'U+') {
-      synthetic_code = String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
-    }
-    code.push(synthetic_code);
-  }
-  return code.join('-');
-};
+const {keystroke, modifierKeys} = require('./b8r.keystroke.js');
+b8r.keystroke = keystroke;
+b8r.modifierKeys = modifierKeys;
 
 function handleEvent (evt) {
-  var target = anyElement ? anyElement : evt.target;
+  var target = anyElement() || evt.target;
   var keystroke = evt instanceof KeyboardEvent ? b8r.keystroke(evt) : {};
   var done = false;
   while (target && !done) {
@@ -735,95 +376,63 @@ function handleEvent (evt) {
         }
       }
     }
-    target = target === anyElement ? evt.target : target.parentElement;
+    target = target === anyElement() ? evt.target : target.parentElement;
   }
 }
 
-var implicit_event_types = [
-  'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
-  'mousewheel', 'scroll',
-  'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
-  'transitionend', 'animationend',
-  'input', 'change',
-  'keydown', 'keyup',
-  'focus', 'blur' // more to follow
-];
+/**
+    b8r.trigger(type, target);
 
+Trigger a synthetic implicit (only!) event. Note that you can trigger and handle
+completely made-up events, but if you trigger events that occur naturally the goal
+is for them to be handled exactly as if they were "real".
+*/
+
+b8r.trigger = (type, target) => {
+  if (typeof type !== 'string' || !(target.dispatchEvent instanceof Function)) {
+    console.error ('expected trigger(event_type, target_element)', type, target);
+  }
+  if (target) {
+    const event = dispatch(type, target);
+    if(target instanceof HTMLElement && implicit_event_types.indexOf(type) === -1) {
+      handleEvent(event);
+    }
+  } else {
+    console.warn('b8r.trigger called with no specified target');
+  }
+};
+
+// add touch events if needed
 if (window.TouchEvent) {
-  implicit_event_types = implicit_event_types.concat(['touchstart', 'touchcancel', 'touchmove', 'touchend']);
+  ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(type => implicit_event_types.push(type));
 }
 
 implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent, true));
-
-/*
-  This is where we define all the methods for binding to/from the DOM
-*/
 
 /**
 ## Data Binding
 
 Data binding is implemented via the data-bind and data-list attributes.
+
+See the docs on binding data to and from the DOM for more detail.
 */
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
-
-function parseBinding (binding) {
-  if(!binding.trim()) {
-    throw 'empty binding';
-  }
-  if(binding.indexOf('=') === -1) {
-    throw 'binding is missing = sign; probably need a source or target';
-  }
-  var [,targets, path] = binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
-  targets = targets.split(',').map(function(target){
-    var parts = target.match(/(\w+)(\(([^)]+)\))?/);
-    if(!parts) {
-      console.error('bad target', target, 'in binding', binding);
-      return;
-    }
-    return parts ? { target: parts[1], key: parts[3] } : null;
-  });
-  if (!path) {
-    console.error('binding does not specify source', binding);
-  }
-  return {targets, path};
-}
 
 function pathSplit(full_path) {
   const [,model,,path] = full_path.match(/^(.*?)(\.(.*))?$/);
   return [model, path];
 }
 
-function getBindings (element) {
-  var binding_source = element.getAttribute('data-bind');
-  if(!element.matches('[data-list]') && binding_source.indexOf('=.') > -1) {
-    const instance_path = b8r.getListInstancePath(element);
-    if(instance_path) {
-      binding_source = binding_source.replace(/\=\./g, `=${instance_path}.`);
-      element.setAttribute('data-bind', binding_source);
-    }
-  }
-  return binding_source.split(';').filter(s => !!s.trim()).map(parseBinding);
-}
+b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 
-function findBindables (element) {
-  return b8r.
-    findWithin(element, '[data-bind]', true).
-    filter(elt => {
-      var list = elt.closest('[data-list],[data-list-instance]');
-      return !list || list === element || !element.contains(list);
-    });
-}
-
-b8r.onAny(['change', 'input'], '_b8r_', 'update', true);
 function bind (element) {
   var bindings = getBindings(element);
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
     const value = b8r.getByPath(path);
     var _toTargets = targets.filter(t => toTargets[t.target]);
-    var _fromTargets = targets.filter(t => fromTargets[t.target]);
     if (_toTargets.length) {
       _toTargets.forEach(t => {
         toTargets[t.target](element, value, t.key);
@@ -834,28 +443,11 @@ function bind (element) {
   }
 }
 
-function findLists (element) {
-  return b8r.findWithin(element, '[data-list]')
-        .filter(elt => {
-          var list = elt.parentElement.closest('[data-list]');
-          return !list || list === element || !element.contains(list);
-        });
-}
 
-b8r.hide = function (element) {
-  if (element.getAttribute('data-orig-display') === null && (element.style.display && element.style.display !== 'none')) {
-    element.setAttribute('data-orig-display', element.style.display);
-    b8r.findWithin(element, '[data-event*="hide"]').forEach(elt => b8r.trigger('hide', elt));
-  }
-  element.style.display = 'none';
-};
 
-b8r.show = function (element) {
-  if (element.style.display === 'none') {
-    element.style.display = element.getAttribute('data-orig-display') || '';
-    b8r.findWithin(element, '[data-event*="show"]').forEach(elt => b8r.trigger('show', elt));
-  }
-};
+const {show, hide} = require('./b8r.show.js');
+b8r.show = show;
+b8r.hide = hide;
 
 function removeListInstances(element) {
   while(
@@ -951,7 +543,7 @@ function bindList (list_template, data) {
 }
 
 function bindAll(element, data) {
-  const random_entry = Math.random();
+  const random_entry = b8r.getComponentId(element) + '-' + Math.random();
   b8r.logStart('bindAll', random_entry);
   loadAvailableComponents(element, data);
   findBindables(element).forEach(elt => bind(elt));
@@ -964,10 +556,27 @@ function bindAll(element, data) {
 
 b8r.bindAll = bindAll;
 
-models._b8r_ = {
+/**
+## _b8r_ Model
+
+The _b8r_ model is provided by default as a useful set of always available
+methods, especially for handling events.
+
+You can use them the obvious way:
+
+    <button data-event="click:_b8r_.echo">
+      Click Me, I cause console spam
+    </button>
+
+    _b8r_.echo // logs events to the console
+    _b8r_.stopEvent // use this to simply catch an event silently
+    _b8r_._update_ // this is used by b8r to update models automatically
+*/
+
+b8r.set('_b8r_', {
   echo: evt => console.log(evt) || true,
   stopEvent: () => {},
-  update: evt => {
+  _update_: evt => {
     var elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
     if (evt.target.tagName === 'SELECT') {
       const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
@@ -987,7 +596,7 @@ models._b8r_ = {
       });
     return true;
   },
-};
+});
 
 const ajax = require('./b8r.ajax.js');
 Object.assign(b8r, ajax);
@@ -1038,15 +647,7 @@ b8r.component = function (name, url) {
   return component_promises[name];
 };
 
-b8r.makeStylesheet = function(source) {
-  const style = source ? b8r.create('style') : false;
-  if (style) {
-    style.type = 'text/css';
-    style.appendChild(b8r.text(source));
-    document.head.appendChild(style);
-  }
-  return style;
-};
+const makeStylesheet = require('./b8r.makeStylesheet.js');
 
 b8r.makeComponent = function(name, source) {
   var css = false, content, script = false, parts, remains;
@@ -1084,7 +685,7 @@ b8r.makeComponent = function(name, source) {
     `${script}\n//# sourceURL=${name}(component)`
   ) : false;
 /*jshint evil: false */
-  const style = b8r.makeStylesheet(`/* ${name} component */\n` + css);
+  const style = makeStylesheet(`/* ${name} component */\n` + css);
   var component = {name: name, style, view: div, load: load, _source: source};
   if (component_timeouts[name]) {
     clearInterval(component_timeouts[name]);
@@ -1103,41 +704,6 @@ b8r.makeComponent = function(name, source) {
     forEach(element => b8r.insertComponent(component, element));
   return component;
 };
-
-var data_waiting_for_components = []; // { target_element, data }
-
-function saveDataForElement(target_element, data) {
-  if (data) {
-    removeDataForElement(target_element);
-    data_waiting_for_components.push({target_element, data});
-  }
-}
-
-function dataForElement(target_element) {
-  var data;
-  for (var i = 0; i < data_waiting_for_components.length; i++) {
-    if (data_waiting_for_components[i].target_element === target_element) {
-      data = data_waiting_for_components[i].data;
-      removeDataForElement(target_element);
-      return data;
-    }
-  }
-
-  const json = target_element.getAttribute('data-json');
-  if (json) {
-    return JSON.parse(json);
-  }
-
-  return b8r.getComponentData(target_element) || b8r.getListInstance(target_element) || {};
-}
-
-function removeDataForElement(target_element) {
-  for (var i = 0; i < data_waiting_for_components.length; i++) {
-    if (data_waiting_for_components[i].target_element === target_element) {
-      delete data_waiting_for_components[i].data;
-    }
-  }
-}
 
 function loadAvailableComponents(element, data) {
   b8r.findWithin(element || document.body, '[data-component]').forEach(target => {
@@ -1159,18 +725,6 @@ Data will be passed to the component's load method and registered as the compone
 data is passed automatically from parent components or via binding, e.g. `data-bind="component=path.to.data` binds that
 data to the component).
 */
-
-function replaceInBindings(element, needle, replacement) {
-  const needle_regexp = new RegExp(needle, 'g');
-  b8r.findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"]`).forEach(elt => {
-    ['data-bind', 'data-list'].forEach(attr => {
-      const val = elt.getAttribute(attr);
-      if(val) {
-        elt.setAttribute(attr, val.replace(needle_regexp, replacement));
-      }
-    });
-  });
-}
 
 function getDataPath(data, element) {
   if (typeof data === 'string') {
@@ -1203,7 +757,7 @@ b8r.insertComponent = function (component, element, data) {
     component = components[component];
   }
   if (!data || data_path) {
-    data = dataForElement(element, component.name);
+    data = dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {});
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);
