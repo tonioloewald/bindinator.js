@@ -22,7 +22,7 @@ Object.assign(b8r, require('./b8r.perf.js'));
 Object.assign(b8r, require('./b8r.iterators.js'));
 const {
   on, off, enable, disable,
-  dispatch, getEventHandlers, getParsedEventHandlers, implicit_event_types
+  dispatch, getParsedEventHandlers, implicit_event_types
 } = require('./b8r.events.js');
 Object.assign(b8r, {on, off, enable, disable});
 const {
@@ -31,7 +31,8 @@ const {
 } = require('./b8r.bindings.js');
 Object.assign(b8r, {addDataBinding, removeDataBinding});
 const {saveDataForElement, dataForElement} = require('./b8r.dataForElement.js');
-
+const {onAny, offAny, anyListeners, anyElement} = require('./b8r.anyEvent.js');
+Object.assign(b8r, {onAny, offAny, anyListeners});
 
 const models = {};
 const noop = () => {};
@@ -130,8 +131,6 @@ b8r.touchByPath = function(name, path, source_element) {
 
   b8r.logEnd('touchByPath', full_path);
 };
-
-
 
 b8r.setByPath = function (...args) {
   var name, path, value, source_element;
@@ -282,57 +281,6 @@ b8r.getListInstance = function(elt) {
 };
 
 /**
-### Special event handling
-
-    b8r.onAny(event_type, object, method) => handlerRef
-
-creates an event handler that will get first access to any event; returns a reference for purposes of removal
-
-    b8r.offAny(handlerRef,...)
-
-removes all the handlerRefs passed
-
-    b8r.anyListeners()
-
-returns active any listeners.
-
-**Note** that this works *exactly* like an invisible element in front of everything else
-for purposes of propagation.
-
-*/
-const anyArgs = args => {
-  var event_type, object, method, path;
-  if (args.length === 2) {
-    [event_type, path] = args;
-  } else {
-    [event_type, object, method] = args;
-    path = object + '.' + method;
-  }
-  return {event_type, path};
-};
-
-var anyElement = null;
-b8r.onAny = function(...args) {
-  const {event_type, path} = anyArgs(args);
-  if (!anyElement) {
-    anyElement = b8r.create('div');
-  }
-  b8r.on(anyElement, event_type, path);
-};
-
-b8r.offAny = function (...args) {
-  const {event_type, path} = anyArgs(args);
-  if (anyElement) {
-    b8r.off(anyElement, event_type, path);
-    if (!anyElement.getAttribute('data-event')) {
-      anyElement = null;
-    }
-  }
-};
-
-b8r.anyListeners = () => getEventHandlers(anyElement);
-
-/**
     b8r.callMethod(method_path, ...args)
     b8r.callMethod(model, method, ...args);
 
@@ -406,7 +354,7 @@ b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
 
 function handleEvent (evt) {
-  var target = anyElement ? anyElement : evt.target;
+  var target = anyElement() || evt.target;
   var keystroke = evt instanceof KeyboardEvent ? b8r.keystroke(evt) : {};
   var done = false;
   while (target && !done) {
@@ -437,7 +385,7 @@ function handleEvent (evt) {
         }
       }
     }
-    target = target === anyElement ? evt.target : target.parentElement;
+    target = target === anyElement() ? evt.target : target.parentElement;
   }
 }
 
