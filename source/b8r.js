@@ -17,43 +17,20 @@ function b8r(){}
 
 module.exports = b8r;
 
+Object.assign(b8r, require('./b8r.dom.js'));
+Object.assign(b8r, require('./b8r.perf.js'));
+Object.assign(b8r, require('./b8r.iterators.js'));
 const {
-  find,
-  findOne,
-  findWithin,
-  findOneWithin,
-  findAbove,
-  id,
-  text,
-  fragment,
-  create,
-  classes,
-  empty,
-  elementIndex,
-  moveChildren,
-  copyChildren
-} = require('./b8r.dom.js');
+  on, off, enable, disable,
+  dispatch, getEventHandlers, getParsedEventHandlers, implicit_event_types
+} = require('./b8r.events.js');
+Object.assign(b8r, {on, off, enable, disable});
+const {
+  addDataBinding, removeDataBinding,
+  parseBinding
+} = require('./b8r.bindings.js');
+Object.assign(b8r, {addDataBinding, removeDataBinding});
 
-b8r.find = find;
-b8r.findOne = findOne;
-b8r.findWithin = findWithin;
-b8r.findOneWithin = findOneWithin;
-b8r.findAbove = findAbove;
-b8r.id = id;
-b8r.text = text;
-b8r.fragment = fragment;
-b8r.create = create;
-b8r.classes = classes;
-b8r.empty = empty;
-b8r.elementIndex = elementIndex;
-b8r.moveChildren = moveChildren;
-b8r.copyChildren = copyChildren;
-
-const {log, logStart, logEnd, showLogs} = require('./b8r.perf.js');
-b8r.log = log;
-b8r.logStart = logStart;
-b8r.logEnd = logEnd;
-b8r.showLogs = showLogs;
 
 const models = {};
 const noop = () => {};
@@ -97,7 +74,6 @@ Insert an item into the specified array property. (Automatically updates bound l
 Removes a data-list-instance's corresponding list member and any other bound data-list-instances.
 */
 
-Object.assign(b8r, require('./b8r.iterators.js'));
 
 b8r.register = function (name, obj) {
   if (name.match(/^_[^_]*_$/)) {
@@ -305,44 +281,6 @@ b8r.getListInstance = function(elt) {
 };
 
 /**
-You can programmatically add a data binding using:
-
-    b8r.addDataBinding(element, toTarget, path);
-
-And remove a data binding using:
-
-    b8r.removeDataBinding(element, toTarget, path);
-*/
-
-b8r.addDataBinding = (element, toTarget, path) => {
-  const binding = `${toTarget}=${path}`;
-  const existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
-  if(existing.indexOf(binding) === -1) {
-    existing.push(binding);
-    element.setAttribute('data-bind', existing.join(';'));
-  }
-};
-
-b8r.removeDataBinding = (element, toTarget, path) => {
-  const binding = `${toTarget}=${path}`;
-  var existing = (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
-  if(existing.indexOf(binding) > -1) {
-    existing = existing.filter(exists => exists !== binding);
-    if (existing.length) {
-      element.setAttribute('data-bind', existing.join(';'));
-    } else {
-      element.removeAttribute('data-bind');
-    }
-  }
-};
-
-const {getEventHandlers, getParsedEventHandlers, on, off, enable, disable, implicit_event_types} = require('./b8r.events.js');
-b8r.on = on;
-b8r.off = off;
-b8r.enable = enable;
-b8r.disable = disable;
-
-/**
 ### Special event handling
 
     b8r.onAny(event_type, object, method) => handlerRef
@@ -515,8 +453,7 @@ b8r.trigger = (type, target) => {
     console.error ('expected trigger(event_type, target_element)', type, target);
   }
   if (target) {
-    const event = new Event(type);
-    target.dispatchEvent(event);
+    const event = dispatch(type, target);
     if(target instanceof HTMLElement && implicit_event_types.indexOf(type) === -1) {
       handleEvent(event);
     }
@@ -543,28 +480,6 @@ Data binding is implemented via the data-bind and data-list attributes.
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
-
-function parseBinding (binding) {
-  if(!binding.trim()) {
-    throw 'empty binding';
-  }
-  if(binding.indexOf('=') === -1) {
-    throw 'binding is missing = sign; probably need a source or target';
-  }
-  var [,targets, path] = binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
-  targets = targets.split(',').map(function(target){
-    var parts = target.match(/(\w+)(\(([^)]+)\))?/);
-    if(!parts) {
-      console.error('bad target', target, 'in binding', binding);
-      return;
-    }
-    return parts ? { target: parts[1], key: parts[3] } : null;
-  });
-  if (!path) {
-    console.error('binding does not specify source', binding);
-  }
-  return {targets, path};
-}
 
 function pathSplit(full_path) {
   const [,model,,path] = full_path.match(/^(.*?)(\.(.*))?$/);
@@ -593,6 +508,7 @@ function findBindables (element) {
 }
 
 b8r.onAny(['change', 'input'], '_b8r_', 'update', true);
+
 function bind (element) {
   var bindings = getBindings(element);
   for (var i = 0; i < bindings.length; i++) {

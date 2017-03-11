@@ -5,11 +5,7 @@
 'use strict';
 
 const {findWithin} = require('./b8r.dom.js');
-
-const dispatch = (type, target) => {
-  const event = new Event(type);
-  target.dispatchEvent(event);
-};
+const {dispatch} = require('./b8r.events.js');
 
 const show = element => {
   if (element.style.display === 'none') {

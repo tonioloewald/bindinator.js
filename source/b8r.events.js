@@ -202,5 +202,11 @@ turns them into data-event-disabled attributes;
     });
   };
 
-  module.exports = {makeHandler, getEventHandlers, getParsedEventHandlers, on, off, enable, disable, implicit_event_types};
+  const dispatch = (type, target) => {
+    const event = new Event(type);
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  module.exports = {makeHandler, getEventHandlers, getParsedEventHandlers, on, off, enable, disable, dispatch, implicit_event_types};
 }(module));
