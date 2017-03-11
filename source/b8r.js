@@ -797,7 +797,7 @@ b8r.insertComponent = function (component, element, data) {
     component = components[component];
   }
   if (!data || data_path) {
-    data = dataForElement(element, component.name);
+    data = dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {});
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);

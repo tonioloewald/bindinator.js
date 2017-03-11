@@ -21,7 +21,7 @@ const removeDataForElement = (target_element) => {
   }
 };
 
-const dataForElement = (target_element) => {
+const dataForElement = (target_element, _default) => {
   var data;
   for (var i = 0; i < data_waiting_for_components.length; i++) {
     if (data_waiting_for_components[i].target_element === target_element) {
@@ -36,7 +36,7 @@ const dataForElement = (target_element) => {
     return JSON.parse(json);
   }
 
-  return {};
+  return _default;
 };
 
 module.exports = {saveDataForElement, dataForElement};
