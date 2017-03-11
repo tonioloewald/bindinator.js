@@ -49,13 +49,11 @@ b8r.elementIndex = elementIndex;
 b8r.moveChildren = moveChildren;
 b8r.copyChildren = copyChildren;
 
-b8r.modifierKeys = {
-  meta: '⌘',
-  ctrl: '⌃',
-  alt: '⌥',
-  escape: '⎋',
-  shift: '⇧',
-};
+const {log, logStart, logEnd, showLogs} = require('./b8r.perf.js');
+b8r.log = log;
+b8r.logStart = logStart;
+b8r.logEnd = logEnd;
+b8r.showLogs = showLogs;
 
 const models = {};
 const noop = () => {};
@@ -156,60 +154,7 @@ b8r.touchByPath = function(name, path, source_element) {
   b8r.logEnd('touchByPath', full_path);
 };
 
-const logs = {};
 
-b8r.log = (log_name, entry_name) => {
-  if(!logs[log_name]) {
-    logs[log_name] = {};
-  }
-  const log = logs[log_name];
-  if (!log[entry_name]) {
-    log[entry_name] = {count: 0, times: [], total_time: 0};
-  }
-  log[entry_name].count += 1;
-  return log[entry_name];
-};
-
-b8r.logStart = (log_name, entry_name) => {
-  b8r.log(log_name, entry_name).start = Date.now();
-};
-
-b8r.logEnd = (log_name, entry_name) => {
-  const log = logs[log_name][entry_name];
-  const elapsed = Date.now() - log.start;
-  delete(log.start);
-  log.times.push(elapsed);
-  log.total_time += elapsed;
-};
-
-const medianOfSortedArray = values => (
-  values[Math.floor(values.length / 2)] +
-  values[Math.floor(values.length / 2 - 0.5)]
-)/2;
-
-b8r.showLogs = (which, threshold) => {
-  if (which) {
-    var mapped = b8r.mapEachKey(logs[which], val => {
-      const {count, times, total_time} = val;
-      var best, worst, median;
-      if (times.length) {
-        const sorted = times.sort();
-        best = sorted[0];
-        worst = sorted[sorted.length - 1];
-        median = medianOfSortedArray(sorted);
-      } else {
-        best = worst = median = '';
-      }
-      return {count, best, median, worst, total_time};
-    });
-    if(threshold) {
-      mapped = b8r.filterObject(mapped, entry => entry.total_time > threshold);
-    }
-    console.table(mapped, ['count', 'best', 'median', 'worst', 'total_time']);
-  } else {
-    console.table(logs, []);
-  }
-};
 
 b8r.setByPath = function (...args) {
   var name, path, value, source_element;
@@ -517,7 +462,9 @@ b8r.callMethod = function (...args) {
   return result;
 };
 
-b8r.keystroke = require('./b8r.keystroke.js');
+const {keystroke, modifierKeys} = require('./b8r.keystroke.js');
+b8r.keystroke = keystroke;
+b8r.modifierKeys = modifierKeys;
 
 function handleEvent (evt) {
   var target = anyElement ? anyElement : evt.target;

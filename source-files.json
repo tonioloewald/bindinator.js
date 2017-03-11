@@ -44,6 +44,10 @@
 		"path": "source/b8r.byPath.js"
 	},
 	{
+		"name": "perf",
+		"path": "source/b8r.perf.js"
+	},
+	{
 		"name": "Binding to DOM",
 		"path": "source/b8r.toTargets.js"
 	},
