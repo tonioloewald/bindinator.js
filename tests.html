@@ -133,7 +133,6 @@
 		Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
 		// binding (to), data mounting
-debugger;
 		b8r.register('test1', obj);
 		Test(() => b8r.id('a').textContent).shouldBe('42');
 		Test(() => b8r.id('b').textContent).shouldBe('hello');
