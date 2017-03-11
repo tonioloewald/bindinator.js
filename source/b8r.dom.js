@@ -34,6 +34,14 @@ document.createDocumentFragment()
 
 remove all child elements from the element
 
+    classes(element, map);
+
+takes a map of class names to booleans and adds / removes those classes accordingly.
+
+    styles(element, map);
+
+takes a map of style settings to values and sets those styles accordingly.
+
     create(tagName)
 
 document.createElement(tagName)
@@ -97,22 +105,17 @@ module.exports = {
   text: document.createTextNode.bind(document),
   fragment: document.createDocumentFragment.bind(document),
   create: document.createElement.bind(document),
-  classes: (...args) => {
-    var elt, settings, class_name, on_off;
-    if (args.length === 2) {
-      [elt, settings] = args;
-    } else if (args.length === 3) {
-      [elt, class_name, on_off] = args;
-      settings = {};
-      settings[class_name] = on_off;
-    }
+  classes: (element, settings) => {
     forEachKey(settings, (on_off, class_name) => {
       if (on_off) {
-        elt.classList.add(class_name);
+        element.classList.add(class_name);
       } else {
-        elt.classList.remove(class_name);
+        element.classList.remove(class_name);
       }
     });
+  },
+  styles: (element, settings) => {
+    forEachKey(settings, (value, key) => element.style[key] = value);
   },
   empty (element) {
     while (element.lastChild) {
