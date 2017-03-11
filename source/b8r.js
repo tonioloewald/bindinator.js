@@ -517,38 +517,6 @@ b8r.callMethod = function (...args) {
   return result;
 };
 
-/**
-## Keystrokes
-
-b8r leverages the modern browser's event "code" to identify keystrokes,
-and uses a normalized representation of modifier keys (in alphabetical)
-order.
-
-  * **alt** represents the alt or option keys
-  * **ctrl** represents the control key
-  * **meta** represents the windows, command, or meta keys
-  * **shift** represents the shift keys
-
-To get a normalized representation of a keystroke, there's:
-
-    b8r.keystroke(event)
-
-```
-<label>
-  Type in here
-  <input style="width: 60px;" data-event="keydown:_component_.key">
-</label>
-
-<div data-bind="text=_component_.keystroke"></div>
-<script>
-  const key = evt => {
-    set('keystroke', b8r.keystroke(evt));
-    return true; // process keystroke normally
-  };
-  set ({key})
-</script>
-```
-*/
 b8r.keystroke = require('./b8r.keystroke.js');
 
 function handleEvent (evt) {

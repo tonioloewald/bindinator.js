@@ -1,10 +1,34 @@
 /**
 # Keystroke
 
-Leverages the new event.code property to generate normalized keystrokes without
-requiring a big lookup table. Removes Key and Digit to make the codes simpler.
+Leverages the modern browser's event "code" to identify keystrokes,
+and uses a normalized representation of modifier keys (in alphabetical)
+order.
+
+* **alt** represents the alt or option keys
+* **ctrl** represents the control key
+* **meta** represents the windows, command, or meta keys
+* **shift** represents the shift keys
+
+To get a normalized representation of a keystroke:
 
     keystroke(event) // => produces normalized keystroke of the form alt-X
+
+```
+<label>
+  Type in here
+  <input style="width: 60px;" data-event="keydown:_component_.key">
+</label>
+<div data-bind="text=_component_.keystroke"></div>
+<script>
+  const keystroke = require('source/b8r.keystroke.js');
+  const key = evt => {
+    set('keystroke', keystroke(evt));
+    return true; // process keystroke normally
+  };
+  set ({key});
+</script>
+```
 */
 /* global module */
 'use strict';
