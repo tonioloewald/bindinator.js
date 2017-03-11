@@ -29,24 +29,38 @@ To get a normalized representation of a keystroke:
   set ({key});
 </script>
 ```
+## Modifier Keys
+
+Also provides modifierKeys, a map from the modifier strings (e.g. alt) to
+the relevant unicode glyphs (e.g. '⌥').
 */
 /* global module */
 'use strict';
 
-module.exports = (evt) => {
-  var code = [];
-  if(evt.altKey){ code.push('alt'); }
-  if(evt.ctrlKey){ code.push('ctrl'); }
-  if(evt.metaKey){ code.push('meta'); }
-  if(evt.shiftKey){ code.push('shift'); }
-  if(evt.code) {
-    code.push(evt.code.replace(/Key|Digit/, ''));
-  } else {
-    var synthetic_code = evt.keyIdentifier;
-    if (synthetic_code.substr(0,2) === 'U+') {
-      synthetic_code = String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
+module.exports = {
+  keystroke: (evt) => {
+    var code = [];
+    if(evt.altKey){ code.push('alt'); }
+    if(evt.ctrlKey){ code.push('ctrl'); }
+    if(evt.metaKey){ code.push('meta'); }
+    if(evt.shiftKey){ code.push('shift'); }
+    if(evt.code) {
+      code.push(evt.code.replace(/Key|Digit/, ''));
+    } else {
+      var synthetic_code = evt.keyIdentifier;
+      if (synthetic_code.substr(0,2) === 'U+') {
+        synthetic_code = String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
+      }
+      code.push(synthetic_code);
     }
-    code.push(synthetic_code);
-  }
-  return code.join('-');
+    return code.join('-');
+  },
+
+  modifierKeys: {
+    meta: '⌘',
+    ctrl: '⌃',
+    alt: '⌥',
+    escape: '⎋',
+    shift: '⇧',
+  },
 };
