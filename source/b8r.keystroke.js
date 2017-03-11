@@ -6,6 +6,8 @@ requiring a big lookup table. Removes Key and Digit to make the codes simpler.
 
     keystroke(event) // => produces normalized keystroke of the form alt-X
 */
+/* global module */
+'use strict';
 
 module.exports = (evt) => {
   var code = [];
