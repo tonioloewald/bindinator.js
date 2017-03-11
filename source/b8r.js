@@ -667,15 +667,7 @@ b8r.component = function (name, url) {
   return component_promises[name];
 };
 
-b8r.makeStylesheet = function(source) {
-  const style = source ? b8r.create('style') : false;
-  if (style) {
-    style.type = 'text/css';
-    style.appendChild(b8r.text(source));
-    document.head.appendChild(style);
-  }
-  return style;
-};
+const makeStylesheet = require('./b8r.makeStylesheet.js');
 
 b8r.makeComponent = function(name, source) {
   var css = false, content, script = false, parts, remains;
@@ -713,7 +705,7 @@ b8r.makeComponent = function(name, source) {
     `${script}\n//# sourceURL=${name}(component)`
   ) : false;
 /*jshint evil: false */
-  const style = b8r.makeStylesheet(`/* ${name} component */\n` + css);
+  const style = makeStylesheet(`/* ${name} component */\n` + css);
   var component = {name: name, style, view: div, load: load, _source: source};
   if (component_timeouts[name]) {
     clearInterval(component_timeouts[name]);
