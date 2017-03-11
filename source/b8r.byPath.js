@@ -24,7 +24,7 @@ efficient updating of lists, e.g.
 ```
 <p>Inspect the DOM to see what's going on!</p>
 <ul>
-  <li 
+  <li
     data-list="_component_.list:id"
     data-bind="text=.name"
   ></li>

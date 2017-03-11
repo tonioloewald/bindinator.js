@@ -26,16 +26,15 @@ const {
 } = require('./b8r.events.js');
 Object.assign(b8r, {on, off, enable, disable});
 const {
-  addDataBinding, removeDataBinding,
-  parseBinding
+  addDataBinding, removeDataBinding, getListInstancePath,
+  findLists, findBindables, getBindings, replaceInBindings
 } = require('./b8r.bindings.js');
-Object.assign(b8r, {addDataBinding, removeDataBinding});
+Object.assign(b8r, {addDataBinding, removeDataBinding, getListInstancePath});
 const {saveDataForElement, dataForElement} = require('./b8r.dataForElement.js');
 const {onAny, offAny, anyListeners, anyElement} = require('./b8r.anyEvent.js');
 Object.assign(b8r, {onAny, offAny, anyListeners});
-
-const models = {};
-const noop = () => {};
+Object.assign(b8r, require('./b8r.registry.js'));
+b8r.observe(() => true, (path, source_element) => b8r.touchByPath(path, source_element));
 
 /**
     b8r.register(name, obj);
@@ -81,33 +80,22 @@ b8r.register = function (name, obj) {
   if (name.match(/^_[^_]*_$/)) {
     throw "cannot register object as " + name + ", all names starting and ending with a single '_' are reserved.";
   }
-  models[name] = obj;
-  if (b8r.getByPath(models[name], 'add')) {
-    models[name].add();
-  }
-  b8r.touchByPath(name);
+  b8r.set(name, obj);
   playSavedMessages(name);
 };
 
-b8r.models = () => Object.keys(models); //.filter(key => key.indexOf(/^c#/) === -1);
-
-b8r.componentInstances = () => Object.keys(models).filter(key => key.indexOf(/^c#/) !== -1);
-
-b8r.isRegistered = function(name) {
-  return models[name] !== undefined;
-};
+b8r.componentInstances = () => b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 b8r.deregister = function (name) {
-  if (name && models[name]) {
-    (models[name].remove || noop)();
-    delete(models[name]);
+  if (name) {
+    b8r.remove(name);
   }
+  const models = b8r.models();
   // garbage collect models
   const instances = b8r.find('[data-component-id]').map(elt => elt.getAttribute('data-component-id'));
   for (var model in models) {
     if (model.substr(0,2) === 'c#' && instances.indexOf(model) === -1) {
-      (models[model].remove || noop)();
-      delete(models[model]);
+      b8r.remove(model);
     }
   }
 };
@@ -144,8 +132,8 @@ b8r.setByPath = function (...args) {
   } else {
     [name, path, value, source_element] = args;
   }
-  if (models[name]) {
-    const model = models[name];
+  if (b8r.registered(name)) {
+    const model = b8r.get(name);
     if(typeof path === 'object'){
       Object.assign(model, path);
       b8r.touchByPath(name, '/', source_element);
@@ -166,8 +154,8 @@ b8r.pushByPath = function(...args) {
   } else {
     [name, path, value, callback] = args;
   }
-  if (models[name]) {
-    const list = getByPath(models[name], path);
+  if (b8r.registered(name)) {
+    const list = b8r.get(path ? `${name}.${path}` : name);
     list.push(value);
     if (callback) {
       callback(list);
@@ -186,8 +174,8 @@ b8r.unshiftByPath = function(...args) {
   } else {
     [name, path, value] = args;
   }
-  if (models[name]) {
-    const list = getByPath(models[name], path);
+  if (b8r.registered(name)) {
+    const list = getByPath(b8r.get(name), path);
     list.unshift(value);
     b8r.touchByPath(name, path);
   } else {
@@ -228,8 +216,8 @@ b8r.removeByPath = function(...args) {
   } else {
     [name, path, key] = args;
   }
-  if (models[name]) {
-    const list = getByPath(models[name], path);
+  if (b8r.registered(name)) {
+    const list = getByPath(b8r.get(name), path);
     const index = indexFromKey(list, key);
     if (Array.isArray(list) && index > -1) {
       list.splice(index, 1);
@@ -241,7 +229,7 @@ b8r.removeByPath = function(...args) {
 };
 
 b8r.getByPath = function (model, path) {
-  return getByPath(models, path ? model + '.' + path : model);
+  return b8r.get(path ? model + '.' + path : model);
 };
 
 b8r.listItems = element => b8r.makeArray(element.children)
@@ -251,9 +239,21 @@ b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element)
 /**
 ### Finding Bound Data
 
+To get a component's id (which you should not need to do very often)
+you can call getComponentId:
+
+    b8r.getComponentId(elt)
+
+The component id looks like c# _component name_ # _n_ where _n_ is the
+simply the creation order. It follows that component ids are guaranteed
+to be unique.
+
 To quickly obtain bound data a component from an element inside it:
 
     b8r.getComponentData(elt)
+
+In effect this simply gets the component id and then finds the corresponding
+registered data object (or "model").
 
 To quickly obtain bound data a list instance from an element inside it:
 
@@ -268,11 +268,6 @@ b8r.getComponentId = function(elt) {
 b8r.getComponentData = function(elt) {
   const id = b8r.getComponentId(elt);
   return id ? b8r.getByPath(id) : null;
-};
-
-b8r.getListInstancePath = function(elt) {
-  const component = elt.closest('[data-list-instance]');
-  return component ? component.getAttribute('data-list-instance') : null;
 };
 
 b8r.getListInstance = function(elt) {
@@ -334,12 +329,8 @@ b8r.callMethod = function (...args) {
     debugger; // jshint ignore:line
   }
   var result = null;
-  if ( models[model] ) {
-    if (models[model][method] instanceof Function) {
-      result = models[model][method](...args);
-    } else {
-      console.error(`callMethod failed: ${model}.${method} is not a function`);
-    }
+  if ( b8r.registered(model) ) {
+    result = b8r.call(`${model}.${method}`, ...args);
   } else {
     // TODO queue if model not available
     // event is stopped from further propagation
@@ -390,13 +381,13 @@ function handleEvent (evt) {
 }
 
 /**
-    trigger(type, target);
+    b8r.trigger(type, target);
 
 Trigger a synthetic implicit (only!) event. Note that you can trigger and handle
 completely made-up events, but if you trigger events that occur naturally the goal
 is for them to be handled exactly as if they were "real".
-
 */
+
 b8r.trigger = (type, target) => {
   if (typeof type !== 'string' || !(target.dispatchEvent instanceof Function)) {
     console.error ('expected trigger(event_type, target_element)', type, target);
@@ -411,20 +402,19 @@ b8r.trigger = (type, target) => {
   }
 };
 
+// add touch events if needed
 if (window.TouchEvent) {
   ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(type => implicit_event_types.push(type));
 }
 
 implicit_event_types.forEach(type => document.body.addEventListener(type, handleEvent, true));
 
-/*
-  This is where we define all the methods for binding to/from the DOM
-*/
-
 /**
 ## Data Binding
 
 Data binding is implemented via the data-bind and data-list attributes.
+
+See the docs on binding data to and from the DOM for more detail.
 */
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
@@ -435,28 +425,7 @@ function pathSplit(full_path) {
   return [model, path];
 }
 
-function getBindings (element) {
-  var binding_source = element.getAttribute('data-bind');
-  if(!element.matches('[data-list]') && binding_source.indexOf('=.') > -1) {
-    const instance_path = b8r.getListInstancePath(element);
-    if(instance_path) {
-      binding_source = binding_source.replace(/\=\./g, `=${instance_path}.`);
-      element.setAttribute('data-bind', binding_source);
-    }
-  }
-  return binding_source.split(';').filter(s => !!s.trim()).map(parseBinding);
-}
-
-function findBindables (element) {
-  return b8r.
-    findWithin(element, '[data-bind]', true).
-    filter(elt => {
-      var list = elt.closest('[data-list],[data-list-instance]');
-      return !list || list === element || !element.contains(list);
-    });
-}
-
-b8r.onAny(['change', 'input'], '_b8r_', 'update', true);
+b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 
 function bind (element) {
   var bindings = getBindings(element);
@@ -474,13 +443,7 @@ function bind (element) {
   }
 }
 
-function findLists (element) {
-  return b8r.findWithin(element, '[data-list]')
-        .filter(elt => {
-          var list = elt.parentElement.closest('[data-list]');
-          return !list || list === element || !element.contains(list);
-        });
-}
+
 
 const {show, hide} = require('./b8r.show.js');
 b8r.show = show;
@@ -593,10 +556,27 @@ function bindAll(element, data) {
 
 b8r.bindAll = bindAll;
 
-models._b8r_ = {
+/**
+## _b8r_ Model
+
+The _b8r_ model is provided by default as a useful set of always available
+methods, especially for handling events.
+
+You can use them the obvious way:
+
+    <button data-event="click:_b8r_.echo">
+      Click Me, I cause console spam
+    </button>
+
+    _b8r_.echo // logs events to the console
+    _b8r_.stopEvent // use this to simply catch an event silently
+    _b8r_._update_ // this is used by b8r to update models automatically
+*/
+
+b8r.set('_b8r_', {
   echo: evt => console.log(evt) || true,
   stopEvent: () => {},
-  update: evt => {
+  _update_: evt => {
     var elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
     if (evt.target.tagName === 'SELECT') {
       const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
@@ -616,7 +596,7 @@ models._b8r_ = {
       });
     return true;
   },
-};
+});
 
 const ajax = require('./b8r.ajax.js');
 Object.assign(b8r, ajax);
@@ -745,18 +725,6 @@ Data will be passed to the component's load method and registered as the compone
 data is passed automatically from parent components or via binding, e.g. `data-bind="component=path.to.data` binds that
 data to the component).
 */
-
-function replaceInBindings(element, needle, replacement) {
-  const needle_regexp = new RegExp(needle, 'g');
-  b8r.findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"]`).forEach(elt => {
-    ['data-bind', 'data-list'].forEach(attr => {
-      const val = elt.getAttribute(attr);
-      if(val) {
-        elt.setAttribute(attr, val.replace(needle_regexp, replacement));
-      }
-    });
-  });
-}
 
 function getDataPath(data, element) {
   if (typeof data === 'string') {
