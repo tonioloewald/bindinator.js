@@ -30,6 +30,7 @@ const {
   parseBinding
 } = require('./b8r.bindings.js');
 Object.assign(b8r, {addDataBinding, removeDataBinding});
+const {saveDataForElement, dataForElement} = require('./b8r.dataForElement.js');
 
 
 const models = {};
@@ -783,41 +784,6 @@ b8r.makeComponent = function(name, source) {
     forEach(element => b8r.insertComponent(component, element));
   return component;
 };
-
-var data_waiting_for_components = []; // { target_element, data }
-
-function saveDataForElement(target_element, data) {
-  if (data) {
-    removeDataForElement(target_element);
-    data_waiting_for_components.push({target_element, data});
-  }
-}
-
-function dataForElement(target_element) {
-  var data;
-  for (var i = 0; i < data_waiting_for_components.length; i++) {
-    if (data_waiting_for_components[i].target_element === target_element) {
-      data = data_waiting_for_components[i].data;
-      removeDataForElement(target_element);
-      return data;
-    }
-  }
-
-  const json = target_element.getAttribute('data-json');
-  if (json) {
-    return JSON.parse(json);
-  }
-
-  return b8r.getComponentData(target_element) || b8r.getListInstance(target_element) || {};
-}
-
-function removeDataForElement(target_element) {
-  for (var i = 0; i < data_waiting_for_components.length; i++) {
-    if (data_waiting_for_components[i].target_element === target_element) {
-      delete data_waiting_for_components[i].data;
-    }
-  }
-}
 
 function loadAvailableComponents(element, data) {
   b8r.findWithin(element || document.body, '[data-component]').forEach(target => {
