@@ -1,12 +1,13 @@
 /**
 # Any Event
 
-Utility methods for intercepting ANY event before anything else sees it. Note that if you
-don't return true from the handler the event will be stopped.
+Utility methods for intercepting ANY event before anything else sees it. Note
+that if you don't return true from the handler the event will be stopped.
 
     b8r.onAny(event_type, object, method) => handlerRef
 
-creates an event handler that will get first access to any event; returns a reference for purposes of removal
+creates an event handler that will get first access to any event; returns a
+reference for purposes of removal
 
     b8r.offAny(handlerRef,...)
 
@@ -16,8 +17,8 @@ removes all the handlerRefs passed
 
 returns active any listeners.
 
-**Note** that this works *exactly* like an invisible element in front of everything else
-for purposes of propagation.
+**Note** that this works *exactly* like an invisible element in front of
+everything else for purposes of propagation.
 
 */
 /* global module, require */
@@ -46,7 +47,7 @@ const onAny = function(...args) {
   on(_anyElement, event_type, path);
 };
 
-const offAny = function (...args) {
+const offAny = function(...args) {
   const {event_type, path} = anyArgs(args);
   if (_anyElement) {
     off(_anyElement, event_type, path);
@@ -60,4 +61,10 @@ const anyListeners = () => anyElement ? getEventHandlers(anyElement) : [];
 
 const anyElement = () => _anyElement;
 
-module.exports = {anyListeners, anyArgs, onAny, offAny, anyElement};
+module.exports = {
+  anyListeners,
+  anyArgs,
+  onAny,
+  offAny,
+  anyElement
+};

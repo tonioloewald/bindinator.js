@@ -4,7 +4,7 @@
 /* global module */
 'use strict';
 
-const data_waiting_for_components = []; // { target_element, data }
+const data_waiting_for_components = [];  // { target_element, data }
 
 const saveDataForElement = (target_element, data) => {
   if (data) {
@@ -39,4 +39,7 @@ const dataForElement = (target_element, _default) => {
   return _default;
 };
 
-module.exports = {saveDataForElement, dataForElement};
+module.exports = {
+  saveDataForElement,
+  dataForElement
+};

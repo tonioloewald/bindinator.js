@@ -12,19 +12,23 @@ Exactly like forEach except it iterates on the object's keys.
 
     mapEachKey(object, method) // => {map}
 
-Just like map, except it creates an object from an object instead of an array from an array.
+Just like map, except it creates an object from an object instead of an array
+from an array.
 
-    findKey(object, predicateMethod) // => first key whose corresponding value passes predicateMethod
+    findKey(object, predicateMethod) // => first key whose corresponding value
+passes predicateMethod
 
 Like findIndex for arrays, but returns key instead.
 
-    findValue(object, predicateMethod) // => returns first value that passes predicateMethod
+    findValue(object, predicateMethod) // => returns first value that passes
+predicateMethod
 
 Like find for arrays, but iterates over keys to find the value.
 
 ~~~~
 Test(() => document.querySelectorAll('div') instanceof Array).shouldBe(false);
-Test(() => b8r.makeArray(document.querySelectorAll('div')) instanceof Array).shouldBe(true);
+Test(() => b8r.makeArray(document.querySelectorAll('div')) instanceof
+Array).shouldBe(true);
 Test(() => {
   const obj = {a: 10, b: 5};
   const s = [];
@@ -52,14 +56,14 @@ Test(() => {
 */
 /* global module */
 
-(function(module){
+(function(module) {
   'use strict';
 
   const makeArray = arrayish => [].slice.apply(arrayish);
 
   const forEachKey = (object, method) => {
     var key;
-    for(var i = 0, keys = Object.keys(object); i < keys.length; i++) {
+    for (var i = 0, keys = Object.keys(object); i < keys.length; i++) {
       key = keys[i];
       if (method(object[key], key) === false) {
         break;
@@ -109,5 +113,13 @@ Test(() => {
     return filtered;
   };
 
-  module.exports = {makeArray, forEachKey, mapEachKey, findKey, findValue, filterKeys, filterObject};
+  module.exports = {
+    makeArray,
+    forEachKey,
+    mapEachKey,
+    findKey,
+    findValue,
+    filterKeys,
+    filterObject
+  };
 }(module));
