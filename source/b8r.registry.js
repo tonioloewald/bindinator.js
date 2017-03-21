@@ -16,6 +16,11 @@ You can get a property by path.
     call('root.path.to.method', ...args); // returns value as appropriate
 
 You can call a method by path.
+
+    touch(path [, source_element]); //
+
+Triggers all observers as though the value at path has changed. Useful
+if you change a property independently of the registry.
 */
 /* global module, require, console */
 'use strict';
@@ -43,6 +48,11 @@ class Listener {
 
 const get = path => getByPath(registry, path);
 
+const touch = (path, source_element) => {
+  listeners.filter(listener => listener.test(path))
+      .forEach(listener => listener.callback(path, source_element));
+};
+
 const set = (path, value, source_element) => {
   const path_parts = path.split('.');
   const model = path_parts[0];
@@ -55,6 +65,14 @@ const set = (path, value, source_element) => {
   }
 };
 
+const push = (path, value) => {
+  const list = get(path);
+  if(Array.isArray(list)) {
+    list.push(value);
+    touch(path);
+  }
+};
+
 const call = (path, ...args) => {
   const method = get(path);
   if (method instanceof Function) {
@@ -62,17 +80,6 @@ const call = (path, ...args) => {
   } else {
     throw `cannot call ${path}; not a method`;
   }
-};
-
-/**
-    touch(path [, source_element]); //
-
-Triggers all observers as though the value at path has changed. Useful
-if you change a property independently of the registry.
-*/
-const touch = (path, source_element) => {
-  listeners.filter(listener => listener.test(path))
-      .forEach(listener => listener.callback(path, source_element));
 };
 
 /**
@@ -159,11 +166,12 @@ const remove = name => {
 module.exports = {
   get,
   set,
+  push,
   call,
   touch,
   observe,
   unobserve,
   models,
   registered,
-  remove
+  remove,
 };
