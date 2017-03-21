@@ -137,10 +137,10 @@ into reusable components so you can concentrate on your project.
         b8r.trigger('change', element);
       }
     });
-    const elements = b8r.makeArray(document.querySelectorAll(
-                                       '[data-bind*="' + full_path + '"]'))
-                         .filter(notInListTemplate);
-    elements.forEach(element => element !== source_element && bind(element));
+    b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'))
+        .filter(notInListTemplate)
+        .filter(element => element !== source_element)
+        .forEach(bind);
 
     b8r.logEnd('touchByPath', full_path);
   };
@@ -336,8 +336,7 @@ into reusable components so you can concentrate on your project.
     var component_id = false;
     element = element.closest('[data-component-id]');
     while (element instanceof HTMLElement) {
-      if (b8r.getByPath(element.getAttribute('data-component-id'), path)
-              instanceof Function) {
+      if (b8r.getByPath(element.getAttribute('data-component-id'), path) instanceof Function) {
         component_id = element.getAttribute('data-component-id');
         break;
       }
@@ -483,8 +482,6 @@ into reusable components so you can concentrate on your project.
     }
   }
 
-
-
   const {show, hide} = require('./b8r.show.js');
   b8r.show = show;
   b8r.hide = hide;
@@ -532,8 +529,7 @@ into reusable components so you can concentrate on your project.
     if (method_path) {
       (function() {
         try {
-          const [, method, path] = method_path.match(/^(.*?)\.(.*)$/);
-          list = b8r.callMethod(method, path, list);
+          list = b8r.callMethod(method_path, list, list_template);
         } catch (e) {
           console.error('bindList failed; bad method path', method_path, e);
         }
