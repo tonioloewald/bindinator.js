@@ -164,7 +164,7 @@ efficient updating of lists, e.g.
         throw 'setByPath failed';
       }
     }
-    throw 'setByPath failed';
+    throw `setByPath(${obj}, ${path}, ${val}) failed`;
   }
 
   function matchTypes(value, oldValue) {
