@@ -52,6 +52,7 @@
 				©2016-2017 Tonio Loewald | <a href="http://loewald.com">loewald.com</a> | <a href="#source=LICENSE.md">License</a>
 			</div>
 		</div>
+	<div title="Inspector" data-component="floater" style="bottom: 10px; left: 10px;"></div>
 	</div>
 	<script src="lib/require.js"></script>
 	<script>
@@ -173,6 +174,8 @@
 					b8r.trigger('mouseup', b8r.findOne('.loadable'));
 				}
 			}
+
+			b8r.component('components/floater');
 
 			window.addEventListener('hashchange', update);
 		});
