@@ -109,20 +109,41 @@ into reusable components so you can concentrate on your project.
   b8r.componentInstances = () =>
       b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
-  b8r.deregister = function(name) {
-    if (name) {
-      b8r.remove(name);
-    }
+  b8r.debounce = (orig_fn, delay) => {
+    var throttle_id;
+    return (...args) => {
+      if (throttle_id) {
+        clearTimeout(throttle_id);
+      }
+      throttle_id = setTimeout(() => orig_fn(...args), delay);
+    };
+  };
+
+  b8r.throttle = (orig_fn, min_interval) => {
+    var last_call = Date.now() - min_interval;
+    return (...args) => {
+      const now = Date.now();
+      if(now - last_call > min_interval) {
+        last_call = now;
+        orig_fn(args);
+      }
+    };
+  };
+
+  b8r.cleanupComponentInstances = b8r.debounce(() => {
     const models = b8r.models();
     // garbage collect models
     const instances = b8r.find('[data-component-id]')
                           .map(elt => elt.getAttribute('data-component-id'));
-    for (var model in models) {
+    for (let idx in models) {
+      let model = models[idx];
       if (model.substr(0, 2) === 'c#' && instances.indexOf(model) === -1) {
         b8r.remove(model);
       }
     }
-  };
+  }, 2000);
+
+  b8r.deregister = name => b8r.remove(name);
 
   b8r.touchByPath = function(name, path, source_element) {
     const full_path = !path || path === '/' ? name : name + '.' + path;
@@ -390,11 +411,13 @@ into reusable components so you can concentrate on your project.
                handler.type_args[type_index].indexOf(keystroke) > -1)) {
             if (handler.model && handler.method) {
               if (handler.model === '_component_') {
-                handler.model =
-                    b8r.getComponentWithMethod(target, handler.method);
+                handler.model = b8r.getComponentWithMethod(target, handler.method);
               }
-              result =
-                  b8r.callMethod(handler.model, handler.method, evt, target);
+              if (handler.model) {
+                result = b8r.callMethod(handler.model, handler.method, evt, target);
+              } else {
+                console.warn(`_component_.${handler.method} not found`, target);
+              }
             } else {
               console.error('incomplete event handler on', target);
               break;
@@ -505,9 +528,8 @@ into reusable components so you can concentrate on your project.
     return instances.reverse();
   };
 
-  function bindList(list_template, data) {
-    const [source_path, id_path] =
-        list_template.getAttribute('data-list').split(':');
+  function bindList(list_template, data_path) {
+    const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
     var method_path, list_path;
     try {
       // parse computed list method if any
@@ -516,12 +538,11 @@ into reusable components so you can concentrate on your project.
     } catch (e) {
       console.error('bindList failed; bad source path', source_path);
     }
-    b8r.logStart('bindList', list_path);
-    const [model, path] = pathSplit(list_path);
-    if (model === '' && !data) {
-      return;
+    if (data_path) {
+      list_path = data_path + list_path;
     }
-    var list = data ? getByPath(data, path) : b8r.getByPath(model, path);
+    b8r.logStart('bindList', list_path);
+    var list = b8r.get(list_path);
     if (!list) {
       return;
     }
@@ -579,16 +600,17 @@ into reusable components so you can concentrate on your project.
     b8r.logEnd('bindList', list_path);
   }
 
-  function bindAll(element, data) {
+  function bindAll(element, data_path) {
     const random_entry = b8r.getComponentId(element) + '-' + Math.random();
     b8r.logStart('bindAll', random_entry);
-    loadAvailableComponents(element, data);
+    loadAvailableComponents(element, data_path);
     findBindables(element).forEach(elt => bind(elt));
-    findLists(element).forEach(elt => bindList(elt, data));
+    findLists(element).forEach(elt => bindList(elt, data_path));
     if (element.parentElement) {
       b8r.trigger('change', element.parentElement);
     }
     b8r.logEnd('bindAll', random_entry);
+    b8r.cleanupComponentInstances();
   }
 
   b8r.bindAll = bindAll;
@@ -690,6 +712,8 @@ into reusable components so you can concentrate on your project.
     return component_promises[name];
   };
 
+  b8r.components = () => Object.keys(components);
+
   const makeStylesheet = require('./b8r.makeStylesheet.js');
 
   b8r.makeComponent = function(name, source) {
@@ -739,13 +763,13 @@ into reusable components so you can concentrate on your project.
     return component;
   };
 
-  function loadAvailableComponents(element, data) {
+  function loadAvailableComponents(element, data_path) {
     b8r.findWithin(element || document.body, '[data-component]')
         .forEach(target => {
           if (!target.closest('[data-list]') &&
               !target.matches('[data-component-id]')) {
             var name = target.getAttribute('data-component');
-            b8r.insertComponent(name, target, data);
+            b8r.insertComponent(name, target, data_path);
           }
         });
   }

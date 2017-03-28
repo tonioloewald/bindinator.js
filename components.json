@@ -16,6 +16,10 @@
 		"path": "circle"
 	},
 	{
+		"name": "Floater",
+		"path": "floater"
+	},
+	{
 		"name": "Photo Tabs",
 		"path": "photo-tabs"
 	},

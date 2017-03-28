@@ -71,7 +71,7 @@ const findBindables = element => {
 const findLists = element => {
   return findWithin(element, '[data-list]').filter(elt => {
     var list = elt.parentElement.closest('[data-list]');
-    return !list || list === element || !element.contains(list);
+    return !list || !element.contains(list);
   });
 };
 

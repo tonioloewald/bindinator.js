@@ -1,10 +1,10 @@
 /**
 # Events
 */
-/* global module, console */
+/* global module, console, require */
 (function(module){
 'use strict';
-  const {findWithin} = './b8r.dom.js';
+  const {findWithin} = require('./b8r.dom.js');
 
   const implicit_event_types = [
     'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',

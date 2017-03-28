@@ -8,7 +8,11 @@
 	<link rel="stylesheet" type="text/css" href="b8r.css">
 	<link rel="stylesheet" type="text/css" href="icomoon/style.css">
 </head>
-<body data-event="keydown(alt-meta-KeyK):demo.alertKeystroke;keydown(alt-Space):demo.fullscreen">
+<body data-event="
+	keydown(alt-meta-KeyK):demo.alertKeystroke;
+	keydown(alt-Space):demo.fullscreen;
+	keydown(alt-I):demo.inspector;
+">
 	<div class="layout">
 		<div class="header">
 			<img alt="bindinator.js" style="height: 52px; width: 52px; padding: 4px 12px" src="bindinator-logo-notext-mono.svg">
@@ -52,35 +56,41 @@
 				©2016-2017 Tonio Loewald | <a href="http://loewald.com">loewald.com</a> | <a href="#source=LICENSE.md">License</a>
 			</div>
 		</div>
-	<div title="Inspector" data-component="floater" style="bottom: 10px; left: 10px;"></div>
 	</div>
 	<script src="lib/require.js"></script>
 	<script>
+	/* global require, alert, console */
+	'use strict';
 		const preload_data = [
 		  [
-		    "source/b8r.iterators.js",
-		    "source/b8r.imgSrc.js",
 		    "source/b8r.fromTargets.js",
+		    "source/b8r.imgSrc.js",
+		    "source/b8r.iterators.js",
 		    "source/b8r.ajax.js",
 		    "source/b8r.byPath.js",
 		    "lib/test.js",
-		    "source/b8r.events.js",
 		    "source/b8r.keystroke.js",
 		    "lib/mondrian.js",
 		    "lib/domInterval.js",
-    		"source/b8r.dataForElement.js",
+		    "source/b8r.dataForElement.js",
+		    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js",
+		    "https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js",
+		    "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js"
 		  ],
 		  [
 		    "source/b8r.dom.js",
-		    "source/b8r.toTargets.js",
 		    "source/b8r.perf.js",
+		    "source/b8r.toTargets.js",
 		    "source/b8r.registry.js"
 		  ],
 		  [
-		    "source/b8r.show.js",
+		    "source/b8r.events.js",
 		    "source/b8r.bindings.js",
-		    "source/b8r.anyEvent.js",
 		    "source/b8r.makeStylesheet.js"
+		  ],
+		  [
+		    "source/b8r.anyEvent.js",
+		    "source/b8r.show.js"
 		  ],
 		  [
 		    "source/b8r.js"
@@ -98,12 +108,11 @@
 		    "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js",
 		  ].map(require.lazy);
 			const b8r = require('source/b8r.js');
-			var title = b8r.id('title');
 			var content = b8r.id('example');
-			var source_code = b8r.id('source-code');
+			const nav = b8r.findOne('.nav');
 
 			function markCurrent(doc) {
-				b8r.find('.current').forEach(elt => {
+				b8r.findWithin(nav, '.current').forEach(elt => {
 					elt.classList.remove('current');
 				});
 				const current = b8r.findOne('[data-path="' + doc + '"]');
@@ -118,6 +127,15 @@
 						return;
 					}
 					window.location.hash = 'source=' + evt.target.getAttribute('data-path');
+				},
+				inspector: function() {
+					const inspector = b8r.id('inspector');
+					if (!inspector) {
+						b8r.component('components/inspector')
+								.then(inspector => b8r.insertComponent(inspector));
+					} else {
+						b8r.trigger('close', inspector);
+					}
 				},
 				loadComponent: function(evt) {
 					if (evt.target.matches('.current')) {
@@ -174,8 +192,6 @@
 					b8r.trigger('mouseup', b8r.findOne('.loadable'));
 				}
 			}
-
-			b8r.component('components/floater');
 
 			window.addEventListener('hashchange', update);
 		});

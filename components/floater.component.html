@@ -2,7 +2,9 @@
 # Floater
 Copyright ©2016-2017 Tonio Loewald
 
-A floating, movable component
+A floating, movable component.
+
+Use the class "floater-title" for the first child to get nice styling.
 -->
 <style>
   .floater {
@@ -29,7 +31,7 @@ A floating, movable component
     background: transparent;
   }
 
-  .floater-title {
+  .floater .floater-title {
     color: white;
     background-color: rgba(0,0,0,0.25);
     text-align: center;
@@ -41,22 +43,27 @@ A floating, movable component
 <button
   title="close"
   class="floater-close"
-  data-event="mouseup,touchend:_component_.close"
+  data-event="
+    mouseup,touchend:floater-controller.close;
+  "
 >&times;</button>
 <div data-children>
   <h4 class="floater-title">Drag Me!</h4>
   <p>This is some test content</p>
 </div>
 <script>
-/* global component, on, set, findOne, b8r */
+/* global component, on, set, b8r, console */
 'use strict';
 
   component.classList.add('floater');
   on('mousedown', '_component_.start_motion');
 
-  const title = component.getAttribute('title');
-  if(title) {
-    findOne('.floater-title').textContent = title;
+  if(
+    !component.style.left && !component.style.right &&
+    !component.style.top && !component.style.bottom
+  ) {
+    component.style.left = '10px';
+    component.style.top = '10px';
   }
 
   b8r.set('floater-controller', {
@@ -79,20 +86,26 @@ A floating, movable component
       b8r.offAny('mousemove', 'floater-controller.move');
       b8r.offAny('mouseup', 'floater-controller.end_motion');
     },
+    close: (evt, target) => {
+      b8r.trigger('close', target.parentElement);
+      target.closest('.floater').remove();
+    },
   });
 
   set ({
-    start_motion: (evt, target) => {
-      const style = getComputedStyle(target);
-      const x = parseFloat(style.left) - evt.pageX;
-      const y = parseFloat(style.top) - evt.pageY;
-      b8r.set('floater-controller.origin', {x,y});
-      b8r.set('floater-controller.target', target);
-      b8r.onAny('mousemove', 'floater-controller.move');
-      b8r.onAny('mouseup', 'floater-controller.end_motion');
-    },
-    close: (evt, target) => {
-      target.closest('.floater').remove();
+    start_motion: (evt) => {
+      const target = evt.target.closest('[data-event]');
+      if(target.closest('.floater-title') || target.matches('.floater')) {
+        const style = getComputedStyle(target);
+        const x = parseFloat(style.left) - evt.pageX;
+        const y = parseFloat(style.top) - evt.pageY;
+        b8r.set('floater-controller.origin', {x,y});
+        b8r.set('floater-controller.target', target);
+        b8r.onAny('mousemove', 'floater-controller.move');
+        b8r.onAny('mouseup', 'floater-controller.end_motion');
+      } else {
+        return true;
+      }
     },
   });
 </script>

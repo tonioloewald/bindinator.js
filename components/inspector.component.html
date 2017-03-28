@@ -1,0 +1,241 @@
+<!--
+# b8r inspector
+
+Copyright ©2016-2017 Tonio Loewald
+-->
+<style>
+  .inspector-browser {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .inspector-browser,
+  #inspector .tab-selector-bodies > * {
+    min-width: 400px;
+    min-height: 200px;
+  }
+
+  #inspector [data-children] * {
+    background: none;
+    color: white;
+    border: 0;
+  }
+
+  #inspector [data-children] .tab-selector-current {
+    background-color: rgba(0,0,0,0.5);
+  }
+
+  #inspeector textarea {
+    font-family: Menlo, monaco, monospace;
+    font-size: 12px;
+  }
+
+  .inspector-browser > :nth-child(1) {
+    width: 100px;
+  }
+
+  .inspector-browser > :nth-child(1) > * {
+    width: 100%;
+  }
+
+  .inspector-browser > * {
+    flex-grow: 1;
+  }
+
+  .inspector-component {
+    box-shadow: 0 0 0 8px rgb(0,255,0);
+  }
+
+  .inspector-browser select[multiple] {
+    flex-grow: 1;
+  }
+
+  #inspector h5 {
+    padding: 0;
+    margin: 4px 0 0;
+  }
+
+  #inspector .inspector-handler {
+    padding-left: 12px;
+  }
+</style>
+<div
+  title="Inspector"
+  id="inspector"
+  data-component="floater"
+>
+  <h4 class="floater-title">
+    b8r inspector
+  </h4>
+  <div data-component="tab-selector">
+    <div
+      title="registry"
+      class="inspector-registry"
+      data-event-disabled="show:_component_.show_registry"
+    >
+      <div class="inspector-browser">
+        <select
+          multiple
+          data-event-disabled="change:_component_.select"
+        >
+          <option
+            data-list="_component_.registry"
+            data-bind="text=.name"
+          >
+          </option>
+        </select>
+        <textarea>
+        </textarea>
+      </div>
+    </div>
+    <div
+      title="components"
+      class="inspector-components"
+      data-event-disabled="show:_component_.show_components"
+    >
+      <div class="inspector-browser">
+        <div
+          style="display: flex; flex-direction: column;"
+        >
+          <select
+            data-event-disabled="change:_component_.show_instances"
+          >
+            <option
+              data-list="_component_.components"
+              data-bind="
+                text=.name;
+                value=.value;
+                selected=.selected
+              "
+            >
+            </option>
+          </select>
+          <select
+            multiple
+            data-event-disabled="change:_component_.select"
+            style="flex-grow: 1;"
+          >
+            <option
+              data-list="_component_.instances"
+              data-bind="text=.name"
+            >
+            </option>
+          </select>
+        </div>
+        <textarea>
+        </textarea>
+      </div>
+    </div>
+    <div
+      title="events"
+      data-event-disabled="
+        show:_component_.events_on;
+        hide:_component_.events_off;
+      "
+    >
+      <div data-list="_component_.event_info">
+        <h5 data-bind="text=.tag">&lt;tag class="foo"&gt;</h5>
+        <div class="inspector-handler" data-list=".handlers">
+          <span data-bind="text=.types">event_type, other_event_type</span>
+          <span data-bind="text=.path">path.to.method</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+/* global b8r, set, on, component, require */
+'use strict';
+  b8r.component('components/floater');
+  b8r.component('components/tab-selector');
+
+  const remove_methods = obj => {
+    return b8r.mapEachKey(obj, value => {
+      switch (typeof value) {
+        case 'function':
+          return '[function]';
+        case 'object':
+          return value === null ? null : remove_methods(value);
+        default:
+          return value;
+      }
+    });
+  };
+
+  on('close', '_component_.close');
+
+  b8r.set('inspector-controller', {
+    show_events: evt => {
+      const {getParsedEventHandlers} = require('source/b8r.events.js');
+      const event_info = [];
+      let target = evt.target.closest('[data-event]');
+      do {
+        let classes = target.getAttribute('class');
+        classes = classes ? ` classes="${classes}"` : '';
+        event_info.push({
+          element: target,
+          tag: `<${target.tagName.toLowerCase()}${classes}>`,
+          handlers: getParsedEventHandlers(target).map(handler => {
+            return {
+              types: handler.types.join(', '),
+              path: handler.model + '.' + handler.method,
+            };
+          }),
+        });
+      } while (target = target.parentElement.closest('[data-event]'));
+      set({event_info});
+    }
+  });
+
+  const events_on = () => b8r.onAny('mouseover', 'inspector-controller.show_events');
+  const events_off = () => b8r.offAny('mouseover', 'inspector-controller.show_events');
+
+  set({
+    registry: [],
+    components: [],
+    instances: [],
+    event_info: [],
+    show_registry: () => {
+      const registry = b8r.models()
+                          .filter(name => name.substr(0,2) !== 'c#')
+                          .map(name => {return {name};})
+                          .sort();
+      set({registry});
+    },
+    show_components: () => {
+      const components = b8r.components()
+                          .map(name => {return {name, value: name};});
+      components.unshift({name: 'All', value: '', selected: true});
+      set({components});
+    },
+    show_instances: (evt, target) => {
+      const component = target.value;
+      const partial_id = component ? `c#${component}#` : 'c#';
+      const instances = b8r.models()
+                            .filter(name => name.substr(0,partial_id.length) === partial_id)
+                            .map(name => {return {name};})
+                            .sort();
+      set({instances});
+    },
+    select: (evt, target) => {
+      const output = target.closest('.inspector-browser').querySelector('textarea');
+      if (target.value) {
+        output.value = JSON.stringify(remove_methods(b8r.get(target.value)), false, 2);
+        b8r.find('.inspector-component').forEach(elt => elt.classList.remove('inspector-component'));
+        if (target.value.substr(0,2) === 'c#') {
+          b8r.findOne(`[data-component-id="${target.value}"]`).classList.add('inspector-component');
+        }
+      } else {
+        output.value = '';
+      }
+    },
+    close: () => {
+      events_off();
+      component.remove();
+    },
+    events_on,
+    events_off,
+  });
+
+  b8r.enable(component);
+</script>
