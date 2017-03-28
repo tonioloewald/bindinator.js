@@ -1,0 +1,45 @@
+<!--
+# three.js example
+-->
+<style>
+  .threejs {
+    width: 512px;
+    height: 288px;
+  }
+</style>
+<script>
+/* global require, THREE, component */
+'use strict';
+
+  require.lazy('https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js').
+  then(() => {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera( 60, 1.78, 0.1, 1000 );
+    const renderer = new THREE.WebGLRenderer();
+
+    renderer.setSize( 512, 288 );
+    const canvas = renderer.domElement;
+    component.appendChild(canvas);
+
+    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const cube = new THREE.Mesh( geometry, material );
+    scene.add( cube );
+
+    camera.position.z = 2;
+    cube.rotation.x = 10;
+
+    const update = () => {
+      cube.rotation.y += 0.01;
+    }
+
+    function render() {
+      if(canvas.closest('body')) {
+        update();
+        requestAnimationFrame( render );
+        renderer.render( scene, camera );
+      }
+    }
+    render();
+  });
+</script>

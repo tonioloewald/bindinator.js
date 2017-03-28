@@ -98,5 +98,9 @@
 	{
 		"name": "Disclose",
 		"path": "disclose"
+	},
+	{
+		"name": "three.js",
+		"path": "threejs"
 	}
 ]
