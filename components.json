@@ -100,7 +100,11 @@
 		"path": "disclose"
 	},
 	{
-		"name": "three.js",
+		"name": "3d (threejs)",
 		"path": "threejs"
+	},
+	{
+		"name": "3d (babylonjs)",
+		"path": "babylonjs"
 	}
 ]
