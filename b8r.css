@@ -11,6 +11,12 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 0 0 8px 0;
 }
 
+.content h1,
+.content h2,
+.content h3 {
+	margin-top: 16px;
+}
+
 h1, h2, h3, h4, h5, h6, b, strong {
 	color: #57A700;
 }
