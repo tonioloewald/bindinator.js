@@ -757,7 +757,6 @@ into reusable components so you can concentrate on your project.
       console.warn('component %s has been redefined', name);
     }
     components[name] = component;
-    console.log(b8r.find('[data-component="' + name + '"]'));
     b8r.find('[data-component="' + name + '"]')
         .forEach(element => {
           if (!element.closest('[data-list]') &&
