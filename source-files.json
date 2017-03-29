@@ -44,6 +44,10 @@
 		"path": "source/b8r.events.js"
 	},
 	{
+		"name": "(b8r) anyEvent",
+		"path": "source/b8r.anyEvent.js"
+	},
+	{
 		"name": "(b8r) imgSrc",
 		"path": "source/b8r.imgSrc.js"
 	},
@@ -54,6 +58,10 @@
 	{
 		"name": "(b8r) keystroke",
 		"path": "source/b8r.keystroke.js"
+	},
+	{
+		"name": "(b8r) makeStylesheet",
+		"path": "source/b8r.makeStylesheet.js"
 	},
 	{
 		"name": "(b8r) perf",

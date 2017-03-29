@@ -7,7 +7,11 @@ Copyright ©2016-2017 Tonio Loewald
     json(url, method, request_data, config)
     jsonp(url, method, request_data, config)
 
-These methods generate promises of the specified response.
+All parameters except url are optional.
+
+These methods generate promises of the specified response. Usage:
+
+    json('path/to/endpoint', 'PUT', {...}).then(response => { ...});
 
 Also note that these methods are foldered into b8r by default, so available as
 b8r.ajax, etc.

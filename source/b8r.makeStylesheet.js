@@ -1,6 +1,11 @@
 /**
 # Make Stylesheet
-    makeStylesheet();
+
+Usage:
+
+    makeStylesheet('... css source ...');
+
+Inserts the source in a `<style>` tag and sticks in in the document head.
 */
 /* global module, require */
 'use strict';
