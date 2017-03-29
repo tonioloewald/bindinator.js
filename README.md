@@ -23,12 +23,19 @@ Bindinator lets you build *views* using any mechanics you like, but HTML works j
 - You can create the DOM elements using Javascript, but it's simpler and more direct to just write HTML
 - Because bindings are just DOM attributes:
 	- bindings and the things they're bound to can be loaded asynchronously
-	- you don't need to tear down bindings when you throw away the associated view components, because the bindings are intrinsic to the view components
+	- you don't need to tear down bindings when you throw away the associated view components, because the bindings are simply attributes of the DOM elements you throw away.
+
+Bindinator doesn't use a "virtual DOM". It uses the *actual DOM* and tries to be clever about how it updates it:
+- assuming you build your views using HTML the browser parses the HTML and renders the DOM nodes once.
+- finding the potential event handlers for a given event is O(log(n)) where n is the number of nodes in the document.
+- unless you explicitly use its convenience methods, bindinator *never* builds pieces of DOM (beyond the occasional `<div>` or `fragment` to use as a container for detached nodes, although it may `clone(true)` pieces the browser has already created.
 
 Bindinator lets you compose and reuse views as "components", where each component is a (hopefully) small self-contained file comprising the required HTML, CSS, and Javascript.
 
 - Components strongly resemble simple web pages
-- It's easy to break apart monolithic views into reusable components
+- Components are very self-contained
+- Components are intrinsically asynchronous
+- It's easy to refactor monolithic views into reusable components
 - You don't need to "think in the Bindinator way" -- create what you want and it will work as expected
 
 ## Core Concepts
@@ -103,7 +110,7 @@ relevant controller is bound, the event will be replayed (in order) for the cont
 
 The component's script executes in a private scope, so each instance will count its own clicks.
 
-**Components are embedded** using attributes as well:
+**Components are embedded** using attributes (`data-component`) as well:
 
 ```
 <div data-component="click-counter"></div>

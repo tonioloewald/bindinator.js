@@ -51,51 +51,63 @@ into reusable components so you can concentrate on your project.
       () => true,
       (path, source_element) => b8r.touchByPath(path, source_element));
 
-  /**
-      b8r.register(name, obj);
+/**
+    b8r.register(name, obj);
 
-  register an object by name as data or controller.
-  The names `_component_` and `_b8r_` are reserved; other similar namess may be
-  reserved later.
+register an object by name as data or controller.
+The names `_component_`, `_data_` and `_b8r_` are reserved; other similar namess may be
+reserved later.
 
-  Binding to explicitly means you will only be bound to an explicit object
-  `_b8r_` is the name of the internal event handlers for bound variables
+Binding to explicitly means you will only be bound to an explicit object
+`_b8r_` is the name of the internal event handlers for bound variables
 
-      b8r.deregister(name);
+    b8r.deregister(name); // removes a registered object
+    b8r.deregister(); // just cleans up obsolete component data
 
-  Remove a registered object. deregister also removes component instance objects
-  for components no longer in the DOM,
-  (and it can also be called without any parameters)
+Remove a registered (named) object. deregister also removes component instance objects
+for components no longer in the DOM.
 
-      b8r.setByPath('model', 'data.path, value);
-      b8r.setByPath('model.data.path', value);
+    b8r.setByPath('model', 'data.path, value);
+    b8r.setByPath('model.data.path', value);
 
-  Set a registered object's property by path. Bound elements will automatically
-  be
-  updated.
+Set a registered object's property by path. Bound elements will automatically
+be updated.
 
-      b8r.getByPath('model', 'data.path');
-      b8r.getByPath('model.data.path');
+    b8r.getByPath('model', 'data.path');
+    b8r.getByPath('model.data.path');
 
-  Get a registered object's property by path.
+Get a registered object's property by path.
 
-      b8r.pushByPath('model', 'data.path', item, callback);
-      b8r.pushByPath('model.data.path', item, callback);
+    b8r.pushByPath('model', 'data.path', item, callback);
+    b8r.pushByPath('model.data.path', item, callback);
 
-  As above, but unshift (and no callback).
+As above, but unshift (and no callback).
 
-      b8r.unshiftByPath('model', 'data.path, item);
-      b8r.unshiftByPath('model.data.path, item);
+    b8r.unshiftByPath('model', 'data.path, item);
+    b8r.unshiftByPath('model.data.path, item);
 
-  Insert an item into the specified array property. (Automatically updates bound
-  lists).
+Insert an item into the specified array property. (Automatically updates bound
+lists).
 
-      b8r.removeListInstance(element);
 
-  Removes a data-list-instance's corresponding list member and any other bound
-  data-list-instances.
-  */
+> ### Note
+>
+> Having gained experience with the framework, I am doubling down
+> on object paths and simplifying the API in favor of:
 
+>    b8r.get('path.to.value');
+>    b8r.set('path.to.value', new_value);
+
+> The older APIs (setByPath, etc.) will ultimately be deprecated. Even now they
+> are little more than wrappers for set/get. See the *Registry* docs.
+
+Also note that the new registry APIs provide an explicit *observable*.
+
+    b8r.removeListInstance(element);
+
+Removes a data-list-instance's corresponding list member and any other bound
+data-list-instances.
+*/
 
   b8r.register = function(name, obj) {
     if (name.match(/^_[^_]*_$/)) {
