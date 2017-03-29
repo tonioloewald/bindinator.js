@@ -34,7 +34,7 @@
       camera.attachControl(canvas, false);
 
       // This creates a light, aiming 0,1,0 - to the sky.
-      var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+      var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(-1, 1, 0), scene);
 
       // Dim the light a small amount
       light.intensity = 0.5;
@@ -47,8 +47,6 @@
 
       // Let's try our built-in 'ground' shape.  Params: name, width, depth, subdivisions, scene
       var ground = BABYLON.Mesh.CreateGround("ground1", 6, 6, 2, scene);
-
-      console.log(scene);
       // Leave this function
       return scene;
     };
