@@ -21,8 +21,16 @@
     const canvas = renderer.domElement;
     component.appendChild(canvas);
 
+
+    const sunlight = new THREE.DirectionalLight(0xffffcc, 1);
+    sunlight.position.set(100, 50, 50);
+    scene.add(sunlight);
+    const backlight = new THREE.DirectionalLight(0x8888ff, 0.25);
+    backlight.position.set(-100, 50, 50);
+    scene.add(backlight);
+
     const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const material = new THREE.MeshLambertMaterial( { color: 0xaaddaa } );
     const cube = new THREE.Mesh( geometry, material );
     scene.add( cube );
 
