@@ -3,8 +3,16 @@
 
 This is a simple and fairly robust rich text editor. It has all the
 usual issues of contenteditable / execCommand-based rich text editors
-in that it has lots of subtle issues and doesn't accurately reflect 
+in that it has lots of subtle issues and doesn't accurately reflect
 the selection state in the controls, but at least it's simple.
+
+Adding new commands to it is very easy if you just need to expose
+functionality offered by [document.execCommand](https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand").
+
+> ### To Do
+>
+> - Support dropping images into the document
+> - Tables
 -->
 <style>
 	.richtext-container {
@@ -34,7 +42,7 @@ the selection state in the controls, but at least it's simple.
 		background-color: white;
 		border: 1px solid rgba(0,0,0,0.1);
 	}
-	
+
 	.richtext:focus {
 		box-shadow: none;
 	}
@@ -183,13 +191,18 @@ the selection state in the controls, but at least it's simple.
 		<hr class="fixed">
 		<button data-event="click:_component_.exec" data-command="insertUnorderedList"><span class="icon-list2"></span></button>
 		<button data-event="click:_component_.exec" data-command="insertOrderedList"><span class="icon-list-numbered"></span></button>
+		<hr class="fixed">
+		<button data-event="click:_component_.link"><span class="icon-link3"></span></button>
+		<button data-event="click:_component_.exec" data-command="unlink"><span class="icon-unlink3"></span></button>
 		<hr>
 		<button data-event="click:_component_.exec" data-command="undo"><span class="icon-undo"></span></button>
 		<button data-event="click:_component_.exec" data-command="redo"><span class="icon-redo"></span></button>
 	</div>
 	<div class="richtext" contenteditable="true" spellcheck="true" data-children>
 	<h1>Test</h1>
-	<p>This is a <b>test</b>.</p>
+	<p>
+		This is jsut a <b>test</b>
+	</p>
 	</div>
 	<div data-component="maxtoggle"></div>
 </div>
@@ -241,6 +254,12 @@ the selection state in the controls, but at least it's simple.
 		const args = evt.target.closest('[data-command]').getAttribute('data-command').split(',');
 		document.execCommand(args[0], false, args[1]);
 	};
+	const link = () => {
+		const url = prompt('Please enter URL');
+		if (url) {
+			document.execCommand('createLink', false, url);
+		}
+	}
 
-	set({new_doc, open_doc, save_doc, exec, all});
+	set({new_doc, open_doc, save_doc, exec, link, all});
 </script>
