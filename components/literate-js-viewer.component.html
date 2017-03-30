@@ -11,7 +11,7 @@
     cursor: pointer;
   }
 </style>
-<div 
+<div
   class="literate-errors"
   data-event="click:_component_.show_error"
 >
@@ -41,7 +41,7 @@
       const pieces = complete_source.split('/**')
                                      .map((text, idx) => {
                                         return {
-                                          type: idx ? 'docs' : 'js', 
+                                          type: idx ? 'docs' : 'js',
                                           text
                                         };
                                       })
@@ -75,11 +75,11 @@
               break;
             }
             if(content[cutoff] === '`') {
-              [, before, example, content] = content.match(/^([\s\S]*)`{3,}([\s\S]*)`{3,}([\s\S]*)$/);
+              [, before, example, content] = content.match(/^([\s\S]*?)`{3,}([\s\S]*?)`{3,}([\s\S]*)$/);
               addDocs(before);
               addSource('component', example);
             } else {
-              [, before, example, content] = content.match(/^([\s\S]*)~{4,}([\s\S]*)~{4,}([\s\S]*)$/);
+              [, before, example, content] = content.match(/^([\s\S]*?)~{4,}([\s\S]*?)~{4,}([\s\S]*)$/);
               addDocs(before);
               parts.push({type: 'test', source: example.replace(/^\n+|\n+$/g, ''), complete_source: complete_source, _required_: module.exports});
             }

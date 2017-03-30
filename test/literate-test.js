@@ -40,6 +40,7 @@ as a component, as below:
 
 This is treated as pure Javascript:
 ```
+
 return 17;
 ```
 
