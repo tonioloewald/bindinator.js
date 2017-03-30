@@ -7,7 +7,7 @@ The object registry is an observable object.
     set('root.path.to.value', new_value); // sets the value
 
 You can set the registry's properties by path. Root level properties must
-themselves be objects, and are referred to as _registry__.
+themselves be objects.
 
     get('root.path.to.value'); // gets the value
 

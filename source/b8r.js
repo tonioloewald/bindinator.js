@@ -296,29 +296,29 @@ data-list-instances.
   b8r.listIndex = element =>
       b8r.listItems(element.parentElement).indexOf(element);
 
-  /**
-  ### Finding Bound Data
+/**
+### Finding Bound Data
 
-  To get a component's id (which you should not need to do very often)
-  you can call getComponentId:
+To get a component's id (which you should not need to do very often)
+you can call getComponentId:
 
-      b8r.getComponentId(elt)
+    b8r.getComponentId(elt)
 
-  The component id looks like c# _component name_ # _n_ where _n_ is the
-  simply the creation order. It follows that component ids are guaranteed
-  to be unique.
+The component id looks like c# _component name_ # _n_ where _n_ is the
+simply the creation order. It follows that component ids are guaranteed
+to be unique.
 
-  To quickly obtain bound data a component from an element inside it:
+To quickly obtain bound data a component from an element inside it:
 
-      b8r.getComponentData(elt)
+    b8r.getComponentData(elt)
 
-  In effect this simply gets the component id and then finds the corresponding
-  registered data object (or "model").
+In effect this simply gets the component id and then finds the corresponding
+registered data object (or "model").
 
-  To quickly obtain bound data a list instance from an element inside it:
+To quickly obtain bound data a list instance from an element inside it:
 
-      b8r.getListInstance(elt)
-  */
+    b8r.getListInstance(elt)
+*/
 
   b8r.getComponentId = function(elt) {
     const component = elt.closest('[data-component-id]');
@@ -335,15 +335,15 @@ data-list-instances.
     return instancePath ? b8r.getByPath(instancePath) : null;
   };
 
-  /**
-      b8r.callMethod(method_path, ...args)
-      b8r.callMethod(model, method, ...args);
+/**
+    b8r.callMethod(method_path, ...args)
+    b8r.callMethod(model, method, ...args);
 
-  Call a method by name from a registered method. If the relevant model has not
-  yet been registered
-  (e.g. it's being loaded asynchronously) it will get the message when it's
-  registered.
-  */
+Call a method by name from a registered method. If the relevant model has not
+yet been registered
+(e.g. it's being loaded asynchronously) it will get the message when it's
+registered.
+*/
 
   var saved_messages = [];  // {model, method, evt}
 
@@ -447,15 +447,15 @@ data-list-instances.
     }
   }
 
-  /**
-      b8r.trigger(type, target);
+/**
+    b8r.trigger(type, target);
 
-  Trigger a synthetic implicit (only!) event. Note that you can trigger and
-  handle
-  completely made-up events, but if you trigger events that occur naturally the
-  goal
-  is for them to be handled exactly as if they were "real".
-  */
+Trigger a synthetic implicit (only!) event. Note that you can trigger and
+handle
+completely made-up events, but if you trigger events that occur naturally the
+goal
+is for them to be handled exactly as if they were "real".
+*/
 
   b8r.trigger = (type, target) => {
     if (typeof type !== 'string' ||
@@ -483,13 +483,13 @@ data-list-instances.
   implicit_event_types.forEach(
       type => document.body.addEventListener(type, handleEvent, true));
 
-  /**
-  ## Data Binding
+/**
+## Data Binding
 
-  Data binding is implemented via the data-bind and data-list attributes.
+Data binding is implemented via the data-bind and data-list attributes.
 
-  See the docs on binding data to and from the DOM for more detail.
-  */
+See the docs on binding data to and from the DOM for more detail.
+*/
 
   const toTargets = require('./b8r.toTargets.js')(b8r);
   const fromTargets = require('./b8r.fromTargets.js')(b8r);
@@ -627,22 +627,22 @@ data-list-instances.
 
   b8r.bindAll = bindAll;
 
-  /**
-  ## _b8r_ Model
+/**
+## `_b8r_`
 
-  The _b8r_ model is provided by default as a useful set of always available
-  methods, especially for handling events.
+The _b8r_ object is registered by default as a useful set of always available
+methods, especially for handling events.
 
-  You can use them the obvious way:
+You can use them the obvious way:
 
-      <button data-event="click:_b8r_.echo">
-        Click Me, I cause console spam
-      </button>
+    <button data-event="click:_b8r_.echo">
+      Click Me, I cause console spam
+    </button>
 
-      _b8r_.echo // logs events to the console
-      _b8r_.stopEvent // use this to simply catch an event silently
-      _b8r_._update_ // this is used by b8r to update models automatically
-  */
+    _b8r_.echo // logs events to the console
+    _b8r_.stopEvent // use this to simply catch an event silently
+    _b8r_._update_ // this is used by b8r to update models automatically
+*/
 
   b8r.set('_b8r_', {
     echo: evt => console.log(evt) || true,
@@ -674,30 +674,30 @@ data-list-instances.
   const components = {};
   const component_timeouts = {};
 
-  /**
-      b8r.component(name, url);
+/**
+    b8r.component(name, url);
 
-  Loads component from url registers it as "name". (Components are registered
-  separately from other objects.)
-  Returns a promise of the component once loaded.
+Loads component from url registers it as "name". (Components are registered
+separately from other objects.)
+Returns a promise of the component once loaded.
 
-      b8r.component('path/to/name');
+    b8r.component('path/to/name');
 
-  If just a url parameter is provided, the name of the component will be
-  inferred.
+If just a url parameter is provided, the name of the component will be
+inferred.
 
-  **Note**: the extension .component.html is appended to url
+**Note**: the extension .component.html is appended to url
 
-  Instances of the component will automatically be inserted as expected once
-  loaded.
+Instances of the component will automatically be inserted as expected once
+loaded.
 
-  **Also note**: you can usually avoid the pattern:
+**Also note**: you can usually avoid the pattern:
 
-      b8r.component(...).then(c => b8r.insertComponent(c, target))
+    b8r.component(...).then(c => b8r.insertComponent(c, target))
 
-  By simply binding the component to the target and letting nature take its
-  course.
-  */
+By simply binding the component to the target and letting nature take its
+course.
+*/
   const component_promises = {};
   b8r.component = function(name, url) {
     if (url === undefined) {
@@ -791,20 +791,20 @@ data-list-instances.
         });
   }
 
-  /**
-      b8r.insertComponent(component, element, data);
+/**
+    b8r.insertComponent(component, element, data);
 
-  insert a component by name or by passing a component record (e.g. promised by
-  component() or produced by makeComponent)
+insert a component by name or by passing a component record (e.g. promised by
+component() or produced by makeComponent)
 
-  If no element is provided, the component will be appended to document.body
+If no element is provided, the component will be appended to document.body
 
-  Data will be passed to the component's load method and registered as the
-  component's private instance data. (Usually
-  data is passed automatically from parent components or via binding, e.g.
-  `data-bind="component=path.to.data` binds that
-  data to the component).
-  */
+Data will be passed to the component's load method and registered as the
+component's private instance data. (Usually
+data is passed automatically from parent components or via binding, e.g.
+`data-bind="component=path.to.data` binds that
+data to the component).
+*/
 
   function getDataPath(data, element) {
     if (typeof data === 'string') {

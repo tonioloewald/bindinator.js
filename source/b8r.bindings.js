@@ -100,6 +100,14 @@ will be instanced for each element of the list.
       </li>
     </ul>
 
+### Efficient List Updates
+
+The part of the list-binding after the `:` is the *id path* which is used to
+identify list instances and minimize dom updates. Where possible, use an
+*id path* for list binding.
+
+For more information on *id paths* see the `byPath` documentation.
+
 ## Mystery Methods
 
 Most of the other methods in this module are used internally. They're not

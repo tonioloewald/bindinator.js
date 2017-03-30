@@ -47,7 +47,7 @@ This sets styles (via `element.style[stringValue]`) so be warned that hyphenated
 properties (in CSS) become camelcase in Javascript (e.g. background-color is
 backgroundColor).
 
-The optional second parameter lets you specify units.
+The optional second parameter lets you specify *units* (such as px, %, etc.).
 
 ### class()
 
@@ -55,7 +55,7 @@ The optional second parameter lets you specify units.
 
 This lets you toggle a class based on a bound property.
 
-### show_if, show_if(), hide_if, hide_if()
+### `show_if`, `show_if()`, `hide_if`, `hide_if()`
 
     data-bind="hide_if(_undefined_)=message.priority"
 
@@ -79,11 +79,16 @@ instead of an event)
 This *sets* the component's private data, or the specified value in the
 component's private data, *by path*.
 
-### component_map()
+### `component_map()`
 
-    data-bind="component-map(value:component_name;other:value:other_name|default_component)=message.type"
+    data-bind="component-map(
+        value:component_name|
+        other_value:other_name|
+        default_component
+    )=message.type"
 
-This allows a component to be bound dynamically based on a property.
+This allows a component to be bound dynamically based on a property. (The bound value
+will be assigned to the component's private data.)
 
 ### json
 
