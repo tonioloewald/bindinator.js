@@ -46,14 +46,14 @@ E.g. if you load a "foo" component, it might end up having the component id
 becomes `c#foo#17.bar`. If this component inherited a data_path of `example` then
 `_data_.baz` would become `example.baz` but if not it would default to `c#foo#17.baz`.
 
-A target can be a toTarget (meaning it sends bound data *to* the DOM) and/or a
-fromTarget (meaning it updates bound data *from* the DOM). Most targets are
+A target can be a **toTarget** (meaning it sends bound data *to* the DOM) and/or a
+**fromTarget** (meaning it updates bound data *from* the DOM). Most targets are
 toTargets only. E.g. you can bind an HTML color inside a registered object
 to a style property (style is a toTarget) but if you update the value in the DOM
 you'll need to update the value manually.
 
-The most important fromTargets are value, checked, selected, and text -- DOM
-properties that are typically user-editable and changes to which trigger
+The most important **fromTargets** are `value`, `checked`, `selected`, and `text`
+-- DOM properties that are typically user-editable and changes to which trigger
 events. And `text` relies on your sending the `change` or  `input` events.
 
 You can programmatically add a data binding using:
