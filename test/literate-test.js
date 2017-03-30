@@ -12,7 +12,7 @@ This file exists for the sole purpose of testing the b8r *literate programming* 
 /**
 ## add(a: number, b:number) => number
 
-The add methods adds its (numeric) argument and returns the result.
+The add method adds its (numeric) argument and returns the result.
 
 Here is an example. An example with no `\w+` in the text is treated
 as pure javascript. Anything that looks like a tag will be treated
@@ -24,8 +24,8 @@ as a component, as below:
 
 </style>
 <div class="test-calculator" data-event="input,change:_component_.calculate">
-  <input data-bind="value=_component_.a" type="number"> + 
-  <input data-bind="value=_component_.b" type="number"> == 
+  <input data-bind="value=_component_.a" type="number"> +
+  <input data-bind="value=_component_.b" type="number"> ==
   <input disabled data-bind="value=_component_.sum">
 </div>
 <script>
@@ -38,6 +38,11 @@ as a component, as below:
 </script>
 ```
 
+This is treated as pure Javascript:
+```
+return 17;
+```
+
 Markdown allows for two ways of embedding code, backquotes (used for examples)
 and tildes (used for tests).
 ~~~~
@@ -47,6 +52,7 @@ const {add} = _required_;
 Test(() => add(1,1)).shouldBe(2);
 Test(() => add(1,-1)).shouldBe(0);
 Test(() => add(1,1)).shouldNotBe(3);
+Test(() => add(1,2)).shouldNotBe(3); // expect failure
 ~~~~
 */
 

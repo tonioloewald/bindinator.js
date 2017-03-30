@@ -82,10 +82,22 @@ of awesome that this works at all.
 
   function run() {
     b8r.empty(container);
-    b8r.insertComponent(
-      b8r.makeComponent('fiddle-example', editor ? editor.getValue() : code_elt.textContent),
-      container
-    );
+    const source = editor ? editor.getValue() : code_elt.textContent;
+    if (source.match(/<\/\w+>/)) {
+      b8r.insertComponent(
+        b8r.makeComponent('fiddle-example', source),
+        container
+      );
+    } else {
+      const msg = b8r.create('div');
+      try {
+        f = new Function(source);
+        msg.textContent = f() || 'no error';
+      } catch(e) {
+        msg.textContent = '(exception) ' + e;
+      }
+      container.appendChild(msg);
+    }
   }
 
   function fullscreen() {
