@@ -40,8 +40,11 @@ as a component, as below:
 
 This is treated as pure Javascript:
 ```
-
-return 17;
+const h4 = b8r.create('h4');
+example.style.backgroundColor = 'yellow';
+h4.textContent = 'plain old javascript';
+example.appendChild(h4);
+return 'returned by example';
 ```
 
 Markdown allows for two ways of embedding code, backquotes (used for examples)
