@@ -57,6 +57,10 @@ copies children of source to dest (by cloning)
     moveChildren(source, dest);
 
 moves children of source to dest
+
+    offset(element); // returns {x,y}
+
+obtain the offset position of the element relative to the top-left of the window.
 */
 /* global module, require */
 'use strict';
@@ -137,4 +141,13 @@ module.exports = {
       element = element.nextSibling;
     }
   },
+  offset (element) {
+    let x = 0, y = 0;
+    do {
+      x += element.offsetLeft;
+      y += element.offsetTop;
+      element = element.offsetParent;
+    } while(element);
+    return {x, y};
+  }
 };
