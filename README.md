@@ -1,4 +1,8 @@
-<img alt="bindinator b∞r logo" style="width: 90%; padding: 5%;" src="http://bindinator.com/bindinator-logo.svg">
+<img
+	alt="bindinator b∞r logo"
+	style="width: 90%; padding: 5%; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
+	src="http://bindinator.com/bindinator-logo.svg"
+>
 
 [bindinator.com](http://bindinator.com/) | [Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [Demo (cdn.rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | [github](https://github.com/tonioloewald/bindinator.js) | [Trello](https://trello.com/b/0OBL4IjC/bindinator)
 
