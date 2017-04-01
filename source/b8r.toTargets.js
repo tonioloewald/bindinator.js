@@ -10,7 +10,7 @@ The following targets (attributes of a DOM element) can be bound to object data:
 
     data-bind="value=message.text"
 
-This is the value of `<input>` and `<textarea>` elements.
+This is the value of `<input>` and `<textarea>` elements.)
 
 ### checked
 
@@ -30,6 +30,12 @@ This is the selected attribute of `<option>` elements.
     data-bind="text=message.sender.name"
 
 This is the textContent property of most standard elements.
+
+> ## Note
+> `value`, `checked`, `selected`, and `text` are also "fromTargets",
+> which means bindings are two-way (changes in the DOM will be copied to the
+> bound object). In the case of text bindings, unless an input or change event
+> occurs, bound data will not be updated.
 
 ### attr()
 
