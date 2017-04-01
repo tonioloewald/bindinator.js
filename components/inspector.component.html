@@ -1,4 +1,4 @@
-<!--
+ <!--
 # b8r inspector
 
 Copyright ©2016-2017 Tonio Loewald
@@ -81,6 +81,7 @@ Copyright ©2016-2017 Tonio Loewald
 <div
   title="Inspector"
   id="inspector"
+  style="display: none;"
   data-component="floater"
 >
   <h4 class="floater-title">
@@ -168,8 +169,10 @@ Copyright ©2016-2017 Tonio Loewald
 <script>
 /* global b8r, set, on, component, require */
 'use strict';
-  b8r.component('components/floater');
-  b8r.component('components/tab-selector');
+  Promise.all([
+    b8r.component('components/floater'),
+    b8r.component('components/tab-selector')
+  ]).then(() => b8r.show(findOne('#inspector')));
 
   const remove_methods = obj => {
     return b8r.mapEachKey(obj, value => {
