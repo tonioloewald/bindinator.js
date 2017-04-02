@@ -18,9 +18,9 @@
 
 ## In a Nut
 
-A web application comprises DOM elements, in a web browser, styled with CSS and wired up to behaviors implemented in Javascript and data obtained from services.
+A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
-Bindinator lets you build *views* using any mechanics you like, but HTML works just fine, style the *views* using CSS, and attach data and behavior to those views using DOM attributes, and implement the behavior using Javascript.
+Bindinator lets you build *views* using any mechanics you like — plain HTML and CSS work fine — and attach data and behavior to those views using DOM attributes, implement the behavior using Javascript with exceptionally simple connections to data services.
 
 - You can create and destroy bindings using code, but this just creates and removes the relevant DOM attributes
 - You can create the DOM elements using Javascript, but it's simpler and more direct to just write HTML
