@@ -49,10 +49,12 @@ run it again, which will overwrite the registered data.
     ]
   });
 
-  // update the json display
-  const interval = setInterval(() => {
-    b8r.bindAll(b8r.id('tutorial1-data'));
-  }, 1000)
+  const domInterval = require('lib/domInterval.js');
+  domInterval(
+    component, 
+    () => b8r.bindAll(b8r.id('tutorial1-data')), 
+    1000
+  );
 </script>
 ```
 
