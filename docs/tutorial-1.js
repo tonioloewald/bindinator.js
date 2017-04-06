@@ -58,6 +58,10 @@ run it again, which will overwrite the registered data.
 </script>
 ```
 
+**Aside** you can ignore the domInterval code if you like. domInterval is
+simply a wrapper for setInterval that kills the interval after the specified
+DOM element leaves the document body.
+
 Once you have b8r loaded, you can bind registered data to the DOM using
 `data-bind` attributes, such as this:
 

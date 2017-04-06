@@ -57,7 +57,7 @@ Now we're going to create an object to hold our loan information:
       deposit: 20,
       type: 30,
       rate: 3.95,
-    }
+    };
 
 To bind these values to our user interface, we add some attributes:
 
@@ -154,7 +154,7 @@ loan object's definition:
     const loan = {
       ...,
       calculate,
-    }
+    };
 
 ```
 <style>
