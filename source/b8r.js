@@ -767,14 +767,16 @@ course.
       console.warn('component %s has been redefined', name);
     }
     components[name] = component;
-    b8r.find('[data-component="' + name + '"]')
-        .forEach(element => {
-          if (!element.closest('[data-list]') &&
-              !element.matches('[data-component-id')) {
-            b8r.insertComponent(component, element);
-          }
-        });
-    loadAvailableComponents();
+
+    setTimeout(() => {
+      b8r.find('[data-component="' + name + '"]')
+          .forEach(element => {
+            if (!element.closest('[data-list]') &&
+                !element.matches('[data-component-id')) {
+              b8r.insertComponent(component, element);
+            }
+          });
+    });
     return component;
   };
 
