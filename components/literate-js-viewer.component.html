@@ -47,7 +47,11 @@
                                       })
                                      .filter(piece => piece.text);
       const parts = [];
-      const addSource = (type, source) => parts.push({type, source: source.replace(/^\n+|\n+$/g, '')});
+      const addSource = (type, source) => {
+        if (source.replace(/\s/g, '')) {
+          parts.push({type, source: source.replace(/^\n+|\n+$/g, '')});
+        }
+      }
       const addDocs = content => parts.push({type: 'markdown', content});
       var factory = false, module = {};
       if(data.url.indexOf('b8r') === -1) {

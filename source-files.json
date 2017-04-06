@@ -8,6 +8,14 @@
 		"path": "docs/overview.md"
 	},
 	{
+		"name": "Tutorial 1. Quick Start",
+		"path": "docs/tutorial-1.js"
+	},
+	{
+		"name": "Tutorial 2. Component",
+		"path": "docs/tutorial-2.js"
+	},
+	{
 		"name": "License",
 		"path": "LICENSE.md"
 	},
