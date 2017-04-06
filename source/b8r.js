@@ -143,16 +143,14 @@ data-list-instances.
   };
 
   b8r.cleanupComponentInstances = b8r.debounce(() => {
-    const models = b8r.models();
     // garbage collect models
     const instances = b8r.find('[data-component-id]')
                           .map(elt => elt.getAttribute('data-component-id'));
-    for (let idx in models) {
-      let model = models[idx];
+    b8r.models().forEach((model, idx) => {
       if (model.substr(0, 2) === 'c#' && instances.indexOf(model) === -1) {
         b8r.remove(model);
       }
-    }
+    });
   }, 2000);
 
   b8r.deregister = name => b8r.remove(name);
