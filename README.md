@@ -1,6 +1,6 @@
 <img
 	alt="bindinator b∞r logo"
-	style="width: 90%; padding: 5%; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
+	style="width: 512px; height: 512px; padding: 5%; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
 	src="//bindinator.com/bindinator-logo.svg">
 
 [bindinator.com](http://bindinator.com/) | 
