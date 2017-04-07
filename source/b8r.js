@@ -768,15 +768,13 @@ course.
     }
     components[name] = component;
 
-    setTimeout(() => {
-      b8r.find('[data-component="' + name + '"]')
-          .forEach(element => {
-            if (!element.closest('[data-list]') &&
-                !element.matches('[data-component-id')) {
-              b8r.insertComponent(component, element);
-            }
-          });
-    });
+    b8r.find('[data-component="' + name + '"]')
+        .forEach(element => {
+          if (!element.closest('[data-list]') &&
+              !element.matches('[data-component-id')) {
+            b8r.insertComponent(component, element);
+          }
+        });
     return component;
   };
 
