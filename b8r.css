@@ -303,6 +303,10 @@ blockquote {
 	padding: 0;
 }
 
+[data-component]:not([data-component-id]) {
+	display: none;
+}
+
 /* animations */
 
 @keyframes fade-in {
