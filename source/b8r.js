@@ -55,7 +55,7 @@ into reusable components so you can concentrate on your project.
     b8r.register(name, obj);
 
 register an object by name as data or controller.
-The names `_component_`, `_data_` and `_b8r_` are reserved; other similar namess may be
+The names `_component_`, `_data_` and `_b8r_` are reserved; other similar names may be
 reserved later.
 
 Binding to explicitly means you will only be bound to an explicit object
