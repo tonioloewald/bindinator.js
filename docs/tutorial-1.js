@@ -43,9 +43,9 @@ run it again, which will overwrite the registered data.
     input: 'hello, world',
     hello: () => alert(b8r.get('tutorial1.input')),
     list: [
-      {id: 1, name: 'Tomasina'},
-      {id: 2, name: 'Dorothy'},
-      {id: 3, name: 'Harriet'}
+      {id: 1, first: 'Ernest', last: 'Hemingway'},
+      {id: 2, first: 'Arundhati', last: 'Roy'},
+      {id: 3, first: 'Ursula', last: 'Le Guin'}
     ]
   });
 
@@ -116,9 +116,8 @@ can bind elements using relative paths:
   <ul>
     <li 
       data-list="tutorial1.list:id"
-      data-bind="text=.name"
     >
-      Placeholder
+      <span data-bind="text=.last">Last</span>, <span data-bind="text=.first">First</span>
     </li>
   </ul>
   <h3>There's nothing magical about lists!</h3>
@@ -132,7 +131,12 @@ can bind elements using relative paths:
         0
       </span>
       <input 
-        data-bind="value=.name"
+        style="width: 80px"
+        data-bind="value=.first"
+      >
+      <input 
+        style="width: 80px"
+        data-bind="value=.last"
       >
     </label>
   </div>

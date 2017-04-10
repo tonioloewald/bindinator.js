@@ -1,7 +1,7 @@
 /* bindinator.js Copyright ©2016-2017 Tonio Loewald */
 
 body {
-	font: 13px "Helvetica Neue", Helvetica, Sans-serif;
+	font: 13px "Source Sans Pro", Sans-serif;
 	background-color: #c7ddbb;
 	color: #222222;
 }
@@ -318,3 +318,7 @@ blockquote {
   }
 }
 
+::selection {
+	color: black;
+	background: rgba(128,255,0,0.5);
+}
