@@ -9,16 +9,16 @@ It loads via require() but sets a global rather than passing back to module.expo
   .threejs {
     position: fixed;
     top: 50%;
-    left: 6px;
+    left: 50%;
     width: 768px;
     height: 512px;
-    transform: translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
     pointer-events: none;
     opacity: 0.8;
   }
 </style>
 <script>
-/* global require, THREE, component */
+/* global require, THREE, component, b8r */
 'use strict';
 
   require.lazy('https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js').
@@ -49,8 +49,26 @@ It loads via require() but sets a global rather than passing back to module.expo
     cube.rotation.x = 10;
 
     const update = () => {
-      cube.rotation.y += 0.01;
-    }
+      const mouse = b8r.get('threejs-demo.mouse');
+      if (mouse) {
+        cube.rotation.y -= 0.02 * mouse.x;
+        cube.rotation.x -= 0.02 * mouse.y;
+      }
+    };
+
+    b8r.onAny('mousemove', 'threejs-demo.mousemove');
+    b8r.register('threejs-demo', {
+      mousemove: evt => {
+        if (component.closest('body')) {
+          const x = (evt.clientX / window.innerWidth - 0.5) * 2;
+          const y = (evt.clientY / window.innerHeight - 0.5) * 2;
+          b8r.set('threejs-demo.mouse', {x, y});
+        } else {
+          b8r.deregister('threejs-demo');
+          b8r.offAny('mousemove', 'threejs-demo.mousemove');
+        }
+      }
+    });
 
     function render() {
       if(canvas.closest('body')) {
