@@ -7,8 +7,14 @@ It loads via require() but sets a global rather than passing back to module.expo
 -->
 <style>
   .threejs {
-    width: 512px;
-    height: 288px;
+    position: fixed;
+    top: 50%;
+    left: 6px;
+    width: 768px;
+    height: 512px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0.8;
   }
 </style>
 <script>
@@ -18,11 +24,12 @@ It loads via require() but sets a global rather than passing back to module.expo
   require.lazy('https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js').
   then(() => {
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera( 60, 1.78, 0.1, 1000 );
-    const renderer = new THREE.WebGLRenderer();
+    const camera = new THREE.PerspectiveCamera( 60, 1.5, 0.1, 1000 );
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
 
-    renderer.setSize( 512, 288 );
+    renderer.setSize( 768, 512 );
     const canvas = renderer.domElement;
+    canvas.classList.add('threejs');
     component.appendChild(canvas);
 
 
