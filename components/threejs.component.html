@@ -40,20 +40,22 @@ It loads via require() but sets a global rather than passing back to module.expo
     backlight.position.set(-100, 50, 50);
     scene.add(backlight);
 
-    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const material = new THREE.MeshPhysicalMaterial( { color: 0xaaddaa, emissive: 0x404020 } );
+    const geometry = new THREE.SphereGeometry( 0.5, 24, 12 );
+    const material = new THREE.MeshPhysicalMaterial( { color: 0x444444, reflectivity: 0.9, emissive: 0x202040 } );
+    material.shading = THREE.FlatShading;
     const cube = new THREE.Mesh( geometry, material );
     scene.add( cube );
 
     camera.position.z = 2;
-    cube.rotation.x = 10;
+    cube.rotation.x = -0.2;
 
     const update = () => {
       const mouse = b8r.get('threejs-demo.mouse');
       if (mouse) {
-        cube.rotation.y -= 0.02 * mouse.x;
-        cube.rotation.x -= 0.02 * mouse.y;
+        sunlight.position.x = mouse.x * 200;
+        sunlight.position.y = mouse.y * -200;
       }
+      cube.rotation.y -= 0.01;
     };
 
     b8r.onAny('mousemove', 'threejs-demo.mousemove');
