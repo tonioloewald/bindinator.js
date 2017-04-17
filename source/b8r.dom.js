@@ -142,12 +142,6 @@ module.exports = {
     }
   },
   offset (element) {
-    let x = 0, y = 0;
-    do {
-      x += element.offsetLeft;
-      y += element.offsetTop;
-      element = element.offsetParent;
-    } while(element);
-    return {x, y};
+    return element.getBoundingClientRect();
   }
 };
