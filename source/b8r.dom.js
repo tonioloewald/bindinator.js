@@ -81,10 +81,16 @@ module.exports = {
     include_self &&
     element.matches(selector) ? element : element.querySelector(selector),
   succeeding: (element, selector) => {
-    while(element.nextSibling && !element.nextElementSibling.matches(selector)){
+    while(element.nextElementSibling && !element.nextElementSibling.matches(selector)){
       element = element.nextElementSibling;
     }
     return element.nextElementSibling;
+  },
+  preceding: (element, selector) => {
+    while(element.previousElementSibling && !element.previousElementSibling.matches(selector)){
+      element = element.previousElementSibling;
+    }
+    return element.previousElementSibling;
   },
   findAbove: (elt, selector, until_elt, include_self) => {
     var current_elt = include_self ? elt : elt.parentElement;
