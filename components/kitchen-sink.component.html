@@ -206,21 +206,53 @@ built-in functionality but augment it.
 	</label>
 	<br>
 	<form onsubmit="return false;">
+		<h4>Fields with Combos</h4>
+		<label>
+			What is your name?
+			<input
+				style="width: 200px;"
+				data-combo="names"
+				data-combo-position="above"
+				data-combo-filter-name="@"
+				placeholder="match @name"
+				data-event="mousedown,keyup:combo-controller.update"
+			>
+		</label><br>
 		<label>
 			What is your quest?
-			<input>
+			<input
+				style="width: 200px;"
+				data-combo="quests"
+				data-combo-position="above"
+				placeholder="match whole field"
+				data-event="mousedown,keyup:combo-controller.update"
+			>
 		</label><br>
 		<label>
 			What is the average airspeed of an unladen swallow?
-			<input>
+			<input
+				style="width: 200px;"
+				data-combo="quests"
+				placeholder="match whole field"
+				data-event="mousedown,keyup:combo-controller.update"
+			>
+		</label><br>
+		<label>
+			What is your favorite color?
+			<input
+				style="width: 200px;"
+				data-combo="colors"
+				placeholder="words match colors"
+				data-event="mousedown,keyup:combo-controller.update"
+			>
 		</label>
 		<fieldset>
 			<label>
 				What is your favorite color?
 			</label>
 			<label>
-				<input name="favorite-color" value="red" type="radio" data-bind="value=_component_.color">
-				Red
+				<input name="favorite-color" value="yellow" type="radio" data-bind="value=_component_.color">
+				Yellow
 			</label>
 			<label>
 				<input name="favorite-color" value="blue" type="radio" data-bind="value=_component_.color">
@@ -235,12 +267,55 @@ built-in functionality but augment it.
 		<button type="submit">OK</button>
 	</form>
 	<div data-component="maxtoggle"></div>
+	<div
+		data-component="combo"
+		data-combo-id="quests"
+		class="select"
+	>
+  	<div>My name is Sir Launcelot of Camelot</div>
+		<div>To seek the Holy Grail</div>
+	  <div>Blue</div>
+  	<div>Sir Robin of Camelot</div>
+		<div>What is the capital of Assyria?</div>
+  	<div>Sir Galahad of Camelot</div>
+  	<div>Blue.  No yel--</div>
+  	<div>It is Arthur, King of the Britons</div>
+		<div>What do you mean?  An African or European swallow?</div>
+	</div>
+	<div
+		data-component="combo"
+		data-combo-id="names"
+		data-combo-filter-start="@"
+		data-combo-filter-split=" "
+		class="select"
+	>
+		<div>RealArthurKingOfBritons</div>
+		<div>SirLauncelot</div>
+		<div>SirRobinTheNotSoBrave</div>
+		<div>SirNotAppearingInThisFilm</div>
+		<div>HolyHandGrenade</div>
+		<div>VorpalBunny</div>
+	</div>
+	<div
+		data-component="combo"
+		data-combo-id="colors"
+		data-combo-filter-split=" "
+		class="select"
+	>
+		<div>Blue</div>
+		<div>Chartreuse</div>
+		<div>Lilac</div>
+		<div>Pink</div>
+		<div>Red</div>
+		<div>Yellow</div>
+	</div>
 </div>
 <script>
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
 	b8r.component('components/maxtoggle');
 	b8r.component('components/slider-numeric');
+	b8r.component('components/combo');
 	register({
 	  fuelrods: 17,
 	  multiselect: [

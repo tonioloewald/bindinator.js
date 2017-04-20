@@ -303,6 +303,33 @@ blockquote {
 	padding: 0;
 }
 
+.select {
+	background: white;
+	cursor: pointer;
+	color: #444;
+}
+
+.select > * {
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select > :hover {
+  background: rgba(0,0,0,0.1);
+}
+
+.select > :active {
+  background: black;
+  color: white;
+}
+
+.select > .selected {
+	background: rgba(0,0,0,0.2);
+	color: black;
+}
+
 [data-component]:not([data-component-id]) {
 	display: none;
 }
