@@ -157,10 +157,21 @@ input, textarea, [contenteditable="true"] {
 	box-sizing: border-box;
 	font: 13px System, Sans-serif;
 	color: black;
+	line-height: 16px;
+	padding: 2px 4px;
+	background: white;
 	border: 1px solid rgba(0,0,0,0.1);
 	outline: none;
 }
 
+:not(input)[placeholder]:empty:after {
+	content: attr(placeholder);
+	color: #aaa;
+}
+
+::placeholder {
+	color: #aaa;
+};
 
 select, .select {
 	vertical-align: top;

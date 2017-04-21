@@ -215,7 +215,7 @@ built-in functionality but augment it.
 				data-combo-position="above"
 				data-combo-filter-name="@"
 				placeholder="match @name"
-				data-event="mousedown,keyup:combo-controller.update"
+				data-event="focus,keyup:combo-controller.update"
 			>
 		</label><br>
 		<label>
@@ -225,7 +225,7 @@ built-in functionality but augment it.
 				data-combo="quests"
 				data-combo-position="above"
 				placeholder="match whole field"
-				data-event="mousedown,keyup:combo-controller.update"
+				data-event="focus,keyup:combo-controller.update"
 			>
 		</label><br>
 		<label>
@@ -234,7 +234,7 @@ built-in functionality but augment it.
 				style="width: 200px;"
 				data-combo="quests"
 				placeholder="match whole field"
-				data-event="mousedown,keyup:combo-controller.update"
+				data-event="focus,keyup:combo-controller.update"
 			>
 		</label><br>
 		<label>
@@ -243,8 +243,19 @@ built-in functionality but augment it.
 				style="width: 200px;"
 				data-combo="colors"
 				placeholder="words match colors"
-				data-event="mousedown,keyup:combo-controller.update"
+				data-event="focus,keyup:combo-controller.update"
 			>
+		</label><br>
+		<label>
+			div with contenteditable="true"
+			<div
+				contenteditable="true"
+				placeholder="write something"
+				style="width: 200px; display: inline-block;"
+				data-combo="quests"
+				placeholder="match whole field"
+				data-event="focus,keyup:combo-controller.update"
+			></div>
 		</label>
 		<fieldset>
 			<label>

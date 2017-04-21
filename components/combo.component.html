@@ -66,12 +66,13 @@ the string.
         throw 'cannot register combo with no data-combo-id';
       }
       if(combos[name]) {
-        console.warn(`combo "${name}" has been redefined`);
+        console.warn(`combo "${name}" has been redefined`); // jshint ignore:line
         combos[name].remove();
       }
       combos[name] = combo;
       combo.style.position = 'fixed';
       b8r.hide(combo);
+      b8r.on(combo, 'mouseup', 'combo-controller.click');
       document.body.appendChild(combo);
     };
 
@@ -123,7 +124,7 @@ the string.
     const show_filtered = (evt, element) => {
       const {combo, filter_split, filter_start} = get_combo(element);
       const {match} = partial_match(element, filter_split, filter_start);
-      if(!match) {
+      if(typeof match !== 'string') {
         hide();
       }
       const filtered = b8r.makeArray(combo.children).filter(item => {
@@ -172,11 +173,17 @@ the string.
       return {match, start, end};
     };
 
+    const click = (evt, element) => {
+      element.querySelectorAll('.selected').forEach(elt => elt.classList.remove('selected'));
+      evt.target.closest('.select > *').classList.add('selected');
+      insert(evt, element._targetElement);
+    }
+
     const insert = (evt, element) => {
       const {combo, filter_start, filter_split} = get_combo(element);
       const {match, start, end} = partial_match(element, filter_split, filter_start);
       if (match === undefined) {
-        console.warn('could not insert from combo; no match in field');
+        console.warn('could not insert from combo; no match in field'); // jshint ignore:line
         return;
       }
       const selected = combo.querySelector('.selected');
@@ -207,6 +214,7 @@ the string.
                 next.classList.add('selected');
               }
               break;
+            case 'Space':
             case 'NumpadEnter':
             case 'Enter':
               insert(evt, element);
@@ -219,9 +227,10 @@ the string.
             show_filtered(evt, element);
           }
           break;
+        case 'focus':
         case 'mousedown':
-          break;
         case 'mouseup':
+          show_filtered(evt, element);
           break;
       }
       return true;
@@ -241,6 +250,7 @@ the string.
       register,
       hide_on_click,
       update,
+      click,
     });
   }
 
