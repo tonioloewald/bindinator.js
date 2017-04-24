@@ -28,7 +28,7 @@ Using the combo:
       data-combo="autocomplete"
       data-combo-position="below"
       data-event="
-        mousedown,keyup:combo-controller.update;
+        focus,keydown,keyup:combo-controller.update;
       "
     >
 
@@ -93,7 +93,7 @@ the string.
       return {combo, position, rect, filter_split, filter_start};
     };
 
-    const show = (evt, element) => {
+    const show = (evt, element, do_not_hide) => {
       const {combo, position, rect} = get_combo(element);
       if(position === 'below') {
         b8r.styles(combo, {
@@ -110,14 +110,20 @@ the string.
           width: rect.width + 'px',
         });
       }
-      hide();
+      if (!do_not_hide) {
+        hide();
+      }
       b8r.show(combo);
       combo._targetElement = element;
       return true;
     };
 
     const hide = () => {
-      b8r.forEachKey(combos, combo => b8r.hide(combo));
+      b8r.forEachKey(combos, combo => {
+        combo._targetElement = null;
+        combo.querySelectorAll('.selected').forEach(elt => elt.classList.remove('selected'));
+        b8r.hide(combo);
+      });
       return true;
     };
 
@@ -139,13 +145,12 @@ the string.
           return false;
         }
       });
+      hide();
       if (filtered.length) {
         if (!filtered.find(item => item.classList.contains('selected'))) {
           filtered[0].classList.add('selected');
         }
-        show(evt, element);
-      } else {
-        hide();
+        show(evt, element, true);
       }
     };
 
@@ -182,7 +187,7 @@ the string.
     const insert = (evt, element) => {
       const {combo, filter_start, filter_split} = get_combo(element);
       const {match, start, end} = partial_match(element, filter_split, filter_start);
-      if (match === undefined) {
+      if (!combo._targetElement || match === undefined) {
         console.warn('could not insert from combo; no match in field'); // jshint ignore:line
         return;
       }
@@ -199,6 +204,16 @@ the string.
       const {combo} = get_combo(element);
       const current = combo.querySelector('.selected');
       switch(evt.type) {
+        case 'keydown':
+          switch(evt.code) {
+            case 'Space':
+            case 'NumpadEnter':
+            case 'Enter':
+              insert(evt, element);
+              hide();
+              break;
+          }
+          break;
         case 'keyup':
           switch (evt.code) {
             case 'ArrowUp':
@@ -218,14 +233,13 @@ the string.
             case 'Space':
             case 'NumpadEnter':
             case 'Enter':
-              insert(evt, element);
-              hide();
               break;
             case 'Escape':
               hide();
               break;
             default:
-            show_filtered(evt, element);
+              show_filtered(evt, element);
+              break;
           }
           break;
         case 'focus':
