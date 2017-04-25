@@ -212,28 +212,39 @@ the string.
       switch(evt.type) {
         case 'keydown':
           switch(evt.code) {
+            case 'ArrowUp':
+            case 'ArrowDown':
+              return false;
+              break;
             case 'Space':
             case 'NumpadEnter':
             case 'Enter':
-              insert(evt, element);
-              hide();
+              if (current) {
+                insert(evt, element);
+                hide();
+                return false;
+              }
               break;
           }
           break;
         case 'keyup':
           switch (evt.code) {
             case 'ArrowUp':
-              const previous = b8r.preceding(current, ':not(.hidden):not([data-list])');
-              if (previous) {
-                current.classList.remove('selected');
-                previous.classList.add('selected');
+              if (current) {
+                const previous = b8r.preceding(current, ':not(.hidden):not([data-list])');
+                if (previous) {
+                  current.classList.remove('selected');
+                  previous.classList.add('selected');
+                }
               }
               break;
             case 'ArrowDown':
-              const next = b8r.succeeding(current, ':not(.hidden):not([data-list])');
-              if (next) {
-                current.classList.remove('selected');
-                next.classList.add('selected');
+              if (current) {
+                const next = b8r.succeeding(current, ':not(.hidden):not([data-list])');
+                if (next) {
+                  current.classList.remove('selected');
+                  next.classList.add('selected');
+                }
               }
               break;
             case 'Space':
