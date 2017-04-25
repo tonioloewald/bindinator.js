@@ -146,7 +146,7 @@ data-list-instances.
     // garbage collect models
     const instances = b8r.find('[data-component-id]')
                           .map(elt => elt.getAttribute('data-component-id'));
-    b8r.models().forEach((model, idx) => {
+    b8r.models().forEach((model) => {
       if (model.substr(0, 2) === 'c#' && instances.indexOf(model) === -1) {
         b8r.remove(model);
       }
@@ -408,8 +408,7 @@ registered.
   function handleEvent(evt) {
     var target = anyElement() || evt.target;
     var keystroke = evt instanceof KeyboardEvent ? b8r.keystroke(evt) : {};
-    var done = false;
-    while (target && !done) {
+    while (target) {
       var handlers = getParsedEventHandlers(target);
       var result = false;
       for (var i = 0; i < handlers.length; i++) {
@@ -435,8 +434,7 @@ registered.
             if (result !== true) {
               evt.stopPropagation();
               evt.preventDefault();
-              done = true;
-              break;
+              return;
             }
           }
         }
