@@ -57,6 +57,8 @@ the string.
 /* global component, b8r */
 'use strict';
 
+  const {getSelection, setSelection} = require('lib/selection.js');
+
   if (!b8r.registered('combo-controller')) {
     const combos = {};
 
@@ -155,13 +157,13 @@ the string.
     };
 
     const partial_match = (element, filter_split, filter_start) => {
-      let match = (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) ?
-                    element.value.toLowerCase() :
-                    element.textContent.toLowerCase();
+      let {text, selStart, selEnd} = getSelection(element);
+      let match = text.toLowerCase();
+
       let start = 0;
       let end = match.length;
       if (filter_split || filter_start) {
-        end = element.selectionEnd;
+        end = selEnd;
         if (filter_split) {
           start = end - match.substr(0, end).split(filter_split).pop().length;
         }
@@ -187,7 +189,9 @@ the string.
     const insert = (evt, element) => {
       const {combo, filter_start, filter_split} = get_combo(element);
       const {match, start, end} = partial_match(element, filter_split, filter_start);
-      if (!combo._targetElement || match === undefined) {
+      if (!combo._targetElement) {
+        return;
+      } else if (match === undefined) {
         console.warn('could not insert from combo; no match in field'); // jshint ignore:line
         return;
       }
@@ -196,6 +200,8 @@ the string.
         element.value = element.value.substr(0, start) + selected.textContent + element.value.substr(end);
       } else {
         element.textContent = element.textContent.substr(0,start) + selected.textContent + element.textContent.substr(end);
+        const caret_position = start + selected.textContent.length;
+        setSelection(element, caret_position);
       }
       hide();
     };

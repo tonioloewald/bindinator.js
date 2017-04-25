@@ -213,7 +213,6 @@ built-in functionality but augment it.
 				style="width: 200px;"
 				data-combo="names"
 				data-combo-position="above"
-				data-combo-filter-name="@"
 				placeholder="match @name"
 				data-event="focus,keydown,keyup:combo-controller.update"
 			>
@@ -245,6 +244,16 @@ built-in functionality but augment it.
 				placeholder="words match colors"
 				data-event="focus,keydown,keyup:combo-controller.update"
 			>
+		</label><br>
+		<label>
+			div with contenteditable="true"
+			<div
+				contenteditable="true"
+				placeholder="match @name"
+				style="width: 200px; display: inline-block;"
+				data-combo="names"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			></div>
 		</label><br>
 		<label>
 			div with contenteditable="true"
