@@ -39,8 +39,8 @@ any given time.
 	}
 
 	.biglist-info {
-		position: absolute;
-		bottom: 0;
+		position: fixed;
+		bottom: 32px;
 		right: 0;
 		background-color: #444;
 		color: white;
@@ -69,13 +69,13 @@ any given time.
 	</div>
 </div>
 <div class="biglist-info">
-	Progress: 
+	Progress:
 	<span data-bind="text=_component_.t"></span>
-	Scroll Position: 
+	Scroll Position:
 	<span data-bind="text=_component_.position"></span>
 	Items in DOM:
 	<span data-bind="text=_component_.rows_to_show"></span>
-	Total Items: 
+	Total Items:
 	<span data-bind="text=_component_.list.length"></span>
 </div>
 <script>
