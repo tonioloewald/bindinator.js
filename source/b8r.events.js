@@ -8,6 +8,7 @@
 
   const implicit_event_types = [
     'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
+    'mouseleave', 'mouseenter',
     'mousewheel', 'scroll',
     'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
     'transitionend', 'animationend',
