@@ -11,20 +11,39 @@ is loaded.
 /* global module */
 'use strict';
 
-module.exports = function imageSrc(img, url, opacity){
+const images = {};
+
+const imagePromise = (url) => {
+  if (!images[url]) {
+    images[url]= new Promise((resolve) => {
+      const image = new Image();
+      image.src = url;
+      image.onload = () => {
+        resolve(image);
+      };
+    });
+  }
+  return images[url];
+};
+
+const imgSrc = (img, url, opacity) => {
   if(img.src === url) {
     return;
   }
   if(!getComputedStyle(img).transition) {
     img.style.transition = '0.25s ease-out';
   }
-  const image = new Image();
   img.style.opacity = 0;
   if (url) {
-    image.src = url;
-    image.onload = () => img.style.opacity = opacity || 1;
-    img.setAttribute('src', url);
+    imagePromise(url).then(image => {
+      if (img.src !== url) {
+        img.style.opacity = opacity || 1;
+        img.setAttribute('src', image.src);
+      }
+    });
   } else {
     img.removeAttribute('src');
   }
 };
+
+module.exports = imgSrc;

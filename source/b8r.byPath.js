@@ -94,7 +94,9 @@ efficient updating of lists, e.g.
         if (!found.length) {
           found = undefined;
         } else if (part.indexOf('=') > -1) {
-          const [path, value] = part.split('=');
+          const cut = part.indexOf('=');
+          const path = part.substr(0, cut);
+          const value = part.substr(cut + 1);
           const list = found;
           found = undefined;
           for (j = 0, max_j = list.length; j < max_j; j++) {
