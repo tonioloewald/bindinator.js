@@ -13,7 +13,7 @@ These methods generate promises of the specified response. Usage:
 
     json('path/to/endpoint', 'PUT', {...}).then(response => { ...});
 
-Also note that these methods are foldered into b8r by default, so available as
+Also note that these methods are folded into b8r by default, so available as
 b8r.ajax, etc.
 */
 /* global module, console */

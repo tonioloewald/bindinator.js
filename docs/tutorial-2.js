@@ -144,7 +144,7 @@ Finally, we need to bind the calculated values as before:
       <input type="number" disabled data-bind="value=_component_.payment">
     </label>
 
-And finally, we need to reculate when something changes:
+And finally, we need to recalculate when something changes:
 
     <form data-event="input,change:_component_.calculate">
 

@@ -1,7 +1,12 @@
 /**
 # Object Registry
 
-The object registry is an observable object.
+Bindinator is built around the idea of registering objects under unique names
+and binding events and element properties to paths based on those names.
+
+b8r's registry is an observable object that b8r uses to keep track of objects.
+Once an object is registered, its properties will automatically be bound
+to events and DOM properties by path.
 
     set('root', object_value); // registers the object with the name
     set('root.path.to.value', new_value); // sets the value

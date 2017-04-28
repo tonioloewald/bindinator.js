@@ -2,9 +2,11 @@
 #bindinator
 Copyright ©2016-2017 Tonio Loewald
 
-Binds data and methods to the DOM and lets you quickly turn chunks of markup,
-style, and code
-into reusable components so you can concentrate on your project.
+Bindinator (b8r) binds data and methods to the DOM and lets you quickly turn chunks of markup,
+style, and code into reusable components so you can concentrate on your project.
+
+b8r leverages your understanding of the DOM and the browser rather than trying to
+implement some kind of virtual machine to replace it.
 */
 /* jshint esnext:true, loopfunc:true */
 /* globals console, window, require, module, KeyboardEvent */
@@ -54,11 +56,9 @@ into reusable components so you can concentrate on your project.
 /**
     b8r.register(name, obj);
 
-register an object by name as data or controller.
-The names `_component_`, `_data_` and `_b8r_` are reserved; other similar names may be
-reserved later.
+registers an object by name as data or controller. The names `_component_`,
+`_data_` and `_b8r_` are reserved; other similar names may be reserved later.
 
-Binding to explicitly means you will only be bound to an explicit object
 `_b8r_` is the name of the internal event handlers for bound variables
 
     b8r.deregister(name); // removes a registered object

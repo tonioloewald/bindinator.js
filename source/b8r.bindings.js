@@ -1,7 +1,7 @@
 /**
 # Data Bindings
 
-The simplest way to bind data to DOM elements is by using data-bind attributes.
+The simplest way to bind data to DOM elements is by using `data-bind` attributes.
 
 Usage:
 
