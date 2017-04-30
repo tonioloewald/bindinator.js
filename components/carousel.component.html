@@ -120,7 +120,7 @@ Copyright ©2016-2017 Tonio Loewald
 	const carousel = findOne('.carousel');
 	const slider = findOne('input');
 
-	const clamp = x => x < 0 ? 0 : (x > 1 ? 1 : x);
+	const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
 
 	function init() {
 		const child_selector = component.getAttribute('child-selector') || '.carousel > div';
@@ -177,8 +177,8 @@ Copyright ©2016-2017 Tonio Loewald
 				let dx = evt.clientX - drag_x;
 				drag_x = evt.clientX;
 				drag_dx += dx;
-				slider.value = clamp(parseFloat(slider.value) - dx / carousel.offsetWidth);
-				b8r.trigger('input', slider);
+				position = clamp(position - dx * 4 / carousel.offsetWidth, -0.125, items.length - 0.875);
+				updateItems();
 			}
 		},
 		dragEnd: evt => {
