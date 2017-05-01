@@ -1,5 +1,6 @@
 <!--
 # carousel
+
 Copyright ©2016-2017 Tonio Loewald
 -->
 <style>
@@ -39,11 +40,11 @@ Copyright ©2016-2017 Tonio Loewald
 	"
 	data-children
 >
-	<div class="windoid" style="min-width: 50%; background-color: #d00">
+	<div class="windoid" style="width: 200px; background-color: #d00">
 	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #d70">
+	<div class="windoid" style="width: 300px; background-color: #d70">
 	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #dd0">
+	<div class="windoid" style="width: 150px; background-color: #dd0">
 	</div>
 	<div class="windoid" style="min-width: 50%; background-color: #7d0">
 	</div>
@@ -70,6 +71,11 @@ Copyright ©2016-2017 Tonio Loewald
 <script>
 /* global b8r, findOne, find, component, register */
 'use strict';
+
+	const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 75);
+	const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 100);
+	const x_offset = parseFloat(component.getAttribute('data-carousel-offset') || 0);
+	const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
 
 	function ease_in_out(t) {
 		var s = t > 0 ? 0.5 : -0.5;
@@ -99,17 +105,18 @@ Copyright ©2016-2017 Tonio Loewald
 		if( abs_offset > 0.01) {
 			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -200 : 200);
 			if (abs_offset < 1) {
-				dz = -100 * ease_in_out(abs_offset);
-				ry = ease_in(offset) * -80;
+				dz = -max_distance * ease_in_out(abs_offset);
+				ry = ease_in(offset) * -max_rotation;
 			} else {
-				dz = -100;
-				ry = offset < 0 ? 80 : -80;
+				dz = -max_distance;
+				ry = offset < 0 ? max_rotation : -max_rotation;
 			}
 		} else {
 			offset = 0;
 			abs_offset = 0;
 		}
 		var s = 1 - Math.min(abs_offset, 0.3);
+		dx += x_offset;
 		element.style.transform = 'translateX(-50%) translateY(-50%) translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg) scale(' + s + ')';
 		element.style.zIndex = Math.round(30 - 10 * abs_offset);
 	}
@@ -126,6 +133,7 @@ Copyright ©2016-2017 Tonio Loewald
 		const child_selector = component.getAttribute('child-selector') || '.carousel > div';
 		items = find(child_selector).filter(elt => !elt.matches('[data-list]'));
 		items.forEach(element => element.classList.add('carousel-item'));
+		position = centered_at_start && items.length ? Math.floor((items.length - 1) * 0.5) : 0;
 		target = Math.min(target, items.length - 1);
 		updateItems();
 	}
