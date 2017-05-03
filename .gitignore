@@ -18,5 +18,5 @@ xcuserdata
 CVS
 
 # certs
-.pem
-.p12
+*.pem
+*.p12
