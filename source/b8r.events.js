@@ -33,7 +33,7 @@
     } else {
       [element, event_type, method, prepend] = args;
     }
-    if (!(element instanceof HTMLElement)) {
+    if (!(element instanceof Element)) {
       console.error('bind bare elements please, not', element);
       throw 'bad argument';
     }
