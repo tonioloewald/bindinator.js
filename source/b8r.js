@@ -498,14 +498,20 @@ See the docs on binding data to and from the DOM for more detail.
   b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 
   b8r.format = template => {
-    template.replace(/\$\{.*?\}/g, (_, path) => b8r.getByPath(path));
+    let formatted;
+    if (template.match(/\$\{.*?\}/)) {
+      formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => b8r.get(path)) ;
+    } else {
+      formatted = b8r.get(template);
+    }
+    return formatted;
   };
 
   function bind(element) {
     var bindings = getBindings(element);
     for (var i = 0; i < bindings.length; i++) {
       var {targets, path} = bindings[i];
-      const value = b8r.get(path);
+      const value = b8r.format(path);
       var _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
