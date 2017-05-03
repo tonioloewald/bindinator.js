@@ -24,6 +24,27 @@
 
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
+A view looks like this:
+
+	<input data-bind="model.foo">
+	<button data-event="controller.action">
+		Click Me
+	</button>
+
+A model looks like this:
+
+	b8r.register('model', {
+		foo: 17
+	});
+
+A controller looks like this:
+
+	b8r.register('controller', {
+		action () { 
+			console.log('ta da!');
+		}
+	});
+
 Bindinator lets you build *views* using any mechanics you like — plain HTML and CSS work fine — and attach data and behavior to those views using DOM attributes, implement the behavior using Javascript with exceptionally simple connections to data services.
 
 - You can create and destroy bindings using code, but this just creates and removes the relevant DOM attributes
@@ -39,8 +60,37 @@ Bindinator doesn't use a "virtual DOM". It uses the *actual DOM* and tries to be
 
 Bindinator lets you compose and reuse views as "components", where each component is a (hopefully) small self-contained file comprising the required HTML, CSS, and Javascript.
 
-- Components strongly resemble simple web pages
-- Components are very self-contained
+A component looks like this:
+
+	<style>
+		.my-component {
+			background-color: red;
+		}
+	</style>
+	<div class="my-component">
+		<input data-bind="_data_.foo">
+		<button data-event="_component_.action">
+			Click Me
+		</button>
+	</div>
+	<script>
+		set('action', () => console.log('ta da!'));
+	</script>
+
+You save it in `path/to/my-component.component.html`.
+
+You use it like this:
+
+	<div 
+		data-component="my-component"
+		data-path="model"
+	></div>
+	...
+	b8r.component('path/to/my-component');
+
+- Components strongly resemble simple web pages (including support for self-documentation)
+- Components are self-contained (`_component_` is a private context)
+- Components are highly reusable (note the `data-path` attribute)
 - Components are intrinsically asynchronous
 - It's easy to refactor monolithic views into reusable components
 - You don't need to "think in the Bindinator way" -- create what you want and it will work as expected
