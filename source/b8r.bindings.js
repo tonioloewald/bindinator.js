@@ -67,6 +67,60 @@ And remove a data binding using:
 These methods literally just add the attributes. There's no behind-the-scenes
 magic data structure to maintain. *The attribute is the binding*.
 
+## Dynamic Binding
+
+If a given component could only be bound to a single path, data-binding would
+be OK but kind of painful. In fact, data-bind has several mechanisms for dynamic
+binding.
+
+`_component_` allows binding to a component's private object.
+
+`_data_` allows binding to an inherited data-path (this is probably the simplest and most
+useful mechanism).
+
+When binding to **Lists**, there is also **relative** binding. See below.
+
+**Note**: right now _component_ and _data_ get replaced in data bindings (not event
+bindings) when a component is inserted. This will be replaced with truly dynamic behavior
+in future.
+
+## String Interpolation
+
+**New**: the new template literals in ES6 are awesome. b8r implements something
+similar in data bindings:
+
+    <div data-bind="style(backgroundImage)=url(${_data_.imageUrl})">
+      ...
+    </div>
+
+Multiple data references are supported too, so you can replace:
+
+    <span data-bind="text=_component_.firstName">First</span>
+    <span data-bind="text=_component_.lastName">Last</span>
+    <script>
+      set({
+        firstName: 'Juanita',
+        lastName: 'Citizen',
+      })
+    </script>
+
+with:
+
+    <span data-bind="text=${_component_.firstName} ${_component_.lastName}">First Last</span>
+
+```
+    <span data-bind="text=${_component_.firstName} ${_component_.lastName}">First Last</span>
+    <script>
+      set({
+        firstName: 'Juanita',
+        lastName: 'Citizen',
+      })
+    </script>
+```
+
+This only works in to-bindings (it won't parse DOM contents back into data
+structures for you!).
+
 ## Lists
 
 If you want to create one instance of an element for every member of a list

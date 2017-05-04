@@ -47,7 +47,7 @@ properties like id, class, and style.
 ### style()
 
     data-bind="style(color)=message.textColor"
-    data-bind="style(padding-left,px)=message.leftPad"
+    data-bind="style(padding-left)=${message.leftPad}px"
 
 This sets styles (via `element.style[stringValue]`) so be warned that hyphenated
 properties (in CSS) become camelcase in Javascript (e.g. background-color is
@@ -153,7 +153,7 @@ module.exports = function(b8r) {
     },
     checked: (element, value) => element.checked = !!value,
     selected: (element, value) => {
-      element.selected = !!value
+      element.selected = !!value;
     },
     text: (element, value) => element.textContent = value,
     attr: function(element, value, dest) {
@@ -179,8 +179,7 @@ module.exports = function(b8r) {
           Object.assign(element.style, value);
         }
       } else if (value !== undefined) {
-        const [prop, units] = (dest + ',').split(',');
-        element.style[prop] = value + units;
+        element.style[dest] = value;
       }
     },
     class: function(element, value, class_to_toggle) {

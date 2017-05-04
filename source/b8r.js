@@ -182,7 +182,7 @@ data-list-instances.
       [name, value] = args;
       b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val));
       return;
-    } else if (args.length === 2 || args[2] instanceof HTMLElement) {
+    } else if (args.length === 2 || args[2] instanceof Element) {
       [path, value, source_element] = args;
       [name, path] = pathSplit(path);
     } else {
@@ -366,7 +366,7 @@ registered.
   b8r.getComponentWithMethod = function(element, path) {
     var component_id = false;
     element = element.closest('[data-component-id]');
-    while (element instanceof HTMLElement) {
+    while (element instanceof Element) {
       if (b8r.getByPath(element.getAttribute('data-component-id'), path) instanceof Function) {
         component_id = element.getAttribute('data-component-id');
         break;
@@ -461,7 +461,7 @@ is for them to be handled exactly as if they were "real".
     }
     if (target) {
       const event = dispatch(type, target);
-      if (target instanceof HTMLElement &&
+      if (target instanceof Element &&
           implicit_event_types.indexOf(type) === -1) {
         handleEvent(event);
       }
@@ -497,18 +497,32 @@ See the docs on binding data to and from the DOM for more detail.
 
   b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 
+  b8r.format = template => {
+    let formatted;
+    if (template.match(/\$\{.*?\}/)) {
+      formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => b8r.get(path)) ;
+    } else {
+      formatted = b8r.get(template);
+    }
+    return formatted;
+  };
+
   function bind(element) {
     var bindings = getBindings(element);
     for (var i = 0; i < bindings.length; i++) {
       var {targets, path} = bindings[i];
-      const value = b8r.getByPath(path);
-      var _toTargets = targets.filter(t => toTargets[t.target]);
-      if (_toTargets.length) {
-        _toTargets.forEach(t => {
-          toTargets[t.target](element, value, t.key);
-        });
-      } else {
-        // TODO save message for when source is registered
+      const value = b8r.format(path);
+      const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
+      if (boundValues[path] !== value) {
+      boundValues[path] = value;
+        var _toTargets = targets.filter(t => toTargets[t.target]);
+        if (_toTargets.length) {
+          _toTargets.forEach(t => {
+            toTargets[t.target](element, value, t.key);
+          });
+        } else {
+          // TODO save message for when source is registered
+        }
       }
     }
   }
@@ -528,7 +542,7 @@ See the docs on binding data to and from the DOM for more detail.
   b8r.listInstances = list_template => {
     const instances = [];
     var instance = list_template.previousSibling;
-    while (instance && instance instanceof HTMLElement &&
+    while (instance && instance instanceof Element &&
            instance.matches('[data-list-instance]')) {
       instances.push(instance);
       instance = instance.previousSibling;
@@ -583,7 +597,8 @@ See the docs on binding data to and from the DOM for more detail.
       const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
       const itemPath = list_path + '[' + id + ']';
       instance_idx = existing_list_instances.findIndex(
-          elt => elt.getAttribute('data-list-instance') === itemPath);
+        elt => elt.getAttribute('data-list-instance') === itemPath
+      );
       if (instance_idx === -1) {
         instance = list_template.cloneNode(true);
         instance.removeAttribute('data-list');

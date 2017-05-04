@@ -106,5 +106,9 @@
 	{
 		"name": "3d (babylonjs)",
 		"path": "babylonjs"
+	},
+	{
+		"name": "asteroids",
+		"path": "asteroids"
 	}
 ]
