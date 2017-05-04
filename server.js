@@ -2,8 +2,8 @@
 'use strict';
 
 const SOCKET = 8017;
-const CERT_PATH = 'localhost-ssl/public.pem';
-const KEY_PATH = 'localhost-ssl/private.pem';
+const CERT_PATH = '../../.localhost-ssl/public.pem';
+const KEY_PATH = '../../.localhost-ssl/private.pem';
 const WEB_ROOT = __dirname;
 
 const https = require('https');
