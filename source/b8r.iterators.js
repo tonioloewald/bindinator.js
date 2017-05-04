@@ -56,70 +56,68 @@ Test(() => {
 */
 /* global module */
 
-(function(module) {
-  'use strict';
+'use strict';
 
-  const makeArray = arrayish => [].slice.apply(arrayish);
+const makeArray = arrayish => [].slice.apply(arrayish);
 
-  const forEachKey = (object, method) => {
-    var key;
-    for (var i = 0, keys = Object.keys(object); i < keys.length; i++) {
-      key = keys[i];
-      if (method(object[key], key) === false) {
-        break;
-      }
+const forEachKey = (object, method) => {
+  var key;
+  for (var i = 0, keys = Object.keys(object); i < keys.length; i++) {
+    key = keys[i];
+    if (method(object[key], key) === false) {
+      break;
     }
-  };
+  }
+};
 
-  const mapEachKey = (object, method) => {
-    const map = {};
-    forEachKey(object, (val, key) => map[key] = method(val, key));
-    return map;
-  };
+const mapEachKey = (object, method) => {
+  const map = {};
+  forEachKey(object, (val, key) => map[key] = method(val, key));
+  return map;
+};
 
-  const findKey = (object, test) => {
-    var foundKey = null;
-    forEachKey(object, (val, key) => {
-      if (test(val)) {
-        foundKey = key;
-        return false;
-      }
-    });
-    return foundKey;
-  };
+const findKey = (object, test) => {
+  var foundKey = null;
+  forEachKey(object, (val, key) => {
+    if (test(val)) {
+      foundKey = key;
+      return false;
+    }
+  });
+  return foundKey;
+};
 
-  const findValue = (object, test) => {
-    const key = findKey(object, test);
-    return key ? object[key] : null;
-  };
+const findValue = (object, test) => {
+  const key = findKey(object, test);
+  return key ? object[key] : null;
+};
 
-  const filterKeys = (object, test) => {
-    var filtered = [];
-    forEachKey(object, (val, key) => {
-      if (test(val)) {
-        filtered.push(key);
-      }
-    });
-    return filtered;
-  };
+const filterKeys = (object, test) => {
+  var filtered = [];
+  forEachKey(object, (val, key) => {
+    if (test(val)) {
+      filtered.push(key);
+    }
+  });
+  return filtered;
+};
 
-  const filterObject = (object, test) => {
-    var filtered = {};
-    forEachKey(object, (val, key) => {
-      if (test(val)) {
-        filtered[key] = val;
-      }
-    });
-    return filtered;
-  };
+const filterObject = (object, test) => {
+  var filtered = {};
+  forEachKey(object, (val, key) => {
+    if (test(val)) {
+      filtered[key] = val;
+    }
+  });
+  return filtered;
+};
 
-  module.exports = {
-    makeArray,
-    forEachKey,
-    mapEachKey,
-    findKey,
-    findValue,
-    filterKeys,
-    filterObject
-  };
-}(module));
+module.exports = {
+  makeArray,
+  forEachKey,
+  mapEachKey,
+  findKey,
+  findValue,
+  filterKeys,
+  filterObject
+};
