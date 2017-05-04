@@ -512,13 +512,17 @@ See the docs on binding data to and from the DOM for more detail.
     for (var i = 0; i < bindings.length; i++) {
       var {targets, path} = bindings[i];
       const value = b8r.format(path);
-      var _toTargets = targets.filter(t => toTargets[t.target]);
-      if (_toTargets.length) {
-        _toTargets.forEach(t => {
-          toTargets[t.target](element, value, t.key);
-        });
-      } else {
-        // TODO save message for when source is registered
+      const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
+      if (boundValues[path] !== value) {
+      boundValues[path] = value;
+        var _toTargets = targets.filter(t => toTargets[t.target]);
+        if (_toTargets.length) {
+          _toTargets.forEach(t => {
+            toTargets[t.target](element, value, t.key);
+          });
+        } else {
+          // TODO save message for when source is registered
+        }
       }
     }
   }
