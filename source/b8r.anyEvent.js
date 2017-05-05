@@ -57,7 +57,7 @@ const offAny = function(...args) {
   }
 };
 
-const anyListeners = () => anyElement ? getEventHandlers(anyElement) : [];
+const anyListeners = () => _anyElement ? getEventHandlers(_anyElement) : [];
 
 const anyElement = () => _anyElement;
 
