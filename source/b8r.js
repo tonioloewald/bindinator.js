@@ -512,8 +512,8 @@ function bind(element) {
     var {targets, path} = bindings[i];
     const value = b8r.format(path);
     const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
-    if (boundValues[path] !== value) {
-    boundValues[path] = value;
+    if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
+      boundValues[path] = value;
       var _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
