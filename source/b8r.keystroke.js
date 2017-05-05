@@ -37,39 +37,43 @@ the relevant unicode glyphs (e.g. '⌥').
 /* global module */
 'use strict';
 
-module.exports = {
-  keystroke: (evt) => {
-    var code = [];
-    if (evt.altKey) {
-      code.push('alt');
+const keycode = evt => {
+  if (evt.code) {
+    return evt.code.replace(/Key|Digit/, '');
+  } else {
+    let synthetic_code = evt.keyIdentifier;
+    if (synthetic_code.substr(0, 2) === 'U+') {
+      synthetic_code =
+          String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
     }
-    if (evt.ctrlKey) {
-      code.push('ctrl');
-    }
-    if (evt.metaKey) {
-      code.push('meta');
-    }
-    if (evt.shiftKey) {
-      code.push('shift');
-    }
-    if (evt.code) {
-      code.push(evt.code.replace(/Key|Digit/, ''));
-    } else {
-      var synthetic_code = evt.keyIdentifier;
-      if (synthetic_code.substr(0, 2) === 'U+') {
-        synthetic_code =
-            String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
-      }
-      code.push(synthetic_code);
-    }
-    return code.join('-');
-  },
-
-  modifierKeys: {
-    meta: '⌘',
-    ctrl: '⌃',
-    alt: '⌥',
-    escape: '⎋',
-    shift: '⇧',
-  },
+    return synthetic_code;
+  }
 };
+
+const keystroke = evt => {
+  let code = [];
+  if (evt.altKey) {
+    code.push('alt');
+  }
+  if (evt.ctrlKey) {
+    code.push('ctrl');
+  }
+  if (evt.metaKey) {
+    code.push('meta');
+  }
+  if (evt.shiftKey) {
+    code.push('shift');
+  }
+  code.push(keycode(evt));
+  return code.join('-');
+};
+
+const modifierKeys = {
+  meta: '⌘',
+  ctrl: '⌃',
+  alt: '⌥',
+  escape: '⎋',
+  shift: '⇧',
+};
+
+module.exports = {keystroke, keycode, modifierKeys};
