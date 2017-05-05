@@ -1,3 +1,8 @@
+<!--
+# asteroids
+
+Demonstrates b8r's ability to bind to SVG elements. Performance relative to canvas is pretty terrible.
+-->
 <style>
 .asteroids {
   background: #021;
@@ -46,10 +51,11 @@
   </svg>
 </div>
 <script>
-/* global findOne, register, component, set */
+/* global findOne, register, component, set, require */
 'use strict';
 
   const uuid = require('lib/uuid.js');
+  const {buttons, axes} = require('lib/game-controller.js');
   const starfield = findOne('.asteroids');
   const asteroids = [];
   const ships = [];
@@ -81,7 +87,7 @@
     });
   };
 
-  ships.push({
+  const player = {
     x: w * 0.5,
     y: h * 0.5,
     dr: 0,
@@ -89,7 +95,9 @@
     dx: 0,
     dy: 0,
     scale: 1,
-  })
+  };
+
+  ships.push(player);
 
   repeat(createAsteroid, 10);
 
@@ -100,13 +108,25 @@
     body.y = (body.y + body.dy/60 + h) % h;
     body.r = (body.r + body.dr/60 + 360) % 360;
     body.transform = `translateX(-50%) translateX(${body.x}px) translateY(-50%) translateY(${body.y}px) scale(${body.scale}) rotateZ(${body.r}deg)`;
-  }
+  };
 
   const render = () => {
     if (component && component.closest('body')) {
       w = starfield.offsetWidth + 100;
       h = starfield.offsetHeight + 100;
       asteroids.forEach(update);
+
+      if (buttons.ArrowLeft || buttons.A) {
+        player.r -= 2;
+      }
+      if (buttons.ArrowRight || buttons.D) {
+        player.r += 2;
+      }
+      if (buttons.ArrowUp || buttons.W) {
+        let a = player.r * Math.PI / 180;
+        player.dy -= Math.cos(a) * 10;
+        player.dx += Math.sin(a) * 10;
+      }
       ships.forEach(update);
       set({asteroids, ships});
       requestAnimationFrame(render);
