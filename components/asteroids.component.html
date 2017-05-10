@@ -51,11 +51,11 @@ Demonstrates b8r's ability to bind to SVG elements. Performance relative to canv
   </svg>
 </div>
 <script>
-/* global findOne, register, component, set, require */
+/* global findOne, register, component, set, require, b8r */
 'use strict';
 
   const uuid = require('lib/uuid.js');
-  const {buttons, axes} = require('lib/game-controller.js');
+  const {buttons, axes, gamepads} = require('lib/game-controller.js');
   const starfield = findOne('.asteroids');
   const asteroids = [];
   const ships = [];
@@ -112,15 +112,35 @@ Demonstrates b8r's ability to bind to SVG elements. Performance relative to canv
 
   const render = () => {
     if (component && component.closest('body')) {
+      const gamepad = gamepads()[0];
       w = starfield.offsetWidth + 100;
       h = starfield.offsetHeight + 100;
       asteroids.forEach(update);
 
-      if (buttons.ArrowLeft || buttons.A) {
-        player.r -= 2;
-      }
-      if (buttons.ArrowRight || buttons.D) {
-        player.r += 2;
+      gamepad.axes.forEach((axis, idx) => {
+        if (Math.abs(axis) > 0.25) {
+          console.log(`gamepad axis ${idx} === ${axis}`);
+        }
+      });
+      gamepad.buttons.forEach((button, idx) => {
+        if (Math.abs(button.pressed)) {
+          console.log(`gamepad button ${idx} pressed`);
+        }
+      });
+      b8r.forEachKey(axes, (axis, name) => {
+        if (Math.abs(axis) > 0.25) {
+          console.log(`axis ${name} === ${axis}`);
+        }
+      });
+      if (Math.abs(gamepad.axes[0]) > 0.25) {
+        player.r += gamepad.axes[0] * 5;
+      } else {
+        if (buttons.ArrowLeft || buttons.A) {
+          player.r -= 5;
+        }
+        if (buttons.ArrowRight || buttons.D) {
+          player.r += 5;
+        }
       }
       if (buttons.ArrowUp || buttons.W) {
         let a = player.r * Math.PI / 180;
