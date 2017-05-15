@@ -543,7 +543,7 @@ function bind(element) {
           toTargets[t.target](element, value, t.key);
         });
       } else {
-        // TODO save message for when source is registered
+        console.warn(`unrecognized toTarget in binding`, bindings[i]);
       }
     }
   }
