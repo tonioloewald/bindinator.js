@@ -234,20 +234,27 @@ const findLists = element => {
 };
 
 const getBindings = element => {
-  var binding_source = element.getAttribute('data-bind');
-  if (!element.matches('[data-list]') && binding_source.indexOf('=.') > -1) {
-    const instance_path = getListInstancePath(element);
-    if (instance_path) {
-      binding_source = binding_source.replace(/\=\./g, `=${instance_path}.`);
-      element.setAttribute('data-bind', binding_source);
-    }
-  }
-  return binding_source.split(';').filter(s => !!s.trim()).map(parseBinding);
+  return element.getAttribute('data-bind')
+                .split(';')
+                .filter(s => !!s.trim())
+                .map(parseBinding);
+};
+
+const getDataPath = element => {
+  const data_parent = element ? element.closest('[data-path],[data-list-instance]') : false;
+  return data_parent ?
+          data_parent.getAttribute('data-path') || data_parent.getAttribute('data-list-instance') :
+          null;
 };
 
 const getListInstancePath = element => {
   const component = element.closest('[data-list-instance]');
   return component ? component.getAttribute('data-list-instance') : null;
+};
+
+const getComponentDataPath = element => {
+  const component = element.closest('[data-component-id]');
+  return component ? component.getAttribute('data-component-id') : null;
 };
 
 const replaceInBindings = (element, needle, replacement) => {
@@ -266,10 +273,12 @@ const replaceInBindings = (element, needle, replacement) => {
 module.exports = {
   addDataBinding,
   removeDataBinding,
+  getDataPath,
   getListInstancePath,
+  getComponentDataPath,
   parseBinding,
   findLists,
   findBindables,
   getBindings,
-  replaceInBindings
+  replaceInBindings,
 };

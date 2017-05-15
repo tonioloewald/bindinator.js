@@ -35,13 +35,15 @@ Object.assign(b8r, {on, off, enable, disable});
 const {
   addDataBinding,
   removeDataBinding,
+  getDataPath,
   getListInstancePath,
+  getComponentDataPath,
   findLists,
   findBindables,
   getBindings,
   replaceInBindings
 } = require('./b8r.bindings.js');
-Object.assign(b8r, {addDataBinding, removeDataBinding, getListInstancePath});
+Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getListInstancePath});
 const {saveDataForElement, dataForElement} =
     require('./b8r.dataForElement.js');
 const {onAny, offAny, anyListeners, anyElement} =
@@ -317,14 +319,11 @@ To quickly obtain bound data a list instance from an element inside it:
     b8r.getListInstance(elt)
 */
 
-b8r.getComponentId = function(elt) {
-  const component = elt.closest('[data-component-id]');
-  return component ? component.getAttribute('data-component-id') : null;
-};
+b8r.getComponentId = getComponentDataPath;
 
-b8r.getComponentData = function(elt) {
-  const id = b8r.getComponentId(elt);
-  return id ? b8r.getByPath(id) : null;
+b8r.getComponentData = elt => {
+  const id = getComponentDataPath(elt);
+  return id ? b8r.get(id) : null;
 };
 
 b8r.getListInstance = function(elt) {
@@ -484,6 +483,30 @@ implicit_event_types.forEach(
 Data binding is implemented via the data-bind and data-list attributes.
 
 See the docs on binding data to and from the DOM for more detail.
+
+The key public methods are:
+
+    b8r.bindAll(target); // binds all elements within target; loads available components
+
+Or:
+
+    b8r.bindAll(target, 'path.to.data'); // as above, but uses provided path for dynamic bindings
+
+Note (FIXME): bindAll only applies its path to components and lists; it doesn't do it to
+individual elements, which it probably should.
+
+Also, there's a utility method:
+
+    b8r.format('string with ${data.to.path} and ${data.with.other.path}');
+    b8r.format('string with ${data.to.path} and ${data.with.other.path}', element);
+
+The second argument is required if any path used is relative (e.g. `.foo.bar`),
+data-relative (e.g. `_data_.foo.bar`), or component-relative (e.g. `_component_.foo.bar`).
+
+In essence, if you want to use string interpolation, bindinator uses the ES6-style
+interpolations for data paths (javascript is not supported, just data paths). Data
+paths are evaluated normally, so _data_, _component_, and relative paths should
+work exactly as expected.
 */
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
@@ -496,12 +519,12 @@ function pathSplit(full_path) {
 
 b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 
-b8r.format = template => {
+b8r.format = (template, elt) => {
   let formatted;
   if (template.match(/\$\{.*?\}/)) {
-    formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => b8r.get(path)) ;
+    formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => b8r.get(path, elt)) ;
   } else {
-    formatted = b8r.get(template);
+    formatted = b8r.get(template, elt);
   }
   return formatted;
 };
@@ -510,7 +533,7 @@ function bind(element) {
   var bindings = getBindings(element);
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
-    const value = b8r.format(path);
+    const value = b8r.format(path, element);
     const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
       boundValues[path] = value;
@@ -563,7 +586,7 @@ function bindList(list_template, data_path) {
     list_path = data_path + list_path;
   }
   b8r.logStart('bindList', list_path);
-  var list = b8r.get(list_path);
+  var list = b8r.get(list_path, list_template);
   if (!list) {
     return;
   }
@@ -818,21 +841,9 @@ data is passed automatically from parent components or via binding, e.g.
 data to the component).
 */
 
-function getDataPath(data, element) {
-  if (typeof data === 'string') {
-    return data;
-  }
-  const data_parent =
-      element ? element.closest('[data-path],[data-list-instance]') : false;
-  return data_parent ?
-      data_parent.getAttribute('data-path') ||
-          data_parent.getAttribute('data-list-instance') :
-      false;
-}
-
 var component_count = 0;
 b8r.insertComponent = function(component, element, data) {
-  const data_path = getDataPath(data, element);
+  const data_path = typeof data === 'string' ? data : b8r.getDataPath(element);
   if (!element) {
     element = b8r.create('div');
   }
