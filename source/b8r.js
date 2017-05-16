@@ -543,7 +543,7 @@ function bind(element) {
           toTargets[t.target](element, value, t.key);
         });
       } else {
-        console.warn(`unrecognized toTarget in binding`, bindings[i]);
+        console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
       }
     }
   }

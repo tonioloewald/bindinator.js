@@ -156,6 +156,7 @@ module.exports = function(b8r) {
       element.selected = !!value;
     },
     text: (element, value) => element.textContent = value,
+    fixed: (element, value, dest) => element.textContent = parseFloat(value).toFixed(dest || 1),
     attr: function(element, value, dest) {
       if (value === undefined || value === null) {
         element.removeAttribute(dest);
