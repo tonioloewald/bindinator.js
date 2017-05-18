@@ -6,19 +6,24 @@
 Creates a proper array from annoying array-like objects,
 like *NodeLists* and *arguments* (although *don't use arguments, use ...args**).
 
-    forEachKey(object, method)
+    forEachKey(object, (value, key) => {...});
 
 Exactly like forEach except it iterates on the object's keys.
 
-    mapEachKey(object, method) // => {map}
+    mapEachKey(object, (value, key) => {... return ...}) // => {map}
 
 Just like map, except it creates an object from an object instead of an array
 from an array.
 
-    findKey(object, predicateMethod) // => first key whose corresponding value
-passes predicateMethod
+    findKey(object, value => { ... return true|false } )
+    // => first key whose corresponding value passes the test.
 
 Like findIndex for arrays, but returns key instead.
+
+    filterKeys(object, value => { ... return true|false })
+    // => array of keys whose corresponding values pass the test
+
+Returns a list of keys whose corresponding values pass the test.
 
     findValue(object, predicateMethod) // => returns first value that passes
 predicateMethod
