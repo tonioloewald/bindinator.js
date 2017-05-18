@@ -218,6 +218,8 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 	set('filename', 'Untitled.html');
 
 	const doc = findOne('.richtext');
+	doc.focus();
+
 	const new_doc = () => doc.innerHTML = '';
 	const open_doc = () => {
 		const input = b8r.create('input');
