@@ -5,7 +5,7 @@ Copyright ©2016-2017 Tonio Loewald
     imgSrc(img, url)
 
 Gracefully populates an `<img>` element's src attribute to a url,
-sets the element to `opacity: 0`, and then fads it in when the image
+sets the element to `opacity: 0`, and then fades it in when the image
 is loaded.
 */
 /* global module */
