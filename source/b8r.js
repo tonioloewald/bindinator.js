@@ -328,7 +328,7 @@ b8r.getComponentData = elt => {
 
 b8r.getListInstance = function(elt) {
   const instancePath = b8r.getListInstancePath(elt);
-  return instancePath ? b8r.getByPath(instancePath) : null;
+  return instancePath ? b8r.get(instancePath, elt) : null;
 };
 
 /**
@@ -625,7 +625,7 @@ function bindList(list_template, data_path) {
       instance = list_template.cloneNode(true);
       instance.removeAttribute('data-list');
       instance.setAttribute('data-list-instance', itemPath);
-      bindAll(instance, itemPath);
+      bindAll(instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
       instance = existing_list_instances[instance_idx];

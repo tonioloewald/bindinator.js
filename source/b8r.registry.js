@@ -57,7 +57,7 @@ const get = (path, element) => {
     if (!element) {
       throw 'cannot evaluate relative path without element';
     }
-    path = getListInstancePath(element) + path;
+    path = getDataPath(element) + path;
   } else if (path.substr(0, 6) === '_data_') {
     if (!element) {
       throw 'cannot evaluate _data_ path without element';
