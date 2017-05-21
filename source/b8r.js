@@ -644,6 +644,7 @@ function bindList(list_template, data_path) {
     } else {
       instance = existing_list_instances[instance_idx];
       existing_list_instances.splice(instance_idx, 1);
+      resolveListInstanceBindings(instance, itemPath);
       bindAll(instance);
       if (instance.nextSibling !== previous_instance) {
         list_template.parentElement.insertBefore(instance, previous_instance);
