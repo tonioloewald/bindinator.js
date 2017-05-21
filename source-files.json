@@ -98,5 +98,9 @@
 	{
 		"name": "Test",
 		"path": "lib/test.js"
+	},
+	{
+		"name": "Drag and Drop",
+		"path": "lib/drag-and-drop.js"
 	}
 ]
