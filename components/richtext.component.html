@@ -92,16 +92,6 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 				</li>
 				<li class="separator"></li>
 				<li>
-					<a data-shortcut="meta-X" data-event="menuclick:_component_.exec" data-command="cut">Cut</a>
-				</li>
-				<li>
-					<a data-shortcut="meta-C" data-event="menuclick:_component_.exec" data-command="copy">Copy</a>
-				</li>
-				<li>
-					<a data-shortcut="meta-V" data-event="menuclick:_component_.exec" data-command="paste">Paste</a>
-				</li>
-				<li class="separator"></li>
-				<li>
 					<a data-shortcut="meta-A" data-event="menuclick:_component_.exec" data-command="selectAll">Select All</a>
 				</li>
 			</ul>
@@ -255,7 +245,11 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 	const exec = evt => {
 		doc.focus();
 		const args = evt.target.closest('[data-command]').getAttribute('data-command').split(',');
-		document.execCommand(args[0], false, args[1]);
+		if (args.length > 1) {
+			document.execCommand(args[0], false, args[1]);
+		} else {
+			document.execCommand(args[0]);
+		}
 	};
 	const link = () => {
 		const url = prompt('Please enter URL');
@@ -263,6 +257,10 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 			document.execCommand('createLink', false, url);
 		}
 	}
+	const passThru = () => {
+		doc.focus();
+		true;
+	}
 
-	set({new_doc, open_doc, save_doc, exec, link, all});
+	set({new_doc, open_doc, save_doc, exec, link, all, passThru});
 </script>
