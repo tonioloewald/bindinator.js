@@ -630,7 +630,7 @@ function bindList(list_template, data_path) {
   for (var i = list.length - 1; i >= 0; i--) {
     var instance_idx, instance;
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
-    const itemPath = list_path + '[' + id + ']';
+    const itemPath = `${list_path}[${id}]`;
     instance_idx = existing_list_instances.findIndex(
       elt => elt.getAttribute('data-list-instance') === itemPath
     );
