@@ -71,6 +71,10 @@
 		    "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js",
 		  ].map(require.lazy);
 			const b8r = require('source/b8r.js');
+
+			// for convenience when debugging
+			window.b8r = b8r;
+			
 			var content = b8r.id('example');
 			const nav = b8r.findOne('.nav');
 

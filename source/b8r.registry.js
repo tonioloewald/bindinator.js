@@ -31,7 +31,7 @@ if you change a property independently of the registry.
 'use strict';
 
 const {getByPath, setByPath} = require('./b8r.byPath.js');
-const {getDataPath, getListInstancePath, getComponentInstancePath} = require('./b8r.bindings.js');
+const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
 const registry = {};
 let listeners = [];  // { path_string_or_test, callback }
 
@@ -46,13 +46,13 @@ class Listener {
       this.test = test;
     } else {
       throw 'expect listener test to be a string, RegExp, or test function';
-    }
+  }
     this.callback = callback;
     listeners.push(this);
   }
 }
 
-const get = (path, element) => {
+const resolvePath = (path, element) => {
   if (path[0] === '.') {
     if (!element) {
       throw 'cannot evaluate relative path without element';
@@ -69,8 +69,13 @@ const get = (path, element) => {
     }
     path = getComponentInstancePath(element) + path;
   }
+  return path;
+};
+
+const get = (path, element) => {
+  path = resolvePath(path, element);
   return getByPath(registry, path);
-}
+};
 
 const touch = (path, source_element) => {
   listeners.filter(listener => listener.test(path))
@@ -198,4 +203,5 @@ module.exports = {
   models,
   registered,
   remove,
+  resolvePath,
 };

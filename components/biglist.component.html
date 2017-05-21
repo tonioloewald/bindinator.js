@@ -54,12 +54,13 @@ any given time.
 <div class="biglist-viewport" data-event="scroll:_component_.update">
 	<div class="biglist-scroller">
 		<div class="biglist-visible-items" data-children>
-			<div data-list="_component_.visible_items" data-bind="class(selected)=.selected;style(borderColor)=.color" style="padding: 4px; border: 4px solid black; display: flex; box-sizing: border-box;">
+			<div data-list="_component_.visible(_component_.list):id" data-bind="class(selected)=.selected;style(borderColor)=.color" style="padding: 4px; border: 4px solid black; display: flex; box-sizing: border-box;">
 				<div>
 					<input type="checkbox" data-bind="checked=.selected">
 				</div>
 				<div style="flex-grow: 1;">
 					<input style="border: 0; background: transparent; border-color: rgba(0,0,0,0.25);" data-bind="style(fontSize)=.fontSize;value=.caption">
+					<span data-bind="text=.caption"></span>
 				</div>
 				<div>
 					<input type="color" data-bind="value=.color">
@@ -84,7 +85,7 @@ any given time.
 	- handle items being added to the top/bottom of the list gracefully
 */
 
-/* global findOne, b8r, component, data, set */
+/* global findOne, b8r, component, data, set, touch */
 	'use strict';
 
 	const viewport = findOne('.biglist-viewport');
@@ -120,7 +121,7 @@ any given time.
 		const max_scroll = scroller_height - viewport.offsetHeight;
 		scroller.style.height = scroller_height + 'px';
 		var t, position;
-		if (rows_to_show >= data.list.length) {
+		if (rows_to_show >= data.list.length || rows_to_show === 0) {
 			t = 0;
 			position = 0;
 			viewport.scrollTop = 0;
@@ -132,11 +133,11 @@ any given time.
 		}
 		position = t * max_position;
 		const first_visible_item = Math.max(Math.min(Math.floor(position) - 1, data.list.length - rows_to_show), 0);
-		const visible_items = data.list.slice(first_visible_item, first_visible_item + rows_to_show);
-		set('visible_items', visible_items);
 		set('position', position.toFixed(2));
 		set('rows_to_show', rows_to_show);
 		set('t', (t * 100).toFixed(2) + '%' );
+		set({rows_to_show, first_visible_item});
+		touch('list');
     const rows = b8r.makeArray(visible_item_container.children).filter(elt => !elt.matches('[data-list]'));
     const offsetElementIndex = Math.floor(rows.length * t);
 		const offsetElement = rows[offsetElementIndex] || rows.pop();
@@ -146,7 +147,11 @@ any given time.
 		visible_item_container.style.top = offset + 'px';
 	}
 
-	set({update});
+	function visible(list) {
+		return list.slice(data.first_visible_item, data.first_visible_item + data.rows_to_show);
+	}
+
+	set({update, visible});
 
 	update(data.pin === 'bottom' ? 1 : 0);
 </script>

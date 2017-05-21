@@ -185,6 +185,7 @@ b8r.setByPath = function(...args) {
     return;
   } else if (args.length === 2 || args[2] instanceof Element) {
     [path, value, source_element] = args;
+    path = b8r.resolvePath(path, source_element);
     [name, path] = pathSplit(path);
   } else {
     [name, path, value, source_element] = args;
@@ -572,6 +573,18 @@ b8r.listInstances = list_template => {
   return instances.reverse();
 };
 
+const resolveListInstanceBindings = (instance_elt, instance_path) => {
+  const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
+                      .filter(elt => !elt.closest('[data-list]'));
+  const path_prefix = `=${instance_path}.`;
+  elements.forEach(elt => {
+    let binding_source = elt.getAttribute('data-bind');
+    if (binding_source.indexOf('=.') > -1) {
+      elt.setAttribute('data-bind', binding_source.replace(/\=\./g, path_prefix));
+    }
+  });
+};
+
 function bindList(list_template, data_path) {
   const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
   var method_path, list_path;
@@ -625,6 +638,7 @@ function bindList(list_template, data_path) {
       instance = list_template.cloneNode(true);
       instance.removeAttribute('data-list');
       instance.setAttribute('data-list-instance', itemPath);
+      resolveListInstanceBindings(instance, itemPath);
       bindAll(instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
