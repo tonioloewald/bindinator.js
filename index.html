@@ -27,7 +27,7 @@
 					<div
 						class="loadable"
 						data-list="source_files"
-						data-bind="text=.name;attr(data-path)=.path"
+						data-bind="text=.name;attr(data-file)=.path"
 						data-event="mouseup,keydown(Space):demo.showDocs"
 						tabindex="0"
 					>
@@ -39,7 +39,7 @@
 					<div
 						class="loadable"
 						data-list="components"
-						data-bind="text=.name;attr(data-path)=.path"
+						data-bind="text=.name;attr(data-file)=.path"
 						data-event="mouseup,keydown(Space):demo.loadComponent"
 						tabindex="0"
 					>
@@ -78,7 +78,7 @@
 				b8r.findWithin(nav, '.current').forEach(elt => {
 					elt.classList.remove('current');
 				});
-				const current = b8r.findOne('[data-path="' + doc + '"]');
+				const current = b8r.findOne('[data-file="' + doc + '"]');
 				if (current) {
 					current.classList.add('current');
 				}
@@ -89,7 +89,7 @@
 					if (evt.target.matches('.current')) {
 						return;
 					}
-					window.location.hash = 'source=' + evt.target.getAttribute('data-path');
+					window.location.hash = 'source=' + evt.target.getAttribute('data-file');
 				},
 				inspector: function() {
 					const inspector = b8r.id('inspector');
@@ -104,7 +104,7 @@
 					if (evt.target.matches('.current')) {
 						return;
 					}
-					window.location.hash = 'component=' + evt.target.getAttribute('data-path');
+					window.location.hash = 'component=' + evt.target.getAttribute('data-file');
 				},
 				alertKeystroke: evt => alert(b8r.keystroke(evt)),
 				fullscreen: () => {
