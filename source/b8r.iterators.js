@@ -6,6 +6,10 @@
 Creates a proper array from annoying array-like objects,
 like *NodeLists* and *arguments* (although *don't use arguments, use ...args**).
 
+    forEach(array, (val, idx) => {...});
+
+Just like `Array.prototype.forEach` except you can interrupt it by returning `false`.
+
     forEachKey(object, (value, key) => {...});
 
 Exactly like forEach except it iterates on the object's keys.
@@ -65,6 +69,14 @@ Test(() => {
 
 const makeArray = arrayish => [].slice.apply(arrayish);
 
+const forEach = (array, method) => {
+  for (var i = 0; i < array.length; i++) {
+    if (method(array[i]) === false) {
+      break;
+    }
+  }
+}
+
 const forEachKey = (object, method) => {
   var key;
   for (var i = 0, keys = Object.keys(object); i < keys.length; i++) {
@@ -119,6 +131,7 @@ const filterObject = (object, test) => {
 
 module.exports = {
   makeArray,
+  forEach,
   forEachKey,
   mapEachKey,
   findKey,
