@@ -35,7 +35,7 @@ of awesome that this works at all.
     margin-top: 8px;
   }
 
-  .fullscreen > .b8r-fiddle {
+  .fullscreen .fullscreen-target .b8r-fiddle {
     width: 100%;
     height: 100%;
   }
@@ -44,6 +44,7 @@ of awesome that this works at all.
     background-color: rgba(0,0,0,0.05);
   }
 </style>
+<div data-component="maxtoggle"></div>
 <div class="b8r-fiddle" style="display: flex; height: 100%; position: relative;">
   <div style="flex-grow: 1; padding: 4px; width: 60%; position: relative; min-width: 200px; display: flex; flex-direction: column;">
     <div style="width: 100%; min-height: 300px; flex-grow: 1" class="code" data-event="keydown(Tab):_component_.indent"></div>
@@ -60,14 +61,21 @@ of awesome that this works at all.
   var editor;
 
   // ACE editor -- bleargh
-  require.lazy('https://cdn.jsdelivr.net/ace/1.2.4/noconflict/ace.js').then(() => {
-      editor = ace.edit(code_elt);
-    ace.config.set("basePath", "https://cdn.jsdelivr.net/ace/1.2.4/noconflict/");
+  require.lazy('https://cdn.jsdelivr.net/ace/1.2.6/noconflict/ace.js').then(() => {
+    editor = ace.edit(code_elt);
+    ace.config.set("basePath", "https://cdn.jsdelivr.net/ace/1.2.6/noconflict/");
+    editor.setTheme('ace/theme/monokai');
+    editor.session.setOptions({
+      mode: "ace/mode/html",
+      tabSize: 2,
+      useSoftTabs: true
+    });
   }, () => {
     code_elt.contentEditable = true;
   });
 
   b8r.component('components/sizer');
+  b8r.component('components/maxtoggle');
 
   if(data.source) {
     code_elt.textContent = data.source;
