@@ -20,6 +20,10 @@
 		"path": "floater"
 	},
 	{
+		"name": "Chart",
+		"path": "chart"
+	},
+	{
 		"name": "Photo Tabs",
 		"path": "photo-tabs"
 	},
