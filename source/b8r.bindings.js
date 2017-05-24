@@ -109,13 +109,13 @@ with:
     <span data-bind="text=${_component_.firstName} ${_component_.lastName}">First Last</span>
 
 ```
-    <span data-bind="text=${_component_.firstName} ${_component_.lastName}">First Last</span>
-    <script>
-      set({
-        firstName: 'Juanita',
-        lastName: 'Citizen',
-      })
-    </script>
+<span data-bind="text=${_component_.firstName} ${_component_.lastName}">First Last</span>
+<script>
+  set({
+    firstName: 'Juanita',
+    lastName: 'Citizen',
+  })
+</script>
 ```
 
 This only works in to-bindings (it won't parse DOM contents back into data

@@ -630,7 +630,7 @@ function bindList(list_template, data_path) {
   for (var i = list.length - 1; i >= 0; i--) {
     var instance_idx, instance;
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
-    const itemPath = list_path + '[' + id + ']';
+    const itemPath = `${list_path}[${id}]`;
     instance_idx = existing_list_instances.findIndex(
       elt => elt.getAttribute('data-list-instance') === itemPath
     );
@@ -644,6 +644,7 @@ function bindList(list_template, data_path) {
     } else {
       instance = existing_list_instances[instance_idx];
       existing_list_instances.splice(instance_idx, 1);
+      resolveListInstanceBindings(instance, itemPath);
       bindAll(instance);
       if (instance.nextSibling !== previous_instance) {
         list_template.parentElement.insertBefore(instance, previous_instance);
