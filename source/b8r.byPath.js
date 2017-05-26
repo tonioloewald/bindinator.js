@@ -40,6 +40,31 @@ efficient updating of lists, e.g.
   set({list});
 </script>
 ```
+
+~~~~
+const {getByPath, setByPath, pathParts} = require('source/b8r.byPath.js');
+const obj = {
+  foo: 17,
+  bar: {baz: 'hello'},
+  list: [
+    {id: 17, name: 'fred'},
+    {id: 100, name: 'boris'}
+  ]
+};
+
+const list = [
+  {id: 17, name: 'fred'},
+  {id: 100, name: 'boris'},
+  obj
+]
+
+Test(() => getByPath(obj, 'foo')).shouldBe(17);
+Test(() => getByPath(obj, 'bar.baz')).shouldBe('hello');
+Test(() => getByPath(list, '[0].id')).shouldBe(17);
+Test(() => getByPath(list, '[id=100].name')).shouldBe('boris');
+Test(() => getByPath(list, '[bar.baz=hello].foo')).shouldBe(17);
+Test(() => getByPath(list, '[bar.baz=hello].list[id=17].name')).shouldBe('fred');
+~~~~
 */
 /* global module, console */
 
@@ -78,7 +103,45 @@ function pathParts(path) {
   }
 }
 
+let _keypath_maps = []; // {array, key_path, value_map{}, key_filter}
+
+function getKeypathMap (array, key_path) {
+  return _keypath_maps.find(item => item.array === array && item.key_path === key_path) || buildKeypathMap(array, key_path);
+}
+
+function buildKeypathValueMap(array, key_path) {
+  const map = {};
+  array.forEach((item, idx) => map[getByPath(item, key_path) + ''] = idx);
+  return map;
+}
+
+function buildKeypathMap(array, key_path) {
+  const value_map = buildKeypathValueMap(array, key_path);
+  const record = {
+    array,
+    key_path,
+    key_filter: item => getByPath(item, key_path),
+    value_map,
+  };
+  _keypath_maps.push(record);
+  return record;
+}
+
+function byKeyPath(array, key_path, key_value) {
+  const _keypath_map = getKeypathMap(array, key_path);
+  let idx = _keypath_map.value_map[key_value];
+  if (idx === undefined || getByPath(array[idx], key_path) + '' !== key_value + '') {
+    _keypath_map.value_map = buildKeypathValueMap(array, key_path);
+    idx = _keypath_map.value_map[key_value];
+  }
+  /*
+  let idx = array.findIndex(item => getByPath(item, key_path) + '' == key_value);
+  */
+  return array[idx];
+}
+
 function getByPath(obj, path) {
+
   const parts = pathParts(path);
   var found = obj;
   var i, max_i, j, max_j;
@@ -93,18 +156,8 @@ function getByPath(obj, path) {
       if (!found.length) {
         found = undefined;
       } else if (part.indexOf('=') > -1) {
-        const cut = part.indexOf('=');
-        const path = part.substr(0, cut);
-        const value = part.substr(cut + 1);
-        const list = found;
-        found = undefined;
-        for (j = 0, max_j = list.length; j < max_j; j++) {
-          const item = list[j];
-          if (getByPath(item, path) + '' == value) {
-            found = item;
-            break;
-          }
-        }
+        const [key_path, key_value] = part.split('=');
+        found = byKeyPath(found, key_path, key_value);
       } else {
         j = parseInt(part, 10);
         found = found[j];
@@ -126,9 +179,7 @@ function setByPath(obj, path, val) {
       }
       if (part.indexOf('=') > -1) {
         const [key_path, key_value] = part.split('=');
-        obj = obj.filter(
-            item => getByPath(item, key_path) + '' ==
-                key_value)[0];  // jshint ignore:line
+        obj = byKeyPath(obj, key_path, key_value);
         if (!parts.length) {
           if (typeof obj === 'object') {
             Object.assign(obj, val);

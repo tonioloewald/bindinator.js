@@ -626,6 +626,10 @@ function bindList(list_template, data_path) {
   const existing_list_instances =
       id_path ? b8r.listInstances(list_template) : [];
 
+  const binder = makeListInstanceBinder(list_template);
+  const template = list_template.cloneNode(true);
+  template.removeAttribute('data-list');
+
   var previous_instance = list_template;
   for (var i = list.length - 1; i >= 0; i--) {
     var instance_idx, instance;
@@ -635,17 +639,14 @@ function bindList(list_template, data_path) {
       elt => elt.getAttribute('data-list-instance') === itemPath
     );
     if (instance_idx === -1) {
-      instance = list_template.cloneNode(true);
-      instance.removeAttribute('data-list');
+      instance = template.cloneNode(true);
       instance.setAttribute('data-list-instance', itemPath);
       resolveListInstanceBindings(instance, itemPath);
-      bindAll(instance);
+      binder(instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
-      instance = existing_list_instances[instance_idx];
-      existing_list_instances.splice(instance_idx, 1);
-      resolveListInstanceBindings(instance, itemPath);
-      bindAll(instance);
+      [instance] = existing_list_instances.splice(instance_idx, 1);
+      binder(instance);
       if (instance.nextSibling !== previous_instance) {
         list_template.parentElement.insertBefore(instance, previous_instance);
       }
@@ -658,6 +659,25 @@ function bindList(list_template, data_path) {
   }
   b8r.hide(list_template);
   b8r.logEnd('bindList', list_path);
+}
+
+/**
+  This is an optimization that eliminates the costlier parts of bindAll
+  for list elements, especially in the finest-grained case (where you're
+  binding a buttload of fairly simple elements).
+*/
+function makeListInstanceBinder (list_template) {
+  if (b8r.findWithin(list_template, '[data-list],[data-component]')) {
+    return (instance, itemPath) => {
+      loadAvailableComponents(instance, itemPath);
+      findBindables(instance).forEach(elt => bind(elt));
+      findLists(instance).forEach(elt => bindList(elt, itemPath));
+    };
+  } else {
+    return instance => {
+      findBindables(instance).forEach(elt => bind(elt));
+    };
+  }
 }
 
 function bindAll(element, data_path) {

@@ -35,7 +35,7 @@
                             <button data-event="click:benchmark.clear">Clear</button>
                         </div>
                         <div class="col-sm-6 smallpad">
-                            <button data-event="click:benchmark.swap">Swap Rows</button>
+                            <button data-event="click:benchmark.swap">Swap Rows 4 and 7</button>
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
         </div>
         <table class="table table-hover table-striped test-data">
             <tbody id="tbody">
-                <tr data-list="benchmark.data">
+                <tr data-list="benchmark.data:id">
                     <td class="col-md-1" data-bind="text=.id">1</td>
                     <td class="col-md-4">
                     <a class="lbl" data-bind="text=.label">clean blue chair</a></td>
@@ -174,8 +174,9 @@ b8r.register('benchmark', {
     },
     update:  () => {
         startMeasure('update');
-        for (var i = 0; i < b8r.get(`benchmark.data.length`); i+= 10) {
-            b8r.set(`benchmark.data[${i}].label`, b8r.get(`benchmark.data[${i}].label`) + ' !!!');
+        const data = b8r.get(`benchmark.data`);
+        for (var i = 0; i < data.length; i += 10) {
+            b8r.set(`benchmark.data[id=${data[i].id}].label`, data[i].label + ' !!!');
         }
         stopMeasure('update');
     },
@@ -188,9 +189,11 @@ b8r.register('benchmark', {
     swap: () => {
         startMeasure('swap');
         if (b8r.get('benchmark.data.length') > 10) {
-            const row = b8r.get('benchmark.data[4]');
-            b8r.set('benchmark.data[4]', b8r.get('benchmark.data[7]'));
-            b8r.set('benchmark.data[7]', row);
+            const data = b8r.get('benchmark.data');
+            let row = data[4];
+            data[4] = data[7];
+            data[7] = row;
+            b8r.touch('benchmark.data');
         }
         stopMeasure('swap');
     },

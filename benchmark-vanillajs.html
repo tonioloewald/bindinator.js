@@ -15,6 +15,7 @@
                         <a href="benchmark.html">b8r</a> | 
                         <a href="benchmark-vanillajs.html">vanillajs</a>
                     </p>
+                    <p>Derived from the vanillajs code from <a href="https://github.com/krausest/js-framework-benchmark">here</a></p>
                 </div>
                 <div class="col-md-6">
                     <div class="row">
@@ -391,7 +392,7 @@ class Main {
         let tr = document.createElement("tr");
         tr.data_id = data.id;
         let td1 = td("col-md-1");
-        td1.innerText = data.id;
+        td1.textContent = data.id;
         tr.appendChild(td1);
 
         let td2 = td("col-md-4")
@@ -399,7 +400,7 @@ class Main {
         let a2 = document.createElement("a");
         a2.className = "lbl";
         td2.appendChild(a2);
-        a2.innerText = data.label;
+        a2.textContent = data.label;
 
         let td3 = td("col-md-1");
         tr.appendChild(td3);
