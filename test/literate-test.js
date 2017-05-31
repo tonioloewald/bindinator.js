@@ -6,8 +6,7 @@ This file exists for the sole purpose of testing the b8r *literate programming* 
 */
 /* global module */
 
-(function(module){
-  'use strict'
+'use strict';
 
 /**
 ## add(a: number, b:number) => number
@@ -60,9 +59,8 @@ Test(() => add(1,2)).shouldNotBe(3); // expect failure
 ~~~~
 */
 
-  function add(a, b) {
-    return a + b;
-  }
+function add(a, b) {
+  return a + b;
+}
 
-  module.exports = {add}
-} (module));
+module.exports = {add};
