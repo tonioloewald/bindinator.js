@@ -299,17 +299,18 @@ pre > code {
 	color: #444;
 }
 
-blockquote {
+.content blockquote {
 	margin: 0;
 	padding: 5px 10px 10px 10px;
 	border-radius: 2px;
-	background-color: #dfd;
-	border-left: 4px solid #57A700;
+	color: white;
+	background: #57A700;
 }
 
 .content blockquote h2,
 .content blockquote h3,
 .content blockquote p {
+	color: white;
 	margin: 0 10px 0 0;
 	padding: 0;
 }

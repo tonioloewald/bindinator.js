@@ -95,10 +95,10 @@ lists).
 >
 > Having gained experience with the framework, I am doubling down
 > on object paths and simplifying the API in favor of:
-
->    b8r.get('path.to.value');
->    b8r.set('path.to.value', new_value);
-
+> <pre>
+>   b8r.get('path.to.value');
+>   b8r.set('path.to.value', new_value);
+> </pre>
 > The older APIs (setByPath, etc.) will ultimately be deprecated. Even now they
 > are little more than wrappers for set/get. See the *Registry* docs.
 
