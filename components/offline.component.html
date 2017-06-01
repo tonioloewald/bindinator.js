@@ -1,0 +1,48 @@
+<!--
+# Offline Component
+
+A simple component for indicating your application is offline
+-->
+<style>
+.offline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.9);
+}
+.offline > * {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+</style>
+<div class="offline" data-children>
+  <h3>Offline</h3>
+</div>
+<script>
+/* global b8r, component */
+'use strict';
+
+const offline = () => {
+  console.log('offline');
+  document.body.appendChild(component);
+  b8r.show(component);
+}
+const online = () => {
+  console.log('online');
+  b8r.hide(component);
+}
+
+if(navigator.onLine) {
+  online();
+} else {
+  offline();
+}
+
+window.addEventListener('offline', offline);
+window.addEventListener('online', online);
+</script>

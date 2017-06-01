@@ -114,5 +114,9 @@
 	{
 		"name": "asteroids",
 		"path": "asteroids"
+	},
+	{
+		"name": "Offline",
+		"path": "offline"
 	}
 ]
