@@ -12,28 +12,22 @@ A simple component for indicating your application is offline
   bottom: 0;
   background: rgba(255,255,255,0.9);
 }
-.offline > * {
-  display: block;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-}
 </style>
 <div class="offline" data-children>
-  <h3>Offline</h3>
+  <div class="centered b8r-color">
+    <span class="icon-umbrella" style="font-size: 128px;"></span><br>
+    offline
+  </div>
 </div>
 <script>
 /* global b8r, component */
 'use strict';
 
 const offline = () => {
-  console.log('offline');
   document.body.appendChild(component);
   b8r.show(component);
 }
 const online = () => {
-  console.log('online');
   b8r.hide(component);
 }
 

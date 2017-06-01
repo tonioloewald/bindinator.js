@@ -17,7 +17,7 @@ h1, h2, h3, h4, h5, h6 {
 	margin-top: 16px;
 }
 
-h1, h2, h3, h4, h5, h6, b, strong {
+h1, h2, h3, h4, h5, h6, b, strong, .b8r-color {
 	color: #57A700;
 }
 
@@ -45,6 +45,13 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	display: flex;
 	flex-direction: column;
 	border-radius: 5px;
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }
 
 .fullscreen .layout,
