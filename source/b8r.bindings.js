@@ -241,13 +241,8 @@ const getBindings = element => {
 };
 
 const getDataPath = element => {
-  let data_parent = element ? element.closest('[data-path],[data-list-instance]') : false;
-  let path = '';
-  while (data_parent) {
-    path = (data_parent.getAttribute('data-path') || data_parent.getAttribute('data-list-instance')) + path;
-    data_parent = data_parent.parentElement && data_parent.parentElement.closest('[data-path],[data-list-instance]');
-  }
-  return path;
+  const data_parent = element ? element.closest('[data-path],[data-list-instance]') : false;
+  return data_parent ? (data_parent.getAttribute('data-path') || data_parent.getAttribute('data-list-instance')) : '';
 };
 
 const getListInstancePath = element => {
