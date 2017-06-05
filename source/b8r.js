@@ -843,7 +843,7 @@ b8r.makeComponent = function(name, source) {
   b8r.find('[data-component="' + name + '"]')
       .forEach(element => {
         if (!element.closest('[data-list]') &&
-            !element.matches('[data-component-id')) {
+            !element.matches('[data-component-id]')) {
           b8r.insertComponent(component, element);
         }
       });
