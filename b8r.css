@@ -294,6 +294,7 @@ pre {
 	background-color: #dfd;
 	color: #444;
 	border-radius: 4px;
+	overflow: overlay;
 }
 
 code {
@@ -310,14 +311,13 @@ pre > code {
 	margin: 0;
 	padding: 5px 10px 10px 10px;
 	border-radius: 2px;
-	color: white;
-	background: #57A700;
+	background: #cfc;
+	border-right: 4px solid #57A700;
 }
 
 .content blockquote h2,
 .content blockquote h3,
 .content blockquote p {
-	color: white;
 	margin: 0 10px 0 0;
 	padding: 0;
 }
@@ -366,5 +366,5 @@ pre > code {
 
 ::selection {
 	color: black;
-	background: rgba(128,255,0,0.5);
+	background: rgba(128,255,0,0.75);
 }
