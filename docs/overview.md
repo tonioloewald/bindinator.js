@@ -1,6 +1,6 @@
 # Bindinator Overview
 
-b8r is a small javascript library that is designed to make working in vanilla javascript, html, and css as easy and productive -- perhaps even easier and more productive -- than working with far more complex, bloated frameworks. As a bonus, the demo page and demo components provide the basis for integrating documentation, examples, and tests with code ("literate programming").
+b8r is a small javascript library that is designed to make working in vanilla javascript, html, and css as easy and productive — perhaps even easier and more productive — than working with far more complex, bloated frameworks. As a bonus, the demo page and demo components provide the basis for integrating documentation, examples, and tests with code ("literate programming").
 
 ## Registered Objects
 
@@ -14,7 +14,7 @@ b8r needs to know when things happen to registered objects (including their bein
 
 	const obj = {foo: {bar: 'baz'}};
 	b8r.register('bob', obj);
-	b8r.getByPath('bob', 'foo.bar') === 'baz'; 
+	b8r.getByPath('bob', 'foo.bar') === 'baz';
 		// will be true
 	b8r.setByPath('bob', 'foo.bar', 'hello');
 		// obj is now {foo: {bar: 'hello'}}
@@ -61,7 +61,7 @@ b8r places one event handler for each type of event it handles on the **document
 
 (TO DO need diagram showing hierarchy)
 
-When an event is received, b8r looks at the event's target (the first element that received the event) and looks for a data-event on that element and its ancestors. 
+When an event is received, b8r looks at the event's target (the first element that received the event) and looks for a data-event on that element and its ancestors.
 
 	<button data-event="mouseup:model.method">click me</button>
 
@@ -80,7 +80,7 @@ It's a little cleverer than that, see the note on *Asynchronous Event Binding* b
 
 A **data-event** attribute may have multiple (semicolon-delimited) handlers in it, in which case they are examined from left-to-right. (Just as with the native event handlers, you can have multiple event handlers for the same kind of event if you so desire; but unlike adding an event listener you can see what's going on in the DOM, and so won't chase your tail as much if this situation arises accidentally.)
 
-If b8r finds a suitable handler, it calls the method specified. 
+If b8r finds a suitable handler, it calls the method specified.
 
 If the method does *not* return **true**, the event has been handled, otherwise b8r keeps walking up the DOM hierarchy until it reaches the topmost (body) element.
 
@@ -248,8 +248,8 @@ Components can bind to their own data and methods by using the model name _compo
 		data-bind="text=_component_.caption"
 		data-event="click:_component_.show"
 	>untitled</button>
-	<input 
-		placeholder="enter message" 
+	<input
+		placeholder="enter message"
 		data-bind="value=_component_.message"
 	>
 	<script>
@@ -271,7 +271,7 @@ As mentioned above, if a component has an element with a **data-children** attri
 
 So given following markup:
 
-	<div 
+	<div
 		data-component="quotation"
 		data-json='{"author":"b8r"}'
 	>
@@ -288,7 +288,7 @@ And the following component is registered as "quotation":
 
 You end up with this:
 
-	<div 
+	<div
 		data-component="composition-example"
 		data-json='{"author":"b8r"}'
 		data-component-id="c#composition-example#1"
