@@ -69,6 +69,7 @@ It loads via require() but sets a global rather than passing back to module.expo
           b8r.deregister('threejs-demo');
           b8r.offAny('mousemove', 'threejs-demo.mousemove');
         }
+        return true;
       }
     });
 
