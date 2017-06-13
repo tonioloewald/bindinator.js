@@ -39,6 +39,14 @@ built-in functionality but augment it.
 	.kitchen-sink > .toolbar {
 		margin-bottom: 8px;
 	}
+
+	.video-with-still,
+	.video-with-still+canvas {
+		width: 480px;
+		height: 270px;
+		object-fit: cover;
+		position: relative;
+	}
 </style>
 <div class="kitchen-sink">
 	<ul data-component="menubar">
@@ -338,13 +346,21 @@ built-in functionality but augment it.
 		<div>Red</div>
 		<div>Yellow</div>
 	</div>
+	<video class="video-with-still" src="test/video/landscape1.mov" loop="true" controls="true" data-event="seeked,loadeddata,timeupdate:_component_.video_snapshot"></video>
+	<canvas></canvas>
 </div>
 <script>
+/* global b8r, register, console */
+'use strict';
+
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
 	b8r.component('components/maxtoggle');
 	b8r.component('components/slider-numeric');
 	b8r.component('components/combo');
+
+	['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
+
 	register({
 	  fuelrods: 17,
 	  multiselect: [
@@ -363,8 +379,24 @@ built-in functionality but augment it.
 	    {
 	      text: 'And Yet Another Option',
 	      selected: true
-	    }
+	    },
 	  ],
+    video_snapshot: evt => {
+    	const video = evt.target;
+    	const canvas = evt.target.nextElementSibling;
+    	const dw = canvas.offsetWidth;
+    	const dh = canvas.offsetHeight;
+    	canvas.setAttribute('width', dw);
+    	canvas.setAttribute('height', dh);
+    	const ctx = canvas.getContext('2d');
+    	const sw = video.videoWidth;
+    	const sh = video.videoHeight;
+    	// ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw, dh);
+    	ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw * 0.5, dh * 0.5);
+    	ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, 0, dw * 0.5, dh * 0.5);
+    	ctx.drawImage(video, 0, 0, sw, sh, 0, dh * 0.5, dw * 0.5, dh * 0.5);
+    	ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, dh * 0.5, dw * 0.5, dh * 0.5);
+    },
 	  color: 'pink',
 		test: evt => {
 			console.log('menu pick', evt.target.textContent);

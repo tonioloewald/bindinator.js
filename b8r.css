@@ -69,7 +69,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color {
 }
 
 .fullscreen #example {
-	overflow-y: scroll;
+	overflow-y: overlay;
 	padding: 16px;
 }
 
@@ -113,7 +113,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color {
 .content {
 	flex-grow: 1;
 	background-color: white;
-	overflow-y: scroll;
+	overflow-y: overlay;
 	position: relative;
 }
 
@@ -124,7 +124,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color {
 .nav {
 	width: 160px;
 	flex: none;
-	overflow-y: scroll;
+	overflow-y: overlay;
 	background-color: #BCED85;
 }
 

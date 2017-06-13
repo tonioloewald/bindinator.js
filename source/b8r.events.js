@@ -1,7 +1,7 @@
 /**
 # Events
 */
-/* global module, console, require */
+/* global module, console, window, require */
 
 'use strict';
 
@@ -210,6 +210,12 @@ const dispatch = (type, target) => {
   target.dispatchEvent(event);
   return event;
 };
+
+// add touch events if needed
+if (window.TouchEvent) {
+  ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(
+      type => implicit_event_types.push(type));
+}
 
 module.exports = {makeHandler, getEventHandlers, getParsedEventHandlers, on, off, enable, disable, dispatch, implicit_event_types};
 

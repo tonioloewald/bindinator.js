@@ -9,7 +9,7 @@ b8r leverages your understanding of the DOM and the browser rather than trying t
 implement some kind of virtual machine to replace it.
 */
 /* jshint esnext:true, loopfunc:true */
-/* globals console, window, require, module, KeyboardEvent */
+/* globals console, require, module, KeyboardEvent */
 
 'use strict';
 
@@ -469,14 +469,23 @@ b8r.trigger = (type, target) => {
   }
 };
 
-// add touch events if needed
-if (window.TouchEvent) {
-  ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(
-      type => implicit_event_types.push(type));
-}
-
 implicit_event_types.forEach(
     type => document.body.addEventListener(type, handleEvent, true));
+
+/**
+    b8r.implicityHandleEventsOfType(type_string)
+
+Adds implicit event handling for a new event type. E.g. you might want
+to use `data-event` bindings for the seeking `media` event, which you
+could do with `b8r.implicityHandleEventsOfType('seeking')`.
+*/
+
+b8r.implicitlyHandleEventsOfType = type => {
+  if (implicit_event_types.indexOf(type) === -1) {
+    implicit_event_types.push(type);
+    document.body.addEventListener(type, handleEvent, true);
+  }
+};
 
 /**
 ## Data Binding
