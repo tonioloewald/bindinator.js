@@ -46,4 +46,6 @@ const imgSrc = (img, url, opacity) => {
   }
 };
 
+imgSrc.imagePromise = imagePromise;
+
 module.exports = imgSrc;
