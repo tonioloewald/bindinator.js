@@ -737,6 +737,8 @@ b8r.set('_b8r_', {
         var {targets, path} = bindings[i];
         targets = targets.filter(t => fromTargets[t.target]);
         targets.forEach(t => {
+          // all bets are off on bound values!
+          delete t._b8rBoundValues;
           b8r.setByPath(path, fromTargets[t.target](elt, t.key), elt);
         });
       }
