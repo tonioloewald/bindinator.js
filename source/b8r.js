@@ -556,7 +556,6 @@ b8r.format = (template, elt) => {
 
 function bind(element) {
   var bindings = getBindings(element);
-  let dirty = false;
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
     const value = b8r.format(path, element);
@@ -568,14 +567,10 @@ function bind(element) {
         _toTargets.forEach(t => {
           toTargets[t.target](element, value, t.key);
         });
-        dirty = true;
       } else {
         console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
       }
     }
-  }
-  if (dirty) {
-    b8r.trigger('change', element);
   }
 }
 

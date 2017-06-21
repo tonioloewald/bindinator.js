@@ -67,6 +67,7 @@
         const item = b8r.get(path);
         item.big = !item.big;
         b8r.touch(path);
+        b8r.trigger('change', evt.target);
       }
     },
     add: () => {
