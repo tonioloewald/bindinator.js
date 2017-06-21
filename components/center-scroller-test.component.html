@@ -1,45 +1,39 @@
 <!--
 # Graphic Scroller
 
-Allows controlled scrolling of arbitrary elements.
+Allows horizontal scrolling of arbitrary elements of varying size leaving space in the center.
 -->
 <style>
-  .graphic-scroller {
-    min-height: 48px;
+  .center-scroller {
     white-space: nowrap;
     cursor: -webkit-grab;
     cursor: grab;
   }
 
-  .graphic-scroller.drag-in-progress {
+  .center-scroller.drag-in-progress {
     cursor: -webkit-grabbing;
     cursor: grabbing;
   }
 
-  .graphic-scroller-item {
+  .center-scroller-item {
     object-fit: cover;
     border-radius: 100px;
     width: 28px;
     height: 28px;
     opacity: 0.5;
-    transform: translateY(10px);
-    margin-left: 2px;
     vertical-align: top;
+    transform: translateY(10px);
   }
 
-  .graphic-scroller-item.big {
+  .center-scroller-item.big {
     width: 36px;
     height: 36px;
     opacity: 1.0;
     transform: translateY(6px);
   }
-
-  .graphic-scroller-item.center {
-    margin-left: 64px;
-  }
 </style>
 <div
-  class="graphic-scroller"
+  class="center-scroller"
   data-bind="class(drag-in-progress)=_component_.dragging"
   data-children
   data-event="
@@ -50,7 +44,7 @@ Allows controlled scrolling of arbitrary elements.
   "
 >
   <img
-    class="graphic-scroller-item"
+    class="center-scroller-item"
     data-list="_component_.list:id"
     data-bind="class(big)=.big;img=.image_url"
     data-event="click:_component_.toggle"
@@ -75,10 +69,13 @@ Allows controlled scrolling of arbitrary elements.
 'use strict';
 /* global b8r, require, component, findOne, data, get, set */
 
-  const center_gap = component.getAttribute('center_gap') || 64;
-  const min_item_width = component.getAttribute('minimum_item_width') || 28;
+  const center_gap = data.center_gap || component.getAttribute('center_gap') || 64;
+  const min_item_width = data.min_item_width || component.getAttribute('minimum_item_width') || 28;
+  const item_spacing = data.item_spacing || component.getAttribute('item_spacing') || 2;
+  set({center_gap, min_item_width, item_spacing});
+
   const uuid = require('lib/uuid.js');
-  const scroller = findOne('.graphic-scroller');
+  const scroller = findOne('.center-scroller');
   const container = findOne('[data-children]');
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
 
@@ -117,24 +114,23 @@ Allows controlled scrolling of arbitrary elements.
     } else {
       position = clamp(position, -0.25, items.length + 0.25);
     }
-    const center_item_index = Math.max(0, Math.floor(position + 0.5));
-    const center_item = items[center_item_index];
-    b8r.findWithin(scroller, '.center').forEach(e => e.classList.remove('center'));
-    if (center_item && !center_item.classList.contains('center')) {
-      center_item.classList.add('center');
-    }
+    const center_index = Math.max(0, Math.floor(position + 0.5));
+    const center_item = items[center_index];
+    items.forEach((item, idx) => {
+      item.style.marginLeft = (center_index === idx ? center_gap : 0) + (idx > 0 || center_index === 0 ? item_spacing : 0) + 'px';
+    });
     scroller.style.marginLeft = 0;
-    let dx = (position - center_item_index);
+    let dx = (position - center_index);
     if (center_item) {
-      scroller.style.marginLeft = component.offsetWidth/2 - (center_item.offsetLeft - center_gap / 2) - dx * min_item_width + 'px';
+      scroller.style.marginLeft = component.offsetWidth/2 - (center_item.offsetLeft - center_gap / 2) - dx * min_item_width + item_spacing/2 + 'px';
     } else {
-      const last_item = items[center_item_index - 1];
+      const last_item = items[center_index - 1];
       scroller.style.marginLeft = (component.offsetWidth/2 - last_item.offsetLeft - last_item.offsetWidth - center_gap / 2 - dx * min_item_width) + 'px';
     }
     // snap to position if necessary
     if (!get('dragging') && Math.abs(dx) > 0.001) {
       requestAnimationFrame(() => {
-        position = center_item_index + dx * 0.5;
+        position = center_index + dx * 0.5;
         update();
       });
     }

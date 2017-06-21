@@ -120,7 +120,7 @@
 		"path": "offline"
 	},
 	{
-		"name": "Graphic Scroller",
-		"path": "graphic-scroller"
+		"name": "Center Scroller",
+		"path": "center-scroller-test"
 	}
 ]
