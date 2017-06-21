@@ -31,7 +31,7 @@ const imgSrc = (img, url, opacity) => {
     return;
   }
   if(!getComputedStyle(img).transition) {
-    img.style.transition = '0.25s ease-out';
+    img.style.transition = 'opacity 0.25s ease-out';
   }
   img.style.opacity = 0;
   if (url) {
