@@ -118,5 +118,9 @@
 	{
 		"name": "Offline",
 		"path": "offline"
+	},
+	{
+		"name": "Graphic Scroller",
+		"path": "graphic-scroller"
 	}
 ]

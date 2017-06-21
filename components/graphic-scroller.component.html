@@ -1,0 +1,191 @@
+<!--
+# Graphic Scroller
+
+Allows controlled scrolling of arbitrary elements.
+-->
+<style>
+  .graphic-scroller {
+    min-height: 48px;
+    white-space: nowrap;
+    cursor: -webkit-grab;
+    cursor: grab;
+  }
+
+  .graphic-scroller.drag-in-progress {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+  }
+
+  .graphic-scroller-item {
+    object-fit: cover;
+    border-radius: 100px;
+    width: 28px;
+    height: 28px;
+    opacity: 0.5;
+    transform: translateY(10px);
+    margin-left: 2px;
+    vertical-align: top;
+  }
+
+  .graphic-scroller-item.big {
+    width: 36px;
+    height: 36px;
+    opacity: 1.0;
+    transform: translateY(6px);
+  }
+
+  .graphic-scroller-item.center {
+    margin-left: 64px;
+  }
+</style>
+<div
+  class="graphic-scroller"
+  data-bind="class(drag-in-progress)=_component_.dragging"
+  data-children
+  data-event="
+    change,click:_component_.update;
+    mousedown:_component_.dragStart;
+    mousemove:_component_.drag;
+    mouseup,mouseleave:_component_.dragEnd;
+  "
+>
+  <img
+    class="graphic-scroller-item"
+    data-list="_component_.list:id"
+    data-bind="class(big)=.big;img=.image_url"
+    data-event="click:_component_.toggle"
+  >
+</div>
+<img
+  style="
+    position: absolute;
+    object-fit: cover;
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    top: 0;
+    left: 50%;
+    margin: -8px 0 -8px -32px;
+  "
+  src="test/portraits/weasel.png"
+>
+<button data-event="click:_component_.add">Add Item</button>
+<button data-event="click:_component_.remove">Remove Item</button>
+<script>
+'use strict';
+/* global b8r, require, component, findOne, data, get, set */
+
+  const center_gap = component.getAttribute('center_gap') || 64;
+  const min_item_width = component.getAttribute('minimum_item_width') || 28;
+  const uuid = require('lib/uuid.js');
+  const scroller = findOne('.graphic-scroller');
+  const container = findOne('[data-children]');
+  const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
+
+  if (getComputedStyle(component).position !== 'absolute') {
+    component.style.position = 'relative';
+  }
+
+  const portraits = ['snail', 'robot', 'tentacle'];
+
+  const random_item = () => {
+    return {
+      id: uuid(),
+      big: Math.random() > 0.7,
+      image_url: `test/portraits/${portraits[Math.floor(Math.random() * portraits.length)]}.png`,
+    };
+  };
+
+  if (!data.list) {
+    const size = Math.floor(Math.random() * 20 + 5);
+    const list = [];
+    for(let i = 0; i < size; i++) {
+      list.push(random_item());
+    }
+    set({list});
+  }
+
+  let position = null;
+  let items;
+  const update = () => {
+    items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
+    if (!items.length) {
+      return;
+    }
+    if (position === null) {
+      position = items.length/2; // first item to right of center-gap
+    } else {
+      position = clamp(position, -0.25, items.length + 0.25);
+    }
+    const center_item_index = Math.max(0, Math.floor(position + 0.5));
+    const center_item = items[center_item_index];
+    b8r.findWithin(scroller, '.center').forEach(e => e.classList.remove('center'));
+    if (center_item && !center_item.classList.contains('center')) {
+      center_item.classList.add('center');
+    }
+    scroller.style.marginLeft = 0;
+    let dx = (position - center_item_index);
+    if (center_item) {
+      scroller.style.marginLeft = component.offsetWidth/2 - (center_item.offsetLeft - center_gap / 2) - dx * min_item_width + 'px';
+    } else {
+      const last_item = items[center_item_index - 1];
+      scroller.style.marginLeft = (component.offsetWidth/2 - last_item.offsetLeft - last_item.offsetWidth - center_gap / 2 - dx * min_item_width) + 'px';
+    }
+    // snap to position if necessary
+    if (!get('dragging') && Math.abs(dx) > 0.001) {
+      requestAnimationFrame(() => {
+        position = center_item_index + dx * 0.5;
+        update();
+      });
+    }
+  };
+
+  set('dragging', null);
+  set({
+    update,
+    dragStart: evt => {
+      set('dragging', {x0: evt.screenX, position});
+    },
+    drag: evt => {
+      const dragging = get('dragging');
+      if (dragging) {
+        position = dragging.position - (evt.screenX - dragging.x0)/min_item_width;
+        update();
+      }
+    },
+    dragEnd: evt => {
+      const dragging = get('dragging');
+      if (dragging && (evt.type !== 'mouseleave' || evt.target === scroller)) {
+        set('dragging', null);
+        update();
+      }
+    },
+    toggle: evt => {
+      const dragging = get('dragging');
+      if (dragging && Math.abs(evt.screenX - dragging.x0) > 4) {
+        return true;
+      }
+      set('dragging', null);
+      if (evt.shiftKey) {
+        const path = `${b8r.getListInstancePath(evt.target)}`;
+        const item = b8r.get(path);
+        item.big = !item.big;
+        b8r.touch(path);
+      }
+    },
+    add: () => {
+      const list = get('list');
+      list.splice(Math.floor(Math.random() * list.length), 0, random_item());
+      set({list});
+    },
+    remove: () => {
+      const list = get('list');
+      if (list.length) {
+        list.splice(Math.floor(Math.random() * list.length), 1);
+      }
+      set({list});
+    }
+  });
+
+  update();
+</script>
