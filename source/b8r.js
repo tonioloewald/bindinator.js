@@ -122,13 +122,28 @@ b8r.register = function(name, obj) {
 b8r.componentInstances = () =>
     b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
-b8r.debounce = (orig_fn, delay) => {
-  var throttle_id;
+/**
+    b8r.debounce(method, min_interval_ms) => debounded method
+    b8r.throttle(method, min_interval_ms) => throttled method
+
+Two utility functios for preventing a method from being called too frequently.
+Not recommended for use on methods which take arguments!
+
+The key difference is that **debounce** is guaranteed to actually call the
+original method after the debounced wrapper stops being called for the
+minimum interval.
+
+Meanwhile **throttle** will refuse to call the original method again
+if it was previously called within the specified interval.
+*/
+
+b8r.debounce = (orig_fn, min_interval) => {
+  var debounce_id;
   return (...args) => {
-    if (throttle_id) {
-      clearTimeout(throttle_id);
+    if (debounce_id) {
+      clearTimeout(debounce_id);
     }
-    throttle_id = setTimeout(() => orig_fn(...args), delay);
+    debounce_id = setTimeout(() => orig_fn(...args), min_interval);
   };
 };
 
