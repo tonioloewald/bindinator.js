@@ -1,87 +1,39 @@
 <!--
-# Graphic Scroller
+# Graphic Scroller Test Harness
 
-Allows horizontal scrolling of arbitrary elements of varying size leaving space in the center.
+
 -->
-<style>
-  .center-scroller {
-    white-space: nowrap;
-    cursor: -webkit-grab;
-    cursor: grab;
-  }
-
-  .center-scroller.drag-in-progress {
-    cursor: -webkit-grabbing;
-    cursor: grabbing;
-  }
-
-  .center-scroller-item {
-    object-fit: cover;
-    border-radius: 100px;
-    width: 28px;
-    height: 28px;
-    opacity: 0.5;
-    vertical-align: top;
-    transform: translateY(10px);
-  }
-
-  .center-scroller-item.big {
-    width: 36px;
-    height: 36px;
-    opacity: 1.0;
-    transform: translateY(6px);
-  }
-</style>
-<div
-  class="center-scroller"
-  data-bind="class(drag-in-progress)=_component_.dragging"
-  data-children
-  data-event="
-    change,click:_component_.update;
-    mousedown:_component_.dragStart;
-    mousemove:_component_.drag;
-    mouseup,mouseleave:_component_.dragEnd;
-  "
->
+<div style="height: 64px; position: relative;">
+  <div data-component="center-scroller">
+    <img
+      class="center-scroller-item"
+      data-list="_component_.list:id"
+      data-bind="class(big)=.big;img=.image_url"
+      data-event="click:_component_.toggle"
+    >
+  </div>
   <img
-    class="center-scroller-item"
-    data-list="_component_.list:id"
-    data-bind="class(big)=.big;img=.image_url"
-    data-event="click:_component_.toggle"
+    style="
+      position: absolute;
+      object-fit: cover;
+      width: 64px;
+      height: 64px;
+      border-radius: 32px;
+      top: 0;
+      left: 50%;
+      margin: -8px 0 -8px -32px;
+    "
+    src="test/portraits/weasel.png"
   >
+  <button data-event="click:_component_.add">Add Item</button>
+  <button data-event="click:_component_.remove">Remove Item</button>
 </div>
-<img
-  style="
-    position: absolute;
-    object-fit: cover;
-    width: 64px;
-    height: 64px;
-    border-radius: 32px;
-    top: 0;
-    left: 50%;
-    margin: -8px 0 -8px -32px;
-  "
-  src="test/portraits/weasel.png"
->
-<button data-event="click:_component_.add">Add Item</button>
-<button data-event="click:_component_.remove">Remove Item</button>
 <script>
 'use strict';
-/* global b8r, require, component, findOne, data, get, set */
-
-  const center_gap = data.center_gap || component.getAttribute('center_gap') || 64;
-  const min_item_width = data.min_item_width || component.getAttribute('minimum_item_width') || 28;
-  const item_spacing = data.item_spacing || component.getAttribute('item_spacing') || 2;
-  set({center_gap, min_item_width, item_spacing});
+/* global b8r, require, data, get, set */
 
   const uuid = require('lib/uuid.js');
-  const scroller = findOne('.center-scroller');
-  const container = findOne('[data-children]');
-  const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
-
-  if (getComputedStyle(component).position !== 'absolute') {
-    component.style.position = 'relative';
-  }
+  b8r.component('components/center-scroller');
 
   const portraits = ['snail', 'robot', 'tentacle'];
 
@@ -102,60 +54,8 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     set({list});
   }
 
-  let position = null;
-  let items;
-  const update = () => {
-    items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
-    if (!items.length) {
-      return;
-    }
-    if (position === null) {
-      position = items.length/2; // first item to right of center-gap
-    } else {
-      position = clamp(position, -0.25, items.length + 0.25);
-    }
-    const center_index = Math.max(0, Math.floor(position + 0.5));
-    const center_item = items[center_index];
-    items.forEach((item, idx) => {
-      item.style.marginLeft = (center_index === idx ? center_gap : 0) + (idx > 0 || center_index === 0 ? item_spacing : 0) + 'px';
-    });
-    scroller.style.marginLeft = 0;
-    let dx = (position - center_index);
-    if (center_item) {
-      scroller.style.marginLeft = component.offsetWidth/2 - (center_item.offsetLeft - center_gap / 2) - dx * min_item_width + item_spacing/2 + 'px';
-    } else {
-      const last_item = items[center_index - 1];
-      scroller.style.marginLeft = (component.offsetWidth/2 - last_item.offsetLeft - last_item.offsetWidth - center_gap / 2 - dx * min_item_width) + 'px';
-    }
-    // snap to position if necessary
-    if (!get('dragging') && Math.abs(dx) > 0.001) {
-      requestAnimationFrame(() => {
-        position = center_index + dx * 0.5;
-        update();
-      });
-    }
-  };
-
   set('dragging', null);
   set({
-    update,
-    dragStart: evt => {
-      set('dragging', {x0: evt.screenX, position});
-    },
-    drag: evt => {
-      const dragging = get('dragging');
-      if (dragging) {
-        position = dragging.position - (evt.screenX - dragging.x0)/min_item_width;
-        update();
-      }
-    },
-    dragEnd: evt => {
-      const dragging = get('dragging');
-      if (dragging && (evt.type !== 'mouseleave' || evt.target === scroller)) {
-        set('dragging', null);
-        update();
-      }
-    },
     toggle: evt => {
       const dragging = get('dragging');
       if (dragging && Math.abs(evt.screenX - dragging.x0) > 4) {
@@ -182,6 +82,4 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       set({list});
     }
   });
-
-  update();
 </script>
