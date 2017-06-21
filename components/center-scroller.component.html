@@ -5,31 +5,17 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 -->
 <style>
   .center-scroller {
+    position: absolute;
     white-space: nowrap;
     cursor: -webkit-grab;
     cursor: grab;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .center-scroller.drag-in-progress {
     cursor: -webkit-grabbing;
     cursor: grabbing;
-  }
-
-  .center-scroller-item {
-    object-fit: cover;
-    border-radius: 100px;
-    width: 28px;
-    height: 28px;
-    opacity: 0.5;
-    vertical-align: top;
-    transform: translateY(10px);
-  }
-
-  .center-scroller-item.big {
-    width: 36px;
-    height: 36px;
-    opacity: 1.0;
-    transform: translateY(6px);
   }
 </style>
 <div
@@ -48,6 +34,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 /* global findOne, data, component, set, get, b8r */
 'use strict';
 
+  const resize = require('lib/resize.js');
   const scroller = findOne('.center-scroller');
   const container = findOne('[data-children]');
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
@@ -60,6 +47,8 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   if (getComputedStyle(component).position !== 'absolute') {
     component.style.position = 'relative';
   }
+
+  resize(scroller, '_component_.update');
 
   let position = null;
   let items;
@@ -79,18 +68,19 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     items.forEach((item, idx) => {
       item.style.marginLeft = (center_index === idx ? center_gap : 0) + (idx > 0 || center_index === 0 ? item_spacing : 0) + 'px';
     });
-    scroller.style.marginLeft = 0;
+    let offset = 0;
     let dx = (position - center_index);
     if (center_item) {
-      scroller.style.marginLeft = component.offsetWidth/2 - (center_item.offsetLeft - center_gap / 2) - dx * min_item_width + item_spacing/2 + 'px';
+      offset = center_gap - (center_item.offsetLeft + center_gap * 0.5 + dx * min_item_width - item_spacing * 0.5);
     } else {
       const last_item = items[center_index - 1];
-      scroller.style.marginLeft = (component.offsetWidth/2 - last_item.offsetLeft - last_item.offsetWidth - center_gap / 2 - dx * min_item_width) + 'px';
+      offset = center_gap -(last_item.offsetLeft + last_item.offsetWidth + dx * min_item_width - item_spacing * 0.5);
     }
+    scroller.style.transform = `translateX(${offset}px)`;
     // snap to position if necessary
     if (!get('dragging') && Math.abs(dx) > 0.001) {
       requestAnimationFrame(() => {
-        position = center_index + dx * 0.5;
+        position = center_index + dx * 0.7;
         update();
       });
     }

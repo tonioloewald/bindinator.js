@@ -3,13 +3,31 @@
 
 Tests a center scroller component with a bunch of things that can change size and number to scroll.
 -->
+<style>
+  .center-scroller-test-item {
+    object-fit: cover;
+    border-radius: 100px;
+    width: 28px;
+    height: 28px;
+    opacity: 0.5;
+    vertical-align: top;
+    transform: translateY(10px);
+  }
+
+  .center-scroller-test-item.big {
+    width: 36px;
+    height: 36px;
+    opacity: 1.0;
+    transform: translateY(6px);
+  }
+</style>
 <div style="height: 64px; position: relative;">
   <div
     data-component="center-scroller"
     item-spacing="8"
   >
     <img
-      class="center-scroller-item"
+      class="center-scroller-test-item"
       data-list="_component_.list:id"
       data-bind="class(big)=.big;img=.image_url"
       data-event="click:_component_.toggle"
