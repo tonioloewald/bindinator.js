@@ -1,5 +1,5 @@
 <!--
-# Graphic Scroller
+# Center Scroller
 
 Allows horizontal scrolling of arbitrary elements of varying size leaving space in the center.
 -->
@@ -52,9 +52,9 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   const container = findOne('[data-children]');
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
 
-  const center_gap = data.center_gap || component.getAttribute('center_gap') || 64;
-  const min_item_width = data.min_item_width || component.getAttribute('minimum_item_width') || 28;
-  const item_spacing = data.item_spacing || component.getAttribute('item_spacing') || 2;
+  const center_gap = parseInt(data.center_gap || component.getAttribute('center-gap') || 64, 10);
+  const min_item_width = parseInt(data.min_item_width || component.getAttribute('minimum-item-width') || 28, 10);
+  const item_spacing = parseInt(data.item_spacing || component.getAttribute('item-spacing') || 2, 10);
   set({center_gap, min_item_width, item_spacing});
 
   if (getComputedStyle(component).position !== 'absolute') {
@@ -70,7 +70,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       return;
     }
     if (position === null) {
-      position = items.length/2; // first item to right of center-gap
+      position = items.length/2 - 0.5; // first item to right of center-gap
     } else {
       position = clamp(position, -0.25, items.length + 0.25);
     }
