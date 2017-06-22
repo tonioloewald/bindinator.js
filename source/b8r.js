@@ -538,7 +538,10 @@ const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 function pathSplit(full_path) {
-  const [, model, , path] = full_path.match(/^(.*?)(\.(.*))?$/);
+  let [, model,, start, path] = full_path.match(/^(.*?)(([\.\[])(.*))?$/);
+  if (start === '[') {
+    path = '[' + path;
+  }
   return [model, path];
 }
 
@@ -753,7 +756,7 @@ b8r.set('_b8r_', {
         targets = targets.filter(t => fromTargets[t.target]);
         targets.forEach(t => {
           // all bets are off on bound values!
-          delete t._b8rBoundValues;
+          delete elt._b8rBoundValues;
           b8r.setByPath(path, fromTargets[t.target](elt, t.key), elt);
         });
       }
