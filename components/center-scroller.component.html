@@ -52,16 +52,21 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 
   let position = null;
   let items;
+  let item_count;
 
   const update = () => {
     items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
-    if (!items.length) {
+    if (item_count !== items.length) {
+      position = null;
+      item_count = items.length;
+    }
+    if (!item_count) {
       return;
     }
     if (position === null) {
-      position = items.length/2 - 0.5; // first item to right of center-gap
+      position = item_count/2 - 0.5; // first item to right of center-gap
     } else {
-      position = clamp(position, -0.25, items.length + 0.25);
+      position = clamp(position, -0.25, item_count + 0.25);
     }
     const center_index = Math.max(0, Math.floor(position + 0.5));
     const center_item = items[center_index];

@@ -46,8 +46,10 @@ Tests a center scroller component with a bunch of things that can change size an
     "
     src="test/portraits/weasel.png"
   >
-  <button data-event="click:_component_.add">Add Item</button>
-  <button data-event="click:_component_.remove">Remove Item</button>
+  <div style="position: absolute; left: 0; bottom: 0;">
+    <button data-event="click:_component_.add">Add Item</button>
+    <button data-event="click:_component_.remove">Remove Item</button>
+  </div>
 </div>
 <script>
 'use strict';
