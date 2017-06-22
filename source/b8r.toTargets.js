@@ -103,6 +103,13 @@ will be assigned to the component's private data.)
 Dumps a nicely formatted stringified object in an element (for debugging
 purposes);
 
+### `pointer_events_if`, `pointer_events_off_if`
+
+    data-bind="pointer_events_if=path.to.enabled"
+
+Sets the style rule pointer-events to 'none' as appropriate (very simple way of disabling
+the content of an element)
+
 ## Comparison Values
 
 These terms are used for comparison to certain values in conditional toTargets.
@@ -200,6 +207,12 @@ module.exports = function(b8r) {
     disabled_if: function(element, value, dest) {
       element.disabled = equals(dest, value);
     },
+    pointer_events_if: function (element, value) {
+      element.style.pointerEvents = value ? 'auto' : 'none';
+    },
+    pointer_events_off_if: function (element, value) {
+      element.style.pointerEvents = !value ? 'auto' : 'none';
+    },
     show_if: function(element, value, dest) {
       equals(dest, value) ? b8r.show(element) : b8r.hide(element);
     },
@@ -252,5 +265,4 @@ module.exports = function(b8r) {
       }
     }
   };
-
 };
