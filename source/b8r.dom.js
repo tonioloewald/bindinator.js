@@ -71,7 +71,8 @@ module.exports = {
   find: selector => makeArray(document.querySelectorAll(selector)),
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
-    var list = makeArray(element.querySelectorAll(selector));
+    let list;
+    list = makeArray(element.querySelectorAll(selector));
     if (include_self && element.matches('[data-bind]')) {
       list.unshift(element);
     }
@@ -93,8 +94,8 @@ module.exports = {
     return element.previousElementSibling;
   },
   findAbove: (elt, selector, until_elt, include_self) => {
-    var current_elt = include_self ? elt : elt.parentElement;
-    var found = [];
+    let current_elt = include_self ? elt : elt.parentElement;
+    let found = [];
     while(current_elt) {
       if (current_elt === document.body) {
         break;
@@ -141,7 +142,7 @@ module.exports = {
     }
   },
   copyChildren (source, dest) {
-    var element = source.firstChild;
+    let element = source.firstChild;
     while (element) {
       dest.appendChild(element.cloneNode(true));
       element = element.nextSibling;
