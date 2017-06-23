@@ -228,7 +228,7 @@ This returns a **promise** of the component, but you can ignore it unless you wa
 
 b8r encourages programmers not to look outside the component's private context by making it harder to do so than to work within the context. (But it's not *hard*, just *not as easy* as doing the *right thing*.)
 
-From the component's point of view, it receives a bunch of variables which give it information from the outside world, notably the **data** object, **component** -- a reference to the bound element, **get**, **set**, **find**, **findOne** methods, and a reference to **b8r**.
+From the component's point of view, it receives a bunch of variables which give it information from the outside world, notably the **data** object, **component**—a reference to the bound element, **get**, **set**, **find**, **findOne** methods, and a reference to **b8r**.
 
 Each component instance has its data object registered with the name found in its **data-component-id** attribute, so getting at its data is straightforward. As far as the component itself is concerned, anything bound to _component_ will instead be bound to its instance id, making it easy to hook up properties and event handlers.
 
@@ -310,7 +310,7 @@ A component is loaded and registered thus:
 
 	b8r.component('something', 'components/my-product/something');
 
-(It is assumed that the component's file name will end with `.component.html` -- in this case the file would be `something.component.html`; the goal is for the filename to be explicit but the code to contain minimal boilerplate.)
+(It is assumed that the component's file name will end with `.component.html`—in this case the file would be `something.component.html`; the goal is for the filename to be explicit but the code to contain minimal boilerplate.)
 
 This could just as easily be:
 

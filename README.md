@@ -99,7 +99,7 @@ You use it like this:
 - Components are highly reusable (note the `data-path` attribute)
 - Components are intrinsically asynchronous
 - It's easy to refactor monolithic views into reusable components
-- You don't need to "think in the Bindinator way" -- create what you want and it will work as expected
+- You don't need to "think in the Bindinator way" — create what you want and it will work as expected
 
 ## Core Concepts
 
