@@ -71,8 +71,7 @@ module.exports = {
   find: selector => makeArray(document.querySelectorAll(selector)),
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
-    let list;
-    list = makeArray(element.querySelectorAll(selector));
+    let list = makeArray(element.querySelectorAll(selector));
     if (include_self && element.matches('[data-bind]')) {
       list.unshift(element);
     }
