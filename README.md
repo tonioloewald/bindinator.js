@@ -21,6 +21,11 @@
 * No magic. No spooky action-at-a-distance.
 * Debug the code you wrote with standard debugging tools.
 
+And did I mention…
+
+* Almost no boilerplate.
+* No dependencies.
+
 ## In a Nut
 
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
