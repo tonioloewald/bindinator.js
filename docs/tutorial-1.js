@@ -25,7 +25,22 @@ your web app's page needs to look like this:
     </body>
 
 b8r lets you register objects -- bind objects to a name -- which allows 
-the binding of those objects to DOM elements (i.e. view components).
+the *binding* of those objects to DOM elements (i.e. view components).
+
+```
+<input width="12" data-bind="value=example.data">
+<button data-event="click:example.method">Alert</button>
+<script>
+b8r.register('example', {
+  data: 'hello world',
+  method: () => alert(b8r.get('example.data'))
+});
+</script>
+```
+
+Try clicking the **Alert** button before and after editing the text.
+In the console you can type b8r.get('example') to see how the 
+registered data is automatically kept up to date.
 
 The following example simply registers an object which the other
 examples use, and displays the state of the data every second.
