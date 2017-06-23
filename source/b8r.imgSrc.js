@@ -30,13 +30,13 @@ const imgSrc = (img, url, opacity) => {
   if(img.src === url) {
     return;
   }
-  if(!getComputedStyle(img).transition) {
-    img.style.transition = 'opacity 0.25s ease-out';
-  }
   img.style.opacity = 0;
   if (url) {
     imagePromise(url).then(image => {
       if (img.src !== url) {
+        if(!getComputedStyle(img).transition) {
+          img.style.transition = '0.25s ease-out';
+        }
         img.style.opacity = opacity || 1;
         img.setAttribute('src', image.src);
       }

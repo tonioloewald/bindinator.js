@@ -2,8 +2,8 @@
 'use strict';
 
 const SOCKET = 8017;
-const CERT_PATH = '../../.localhost-ssl/public.pem';
-const KEY_PATH = '../../.localhost-ssl/private.pem';
+const CERT_PATH = 'localhost-ssl/public.pem';
+const KEY_PATH = 'localhost-ssl/private.pem';
 const WEB_ROOT = __dirname;
 
 const https = require('https');
@@ -26,7 +26,7 @@ const on = (methods, endpoint, handler) => {
   if (typeof endpoint === 'function') {
     handler.test = endpoint;
   } else if (endpoint instanceof RegExp) {
-    handler.test = path => endpoint.matches(path);
+    handler.test = path => endpoint.test(path);
   } else if (typeof endpoint === 'string') {
     handler.test = path => path === endpoint;
   } else {
@@ -67,6 +67,14 @@ on('GET', '/api', (req, res) => {
   res.end('hello api\n');
 });
 
+on('GET', /\/api\/files\/.*/, (req, res) => {
+  res.writeHead(200);
+  res.end('hello files\n');
+});
+
+// TODO
+// Pass url_obj rather than generate it twice
+// Allow request handlers to see the server and subdomain
 const request_handler = (req, res) => {
   const url_obj = url.parse(req.url);
   // console.log(req.method, url_obj.pathname, url_obj.query);

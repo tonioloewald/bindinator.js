@@ -60,6 +60,16 @@ const perf = {
     log.total_time += elapsed;
   },
 
+  elementSignature: element => {
+    let signature = element.tagName;
+    if (element.classList.value) {
+      signature += '.' + element.classList.value.split(' ').join('.');
+    } else if (element.parentElement) {
+      signature = perf.elementSignature(element.parentElement) + '>' + signature;
+    }
+    return signature
+  },
+
   showLogs: (which, threshold) => {
     if (which) {
       var mapped = mapEachKey(logs[which], val => {
