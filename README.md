@@ -11,14 +11,15 @@
 
 ## A Virtuous Cycle
 
-* To get views, write (reusable) HTML
+* To get views, write (reusable) HTML.
+* To style views, write (reusable) CSS.
 * To get behavior, write (reusable) code.
-* Models and controllers are just registered (named) objects
-* Event and data bindings are just DOM attributes
-* No new languages, templating languages, javascript extensions
-* No compile step
+* Models and controllers are just *registered* (named) objects.
+* Event and data bindings are just DOM attributes.
+* No new languages, templating languages, javascript extensions.
+* No compile step needed.
 * No magic. No spooky action-at-a-distance.
-* Debug the code you write.
+* Debug the code you wrote with standard debugging tools.
 
 ## In a Nut
 

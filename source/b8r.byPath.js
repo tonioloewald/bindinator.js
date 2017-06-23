@@ -13,14 +13,39 @@ if path is not set or is set to '/' then obj is returned.
 sets a value inside an object by a path,
 e.g. setByPath(obj, "foo.bar", 17) is the equivalent of obj.foo.bar = 17.
 
-Paths include support for array dereferencing: "foo.bar[2]" will work as
-expected.
+## Examples
+
+Given:
+
+    const obj = {
+      foo: 17,
+      bar: [1,2,3],
+      baz: [
+        {id: 17, name: "fred"},
+        {id: 42, name: "bloggs"},
+        {id: 99, name: "feldon", deeper: {and_deeper: 4}}
+      ]
+    }
+
+The following paths work:
+
+    foo → 17
+    bar[1] → 2
+    baz[1].id → 42
+    baz[id=17].name → "fred"
+    baz[deeper.and_deeper=4].name → "fred"
+
+The last two examples are examples of **id paths**…
 
 ## id paths
 
-When dealing with objects of arrays, it is possible to reference elements
-by an id path and corresponding value rather than simple indices. This allows
-efficient updating of lists, e.g.
+Arrays of objects, including heterogenous objects, are a common pattern
+in web applications. E.g. you might have an array of messages and the messages
+may have different types.
+
+Using id paths, it is possible to reference elements by an id path and 
+corresponding value rather than simple indices. This allows efficient updating 
+of lists, e.g.
 
 ```
 <p>Inspect the DOM to see what's going on!</p>
@@ -41,6 +66,24 @@ efficient updating of lists, e.g.
 </script>
 ```
 
+## Type Matching
+
+setByPath tries to match the type of values that are replaced, e.g.
+
+    const obj = {foo: 17};
+    setByPath(obj, 'foo', '2'); // '2' will be converted to a Number
+
+This can be tricky when dealing with nullable objects, in particular:
+
+    const obj = {foo: false};
+    setByPath(obj, {bar: 17}); // {bar: 17} will be converted to Boolean true
+
+In this case, you want the absence of an object to be either undefined
+(or a missing value) or `null`:
+
+    const obj = {foo: null};
+    setByPath(obj, {bar: 17}); // {bar: 17} will not be converted
+
 ~~~~
 const {getByPath, setByPath, pathParts} = require('source/b8r.byPath.js');
 const obj = {
@@ -49,7 +92,9 @@ const obj = {
   list: [
     {id: 17, name: 'fred'},
     {id: 100, name: 'boris'}
-  ]
+  ],
+  bool: false,
+  obj: null,
 };
 
 const list = [
@@ -64,6 +109,22 @@ Test(() => getByPath(list, '[0].id')).shouldBe(17);
 Test(() => getByPath(list, '[id=100].name')).shouldBe('boris');
 Test(() => getByPath(list, '[bar.baz=hello].foo')).shouldBe(17);
 Test(() => getByPath(list, '[bar.baz=hello].list[id=17].name')).shouldBe('fred');
+Test(() => {
+  setByPath(obj, 'foo', '42');
+  return obj.foo;
+}).shouldBe(42);
+Test(() => {
+  setByPath(obj, 'bool', {bar: 17});
+  return obj.bool;
+}).shouldBe(true);
+Test(() => {
+  setByPath(obj, 'obj', {bar: 17});
+  return obj.obj.bar;
+}).shouldBe(17);
+Test(() => {
+  setByPath(obj, 'obj', null);
+  return obj.obj;
+}).shouldBe(null);
 ~~~~
 */
 /* global module, console */
