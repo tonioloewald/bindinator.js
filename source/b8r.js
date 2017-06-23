@@ -559,6 +559,8 @@ b8r.format = (template, elt) => {
 
 function bind(element) {
   var bindings = getBindings(element);
+  const logArgs = ['bind', b8r.elementSignature(element)];
+  b8r.logStart(...logArgs);
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
     const value = b8r.format(path, element);
@@ -568,15 +570,16 @@ function bind(element) {
       var _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
-          b8r.logStart('bind (target)', t.target);
+          b8r.logStart('toTargets', t.target);
           toTargets[t.target](element, value, t.key);
-          b8r.logEnd('bind (target)', t.target);
+          b8r.logEnd('toTargets', t.target);
         });
       } else {
         console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
       }
     }
   }
+  b8r.logEnd(...logArgs);
 }
 
 const {show, hide} = require('./b8r.show.js');
