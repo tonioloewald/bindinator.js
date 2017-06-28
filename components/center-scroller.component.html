@@ -64,7 +64,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       return;
     }
     if (position === null) {
-      position = item_count/2 - 0.5; // first item to right of center-gap
+      position = item_count/2; // first item to right of center-gap
     } else {
       position = clamp(position, -0.25, item_count + 0.25);
     }
@@ -79,7 +79,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       offset = center_gap - (center_item.offsetLeft + center_gap * 0.5 + dx * min_item_width - item_spacing * 0.5);
     } else {
       const last_item = items[center_index - 1];
-      offset = center_gap -(last_item.offsetLeft + last_item.offsetWidth + dx * min_item_width - item_spacing * 0.5);
+      offset = -center_gap * 0.5 -(last_item.offsetLeft + last_item.offsetWidth + dx * min_item_width + item_spacing * 0.5);
     }
     scroller.style.transform = `translateX(${offset}px)`;
     // snap to position if necessary

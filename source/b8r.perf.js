@@ -23,6 +23,39 @@ To look at results:
 
 Each log entry will be displayed with a minimum, maximum, and median
 time value.
+
+## Methods
+
+    log (log-name, entry-name);
+    ...
+    logEnd(log-name, entry-name);
+
+This logs the execution time within table `log-name` in row `log-end`.
+
+    elementSignature(element);
+
+This tries to identify an element sufficiently for perf analysis. If the
+element has classes, it uses those, otherwise it tries to identify the
+element based on its position in a hierarchy.
+
+    showLogs(); // lists perf tables in console
+    showLogs(which-log); // shows table `which-log` in console and returns it
+    showLogs(which-log, threshold); // as above but filters out rows where the
+                                    // worst instance is over the threshold
+
+## Example
+
+    log('bindAll', elementSignature(element));
+    ...
+    logEnd('bindAll', elementSignature(element));
+
+or (in case the intervening code changes the element signature):
+
+    const logArgs = ['bindAll', elementSignature(element)];
+    log(...logArgs);
+    ...
+    logEnd(...logArgs);
+
 */
 /* global module, require, console */
 'use strict';
@@ -58,6 +91,16 @@ const perf = {
     delete (log.start);
     log.times.push(elapsed);
     log.total_time += elapsed;
+  },
+
+  elementSignature: element => {
+    let signature = element.tagName;
+    if (element.classList.value) {
+      signature += '.' + element.classList.value.split(' ').join('.');
+    } else if (element.parentElement) {
+      signature = perf.elementSignature(element.parentElement) + '>' + signature;
+    }
+    return signature
   },
 
   showLogs: (which, threshold) => {

@@ -11,14 +11,20 @@
 
 ## A Virtuous Cycle
 
-* To get views, write (reusable) HTML
+* To get views, write (reusable) HTML.
+* To style views, write (reusable) CSS.
 * To get behavior, write (reusable) code.
-* Models and controllers are just registered (named) objects
-* Event and data bindings are just DOM attributes
-* No new languages, templating languages, javascript extensions
-* No compile step
+* Models and controllers are just *registered* (named) objects.
+* Event and data bindings are just DOM attributes.
+* No new languages, templating languages, javascript extensions.
+* No compile step needed.
 * No magic. No spooky action-at-a-distance.
-* Debug the code you write.
+* Debug the code you wrote with standard debugging tools.
+
+And did I mention…
+
+* Almost no boilerplate.
+* No dependencies.
 
 ## In a Nut
 
@@ -93,7 +99,7 @@ You use it like this:
 - Components are highly reusable (note the `data-path` attribute)
 - Components are intrinsically asynchronous
 - It's easy to refactor monolithic views into reusable components
-- You don't need to "think in the Bindinator way" -- create what you want and it will work as expected
+- You don't need to "think in the Bindinator way" — create what you want and it will work as expected
 
 ## Core Concepts
 

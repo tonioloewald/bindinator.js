@@ -559,6 +559,8 @@ b8r.format = (template, elt) => {
 
 function bind(element) {
   var bindings = getBindings(element);
+  const logArgs = ['bind', b8r.elementSignature(element)];
+  b8r.logStart(...logArgs);
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
     const value = b8r.format(path, element);
@@ -568,13 +570,16 @@ function bind(element) {
       var _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
+          b8r.logStart('toTargets', t.target);
           toTargets[t.target](element, value, t.key);
+          b8r.logEnd('toTargets', t.target);
         });
       } else {
         console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
       }
     }
   }
+  b8r.logEnd(...logArgs);
 }
 
 const {show, hide} = require('./b8r.show.js');
@@ -625,7 +630,7 @@ function bindList(list_template, data_path) {
   if (data_path) {
     list_path = data_path + list_path;
   }
-  b8r.logStart('bindList', list_path);
+  b8r.logStart('bindList', b8r.elementSignature(list_template));
   var list = b8r.get(list_path, list_template);
   if (!list) {
     return;
@@ -650,29 +655,30 @@ function bindList(list_template, data_path) {
   // efficient list update:
   // if we have an id_path we grab existing instances, and re-use those with
   // matching ids
-  const existing_list_instances =
-      id_path ? b8r.listInstances(list_template) : [];
+  const existing_list_instances = id_path ? b8r.listInstances(list_template) : [];
+  const path_to_instance_map = {};
+  if (existing_list_instances.length) {
+    existing_list_instances.forEach(elt => path_to_instance_map[elt.getAttribute('data-list-instance')] = elt);
+  }
 
-  const binder = makeListInstanceBinder(list_template);
   const template = list_template.cloneNode(true);
   template.removeAttribute('data-list');
+  const binder = makeListInstanceBinder(template);
 
   var previous_instance = list_template;
+  var instance;
   for (var i = list.length - 1; i >= 0; i--) {
-    var instance_idx, instance;
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
     const itemPath = `${list_path}[${id}]`;
-    instance_idx = existing_list_instances.findIndex(
-      elt => elt.getAttribute('data-list-instance') === itemPath
-    );
-    if (instance_idx === -1) {
+    instance = path_to_instance_map[itemPath];
+    if (instance === undefined) {
       instance = template.cloneNode(true);
       instance.setAttribute('data-list-instance', itemPath);
       resolveListInstanceBindings(instance, itemPath);
       binder(instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
-      [instance] = existing_list_instances.splice(instance_idx, 1);
+      delete path_to_instance_map[itemPath];
       binder(instance);
       if (instance.nextSibling !== previous_instance) {
         list_template.parentElement.insertBefore(instance, previous_instance);
@@ -682,10 +688,10 @@ function bindList(list_template, data_path) {
   }
   // anything still there is no longer in the list and can be removed
   if (id_path) {
-    existing_list_instances.forEach(instance => instance.remove());
+    b8r.forEachKey(path_to_instance_map, instance => instance.remove());
   }
   b8r.hide(list_template);
-  b8r.logEnd('bindList', list_path);
+  b8r.logEnd('bindList', b8r.elementSignature(list_template));
 }
 
 /**
@@ -694,11 +700,11 @@ function bindList(list_template, data_path) {
   binding a buttload of fairly simple elements).
 */
 function makeListInstanceBinder (list_template) {
-  if (b8r.findWithin(list_template, '[data-list],[data-component]')) {
+  if (b8r.findWithin(list_template, '[data-list],[data-component]').length) {
     return (instance, itemPath) => {
-      loadAvailableComponents(instance, itemPath);
       findBindables(instance).forEach(elt => bind(elt));
       findLists(instance).forEach(elt => bindList(elt, itemPath));
+      loadAvailableComponents(instance, itemPath);
     };
   } else {
     return instance => {
@@ -709,14 +715,14 @@ function makeListInstanceBinder (list_template) {
 
 function bindAll(element, data_path) {
   const random_entry = b8r.getComponentId(element) + '-' + Math.random();
-  b8r.logStart('bindAll', random_entry);
+  b8r.logStart('bindAll', b8r.elementSignature(element));
   loadAvailableComponents(element, data_path);
   findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, data_path));
   if (element.parentElement) {
     b8r.trigger('change', element.parentElement);
   }
-  b8r.logEnd('bindAll', random_entry);
+  b8r.logEnd('bindAll', b8r.elementSignature(element));
   b8r.cleanupComponentInstances();
 }
 
@@ -929,6 +935,7 @@ b8r.insertComponent = function(component, element, data) {
     }
     component = components[component];
   }
+  b8r.logStart('insertComponent', component.name);
   if (!data || data_path) {
     data = dataForElement(
         element,
@@ -985,5 +992,6 @@ b8r.insertComponent = function(component, element, data) {
     register(data);
   }
   bindAll(element);
+  b8r.logEnd('insertComponent', component.name);
   return element;
 };
