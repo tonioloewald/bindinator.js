@@ -3,47 +3,48 @@
 Copyright ©2016-2017 Tonio Loewald
 -->
 <style>
-	.modal-dialog-backdrop {
-		background-color: rgba(0,0,0,0.15);
-		position: fixed;
-		top: 0;
-		left: 0;
-		bottom: 0;
-		right: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+  .modal-dialog-backdrop {
+    background-color: rgba(0,0,0,0.15);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-	.modal-dialog {
-		padding: 12px;
-		min-width: 400px;
-		background-color: white;
-		box-shadow: 1px 6px 12px 0 rgba(0,0,0,0.5);
-	}
+  .modal-dialog {
+    position: relative;
+    padding: 12px;
+    min-width: 400px;
+    background-color: white;
+    box-shadow: 1px 6px 12px 0 rgba(0,0,0,0.5);
+  }
 </style>
 <div class="modal-dialog-backdrop">
-	<div class="modal-dialog" data-event="click:_component_.button">
-		<div data-children>
-			<h3>Placeholder</h3>
-			<p>Here is some text</p>
-			<div style="text-align: right;">
-				<button>Cancel</button> <button class="default">OK</button>
-			</div>
-		</div>
-	</div>
+  <div class="modal-dialog" data-event="click:_component_.button">
+    <div data-children>
+      <h3>Placeholder</h3>
+      <p>Here is some text</p>
+      <div style="text-align: right;">
+        <button>Cancel</button> <button class="default">OK</button>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
-	register({
-		button: function(evt) {
-			if (data && data.callback) {
-				data.callback(evt, component);
-			} else {
-				console.log('dialog has no callback; user pressed', evt.target.textContent);
-			}
-			if (evt.target instanceof HTMLButtonElement) {
-				component.remove();
-			}
-		},
-	});
+  register({
+    button: function(evt) {
+      if (data && data.callback) {
+        data.callback(evt, component);
+      } else {
+        console.log('dialog has no callback; user pressed', evt.target.textContent);
+      }
+      if (evt.target instanceof HTMLButtonElement) {
+        component.remove();
+      }
+    },
+  });
 </script>
