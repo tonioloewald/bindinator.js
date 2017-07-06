@@ -43,8 +43,8 @@ Arrays of objects, including heterogenous objects, are a common pattern
 in web applications. E.g. you might have an array of messages and the messages
 may have different types.
 
-Using id paths, it is possible to reference elements by an id path and 
-corresponding value rather than simple indices. This allows efficient updating 
+Using id paths, it is possible to reference elements by an id path and
+corresponding value rather than simple indices. This allows efficient updating
 of lists, e.g.
 
 ```
