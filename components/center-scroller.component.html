@@ -34,7 +34,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 /* global findOne, data, component, set, get, b8r */
 'use strict';
 
-  const resize = require('lib/resize.js');
+  const resize = require('../lib/resize.js');
   const scroller = findOne('.center-scroller');
   const container = findOne('[data-children]');
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);

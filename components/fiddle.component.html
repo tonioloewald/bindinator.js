@@ -97,7 +97,7 @@ of awesome that this works at all.
     const source = editor ? editor.getValue() : code_elt.textContent;
     if (source.match(/<\/\w+>/)) {
       b8r.insertComponent(
-        b8r.makeComponent('fiddle-example', source),
+        b8r.makeComponent('fiddle-example', source, require._path),
         container
       );
     } else {

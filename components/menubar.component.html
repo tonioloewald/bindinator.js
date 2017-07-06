@@ -127,7 +127,7 @@
 	// keyboard navigation
 	b8r.makeArray(component.querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
 
-	require('source/shortcuts.js').update();
+	require('../lib/shortcuts.js').update();
 
 	function close_all_menus() {
 		b8r.off(document.body, 'mousedown', 'menubar', 'close');

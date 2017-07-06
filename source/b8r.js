@@ -814,10 +814,10 @@ b8r.component = function(name, url) {
       if (components[name]) {
         resolve(components[name]);
       } else {
-        b8r.ajax((url || name) + '.component.html')
+        b8r.ajax(`${url}.component.html`)
             .then(
                 source => {
-                  resolve(b8r.makeComponent(name, source));
+                  resolve(b8r.makeComponent(name, source, url));
                 },
                 err => {
                   delete component_promises[name];
@@ -833,7 +833,7 @@ b8r.components = () => Object.keys(components);
 
 const makeStylesheet = require('./b8r.makeStylesheet.js');
 
-b8r.makeComponent = function(name, source) {
+b8r.makeComponent = function(name, source, url) {
   var css = false, content, script = false, parts, remains;
 
   // nothing <style> css </style> rest-of-component
@@ -856,13 +856,20 @@ b8r.makeComponent = function(name, source) {
   div.innerHTML = content;
   /*jshint evil: true */
   var load = script ? new Function(
+                          'require',
                           'component', 'b8r', 'find', 'findOne', 'data',
                           'register', 'get', 'set', 'on', 'touch',
                           `${script}\n//# sourceURL=${name}(component)`) :
                       false;
   /*jshint evil: false */
   const style = makeStylesheet(`/* ${name} component */\n` + css);
-  var component = {name: name, style, view: div, load: load, _source: source};
+  var component = {
+    name: name, style,
+    view: div,
+    load: load,
+    _source: source,
+    path: url.match(/^(.*?)(\/?)([^\/]+)$/)[1] || '',
+  };
   if (component_timeouts[name]) {
     clearInterval(component_timeouts[name]);
   }
@@ -980,6 +987,7 @@ b8r.insertComponent = function(component, element, data) {
     const touch = (path) => b8r.touchByPath(component_id, path);
     register(data);
     const view_obj = component.load(
+        window.require.relative(component.path),
         element, b8r, selector => b8r.findWithin(element, selector),
         selector => b8r.findOneWithin(element, selector), data, register, get,
         set, on, touch);
