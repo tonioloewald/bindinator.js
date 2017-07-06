@@ -228,11 +228,11 @@ button {
 }
 
 button.default, button[type="submit"] {
-	background-color: #ccf;
+	background-color: #cfb;
 }
 
 button.cancel, button[type="cancel"] {
-	background-color: #fdd;
+	background-color: #ffb;
 }
 
 button:hover, .button:hover,
@@ -368,3 +368,30 @@ pre > code {
 	color: black;
 	background: rgba(128,255,0,0.75);
 }
+
+
+progress {
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  vertical-align: baseline;
+  width: 100px;
+  height: 10px;
+
+  border: 2px solid #BCED85;
+  background: white;
+  border-radius: 5px
+}
+
+progress::-webkit-progress-bar {
+  background: white;
+  border-radius: 5px;
+}
+
+progress::-webkit-progress-value {
+  background-color: #57A700;
+  border-radius: 5px;
+}
+
