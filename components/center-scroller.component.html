@@ -64,7 +64,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       return;
     }
     if (position === null) {
-      position = item_count/2; // first item to right of center-gap
+      position = item_count/2 - 0.5; // first item to right of center-gap
     } else {
       position = clamp(position, -0.25, item_count + 0.25);
     }
