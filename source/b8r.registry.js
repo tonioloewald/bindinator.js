@@ -18,6 +18,13 @@ themselves be objects.
 
 You can get a property by path.
 
+Two convenience methods are provided for working with JSON data:
+
+    getJSON('path.to.value' [, element]);
+    setJSON('path.to.value', json_string);
+
+Note that unlike set, setJSON does not accept an optional element argument.
+
     call('root.path.to.method', ...args); // returns value as appropriate
 
 You can call a method by path.
@@ -77,6 +84,8 @@ const get = (path, element) => {
   return getByPath(registry, path);
 };
 
+const getJSON = (path, element) => JSON.stringify(get(path, element));
+
 const touch = (path, source_element) => {
   listeners.filter(listener => listener.test(path))
       .forEach(listener => listener.callback(path, source_element));
@@ -93,6 +102,8 @@ const set = (path, value, source_element) => {
     touch(path, source_element);
   }
 };
+
+const setJSON = (path, value) => set(path, JSON.parse(value));
 
 const push = (path, value) => {
   const list = get(path);
@@ -194,7 +205,9 @@ const remove = name => {
 
 module.exports = {
   get,
+  getJSON,
   set,
+  setJSON,
   push,
   call,
   touch,

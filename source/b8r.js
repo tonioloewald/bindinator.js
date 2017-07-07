@@ -171,13 +171,19 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
 
 b8r.deregister = name => b8r.remove(name);
 
-b8r.touchByPath = function(name, path, source_element) {
-  const full_path = !path || path === '/' ? name : name + '.' + path;
+b8r.touchByPath = (...args) => {
+  let full_path, source_element, name, path;
+
+  if (args[1] instanceof HTMLElement) {
+    [full_path, source_element] = args;
+  } else {
+    [name, path, source_element] = args;
+    full_path = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path;
+  }
 
   b8r.logStart('touchByPath', full_path);
 
-  const lists = b8r.makeArray(
-      document.querySelectorAll('[data-list*="' + full_path + '"]'));
+  const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + full_path + '"]'));
   lists.forEach(element => {
     if (element !== source_element) {
       bindList(element);
@@ -208,11 +214,13 @@ b8r.setByPath = function(...args) {
   if (b8r.registered(name)) {
     const model = b8r.get(name);
     if (typeof path === 'object') {
-      Object.assign(model, path);
-      b8r.touchByPath(name, '/', source_element);
+      // Object.assign(model, path);
+      // b8r.touchByPath(name, '/', source_element);
+      b8r.set(name, path, source_element);
     } else {
-      setByPath(model, path, value);
-      b8r.touchByPath(name, path, source_element);
+      // setByPath(model, path, value);
+      // b8r.touchByPath(name, path, source_element);
+      b8r.set(path[0] === '[' || !path ? model : `${name}.${path}`, value, source_element);
     }
   } else {
     console.error(`setByPath failed; ${name} is not a registered model`);
