@@ -967,6 +967,12 @@ b8r.insertComponent = function(component, element, data) {
     }
   }
   element.setAttribute('data-component-id', component_id);
+  b8r.makeArray(element.classList).forEach(c => {
+    if (c.substr(-10) === '-component') {
+      element.classList.remove(c);
+    }
+  });
+  element.classList.add(component.name + '-component');
   if (data_path) {
     element.setAttribute('data-path', data_path);
   }
