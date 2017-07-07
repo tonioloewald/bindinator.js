@@ -122,5 +122,9 @@
 	{
 		"name": "Center Scroller",
 		"path": "center-scroller-test"
+	},
+	{
+		"name": "webrtc",
+		"path": "webrtc"
 	}
 ]

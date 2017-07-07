@@ -1,0 +1,42 @@
+<!--
+# WebRTC
+
+WebRTC configuration (pick audio and video source). Exposes functionality in webrtc lib.
+-->
+<style>
+  .webrtc-component video {
+    width: 480px;
+    height: 270px;
+  }
+  .webrtc-component label,
+  .webrtc-component video {
+    display: block;
+  }
+</style>
+<label>
+  Video Source
+  <select
+    data-bind="value=webrtc-device-list.settings.videoinput"
+  >
+    <option
+      data-list="webrtc-device-list.sources.videoinput"
+      data-bind="text=.label;value=.deviceId;selected=._current"
+    >
+  </select>
+</label>
+<label>
+  Audio Source
+  <select
+    data-bind="value=webrtc-device-list.settings.audioinput"
+  >
+    <option
+      data-list="webrtc-device-list.sources.audioinput"
+      data-bind="text=.label;value=.deviceId;selected=._current"
+    >
+  </select>
+</label>
+<script>
+/* global require */
+'use strict';
+  const webrtc = require('lib/webrtc.js');
+</script>
