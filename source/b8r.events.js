@@ -10,7 +10,7 @@ const {findWithin} = require('./b8r.dom.js');
 const implicit_event_types = [
   'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
   'mouseleave', 'mouseenter',
-  'mousewheel', 'scroll',
+  'mousewheel', 'scroll', // FIXEME passive?!
   'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
   'transitionend', 'animationend',
   'input', 'change',
