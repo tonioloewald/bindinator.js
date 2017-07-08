@@ -4,39 +4,51 @@
 WebRTC configuration (pick audio and video source). Exposes functionality in webrtc lib.
 -->
 <style>
-  .webrtc-component video {
-    width: 480px;
-    height: 270px;
+  .webrtc-component {
+    display: block;
+    width: 256px;
   }
   .webrtc-component label,
   .webrtc-component video {
     display: block;
   }
+  .webrtc-component * {
+    background: transparent;
+    color: white;
+  }
+  .webrtc-component select {
+    margin-left: 10px;
+    border: 1px solid rgba(255,255,255,0.5);
+  }
 </style>
-<label>
-  Video Source
-  <select
-    data-bind="value=webrtc-device-list.settings.videoinput"
-  >
-    <option
-      data-list="webrtc-device-list.sources.videoinput"
-      data-bind="text=.label;value=.deviceId;selected=._current"
+<div data-component="floater" style="width: 280px">
+  <h4 class="floater-title">WebRTC Settings</h4>
+  <label>
+    Video Source
+    <select
+      data-bind="value=webrtc-devices.settings.videoinput"
     >
-  </select>
-</label>
-<label>
-  Audio Source
-  <select
-    data-bind="value=webrtc-device-list.settings.audioinput"
-  >
-    <option
-      data-list="webrtc-device-list.sources.audioinput"
-      data-bind="text=.label;value=.deviceId;selected=._current"
+      <option
+        data-list="webrtc-devices.sources.videoinput"
+        data-bind="text=.label;value=.deviceId;selected=._current"
+      >
+    </select>
+  </label>
+  <label>
+    Audio Source
+    <select
+      data-bind="value=webrtc-devices.settings.audioinput"
     >
-  </select>
-</label>
+      <option
+        data-list="webrtc-devices.sources.audioinput"
+        data-bind="text=.label;value=.deviceId;selected=._current"
+      >
+    </select>
+  </label>
+</div>
 <script>
 /* global require */
 'use strict';
-  const webrtc = require('lib/webrtc.js');
+  require('../lib/webrtc.js');
+  b8r.component('components/floater');
 </script>
