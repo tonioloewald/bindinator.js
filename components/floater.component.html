@@ -7,7 +7,7 @@ A floating, movable component.
 Use the class "floater-title" for the first child to get nice styling.
 -->
 <style>
-  .floater {
+  .floater-component {
     position: fixed;
     color: white;
     background-color: rgba(0,0,0,0.5);
@@ -16,7 +16,7 @@ Use the class "floater-title" for the first child to get nice styling.
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   }
 
-  .floater > [data-children] > * {
+  .floater-component > [data-children] > * {
     padding: 4px 8px;
   }
 
@@ -32,7 +32,7 @@ Use the class "floater-title" for the first child to get nice styling.
     background: transparent;
   }
 
-  .floater .floater-title {
+  .floater-component .floater-title {
     color: white;
     background-color: rgba(0,0,0,0.25);
     text-align: center;
@@ -45,7 +45,7 @@ Use the class "floater-title" for the first child to get nice styling.
   title="close"
   class="floater-close"
   data-event="
-    mouseup,touchend:floater-controller.close;
+    click,touchend:floater-controller.close;
   "
 >&times;</button>
 <div data-children>
@@ -56,7 +56,6 @@ Use the class "floater-title" for the first child to get nice styling.
 /* global component, on, set, b8r, console */
 'use strict';
 
-  component.classList.add('floater');
   on('mousedown', '_component_.start_motion');
 
   if(
@@ -75,7 +74,9 @@ Use the class "floater-title" for the first child to get nice styling.
       if(target) {
         target.style.left = (evt.pageX + origin.x) + 'px';
         target.style.top = (evt.pageY + origin.y) + 'px';
-        target.style.right = 'auto';
+        if (!target.style.width) {
+          target.style.right = 'auto';
+        }
         target.style.bottom = 'auto';
       } else {
         console.error('should not occur; float drag did not terminate?');
@@ -89,14 +90,14 @@ Use the class "floater-title" for the first child to get nice styling.
     },
     close: (evt, target) => {
       b8r.trigger('close', target.parentElement);
-      target.closest('.floater').remove();
+      target.closest('.floater-component').remove();
     },
   });
 
   set ({
     start_motion: (evt) => {
-      const target = evt.target.closest('[data-event]');
-      if(target.closest('.floater-title') || target.matches('.floater')) {
+      const target = evt.target.closest('[data-event],input,select,textarea,button,a');
+      if(target.closest('.floater-title') || target.matches('.floater-component')) {
         const style = getComputedStyle(target);
         const x = parseFloat(style.left) - evt.pageX;
         const y = parseFloat(style.top) - evt.pageY;
