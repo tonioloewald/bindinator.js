@@ -73,6 +73,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     items.forEach((item, idx) => {
       item.style.marginLeft = (center_index === idx ? center_gap : 0) + (idx > 0 || center_index === 0 ? item_spacing : 0) + 'px';
     });
+    let offset = 0;
     let dx = (position - center_index);
     if (center_item) {
       offset = center_gap - (center_item.offsetLeft + center_gap * 0.5 + dx * min_item_width - item_spacing * 0.5);
