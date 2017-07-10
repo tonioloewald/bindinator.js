@@ -31,7 +31,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 >
 </div>
 <script>
-/* global findOne, data, component, set, get, b8r */
+/* global require, findOne, data, component, set, get, b8r */
 'use strict';
 
   const resize = require('../lib/resize.js');
@@ -54,13 +54,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   let items;
   let item_count;
 
-  /*
-    FIXME
-    allow_final is a hack because we're getting cases where the update triggers
-    before the elements have dimension.
-    There has to be a better way!
-  */
-  const update = allow_final => {
+  const update = () => {
     items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
     if (item_count !== items.length) {
       position = null;
@@ -79,7 +73,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     items.forEach((item, idx) => {
       item.style.marginLeft = (center_index === idx ? center_gap : 0) + (idx > 0 || center_index === 0 ? item_spacing : 0) + 'px';
     });
-    let offset = 0;
     let dx = (position - center_index);
     if (center_item) {
       offset = center_gap - (center_item.offsetLeft + center_gap * 0.5 + dx * min_item_width - item_spacing * 0.5);
@@ -89,10 +82,10 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     }
     scroller.style.transform = `translateX(${offset}px)`;
     // snap to position if necessary
-    if (!get('dragging') && (!allow_final || Math.abs(dx) > 0.001)) {
+    if (!get('dragging') && Math.abs(dx) > 0.001) {
       requestAnimationFrame(() => {
         position = center_index + dx * 0.7;
-        update(true);
+        update();
       });
     }
   };

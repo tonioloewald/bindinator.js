@@ -174,8 +174,8 @@ const {findWithin} = require('./b8r.dom.js');
 
 const addDataBinding = (element, toTarget, path) => {
   const binding = `${toTarget}=${path}`;
-  const existing =
-      (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
+  const existing = (element.getAttribute('data-bind') || '')
+                      .split(';').map(s => s.trim()).filter(s => !!s);
   if (existing.indexOf(binding) === -1) {
     existing.push(binding);
     element.setAttribute('data-bind', existing.join(';'));
