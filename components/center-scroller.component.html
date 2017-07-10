@@ -54,7 +54,13 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   let items;
   let item_count;
 
-  const update = () => {
+  /*
+    FIXME
+    allow_final is a hack because we're getting cases where the update triggers
+    before the elements have dimension.
+    There has to be a better way!
+  */
+  const update = allow_final => {
     items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
     if (item_count !== items.length) {
       position = null;
@@ -83,10 +89,10 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     }
     scroller.style.transform = `translateX(${offset}px)`;
     // snap to position if necessary
-    if (!get('dragging') && Math.abs(dx) > 0.001) {
+    if (!get('dragging') && (!allow_final || Math.abs(dx) > 0.001)) {
       requestAnimationFrame(() => {
         position = center_index + dx * 0.7;
-        update();
+        update(true);
       });
     }
   };

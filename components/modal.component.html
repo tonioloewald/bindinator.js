@@ -44,6 +44,8 @@ Copyright ©2016-2017 Tonio Loewald
       }
       if (evt.target instanceof HTMLButtonElement) {
         component.remove();
+      } else {
+        return true;
       }
     },
   });
