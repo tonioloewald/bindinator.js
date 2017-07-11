@@ -70,17 +70,17 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     }
     const center_index = Math.max(0, Math.floor(position + 0.5));
     const center_item = items[center_index];
+    let dx = (position - center_index);
+    let offset = (center_gap + item_spacing) * -0.5 - dx * min_item_width;
+    if (center_index > 0) {
+      offset += item_spacing;
+    }
     items.forEach((item, idx) => {
       item.style.marginLeft = (center_index === idx ? center_gap : 0) + (idx > 0 || center_index === 0 ? item_spacing : 0) + 'px';
+      if (idx < center_index) {
+        offset -= item.offsetWidth + item_spacing;
+      }
     });
-    let offset = 0;
-    let dx = (position - center_index);
-    if (center_item) {
-      offset = center_gap - (center_item.offsetLeft + center_gap * 0.5 + dx * min_item_width - item_spacing * 0.5);
-    } else {
-      const last_item = items[center_index - 1];
-      offset = -center_gap * 0.5 -(last_item.offsetLeft + last_item.offsetWidth + dx * min_item_width + item_spacing * 0.5);
-    }
     scroller.style.transform = `translateX(${offset}px)`;
     // snap to position if necessary
     if (!get('dragging') && Math.abs(dx) > 0.001) {
