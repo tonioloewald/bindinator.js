@@ -27,18 +27,29 @@ const imagePromise = (url) => {
 };
 
 const imgSrc = (img, url, opacity) => {
-  if(img.src === url) {
+  if(img instanceof HTMLImageElement && img.src === url) {
     return;
   }
   img.style.opacity = 0;
   if (url) {
     imagePromise(url).then(image => {
-      if (img.src !== url) {
-        if(!getComputedStyle(img).transition) {
-          img.style.transition = '0.25s ease-out';
-        }
-        img.style.opacity = opacity || 1;
-        img.setAttribute('src', image.src);
+      if(!getComputedStyle(img).transition) {
+        img.style.transition = '0.25s ease-out';
+      }
+      img.style.opacity = opacity || 1;
+      img.setAttribute('src', image.src);
+      if (img instanceof HTMLCanvasElement) {
+        img.width = img.offsetWidth;
+        img.height = img.offsetHeight;
+        const ctx = img.getContext('2d');
+        const w = img.offsetWidth;
+        const h = img.offsetHeight;
+        const scale = Math.max(w / image.width, h / image.height);
+        const sw = w / scale;
+        const sh = h / scale;
+        const sx = (image.width - sw) * 0.5;
+        const sy = (image.height - sh) * 0.5;
+        ctx.drawImage(image, sx, sy, sw, sh, 0, 0, w, h);
       }
     });
   } else {
