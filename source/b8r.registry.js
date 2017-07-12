@@ -92,7 +92,7 @@ const touch = (path, source_element) => {
 };
 
 const set = (path, value, source_element) => {
-  const path_parts = path.split('.');
+  const path_parts = path.split(/\.|\[/);
   const model = path_parts[0];
   if (path_parts.length > 1 && !registry[model]) {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);

@@ -220,7 +220,7 @@ b8r.setByPath = function(...args) {
     } else {
       // setByPath(model, path, value);
       // b8r.touchByPath(name, path, source_element);
-      b8r.set(path[0] === '[' || !path ? model : `${name}.${path}`, value, source_element);
+      b8r.set(path[0] === '[' || !path ? `${name}${path}` : `${name}.${path}`, value, source_element);
     }
   } else {
     console.error(`setByPath failed; ${name} is not a registered model`);
