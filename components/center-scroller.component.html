@@ -4,10 +4,15 @@
 Allows horizontal scrolling of arbitrary elements of varying size leaving space in the center.
 -->
 <style>
+  .center-scroller-component {
+    -webkit-app-region: no-drag;
+  }
+
   .center-scroller {
     position: absolute;
     white-space: nowrap;
     cursor: -webkit-grab;
+    -webkit-app-region: no-drag;
     cursor: grab;
     left: 50%;
     transform: translateX(-50%);
