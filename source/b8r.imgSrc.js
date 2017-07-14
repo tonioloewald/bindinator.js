@@ -36,7 +36,7 @@ const imgSrc = (img, url, opacity) => {
       if(!getComputedStyle(img).transition) {
         img.style.transition = '0.25s ease-out';
       }
-      img.style.opacity = opacity || 1;
+      img.style.opacity = opacity || '';
       img.setAttribute('src', image.src);
       if (img instanceof HTMLCanvasElement) {
         img.width = img.offsetWidth;

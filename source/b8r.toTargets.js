@@ -201,6 +201,13 @@ module.exports = function(b8r) {
         element.setAttribute('class', value);
       }
     },
+    contentedtiable: function(element, value, dest) {
+      if (equals(dest, value)) {
+        element.setAttribute('contenteditable', true);
+      } else {
+        element.removeAttribute('contenteditable');
+      }
+    },
     enabled_if: function(element, value, dest) {
       element.disabled = !equals(dest, value);
     },
