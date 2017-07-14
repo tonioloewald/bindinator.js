@@ -25,12 +25,7 @@ in a private context with _required_ and Test (the test.js module) passed as loc
 		font-size: 12px;
 		position: relative;
 		overflow: hidden;
-		display: none;
-	}
-
-	.test-report.test-show {
 		display: flex;
-		animation: test-report-appear ease-out 0.5s;
 	}
 
 	@keyframes test-report-appear {
@@ -54,14 +49,16 @@ in a private context with _required_ and Test (the test.js module) passed as loc
 		white-space: nowrap;
 	}
 </style>
-<h2 data-component="disclose" data-bind="component(disclosed)=_component_.show">
-	Test Results
-</h2>
-<div class="test-report" data-bind="class(test-show)=_component_.show">
-	<pre class="test-sizable" data-bind="text=_component_.source" style="overflow:hidden"></pre>
-	<div data-component="sizer"></div>
-	<div class="test-transcript test-sizable"></div>
-</div>
+<details data-bind="attr(open)=_component_.show">
+	<summary>
+		Test Results
+	</summary>
+	<div class="test-report">
+		<pre class="test-sizable" data-bind="text=_component_.source" style="overflow:hidden"></pre>
+		<div data-component="sizer"></div>
+		<div class="test-transcript test-sizable"></div>
+	</div>
+</details>
 <script>
 	/* global require, findOne, b8r, data, set */
 	'use strict';

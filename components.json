@@ -100,10 +100,6 @@
 		"path": "stack"
 	},
 	{
-		"name": "Disclose",
-		"path": "disclose"
-	},
-	{
 		"name": "3d (threejs)",
 		"path": "threejs"
 	},
