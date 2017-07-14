@@ -128,13 +128,32 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color {
 	background-color: #BCED85;
 }
 
-.nav h3 {
-	margin-left: 8px;
-	margin-top: 12px;
+::-webkit-details-marker {
+	color: #57A700;
+}
+
+summary {
+	cursor: pointer;
+}
+
+.nav summary {
 	font-weight: 500;
 	color: #666;
 	text-transform: uppercase;
 	font-size: 12px;
+}
+
+details > * {
+	animation: fadein 0.25s ease-out;
+}
+
+@keyframes fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .loadable {

@@ -21,9 +21,11 @@
 			<h1 style="flex-grow: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.75));">bindinator.js</h1>
 		</div>
 		<div class="three_col">
-			<div class="nav">
-				<h3>Documentation</h3>
-				<div>
+			<div class="nav" data-event="click:details-accordion-controller.change">
+				<details open>
+					<summary>
+						Documentation
+					</summary>
 					<div
 						class="loadable"
 						data-list="source_files"
@@ -33,9 +35,11 @@
 					>
 						File Name
 					</div>
-				</div>
-				<h3>Components</h3>
-				<div>
+				</details>
+				<details>
+					<summary>
+						Components
+					</summary>
 					<div
 						class="loadable"
 						data-list="components"
@@ -45,11 +49,19 @@
 					>
 						File Name
 					</div>
-				</div>
-				<h3>Tests</h3>
-				<a href="tests.html">Unit Tests</a>
-				<h3>Project</h3>
-				<a target="_blank" href="https://trello.com/b/0OBL4IjC/bindinator">Trello</a>
+				</details>
+				<details>
+					<summary>
+						Tests
+					</summary>
+					<a href="tests.html">Unit Tests</a>
+				</details>
+				<details>
+					<summary>
+						Project
+					</summary>
+					<a target="_blank" href="https://trello.com/b/0OBL4IjC/bindinator">Trello</a>
+				</details>
 			</div>
 			<div class="content" id="example"></div>
 		</div>
@@ -87,6 +99,21 @@
 					current.classList.add('current');
 				}
 			}
+
+			b8r.register('details-accordion-controller', {
+				change (evt) {
+					const details = evt.target.closest('details');
+					// TODO shim for summary / details
+					if (details && !details.open) {
+						b8r.makeArray(details.parentElement.children).forEach(elt => {
+							if(elt.tagName === 'DETAILS'){
+								elt.open = false;
+							}
+						});
+					}
+					return true;
+				}
+			})
 
 			b8r.register('demo', {
 				showDocs: function(evt) {
