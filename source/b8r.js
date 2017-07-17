@@ -60,7 +60,7 @@ b8r.observe(
 registers an object by name as data or controller. The names `_component_`,
 `_data_` and `_b8r_` are reserved; other similar names may be reserved later.
 
-`_b8r_` is the name of the internal event handlers for bound variables
+`_b8r_` is the name of the collection of internal event handlers for bound variables.
 
     b8r.deregister(name); // removes a registered object
     b8r.deregister(); // just cleans up obsolete component data
@@ -71,8 +71,7 @@ for components no longer in the DOM.
     b8r.setByPath('model', 'data.path, value);
     b8r.setByPath('model.data.path', value);
 
-Set a registered object's property by path. Bound elements will automatically
-be updated.
+Set a registered object's property by path; bound elements will be updated automatically.
 
     b8r.getByPath('model', 'data.path');
     b8r.getByPath('model.data.path');
@@ -84,8 +83,8 @@ Get a registered object's property by path.
 
 As above, but unshift (and no callback).
 
-    b8r.unshiftByPath('model', 'data.path, item);
-    b8r.unshiftByPath('model.data.path, item);
+    b8r.unshiftByPath('model', 'data.path', item);
+    b8r.unshiftByPath('model.data.path', item);
 
 Insert an item into the specified array property. (Automatically updates bound
 lists).

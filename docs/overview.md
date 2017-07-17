@@ -2,6 +2,33 @@
 
 b8r is a small javascript library that is designed to make working in vanilla javascript, html, and css as easy and productive — perhaps even easier and more productive — than working with far more complex, bloated frameworks. As a bonus, the demo page and demo components provide the basis for integrating documentation, examples, and tests with code ("literate programming").
 
+## Why use b8r?
+
+b8r solves a host of recurring problems in web development. Many other frameworks and libraries also solve
+these problems. So, why use b8r?
+
+### What b8r does for you
+
+- reusable, composable components
+- simple, efficient data binding
+- simple, efficient event binding
+- highly asynchronous (bind data and event handlers before they're loaded)
+- automatic parallelized preloading of code
+
+### Why b8r doesn't suck
+
+- no new languages to learn (use javascript, html, and css)
+- no compilation step required
+- no good habits to unlearn
+- use existing debugging tools
+- leans into things your browser is already good at
+- almost boilerplate free
+- easy to learn
+- easy to get a project up and running
+- easy to test, host, and deploy
+- the easy way to do things is the right way
+- works with whatever you need it to work with
+
 ## Registered Objects
 
 Registered — **named** — objects are *the central idea* in b8r's architecture.
