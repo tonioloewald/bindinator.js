@@ -201,7 +201,7 @@ module.exports = function(b8r) {
         element.setAttribute('class', value);
       }
     },
-    contentedtiable: function(element, value, dest) {
+    contenteditable: function(element, value, dest) {
       if (equals(dest, value)) {
         element.setAttribute('contenteditable', true);
       } else {
