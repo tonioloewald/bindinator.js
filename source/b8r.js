@@ -13,7 +13,7 @@ implement some kind of virtual machine to replace it.
 
 'use strict';
 
-const {getByPath, setByPath} = require('./b8r.byPath.js');
+const {getByPath} = require('./b8r.byPath.js');
 
 function b8r() {}
 
@@ -211,7 +211,7 @@ b8r.setByPath = function(...args) {
     [name, path, value, source_element] = args;
   }
   if (b8r.registered(name)) {
-    const model = b8r.get(name);
+    // const model = b8r.get(name);
     if (typeof path === 'object') {
       // Object.assign(model, path);
       // b8r.touchByPath(name, '/', source_element);
@@ -615,11 +615,14 @@ b8r.listInstances = list_template => {
 const resolveListInstanceBindings = (instance_elt, instance_path) => {
   const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
                       .filter(elt => !elt.closest('[data-list]'));
-  const path_prefix = `=${instance_path}.`;
   elements.forEach(elt => {
     let binding_source = elt.getAttribute('data-bind');
     if (binding_source.indexOf('=.') > -1) {
+      const path_prefix = `=${instance_path}.`;
       elt.setAttribute('data-bind', binding_source.replace(/\=\./g, path_prefix));
+    }
+    if (binding_source.indexOf('${.') > -1) {
+      elt.setAttribute('data-bind', binding_source.replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}'));
     }
   });
 };
@@ -721,7 +724,6 @@ function makeListInstanceBinder (list_template) {
 }
 
 function bindAll(element, data_path) {
-  const random_entry = b8r.getComponentId(element) + '-' + Math.random();
   b8r.logStart('bindAll', b8r.elementSignature(element));
   loadAvailableComponents(element, data_path);
   findBindables(element).forEach(elt => bind(elt));
