@@ -9,11 +9,11 @@ b8r leverages your understanding of the DOM and the browser rather than trying t
 implement some kind of virtual machine to replace it.
 */
 /* jshint esnext:true, loopfunc:true */
-/* globals console, require, module, KeyboardEvent */
+/* globals console, require, module */
 
 'use strict';
 
-const {getByPath} = require('./b8r.byPath.js');
+const {getByPath, pathSplit} = require('./b8r.byPath.js');
 
 function b8r() {}
 
@@ -27,11 +27,13 @@ const {
   off,
   enable,
   disable,
-  dispatch,
-  getParsedEventHandlers,
-  implicit_event_types
+  callMethod,
+  trigger,
+  implicit_event_types,
+  handle_event,
+  play_saved_messages,
 } = require('./b8r.events.js');
-Object.assign(b8r, {on, off, enable, disable});
+Object.assign(b8r, {on, off, enable, disable, callMethod, trigger});
 const {
   addDataBinding,
   removeDataBinding,
@@ -46,13 +48,16 @@ const {
 Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getListInstancePath});
 const {saveDataForElement, dataForElement} =
     require('./b8r.dataForElement.js');
-const {onAny, offAny, anyListeners, anyElement} =
+const {onAny, offAny, anyListeners} =
     require('./b8r.anyEvent.js');
 Object.assign(b8r, {onAny, offAny, anyListeners});
 Object.assign(b8r, require('./b8r.registry.js'));
 b8r.observe(
     () => true,
     (path, source_element) => b8r.touchByPath(path, source_element));
+const {keystroke, modifierKeys} = require('./b8r.keystroke.js');
+b8r.keystroke = keystroke;
+b8r.modifierKeys = modifierKeys;
 
 /**
     b8r.register(name, obj);
@@ -115,7 +120,7 @@ b8r.register = function(name, obj) {
         ', all names starting and ending with a single \'_\' are reserved.';
   }
   b8r.set(name, obj);
-  playSavedMessages(name);
+  play_saved_messages(name);
 };
 
 b8r.componentInstances = () =>
@@ -354,145 +359,8 @@ b8r.getListInstance = function(elt) {
   return instancePath ? b8r.get(instancePath, elt) : null;
 };
 
-/**
-    b8r.callMethod(method_path, ...args)
-    b8r.callMethod(model, method, ...args);
-
-Call a method by name from a registered method. If the relevant model has not
-yet been registered
-(e.g. it's being loaded asynchronously) it will get the message when it's
-registered.
-*/
-
-var saved_messages = [];  // {model, method, evt}
-
-function saveMethodCall(model, method, args) {
-  saved_messages.push({model, method, args});
-}
-
-function playSavedMessages(for_model) {
-  var playbackQueue = [];
-  for (var i = saved_messages.length - 1; i >= 0; i--) {
-    if (saved_messages[i].model === for_model) {
-      playbackQueue.push(saved_messages[i]);
-      saved_messages.splice(i, 1);
-    }
-  }
-  while (playbackQueue.length) {
-    var {model, method, args} = playbackQueue.pop();
-    b8r.callMethod(model, method, ...args);
-  }
-}
-
-b8r.getComponentWithMethod = function(element, path) {
-  var component_id = false;
-  element = element.closest('[data-component-id]');
-  while (element instanceof Element) {
-    if (b8r.getByPath(element.getAttribute('data-component-id'), path) instanceof Function) {
-      component_id = element.getAttribute('data-component-id');
-      break;
-    }
-    element = element.parentElement.closest('[data-component-id]');
-  }
-  return component_id;
-};
-
-b8r.callMethod = function(...args) {
-  var model, method;
-  try {
-    if (args[0].match(/[\[.]/)) {
-      [method, ...args] = args;
-      [model, method] = pathSplit(method);
-    } else {
-      [model, method, ...args] = args;
-    }
-  } catch (e) {
-    debugger;  // jshint ignore:line
-  }
-  var result = null;
-  if (b8r.registered(model)) {
-    result = b8r.call(`${model}.${method}`, ...args);
-  } else {
-    // TODO queue if model not available
-    // event is stopped from further propagation
-    // provide global wrappers that can e.g. put up a spinner then call the
-    // method
-    saveMethodCall(model, method, args);
-  }
-  return result;
-};
-
-const {keystroke, modifierKeys} = require('./b8r.keystroke.js');
-b8r.keystroke = keystroke;
-b8r.modifierKeys = modifierKeys;
-
-function handleEvent(evt) {
-  var target = anyElement() || evt.target;
-  var keystroke = evt instanceof KeyboardEvent ? b8r.keystroke(evt) : {};
-  while (target) {
-    var handlers = getParsedEventHandlers(target);
-    var result = false;
-    for (var i = 0; i < handlers.length; i++) {
-      var handler = handlers[i];
-      for (var type_index = 0; type_index < handler.types.length;
-           type_index++) {
-        if (handler.types[type_index] === evt.type &&
-            (!handler.type_args[type_index] ||
-             handler.type_args[type_index].indexOf(keystroke) > -1)) {
-          if (handler.model && handler.method) {
-            if (handler.model === '_component_') {
-              handler.model = b8r.getComponentWithMethod(target, handler.method);
-            }
-            if (handler.model) {
-              result = b8r.callMethod(handler.model, handler.method, evt, target);
-            } else {
-              console.warn(`_component_.${handler.method} not found`, target);
-            }
-          } else {
-            console.error('incomplete event handler on', target);
-            break;
-          }
-          if (result !== true) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return;
-          }
-        }
-      }
-    }
-    target = target === anyElement() ? evt.target : target.parentElement;
-  }
-}
-
-/**
-    b8r.trigger(type, target);
-
-Trigger a synthetic implicit (only!) event. Note that you can trigger and
-handle
-completely made-up events, but if you trigger events that occur naturally the
-goal
-is for them to be handled exactly as if they were "real".
-*/
-
-b8r.trigger = (type, target) => {
-  if (typeof type !== 'string' ||
-      !(target.dispatchEvent instanceof Function)) {
-    console.error(
-        'expected trigger(event_type, target_element)', type, target);
-  }
-  if (target) {
-    const event = dispatch(type, target);
-    if (target instanceof Element &&
-        implicit_event_types.indexOf(type) === -1) {
-      handleEvent(event);
-    }
-  } else {
-    console.warn('b8r.trigger called with no specified target');
-  }
-};
-
 implicit_event_types.forEach(
-    type => document.body.addEventListener(type, handleEvent, true));
+    type => document.body.addEventListener(type, handle_event, true));
 
 /**
     b8r.implicityHandleEventsOfType(type_string)
@@ -505,7 +373,7 @@ could do with `b8r.implicityHandleEventsOfType('seeking')`.
 b8r.implicitlyHandleEventsOfType = type => {
   if (implicit_event_types.indexOf(type) === -1) {
     implicit_event_types.push(type);
-    document.body.addEventListener(type, handleEvent, true);
+    document.body.addEventListener(type, handle_event, true);
   }
 };
 
@@ -543,14 +411,6 @@ work exactly as expected.
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
-
-function pathSplit(full_path) {
-  let [, model,, start, path] = full_path.match(/^(.*?)(([\.\[])(.*))?$/);
-  if (start === '[') {
-    path = '[' + path;
-  }
-  return [model, path];
-}
 
 b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 

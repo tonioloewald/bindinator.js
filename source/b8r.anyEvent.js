@@ -25,7 +25,7 @@ everything else for purposes of propagation.
 'use strict';
 
 const {on, off, getEventHandlers} = require('./b8r.events.js');
-const {create} = require('./b8r.dom.js');
+const anyElement = require('./b8r.anyElement.js');
 
 const anyArgs = args => {
   var event_type, object, method, path;
@@ -38,33 +38,21 @@ const anyArgs = args => {
   return {event_type, path};
 };
 
-var _anyElement = null;
 const onAny = function(...args) {
   const {event_type, path} = anyArgs(args);
-  if (!_anyElement) {
-    _anyElement = create('div');
-  }
-  on(_anyElement, event_type, path);
+  on(anyElement, event_type, path);
 };
 
 const offAny = function(...args) {
   const {event_type, path} = anyArgs(args);
-  if (_anyElement) {
-    off(_anyElement, event_type, path);
-    if (!_anyElement.getAttribute('data-event')) {
-      _anyElement = null;
-    }
-  }
+  off(anyElement, event_type, path);
 };
 
-const anyListeners = () => _anyElement ? getEventHandlers(_anyElement) : [];
-
-const anyElement = () => _anyElement;
+const anyListeners = () => getEventHandlers(anyElement);
 
 module.exports = {
   anyListeners,
   anyArgs,
   onAny,
-  offAny,
-  anyElement
+  offAny
 };

@@ -1,11 +1,15 @@
 /**
 # Events
 */
-/* global module, console, window, require */
+/* global module, console, window, require, KeyboardEvent */
 
 'use strict';
 
 const {findWithin} = require('./b8r.dom.js');
+const {get, registered, call} = require('./b8r.registry.js');
+const anyElement = require('./b8r.anyElement.js');
+const keys = require('./b8r.keystroke.js');
+const {pathSplit} = require('./b8r.byPath.js');
 
 const implicit_event_types = [
   'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
@@ -217,5 +221,141 @@ if (window.TouchEvent) {
       type => implicit_event_types.push(type));
 }
 
-module.exports = {makeHandler, getEventHandlers, getParsedEventHandlers, on, off, enable, disable, dispatch, implicit_event_types};
+const get_component_with_method = function(element, path) {
+  var component_id = false;
+  element = element.closest('[data-component-id]');
+  while (element instanceof Element) {
+    if (get(`${element.getAttribute('data-component-id')}.${path}`) instanceof Function) {
+      component_id = element.getAttribute('data-component-id');
+      break;
+    }
+    element = element.parentElement.closest('[data-component-id]');
+  }
+  return component_id;
+};
+
+/**
+    b8r.callMethod(method_path, ...args)
+    b8r.callMethod(model, method, ...args);
+
+Call a method by name from a registered method. If the relevant model has not
+yet been registered (e.g. it's being loaded asynchronously) it will get the
+message when it's registered.
+*/
+
+var saved_messages = [];  // {model, method, evt}
+
+function saveMethodCall(model, method, args) {
+  saved_messages.push({model, method, args});
+}
+
+const play_saved_messages = for_model => {
+  var playbackQueue = [];
+  for (var i = saved_messages.length - 1; i >= 0; i--) {
+    if (saved_messages[i].model === for_model) {
+      playbackQueue.push(saved_messages[i]);
+      saved_messages.splice(i, 1);
+    }
+  }
+  while (playbackQueue.length) {
+    var {model, method, args} = playbackQueue.pop();
+    callMethod(model, method, ...args);
+  }
+};
+
+const callMethod = (...args) => {
+  var model, method;
+  try {
+    if (args[0].match(/[\[.]/)) {
+      [method, ...args] = args;
+      [model, method] = pathSplit(method);
+    } else {
+      [model, method, ...args] = args;
+    }
+  } catch (e) {
+    debugger;  // jshint ignore:line
+  }
+  var result = null;
+  if (registered(model)) {
+    result = call(`${model}.${method}`, ...args);
+  } else {
+    // TODO queue if model not available
+    // event is stopped from further propagation
+    // provide global wrappers that can e.g. put up a spinner then call the
+    // method
+    saveMethodCall(model, method, args);
+  }
+  return result;
+};
+
+/**
+    b8r.trigger(type, target, ...args); //
+
+Trigger a synthetic implicit (only!) event. Note that you can trigger and
+handle completely made-up events, but if you trigger events that occur
+naturally the goal is for them to be handled exactly as if they were "real".
+*/
+
+const trigger = (type, target, ...args) => {
+  if (typeof type !== 'string' ||
+      !(target.dispatchEvent instanceof Function)) {
+    console.error(
+        'expected trigger(event_type, target_element)', type, target);
+  }
+  if (target) {
+    const event = dispatch(type, target);
+    if (target instanceof Element &&
+        implicit_event_types.indexOf(type) === -1) {
+      handle_event(event, ...args);
+    }
+  } else {
+    console.warn('b8r.trigger called with no specified target');
+  }
+};
+
+const handle_event = evt => {
+  var target = anyElement;
+  var keystroke = evt instanceof KeyboardEvent ? keys.keystroke(evt) : {};
+  while (target) {
+    var handlers = getParsedEventHandlers(target);
+    var result = false;
+    for (var i = 0; i < handlers.length; i++) {
+      var handler = handlers[i];
+      for (var type_index = 0; type_index < handler.types.length;
+           type_index++) {
+        if (handler.types[type_index] === evt.type &&
+            (!handler.type_args[type_index] ||
+             handler.type_args[type_index].indexOf(keystroke) > -1)) {
+          if (handler.model && handler.method) {
+            if (handler.model === '_component_') {
+              handler.model = get_component_with_method(target, handler.method);
+            }
+            if (handler.model) {
+              result = callMethod(handler.model, handler.method, evt, target);
+            } else {
+              console.warn(`_component_.${handler.method} not found`, target);
+            }
+          } else {
+            console.error('incomplete event handler on', target);
+            break;
+          }
+          if (result !== true) {
+            evt.stopPropagation();
+            evt.preventDefault();
+            return;
+          }
+        }
+      }
+    }
+    target = target === anyElement ? evt.target : target.parentElement;
+  }
+};
+
+module.exports = {
+  makeHandler,
+  getEventHandlers,
+  getParsedEventHandlers,
+  on, off, enable, disable, dispatch, trigger, callMethod,
+  implicit_event_types, get_component_with_method, handle_event, play_saved_messages,
+};
 

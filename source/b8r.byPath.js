@@ -131,6 +131,14 @@ Test(() => {
 
 'use strict';
 
+function pathSplit(full_path) {
+  let [, model,, start, path] = full_path.match(/^(.*?)(([\.\[])(.*))?$/);
+  if (start === '[') {
+    path = '[' + path;
+  }
+  return [model, path];
+}
+
 function pathParts(path) {
   if (!path || path === '/') {
     return [];
@@ -297,5 +305,5 @@ function matchTypes(value, oldValue) {
   return value;
 }
 
-module.exports = {getByPath, setByPath, matchTypes, pathParts};
+module.exports = {getByPath, setByPath, matchTypes, pathParts, pathSplit};
 

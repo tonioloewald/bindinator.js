@@ -126,6 +126,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 module.exports = function(b8r) {
 
   const img = require('./b8r.imgSrc.js');
+  const {get_component_with_method} = require('./b8r.events.js');
 
   const special_values = {
     '_true_': true,
@@ -230,7 +231,7 @@ module.exports = function(b8r) {
       var [model, ...method] = dest.split('.');
       method = method.join('.');
       if (model === '_component_') {
-        model = b8r.getComponentWithMethod(element, method);
+        model = get_component_with_method(element, method);
       }
       b8r.callMethod(model, method, element, value, data);
     },
