@@ -22,25 +22,73 @@ Copyright ©2016-2017 Tonio Loewald
     background-color: white;
     box-shadow: 1px 6px 12px 0 rgba(0,0,0,0.5);
   }
+
+  .modal-dialog button {
+    margin-left: 5px;
+  }
 </style>
 <div class="modal-dialog-backdrop">
-  <div class="modal-dialog" data-event="click:_component_.button">
+  <div
+    class="modal-dialog"
+    tabindex="0"
+    data-event="
+      click:_component_.button;
+      keyup(Enter):_component_.default;
+      keyup(Escape):_component_.cancel;
+    "
+  >
     <div data-children>
       <h3>Placeholder</h3>
       <p>Here is some text</p>
       <div style="text-align: right;">
-        <button>Cancel</button> <button class="default">OK</button>
+        <button
+          data-list="_component_.buttons"
+          data-bind="
+            text=.caption;
+            class(default)=.default;
+            class(cancel)=.cancel
+          "
+        >Button Name</button>
       </div>
     </div>
   </div>
 </div>
 <script>
-  register({
+/* global data, findOne, component, set, b8r */
+'use strict';
+  const dialog = findOne('.modal-dialog');
+
+  if (data.className) {
+    dialog.classList.remove('modal-dialog');
+    dialog.classList.add(data.className);
+  }
+
+  dialog.focus();
+
+  if (!data.buttons) {
+    set('buttons', [{
+      caption: 'Cancel',
+      cancel: true
+    },
+    {
+      caption: 'OK',
+      default: true
+    }]);
+  }
+
+  const defaultButton = findOne('button.default');
+  if (defaultButton) {
+    setTimeout(() => defaultButton.focus());
+  }
+
+  set({
+    cancel: () => b8r.trigger('click', findOne('button.cancel')),
+    default: () => b8r.trigger('click', findOne('button.default')),
     button: function(evt) {
       if (data && data.callback) {
         data.callback(evt, component);
       } else {
-        console.log('dialog has no callback; user pressed', evt.target.textContent);
+        console.warn('dialog has no callback; user pressed', evt.target.textContent);
       }
       if (evt.target instanceof HTMLButtonElement) {
         component.remove();
