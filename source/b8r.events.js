@@ -297,10 +297,15 @@ naturally the goal is for them to be handled exactly as if they were "real".
 */
 
 const trigger = (type, target, ...args) => {
-  if (typeof type !== 'string' ||
-      !(target.dispatchEvent instanceof Function)) {
+  if (
+    typeof type !== 'string' ||
+    (target && !(target.dispatchEvent instanceof Function))
+  ) {
     console.error(
-        'expected trigger(event_type, target_element)', type, target);
+      'expected trigger(event_type, target_element)',
+      type,
+      target
+    );
   }
   if (target) {
     const event = dispatch(type, target);
