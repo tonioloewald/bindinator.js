@@ -6,6 +6,10 @@
 Creates a proper array from annoying array-like objects,
 like *NodeLists* and *arguments* (although *don't use arguments, use ...args**).
 
+    last(array) // => last element of array or null
+
+Returns the last element of the array passed, or null if the array is empty.
+
     forEach(array, (val, idx) => {...});
 
 Just like `Array.prototype.forEach` except you can interrupt it by returning `false`.
@@ -75,7 +79,9 @@ const forEach = (array, method) => {
       break;
     }
   }
-}
+};
+
+const last = array => array.length ? array[array.length - 1] : null;
 
 const forEachKey = (object, method) => {
   var key;
@@ -131,6 +137,7 @@ const filterObject = (object, test) => {
 
 module.exports = {
   makeArray,
+  last,
   forEach,
   forEachKey,
   mapEachKey,
