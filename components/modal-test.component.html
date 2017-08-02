@@ -15,7 +15,7 @@ Demonstrates use of modal dialogs.
 	var result = findOne('.result');
 	register({
 		dialog: () => {
-			b8r.component('modal', 'components/modal').then(
+			b8r.component('components/modal').then(
 				() => b8r.insertComponent(
 					'modal',
 					false,
@@ -25,12 +25,12 @@ Demonstrates use of modal dialogs.
 		},
 
 		custom_dialog: () => {
-			b8r.component('reactor-dialog', 'components/reactor-dialog').then(
-					() => b8r.insertComponent(
-							'reactor-dialog',
-							false,
-							{ callback: (evt, component) => result.textContent = 'reactor setting: ' + b8r.findOneWithin(component, 'input').value }
-					)
+			b8r.component('components/reactor-dialog').then(
+				() => b8r.insertComponent(
+					'reactor-dialog',
+					false,
+					{ callback: (evt, component) => result.textContent = 'reactor setting: ' + b8r.findOneWithin(component, 'input').value }
+				)
 			);
 		}
 	});
