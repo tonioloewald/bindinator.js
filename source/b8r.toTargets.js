@@ -164,6 +164,19 @@ module.exports = function(b8r) {
       element.selected = !!value;
     },
     text: (element, value) => element.textContent = value,
+    format: (element, value) => {
+      if(typeof value === 'string' && value.indexOf('${') > -1){
+        let content = b8r.format(value, element);
+        if (content.match(/[*_]/) && !content.match('>')) {
+          element.innerHTML = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
+                                     .replace(/[*_](.*?)[*_]/g, '<i>$1</i>');
+        } else {
+          element.textContent = value;
+        }
+      } else {
+        element.textContent = value;
+      }
+    },
     fixed: (element, value, dest) => element.textContent = parseFloat(value).toFixed(dest || 1),
     attr: function(element, value, dest) {
       if (value === undefined || value === null) {
