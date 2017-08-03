@@ -4,7 +4,7 @@ Copyright ©2016-2017 Tonio Loewald
 -->
 <style>
   .modal-dialog-backdrop {
-    background-color: rgba(0,0,0,0.15);
+    background-color: rgba(0,0,0,0.3);
     position: fixed;
     top: 0;
     left: 0;
@@ -23,6 +23,10 @@ Copyright ©2016-2017 Tonio Loewald
     box-shadow: 1px 6px 12px 0 rgba(0,0,0,0.5);
   }
 
+  .modal-dialog .modal-dialog-buttons {
+    text-align: right;
+  }
+
   .modal-dialog button {
     margin-left: 5px;
   }
@@ -38,11 +42,12 @@ Copyright ©2016-2017 Tonio Loewald
     "
   >
     <div data-children>
-      <h3>Placeholder</h3>
-      <p>Here is some text</p>
-      <div style="text-align: right;">
+      <h3 data-bind="text=_component_.title">Placeholder</h3>
+      <p data-bind="text=_component_.message">Here is some text</p>
+      <div class="modal-dialog-buttons">
         <button
           data-list="_component_.buttons"
+          tabindex="0"
           data-bind="
             text=.caption;
             class(default)=.default;
@@ -54,7 +59,7 @@ Copyright ©2016-2017 Tonio Loewald
   </div>
 </div>
 <script>
-/* global data, findOne, component, set, b8r */
+/* global data, findOne, component, b8r */
 'use strict';
   const dialog = findOne('.modal-dialog');
 
@@ -63,38 +68,42 @@ Copyright ©2016-2017 Tonio Loewald
     dialog.classList.add(data.className);
   }
 
+  if (data.backdropColor) {
+    findOne('.modal-dialog-backdrop').style.backgroundColor = data.backdropColor;
+  }
+
   dialog.focus();
 
   if (!data.buttons) {
-    set('buttons', [{
+    data.buttons = [{
       caption: 'Cancel',
       cancel: true
     },
     {
       caption: 'OK',
       default: true
-    }]);
+    }];
   }
 
-  const defaultButton = findOne('button.default');
-  if (defaultButton) {
-    setTimeout(() => defaultButton.focus());
-  }
+  data.cancel = () => b8r.trigger('click', findOne('button.cancel') || findOne('button.default'));
+  data.default = () => b8r.trigger('click', findOne('button.default'));
+  data.button = evt => {
+    if (data && data.callback) {
+      data.callback(evt, component);
+    } else {
+      console.warn('dialog has no callback; user pressed', evt.target.textContent);
+    }
+    if (evt.target instanceof HTMLButtonElement) {
+      component.remove();
+    } else {
+      return true;
+    }
+  };
 
-  set({
-    cancel: () => b8r.trigger('click', findOne('button.cancel')),
-    default: () => b8r.trigger('click', findOne('button.default')),
-    button: function(evt) {
-      if (data && data.callback) {
-        data.callback(evt, component);
-      } else {
-        console.warn('dialog has no callback; user pressed', evt.target.textContent);
-      }
-      if (evt.target instanceof HTMLButtonElement) {
-        component.remove();
-      } else {
-        return true;
-      }
-    },
+  requestAnimationFrame(() => {
+    const defaultButton = findOne('button.default');
+    if (defaultButton) {
+      defaultButton.focus();
+    }
   });
 </script>

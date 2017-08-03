@@ -19,7 +19,11 @@ Demonstrates use of modal dialogs.
 				() => b8r.insertComponent(
 					'modal',
 					false,
-					{ callback: evt => result.textContent = 'User clicked: ' + evt.target.textContent }
+					{
+						title: 'Alert',
+						message: 'This is a modal alert dialog',
+						callback: evt => result.textContent = 'User clicked: ' + evt.target.textContent,
+					}
 				)
 			);
 		},
