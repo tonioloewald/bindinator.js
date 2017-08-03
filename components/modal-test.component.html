@@ -7,26 +7,46 @@ Demonstrates use of modal dialogs.
 <div>
 	<h4>Modal Dialog Test</h4>
 	<div data-children></div>
-	<button data-event="click:_component_.dialog">Show Dialog</button>
+	<button data-event="click:_component_.alert">Alert</button>
+	<button data-event="click:_component_.confirm">Confirm</button>
+	<button data-event="click:_component_.prompt">Prompt</button>
 	<button data-event="click:_component_.custom_dialog">Show Custom Dialog</button>
 	<p class="result"></p>
 </div>
 <script>
+/* global findOne, b8r, register */
+'use strict';
 	var result = findOne('.result');
 	register({
-		dialog: () => {
-			b8r.component('components/modal').then(
-				() => b8r.insertComponent(
-					'modal',
-					false,
-					{
-						title: 'Alert',
-						message: 'This is a modal alert dialog',
-						callback: evt => result.textContent = 'User clicked: ' + evt.target.textContent,
-					}
-				)
-			);
-		},
+		alert: () => {
+	      b8r.component('../b8r/components/modal').then(c => b8r.insertComponent(c, null, {
+	      title: 'Alert',
+	      backdropColor: 'rgba(0,0,0,0.4)',
+	      message: 'I have a bad feeling about this.',
+	      buttons: [{caption: 'OK', default: true}],
+	      callback: () => result.textContent = 'alert dismissed at ' + new Date().toTimeString(),
+	    }));
+	  },
+	  confirm: () => {
+	    b8r.component('../b8r/components/modal').then(c => b8r.insertComponent(c, null, {
+	      title: 'Confirm',
+	      backdropColor: 'rgba(0,0,0,0.4)',
+	      message: 'Are you completely sure you want to do it?',
+	      buttons: [{caption: 'Maybe Not', cancel: true}, {caption: 'Do it!', default: true}],
+	      callback: evt => result.textContent = evt.target.matches('.default') ? 'user confirmed' : 'user canceled',
+	    }));
+	  },
+	  prompt: () => {
+	    b8r.component('../b8r/components/modal').then(c => b8r.insertComponent(c, null, {
+	      title: 'Prompt',
+	      backdropColor: 'rgba(0,0,0,0.4)',
+	      message: 'What is your quest?',
+	      placeholder: 'Enter quest here',
+	      text: '',
+	      buttons: [{caption: 'I don’t really have a quest', cancel: true}, {caption: 'Done', default: true}],
+	      callback: (evt, component, data) => result.textContent = 'user entered: ' + data.text,
+	    }));
+	  },
 
 		custom_dialog: () => {
 			b8r.component('components/reactor-dialog').then(

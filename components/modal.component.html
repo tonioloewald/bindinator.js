@@ -24,6 +24,7 @@ Copyright ©2016-2017 Tonio Loewald
   }
 
   .modal-dialog .modal-dialog-buttons {
+    margin-top: 8px;
     text-align: right;
   }
 
@@ -43,7 +44,17 @@ Copyright ©2016-2017 Tonio Loewald
   >
     <div data-children>
       <h3 data-bind="text=_component_.title">Placeholder</h3>
-      <p data-bind="text=_component_.message">Here is some text</p>
+      <label>
+        <p data-bind="text=_component_.message">Here is some text</p>
+        <input
+          style="width: 100%"
+          data-bind="
+            value=_component_.text;
+            hide_if(_null_)=_component_.text;
+            attr(placeholder)=_component_.placeholder;
+          "
+        >
+      </label>
       <div class="modal-dialog-buttons">
         <button
           data-list="_component_.buttons"
@@ -89,7 +100,7 @@ Copyright ©2016-2017 Tonio Loewald
   data.default = () => b8r.trigger('click', findOne('button.default'));
   data.button = evt => {
     if (data && data.callback) {
-      data.callback(evt, component);
+      data.callback(evt, component, data);
     } else {
       console.warn('dialog has no callback; user pressed', evt.target.textContent);
     }
@@ -101,9 +112,9 @@ Copyright ©2016-2017 Tonio Loewald
   };
 
   requestAnimationFrame(() => {
-    const defaultButton = findOne('button.default');
-    if (defaultButton) {
-      defaultButton.focus();
+    const defaultWidget = typeof data.text === 'string' ? findOne('input') : findOne('.default');
+    if (defaultWidget) {
+      defaultWidget.focus();
     }
   });
 </script>
