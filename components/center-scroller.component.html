@@ -100,6 +100,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     update,
     dragStart: evt => {
       set('dragging', {x0: evt.screenX, position});
+      return true;
     },
     drag: evt => {
       const dragging = get('dragging');
@@ -110,7 +111,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     },
     dragEnd: evt => {
       const dragging = get('dragging');
-      if (dragging && (evt.type !== 'mouseleave' || evt.target === scroller)) {
+      if (dragging && !b8r.within(component, evt, 20)) {
         set('dragging', null);
         update();
       }

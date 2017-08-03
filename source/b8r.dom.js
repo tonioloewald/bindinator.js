@@ -61,6 +61,33 @@ moves children of source to dest
     offset(element); // returns {x,y}
 
 obtain the offset position of the element relative to the top-left of the window.
+
+    within(element, mouse_event);
+    within(element, mouse_event, margin); // true | false
+
+did the event occur within the element (with added margin)?
+
+```
+<div
+  style="padding: 50px; background: white;"
+  data-event="mousemove:_component_.within"
+>
+  <div class="inner" style="width: 100px; height: 100px; background: #faa; box-shadow: 0 0 0 20px #fcc;">
+  </div>
+</div>
+<script>
+  const div = findOne('.inner');
+  set({
+    within: evt => {
+      if (b8r.within(div, evt, 20)) {
+        div.textContent = 'mouse within 20px'
+      } else {
+        div.textContent = 'mouse well outside';
+      }
+    }
+  })
+</script>
+```
 */
 /* global module, require */
 'use strict';
@@ -149,5 +176,16 @@ module.exports = {
   },
   offset (element) {
     return element.getBoundingClientRect();
-  }
+  },
+  within (element, mouse_event, margin) {
+    const r = element.getBoundingClientRect();
+    const {clientX, clientY} = mouse_event;
+    console.log(clientX, clientY, r)
+    return (
+      clientX + margin > r.left &&
+      clientX - margin < r.right &&
+      clientY + margin > r.top &&
+      clientY - margin < r.bottom
+    );
+  },
 };
