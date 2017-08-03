@@ -179,13 +179,12 @@ module.exports = {
   },
   within (element, mouse_event, margin) {
     const r = element.getBoundingClientRect();
-    const {clientX, clientY} = mouse_event;
-    console.log(clientX, clientY, r)
+    const {pageX, pageY} = mouse_event;
     return (
-      clientX + margin > r.left &&
-      clientX - margin < r.right &&
-      clientY + margin > r.top &&
-      clientY - margin < r.bottom
+      pageX + margin > r.left &&
+      pageX - margin < r.right &&
+      pageY + margin > r.top &&
+      pageY - margin < r.bottom
     );
   },
 };

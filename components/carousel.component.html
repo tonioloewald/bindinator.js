@@ -176,14 +176,14 @@ Copyright ©2016-2017 Tonio Loewald
 			}
 		},
 		dragStart: evt => {
-			drag_x = evt.clientX;
+			drag_x = evt.pageX;
 			drag_dx = 0;
 			dragging = true;
 		},
 		drag: evt => {
 			if (dragging) {
-				let dx = evt.clientX - drag_x;
-				drag_x = evt.clientX;
+				let dx = evt.pageX - drag_x;
+				drag_x = evt.pageX;
 				drag_dx += dx;
 				position = clamp(position - dx * 4 / carousel.offsetWidth, -0.125, items.length - 0.875);
 				updateItems();

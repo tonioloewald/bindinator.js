@@ -6,6 +6,9 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 <style>
   .center-scroller-component {
     -webkit-app-region: no-drag;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
   }
 
   .center-scroller {
@@ -24,13 +27,11 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 </style>
 <div
   class="center-scroller"
-  data-bind="class(drag-in-progress)=_component_.dragging"
   data-children
+  data-bind="class(drag-in-progress)=_component_.dragging"
   data-event="
     change,click:_component_.update;
     mousedown:_component_.dragStart;
-    mousemove:_component_.drag;
-    mouseup,mouseleave:_component_.dragEnd;
   "
 >
 </div>
@@ -47,6 +48,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   const min_item_width = parseInt(data.min_item_width || component.getAttribute('minimum-item-width') || 28, 10);
   const item_spacing = parseInt(data.item_spacing || component.getAttribute('item-spacing') || 2, 10);
   set({center_gap, min_item_width, item_spacing});
+  const component_id = b8r.getComponentId(component);
 
   if (getComputedStyle(component).position !== 'absolute') {
     component.style.position = 'relative';
@@ -57,6 +59,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   let position = null;
   let items;
   let item_count;
+  let velocity;
 
   const update = () => {
     items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
@@ -73,7 +76,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       position = clamp(position, -0.25, item_count + 0.25);
     }
     const center_index = Math.max(0, Math.floor(position + 0.5));
-    const center_item = items[center_index];
     let dx = (position - center_index);
     let offset = (center_gap + item_spacing) * -0.5 - dx * min_item_width;
     if (center_index > 0) {
@@ -95,28 +97,39 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     }
   };
 
-  set('dragging', null);
+  const dragStart = evt => {
+    set('dragging', {x0: evt.pageX, position});
+    b8r.onAny('mousemove', `${component_id}.drag`);
+    b8r.onAny('mouseup', `${component_id}.dragEnd`);
+  };
+  const drag = evt => {
+    const dragging = get('dragging');
+    if (dragging) {
+      if (b8r.within(component, evt, 40)) {
+        position = dragging.position - (evt.pageX - dragging.x0)/min_item_width;
+        update();
+      } else {
+        dragEnd(evt);
+      }
+    }
+  };
+  const dragEnd = evt => {
+    const dragging = get('dragging');
+    if (dragging) {
+      set('dragging', null);
+      b8r.offAny('mousemove', `${component_id}.drag`);
+      b8r.offAny('mouseup', `${component_id}.dragEnd`);
+      update();
+    }
+    return true;
+  };
+
   set({
+    dragging: null,
     update,
-    dragStart: evt => {
-      set('dragging', {x0: evt.screenX, position});
-      return true;
-    },
-    drag: evt => {
-      const dragging = get('dragging');
-      if (dragging) {
-        position = dragging.position - (evt.screenX - dragging.x0)/min_item_width;
-        update();
-      }
-    },
-    dragEnd: evt => {
-      const dragging = get('dragging');
-      if (dragging && !b8r.within(component, evt, 20)) {
-        set('dragging', null);
-        update();
-      }
-      return true;
-    },
+    dragStart,
+    drag,
+    dragEnd,
   });
 
   update();

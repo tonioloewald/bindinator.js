@@ -39,7 +39,7 @@ and it lets the user dynamically resize them.
 
 	function beginSizing(evt) {
 		const sizer = evt.target.closest('.ew-sizer').parentElement;
-		orig_x = evt.clientX;
+		orig_x = evt.pageX;
 		prev_elt = sizer.previousElementSibling;
 		next_elt = sizer.nextElementSibling;
 		parent_width = sizer.offsetParent.offsetWidth;
@@ -55,7 +55,7 @@ and it lets the user dynamically resize them.
 	}
 
 	function sizing(evt) {
-		var offset = evt.clientX - orig_x;
+		var offset = evt.pageX - orig_x;
 		offset = Math.min(offset, next_width - next_min); // min width for next element
 		offset = Math.max(offset, prev_min - prev_width); // min width for previous element
 		prev_elt.style.width = (prev_width + offset) / total_width * total_percentage + '%';
