@@ -62,6 +62,10 @@ Test(() => {
   return JSON.stringify(b8r.filterKeys(obj, val => val % 5 === 0));
 }).shouldBe('["a","c"]');
 Test(() => {
+  const obj = {foo: {a: 1, b: 'hello'}, bar: {a: 17, b: 'world'}};
+  return b8r.findValue(obj, value => value.a === 17).b;
+}).shouldBe('world');
+Test(() => {
   const obj = {a: 10, b: 12, c: 5};
   return JSON.stringify(b8r.filterObject(obj, val => val % 5 === 0));
 }).shouldBe('{"a":10,"c":5}');
