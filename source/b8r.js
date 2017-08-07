@@ -620,8 +620,7 @@ b8r.set('_b8r_', {
   _update_: evt => {
     var elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
     if (evt.target.tagName === 'SELECT') {
-      const options =
-          b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
+      const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
       elements = elements.concat(options);
     }
     elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
@@ -684,14 +683,12 @@ b8r.component = function(name, url) {
         resolve(components[name]);
       } else {
         b8r.ajax(`${url}.component.html`)
-            .then(
-                source => {
-                  resolve(b8r.makeComponent(name, source, url));
-                },
-                err => {
-                  delete component_promises[name];
-                  reject(err);
-                });
+            .then(source => resolve(b8r.makeComponent(name, source, url)))
+            .catch(err => {
+              delete component_promises[name];
+              console.error(err, `failed to load component ${url}`);
+              reject(err);
+            });
       }
     });
   }
