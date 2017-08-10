@@ -12,6 +12,8 @@ is loaded.
 'use strict';
 
 const images = {};
+const pixel = new Image();
+pixel.src = require('../lib/pixel.js').render();
 
 const imagePromise = (url) => {
   if (!images[url]) {
@@ -21,6 +23,9 @@ const imagePromise = (url) => {
       image.onload = () => {
         resolve(image);
       };
+      image.onerror = () => {
+        resolve(pixel);
+      }
     });
   }
   return images[url];
