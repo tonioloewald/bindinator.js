@@ -314,7 +314,7 @@ b8r.removeByPath = function(...args) {
 };
 
 b8r.getByPath = function(model, path) {
-  return b8r.get(path ? model + '.' + path : model);
+  return b8r.get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
 };
 
 b8r.listItems = element =>
