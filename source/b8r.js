@@ -728,7 +728,7 @@ b8r.makeComponent = function(name, source, url) {
                           `${script}\n//# sourceURL=${name}(component)`) :
                       false;
   /*jshint evil: false */
-  const style = makeStylesheet(`/* ${name} component */\n` + css);
+  const style = makeStylesheet(css, name);
   var component = {
     name: name, style,
     view: div,
