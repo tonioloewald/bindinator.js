@@ -14,68 +14,108 @@ Copyright ©2016-2017 Tonio Loewald
 	}
 
 	.carousel-item {
-		color: white;
-		font-size: 48px;
 		position: absolute;
 		top: 50%;
 		left: 50%;
 	}
 
-	.carousel > .windoid {
+	.carousel-item * {
+		pointer-events: none;
+	}
+
+	.carousel-item.carousel-current * {
+		pointer-events: all;
+	}
+
+
+	.carousel > .carousel-test {
 		display: block;
 		background-color: rgba(255,255,255,0.5);
 		width: 30%;
 		height: 90%;
 		border-radius: 6px;
+		width: 150px;
+		transition: width 0.2s ease-out;
+		opacity: 0.75;
+	}
+
+	.carousel > .carousel-test.carousel-current {
+		width: 250px;
+		opacity: 1.0;
+		border: 4px solid rgba(0,0,0,0.5);
+	}
+
+	.carousel > .carousel-test > button {
+		margin: 20px;
 	}
 </style>
 <div
 	class="carousel"
 	data-event="
 		mousedown:_component_.dragStart;
-		mouseleave:_component_.dragEnd;
-		mousemove:_component_.drag;
 		mouseup:_component_.setTarget;
 		change:_component_.change;
 	"
 	data-children
 >
-	<div class="windoid" style="width: 200px; background-color: #d00">
-	</div>
-	<div class="windoid" style="width: 300px; background-color: #d70">
-	</div>
-	<div class="windoid" style="width: 150px; background-color: #dd0">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #7d0">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #0d0">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #0d7">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #0dd">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #07d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #00d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #70d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #d0d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #d07">
+	<div
+		class="carousel-test"
+		data-list="_component_.items:id"
+		data-bind="
+			style(backgroundColor)=.bg_color;
+		"
+	>
+		<button data-event="click:_component_.add">Add item!</button>
+		<button data-event="click:_component_.remove">Delete this item!</button>
 	</div>
 </div>
 <div style="text-align: center; padding: 20px;">
 	<input type="range" min=0 max=1 step=0.0001 data-event="input,change:_component_.update" />
 </div>
 <script>
-/* global b8r, findOne, find, component, register */
+/* global b8r, findOne, find, component, set, data */
 'use strict';
 
-	const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 75);
+	b8r.json('lib/css-color-names.json').then(colors => {
+		const colorNames = Object.keys(colors);
+		const items = [];
+		let id = 0;
+
+		const add = () => {
+			items.push({
+				id,
+				bg_color: colorNames[Math.floor(Math.random() * colorNames.length)],
+				width: Math.random() * 200 + 100,
+			});
+			id += 1;
+		};
+
+		const remove = (evt, element) => {
+			const id = items.indexOf(b8r.getListInstance(element));
+			items.splice(id, 1);
+			set({items});
+		};
+
+		for(let i = 0; i < 10; i++) {
+			add();
+		}
+		set({
+			items,
+			add: () => {
+				add();
+				set({items});
+			},
+			remove
+		});
+	});
+
+
+	const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 45);
 	const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 100);
+	const x_spacing = parseFloat(component.getAttribute('data-carousel-spacing') || 150);
 	const x_offset = parseFloat(component.getAttribute('data-carousel-offset') || 0);
 	const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
+	const min_scale = component.getAttribute('data-carousel-minscale') || 0.95;
 
 	function ease_in_out(t) {
 		var s = t > 0 ? 0.5 : -0.5;
@@ -99,11 +139,16 @@ Copyright ©2016-2017 Tonio Loewald
 	// offset -2: the element is two to the left of center
 	function setItemPosition(element, offset) {
 		var abs_offset = Math.abs(offset);
+		if (abs_offset < 0.5) {
+			element.classList.add('carousel-current');
+		} else {
+			element.classList.remove('carousel-current');
+		}
 		var dx = 0;
 		var dz = 0;
 		var ry = 0;
 		if( abs_offset > 0.01) {
-			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -200 : 200);
+			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -x_spacing : x_spacing);
 			if (abs_offset < 1) {
 				dz = -max_distance * ease_in_out(abs_offset);
 				ry = ease_in(offset) * -max_rotation;
@@ -115,9 +160,9 @@ Copyright ©2016-2017 Tonio Loewald
 			offset = 0;
 			abs_offset = 0;
 		}
-		var s = 1 - Math.min(abs_offset, 0.3);
+		var s = 1 - Math.min(abs_offset, 1 - min_scale);
 		dx += x_offset;
-		element.style.transform = 'translateX(-50%) translateY(-50%) translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg) scale(' + s + ')';
+		element.style.transform = `translateX(-50%) translateY(-50%) translateX(${dx}px) translateZ(${dz}px) rotateY(${ry}deg) scale(${s})`;
 		element.style.zIndex = Math.round(30 - 10 * abs_offset);
 	}
 
@@ -126,6 +171,7 @@ Copyright ©2016-2017 Tonio Loewald
 	var items;
 	const carousel = findOne('.carousel');
 	const slider = findOne('input');
+	const {component_id} = data;
 
 	const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
 
@@ -157,13 +203,31 @@ Copyright ©2016-2017 Tonio Loewald
 
 	init();
 
-	let dragging = false;
 	let drag_x;
 	let drag_dx;
 
-	register({
+	const dragging = () => component.matches('.carousel-dragging');
+
+	const dragOff = () => {
+		component.classList.remove('carousel-dragging');
+		b8r.offAny('mouseup', `${component_id}.setTarget`);
+		b8r.offAny('mousemove', `${component_id}.drag`);
+		b8r.offAny('mouseleave', `${component_id}.dragEnd`);
+	};
+
+	const dragOn = () => {
+		component.classList.add('carousel-dragging');
+		b8r.onAny('mouseup', `${component_id}.setTarget`);
+		b8r.onAny('mousemove', `${component_id}.drag`);
+		b8r.onAny('mouseleave', `${component_id}.dragEnd`);
+	};
+
+	set({
 		setTarget: evt => {
-			dragging = false;
+			if (!dragging()) {
+				return true;
+			}
+			dragOff();
 			if (Math.abs(drag_dx) < 0.1) {
 				let child = evt.target;
 				while (child.parentElement && items.indexOf(child) === -1) {
@@ -176,12 +240,15 @@ Copyright ©2016-2017 Tonio Loewald
 			}
 		},
 		dragStart: evt => {
+			if (!evt.target.matches('.carousel-item')) {
+				return true;
+			}
 			drag_x = evt.pageX;
 			drag_dx = 0;
-			dragging = true;
+			dragOn();
 		},
 		drag: evt => {
-			if (dragging) {
+			if (dragging()) {
 				let dx = evt.pageX - drag_x;
 				drag_x = evt.pageX;
 				drag_dx += dx;
@@ -190,8 +257,8 @@ Copyright ©2016-2017 Tonio Loewald
 			}
 		},
 		dragEnd: evt => {
-			if (evt.target === carousel && dragging) {
-				dragging = false;
+			if (evt.target === carousel && dragging()) {
+				dragOff();
 				b8r.trigger('change', slider);
 			}
 		},
