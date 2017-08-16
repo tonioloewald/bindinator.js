@@ -34,19 +34,19 @@ Copyright ©2016-2017 Tonio Loewald
 		width: 30%;
 		height: 90%;
 		border-radius: 6px;
-		width: 150px;
+		width: 100px;
 		transition: width 0.2s ease-out;
-		opacity: 0.75;
+		box-sizing: border-box;
+		padding: 20px;
 	}
 
 	.carousel > .carousel-test.carousel-current {
-		width: 250px;
-		opacity: 1.0;
+		width: 200px;
 		border: 4px solid rgba(0,0,0,0.5);
 	}
 
 	.carousel > .carousel-test > button {
-		margin: 20px;
+		margin: 10px;
 	}
 </style>
 <div
@@ -65,11 +65,11 @@ Copyright ©2016-2017 Tonio Loewald
 			style(backgroundColor)=.bg_color;
 		"
 	>
-		<button data-event="click:_component_.add">Add item!</button>
+		<button data-event="click:_component_.add">Add item!</button><br>
 		<button data-event="click:_component_.remove">Delete this item!</button>
 	</div>
 </div>
-<div style="text-align: center; padding: 20px;">
+<div style="text-align: center; padding: 20px;" data-bind="show_if=_component_.show_slider">
 	<input type="range" min=0 max=1 step=0.0001 data-event="input,change:_component_.update" />
 </div>
 <script>
@@ -96,7 +96,7 @@ Copyright ©2016-2017 Tonio Loewald
 			set({items});
 		};
 
-		for(let i = 0; i < 10; i++) {
+		for(let i = 0; i < 4; i++) {
 			add();
 		}
 		set({
@@ -104,18 +104,21 @@ Copyright ©2016-2017 Tonio Loewald
 			add: () => {
 				add();
 				set({items});
+				target = items.length - 1;
+				snapToTarget();
 			},
-			remove
+			remove,
 		});
 	});
 
-
-	const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 45);
-	const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 100);
-	const x_spacing = parseFloat(component.getAttribute('data-carousel-spacing') || 150);
-	const x_offset = parseFloat(component.getAttribute('data-carousel-offset') || 0);
+	const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 0);
+	const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 50);
+	const inner_offset = parseFloat(component.getAttribute('data-carousel-inner-offset') || 155);
+	const item_offset = parseFloat(component.getAttribute('data-carousel-offset') || 100);
+	const item_spacing = parseFloat(component.getAttribute('data-carousel-spacing') || 10);
 	const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
-	const min_scale = component.getAttribute('data-carousel-minscale') || 0.95;
+	const show_slider = component.hasAttribute('data-show-slider');
+	const min_scale = component.getAttribute('data-carousel-minscale') || 1;
 
 	function ease_in_out(t) {
 		var s = t > 0 ? 0.5 : -0.5;
@@ -148,7 +151,9 @@ Copyright ©2016-2017 Tonio Loewald
 		var dz = 0;
 		var ry = 0;
 		if( abs_offset > 0.01) {
-			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -x_spacing : x_spacing);
+			dx = abs_offset < 1 ?
+					 offset * (inner_offset + item_spacing) :
+					 (inner_offset + item_spacing + (abs_offset - 1) * (item_offset + item_spacing)) * (offset < 0 ? -1 : 1);
 			if (abs_offset < 1) {
 				dz = -max_distance * ease_in_out(abs_offset);
 				ry = ease_in(offset) * -max_rotation;
@@ -161,12 +166,11 @@ Copyright ©2016-2017 Tonio Loewald
 			abs_offset = 0;
 		}
 		var s = 1 - Math.min(abs_offset, 1 - min_scale);
-		dx += x_offset;
 		element.style.transform = `translateX(-50%) translateY(-50%) translateX(${dx}px) translateZ(${dz}px) rotateY(${ry}deg) scale(${s})`;
 		element.style.zIndex = Math.round(30 - 10 * abs_offset);
 	}
 
-	var position = 0;
+	var position = null;
 	var target = 0;
 	var items;
 	const carousel = findOne('.carousel');
@@ -179,7 +183,16 @@ Copyright ©2016-2017 Tonio Loewald
 		const child_selector = component.getAttribute('child-selector') || '.carousel > div';
 		items = find(child_selector).filter(elt => !elt.matches('[data-list]'));
 		items.forEach(element => element.classList.add('carousel-item'));
-		position = centered_at_start && items.length ? Math.floor((items.length - 1) * 0.5) : 0;
+		if (position === null) {
+			if (items.length) {
+				position = centered_at_start && items.length ? Math.floor((items.length - 1) * 0.5) : 0;
+			}
+		} else {
+			if (position > items.length - 1) {
+				target = items.length - 1;
+				snapToTarget();
+			}
+		}
 		target = Math.min(target, items.length - 1);
 		updateItems();
 	}
