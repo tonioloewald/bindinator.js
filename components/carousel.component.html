@@ -17,6 +17,10 @@ Copyright ©2016-2017 Tonio Loewald
 		position: absolute;
 		top: 50%;
 		left: 50%;
+		display: block;
+		box-sizing: border-box;
+		animation: 1s ease-out fade-in;
+		transition: width 0.2s ease-out;
 	}
 
 	.carousel-item * {
@@ -27,16 +31,18 @@ Copyright ©2016-2017 Tonio Loewald
 		pointer-events: all;
 	}
 
+	.carousel-target {
+		border: 4px solid rgba(0,0,0,0.25);
+	}
+
+	.carousel-hidden {
+		display: none;
+	}
 
 	.carousel > .carousel-test {
-		display: block;
-		background-color: rgba(255,255,255,0.5);
-		width: 30%;
-		height: 90%;
 		border-radius: 6px;
 		width: 100px;
-		transition: width 0.2s ease-out;
-		box-sizing: border-box;
+		height: 90%;
 		padding: 20px;
 	}
 
@@ -91,9 +97,15 @@ Copyright ©2016-2017 Tonio Loewald
 		};
 
 		const remove = (evt, element) => {
-			const id = items.indexOf(b8r.getListInstance(element));
-			items.splice(id, 1);
+			const idx = items.indexOf(b8r.getListInstance(element));
+			items.splice(idx, 1);
 			set({items});
+			if (idx === 0) {
+				position = -1;
+				snapToTarget(0);
+			} else {
+				snapToTarget(idx > 0 ? idx - 1 : 0);
+			}
 		};
 
 		for(let i = 0; i < 4; i++) {
@@ -104,8 +116,7 @@ Copyright ©2016-2017 Tonio Loewald
 			add: () => {
 				add();
 				set({items});
-				target = items.length - 1;
-				snapToTarget();
+				snapToTarget(items.length - 1);
 			},
 			remove,
 		});
@@ -117,8 +128,9 @@ Copyright ©2016-2017 Tonio Loewald
 	const item_offset = parseFloat(component.getAttribute('data-carousel-offset') || 100);
 	const item_spacing = parseFloat(component.getAttribute('data-carousel-spacing') || 10);
 	const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
-	const show_slider = component.hasAttribute('data-show-slider');
 	const min_scale = component.getAttribute('data-carousel-minscale') || 1;
+
+	set({show_slider: component.hasAttribute('data-show-slider')});
 
 	function ease_in_out(t) {
 		var s = t > 0 ? 0.5 : -0.5;
@@ -171,8 +183,8 @@ Copyright ©2016-2017 Tonio Loewald
 	}
 
 	var position = null;
-	var target = 0;
-	var items;
+	const child_selector = component.getAttribute('child-selector') || '.carousel > div';
+	const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'));
 	const carousel = findOne('.carousel');
 	const slider = findOne('input');
 	const {component_id} = data;
@@ -180,31 +192,54 @@ Copyright ©2016-2017 Tonio Loewald
 	const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
 
 	function init() {
-		const child_selector = component.getAttribute('child-selector') || '.carousel > div';
-		items = find(child_selector).filter(elt => !elt.matches('[data-list]'));
-		items.forEach(element => element.classList.add('carousel-item'));
+		const item_list = items();
+		item_list.forEach(element => element.classList.add('carousel-item'));
 		if (position === null) {
-			if (items.length) {
-				position = centered_at_start && items.length ? Math.floor((items.length - 1) * 0.5) : 0;
+			if (item_list.length) {
+				position = centered_at_start ? Math.floor((item_list.length - 1) * 0.5) : 0;
 			}
 		} else {
-			if (position > items.length - 1) {
-				target = items.length - 1;
-				snapToTarget();
+			if (position > item_list.length - 1) {
+				snapToTarget(b8r.last(item_list));
 			}
 		}
-		target = Math.min(target, items.length - 1);
 		updateItems();
 	}
 
 	function updateItems(){
-		items.forEach((element, idx) => {
+		const item_list = items();
+		item_list.forEach((element, idx) => {
 			setItemPosition(element, idx - position);
 		});
-		slider.value = position / (items.length - 1);
+		slider.value = position / (item_list.length - 1);
 	}
 
-	function snapToTarget(){
+	function snapToTarget(element){
+		let target = -1;
+		const item_list = items();
+
+		if (typeof element === 'number') {
+			element = item_list[element];
+		}
+
+		if (element instanceof HTMLElement) {
+			item_list.forEach((item, index) => {
+				if (item === element) {
+					item.classList.add('carousel-target');
+					target = index;
+				} else {
+					item.classList.remove('carousel-target');
+				}
+			});
+		} else {
+			target = item_list.findIndex(item => item.classList.contains('carousel-target'));
+		}
+
+		if (target === -1) {
+			console.error('carousel cannot snap to target'); // jshint ignore:line
+			return;
+		}
+
 		if (Math.abs(position - target) < 0.01) {
 			position = target;
 		} else {
@@ -242,12 +277,7 @@ Copyright ©2016-2017 Tonio Loewald
 			}
 			dragOff();
 			if (Math.abs(drag_dx) < 0.1) {
-				let child = evt.target;
-				while (child.parentElement && items.indexOf(child) === -1) {
-					child = child.parentElement;
-				}
-				target = items.indexOf(child);
-				snapToTarget(child);
+				snapToTarget(evt.target.closest(child_selector));
 			} else {
 				b8r.trigger('change', slider);
 			}
@@ -265,7 +295,7 @@ Copyright ©2016-2017 Tonio Loewald
 				let dx = evt.pageX - drag_x;
 				drag_x = evt.pageX;
 				drag_dx += dx;
-				position = clamp(position - dx * 4 / carousel.offsetWidth, -0.125, items.length - 0.875);
+				position = clamp(position - dx * 4 / carousel.offsetWidth, -0.125, items().length - 0.875);
 				updateItems();
 			}
 		},
@@ -277,11 +307,10 @@ Copyright ©2016-2017 Tonio Loewald
 		},
 		change: init,
 		update: evt => {
-			position = slider.value * (items.length - 1);
+			position = slider.value * (items().length - 1);
 			updateItems();
 			if(evt.type === 'change') {
-				target = Math.round(position);
-				snapToTarget();
+				snapToTarget(Math.round(position));
 			}
 		}
 	});
