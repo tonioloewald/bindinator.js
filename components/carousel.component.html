@@ -9,7 +9,6 @@ Copyright ©2016-2017 Tonio Loewald
 		min-height: 400px;
 		position: relative;
 		text-align: center;
-		perspective: 1000px;
 		overflow: hidden;
 	}
 
@@ -20,7 +19,7 @@ Copyright ©2016-2017 Tonio Loewald
 		display: block;
 		box-sizing: border-box;
 		animation: 1s ease-out fade-in;
-		transition: width 0.2s ease-out;
+		transition: width 0.2s ease-out, height 0.2s ease-out;
 	}
 
 	.carousel-item * {
@@ -48,6 +47,7 @@ Copyright ©2016-2017 Tonio Loewald
 
 	.carousel > .carousel-test.carousel-current {
 		width: 200px;
+		height: 100%;
 		border: 4px solid rgba(0,0,0,0.5);
 	}
 
@@ -71,8 +71,12 @@ Copyright ©2016-2017 Tonio Loewald
 			style(backgroundColor)=.bg_color;
 		"
 	>
-		<button data-event="click:_component_.add">Add item!</button><br>
-		<button data-event="click:_component_.remove">Delete this item!</button>
+		<button
+			data-event="click:_component_.remove"
+			style="position: absolute; top: -5px; left: -5px;"
+			class="iconic icon-cross2"
+		></button>
+		<button data-event="click:_component_.add" class="iconic icon-plus2"></button>
 	</div>
 </div>
 <div style="text-align: center; padding: 20px;" data-bind="show_if=_component_.show_slider">
@@ -124,11 +128,12 @@ Copyright ©2016-2017 Tonio Loewald
 
 	const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 0);
 	const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 50);
-	const inner_offset = parseFloat(component.getAttribute('data-carousel-inner-offset') || 155);
+	const inner_offset = parseFloat(component.getAttribute('data-carousel-inner-offset') || 150);
 	const item_offset = parseFloat(component.getAttribute('data-carousel-offset') || 100);
 	const item_spacing = parseFloat(component.getAttribute('data-carousel-spacing') || 10);
 	const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
 	const min_scale = component.getAttribute('data-carousel-minscale') || 1;
+	const drag_threshold = component.getAttribute('data-carousel-drag-threshold') || 10;
 
 	set({show_slider: component.hasAttribute('data-show-slider')});
 
@@ -178,6 +183,7 @@ Copyright ©2016-2017 Tonio Loewald
 			abs_offset = 0;
 		}
 		var s = 1 - Math.min(abs_offset, 1 - min_scale);
+
 		element.style.transform = `translateX(-50%) translateY(-50%) translateX(${dx}px) translateZ(${dz}px) rotateY(${ry}deg) scale(${s})`;
 		element.style.zIndex = Math.round(30 - 10 * abs_offset);
 	}
@@ -276,7 +282,7 @@ Copyright ©2016-2017 Tonio Loewald
 				return true;
 			}
 			dragOff();
-			if (Math.abs(drag_dx) < 0.1) {
+			if (Math.abs(drag_dx) < drag_threshold) {
 				snapToTarget(evt.target.closest(child_selector));
 			} else {
 				b8r.trigger('change', slider);

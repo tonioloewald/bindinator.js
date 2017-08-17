@@ -6,6 +6,10 @@ body {
 	color: #222222;
 }
 
+* {
+	box-sizing: border-box;
+}
+
 h1, h2, h3, h4, h5, h6 {
 	font-weight: 200;
 	margin: 0 0 8px 0;
@@ -180,7 +184,6 @@ label {
 button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {
-	box-sizing: border-box;
 	font: 13px System, Sans-serif;
 	color: black;
 	line-height: 16px;
@@ -252,6 +255,28 @@ button.default, button[type="submit"] {
 
 button.cancel, button[type="cancel"] {
 	background-color: #ffb;
+}
+
+.iconic {
+	border: 0;
+	background: rgba(255,255,255,0.5);
+	width: 24px;
+	height: 24px;
+	border-radius: 16px;
+	font-size: 14px;
+	line-height: 24px;
+	text-align: center;
+}
+
+.iconic:focus,
+.iconic:hover {
+	border: 0;
+	background: rgba(255,255,255,0.75);
+}
+
+.iconic:active {
+	border: 0;
+	background: white;
 }
 
 button:hover, .button:hover,
