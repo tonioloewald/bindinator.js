@@ -246,8 +246,10 @@ function setByPath(obj, path, val) {
         console.error('setByPath failed: expected array, found', obj);
         throw 'setByPath failed: expected array';
       }
-      if (part.indexOf('=') > -1) {
-        const [key_path, key_value] = part.split('=');
+      const equals_offset = part.indexOf('=');
+      if (equals_offset > -1) {
+        const key_path = part.substr(0, equals_offset);
+        const key_value = part.substr(equals_offset + 1);
         obj = byKeyPath(obj, key_path, key_value);
         if (!parts.length) {
           if (typeof obj === 'object') {
