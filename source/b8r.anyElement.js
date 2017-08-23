@@ -1,6 +1,8 @@
 /**
 # anyElement
 */
+/* global require, module */
+'use strict';
 
 const {create} = require('./b8r.dom.js');
 

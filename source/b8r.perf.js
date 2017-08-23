@@ -100,7 +100,7 @@ const perf = {
     } else if (element.parentElement) {
       signature = perf.elementSignature(element.parentElement) + '>' + signature;
     }
-    return signature
+    return signature;
   },
 
   showLogs: (which, threshold) => {

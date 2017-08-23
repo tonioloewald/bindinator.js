@@ -8,7 +8,7 @@ Gracefully populates an `<img>` element's src attribute to a url,
 sets the element to `opacity: 0`, and then fades it in when the image
 is loaded.
 */
-/* global module */
+/* global require, module */
 'use strict';
 
 const images = {};
@@ -25,7 +25,7 @@ const imagePromise = (url) => {
       };
       image.onerror = () => {
         resolve(pixel);
-      }
+      };
     });
   }
   return images[url];
