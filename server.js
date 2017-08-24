@@ -15,9 +15,9 @@ const options = {
   cert: fs.readFileSync(CERT_PATH)
 };
 
-const handler_map = []; // { handler }, 
-  // handler is a function; 
-  // handler.test is an endpoint test, 
+const handler_map = []; // { handler },
+  // handler is a function;
+  // handler.test is an endpoint test,
   // handler.methods is array of methods
 
 const on = (methods, endpoint, handler) => {
@@ -42,7 +42,7 @@ const mime_types = {
   jpg: 'image/jpeg',
   png: 'image/png',
   json: 'application/json',
-}
+};
 
 const handle_static_request = (req, res) => {
   const url_obj = url.parse(req.url);
