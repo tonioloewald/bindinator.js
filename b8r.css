@@ -8,6 +8,9 @@ body {
 
 * {
 	box-sizing: border-box;
+	/* overflow issue */
+	min-height: 0;
+	min-width: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -73,6 +76,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 }
 
 .fullscreen #example {
+	overflow-y: scroll;
 	overflow-y: overlay;
 	padding: 16px;
 }
@@ -117,6 +121,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 .content {
 	flex-grow: 1;
 	background-color: white;
+	overflow-y: scroll;
 	overflow-y: overlay;
 	position: relative;
 }
@@ -128,6 +133,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 .nav {
 	width: 160px;
 	flex: none;
+	overflow-y: scroll;
 	overflow-y: overlay;
 	background-color: #BCED85;
 }
@@ -338,6 +344,7 @@ pre {
 	background-color: #dfd;
 	color: #444;
 	border-radius: 4px;
+	overflow: scroll;
 	overflow: overlay;
 }
 
