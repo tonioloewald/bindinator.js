@@ -1,6 +1,19 @@
 <!--
 # carousel
 
+## attributes
+
+see the source code for the data attributes that allow you to customize
+the carousel's behavior.
+
+## events
+
+The carousel emits some synthetic events:
+
+* **carousel-focus** when an item becomes current
+* **carousel-blur** when an item ceases being current
+* **carousel-stop** when an item comes to rest as current
+
 Copyright ©2016-2017 Tonio Loewald
 -->
 <style>
@@ -8,7 +21,6 @@ Copyright ©2016-2017 Tonio Loewald
     width: 100%;
     min-height: 400px;
     position: relative;
-    text-align: center;
     overflow: hidden;
   }
 
@@ -16,10 +28,18 @@ Copyright ©2016-2017 Tonio Loewald
     position: absolute;
     top: 50%;
     left: 50%;
+    height: 100%;
     display: block;
     box-sizing: border-box;
     animation: 1s ease-out fade-in;
     transition: width 0.2s ease-out, height 0.2s ease-out;
+    cursor: -webkit-grab;
+    cursor: grab;
+  }
+
+  .carousel-dragging .carousel-item {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
   }
 
   .carousel-item * {
@@ -39,6 +59,7 @@ Copyright ©2016-2017 Tonio Loewald
   }
 
   .carousel > .carousel-test {
+    text-align: center;
     border-radius: 6px;
     width: 100px;
     height: 90%;
@@ -47,7 +68,6 @@ Copyright ©2016-2017 Tonio Loewald
 
   .carousel > .carousel-test.carousel-current {
     width: 200px;
-    height: 100%;
     border: 4px solid rgba(0,0,0,0.5);
   }
 
@@ -86,45 +106,7 @@ Copyright ©2016-2017 Tonio Loewald
 /* global b8r, findOne, find, component, set, data */
 'use strict';
 
-  b8r.json('lib/css-color-names.json').then(colors => {
-    const colorNames = Object.keys(colors);
-    const items = [];
-    let id = 0;
-
-    const add = () => {
-      items.push({
-        id,
-        bg_color: colorNames[Math.floor(Math.random() * colorNames.length)],
-        width: Math.random() * 200 + 100,
-      });
-      id += 1;
-    };
-
-    const remove = (evt, element) => {
-      const idx = items.indexOf(b8r.getListInstance(element));
-      items.splice(idx, 1);
-      set({items});
-      if (idx === 0) {
-        position = -1;
-        snapToTarget(0);
-      } else {
-        snapToTarget(idx > 0 ? idx - 1 : 0);
-      }
-    };
-
-    for(let i = 0; i < 4; i++) {
-      add();
-    }
-    set({
-      items,
-      add: () => {
-        add();
-        set({items});
-        snapToTarget(items.length - 1);
-      },
-      remove,
-    });
-  });
+  let position = -1;
 
   const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 0);
   const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 50);
@@ -160,9 +142,15 @@ Copyright ©2016-2017 Tonio Loewald
   function setItemPosition(element, offset) {
     var abs_offset = Math.abs(offset);
     if (abs_offset < 0.5) {
-      element.classList.add('carousel-current');
+      if (!element.classList.contains('carousel-current')) {
+        element.classList.add('carousel-current');
+        b8r.trigger('carousel-focus', element);
+      }
     } else {
-      element.classList.remove('carousel-current');
+      if (element.classList.contains('carousel-current')) {
+        element.classList.remove('carousel-current');
+        b8r.trigger('carousel-blur', element);
+      }
     }
     var dx = 0;
     var dz = 0;
@@ -188,7 +176,6 @@ Copyright ©2016-2017 Tonio Loewald
     element.style.zIndex = Math.round(30 - 10 * abs_offset);
   }
 
-  var position = null;
   const child_selector = component.getAttribute('child-selector') || '.carousel > div';
   const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'));
   const carousel = findOne('.carousel');
@@ -196,21 +183,6 @@ Copyright ©2016-2017 Tonio Loewald
   const {component_id} = data;
 
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
-
-  function init() {
-    const item_list = items();
-    item_list.forEach(element => element.classList.add('carousel-item'));
-    if (position === null) {
-      if (item_list.length) {
-        position = centered_at_start ? Math.floor((item_list.length - 1) * 0.5) : 0;
-      }
-    } else {
-      if (position > item_list.length - 1) {
-        snapToTarget(b8r.last(item_list));
-      }
-    }
-    updateItems();
-  }
 
   function updateItems(){
     const item_list = items();
@@ -223,6 +195,10 @@ Copyright ©2016-2017 Tonio Loewald
   function snapToTarget(element){
     let target = -1;
     const item_list = items();
+
+    if (element instanceof HTMLElement) {
+      element = element.closest(child_selector);
+    }
 
     if (typeof element === 'number') {
       element = item_list[element];
@@ -247,6 +223,7 @@ Copyright ©2016-2017 Tonio Loewald
     }
 
     if (Math.abs(position - target) < 0.01) {
+      b8r.trigger('carousel-stop', findOne('.carousel-current'));
       position = target;
     } else {
       position = (position * 15 + target) / 16;
@@ -255,7 +232,20 @@ Copyright ©2016-2017 Tonio Loewald
     updateItems();
   }
 
-  init();
+  function init() {
+    const item_list = items();
+    item_list.forEach(element => element.classList.add('carousel-item'));
+    if (position < 0) {
+      if (item_list.length) {
+        position = centered_at_start ? Math.floor((item_list.length - 1) * 0.5) : 0;
+      }
+    } else {
+      if (position > item_list.length - 1) {
+        snapToTarget(b8r.last(item_list));
+      }
+    }
+    updateItems();
+  }
 
   let drag_x;
   let drag_dx;
@@ -276,14 +266,60 @@ Copyright ©2016-2017 Tonio Loewald
     b8r.onAny('mouseleave', `${component_id}.dragEnd`);
   };
 
+  // Demo Code
+  if (findOne('.carousel-test')) {
+    (() => {
+      const colorNames = ['crimson', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'indigo', 'purple', 'violet', 'pink'];
+      const items = [];
+      let id = 0;
+
+      const add = () => {
+        items.push({
+          id,
+          bg_color: colorNames[id % colorNames.length],
+          width: Math.random() * 200 + 100,
+        });
+        id += 1;
+      };
+
+      const remove = (evt, element) => {
+        const idx = items.indexOf(b8r.getListInstance(element));
+        items.splice(idx, 1);
+        set({items});
+        if (idx === 0) {
+          position = -1;
+          snapToTarget(0);
+        } else {
+          snapToTarget(idx > 0 ? idx - 1 : 0);
+        }
+      };
+
+      for(let i = 0; i < 4; i++) {
+        add();
+      }
+      set({
+        items,
+        add: () => {
+          add();
+          set({items});
+          snapToTarget(items.length - 1);
+        },
+        remove,
+      });
+    })();
+  }
+
+  init();
+
   set({
+    select: elt => snapToTarget(elt),
     setTarget: evt => {
       if (!dragging()) {
         return true;
       }
       dragOff();
       if (Math.abs(drag_dx) < drag_threshold) {
-        snapToTarget(evt.target.closest(child_selector));
+        snapToTarget(evt.target);
       } else {
         b8r.trigger('change', slider);
       }
