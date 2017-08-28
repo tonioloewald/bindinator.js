@@ -118,7 +118,7 @@ const call = (path, ...args) => {
   if (method instanceof Function) {
     return method(...args);
   } else {
-    throw `cannot call ${path}; not a method`;
+    console.error(`cannot call ${path}; not a method`);
   }
 };
 
