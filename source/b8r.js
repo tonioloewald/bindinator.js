@@ -175,6 +175,8 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
 
 b8r.deregister = name => b8r.remove(name);
 
+const notInListTemplate = elt => !elt.closest('[data-list]');
+
 b8r.touchByPath = (...args) => {
   let full_path, source_element, name, path;
 
@@ -267,8 +269,6 @@ b8r.unshiftByPath = function(...args) {
     console.error(`unshiftByPath failed; ${name} is not a registered model`);
   }
 };
-
-const notInListTemplate = elt => !elt.closest('[data-list]');
 
 b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
@@ -487,6 +487,25 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
   });
 };
 
+/**
+  This is an optimization that eliminates the costlier parts of bindAll
+  for list elements, especially in the finest-grained case (where you're
+  binding a buttload of fairly simple elements).
+*/
+function makeListInstanceBinder (list_template) {
+  if (b8r.findWithin(list_template, '[data-list],[data-component]').length) {
+    return (instance, itemPath) => {
+      findBindables(instance).forEach(elt => bind(elt));
+      findLists(instance).forEach(elt => bindList(elt, itemPath));
+      loadAvailableComponents(instance, itemPath);
+    };
+  } else {
+    return instance => {
+      findBindables(instance).forEach(elt => bind(elt));
+    };
+  }
+}
+
 function bindList(list_template, data_path) {
   const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
   var method_path, list_path;
@@ -564,26 +583,7 @@ function bindList(list_template, data_path) {
   b8r.logEnd('bindList', b8r.elementSignature(list_template));
 }
 
-/**
-  This is an optimization that eliminates the costlier parts of bindAll
-  for list elements, especially in the finest-grained case (where you're
-  binding a buttload of fairly simple elements).
-*/
-function makeListInstanceBinder (list_template) {
-  if (b8r.findWithin(list_template, '[data-list],[data-component]').length) {
-    return (instance, itemPath) => {
-      findBindables(instance).forEach(elt => bind(elt));
-      findLists(instance).forEach(elt => bindList(elt, itemPath));
-      loadAvailableComponents(instance, itemPath);
-    };
-  } else {
-    return instance => {
-      findBindables(instance).forEach(elt => bind(elt));
-    };
-  }
-}
-
-function bindAll(element, data_path) {
+b8r.bindAll = (element, data_path) => {
   b8r.logStart('bindAll', b8r.elementSignature(element));
   loadAvailableComponents(element, data_path);
   findBindables(element).forEach(elt => bind(elt));
@@ -593,9 +593,7 @@ function bindAll(element, data_path) {
   }
   b8r.logEnd('bindAll', b8r.elementSignature(element));
   b8r.cleanupComponentInstances();
-}
-
-b8r.bindAll = bindAll;
+};
 
 /**
 ## `_b8r_`
@@ -759,7 +757,7 @@ b8r.makeComponent = function(name, source, url) {
 };
 
 function loadAvailableComponents(element, data_path) {
-  b8r.findWithin(element || document.body, '[data-component]')
+  b8r.findWithin(element || document.body, '[data-component]', true)
       .forEach(target => {
         if (!target.closest('[data-list]') &&
             !target.matches('[data-component-id]')) {
@@ -871,7 +869,7 @@ b8r.insertComponent = function(component, element, data) {
   } else {
     register(data);
   }
-  bindAll(element);
+  b8r.bindAll(element);
   b8r.logEnd('insertComponent', component.name);
   return element;
 };
