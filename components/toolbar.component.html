@@ -1,4 +1,9 @@
-<!-- Copyright ©2016-2017 Tonio Loewald -->
+<!--
+# toolbar
+Copyright ©2016-2017 Tonio Loewald
+
+The toolbar component merely styles its children and adds shortcut support.
+-->
 <style>
 	.toolbar {
 		margin: 0;
@@ -32,9 +37,9 @@
 <script>
 	/*
 		^^^
-		Note that the toolbar component has no actual elements of its own -- it simply decorates
+		Note that the toolbar component has no actual elements of its own — it simply decorates
 		the component.
 	*/
 	component.classList.add('toolbar');
-	require('shortcuts.js').setup();
+	require('../lib/shortcuts.js').update();
 </script>

@@ -1,46 +1,120 @@
-<!-- Copyright ©2016-2017 Tonio Loewald -->
+<!--
+# modal
+Copyright ©2016-2017 Tonio Loewald
+-->
 <style>
-	.modal-dialog-backdrop {
-		background-color: rgba(0,0,0,0.25);
-		position: fixed; 
-		top: 0; 
-		left: 0; 
-		bottom: 0; 
-		right: 0; 
-		display: flex; 
-		align-items: center; 
-		justify-content: center; 
-	}
+  .modal-dialog-backdrop {
+    background-color: rgba(0,0,0,0.3);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-	.modal-dialog {
-		padding: 12px;
-		min-width: 400px;
-		background-color: white;
-		box-shadow: 1px 6px 12px 0 rgba(0,0,0,0.5);
-	}
+  .modal-dialog {
+    position: relative;
+    padding: 12px;
+    min-width: 400px;
+    background-color: white;
+    box-shadow: 1px 6px 12px 0 rgba(0,0,0,0.5);
+  }
+
+  .modal-dialog .modal-dialog-buttons {
+    margin-top: 8px;
+    text-align: right;
+  }
+
+  .modal-dialog button {
+    margin-left: 5px;
+  }
 </style>
 <div class="modal-dialog-backdrop">
-	<div class="modal-dialog" data-event="click:_component_.button">
-		<div data-children>
-			<h3>Placeholder</h3>
-			<p>Here is some text</p>
-			<div style="text-align: right;">
-				<button>Cancel</button> <button class="default">OK</button>
-			</div>
-		</div>
-	</div>
+  <div
+    class="modal-dialog"
+    tabindex="0"
+    data-event="
+      click:_component_.button;
+      keyup(Enter):_component_.default;
+      keyup(Escape):_component_.cancel;
+    "
+  >
+    <div data-children>
+      <h3 data-bind="text=_component_.title">Placeholder</h3>
+      <label>
+        <p data-bind="text=_component_.message">Here is some text</p>
+        <input
+          style="width: 100%"
+          data-bind="
+            value=_component_.text;
+            hide_if(_null_)=_component_.text;
+            attr(placeholder)=_component_.placeholder;
+          "
+        >
+      </label>
+      <div class="modal-dialog-buttons">
+        <button
+          data-list="_component_.buttons"
+          tabindex="0"
+          data-bind="
+            text=.caption;
+            class(default)=.default;
+            class(cancel)=.cancel
+          "
+        >Button Name</button>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
-	register({
-		button: function(evt) {
-			if (data && data.callback) {
-				data.callback(evt, component);
-			} else {
-				console.log('dialog has no callback; user pressed', evt.target.textContent);
-			}
-			if (evt.target instanceof HTMLButtonElement) {
-				component.remove();
-			}
-		},
-	});
+/* global data, findOne, component, b8r */
+'use strict';
+  const dialog = findOne('.modal-dialog');
+
+  if (data.className) {
+    dialog.classList.remove('modal-dialog');
+    dialog.classList.add(data.className);
+  }
+
+  if (data.backdropColor) {
+    findOne('.modal-dialog-backdrop').style.backgroundColor = data.backdropColor;
+  }
+
+  dialog.focus();
+
+  if (!data.buttons) {
+    data.buttons = [{
+      caption: 'Cancel',
+      cancel: true
+    },
+    {
+      caption: 'OK',
+      default: true
+    }];
+  }
+
+  data.cancel = () => b8r.trigger('click', findOne('button.cancel') || findOne('button.default'));
+  data.default = () => b8r.trigger('click', findOne('button.default'));
+  data.button = evt => {
+    if (data && data.callback) {
+      data.callback(evt, component, data);
+    } else {
+      console.warn('dialog has no callback; user pressed', evt.target.textContent);
+    }
+    if (evt.target instanceof HTMLButtonElement) {
+      component.remove();
+    } else {
+      return true;
+    }
+  };
+
+  requestAnimationFrame(() => {
+    const defaultWidget = typeof data.text === 'string' ? findOne('input') : findOne('.default');
+    if (defaultWidget) {
+      defaultWidget.focus();
+    }
+  });
 </script>

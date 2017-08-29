@@ -1,0 +1,110 @@
+<!--
+# Center Scroller Test Harness
+
+Tests a center scroller component with a bunch of things that can change size and number to scroll.
+-->
+<style>
+  .center-scroller-test-item {
+    object-fit: cover;
+    border-radius: 100px;
+    width: 28px;
+    height: 28px;
+    opacity: 0.5;
+    vertical-align: top;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease-out;
+  }
+
+  .center-scroller-test-item.big {
+    width: 36px;
+    height: 36px;
+    opacity: 1.0;
+    transform: translateY(6px);
+  }
+</style>
+<div style="height: 64px; position: relative;">
+  <div
+    data-component="center-scroller"
+    item-spacing="8"
+  >
+    <img
+      class="center-scroller-test-item"
+      data-list="_component_.list:id"
+      data-bind="class(big)=.big;img=.image_url"
+      data-event="click:_component_.toggle"
+    >
+  </div>
+  <img
+    style="
+      position: absolute;
+      object-fit: cover;
+      width: 64px;
+      height: 64px;
+      border-radius: 32px;
+      top: 0;
+      left: 50%;
+      margin: -8px 0 -8px -32px;
+    "
+    src="test/portraits/weasel.png"
+  >
+  <div style="position: absolute; left: 0; bottom: 0;">
+    <button data-event="click:_component_.add">Add Item</button>
+    <button data-event="click:_component_.remove">Remove Item</button>
+  </div>
+</div>
+<script>
+'use strict';
+/* global b8r, require, data, get, set */
+
+  const uuid = require('lib/uuid.js');
+  b8r.component('components/center-scroller');
+
+  const portraits = ['snail', 'robot', 'tentacle'];
+
+  const random_item = () => {
+    return {
+      id: uuid(),
+      big: Math.random() > 0.7,
+      image_url: `test/portraits/${portraits[Math.floor(Math.random() * portraits.length)]}.png`,
+    };
+  };
+
+  if (!data.list) {
+    const size = Math.floor(Math.random() * 20 + 5);
+    const list = [];
+    for(let i = 0; i < size; i++) {
+      list.push(random_item());
+    }
+    set({list});
+  }
+
+  set('dragging', null);
+  set({
+    toggle: evt => {
+      const dragging = get('dragging');
+      if (dragging && Math.abs(evt.screenX - dragging.x0) > 4) {
+        return true;
+      }
+      set('dragging', null);
+      if (evt.shiftKey) {
+        const path = `${b8r.getListInstancePath(evt.target)}`;
+        const item = b8r.get(path);
+        item.big = !item.big;
+        b8r.touch(path);
+        b8r.trigger('change', evt.target);
+      }
+    },
+    add: () => {
+      const list = get('list');
+      list.splice(Math.floor(Math.random() * list.length), 0, random_item());
+      set({list});
+    },
+    remove: () => {
+      const list = get('list');
+      if (list.length) {
+        list.splice(Math.floor(Math.random() * list.length), 1);
+      }
+      set({list});
+    }
+  });
+</script>

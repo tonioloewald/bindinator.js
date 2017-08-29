@@ -240,7 +240,7 @@
 			.then(() => Test(() => window.getComputedStyle(b8r.findOne('.test > h2')).backgroundColor).shouldBe(computed_color('purple')))
 			// did its style leak into the rest of the DOM?
 			.then(
-				() => 
+				() =>
 					Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor)
 						.shouldBe(window.getComputedStyle(document.body).backgroundColor)
 			)

@@ -4,8 +4,13 @@ Copyright ©2016-2017 Tonio Loewald
 
 A simple example of binding. The range and number inputs are both bound to the same value.
 -->
-<input type="range" data-bind="value=_component_.value">
-<input type="number" data-bind="value=_component_.value">
+<style>
+  .slider-number {
+    width: 40px;
+  }
+</style>
+<input class="slider-range" type="range" data-bind="value=_component_.value">
+<input class="slider-number" type="number" data-bind="value=_component_.value">
 <script>
   const slider = findOne('[type="range"]');
   slider.setAttribute('min', component.getAttribute('min') || get('min') || 0);

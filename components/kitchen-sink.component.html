@@ -2,8 +2,8 @@
 # Kitchen Sink Demo
 Copyright ©2016-2017 Tonio Loewald
 
-The big difference between this and most web framework demos is that the majority of the 
-"components" are merely standard HTML widgets. The goal is not to fight the browser's 
+The big difference between this and most web framework demos is that the majority of the
+"components" are merely standard HTML widgets. The goal is not to fight the browser's
 built-in functionality but augment it.
 -->
 <style>
@@ -11,6 +11,22 @@ built-in functionality but augment it.
 		padding: 0 8px;
 		position: relative;
 		border: 1px solid rgba(0,0,0,0.25);
+	}
+
+	.fullscreen .kitchen-sink {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		border: 0;
+		background-color: white;
+	}
+
+	.kitchen-sink input,
+	.kitchen-sink textarea,
+	.kitchen-sink select {
+		background-color: white;
 	}
 
 	.kitchen-sink > hr,
@@ -23,6 +39,14 @@ built-in functionality but augment it.
 	.kitchen-sink > .toolbar {
 		margin-bottom: 8px;
 	}
+
+	.video-with-still,
+	.video-with-still+canvas {
+		width: 480px;
+		height: 270px;
+		object-fit: cover;
+		position: relative;
+	}
 </style>
 <div class="kitchen-sink">
 	<ul data-component="menubar">
@@ -30,10 +54,10 @@ built-in functionality but augment it.
 			File
 			<ul>
 				<li>
-					<a data-shortcut="ctrl-KeyN" data-event="menuclick:_component_.test">New</a>
+					<a data-shortcut="ctrl-N" data-event="menuclick:_component_.test">New</a>
 				</li>
 				<li>
-					<a data-shortcut="ctrl-KeyO" data-event="menuclick:_component_.test">Open…</a>
+					<a data-shortcut="ctrl-O" data-event="menuclick:_component_.test">Open…</a>
 				</li>
 				<li>
 					<span>Open Recent</span>
@@ -43,7 +67,7 @@ built-in functionality but augment it.
 					</ul>
 				</li>
 				<li>
-					<span data-shortcut="ctrl-KeyS">Save</span>
+					<span data-shortcut="ctrl-S">Save</span>
 				</li>
 				<li>
 					<a data-shortcut="ctrl-shift-S">Save As…</a>
@@ -58,7 +82,7 @@ built-in functionality but augment it.
 			Edit
 			<ul>
 				<li>
-					<a data-shortcut="meta-KeyZ" data-event="menuclick:_component_.test">Undo</a>
+					<a data-shortcut="meta-Z" data-event="menuclick:_component_.test">Undo</a>
 				</li>
 				<li class="separator"></li>
 				<li>
@@ -131,9 +155,9 @@ built-in functionality but augment it.
 		<button>Test</button>
 		<button>Test</button>
 		<hr class="fixed">
-		<button data-shortcut="ctrl-KeyP" data-event="shortcut,click:_component_.test">P</button>
-		<button data-shortcut="ctrl-KeyB"><b>B</b></button>
-		<button data-shortcut="ctrl-KeyI"><i>I</i></button>
+		<button data-shortcut="ctrl-P" data-event="shortcut,click:_component_.test">P</button>
+		<button data-shortcut="ctrl-B"><b>B</b></button>
+		<button data-shortcut="ctrl-I"><i>I</i></button>
 		<hr>
 		<button>Test</button>
 		<button>Test</button>
@@ -148,11 +172,13 @@ built-in functionality but augment it.
 		<option>Yet Another Option</option>
 	</select>
 	<select multiple>
-		<option>Default</option>
-		<option selected>Another Option</option>
-		<option>Yet Another Option</option>
-		<option selected>And Yet Another Option</option>
-		<option>Final Option</option>
+	  <option
+	    data-list="_component_.multiselect"
+	    data-bind="
+	      text=.text;
+	      selected=.selected
+	    "
+	  ></option>
 	</select>
 	<hr>
 	<textarea>Text Area</textarea>
@@ -166,7 +192,7 @@ built-in functionality but augment it.
 	<br>
 	<label>
 		Slider Numeric
-		<span min=0 max=25 data-component="slider-numeric" data-bind="component(value)=reactor.fuelrods"></span>
+		<span min=0 max=25 data-component="slider-numeric" data-bind="component(value)=_component_.fuelrods"></span>
 	</label>
 	<br>
 	<label>
@@ -188,41 +214,190 @@ built-in functionality but augment it.
 	</label>
 	<br>
 	<form onsubmit="return false;">
+		<h4>Fields with Combos / Autocomplete</h4>
+		<label>
+			What is your name?
+			<input
+				style="width: 200px;"
+				data-combo="names"
+				data-combo-position="above"
+				placeholder="match @name"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			>
+		</label><br>
 		<label>
 			What is your quest?
-			<input>
+			<input
+				style="width: 200px;"
+				data-combo="quests"
+				data-combo-position="above"
+				placeholder="match whole field"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			>
 		</label><br>
 		<label>
 			What is the average airspeed of an unladen swallow?
-			<input>
+			<input
+				style="width: 200px;"
+				data-combo="quests"
+				placeholder="match whole field"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			>
+		</label><br>
+		<label>
+			What is your favorite color?
+			<input
+				style="width: 200px;"
+				data-combo="colors"
+				placeholder="words match colors"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			>
+		</label><br>
+		<label>
+			div with contenteditable="true"
+			<div
+				contenteditable="true"
+				placeholder="match @name"
+				style="width: 200px; display: inline-block;"
+				data-combo="names"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			></div>
+		</label><br>
+		<label>
+			div with contenteditable="true"
+			<div
+				contenteditable="true"
+				placeholder="match field"
+				style="width: 200px; display: inline-block;"
+				data-combo="quests"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			></div>
+		</label><br>
+		<label>
+			div with contenteditable="true"
+			<div
+				contenteditable="true"
+				placeholder="words match colors"
+				style="width: 200px; display: inline-block;"
+				data-combo="colors"
+				data-event="focus,keydown,keyup:combo-controller.update"
+			></div>
 		</label>
 		<fieldset>
 			<label>
 				What is your favorite color?
 			</label>
 			<label>
-				<input name="favorite-color" value="red" type="radio">
-				Red
+				<input name="favorite-color" value="yellow" type="radio" data-bind="value=_component_.color">
+				Yellow
 			</label>
 			<label>
-				<input name="favorite-color" value="blue" type="radio">
+				<input name="favorite-color" value="blue" type="radio" data-bind="value=_component_.color">
 				Blue
 			</label>
 			<label>
-				<input name="favorite-color" value="pink" type="radio">
+				<input name="favorite-color" value="pink" type="radio" data-bind="value=_component_.color">
 				Pink
 			</label>
 		</fieldset>
 		<button type="cancel">Cancel</button>
 		<button type="submit">OK</button>
 	</form>
+	<div data-component="maxtoggle"></div>
+	<div
+		data-component="combo"
+		data-combo-id="quests"
+		class="select"
+	>
+  	<div>My name is Sir Launcelot of Camelot</div>
+		<div>To seek the Holy Grail</div>
+	  <div>Blue</div>
+  	<div>Sir Robin of Camelot</div>
+		<div>What is the capital of Assyria?</div>
+  	<div>Sir Galahad of Camelot</div>
+  	<div>Blue.  No yel--</div>
+  	<div>It is Arthur, King of the Britons</div>
+		<div>What do you mean?  An African or European swallow?</div>
+	</div>
+	<div
+		data-component="combo"
+		data-combo-id="names"
+		data-combo-filter-start="@"
+		data-combo-filter-split=" "
+		class="select"
+	>
+		<div>RealArthurKingOfBritons</div>
+		<div>SirLauncelot</div>
+		<div>SirRobinTheNotSoBrave</div>
+		<div>SirNotAppearingInThisFilm</div>
+		<div>HolyHandGrenade</div>
+		<div>VorpalBunny</div>
+	</div>
+	<div
+		data-component="combo"
+		data-combo-id="colors"
+		data-combo-filter-split=" "
+		class="select"
+	>
+		<div>Blue</div>
+		<div>Chartreuse</div>
+		<div>Lilac</div>
+		<div>Pink</div>
+		<div>Red</div>
+		<div>Yellow</div>
+	</div>
+	<video class="video-with-still" src="test/video/landscape1.mov" loop="true" controls="true" data-event="seeked,loadeddata,timeupdate:_component_.video_snapshot"></video>
+	<canvas></canvas>
 </div>
 <script>
+/* global b8r, register, console */
+'use strict';
+
 	b8r.component('components/menubar');
 	b8r.component('components/toolbar');
+	b8r.component('components/maxtoggle');
 	b8r.component('components/slider-numeric');
-	b8r.register('reactor', {fuelrods: 10});
+	b8r.component('components/combo');
+
+	['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
+
 	register({
+	  fuelrods: 17,
+	  multiselect: [
+	    {
+	      text: 'Default',
+	      selected: false
+	    },
+	    {
+	      text: 'Another Option',
+	      selected: true
+	    },
+	    {
+	      text: 'Yet Another Option',
+	      selected: false
+	    },
+	    {
+	      text: 'And Yet Another Option',
+	      selected: true
+	    },
+	  ],
+    video_snapshot: evt => {
+    	const video = evt.target;
+    	const canvas = evt.target.nextElementSibling;
+    	const dw = canvas.offsetWidth;
+    	const dh = canvas.offsetHeight;
+    	canvas.setAttribute('width', dw);
+    	canvas.setAttribute('height', dh);
+    	const ctx = canvas.getContext('2d');
+    	const sw = video.videoWidth;
+    	const sh = video.videoHeight;
+    	// ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw, dh);
+    	ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw * 0.5, dh * 0.5);
+    	ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, 0, dw * 0.5, dh * 0.5);
+    	ctx.drawImage(video, 0, 0, sw, sh, 0, dh * 0.5, dw * 0.5, dh * 0.5);
+    	ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, dh * 0.5, dw * 0.5, dh * 0.5);
+    },
+	  color: 'pink',
 		test: evt => {
 			console.log('menu pick', evt.target.textContent);
 			return true;

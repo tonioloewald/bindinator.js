@@ -1,21 +1,25 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
-<pre style="display: none;"><code style="font-size: 12px; white-space: pre-wrap;" class="language-js"></code></pre>
-<div data-component="loading"></div>
+<details>
+	<summary>
+		Source Code
+	</summary>
+	<pre>
+		<code
+			style="font-size: 12px; white-space: pre-wrap;"
+			class="language-js"
+		></code>
+	</pre>
+</details>
 <script>
 /* global findOne, require, Prism, b8r, data */
 'use strict';
-
-	var pre = findOne('pre');
 	var code = findOne('code');
-	var loading = findOne('[data-component="loading"]');
 
 	function render(source) {
-		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min")
+		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js")
 					  .then(() => {
 					 		code.textContent = source.trim();
 							Prism.highlightElement(code);
-							b8r.hide(loading);
-							b8r.show(pre);
 					  });
 	}
 

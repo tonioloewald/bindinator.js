@@ -9,11 +9,16 @@ when an input or change event fires on the bound element:
 
 ### value
 
-The **value** of `<input>` and `<textarea>` elements
+The **value** of `<input>` and `<textarea>` elements; it will correctly return
+the value of `<input type="radio" ...>` elements.
 
 ### checked
 
 The **checked** of an `<input type="checkbox">` or `<input type="radio">` element.
+
+### selected
+
+The **selected** attribute on an `<option>`.
 
 ### text
 
@@ -27,11 +32,16 @@ module.exports = function(b8r) {
 
 return {
 	value: function(element){
-		return element.value;
+		if(element.matches('input[type=radio]')){
+			const name = element.getAttribute('name');
+			const checked = b8r.find(`input[type=radio][name=${name}]`).find(elt => elt.checked);
+			return checked ? checked.value : null;
+		} else {
+			return element.value;
+		} 
 	},
-	checked: function(element) {
-		return element.checked;
-	},
+	checked: element => element.checked,
+	selected: element => element.selected,
 	text: function(element){
 		return element.textContent;
 	},
@@ -41,8 +51,7 @@ return {
 		return b8r.getByPath(model, method)(element);
 	},
 	component: function(element, path) {
-		const component = element.closest('[data-component-id]');
-		const id = component.getAttribute('data-component-id');
+		const id = b8r.getComponentId(element);
 		return b8r.getByPath(id, path);
 	}
 };

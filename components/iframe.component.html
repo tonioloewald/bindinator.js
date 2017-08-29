@@ -1,2 +1,16 @@
-<!-- Copyright ©2016-2017 Tonio Loewald -->
-<iframe style="width: 100%; min-height: 800px; border: 0" src="tests.html"></iframe>
+<!--
+# iframe
+Copyright ©2016-2017 Tonio Loewald
+
+A simple iframe component. By default it loads the test page.
+-->
+<iframe style="width: 100%; min-height: 800px; border: 0;" src="tests.html"></iframe>
+<script>
+/* global data, findOne */
+'use strict';
+
+  if (data.src) {
+    console.log(data);
+    findOne('iframe').setAttribute('src', data.src);
+  }
+</script>

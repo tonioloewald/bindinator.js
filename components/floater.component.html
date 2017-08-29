@@ -1,0 +1,113 @@
+<!--
+# Floater
+Copyright ©2016-2017 Tonio Loewald
+
+A floating, movable component.
+
+Use the class "floater-title" for the first child to get nice styling.
+-->
+<style>
+  .floater-component {
+    position: fixed;
+    color: white;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 4px;
+    cursor: move;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  }
+
+  .floater-component > [data-children] > * {
+    padding: 4px 8px;
+  }
+
+  .floater-close {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 12px;
+    width: 14px;
+    color: white;
+    border: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .floater-component .floater-title {
+    color: white;
+    background-color: rgba(0,0,0,0.25);
+    text-align: center;
+    padding: 4px 32px;
+    margin: 0;
+    border-radius: 4px 4px 0 0;
+  }
+</style>
+<button
+  title="close"
+  class="floater-close"
+  data-event="
+    click,touchend:floater-controller.close;
+  "
+>&times;</button>
+<div data-children>
+  <h4 class="floater-title">Drag Me!</h4>
+  <p>This is some test content</p>
+</div>
+<script>
+/* global component, on, set, b8r, console */
+'use strict';
+
+  on('mousedown', '_component_.start_motion');
+
+  if(
+    !component.style.left && !component.style.right &&
+    !component.style.top && !component.style.bottom
+  ) {
+    component.style.left = '10px';
+    component.style.top = '10px';
+  }
+
+  b8r.set('floater-controller', {
+    element: null,
+    move: (evt) => {
+      const target = b8r.get('floater-controller.target');
+      const origin = b8r.get('floater-controller.origin');
+      if(target) {
+        target.style.left = (evt.pageX + origin.x) + 'px';
+        target.style.top = (evt.pageY + origin.y) + 'px';
+        if (!target.style.width) {
+          target.style.right = 'auto';
+        }
+        target.style.bottom = 'auto';
+      } else {
+        console.error('should not occur; float drag did not terminate?');
+        b8r.callMethod('floater-controller.end_motion');
+      }
+    },
+    end_motion: () => {
+      b8r.set('floater-controller.target', null);
+      b8r.offAny('mousemove', 'floater-controller.move');
+      b8r.offAny('mouseup', 'floater-controller.end_motion');
+    },
+    close: (evt, target) => {
+      b8r.trigger('close', target.parentElement);
+      target.closest('.floater-component').remove();
+    },
+  });
+
+  set ({
+    start_motion: (evt) => {
+      const target = evt.target.closest('[data-event],input,select,textarea,button,a');
+      if(target.closest('.floater-title') || target.matches('.floater-component')) {
+        const style = getComputedStyle(target);
+        const x = parseFloat(style.left) - evt.pageX;
+        const y = parseFloat(style.top) - evt.pageY;
+        b8r.set('floater-controller.origin', {x,y});
+        b8r.set('floater-controller.target', target);
+        b8r.onAny('mousemove', 'floater-controller.move');
+        b8r.onAny('mouseup', 'floater-controller.end_motion');
+      } else {
+        return true;
+      }
+    },
+  });
+</script>

@@ -2,81 +2,126 @@
 # DOM Methods
 Copyright ©2016-2017 Tonio Loewald
 
-    b8r.find(selector);
+    find(selector);
 
 document.querySelectorAll(selector) converted to a true array
 
-    b8r.findOne(selector);
+    findOne(selector);
 
 document.querySelector(selector)
 
-    b8r.findWithin(element, selector, include_self);
+    findWithin(element, selector, include_self);
 
 element.querySelectorAll(selector) converted to a true array
 
-    b8r.findOneWithin(element, selector, include_self);
+    findOneWithin(element, selector, include_self);
 
 element.querySelector(selector)
 
-    b8r.id(id_string)
+    id(id_string)
 
 document.getElementById(id_string)
 
-    b8r.text(textContent)
+    text(textContent)
 
 document.createTextNode(textContent)
 
-    b8r.fragment()
+    fragment()
 
 document.createDocumentFragment()
 
-    b8r.empty()
+    empty()
 
 remove all child elements from the element
 
-    b8r.create(tagName)
+    classes(element, map);
+
+takes a map of class names to booleans and adds / removes those classes accordingly.
+
+    styles(element, map);
+
+takes a map of style settings to values and sets those styles accordingly.
+
+    create(tagName)
 
 document.createElement(tagName)
 
-    b8r. succeeding(element, selector);
+     succeeding(element, selector);
 
 next sibling matching selector
 
-    b8r.copyChildren(source, dest);
+    copyChildren(source, dest);
 
 copies children of source to dest (by cloning)
 
-    b8r.moveChildren(source, dest);
+    moveChildren(source, dest);
 
 moves children of source to dest
+
+    offset(element); // returns {x,y}
+
+obtain the offset position of the element relative to the top-left of the window.
+
+    within(element, mouse_event);
+    within(element, mouse_event, margin); // true | false
+
+did the event occur within the element (with added margin)?
+
+```
+<div
+  style="padding: 50px; background: white;"
+  data-event="mousemove:_component_.within"
+>
+  <div class="inner" style="width: 100px; height: 100px; background: #faa; box-shadow: 0 0 0 20px #fcc;">
+  </div>
+</div>
+<script>
+  const div = findOne('.inner');
+  set({
+    within: evt => {
+      if (b8r.within(div, evt, 20)) {
+        div.textContent = 'mouse within 20px'
+      } else {
+        div.textContent = 'mouse well outside';
+      }
+    }
+  })
+</script>
+```
 */
-/* global module */
+/* global module, require */
 'use strict';
 
-module.exports = function(b8r){
+const {makeArray, forEachKey} = require('./b8r.iterators.js');
 
-// TODO
-// Debug versions of findOne should throw if not exactly one match
-Object.assign(b8r, {
-  find: selector => b8r.makeArray(document.querySelectorAll(selector)),
+module.exports = {
+  find: selector => makeArray(document.querySelectorAll(selector)),
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
-    var list = b8r.makeArray(element.querySelectorAll(selector));
-    if (include_self && element.matches('[data-bind]')) {
+    let list = makeArray(element.querySelectorAll(selector));
+    if (include_self && element.matches(selector)) {
       list.unshift(element);
     }
     return list;
   },
-  findOneWithin: (element, selector, include_self) => include_self && element.matches(selector) ? element : element.querySelector(selector),
+  findOneWithin: (element, selector, include_self) =>
+    include_self &&
+    element.matches(selector) ? element : element.querySelector(selector),
   succeeding: (element, selector) => {
-    while(element.nextSibling && !element.nextElementSibling.matches(selector)){
+    while(element.nextElementSibling && !element.nextElementSibling.matches(selector)){
       element = element.nextElementSibling;
     }
     return element.nextElementSibling;
   },
-  findAbove: (elt, selector, until_elt) => {
-    var current_elt = elt.parentElement;
-    var found = [];
+  preceding: (element, selector) => {
+    while(element.previousElementSibling && !element.previousElementSibling.matches(selector)){
+      element = element.previousElementSibling;
+    }
+    return element.previousElementSibling;
+  },
+  findAbove: (elt, selector, until_elt, include_self) => {
+    let current_elt = include_self ? elt : elt.parentElement;
+    let found = [];
     while(current_elt) {
       if (current_elt === document.body) {
         break;
@@ -97,13 +142,25 @@ Object.assign(b8r, {
   text: document.createTextNode.bind(document),
   fragment: document.createDocumentFragment.bind(document),
   create: document.createElement.bind(document),
+  classes: (element, settings) => {
+    forEachKey(settings, (on_off, class_name) => {
+      if (on_off) {
+        element.classList.add(class_name);
+      } else {
+        element.classList.remove(class_name);
+      }
+    });
+  },
+  styles: (element, settings) => {
+    forEachKey(settings, (value, key) => element.style[key] = value);
+  },
   empty (element) {
     while (element.lastChild) {
       element.removeChild(element.lastChild);
     }
   },
   elementIndex (element) {
-    return b8r.makeArray(element.parentElement.children).indexOf(element);
+    return makeArray(element.parentElement.children).indexOf(element);
   },
   moveChildren (source, dest) {
     while (source.firstChild) {
@@ -111,12 +168,23 @@ Object.assign(b8r, {
     }
   },
   copyChildren (source, dest) {
-    var element = source.firstChild;
+    let element = source.firstChild;
     while (element) {
       dest.appendChild(element.cloneNode(true));
       element = element.nextSibling;
     }
   },
-});
-
+  offset (element) {
+    return element.getBoundingClientRect();
+  },
+  within (element, mouse_event, margin) {
+    const r = element.getBoundingClientRect();
+    const {pageX, pageY} = mouse_event;
+    return (
+      pageX + margin > r.left &&
+      pageX - margin < r.right &&
+      pageY + margin > r.top &&
+      pageY - margin < r.bottom
+    );
+  },
 };

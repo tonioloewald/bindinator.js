@@ -16,6 +16,14 @@
 		"path": "circle"
 	},
 	{
+		"name": "Floater",
+		"path": "floater"
+	},
+	{
+		"name": "Chart",
+		"path": "chart"
+	},
+	{
 		"name": "Photo Tabs",
 		"path": "photo-tabs"
 	},
@@ -92,7 +100,27 @@
 		"path": "stack"
 	},
 	{
-		"name": "Disclose",
-		"path": "disclose"
+		"name": "3d (threejs)",
+		"path": "threejs"
+	},
+	{
+		"name": "3d (babylonjs)",
+		"path": "babylonjs"
+	},
+	{
+		"name": "asteroids (svg)",
+		"path": "asteroids"
+	},
+	{
+		"name": "Offline",
+		"path": "offline"
+	},
+	{
+		"name": "Center Scroller",
+		"path": "center-scroller-test"
+	},
+	{
+		"name": "webrtc",
+		"path": "webrtc"
 	}
 ]

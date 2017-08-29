@@ -5,7 +5,7 @@
 	'use strict';
 
 	function render(source){
-		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min")
+		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js")
 					.then(() => {
 				 		var converter = new showdown.Converter();
 				  	component.innerHTML = converter.makeHtml(source);

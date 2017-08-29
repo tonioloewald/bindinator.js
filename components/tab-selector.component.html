@@ -5,22 +5,22 @@ Copyright ©2016-2017 Tonio Loewald
 The component's active_tab indicates the currently visible tab.
 -->
 <style>
-	.bodies {
+	.tab-selector-bodies {
 		border: 1px solid #ddd;
 	}
-	.bodies > * {
+	.tab-selector-bodies > * {
 		display: none;
 	}
 
-	.bodies > .current {
+	.tab-selector-bodies > .tab-selector-current {
 		display: block;
 	}
 
-	.tabs {
+	.tab-selector-tabs {
 		padding-top: 2px;
 	}
 
-	.tabs > .tab {
+	.tab-selector-tabs > .tab-selector-tab {
 		padding: 3px 8px 2px;
 		background-color: #ddd;
 		display: inline-block;
@@ -31,11 +31,11 @@ The component's active_tab indicates the currently visible tab.
 		cursor: pointer;
 	}
 
-	.tabs > .tab:hover {
+	.tab-selector-tabs > .tab-selector-tab:hover {
 		background-color: #eee;
 	}
 
-	.tabs > .tab.current {
+	.tab-selector-tabs > .tab-selector-current {
 		background-color: white;
 		border: 1px solid #ddd;
 		border-bottom: 1px solid white;
@@ -43,11 +43,11 @@ The component's active_tab indicates the currently visible tab.
 	}
 </style>
 <div>
-	<div class="tabs">
+	<div class="tab-selector-tabs">
 		<h4
 			data-list="_component_.tabs"
-			data-bind="text=.name;class(current)=.active"
-			class="tab"
+			data-bind="text=.name;class(tab-selector-current)=.active"
+			class="tab-selector-tab"
 			data-event="
 				mouseup,keydown(Space):_component_.select_tab;
 				keydown(ArrowLeft):_component_.previous_tab;
@@ -56,7 +56,7 @@ The component's active_tab indicates the currently visible tab.
 			tabindex="0"
 		>Tab Name</h4>
 	</div>
-	<div class="bodies" data-children>
+	<div class="tab-selector-bodies" data-children>
 		<div name="Tab A" style="text-align: center;">
 			<span style="font-size: 200px; color: red;">A</span>
 		</div>
@@ -69,9 +69,9 @@ The component's active_tab indicates the currently visible tab.
 	</div>
 </div>
 <script>
-/* global b8r, findOne, set, get, touch, data */
+/* global b8r, findOne, set, get, touch */
 'use strict';
-	const bodies = () => b8r.makeArray(findOne('.bodies').children);
+	const bodies = () => b8r.makeArray(findOne('.tab-selector-bodies').children);
 
 	function select_tab(which) {
 		if (which instanceof Event) {
@@ -83,13 +83,21 @@ The component's active_tab indicates the currently visible tab.
 		set({active_tab});
 		get('tabs').forEach((tab, idx) => tab.active = active_tab === idx);
 		touch('tabs');
-		b8r.listItems(findOne('.tabs'))[active_tab].focus();
+		b8r.listItems(findOne('.tab-selector-tabs'))[active_tab].focus();
 
-		bodies().forEach((body, idx) => active_tab === idx ? body.classList.add('current') : body.classList.remove('current'));
+		bodies().forEach((body, idx) => {
+			if (active_tab === idx) {
+				body.classList.add('tab-selector-current');
+				b8r.trigger('show', body);
+			} else if (active_tab !== idx && body.classList.contains('tab-selector-current')) {
+				body.classList.remove('tab-selector-current');
+				b8r.trigger('hide', body);
+			}
+		});
 	}
 
 	set({
-		tabs: bodies().map(element => { return { name: element.getAttribute('name') || 'Untitled' }; }),
+		tabs: bodies().map(element => { return { name: element.getAttribute('name') || element.getAttribute('title') || 'Untitled' }; }),
 		select_tab,
 		next_tab: () => select_tab((get('active_tab') + 1) % get('tabs').length),
 		previous_tab: () => select_tab((get('active_tab') + get('tabs').length - 1) % get('tabs').length),

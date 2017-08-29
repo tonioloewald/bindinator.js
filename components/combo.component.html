@@ -1,0 +1,290 @@
+<!--
+# Combo
+
+A combo is a progressively disclosed user-interface element associated with an input field.
+
+It generalizes out the concept of things like:
+
+* list-combo boxes
+* date controls
+* auto-complete
+
+The idea is that the input triggers the combo's appearance and disappearance, and that
+some keyboard operators (as well as mouse operations) manipulate the combo without
+the input field's behavior being interfered with.
+
+Setting up the combo:
+
+    <div
+      data-component="combo"
+      data-combo-id="autocomplete"
+    >
+      <div data-list="automcomplete.options" data-bind="text=.text">Item</div>
+    </div>
+
+Using the combo:
+
+    <input
+      data-combo="autocomplete"
+      data-combo-position="below"
+      data-event="
+        focus,keydown,keyup:combo-controller.update;
+      "
+    >
+
+## Attributes
+
+Several custom attributes affect the behavior of combos. These attributes can be
+on the element that uses the combo, or the combo itself (the elemenet overrides
+the combo).
+
+By default, `combo-controller.show_filtered` will match all the text in the
+element. If you want to only match the current word or the a notated substring,
+read on…
+
+    data-combo-filter-start="@"
+
+IF `data-combo-filter-start` is set then only a sequence of characters starting
+with the specified character(s) and ending at the insertion point will be matched.
+
+    data-combo-filter-split=" "
+
+If `data-combo-filter-split` is as above, but can also start at the beginning of
+the string.
+
+-->
+<script>
+/* global component, b8r */
+'use strict';
+
+  const {getSelection, setSelection} = require('lib/selection.js');
+
+  if (!b8r.registered('combo-controller')) {
+    const combos = {};
+
+    const register = combo => {
+      const name = combo.getAttribute('data-combo-id');
+      if (!name) {
+        throw 'cannot register combo with no data-combo-id';
+      }
+      if(combos[name]) {
+        console.warn(`combo "${name}" has been redefined`); // jshint ignore:line
+        combos[name].remove();
+      }
+      combos[name] = combo;
+      combo.style.position = 'fixed';
+      b8r.hide(combo);
+      b8r.on(combo, 'mouseup', 'combo-controller.click');
+      document.body.appendChild(combo);
+    };
+
+    const get_combo = element => {
+      const target = element.closest('[data-combo]');
+      if(!target) {
+        throw 'cannot show combo, no data-combo attribute';
+      }
+      const name = target.getAttribute('data-combo');
+      const combo = combos[name];
+      if (!combo) {
+        throw `cannot show combo, combo ${name} does not exist`;
+      }
+      const position = element.getAttribute('data-combo-position') || combo.getAttribute('data-combo-position') || 'below';
+      const rect = element.getBoundingClientRect();
+      const filter_split = element.getAttribute('data-combo-filter-split') || combo.getAttribute('data-combo-filter-split');
+      const filter_start = element.getAttribute('data-combo-filter-start') || combo.getAttribute('data-combo-filter-start');
+      return {combo, position, rect, filter_split, filter_start};
+    };
+
+    const show = (evt, element, do_not_hide) => {
+      const {combo, position, rect} = get_combo(element);
+      if(position === 'below') {
+        b8r.styles(combo, {
+          top: rect.bottom + 'px',
+          left: rect.left + 'px',
+          bottom: '',
+          width: rect.width + 'px',
+        });
+      } else {
+        b8r.styles(combo, {
+          top: '',
+          left: rect.left + 'px',
+          bottom: (window.innerHeight - rect.top) + 'px',
+          width: rect.width + 'px',
+        });
+      }
+      if (!do_not_hide) {
+        hide();
+      }
+      b8r.show(combo);
+      combo._targetElement = element;
+      return true;
+    };
+
+    const hide = () => {
+      b8r.forEachKey(combos, combo => {
+        combo._targetElement = null;
+        combo.querySelectorAll('.selected').forEach(elt => elt.classList.remove('selected'));
+        b8r.hide(combo);
+      });
+      return true;
+    };
+
+    const show_filtered = (evt, element) => {
+      const {combo, filter_split, filter_start} = get_combo(element);
+      const {match} = partial_match(element, filter_split, filter_start);
+      if(typeof match !== 'string') {
+        hide();
+      }
+      const filtered = b8r.makeArray(combo.children).filter(item => {
+        if(item.getAttribute('data-list')) {
+          return false;
+        } else if(item.textContent.toLowerCase().indexOf(match) > -1) {
+          item.classList.remove('hidden');
+          return true;
+        } else {
+          item.classList.remove('selected');
+          item.classList.add('hidden');
+          return false;
+        }
+      });
+      hide();
+      if (filtered.length) {
+        if (!filtered.find(item => item.classList.contains('selected'))) {
+          filtered[0].classList.add('selected');
+        }
+        show(evt, element, true);
+      }
+    };
+
+    const partial_match = (element, filter_split, filter_start) => {
+      let {text, selStart, selEnd} = getSelection(element);
+      let match = text.toLowerCase();
+
+      let start = 0;
+      let end = match.length;
+      if (filter_split || filter_start) {
+        end = selEnd;
+        if (filter_split) {
+          start = end - match.substr(0, end).split(filter_split).pop().length;
+        }
+        if (filter_start) {
+          if (match.substr(start, end - start).indexOf(filter_start) > -1) {
+            start = end - match.substr(start, end - start).split(filter_start).pop().length;
+          } else {
+            return {};
+          }
+        }
+      }
+
+      match = match.substr(start, end - start);
+      return {match, start, end};
+    };
+
+    const click = (evt, element) => {
+      element.querySelectorAll('.selected').forEach(elt => elt.classList.remove('selected'));
+      evt.target.closest('[data-component="combo"] > *').classList.add('selected');
+      insert(evt, element._targetElement);
+    }
+
+    const insert = (evt, element) => {
+      const {combo, filter_start, filter_split} = get_combo(element);
+      const {match, start, end} = partial_match(element, filter_split, filter_start);
+      if (!combo._targetElement) {
+        return;
+      } else if (match === undefined) {
+        console.warn('could not insert from combo; no match in field'); // jshint ignore:line
+        return;
+      }
+      const selected = combo.querySelector('.selected');
+      if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+        element.value = element.value.substr(0, start) + selected.textContent + element.value.substr(end);
+      } else {
+        element.textContent = element.textContent.substr(0,start) + selected.textContent + element.textContent.substr(end);
+        const caret_position = start + selected.textContent.length;
+        setSelection(element, caret_position);
+      }
+      hide();
+    };
+
+    const update = (evt, element) => {
+      const {combo} = get_combo(element);
+      const current = combo.querySelector('.selected');
+      switch(evt.type) {
+        case 'keydown':
+          switch(evt.code) {
+            case 'ArrowUp':
+            case 'ArrowDown':
+              return false;
+              break;
+            case 'Space':
+            case 'NumpadEnter':
+            case 'Enter':
+              if (current) {
+                insert(evt, element);
+                hide();
+                return false;
+              }
+              break;
+          }
+          break;
+        case 'keyup':
+          switch (evt.code) {
+            case 'ArrowUp':
+              if (current) {
+                const previous = b8r.preceding(current, ':not(.hidden):not([data-list])');
+                if (previous) {
+                  current.classList.remove('selected');
+                  previous.classList.add('selected');
+                }
+              }
+              break;
+            case 'ArrowDown':
+              if (current) {
+                const next = b8r.succeeding(current, ':not(.hidden):not([data-list])');
+                if (next) {
+                  current.classList.remove('selected');
+                  next.classList.add('selected');
+                }
+              }
+              break;
+            case 'Space':
+            case 'NumpadEnter':
+            case 'Enter':
+              break;
+            case 'Escape':
+              hide();
+              break;
+            default:
+              show_filtered(evt, element);
+              break;
+          }
+          break;
+        case 'focus':
+        case 'mousedown':
+        case 'mouseup':
+          show_filtered(evt, element);
+          break;
+      }
+      return true;
+    };
+
+    const hide_on_click = evt => {
+      if (!evt.target.closest('[data-combo-id]')) {
+        hide();
+      }
+      return true;
+    };
+
+    b8r.onAny('mousedown,scroll', 'combo-controller.hide_on_click');
+    window.addEventListener('resize', hide);
+
+    b8r.register('combo-controller', {
+      register,
+      hide_on_click,
+      update,
+      click,
+    });
+  }
+
+  b8r.call('combo-controller.register', component);
+</script>

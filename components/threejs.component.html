@@ -1,0 +1,85 @@
+<!--
+# three.js example
+
+[threejs](https://threejs.org//) is a 3D engine created by Ricardo Cabello.
+
+It loads via require() but sets a global rather than passing back to module.exports.
+-->
+<style>
+  .threejs {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 768px;
+    height: 512px;
+    transform: translateX(-50%) translateY(-50%);
+    pointer-events: none;
+    opacity: 0.8;
+  }
+</style>
+<script>
+/* global require, THREE, component, b8r */
+'use strict';
+
+  require.lazy('https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js').
+  then(() => {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera( 60, 1.5, 0.1, 1000 );
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+
+    renderer.setSize( 768, 512 );
+    const canvas = renderer.domElement;
+    canvas.classList.add('threejs');
+    component.appendChild(canvas);
+
+
+    const sunlight = new THREE.DirectionalLight(0xffffcc, 1);
+    sunlight.position.set(100, 50, 50);
+    scene.add(sunlight);
+    const backlight = new THREE.DirectionalLight(0x8888ff, 0.25);
+    backlight.position.set(-100, 50, 50);
+    scene.add(backlight);
+
+    const geometry = new THREE.SphereGeometry( 0.5, 24, 12 );
+    const material = new THREE.MeshPhysicalMaterial( { color: 0x444444, reflectivity: 0.9, emissive: 0x202040 } );
+    material.shading = THREE.FlatShading;
+    const cube = new THREE.Mesh( geometry, material );
+    scene.add( cube );
+
+    camera.position.z = 2;
+    cube.rotation.x = -0.2;
+
+    const update = () => {
+      const mouse = b8r.get('threejs-demo.mouse');
+      if (mouse) {
+        sunlight.position.x = mouse.x * 200;
+        sunlight.position.y = mouse.y * -200;
+      }
+      cube.rotation.y -= 0.01;
+    };
+
+    b8r.onAny('mousemove', 'threejs-demo.mousemove');
+    b8r.register('threejs-demo', {
+      mousemove: evt => {
+        if (component.closest('body')) {
+          const x = (evt.clientX / window.innerWidth - 0.5) * 2;
+          const y = (evt.clientY / window.innerHeight - 0.5) * 2;
+          b8r.set('threejs-demo.mouse', {x, y});
+        } else {
+          b8r.deregister('threejs-demo');
+          b8r.offAny('mousemove', 'threejs-demo.mousemove');
+        }
+        return true;
+      }
+    });
+
+    function render() {
+      if(canvas.closest('body')) {
+        update();
+        requestAnimationFrame( render );
+        renderer.render( scene, camera );
+      }
+    }
+    render();
+  });
+</script>

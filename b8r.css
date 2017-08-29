@@ -1,9 +1,13 @@
 /* bindinator.js Copyright ©2016-2017 Tonio Loewald */
 
 body {
-	font: 13px "Helvetica Neue", Helvetica, Sans-serif;
+	font: 13px "Source Sans Pro", Sans-serif;
 	background-color: #c7ddbb;
 	color: #222222;
+}
+
+* {
+	box-sizing: border-box;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -11,7 +15,13 @@ h1, h2, h3, h4, h5, h6 {
 	margin: 0 0 8px 0;
 }
 
-h1, h2, h3, h4, h5, h6, b, strong {
+.content h1,
+.content h2,
+.content h3 {
+	margin-top: 16px;
+}
+
+h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 	color: #57A700;
 }
 
@@ -24,7 +34,7 @@ h1, h2, h3, h4, h5, h6, b, strong {
 
 .hidden,
 [data-list] {
-	display: none;
+	display: none !important;
 }
 
 .layout {
@@ -41,6 +51,13 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	border-radius: 5px;
 }
 
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
 .fullscreen .layout,
 .fullscreen #example {
 	position: fixed;
@@ -52,12 +69,12 @@ h1, h2, h3, h4, h5, h6, b, strong {
 	margin: 0;
 	max-width: none;
 	background: white;
+	box-sizing: content-box;
 }
 
 .fullscreen #example {
-	overflow-y: scroll;
+	overflow-y: overlay;
 	padding: 16px;
-	margin: -16px;
 }
 
 .header {
@@ -100,7 +117,8 @@ h1, h2, h3, h4, h5, h6, b, strong {
 .content {
 	flex-grow: 1;
 	background-color: white;
-	overflow-y: scroll;
+	overflow-y: overlay;
+	position: relative;
 }
 
 .three_col > * > * {
@@ -110,17 +128,36 @@ h1, h2, h3, h4, h5, h6, b, strong {
 .nav {
 	width: 160px;
 	flex: none;
-	overflow-y: scroll;
+	overflow-y: overlay;
 	background-color: #BCED85;
 }
 
-.nav h3 {
-	margin-left: 8px;
-	margin-top: 12px;
+::-webkit-details-marker {
+	color: #57A700;
+}
+
+summary {
+	cursor: pointer;
+}
+
+.nav summary {
 	font-weight: 500;
 	color: #666;
 	text-transform: uppercase;
 	font-size: 12px;
+}
+
+details > * {
+	animation: fadein 0.25s ease-out;
+}
+
+@keyframes fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 .loadable {
@@ -147,13 +184,23 @@ label {
 button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {
-	box-sizing: border-box;
 	font: 13px System, Sans-serif;
 	color: black;
+	line-height: 16px;
+	padding: 2px 4px;
+	background: white;
 	border: 1px solid rgba(0,0,0,0.1);
 	outline: none;
 }
 
+:not(input)[placeholder]:empty:after {
+	content: attr(placeholder);
+	color: #aaa;
+}
+
+::placeholder {
+	color: #aaa;
+};
 
 select, .select {
 	vertical-align: top;
@@ -203,11 +250,33 @@ button {
 }
 
 button.default, button[type="submit"] {
-	background-color: #ccf;
+	background-color: #cfb;
 }
 
 button.cancel, button[type="cancel"] {
-	background-color: #fdd;
+	background-color: #ffb;
+}
+
+.iconic {
+	border: 0;
+	background: rgba(255,255,255,0.5);
+	width: 24px;
+	height: 24px;
+	border-radius: 16px;
+	font-size: 14px;
+	line-height: 24px;
+	text-align: center;
+}
+
+.iconic:focus,
+.iconic:hover {
+	border: 0;
+	background: rgba(255,255,255,0.75);
+}
+
+.iconic:active {
+	border: 0;
+	background: white;
 }
 
 button:hover, .button:hover,
@@ -269,14 +338,104 @@ pre {
 	background-color: #dfd;
 	color: #444;
 	border-radius: 4px;
+	overflow: overlay;
 }
 
 code {
 	color: #57A700;
 	font-family: Menlo, Monaco, Monospace;
+	font-size: 90%;
 }
 
 pre > code {
 	color: #444;
+}
+
+.content blockquote {
+	margin: 0;
+	padding: 5px 10px 10px 10px;
+	border-radius: 2px;
+	background: #cfc;
+	border-right: 4px solid #57A700;
+}
+
+.content blockquote h2,
+.content blockquote h3,
+.content blockquote p {
+	margin-left: 10px;
+	padding: 0;
+}
+
+.select {
+	background: white;
+	cursor: pointer;
+	color: #444;
+}
+
+.select > * {
+  padding: 4px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select > :hover {
+  background: rgba(0,0,0,0.1);
+}
+
+.select > :active {
+  background: black;
+  color: white;
+}
+
+.select > .selected {
+	background: rgba(0,0,0,0.2);
+	color: black;
+}
+
+[data-component]:not([data-component-id]) {
+	display: none !important;
+}
+
+/* animations */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+::selection {
+	color: black;
+	background: rgba(128,255,0,0.75);
+}
+
+
+progress {
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  vertical-align: baseline;
+  width: 100px;
+  height: 10px;
+
+  border: 2px solid #BCED85;
+  background: white;
+  border-radius: 5px
+}
+
+progress::-webkit-progress-bar {
+  background: white;
+  border-radius: 5px;
+}
+
+progress::-webkit-progress-value {
+  background-color: #57A700;
+  border-radius: 5px;
 }
 

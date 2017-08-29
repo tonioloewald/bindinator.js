@@ -1,152 +1,323 @@
-<!-- Copyright ©2016-2017 Tonio Loewald -->
+<!--
+# carousel
+
+Copyright ©2016-2017 Tonio Loewald
+-->
 <style>
-	.carousel {
-		width: 100%;
-		min-height: 400px;
-		position: relative;
-		text-align: center;
-		perspective: 1000px;
-	}
+  .carousel {
+    width: 100%;
+    min-height: 400px;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+  }
 
-	.carousel-item {
-		color: white;
-		font-size: 48px;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-	}
+  .carousel-item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    box-sizing: border-box;
+    animation: 1s ease-out fade-in;
+    transition: width 0.2s ease-out, height 0.2s ease-out;
+  }
 
-	.carousel > .windoid {
-		display: block;
-		background-color: rgba(255,255,255,0.5);
-		width: 30%;
-		height: 90%;
-		border-radius: 6px;
-	}
+  .carousel-item * {
+    pointer-events: none;
+  }
+
+  .carousel-item.carousel-current * {
+    pointer-events: all;
+  }
+
+  .carousel-target {
+    border: 4px solid rgba(0,0,0,0.25);
+  }
+
+  .carousel-hidden {
+    display: none;
+  }
+
+  .carousel > .carousel-test {
+    border-radius: 6px;
+    width: 100px;
+    height: 90%;
+    padding: 20px;
+  }
+
+  .carousel > .carousel-test.carousel-current {
+    width: 200px;
+    height: 100%;
+    border: 4px solid rgba(0,0,0,0.5);
+  }
+
+  .carousel > .carousel-test > button {
+    margin: 10px;
+  }
 </style>
-<div class="carousel" data-event="mouseup:_component_.setTarget;change:_component_.change" data-children>
-	<div class="windoid" style="min-width: 50%; background-color: #d00">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #d70">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #dd0">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #7d0">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #0d0">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #0d7">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #0dd">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #07d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #00d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #70d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #d0d">
-	</div>
-	<div class="windoid" style="min-width: 50%; background-color: #d07">
-	</div>
+<div
+  class="carousel"
+  data-event="
+    mousedown:_component_.dragStart;
+    mouseup:_component_.setTarget;
+    change:_component_.change;
+  "
+  data-children
+>
+  <div
+    class="carousel-test"
+    data-list="_component_.items:id"
+    data-bind="
+      style(backgroundColor)=.bg_color;
+    "
+  >
+    <button
+      data-event="click:_component_.remove"
+      style="position: absolute; top: -5px; left: -5px;"
+      class="iconic icon-cross2"
+    ></button>
+    <button data-event="click:_component_.add" class="iconic icon-plus2"></button>
+  </div>
 </div>
-<div style="text-align: center; padding: 20px;">
-	<input type="range" min=0 max=1 step=0.01 data-event="input,change:_component_.update" />
+<div style="text-align: center; padding: 20px;" data-bind="show_if=_component_.show_slider">
+  <input type="range" min=0 max=1 step=0.0001 data-event="input,change:_component_.update" />
 </div>
 <script>
-	function ease_in_out(t) {
-		var s = t > 0 ? 0.5 : -0.5;
-		var a = Math.abs(t);
-		return (1 - Math.cos(a * Math.PI)) * s;
-	}
+/* global b8r, findOne, find, component, set, data */
+'use strict';
 
-	function ease_out(t) {
-		var s = t > 0 ? 1 : -1;
-		var a = Math.abs(t);
-		return (1 - Math.cos(a * 0.5 * Math.PI)) * s;
-	}
+  b8r.json('lib/css-color-names.json').then(colors => {
+    const colorNames = Object.keys(colors);
+    const items = [];
+    let id = 0;
 
-	function ease_in(t) {
-		return 1 - ease_out(1 - t);
-	}
+    const add = () => {
+      items.push({
+        id,
+        bg_color: colorNames[Math.floor(Math.random() * colorNames.length)],
+        width: Math.random() * 200 + 100,
+      });
+      id += 1;
+    };
 
-	// offset 0: element is in the center
-	// offset 1: the element is one to the right of center
-	// offset 0.5: element is halfway between center and offset 1
-	// offset -2: the element is two to the left of center
-	function setItemPosition(element, offset) {
-		var abs_offset = Math.abs(offset);
-		var dx = 0;
-		var dz = 0;
-		var ry = 0;
-		if( abs_offset > 0.01) {
-			dx = (abs_offset < 1 ? abs_offset : Math.sqrt(abs_offset)) * (offset < 0 ? -200 : 200);
-			if (abs_offset < 1) {
-				dz = -100 * ease_in_out(abs_offset);
-				ry = ease_in(offset) * -80;
-			} else {
-				dz = -100;
-				ry = offset < 0 ? 80 : -80;
-			}
-		} else {
-			offset = 0;
-			abs_offset = 0;
-		}
-		var s = 1 - Math.min(abs_offset, 0.3);
-		element.style.transform = 'translateX(-50%) translateY(-50%) translateX(' + dx + 'px) translateZ(' + dz + 'px) rotateY(' + ry + 'deg) scale(' + s + ')';
-		element.style.zIndex = Math.round(30 - 10 * abs_offset);
-	}
+    const remove = (evt, element) => {
+      const idx = items.indexOf(b8r.getListInstance(element));
+      items.splice(idx, 1);
+      set({items});
+      if (idx === 0) {
+        position = -1;
+        snapToTarget(0);
+      } else {
+        snapToTarget(idx > 0 ? idx - 1 : 0);
+      }
+    };
 
-	var position = 0;
-	var target = 0;
-	var items;
-	var carousel = findOne('.carousel');
-	var slider = findOne('input');
+    for(let i = 0; i < 4; i++) {
+      add();
+    }
+    set({
+      items,
+      add: () => {
+        add();
+        set({items});
+        snapToTarget(items.length - 1);
+      },
+      remove,
+    });
+  });
 
-	function init() {
-		const child_selector = component.getAttribute('child-selector') || '.carousel > div';
-		items = find(child_selector).filter(elt => !elt.matches('[data-list]'));
-		items.forEach(element => element.classList.add('carousel-item'));
-		target = Math.min(target, items.length - 1);
-		updateItems();
-	}
+  const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 0);
+  const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 50);
+  const inner_offset = parseFloat(component.getAttribute('data-carousel-inner-offset') || 150);
+  const item_offset = parseFloat(component.getAttribute('data-carousel-offset') || 100);
+  const item_spacing = parseFloat(component.getAttribute('data-carousel-spacing') || 10);
+  const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
+  const min_scale = component.getAttribute('data-carousel-minscale') || 1;
+  const drag_threshold = component.getAttribute('data-carousel-drag-threshold') || 10;
 
-	function updateItems(){
-		items.forEach((element, idx) => {
-			setItemPosition(element, idx - position);
-		});
-		slider.value = position / (items.length - 1);
-	}
+  set({show_slider: component.hasAttribute('data-show-slider')});
 
-	function snapToTarget(){
-		if (Math.abs(position - target) < 0.01) {
-			position = target;
-		} else {
-			position = (position * 15 + target) / 16;
-			requestAnimationFrame(snapToTarget);
-		}
-		updateItems();
-	}
+  function ease_in_out(t) {
+    var s = t > 0 ? 0.5 : -0.5;
+    var a = Math.abs(t);
+    return (1 - Math.cos(a * Math.PI)) * s;
+  }
 
-	init();
+  function ease_out(t) {
+    var s = t > 0 ? 1 : -1;
+    var a = Math.abs(t);
+    return (1 - Math.cos(a * 0.5 * Math.PI)) * s;
+  }
 
-	register({
-		setTarget: (evt) => {
-			child = evt.target;
-			while (child.parentElement && items.indexOf(child) === -1) {
-				child = child.parentElement;
-			}
-			target = items.indexOf(child);
-			snapToTarget(child);
-		},
-		change: init,
-		update: (evt) => {
-			position = slider.value * (items.length - 1);
-			updateItems();
-			if(evt.type === 'change') {
-				target = Math.round(position);
-				snapToTarget();
-			}
-		}
-	});
+  function ease_in(t) {
+    return 1 - ease_out(1 - t);
+  }
+
+  // offset 0: element is in the center
+  // offset 1: the element is one to the right of center
+  // offset 0.5: element is halfway between center and offset 1
+  // offset -2: the element is two to the left of center
+  function setItemPosition(element, offset) {
+    var abs_offset = Math.abs(offset);
+    if (abs_offset < 0.5) {
+      element.classList.add('carousel-current');
+    } else {
+      element.classList.remove('carousel-current');
+    }
+    var dx = 0;
+    var dz = 0;
+    var ry = 0;
+    if( abs_offset > 0.01) {
+      dx = abs_offset < 1 ?
+           offset * (inner_offset + item_spacing) :
+           (inner_offset + item_spacing + (abs_offset - 1) * (item_offset + item_spacing)) * (offset < 0 ? -1 : 1);
+      if (abs_offset < 1) {
+        dz = -max_distance * ease_in_out(abs_offset);
+        ry = ease_in(offset) * -max_rotation;
+      } else {
+        dz = -max_distance;
+        ry = offset < 0 ? max_rotation : -max_rotation;
+      }
+    } else {
+      offset = 0;
+      abs_offset = 0;
+    }
+    var s = 1 - Math.min(abs_offset, 1 - min_scale);
+
+    element.style.transform = `translateX(-50%) translateY(-50%) translateX(${dx}px) translateZ(${dz}px) rotateY(${ry}deg) scale(${s})`;
+    element.style.zIndex = Math.round(30 - 10 * abs_offset);
+  }
+
+  var position = null;
+  const child_selector = component.getAttribute('child-selector') || '.carousel > div';
+  const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'));
+  const carousel = findOne('.carousel');
+  const slider = findOne('input');
+  const {component_id} = data;
+
+  const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
+
+  function init() {
+    const item_list = items();
+    item_list.forEach(element => element.classList.add('carousel-item'));
+    if (position === null) {
+      if (item_list.length) {
+        position = centered_at_start ? Math.floor((item_list.length - 1) * 0.5) : 0;
+      }
+    } else {
+      if (position > item_list.length - 1) {
+        snapToTarget(b8r.last(item_list));
+      }
+    }
+    updateItems();
+  }
+
+  function updateItems(){
+    const item_list = items();
+    item_list.forEach((element, idx) => {
+      setItemPosition(element, idx - position);
+    });
+    slider.value = position / (item_list.length - 1);
+  }
+
+  function snapToTarget(element){
+    let target = -1;
+    const item_list = items();
+
+    if (typeof element === 'number') {
+      element = item_list[element];
+    }
+
+    if (element instanceof HTMLElement) {
+      item_list.forEach((item, index) => {
+        if (item === element) {
+          item.classList.add('carousel-target');
+          target = index;
+        } else {
+          item.classList.remove('carousel-target');
+        }
+      });
+    } else {
+      target = item_list.findIndex(item => item.classList.contains('carousel-target'));
+    }
+
+    if (target === -1) {
+      console.error('carousel cannot snap to target'); // jshint ignore:line
+      return;
+    }
+
+    if (Math.abs(position - target) < 0.01) {
+      position = target;
+    } else {
+      position = (position * 15 + target) / 16;
+      requestAnimationFrame(snapToTarget);
+    }
+    updateItems();
+  }
+
+  init();
+
+  let drag_x;
+  let drag_dx;
+
+  const dragging = () => component.matches('.carousel-dragging');
+
+  const dragOff = () => {
+    component.classList.remove('carousel-dragging');
+    b8r.offAny('mouseup', `${component_id}.setTarget`);
+    b8r.offAny('mousemove', `${component_id}.drag`);
+    b8r.offAny('mouseleave', `${component_id}.dragEnd`);
+  };
+
+  const dragOn = () => {
+    component.classList.add('carousel-dragging');
+    b8r.onAny('mouseup', `${component_id}.setTarget`);
+    b8r.onAny('mousemove', `${component_id}.drag`);
+    b8r.onAny('mouseleave', `${component_id}.dragEnd`);
+  };
+
+  set({
+    setTarget: evt => {
+      if (!dragging()) {
+        return true;
+      }
+      dragOff();
+      if (Math.abs(drag_dx) < drag_threshold) {
+        snapToTarget(evt.target.closest(child_selector));
+      } else {
+        b8r.trigger('change', slider);
+      }
+    },
+    dragStart: evt => {
+      if (!evt.target.matches('.carousel-item')) {
+        return true;
+      }
+      drag_x = evt.pageX;
+      drag_dx = 0;
+      dragOn();
+    },
+    drag: evt => {
+      if (dragging()) {
+        let dx = evt.pageX - drag_x;
+        drag_x = evt.pageX;
+        drag_dx += dx;
+        position = clamp(position - dx * 4 / carousel.offsetWidth, -0.125, items().length - 0.875);
+        updateItems();
+      }
+    },
+    dragEnd: evt => {
+      if (evt.target === carousel && dragging()) {
+        dragOff();
+        b8r.trigger('change', slider);
+      }
+    },
+    change: init,
+    update: evt => {
+      position = slider.value * (items().length - 1);
+      updateItems();
+      if(evt.type === 'change') {
+        snapToTarget(Math.round(position));
+      }
+    }
+  });
 </script>

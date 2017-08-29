@@ -1,10 +1,25 @@
-<!-- Copyright ©2016-2017 Tonio Loewald -->
+<!--
+# Circle
+Copyright ©2016-2017 Tonio Loewald
+
+An SVG circle which can be parametrically constrolled via attributes:
+
+* diameter: size in pixels
+* fill
+* opacity
+* inner-radius (pixels)
+* angle: starting angle (degrees)
+* arc: total arc (degrees)
+
+-->
 <div>
 	<svg viewBox="0, 0, 128, 128">
-  		<path d="M 0 64 a 64 64, 0, 0, 0, 128 0 a 64 64, 0, 0, 0, -128 0 z">
+  	<path d="M 0 64 a 64 64, 0, 0, 0, 128 0 a 64 64, 0, 0, 0, -128 0 z">
 	</svg>
 </div>
 <script>
+/* global component, findOne */
+'use strict';
 	const r = 64 * (parseFloat(component.getAttribute('radius')) || 1);
 	const c = 64;
 	const degrees_to_radians = Math.PI / 180;

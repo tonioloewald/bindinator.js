@@ -99,7 +99,7 @@
 	const add_shortcut_span = elt => {
 		var caption = elt.getAttribute('data-shortcut').split('-');
 		caption.forEach((s, i) => {
-			caption[i] = b8r.modifierKeys[s] || specialKeys[s] || s.replace(/Key|Digit/, '');
+			caption[i] = b8r.modifierKeys[s] || specialKeys[s] || s;
 		});
 		caption = caption.join('');
 		const span = b8r.create('span');
@@ -127,7 +127,7 @@
 	// keyboard navigation
 	b8r.makeArray(component.querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
 
-	require('shortcuts.js').setup();
+	require('../lib/shortcuts.js').update();
 
 	function close_all_menus() {
 		b8r.off(document.body, 'mousedown', 'menubar', 'close');
@@ -161,7 +161,7 @@
 			}
 		},
 		close(evt){
-			if (!evt.relatedTarget || !evt.relatedTarget.closest('.menubar')) {
+			if (!evt || !evt.relatedTarget || !evt.relatedTarget.closest('.menubar')) {
 				close_all_menus();
 			}
 		}

@@ -1,0 +1,137 @@
+<!--
+# Center Scroller
+
+Allows horizontal scrolling of arbitrary elements of varying size leaving space in the center.
+
+-->
+<style>
+  .center-scroller-component {
+    -webkit-app-region: no-drag;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .center-scroller {
+    position: absolute;
+    white-space: nowrap;
+    cursor: -webkit-grab;
+    cursor: pointer;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .center-scroller.drag-in-progress {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+  }
+</style>
+<div
+  class="center-scroller"
+  data-children
+  data-bind="class(drag-in-progress)=_component_.dragging"
+  data-event="
+    change,click:_component_.update;
+    mousedown:_component_.dragStart;
+  "
+>
+</div>
+<script>
+/* global require, findOne, data, component, set, get, b8r */
+'use strict';
+
+  const resize = require('../lib/resize.js');
+  const scroller = findOne('.center-scroller');
+  const container = findOne('[data-children]');
+  const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
+
+  const center_gap = parseInt(data.center_gap || component.getAttribute('center-gap') || 64, 10);
+  const min_item_width = parseInt(data.min_item_width || component.getAttribute('minimum-item-width') || 28, 10);
+  const item_spacing = parseInt(data.item_spacing || component.getAttribute('item-spacing') || 2, 10);
+  set({center_gap, min_item_width, item_spacing});
+  const component_id = b8r.getComponentId(component);
+
+  if (getComputedStyle(component).position !== 'absolute') {
+    component.style.position = 'relative';
+  }
+
+  resize(scroller, '_component_.update');
+
+  let position = null;
+  let items;
+  let item_count;
+  let velocity;
+
+  const update = () => {
+    items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
+    if (item_count !== items.length) {
+      position = null;
+      item_count = items.length;
+    }
+    if (!item_count) {
+      return;
+    }
+    if (position === null) {
+      position = item_count/2 - 0.5; // first item to right of center-gap
+    } else {
+      position = clamp(position, -0.25, item_count + 0.25);
+    }
+    const center_index = Math.max(0, Math.floor(position + 0.5));
+    let dx = (position - center_index);
+    let offset = (center_gap + item_spacing) * -0.5 - dx * min_item_width;
+    if (center_index > 0) {
+      offset += item_spacing;
+    }
+    items.forEach((item, idx) => {
+      item.style.marginLeft = (center_index === idx ? center_gap : 0) + (idx > 0 || center_index === 0 ? item_spacing : 0) + 'px';
+      if (idx < center_index) {
+        offset -= item.offsetWidth + item_spacing;
+      }
+    });
+    scroller.style.transform = `translateX(${offset}px)`;
+    // snap to position if necessary
+    if (!get('dragging') && Math.abs(dx) > 0.001) {
+      requestAnimationFrame(() => {
+        position = center_index + dx * 0.7;
+        update();
+      });
+    }
+  };
+
+  const dragStart = evt => {
+    set('dragging', {x0: evt.pageX, position});
+    b8r.onAny('mousemove', `${component_id}.drag`);
+    b8r.onAny('mouseup', `${component_id}.dragEnd`);
+  };
+  const drag = evt => {
+    const dragging = get('dragging');
+    if (dragging) {
+      if (b8r.within(component, evt, 40)) {
+        position = dragging.position - (evt.pageX - dragging.x0)/min_item_width;
+        update();
+      } else {
+        dragEnd(evt);
+      }
+    }
+  };
+  const dragEnd = evt => {
+    const dragging = get('dragging');
+    if (dragging) {
+      set('dragging', null);
+      b8r.offAny('mousemove', `${component_id}.drag`);
+      b8r.offAny('mouseup', `${component_id}.dragEnd`);
+      update();
+    }
+    return true;
+  };
+
+  set({
+    dragging: null,
+    update,
+    dragStart,
+    drag,
+    dragEnd,
+  });
+
+  update();
+</script>

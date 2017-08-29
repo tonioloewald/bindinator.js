@@ -1,0 +1,157 @@
+<!--
+# asteroids
+
+Demonstrates b8r's ability to bind to SVG elements. Performance relative to canvas is pretty terrible.
+-->
+<style>
+.asteroids {
+  background: #021;
+  width: 512px;
+  height: 512px;
+  position: relative;
+  overflow: hidden;
+}
+
+.fullscreen .asteroids {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.asteroids > svg {
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  transform: translateX(-50%) translateX(-50px) translateY(-50%) translateY(-50px);
+}
+</style>
+<div class="asteroids">
+  <svg
+    data-list="_component_.ships"
+    data-bind="style(transform)=.transform"
+    width="34" height="44"
+    viewBox="0 0 34 44"
+  >
+    <path d="M5.04370226,37.7563664 L16.6776695,5.47473485 L28.3116368,37.7563664 L16.9802255,29.143848 L16.6776695,28.9138882 L16.3751135,29.143848 L5.04370226,37.7563664 Z" id="Rectangle" fill="none" stroke="#91FF4B"></path>
+  </svg>
+  <svg data-list="_component_.bullets" width="8" height="10" viewBox="0 0 8 10">
+    <rect id="Rectangle-2" fill="none" stroke="#91FF4B" x="3" y="3" width="2" height="4"></rect>
+  </svg>
+  <svg
+    data-list="_component_.asteroids:id"
+    data-bind="style(left+px)=.x;style(top+px)=.y;style(transform)=.transform"
+    width="84px" height="84px" viewBox="0 0 84 84"
+  >
+     <polygon stroke="#91FF4B" fill="none" points="42.0023669 72.6022493 34.8811703 73.4000015 28.8113256 69.5914802 22.0492175 67.2204587 22.0492175 61.1554927 13.1692306 56.0853074 12.3623662 48.9651375 15.8216146 42.2000008 12.3623662 35.434864 13.1692306 28.3146941 18.2329318 24.703125 22.0492175 17.1795428 28.8113256 17.1795428 34.8811703 11 42.0023669 11.7977522 49.1235635 11 53.484375 19.6796875 61.9555163 17.1795428 68.1015625 19.6796875 70.8355032 28.3146941 64.265625 35.434864 74.0047338 42.2000008 71.6423676 48.9651375 70.8355032 56.0853074 65.771802 61.1554927 61.9555163 67.2204587 53.484375 64.6783854 49.1235635 69.5914802"></polygon>
+  </svg>
+  <svg data-list="_component_.saucers" width="40px" height="25px" viewBox="0 0 40 25">
+    <path d="M15.4673,8.52178333 C11.3036309,9.50530148 7.65567119,11.8235668 5,15 C8.57702908,19.2784642 13.9543144,22 19.9672484,22 C25.9801825,22 31.3574678,19.2784642 34.9344969,15 C32.2788257,11.8235668 28.6308659,9.50530148 24.4671968,8.52178333 C24.4672312,8.51452626 24.4672484,8.50726514 24.4672484,8.5 C24.4672484,6.01471863 22.4525298,4 19.9672484,4 C17.4819671,4 15.4672484,6.01471863 15.4672484,8.5 C15.4672484,8.50726514 15.4672657,8.51452626 15.4673,8.52178333 Z" id="Combined-Shape" stroke="#91FF4B"></path>
+  </svg>
+</div>
+<script>
+/* global findOne, register, component, set, require, b8r */
+'use strict';
+
+  const uuid = require('lib/uuid.js');
+  const {buttons, axes, gamepads} = require('lib/game-controller.js');
+  const starfield = findOne('.asteroids');
+  const asteroids = [];
+  const ships = [];
+  const bullets = [];
+  const saucers = [];
+  let w = starfield.offsetWidth + 100;
+  let h = starfield.offsetHeight + 100;
+
+  const repeat = (what, howMany) => {
+    for(let i = 0; i < howMany; i++) what();
+  };
+
+  const createAsteroid = (size) => {
+    size = size || 1;
+    const scale = (Math.random() * 0.25 + 0.75) * size;
+    const v = Math.random() * 50 + 20 / size;
+    const a = Math.random() * Math.PI * 2;
+    const r = Math.random() * 360;
+    asteroids.push({
+      id: uuid(),
+      x : Math.random() * 100000,
+      y : Math.random() * 100000,
+      dx : v * Math.cos(a),
+      dy : v * Math.sin(a),
+      dr : Math.random() < 0.5 ? Math.random() * 30 + 15 : Math.random() * -30 - 15,
+      r,
+      size,
+      scale,
+    });
+  };
+
+  const player = {
+    x: w * 0.5,
+    y: h * 0.5,
+    dr: 0,
+    r: 30,
+    dx: 0,
+    dy: 0,
+    scale: 1,
+  };
+
+  ships.push(player);
+
+  repeat(createAsteroid, 10);
+
+  register({asteroids, ships, bullets, saucers});
+
+  const update = body => {
+    body.x = (body.x + body.dx/60 + w) % w;
+    body.y = (body.y + body.dy/60 + h) % h;
+    body.r = (body.r + body.dr/60 + 360) % 360;
+    body.transform = `translateX(-50%) translateX(${body.x}px) translateY(-50%) translateY(${body.y}px) scale(${body.scale}) rotateZ(${body.r}deg)`;
+  };
+
+  const render = () => {
+    if (component && component.closest('body')) {
+      const gamepad = gamepads()[0];
+      w = starfield.offsetWidth + 100;
+      h = starfield.offsetHeight + 100;
+      asteroids.forEach(update);
+
+      gamepad.axes.forEach((axis, idx) => {
+        if (Math.abs(axis) > 0.25) {
+          console.log(`gamepad axis ${idx} === ${axis}`);
+        }
+      });
+      gamepad.buttons.forEach((button, idx) => {
+        if (Math.abs(button.pressed)) {
+          console.log(`gamepad button ${idx} pressed`);
+        }
+      });
+      b8r.forEachKey(axes, (axis, name) => {
+        if (Math.abs(axis) > 0.25) {
+          console.log(`axis ${name} === ${axis}`);
+        }
+      });
+      if (Math.abs(gamepad.axes[0]) > 0.25) {
+        player.r += gamepad.axes[0] * 5;
+      } else {
+        if (buttons.ArrowLeft || buttons.A) {
+          player.r -= 5;
+        }
+        if (buttons.ArrowRight || buttons.D) {
+          player.r += 5;
+        }
+      }
+      if (buttons.ArrowUp || buttons.W) {
+        let a = player.r * Math.PI / 180;
+        player.dy -= Math.cos(a) * 10;
+        player.dx += Math.sin(a) * 10;
+      }
+      ships.forEach(update);
+      set({asteroids, ships});
+      requestAnimationFrame(render);
+    }
+  };
+
+  requestAnimationFrame(render);
+</script>
