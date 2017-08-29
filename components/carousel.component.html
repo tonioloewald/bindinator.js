@@ -33,8 +33,17 @@ Copyright ©2016-2017 Tonio Loewald
     box-sizing: border-box;
     animation: 1s ease-out fade-in;
     transition: width 0.2s ease-out, height 0.2s ease-out;
+  }
+
+  .carousel-item,
+  .carousel-item .carousel-drag-handle,
+  .carousel-item .carousel-drag-handle * {
     cursor: -webkit-grab;
     cursor: grab;
+  }
+
+  .carousel-item * {
+    cursor: default;
   }
 
   .carousel-dragging .carousel-item {
@@ -91,6 +100,8 @@ Copyright ©2016-2017 Tonio Loewald
       style(backgroundColor)=.bg_color;
     "
   >
+    <p class="carousel-drag-handle">Drag this!</p>
+    <p>Not this.</p>
     <button
       data-event="click:_component_.remove"
       style="position: absolute; top: -5px; left: -5px;"
@@ -325,7 +336,7 @@ Copyright ©2016-2017 Tonio Loewald
       }
     },
     dragStart: evt => {
-      if (!evt.target.matches('.carousel-item')) {
+      if (!evt.target.matches('.carousel-item') && ! evt.target.closest('.carousel-drag-handle')) {
         return true;
       }
       drag_x = evt.pageX;
