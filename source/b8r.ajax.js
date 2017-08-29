@@ -59,35 +59,34 @@ function ajax(url, method, request_data, config) {
   });
 }
 
-  json (url, method, request_data, config) {
-    return new Promise(function(resolve, reject) {
-      b8r.ajax(url, method, request_data, config).then(data => {
-        let parsed = "null";
-        try {
-          parsed = JSON.parse(data);
-        } catch(e) {
-          console.error('Failed to parse data', data, e);
-          reject(e, data);
-        }
-        resolve(parsed);
-      }, reject);
-    });
-  },
+function json (url, method, request_data, config) {
+  return new Promise(function(resolve, reject) {
+    ajax(url, method, request_data, config).then(data => {
+      let parsed = 'null';
+      try {
+        parsed = JSON.parse(data);
+      } catch(e) {
+        console.error('Failed to parse data', data, e);
+        reject(e, data);
+      }
+      resolve(parsed);
+    }, reject);
+  });
+}
 
-  jsonp (url, method, request_data, config) {
-    return new Promise(function(resolve, reject) {
-      b8r.ajax(url, method, request_data, config).then(data => {
-        let parsed = "null";
-        try {
-          parsed = JSON.parse(data);
-        } catch(e) {
-          console.error('Failed to parse data', data, e);
-          reject(e, data);
-        }
-        resolve(parsed);
-      }, reject);
-    });
-  },
+function jsonp (url, method, request_data, config) {
+  return new Promise(function(resolve, reject) {
+    ajax(url, method, request_data, config).then(data => {
+      let parsed = 'null';
+      try {
+        parsed = JSON.parse(data);
+      } catch(e) {
+        console.error('Failed to parse data', data, e);
+        reject(e, data);
+      }
+      resolve(parsed);
+    }, reject);
+  });
 }
 
 module.exports = {ajax, json, jsonp};
