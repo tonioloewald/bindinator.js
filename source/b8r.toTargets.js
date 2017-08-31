@@ -136,7 +136,9 @@ module.exports = function(b8r) {
   };
 
   function equals(value_to_match, value) {
-    if (typeof value === 'string') value = value.replace(/\&nbsp;/g, '').trim();
+    if (typeof value === 'string') {
+      value = value.replace(/\&nbsp;/g, '').trim();
+    }
     if (special_values.hasOwnProperty(value_to_match)) {
       return value === special_values[value_to_match];
     } else if (value_to_match !== undefined) {
@@ -240,13 +242,13 @@ module.exports = function(b8r) {
     hide_if: function(element, value, dest) {
       equals(dest, value) ? b8r.hide(element) : b8r.show(element);
     },
-    method: function(element, value, dest, data) {
+    method: function(element, value, dest) {
       var [model, ...method] = dest.split('.');
       method = method.join('.');
       if (model === '_component_') {
         model = get_component_with_method(element, method);
       }
-      b8r.callMethod(model, method, element, value, data);
+      b8r.callMethod(model, method, element, value);
     },
     json: function(element, value) {
       element.textContent = JSON.stringify(value, false, 2);
