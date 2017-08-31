@@ -869,6 +869,9 @@ b8r.insertComponent = function(component, element, data) {
   } else {
     register(data);
   }
+  if (data_path) {
+    resolveListInstanceBindings(element, data_path);
+  }
   b8r.bindAll(element);
   b8r.logEnd('insertComponent', component.name);
   return element;
