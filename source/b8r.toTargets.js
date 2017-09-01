@@ -65,6 +65,11 @@ This lets you toggle a class based on a bound property.
 
     data-bind="hide_if(_undefined_)=message.priority"
 
+
+### `enabled_if`, `enabled_if()`, `disabled_if`, `disabled_if()`
+
+    data-bind="enabled_if=_data_.editable"
+
 This shows (or hides) an element based on whether a bound value is truthy or
 matches the provided parameter.
 
@@ -76,14 +81,6 @@ Calls the specified method, passing it the bound value. The method will receive
 the element, value, and data source as parameters. (This means that methods
 registered as event handlers will need to deal with being passed a naked element
 instead of an event)
-
-### component()
-
-    data-bind="component=model.property"
-    data-bind="component(path.to.property)=model.property"
-
-This *sets* the component's private data, or the specified value in the
-component's private data, *by path*.
 
 ### `component_map()`
 
@@ -120,7 +117,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 * `_null_`
 */
 /* jshint expr: true */
-/* global require, module, console */
+/* global require, module */
 'use strict';
 
 module.exports = function(b8r) {
@@ -225,10 +222,18 @@ module.exports = function(b8r) {
       }
     },
     enabled_if: function(element, value, dest) {
-      element.disabled = !equals(dest, value);
+      if(!equals(dest, value)) {
+        b8r.enable(element);
+      } else {
+        b8r.disable(element);
+      }
     },
     disabled_if: function(element, value, dest) {
-      element.disabled = equals(dest, value);
+      if(!equals(dest, value)) {
+        b8r.enable(element);
+      } else {
+        b8r.disable(element);
+      }
     },
     pointer_events_if: function (element, value) {
       element.style.pointerEvents = value ? 'auto' : 'none';
@@ -252,23 +257,6 @@ module.exports = function(b8r) {
     },
     json: function(element, value) {
       element.textContent = JSON.stringify(value, false, 2);
-    },
-    component: function(element, value, dest) {
-      const id = b8r.getComponentId(element);
-      const component_data = b8r.getComponentData(element);
-      if (component_data) {
-        if (b8r.models().indexOf(id) > -1) {
-          if (dest) {
-            b8r.setByPath(id, dest, value);
-          } else {
-            b8r.setByPath(id, value);
-          }
-        } else {
-          console.error('component is not registered but is bound', element);
-        }
-      } else if (!element.getAttribute('data-component')) {
-        console.error('component toTarget found on non component', element);
-      }
     },
     component_map: function(element, value, dest) {
       var component_options = dest.split('|');

@@ -10,10 +10,16 @@
 		box-sizing: border-box;
 	}
 
-	.menubar .shortcut,
-	.menubar [data-shortcut]+span {
-		display: inline-block;
-		padding-left: 8px;
+	.menubar [data-shortcut] {
+		padding-right: 40px;
+	}
+
+	.menubar [data-shortcut]:after {
+		content: attr(title);
+		display: block;
+		position: absolute;
+		top: 2px;
+		right: 4px;
 		color: #57A700;
 	}
 
@@ -86,28 +92,11 @@
 	}
 </style>
 <script>
+	const shortcuts = require('../lib/shortcuts.js');
 	component.classList.add('menubar');
 	b8r.on(component, ['mouseup', 'keydown(Space)'], 'menubar', 'action');
 	b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open');
 	b8r.on(component, ['blur', 'keydown(Escape)'], 'menubar', 'close');
-
-	const specialKeys = {
-		BracketLeft: '[',
-		BracketRight: ']',
-	}
-
-	const add_shortcut_span = elt => {
-		var caption = elt.getAttribute('data-shortcut').split('-');
-		caption.forEach((s, i) => {
-			caption[i] = b8r.modifierKeys[s] || specialKeys[s] || s;
-		});
-		caption = caption.join('');
-		const span = b8r.create('span');
-		span.textContent = caption;
-		elt.parentElement.appendChild(span);
-	}
-
-	find('[data-shortcut').forEach(add_shortcut_span);
 
 	find('[data-event]').forEach(elt => {
 		var handler_def = elt.getAttribute('data-event');
@@ -127,7 +116,7 @@
 	// keyboard navigation
 	b8r.makeArray(component.querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
 
-	require('../lib/shortcuts.js').update();
+	shortcuts.update();
 
 	function close_all_menus() {
 		b8r.off(document.body, 'mousedown', 'menubar', 'close');

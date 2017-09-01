@@ -3,10 +3,10 @@
 	style="width: 512px; height: 512px; padding: 5%; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
 	src="//bindinator.com/bindinator-logo.svg">
 
-[bindinator.com](http://bindinator.com/) | 
+[bindinator.com](http://bindinator.com/) |
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
-[Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) | 
-[github](https://github.com/tonioloewald/bindinator.js) | 
+[Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) |
+[github](https://github.com/tonioloewald/bindinator.js) |
 [Trello](https://trello.com/b/0OBL4IjC/bindinator)
 
 ## A Virtuous Cycle
@@ -46,7 +46,7 @@ A model looks like this:
 A controller looks like this:
 
 	b8r.register('controller', {
-		action () { 
+		action () {
 			console.log('ta da!');
 		}
 	});
@@ -87,7 +87,7 @@ You save it in `path/to/my-component.component.html`.
 
 You use it like this:
 
-	<div 
+	<div
 		data-component="my-component"
 		data-path="model"
 	></div>
@@ -186,7 +186,7 @@ Data can be bound to components:
 ```
 <div
 	data-component="click-counter"
-	data-bind="component=path.to.data"
+	data-path="path.to.data"
 ></div>
 ```
 

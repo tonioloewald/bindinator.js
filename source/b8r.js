@@ -8,7 +8,7 @@ style, and code into reusable components so you can concentrate on your project.
 b8r leverages your understanding of the DOM and the browser rather than trying to
 implement some kind of virtual machine to replace it.
 */
-/* jshint esnext:true, loopfunc:true */
+/* jshint esnext:true, loopfunc:true, latedef:false */
 /* globals console, require, module */
 
 'use strict';
@@ -776,9 +776,8 @@ component() or produced by makeComponent)
 If no element is provided, the component will be appended to document.body
 
 Data will be passed to the component's load method and registered as the
-component's private instance data. (Usually
-data is passed automatically from parent components or via binding, e.g.
-`data-bind="component=path.to.data` binds that
+component's private instance data. (Usually data is passed automatically
+from parent components or via binding, e.g. `data-path="path.to.data` binds that
 data to the component).
 */
 

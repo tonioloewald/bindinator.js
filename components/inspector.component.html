@@ -167,7 +167,7 @@ Copyright ©2016-2017 Tonio Loewald
   </div>
 </div>
 <script>
-/* global b8r, set, on, component, require */
+/* global b8r, set, on, component, require, findOne */
 'use strict';
   Promise.all([
     b8r.component('components/floater'),
@@ -212,12 +212,12 @@ Copyright ©2016-2017 Tonio Loewald
     }
   });
 
+  const deselect = () => b8r.find('.inspector-component').forEach(elt => elt.classList.remove('inspector-component'));
   const events_on = () => {
     deselect();
     b8r.onAny('mouseover', 'inspector-controller.show_events');
   };
   const events_off = () => b8r.offAny('mouseover', 'inspector-controller.show_events');
-  const deselect = () => b8r.find('.inspector-component').forEach(elt => elt.classList.remove('inspector-component'));
   set({
     registry: [],
     components: [],
@@ -269,5 +269,5 @@ Copyright ©2016-2017 Tonio Loewald
     events_off,
   });
 
-  b8r.enable(component);
+  b8r.enable(component, true);
 </script>

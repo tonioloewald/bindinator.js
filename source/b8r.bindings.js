@@ -257,9 +257,9 @@ const getComponentDataPath = element => {
 
 const replaceInBindings = (element, needle, replacement) => {
   const needle_regexp = new RegExp(needle, 'g');
-  findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"]`)
+  findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
       .forEach(elt => {
-        ['data-bind', 'data-list'].forEach(attr => {
+        ['data-bind', 'data-list', 'data-path'].forEach(attr => {
           const val = elt.getAttribute(attr);
           if (val) {
             elt.setAttribute(attr, val.replace(needle_regexp, replacement));

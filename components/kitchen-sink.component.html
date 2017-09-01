@@ -156,8 +156,8 @@ built-in functionality but augment it.
 		<button>Test</button>
 		<hr class="fixed">
 		<button data-shortcut="ctrl-P" data-event="shortcut,click:_component_.test">P</button>
-		<button data-shortcut="ctrl-B"><b>B</b></button>
-		<button data-shortcut="ctrl-I"><i>I</i></button>
+		<button data-shortcut="ctrl-B" data-event="shortcut,click:_component_.test"><b>B</b></button>
+		<button data-shortcut="ctrl-I" data-event="shortcut,click:_component_.test"><i>I</i></button>
 		<hr>
 		<button>Test</button>
 		<button>Test</button>
@@ -192,7 +192,7 @@ built-in functionality but augment it.
 	<br>
 	<label>
 		Slider Numeric
-		<span min=0 max=25 data-component="slider-numeric" data-bind="component(value)=_component_.fuelrods"></span>
+		<span min=0 max=25 data-component="slider-numeric" data-path="_component_.fuelrods"></span>
 	</label>
 	<br>
 	<label>

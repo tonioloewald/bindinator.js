@@ -386,7 +386,7 @@ Elements in components can be bound to registered objects in the normal way, but
 
 - The component's bound data object can be referred to in bindings as _component_. (This works for both data and event bindings, of course.) '_component_' will automatically be replaced with the component's id when the component is loaded.
 - A component will receive its parent's bound data if no specific data is provided to it.
-- Data can be explicitly bound to a component by using the **component** binding target (e.g. `data-bind="component=path.to.value"`)
+- Data can be explicitly bound to a component by using the `data-path` attribute (e.g. `data-path="path.to.value"`)
 - Data can be passed to a component as (url-escaped) json via the `data-json` attribute.
 
 Copyright ©2016-2017 Tonio Loewald

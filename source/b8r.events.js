@@ -1,6 +1,7 @@
 /**
 # Events
 */
+/* jshint latedef:false */
 /* global module, console, window, require, KeyboardEvent */
 
 'use strict';
@@ -141,7 +142,7 @@ To make it easy to handle specific keystrokes, you can bind to keystrokes by nam
 For your convenience, there's a *Keyboard Event Utility*.
 */
 
-const on = (...args) => {
+function on (...args) {
   const {element, event_type, path, prepend} = onOffArgs(args);
   const handler = makeHandler(event_type, path);
   const existing = getEventHandlers(element);
@@ -153,9 +154,9 @@ const on = (...args) => {
     }
   }
   element.setAttribute('data-event', existing.join(';'));
-};
+}
 
-const off = (...args) => {
+function off (...args) {
   var element, event_type, object, method;
   if(args.length === 4) {
     [element, event_type, object, method] = args;
@@ -176,7 +177,7 @@ const off = (...args) => {
       element.removeAttribute('data-event');
     }
   }
-};
+}
 
 /**
 ## Enabling and Disabling Event Handlers
@@ -185,27 +186,35 @@ Convenience methods for (temporarily) enabling and disabling event handlers.
 
 Will not play nicely with event handler creation / removal.
 
-    enable(element);
+    enable(element, include_children); // include_children defaults to false
 
 Returns data-event-disabled attributes to data-event attributes.
 
-    disable(element);
+    disable(element, include_children);
 
 Finds all data-event bindings on elements within the specified target and
 turns them into data-event-disabled attributes;
 */
 
-const disable = within_elt => {
-  findWithin(within_elt, '[data-event]').forEach(elt => {
+const disable = (element, include_children) => {
+  const elements = include_children ? findWithin(element, true) : [element];
+  elements.forEach(elt => {
     elt.setAttribute('data-event-disabled', elt.getAttribute('data-event'));
     elt.removeAttribute('data-event');
+    if (elt.disabled === false) {
+      elt.disabled = true;
+    }
   });
 };
 
-const enable = within_elt => {
-  findWithin(within_elt, '[data-event-disabled]').forEach(elt => {
+const enable = (element, include_children) => {
+  const elements = include_children ? findWithin(element, true) : [element];
+  elements.forEach(elt => {
     elt.setAttribute('data-event', elt.getAttribute('data-event-disabled'));
     elt.removeAttribute('data-event-disabled');
+    if (elt.disabled === true) {
+      elt.disabled = false;
+    }
   });
 };
 
