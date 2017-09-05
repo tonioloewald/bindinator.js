@@ -29,7 +29,23 @@ This is the selected attribute of `<option>` elements.
 
     data-bind="text=message.sender.name"
 
-This is the textContent property of most standard elements.
+This sets the textContent property of most standard elements.
+
+Note that b8r allows you to use ES6-flavored interpolated strings on the
+right-hand-side of data-bind bindings. E.g.
+
+    data-bind="text=${message.sender.lastname}, ${message.sender.firstname}"
+
+### format
+
+    data-bind="format=**${error.type}** ${error.detail}"
+
+This sets the content of an element with the value supplied by honoring
+a markdown-style bold or italics (e.g. replacing `**bold**` or `_italic_`
+with `<b>bold</b>` and `<i>italic</i>`).
+
+*No other formatting is supported* and if the string contains a '>' character
+no formatting is applied and the `textContent` of the element is set instead.
 
 > ## Note
 > `value`, `checked`, `selected`, and `text` are also "fromTargets",

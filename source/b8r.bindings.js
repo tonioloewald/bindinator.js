@@ -106,10 +106,24 @@ Multiple data references are supported too, so you can replace:
 
 with:
 
-    <span data-bind="text=${_component_.firstName} ${_component_.lastName}">First Last</span>
+    <span
+      data-bind="
+        text=${_component_.firstName}
+        ${_component_.lastName}
+      "
+    >
+      First Last
+    </span>
 
 ```
-<span data-bind="text=${_component_.firstName} ${_component_.lastName}">First Last</span>
+<span data-bind=
+  "
+    text=${_component_.firstName}
+    ${_component_.lastName}
+  "
+>
+  First Last
+</span>
 <script>
   set({
     firstName: 'Juanita',

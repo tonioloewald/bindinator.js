@@ -397,8 +397,8 @@ individual elements, which it probably should.
 
 Also, there's a utility method:
 
-    b8r.format('string with ${data.to.path} and ${data.with.other.path}');
-    b8r.format('string with ${data.to.path} and ${data.with.other.path}', element);
+    b8r.interpolate('string with ${data.to.path} and ${data.with.other.path}');
+    b8r.interpolate('string with ${data.to.path} and ${data.with.other.path}', element);
 
 The second argument is required if any path used is relative (e.g. `.foo.bar`),
 data-relative (e.g. `_data_.foo.bar`), or component-relative (e.g. `_component_.foo.bar`).
@@ -414,7 +414,7 @@ const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 
-b8r.format = (template, elt) => {
+b8r.interpolate = (template, elt) => {
   let formatted;
   if (template.match(/\$\{.*?\}/)) {
     formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => b8r.get(path, elt)) ;
@@ -430,7 +430,7 @@ function bind(element) {
   b8r.logStart(...logArgs);
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
-    const value = b8r.format(path, element);
+    const value = b8r.interpolate(path, element);
     const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
       boundValues[path] = value;
