@@ -60,8 +60,8 @@ or (in case the intervening code changes the element signature):
 /* global module, require, console */
 'use strict';
 
-const logs = {};
-const {mapEachKey, filterObject} = require('./b8r.iterators.js');
+const logs = []; // {name, total_time, entries: {name, count, times, total_time}}
+const {filterObject} = require('./b8r.iterators.js');
 
 const medianOfSortedArray = values =>
     (values[Math.floor(values.length / 2)] +
@@ -70,27 +70,35 @@ const medianOfSortedArray = values =>
 
 const perf = {
   log: (log_name, entry_name) => {
-    if (!logs[log_name]) {
-      logs[log_name] = {};
+    let log = logs.find(log => log.name === log_name);
+    if (!log) {
+      log = {name: log_name, total_time: 0, entries: []};
+      logs.push(log);
     }
-    const log = logs[log_name];
-    if (!log[entry_name]) {
-      log[entry_name] = {count: 0, times: [], total_time: 0};
+    let entry = log.entries.find(entry => entry.name === entry_name);
+    if (!entry) {
+      entry = {name: entry_name, count: 0, times: [], total_time: 0};
+      log.entries.push(entry);
     }
-    log[entry_name].count += 1;
-    return log[entry_name];
+    return entry;
   },
 
   logStart: (log_name, entry_name) => {
-    perf.log(log_name, entry_name).start = Date.now();
+    const entry = perf.log(log_name, entry_name);
+    entry.count += 1;
+    entry.start = Date.now();
   },
 
   logEnd: (log_name, entry_name) => {
-    const log = logs[log_name][entry_name];
-    const elapsed = Date.now() - log.start;
-    delete (log.start);
-    log.times.push(elapsed);
-    log.total_time += elapsed;
+    const entry = perf.log(log_name, entry_name);
+    if (entry.start === undefined) {
+      console.error('logEnd without corresponding logStart', log_name, entry_name, entry);
+    }
+    const elapsed = Date.now() - entry.start;
+    delete (entry.start);
+    entry.total_time += elapsed;
+    entry.times.push(elapsed);
+    entry.total_time += elapsed;
   },
 
   elementSignature: element => {
@@ -105,8 +113,9 @@ const perf = {
 
   showLogs: (which, threshold) => {
     if (which) {
-      var mapped = mapEachKey(logs[which], val => {
-        const {count, times, total_time} = val;
+      const log = logs.find(log => log.name === which);
+      var mapped = log.entries.map(entry => {
+        const {name, count, times, total_time} = entry;
         var best, worst, median;
         if (times.length) {
           const sorted = times.sort();
@@ -116,14 +125,14 @@ const perf = {
         } else {
           best = worst = median = '';
         }
-        return {count, best, median, worst, total_time};
+        return {name, count, best, median, worst, total_time};
       });
       if (threshold) {
-        mapped = filterObject(mapped, entry => entry.total_time > threshold);
+        mapped = filterObject(mapped, entry => entry.worst > threshold);
       }
-      console.table(mapped, ['count', 'best', 'median', 'worst', 'total_time']);
+      console.table(mapped, ['name', 'count', 'best', 'median', 'worst', 'total_time']);
     } else {
-      console.table(logs, []);
+      console.table(logs, ['name', 'total_time']);
     }
   },
 };
