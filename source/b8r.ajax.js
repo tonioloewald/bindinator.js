@@ -20,13 +20,26 @@ b8r.ajax, etc.
 
 'use strict';
 
-function ajax(url, method, request_data, config) {
+const {logStart, logEnd} = require('./b8r.perf.js');
+
+const _requests_in_flight = [];
+
+const _remove_in_flight_request = request => {
+  const idx = _requests_in_flight.indexOf(request);
+  if (idx > -1) {
+    _requests_in_flight.splice(idx, 1);
+  }
+};
+
+const ajax = (url, method, request_data, config) => {
   return new Promise(function(resolve, reject) {
     config = config || {};
     if (!config.headers) {
       config.headers = [];
     }
     var request = new XMLHttpRequest();
+    _requests_in_flight.push(request);
+    logStart('ajax (request)', url);
     request.open(method || 'GET', url, true);
     request.onreadystatechange = () => {
       if (request.readyState === XMLHttpRequest.DONE) {
@@ -34,13 +47,19 @@ function ajax(url, method, request_data, config) {
           case 0:
           case 5:
           case 4:
+            _remove_in_flight_request(request);
+            logEnd('ajax (request)', url);
             reject(request);
             break;
           case 3:
             // redirect of some kind
             break;
           case 2:
+            _remove_in_flight_request(request);
+            logEnd('ajax (request)', url);
+            logStart('ajax (callback)', url);
             resolve(request.responseText);
+            logEnd('ajax (callback)', url);
             break;
         }
       }
@@ -57,9 +76,9 @@ function ajax(url, method, request_data, config) {
         header => request.setRequestHeader(header.prop, header.value));
     request.send(request_data);
   });
-}
+};
 
-function json (url, method, request_data, config) {
+const json = (url, method, request_data, config) => {
   return new Promise(function(resolve, reject) {
     ajax(url, method, request_data, config).then(data => {
       let parsed = 'null';
@@ -72,9 +91,9 @@ function json (url, method, request_data, config) {
       resolve(parsed);
     }, reject);
   });
-}
+};
 
-function jsonp (url, method, request_data, config) {
+const jsonp = (url, method, request_data, config) => {
   return new Promise(function(resolve, reject) {
     ajax(url, method, request_data, config).then(data => {
       let parsed = 'null';
@@ -87,7 +106,9 @@ function jsonp (url, method, request_data, config) {
       resolve(parsed);
     }, reject);
   });
-}
+};
 
-module.exports = {ajax, json, jsonp};
+const ajax_requests_in_flight = () => _requests_in_flight;
+
+module.exports = {ajax, json, jsonp, ajax_requests_in_flight};
 
