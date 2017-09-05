@@ -433,18 +433,18 @@ function bind(element) {
     const value = b8r.interpolate(path, element);
     const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
+      const signature = b8r.elementSignature(element);
+      b8r.logStart('toTargets', signature);
       boundValues[path] = value;
       var _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
-          const {target} = t;
-          b8r.logStart('toTargets', target);
-          toTargets[target](element, value, t.key);
-          b8r.logEnd('toTargets', target);
+          toTargets[t.target](element, value, t.key);
         });
       } else {
         console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
       }
+      b8r.logEnd('toTargets', signature);
     }
   }
   b8r.logEnd(...logArgs);
