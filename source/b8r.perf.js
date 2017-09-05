@@ -94,11 +94,12 @@ const perf = {
     if (entry.start === undefined) {
       console.error('logEnd without corresponding logStart', log_name, entry_name, entry);
     }
+    const log = logs.find(log => log.name === log_name);
     const elapsed = Date.now() - entry.start;
     delete (entry.start);
+    log.total_time += elapsed;
     entry.total_time += elapsed;
     entry.times.push(elapsed);
-    entry.total_time += elapsed;
   },
 
   elementSignature: element => {
