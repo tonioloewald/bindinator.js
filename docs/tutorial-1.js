@@ -24,7 +24,7 @@ your web app's page needs to look like this:
       </script>
     </body>
 
-b8r lets you register objects -- bind objects to a name -- which allows 
+b8r lets you register objects -- bind objects to a name -- which allows
 the *binding* of those objects to DOM elements (i.e. view components).
 
 ```
@@ -39,7 +39,7 @@ b8r.register('example', {
 ```
 
 Try clicking the **Alert** button before and after editing the text.
-In the console you can type b8r.get('example') to see how the 
+In the console you can type b8r.get('example') to see how the
 registered data is automatically kept up to date.
 
 The following example simply registers an object which the other
@@ -64,10 +64,10 @@ run it again, which will overwrite the registered data.
     ]
   });
 
-  const domInterval = require('lib/domInterval.js');
+  const {domInterval} = require('lib/dom-timers.js');
   domInterval(
-    component, 
-    () => b8r.bindAll(b8r.id('tutorial1-data')), 
+    component,
+    () => b8r.bindAll(b8r.id('tutorial1-data')),
     1000
   );
 </script>
@@ -86,23 +86,23 @@ Once you have b8r loaded, you can bind registered data to the DOM using
 </h3>
 <label>
   A bound input field
-  <input 
+  <input
     data-bind="value=tutorial1.input"
   >
 </label><br>
 <label>
   A bound range input
-  <input 
-    type="range" 
-    min=0 
-    max=10 
+  <input
+    type="range"
+    min=0
+    max=10
     data-bind="value=tutorial1.range"
   >
 </label><br>
 <label>
   A numeric input bound to the same value as above
-  <input 
-    type="number" 
+  <input
+    type="number"
     data-bind="value=tutorial1.range"
   >
 </label>
@@ -113,43 +113,43 @@ Notice that the object registered in the previous example is seen in this exampl
 You can also bind events to registered methods using the `data-event` attribute:
 
 ```
-<button 
+<button
   data-event="click:tutorial1.hello"
 >
   Click Me
 </button>
 ```
 
-Finally, b8r allows you to handle lists of objects using the `data-list` attribute, 
-`data-list="path.to.list"`. 
+Finally, b8r allows you to handle lists of objects using the `data-list` attribute,
+`data-list="path.to.list"`.
 
 b8r will create a clone of the element for every item in the list. If you are using id
-paths, updating the list will cause minimal changes to the DOM. Within a list item you 
+paths, updating the list will cause minimal changes to the DOM. Within a list item you
 can bind elements using relative paths:
 
 ```
   <ul>
-    <li 
+    <li
       data-list="tutorial1.list:id"
     >
       <span data-bind="text=.last">Last</span>, <span data-bind="text=.first">First</span>
     </li>
   </ul>
   <h3>There's nothing magical about lists!</h3>
-  <div 
+  <div
     data-list="tutorial1.list:id"
   >
     <label>
-      <span 
+      <span
         data-bind="text=.id"
       >
         0
       </span>
-      <input 
+      <input
         style="width: 80px"
         data-bind="value=.first"
       >
-      <input 
+      <input
         style="width: 80px"
         data-bind="value=.last"
       >
@@ -157,10 +157,10 @@ can bind elements using relative paths:
   </div>
 ```
 
-To allow for efficient list updates (if you expect the list to change frequently) 
+To allow for efficient list updates (if you expect the list to change frequently)
 you can specify an **id-path** to identify individual items: `data-list="path.to.list:path.to.id"`.
 
-Typically, the id path will simply be a property of the list item such as id 
+Typically, the id path will simply be a property of the list item such as id
 (as in the example).
 
 You can try turning on "paint flashing" in the debugging tools to see what happens when you edit the

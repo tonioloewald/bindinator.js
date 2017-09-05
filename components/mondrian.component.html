@@ -52,7 +52,8 @@ Copyright ©2016-2017 Tonio Loewald
 	</select> Desired Aspect Ratio
 </label>
 <script>
-/* global find, findOne, component, require, register, b8r */
+/* jshint latedef:false */
+/* global find, findOne, require, register, b8r */
 'use strict';
 
 	const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
@@ -93,7 +94,7 @@ Copyright ©2016-2017 Tonio Loewald
 		}
 	}
 
-	const domInterval = require('lib/domInterval.js');
+	const {domInterval} = require('lib/dom-timers.js');
 	domInterval(container, random_behavior, 2000);
 
 	function hide_random () {
