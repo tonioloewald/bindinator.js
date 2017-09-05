@@ -127,7 +127,7 @@ b8r.componentInstances = () =>
     b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 /**
-    b8r.debounce(method, min_interval_ms) => debounded method
+    b8r.debounce(method, min_interval_ms) => debounced method
     b8r.throttle(method, min_interval_ms) => throttled method
 
 Two utility functios for preventing a method from being called too frequently.
@@ -437,9 +437,10 @@ function bind(element) {
       var _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
-          b8r.logStart('toTargets', t.target);
-          toTargets[t.target](element, value, t.key);
-          b8r.logEnd('toTargets', t.target);
+          const {target} = t;
+          b8r.logStart('toTargets', target);
+          toTargets[target](element, value, t.key);
+          b8r.logEnd('toTargets', target);
         });
       } else {
         console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
