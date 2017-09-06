@@ -178,35 +178,44 @@ b8r.deregister = name => b8r.remove(name);
 const notInListTemplate = elt => !elt.closest('[data-list]');
 
 /**
-## Experiment: Async Updates
-
-The idea here is for automatically generated binding updates to be asynchronous
-(evwntually allowing updates to be time-budgeted and fired off via requestAnimationFrame).
-
-Initial experiments seem to cause no breakage *except* for unit tests, but simply
-updating the unit tests and then turning them on by default seems a bit risky, so instead
-for the time being we get the following usage:
-
-    b8r.async_updates(); // returns true | false
-    b8r.async_updates(true); // enable async updates
-    b8r.async_updates(false); // enable async updates
-    b8r.after_async_update(callback); // fires callback after async updates are complete
-
-So, if you had code that looked like this:
-
-    b8r.register('foo', {bar: 17});
-    console.log(b8r.findOne('[data-bind="text=foo.bar"]').value); // logs 17
-
-You could now have to write this:
-
-    b8r.async_updates(true);
-    b8r.register('foo', {bar: 17});
-    b8r.after_async_update(() => {
-      console.log(b8r.findOne('[data-bind="text=foo.bar"]').value);
-    });
-
-Note that async_updates is a **global** setting, so you could easily break other
-stuff by doing this. The end goal is to use async_updates everywhere.
+> ### Experiment: Async Updates
+>
+> With the goal of keeping all updates smooth and seamless, the idea here is to
+> make automatically generated DOM updates asynchronous (via requestAnimationFrame)
+> This has the advantage of deduplicating updates (i.e. not updating a given element)
+> more than once owing to underlying data changes) and also allowing updates to be
+> broken up into time-budgeted chunks (e.g. 1/30 or 1/60 of a second)
+>
+> Initial experiments seem to cause no breakage *except* for unit tests, but simply
+> updating the unit tests and then turning them on by default seems a bit risky, so instead
+> for the time being we get the following usage:
+>
+> <pre>
+> b8r.async_updates(); // returns true | false
+> b8r.async_updates(true); // enable async updates
+> b8r.async_updates(false); // disable async updates
+> b8r.after_async_update(callback); // fires callback after async updates are complete
+> </pre>
+>
+> So, if you had code that looked like this:
+>
+> <pre>
+> b8r.register('foo', {bar: 17});
+> console.log(b8r.findOne('[data-bind="text=foo.bar"]').value); // logs 17
+> </pre>
+>
+> You could now have to write this:
+>
+> <pre>
+> b8r.async_updates(true);
+> b8r.register('foo', {bar: 17});
+> b8r.after_async_update(() => {
+>   console.log(b8r.findOne('[data-bind="text=foo.bar"]').value);
+> });
+> </pre>
+>
+> Note that async_updates is a **global** setting, so you could easily break other
+> stuff by doing this. The end goal is to use async_updates everywhere.
 */
 
 let _async_updates = false;
