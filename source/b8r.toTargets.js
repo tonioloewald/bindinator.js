@@ -238,7 +238,7 @@ module.exports = function(b8r) {
       }
     },
     enabled_if: function(element, value, dest) {
-      if(!equals(dest, value)) {
+      if(equals(dest, value)) {
         b8r.enable(element);
       } else {
         b8r.disable(element);

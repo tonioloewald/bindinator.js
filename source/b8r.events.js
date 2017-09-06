@@ -199,8 +199,10 @@ turns them into data-event-disabled attributes;
 const disable = (element, include_children) => {
   const elements = include_children ? findWithin(element, true) : [element];
   elements.forEach(elt => {
-    elt.setAttribute('data-event-disabled', elt.getAttribute('data-event'));
-    elt.removeAttribute('data-event');
+    if (elt.getAttribute('data-event')) {
+      elt.setAttribute('data-event-disabled', elt.getAttribute('data-event'));
+      elt.removeAttribute('data-event');
+    }
     if (elt.disabled === false) {
       elt.disabled = true;
     }
@@ -210,8 +212,10 @@ const disable = (element, include_children) => {
 const enable = (element, include_children) => {
   const elements = include_children ? findWithin(element, true) : [element];
   elements.forEach(elt => {
-    elt.setAttribute('data-event', elt.getAttribute('data-event-disabled'));
-    elt.removeAttribute('data-event-disabled');
+    if (elt.getAttribute('data-event-disabled')) {
+      elt.setAttribute('data-event', elt.getAttribute('data-event-disabled'));
+      elt.removeAttribute('data-event-disabled');
+    }
     if (elt.disabled === true) {
       elt.disabled = false;
     }
