@@ -177,6 +177,82 @@ b8r.deregister = name => b8r.remove(name);
 
 const notInListTemplate = elt => !elt.closest('[data-list]');
 
+/**
+## Experiment: Async Updates
+
+The idea here is for automatically generated binding updates to be asynchronous
+(evwntually allowing updates to be time-budgeted and fired off via requestAnimationFrame).
+
+Initial experiments seem to cause no breakage *except* for unit tests, but simply
+updating the unit tests and then turning them on by default seems a bit risky, so instead
+for the time being we get the following usage:
+
+    b8r.async_updates(); // returns true | false
+    b8r.async_updates(true); // enable async updates
+    b8r.async_updates(false); // enable async updates
+    b8r.after_async_update(callback); // fires callback after async updates are complete
+
+So, if you had code that looked like this:
+
+    b8r.register('foo', {bar: 17});
+    console.log(b8r.findOne('[data-bind="text=foo.bar"]').value); // logs 17
+
+You could now have to write this:
+
+    b8r.async_updates(true);
+    b8r.register('foo', {bar: 17});
+    b8r.after_async_update(() => {
+      console.log(b8r.findOne('[data-bind="text=foo.bar"]').value);
+    });
+
+Note that async_updates is a **global** setting, so you could easily break other
+stuff by doing this. The end goal is to use async_updates everywhere.
+*/
+
+let _async_updates = false;
+
+const _update_list = [];
+
+const _after_update_callbacks = [];
+
+const _update = () => {
+  b8r.logStart('async_update', 'update');
+  _update_list.forEach(({fn, element}) => fn(element));
+  _update_list.splice(0);
+  _after_update_callbacks.forEach(callback => callback());
+  _after_update_callbacks.splice(0);
+  b8r.logEnd('async_update', 'update');
+};
+
+const async_update = (fn, element) => {
+  if (!_async_updates) {
+    fn(element);
+  } else if (!_update_list.find(item => item.fn === fn && item.element === element)) {
+    b8r.logStart('async_update', 'queue');
+    _update_list.push({fn, element});
+    requestAnimationFrame(_update);
+    b8r.logEnd('async_update', 'queue');
+  }
+};
+
+b8r.async_updates = setting => {
+  if (setting === undefined) {
+    return _async_updates;
+  } else {
+    _async_updates = !!setting;
+  }
+};
+
+b8r.after_async_update = callback => {
+  if (_update_list.length) {
+    if (_after_update_callbacks.indexOf(callback) === -1) {
+      _after_update_callbacks.push(callback);
+    }
+  } else {
+    callback();
+  }
+};
+
 b8r.touchByPath = (...args) => {
   let full_path, source_element, name, path;
 
@@ -192,14 +268,14 @@ b8r.touchByPath = (...args) => {
   const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + full_path + '"]'));
   lists.forEach(element => {
     if (element !== source_element) {
-      bindList(element);
-      b8r.trigger('change', element);
+      async_update(bindList, element);
+      b8r.after_async_update(() => b8r.trigger('change', element));
     }
   });
   b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'))
       .filter(notInListTemplate)
       .filter(element => element !== source_element)
-      .forEach(bind);
+      .forEach(element => async_update(bind, element));
 
   b8r.logEnd('touchByPath', full_path);
 };

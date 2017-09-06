@@ -88,6 +88,7 @@
 	<div class="report"></div>
 	<script src="lib/require.js"></script>
 	<script>
+		'use strict';
 		const b8r = require('source/b8r.js');
 		const Test = require('lib/test.js');
 		const {getByPath, setByPath} = require('source/b8r.byPath.js');
@@ -212,7 +213,7 @@
 			},
 			val: 'A,B',
 		});
-		elt = b8r.id('method_binding');
+		let elt = b8r.id('method_binding');
 		Test(() => elt.getAttribute('first')).shouldBe('A');
 		b8r.setByPath('method_binding', 'val', 'C,D');
 		Test(() => elt.getAttribute('second')).shouldBe('D');
@@ -221,7 +222,7 @@
 		Test(() => b8r.getByPath('method_binding', 'val')).shouldBe('C,Q');
 
 		function computed_color(name) {
-			var p = b8r.create(p)
+			var p = b8r.create(p);
 			p.style.color = name;
 			p.style.display = 'none';
 			document.body.appendChild(p);
@@ -229,6 +230,15 @@
 			document.body.removeChild(p);
 			return computed;
 		}
+
+		// async updates
+		b8r.async_updates(true);
+		b8r.set('test1.base', 86);
+		Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
+		b8r.after_async_update(() => {
+			Test(() => b8r.id('a').textContent, 'Async Update after_async_update').shouldBe('86');
+		});
+		b8r.async_updates(false);
 
 		// components
 		b8r.component('test', 'test/test')
