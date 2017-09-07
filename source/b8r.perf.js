@@ -57,6 +57,7 @@ or (in case the intervening code changes the element signature):
     logEnd(...logArgs);
 
 */
+/* jshint latedef:false */
 /* global module, require, console */
 'use strict';
 
@@ -77,7 +78,7 @@ const perf = {
     }
     let entry = log.entries.find(entry => entry.name === entry_name);
     if (!entry) {
-      entry = {name: entry_name, count: 0, times: [], total_time: 0};
+      entry = {name: entry_name, count: 0, times: [], total_time: 0, starts: []};
       log.entries.push(entry);
     }
     return entry;
@@ -86,17 +87,17 @@ const perf = {
   logStart: (log_name, entry_name) => {
     const entry = perf.log(log_name, entry_name);
     entry.count += 1;
-    entry.start = Date.now();
+    entry.starts.push(Date.now());
   },
 
   logEnd: (log_name, entry_name) => {
     const entry = perf.log(log_name, entry_name);
-    if (entry.start === undefined) {
+    const start = entry.starts.pop();
+    const log = logs.find(log => log.name === log_name);
+    if (start === undefined) {
       console.error('logEnd without corresponding logStart', log_name, entry_name, entry);
     }
-    const log = logs.find(log => log.name === log_name);
-    const elapsed = Date.now() - entry.start;
-    delete (entry.start);
+    const elapsed = Date.now() - start;
     log.total_time += elapsed;
     entry.total_time += elapsed;
     entry.times.push(elapsed);
