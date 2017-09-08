@@ -513,14 +513,15 @@ function bind(element) {
   var bindings = getBindings(element);
   const logArgs = ['bind', b8r.elementSignature(element)];
   b8r.logStart(...logArgs);
+  const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
+  const newValues = {};
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
     const value = b8r.interpolate(path, element);
-    const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
       const signature = b8r.elementSignature(element);
       b8r.logStart('toTargets', signature);
-      boundValues[path] = value;
+      newValues[path] = value;
       var _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
@@ -532,6 +533,7 @@ function bind(element) {
       b8r.logEnd('toTargets', signature);
     }
   }
+  Object.assign(boundValues, newValues);
   b8r.logEnd(...logArgs);
 }
 
