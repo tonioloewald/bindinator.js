@@ -233,12 +233,20 @@ const _update = () => {
   b8r.logEnd('async_update', 'update');
 };
 
+const _trigger_change = element => b8r.trigger('change', element);
+
 const async_update = (fn, element) => {
   if (!_async_updates) {
     fn(element);
+    if (element.parentElement) {
+      _trigger_change(element.parentElement);
+    }
   } else if (!_update_list.find(item => item.fn === fn && item.element === element)) {
     b8r.logStart('async_update', 'queue');
     _update_list.push({fn, element});
+    if (element.parentElement) {
+      _update_list.push({fn: _trigger_change, element: element.parentElement});
+    }
     requestAnimationFrame(_update);
     b8r.logEnd('async_update', 'queue');
   }
@@ -278,7 +286,6 @@ b8r.touchByPath = (...args) => {
   lists.forEach(element => {
     if (element !== source_element) {
       async_update(bindList, element);
-      b8r.after_async_update(() => b8r.trigger('change', element));
     }
   });
   b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'))
@@ -676,9 +683,6 @@ b8r.bindAll = (element, data_path) => {
   loadAvailableComponents(element, data_path);
   findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, data_path));
-  if (element.parentElement) {
-    b8r.trigger('change', element.parentElement);
-  }
   b8r.logEnd('bindAll', b8r.elementSignature(element));
   b8r.cleanupComponentInstances();
 };
