@@ -63,8 +63,24 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 	.richtext strong {
 		font-weight: bold;
 	}
+
+	.note {
+		display: inline-block;
+		border: 0;
+		background: #ffc;
+		padding: 0 4px;
+	}
+
+	.note:hover:before {
+		content: attr(data-note);
+		display: block;
+		position: absolute;
+		background: #ffc;
+		right: 4px;
+		padding: 2px 4px;
+	}
 </style>
-<div class="richtext-container">
+<div class="richtext-container" data-event="mouseup:_component_.mouseupHandler">
 	<ul data-component="menubar">
 		<li>
 			File
@@ -186,19 +202,21 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 		<button data-event="click:_component_.link"><span class="icon-link3"></span></button>
 		<button data-event="click:_component_.exec" data-command="unlink"><span class="icon-unlink3"></span></button>
 		<hr>
+		<button data-event="click:_component_.note">*</button>
+		<hr>
 		<button data-event="click:_component_.exec" data-command="undo"><span class="icon-undo"></span></button>
 		<button data-event="click:_component_.exec" data-command="redo"><span class="icon-redo"></span></button>
 	</div>
 	<div class="richtext" contenteditable="true" spellcheck="true" data-children>
 	<h1>Test</h1>
 	<p>
-		This is jsut a <b>test</b>
+		This is jsut a <b>test</b><span class="note" contenteditable="false" data-note="this is an annotation">*</span>
 	</p>
 	</div>
 	<div data-component="maxtoggle"></div>
 </div>
 <script>
-/*global b8r, findOne, set, get */
+/*global b8r, findOne, set, get, prompt */
 'use strict';
 
 	b8r.component('components/menubar');
@@ -256,11 +274,29 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 		if (url) {
 			document.execCommand('createLink', false, url);
 		}
-	}
-	const passThru = () => {
-		doc.focus();
-		true;
+	};
+	const note = () => {
+		const note = prompt('Please enter note');
+		if (note) {
+			document.execCommand('insertHTML', false, `<span class="note" contenteditable="false" data-note="${note}">*</span>`)
+		}
 	}
 
-	set({new_doc, open_doc, save_doc, exec, link, all, passThru});
+	const passThru = () => {
+		doc.focus();
+		return true;
+	};
+
+	const mouseupHandler = (evt, target) => {
+		if (evt.target.matches('.note')) {
+			const edited = prompt('Edit Note', evt.target.getAttribute('data-note'));
+			if (edited) {
+				evt.target.setAttribute('data-note', edited);
+			}
+		} else {
+			return true;
+		}
+	};
+
+	set({new_doc, open_doc, save_doc, exec, link, all, note, mouseupHandler, passThru});
 </script>
