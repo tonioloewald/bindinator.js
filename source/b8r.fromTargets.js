@@ -22,7 +22,7 @@ The **selected** attribute on an `<option>`.
 
 ### text
 
-The **textContent** of a typical element (including div, span, and so forth). Note 
+The **textContent** of a typical element (including div, span, and so forth). Note
 that these elements will only get change events if you send them.
 */
 /* global module */
@@ -38,7 +38,7 @@ return {
 			return checked ? checked.value : null;
 		} else {
 			return element.value;
-		} 
+		}
 	},
 	checked: element => element.checked,
 	selected: element => element.selected,
@@ -50,10 +50,6 @@ return {
 		method = method.join('.');
 		return b8r.getByPath(model, method)(element);
 	},
-	component: function(element, path) {
-		const id = b8r.getComponentId(element);
-		return b8r.getByPath(id, path);
-	}
 };
 
 };
