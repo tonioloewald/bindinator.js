@@ -903,6 +903,13 @@ b8r.insertComponent = function(component, element, data) {
     document.body.appendChild(element);
   }
   var children = b8r.fragment();
+  /*
+    * if you're replacing a component, it should get the replaced component's children.
+    * we probably want to be able to remove a component (i.e. pull out an instance's children
+      and then delete element's contents, replace the children, and remove its id)
+    * note that components with no DOM nodes present a problem since they may have passed-through
+      child elements that aren't distinguishable from a component's original body
+  */
   const component_id = 'c#' + component.name + '#' + (++component_count);
   if (component.view.children.length) {
     b8r.moveChildren(element, children);
