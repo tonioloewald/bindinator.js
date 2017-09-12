@@ -556,10 +556,7 @@ function bind(element) {
       b8r.logEnd('toTargets', signature);
     }
   }
-  if (changed) {
-    Object.assign(boundValues, newValues);
-    _trigger_change(element.parentElement);
-  }
+  Object.assign(boundValues, newValues);
   b8r.logEnd(...logArgs);
 }
 
