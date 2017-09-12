@@ -134,6 +134,7 @@
 		Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
 		// binding (to), data mounting
+		b8r.async_updates(false);
 		b8r.register('test1', obj);
 		Test(() => b8r.id('a').textContent).shouldBe('42');
 		Test(() => b8r.id('b').textContent).shouldBe('hello');
@@ -143,9 +144,9 @@
 		Test(() => b8r.id('a').style.color).shouldBe('red');
 		Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
 
+
 		b8r.register('test2', {color: 'green'});
 		Test(() => b8r.id('b').style.color).shouldBe('green');
-
 
 		// list binding
 		Test(() => b8r.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
@@ -242,21 +243,19 @@
 
 		// components
 		b8r.component('test', 'test/test')
-			// was it loaded?
-			.then(() => Test(() => b8r.findOne('[data-component="test"] p').textContent).shouldBe('This is a test'))
-			// automatically bound?
-			.then(() => Test(() => b8r.findOne('[data-component="test"] input').value).shouldBe('55'))
-			// did its style sheet load?
-			.then(() => Test(() => window.getComputedStyle(b8r.findOne('.test > h2')).backgroundColor).shouldBe(computed_color('purple')))
-			// did its style leak into the rest of the DOM?
-			.then(
-				() =>
-					Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor)
-						.shouldBe(window.getComputedStyle(document.body).backgroundColor)
-			)
-			// did its script run?
-			.then(() => Test(() => b8r.findOne('[data-component="test"] h2').textContent).shouldBe('Set on load'))
-			// did it receive the children of the original element?
-			.then(() => Test(() => b8r.find('[data-component="test"] [data-children] p').length).shouldBe(2));
+			.then(() => {
+				Test(() => b8r.findOne('[data-component="test"] p').textContent, 'Component loaded')
+					.shouldBe('This is a test');
+				Test(() => b8r.findOne('[data-component="test"] input').value, 'Component bound')
+					.shouldBe('55');
+				Test(() => window.getComputedStyle(b8r.findOne('.test-component > h2')).backgroundColor, 'Component stylesheet inserted')
+					.shouldBe(computed_color('purple'));
+				Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor, 'Component stylesheet did not "leak"')
+						.shouldBe(window.getComputedStyle(document.body).backgroundColor);
+				Test(() => b8r.findOne('[data-component="test"] h2').textContent, 'Component script ran')
+					.shouldBe('Set on load');
+				Test(() => b8r.find('[data-component="test"] [data-children] p').length, 'Component received children')
+					.shouldBe(2);
+			})
 	</script>
 </body>

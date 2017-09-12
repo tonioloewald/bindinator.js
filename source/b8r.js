@@ -218,7 +218,7 @@ const notInListTemplate = elt => !elt.closest('[data-list]');
 > stuff by doing this. The end goal is to use async_updates everywhere.
 */
 
-let _async_updates = false;
+let _async_updates = true;
 
 const _update_list = [];
 
@@ -226,27 +226,41 @@ const _after_update_callbacks = [];
 
 const _update = () => {
   b8r.logStart('async_update', 'update');
-  _update_list.forEach(({fn, element}) => fn(element));
+  _update_list.forEach(({fn, element}) => {
+    fn(element);
+  });
   _update_list.splice(0);
   _after_update_callbacks.forEach(callback => callback());
   _after_update_callbacks.splice(0);
   b8r.logEnd('async_update', 'update');
 };
 
-const _trigger_change = element => b8r.trigger('change', element);
+const _change_list = [];
+
+const _trigger_changes = () => {
+  b8r.logStart('async_update', 'changes');
+  _change_list.forEach(element => b8r.trigger('change', element));
+  _change_list.splice(0);
+  b8r.logEnd('async_update', 'changes');
+};
+
+const _trigger_change = element => {
+  if (element instanceof HTMLElement) {
+    if (!_change_list.length) {
+      requestAnimationFrame(_trigger_changes);
+    }
+    if (_change_list.indexOf(element) === -1) {
+      _change_list.push(element);
+    }
+  }
+};
 
 const async_update = (fn, element) => {
   if (!_async_updates) {
     fn(element);
-    if (element.parentElement) {
-      _trigger_change(element.parentElement);
-    }
   } else if (!_update_list.find(item => item.fn === fn && item.element === element)) {
     b8r.logStart('async_update', 'queue');
     _update_list.push({fn, element});
-    if (element.parentElement) {
-      _update_list.push({fn: _trigger_change, element: element.parentElement});
-    }
     requestAnimationFrame(_update);
     b8r.logEnd('async_update', 'queue');
   }
@@ -522,10 +536,12 @@ function bind(element) {
   b8r.logStart(...logArgs);
   const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
   const newValues = {};
+  let changed = false;
   for (var i = 0; i < bindings.length; i++) {
     var {targets, path} = bindings[i];
     const value = b8r.interpolate(path, element);
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
+      changed = true;
       const signature = b8r.elementSignature(element);
       b8r.logStart('toTargets', signature);
       newValues[path] = value;
@@ -540,7 +556,10 @@ function bind(element) {
       b8r.logEnd('toTargets', signature);
     }
   }
-  Object.assign(boundValues, newValues);
+  if (changed) {
+    Object.assign(boundValues, newValues);
+    _trigger_change(element.parentElement);
+  }
   b8r.logEnd(...logArgs);
 }
 
@@ -675,6 +694,7 @@ function bindList(list_template, data_path) {
     b8r.forEachKey(path_to_instance_map, instance => instance.remove());
   }
   b8r.hide(list_template);
+  _trigger_change(list_template.parentElement);
   b8r.logEnd('bindList', b8r.elementSignature(list_template));
 }
 
