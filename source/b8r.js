@@ -194,7 +194,7 @@ const notInListTemplate = elt => !elt.closest('[data-list]');
 > b8r.async_updates(); // returns true | false
 > b8r.async_updates(true); // enable async updates
 > b8r.async_updates(false); // disable async updates
-> b8r.after_async_update(callback); // fires callback after async updates are complete
+> b8r.after_update(callback); // fires callback after async updates are complete
 > </pre>
 >
 > So, if you had code that looked like this:
@@ -209,7 +209,7 @@ const notInListTemplate = elt => !elt.closest('[data-list]');
 > <pre>
 > b8r.async_updates(true);
 > b8r.register('foo', {bar: 17});
-> b8r.after_async_update(() => {
+> b8r.after_update(() => {
 >   console.log(b8r.findOne('[data-bind="text=foo.bar"]').value);
 > });
 > </pre>
@@ -274,7 +274,7 @@ b8r.async_updates = setting => {
   }
 };
 
-b8r.after_async_update = callback => {
+b8r.after_update = callback => {
   if (_update_list.length) {
     if (_after_update_callbacks.indexOf(callback) === -1) {
       _after_update_callbacks.push(callback);

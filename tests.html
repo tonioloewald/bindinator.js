@@ -236,8 +236,8 @@
 		b8r.async_updates(true);
 		b8r.set('test1.base', 86);
 		Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
-		b8r.after_async_update(() => {
-			Test(() => b8r.id('a').textContent, 'Async Update after_async_update').shouldBe('86');
+		b8r.after_update(() => {
+			Test(() => b8r.id('a').textContent, 'Async Update after_update').shouldBe('86');
 		});
 		b8r.async_updates(false);
 
