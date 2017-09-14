@@ -618,6 +618,9 @@ function makeListInstanceBinder (list_template) {
 }
 
 function bindList(list_template, data_path) {
+  if (!list_template.parentElement) {
+    return;
+  }
   const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
   var method_path, list_path;
   try {
@@ -639,13 +642,18 @@ function bindList(list_template, data_path) {
   if (method_path) {
     (function() {
       try {
-        list = b8r.callMethod(method_path, list, list_template);
+        const filtered_list = b8r.callMethod(method_path, list, list_template);
+        // debug warning
+        if (filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
+          console.warn(`list filter ${method_path} returned a new object (not from original list); this will break updates!`);
+        }
+        list = filtered_list;
       } catch (e) {
         console.error('bindList failed; bad method path', method_path, e);
       }
     }());
     if (!list) {
-      throw 'could not compute list; async computed list methods not supported (yet)';
+      throw 'could not compute list; async filtered list methods not supported (yet)';
     }
   }
   b8r.show(list_template);
