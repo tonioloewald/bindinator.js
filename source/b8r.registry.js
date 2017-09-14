@@ -53,7 +53,7 @@ class Listener {
       this.test = t =>
           t.length >= test.length && test === t.substr(0, test.length);
     } else if (test instanceof RegExp) {
-      this.test = test.test;
+      this.test = test.test.bind(test);
     } else if (test instanceof Function) {
       this.test = test;
     } else {
