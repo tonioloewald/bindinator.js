@@ -523,7 +523,7 @@ b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
 b8r.interpolate = (template, elt) => {
   let formatted;
   if (template.match(/\$\{.*?\}/)) {
-    formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => b8r.get(path, elt)) ;
+    formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => b8r.get(path, elt) || '') ;
   } else {
     formatted = b8r.get(template, elt);
   }
