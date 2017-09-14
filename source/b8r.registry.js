@@ -29,11 +29,16 @@ Note that unlike set, setJSON does not accept an optional element argument.
 
 You can call a method by path.
 
-    touch(path [, source_element]); //
+    touch(path [, source_element]);
 
 Triggers all observers as though the value at path has changed. Useful
 if you change a property independently of the registry.
+
+    async_touch(path);
+
+Triggers all observers asynchronousely (on requestAnimationFrame).
 */
+/* jshint latedef:false */
 /* global module, require, console */
 'use strict';
 
@@ -54,7 +59,19 @@ class Listener {
     } else {
       throw 'expect listener test to be a string, RegExp, or test function';
   }
-    this.callback = callback;
+    if (typeof callback === 'string') {
+      this.callback = (...args) => {
+        if (get(callback)) {
+          call(callback, ...args);
+        } else {
+          unobserve(this);
+        }
+      };
+    } else if (typeof callback === 'function') {
+      this.callback = callback;
+    } else {
+      throw 'expect callback to be a path or function';
+    }
     listeners.push(this);
   }
 }
@@ -115,7 +132,8 @@ const set = (path, value, source_element) => {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
   } else if (path_parts.length === 1 && typeof value !== 'object') {
     throw 'cannot set ${path}; you can only register objects at root-level';
-  } else if (setByPath(registry, path, value)) {
+  } else if (value !== getByPath(registry, path)) {
+    setByPath(registry, path, value);
     touch(path, source_element);
   }
 };
@@ -158,14 +176,41 @@ changed.
 
 Finally you can observe a path test function.
 
-    unobserve(listener);
+    const listener = observe(test, callback);
+
+The `callback` can be a function or a path. If a path, the listener will
+automatically be removed if the path is no longer registered (so, for example,
+you can hook up a component method as a listener and it will be
+'garbage collected' with the compoent.
 
 You can remove a listener (if you kept the reference handy).
 
-    unobserve(test);
+    unobserve(listener);
 
 You can remove a listener by test, but it will remove _all_ listeners which use
 that test.
+
+~~~~
+b8r.register('listener_test1', {
+  flag_changed: () => {
+    console.log('flag changed');
+    b8r.set('listener_test2.counter', b8r.get('listener_test2.counter') + 1);
+  }
+});
+b8r.register('listener_test2', {counter: 0, flag: false});
+b8r.observe('listener_test2.flag', 'listener_test1.flag_changed');
+b8r.set('listener_test2.flag', true);
+Test(() => b8r.get('listener_test2.counter'), 'observer counted flag set to true').shouldBe(1);
+b8r.set('listener_test2.flag', false);
+Test(() => b8r.get('listener_test2.counter'), 'observer counted flag set to false').shouldBe(2);
+b8r.set('listener_test2.flag', false);
+Test(() => b8r.get('listener_test2.counter'), 'observer ignored flag set to false').shouldBe(2);
+b8r.set('listener_test2.flag', true);
+Test(() => b8r.get('listener_test2.counter'), 'observer counted flag set to true').shouldBe(3);
+b8r.remove('listener_test1');
+b8r.set('listener_test2.flag', false);
+Test(() => b8r.get('listener_test2.counter'), 'observer automatically removed').shouldBe(3);
+~~~~
 */
 
 const observe = (test, callback) => {
