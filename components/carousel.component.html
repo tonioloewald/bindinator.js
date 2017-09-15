@@ -35,28 +35,15 @@ Copyright ©2016-2017 Tonio Loewald
     transition: width 0.2s ease-out, height 0.2s ease-out;
   }
 
-  .carousel-item,
+  .carousel-item:not(.carousel-current),
   .carousel-item .carousel-drag-handle,
-  .carousel-item .carousel-drag-handle * {
+  .carousel-dragging .carousel-item {
     cursor: -webkit-grab;
     cursor: grab;
   }
 
-  .carousel-item * {
-    cursor: default;
-  }
-
-  .carousel-dragging .carousel-item {
-    cursor: -webkit-grabbing;
-    cursor: grabbing;
-  }
-
-  .carousel-item * {
+  .carousel-item:not(.carousel-current) * {
     pointer-events: none;
-  }
-
-  .carousel-item.carousel-current * {
-    pointer-events: all;
   }
 
   .carousel-target {
