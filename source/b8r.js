@@ -649,7 +649,7 @@ function bindList(list_template, data_path) {
         }
         list = filtered_list;
       } catch (e) {
-        console.error('bindList failed; bad method path', method_path, e);
+        console.error(`bindList failed, ${method_path} threw error`, e);
       }
     }());
     if (!list) {
