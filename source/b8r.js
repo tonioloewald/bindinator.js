@@ -13,7 +13,7 @@ implement some kind of virtual machine to replace it.
 
 'use strict';
 
-const {getByPath, pathSplit} = require('./b8r.byPath.js');
+const { getByPath, pathSplit } = require('./b8r.byPath.js');
 
 function b8r() {}
 
@@ -33,7 +33,7 @@ const {
   handle_event,
   play_saved_messages,
 } = require('./b8r.events.js');
-Object.assign(b8r, {on, off, enable, disable, callMethod, trigger});
+Object.assign(b8r, { on, off, enable, disable, callMethod, trigger });
 const {
   addDataBinding,
   removeDataBinding,
@@ -46,16 +46,16 @@ const {
   replaceInBindings
 } = require('./b8r.bindings.js');
 Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getListInstancePath});
-const {saveDataForElement, dataForElement} =
-    require('./b8r.dataForElement.js');
+const { saveDataForElement, dataForElement } =
+  require('./b8r.dataForElement.js');
 const {onAny, offAny, anyListeners} =
     require('./b8r.anyEvent.js');
-Object.assign(b8r, {onAny, offAny, anyListeners});
+Object.assign(b8r, { onAny, offAny, anyListeners });
 Object.assign(b8r, require('./b8r.registry.js'));
 b8r.observe(
     () => true,
-    (path, source_element) => b8r.touchByPath(path, source_element));
-const {keystroke, modifierKeys} = require('./b8r.keystroke.js');
+            (path, source_element) => b8r.touchByPath(path, source_element));
+const { keystroke, modifierKeys } = require('./b8r.keystroke.js');
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
 
@@ -117,14 +117,14 @@ data-list-instances.
 b8r.register = function(name, obj) {
   if (name.match(/^_[^_]*_$/)) {
     throw 'cannot register object as ' + name +
-        ', all names starting and ending with a single \'_\' are reserved.';
+      ', all names starting and ending with a single \'_\' are reserved.';
   }
   b8r.set(name, obj);
   play_saved_messages(name);
 };
 
 b8r.componentInstances = () =>
-    b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
+  b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 /**
     b8r.debounce(method, min_interval_ms) => debounced method
@@ -155,7 +155,7 @@ b8r.throttle = (orig_fn, min_interval) => {
   var last_call = Date.now() - min_interval;
   return (...args) => {
     const now = Date.now();
-    if(now - last_call > min_interval) {
+    if (now - last_call > min_interval) {
       last_call = now;
       orig_fn(args);
     }
@@ -165,7 +165,7 @@ b8r.throttle = (orig_fn, min_interval) => {
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
   const instances = b8r.find('[data-component-id]')
-                        .map(elt => elt.getAttribute('data-component-id'));
+                      .map(elt => elt.getAttribute('data-component-id'));
   b8r.models().forEach((model) => {
     if (model.substr(0, 2) === 'c#' && instances.indexOf(model) === -1) {
       b8r.remove(model);
@@ -260,7 +260,7 @@ const async_update = (fn, element) => {
     fn(element);
   } else if (!_update_list.find(item => item.fn === fn && item.element === element)) {
     b8r.logStart('async_update', 'queue');
-    _update_list.push({fn, element});
+    _update_list.push({ fn, element });
     requestAnimationFrame(_update);
     b8r.logEnd('async_update', 'queue');
   }
@@ -303,9 +303,9 @@ b8r.touchByPath = (...args) => {
     }
   });
   b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'))
-      .filter(notInListTemplate)
-      .filter(element => element !== source_element)
-      .forEach(element => async_update(bind, element));
+    .filter(notInListTemplate)
+    .filter(element => element !== source_element)
+    .forEach(element => async_update(bind, element));
 
   b8r.logEnd('touchByPath', full_path);
 };
@@ -424,10 +424,10 @@ b8r.getByPath = function(model, path) {
 };
 
 b8r.listItems = element =>
-    b8r.makeArray(element.children)
-        .filter(elt => elt.matches('[data-list-instance]'));
+  b8r.makeArray(element.children)
+    .filter(elt => elt.matches('[data-list-instance]'));
 b8r.listIndex = element =>
-    b8r.listItems(element.parentElement).indexOf(element);
+  b8r.listItems(element.parentElement).indexOf(element);
 
 /**
 ### Finding Bound Data
@@ -466,7 +466,7 @@ b8r.getListInstance = function(elt) {
 };
 
 implicit_event_types.forEach(
-    type => document.body.addEventListener(type, handle_event, true));
+  type => document.body.addEventListener(type, handle_event, true));
 
 /**
     b8r.implicityHandleEventsOfType(type_string)
@@ -518,7 +518,7 @@ work exactly as expected.
 const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
-b8r.onAny(['change', 'input'], '_b8r_', '_update_', true);
+b8r.onAny([ 'change', 'input' ], '_b8r_', '_update_', true);
 
 b8r.interpolate = (template, elt) => {
   let formatted;
@@ -532,13 +532,13 @@ b8r.interpolate = (template, elt) => {
 
 function bind(element) {
   var bindings = getBindings(element);
-  const logArgs = ['bind', b8r.elementSignature(element)];
+  const logArgs = [ 'bind', b8r.elementSignature(element) ];
   b8r.logStart(...logArgs);
   const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
   const newValues = {};
   let changed = false;
   for (var i = 0; i < bindings.length; i++) {
-    var {targets, path} = bindings[i];
+    var { targets, path } = bindings[i];
     const value = b8r.interpolate(path, element);
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
       changed = true;
@@ -560,7 +560,7 @@ function bind(element) {
   b8r.logEnd(...logArgs);
 }
 
-const {show, hide} = require('./b8r.show.js');
+const { show, hide } = require('./b8r.show.js');
 b8r.show = show;
 b8r.hide = hide;
 
@@ -585,7 +585,7 @@ b8r.listInstances = list_template => {
 
 const resolveListInstanceBindings = (instance_elt, instance_path) => {
   const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
-                      .filter(elt => !elt.closest('[data-list]'));
+                     .filter(elt => !elt.closest('[data-list]'));
   elements.forEach(elt => {
     let binding_source = elt.getAttribute('data-bind');
     if (binding_source.indexOf('=.') > -1) {
@@ -626,7 +626,7 @@ function bindList(list_template, data_path) {
   try {
     // parse computed list method if any
     [, , method_path, list_path] =
-        source_path.match(/^(([^()]*)\()?([^()]*)(\))?$/);
+      source_path.match(/^(([^()]*)\()?([^()]*)(\))?$/);
   } catch (e) {
     console.error('bindList failed; bad source path', source_path);
   }
@@ -704,11 +704,12 @@ function bindList(list_template, data_path) {
 }
 
 b8r.bindAll = (element, data_path) => {
-  b8r.logStart('bindAll', b8r.elementSignature(element));
+  const signature = b8r.elementSignature(element);
+  b8r.logStart('bindAll', signature);
   loadAvailableComponents(element, data_path);
   findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, data_path));
-  b8r.logEnd('bindAll', b8r.elementSignature(element));
+  b8r.logEnd('bindAll', signature);
   b8r.cleanupComponentInstances();
 };
 
@@ -730,9 +731,9 @@ You can use them the obvious way:
 */
 
 b8r.set('_b8r_', {
-  echo: evt => console.log(evt) || true,
-  stopEvent: () => {},
-  _update_: evt => {
+  echo : evt => console.log(evt) || true,
+  stopEvent : () => {},
+  _update_ : evt => {
     var elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
     if (evt.target.tagName === 'SELECT') {
       const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
@@ -741,7 +742,7 @@ b8r.set('_b8r_', {
     elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
       var bindings = getBindings(elt);
       for (var i = 0; i < bindings.length; i++) {
-        var {targets, path} = bindings[i];
+        var { targets, path } = bindings[i];
         targets = targets.filter(t => fromTargets[t.target]);
         targets.forEach(t => {
           // all bets are off on bound values!
@@ -798,12 +799,12 @@ b8r.component = function(name, url) {
         resolve(components[name]);
       } else {
         b8r.ajax(`${url}.component.html`)
-            .then(source => resolve(b8r.makeComponent(name, source, url)))
-            .catch(err => {
-              delete component_promises[name];
-              console.error(err, `failed to load component ${url}`);
-              reject(err);
-            });
+          .then(source => resolve(b8r.makeComponent(name, source, url)))
+          .catch(err => {
+            delete component_promises[name];
+            console.error(err, `failed to load component ${url}`);
+            reject(err);
+          });
       }
     });
   }
@@ -836,20 +837,30 @@ b8r.makeComponent = function(name, source, url) {
   var div = b8r.create('div');
   div.innerHTML = content;
   /*jshint evil: true */
-  var load = script ? new Function(
-                          'require',
-                          'component', 'b8r', 'find', 'findOne', 'data',
-                          'register', 'get', 'set', 'on', 'touch',
-                          `${script}\n//# sourceURL=${name}(component)`) :
-                      false;
+  var load = script ?
+             new Function(
+                'require',
+                'component',
+                'b8r',
+                'find',
+                'findOne',
+                'data',
+                'register',
+                'get',
+                'set',
+                'on',
+                'touch',
+                `${script}\n//# sourceURL=${name}(component)`
+              ) :
+              false;
   /*jshint evil: false */
   const style = makeStylesheet(css, name);
   var component = {
-    name: name, style,
-    view: div,
-    load: load,
-    _source: source,
-    path: url.match(/^(.*?)(\/?)([^\/]+)$/)[1] || '',
+    name,
+    style,
+    view : div,
+    load,
+    path : url.match(/^(.*?)(\/?)([^\/]+)$/)[1] || '',
   };
   if (component_timeouts[name]) {
     clearInterval(component_timeouts[name]);
@@ -863,25 +874,24 @@ b8r.makeComponent = function(name, source, url) {
   }
   components[name] = component;
 
-  b8r.find('[data-component="' + name + '"]')
-      .forEach(element => {
-        if (!element.closest('[data-list]') &&
-            !element.matches('[data-component-id]')) {
-          b8r.insertComponent(component, element);
-        }
-      });
+  b8r.find('[data-component="' + name + '"]').forEach(element => {
+    if (!element.closest('[data-list]') &&
+        !element.matches('[data-component-id]')) {
+      b8r.insertComponent(component, element);
+    }
+  });
   return component;
 };
 
 function loadAvailableComponents(element, data_path) {
   b8r.findWithin(element || document.body, '[data-component]', true)
-      .forEach(target => {
-        if (!target.closest('[data-list]') &&
-            !target.matches('[data-component-id]')) {
-          var name = target.getAttribute('data-component');
-          b8r.insertComponent(name, target, data_path);
-        }
-      });
+    .forEach(target => {
+      if (!target.closest('[data-list]') &&
+          !target.matches('[data-component-id]')) {
+        var name = target.getAttribute('data-component');
+        b8r.insertComponent(name, target, data_path);
+      }
+    });
 }
 
 /**
@@ -913,7 +923,7 @@ b8r.insertComponent = function(component, element, data) {
       if (!component_timeouts[component]) {
         // if this doesn't happen for five seconds, we have a problem
         component_timeouts[component] = setTimeout(
-            () => console.error('component timed out: ', component), 5000);
+          () => console.error('component timed out: ', component), 5000);
       }
       if (data) {
         saveDataForElement(element, data);
@@ -963,10 +973,9 @@ b8r.insertComponent = function(component, element, data) {
   if (data_path) {
     element.setAttribute('data-path', data_path);
   }
-  const register = component_data =>
-      b8r.register(component_id, component_data);
+  const register = component_data => b8r.register(component_id, component_data);
   data = Object.assign({}, data);
-  Object.assign(data, {data_path, component_id});
+  Object.assign(data, { data_path, component_id });
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
     const set = (...args) => {
@@ -986,7 +995,7 @@ b8r.insertComponent = function(component, element, data) {
         set, on, touch);
     if (view_obj) {
       console.warn(
-          'returning from views is deprecated; please use register() instead');
+        'returning from views is deprecated; please use register() instead');
       b8r.register(component_id, view_obj);
     }
   } else {

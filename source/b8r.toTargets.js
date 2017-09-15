@@ -289,8 +289,6 @@ module.exports = function(b8r) {
         if (existing.indexOf(`c#${component_name}#`) === -1) {
           b8r.insertComponent(component_name, element);
         }
-      } else {
-        b8r.hide(element);
       }
     }
   };
