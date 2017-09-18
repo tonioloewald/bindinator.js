@@ -291,7 +291,7 @@ function setByPath(obj, path, val) {
 }
 
 function matchTypes(value, oldValue) {
-  if (typeof value === typeof oldValue) {
+  if (value == null || oldValue == null || typeof value === typeof oldValue) {
     return value;
   } else if (typeof value === 'string' && typeof oldValue === 'number') {
     return parseFloat(value);
