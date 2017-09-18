@@ -87,7 +87,7 @@ const perf = {
   logStart: (log_name, entry_name) => {
     const entry = perf.log(log_name, entry_name);
     entry.count += 1;
-    entry.starts.push(Date.now());
+    entry.starts.push(performance.now());
   },
 
   logEnd: (log_name, entry_name) => {
@@ -97,7 +97,7 @@ const perf = {
     if (start === undefined) {
       console.error('logEnd without corresponding logStart', log_name, entry_name, entry);
     }
-    const elapsed = Date.now() - start;
+    const elapsed = performance.now() - start;
     log.total_time += elapsed;
     entry.total_time += elapsed;
     entry.times.push(elapsed);
@@ -120,7 +120,7 @@ const perf = {
         const {name, count, times, total_time} = entry;
         var best, worst, median;
         if (times.length) {
-          const sorted = times.sort();
+          const sorted = times.sort((a, b) => a - b);
           best = sorted[0];
           worst = sorted[sorted.length - 1];
           median = medianOfSortedArray(sorted);
