@@ -219,9 +219,7 @@ const notInListTemplate = elt => !elt.closest('[data-list]');
 */
 
 let _async_updates = true;
-
 const _update_list = [];
-
 const _after_update_callbacks = [];
 
 const _update = () => {
@@ -231,8 +229,11 @@ const _update = () => {
     const {fn, element} = _update_list.shift();
     fn(element);
   }
+
   while(_after_update_callbacks.length) {
+    b8r.logStart('async_update', '_after_update_callbacks');
     (_after_update_callbacks.shift())();
+    b8r.logEnd('async_update', '_after_update_callbacks');
   }
 
   b8r.logEnd('async_update', 'update');
@@ -242,8 +243,9 @@ const _change_list = [];
 
 const _trigger_changes = () => {
   b8r.logStart('async_update', 'changes');
-  _change_list.forEach(element => b8r.trigger('change', element));
-  _change_list.splice(0);
+  while (_change_list.length) {
+    b8r.trigger('change', _change_list.shift());
+  }
   b8r.logEnd('async_update', 'changes');
 };
 
@@ -263,8 +265,10 @@ const async_update = (fn, element) => {
     fn(element);
   } else if (!_update_list.find(item => item.fn === fn && item.element === element)) {
     b8r.logStart('async_update', 'queue');
+    if (!_update_list.length) {
+      requestAnimationFrame(_update);
+    }
     _update_list.push({ fn, element });
-    requestAnimationFrame(_update);
     b8r.logEnd('async_update', 'queue');
   }
 };
