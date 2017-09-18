@@ -226,12 +226,15 @@ const _after_update_callbacks = [];
 
 const _update = () => {
   b8r.logStart('async_update', 'update');
-  _update_list.forEach(({fn, element}) => {
+
+  while(_update_list.length) {
+    const {fn, element} = _update_list.shift();
     fn(element);
-  });
-  _update_list.splice(0);
-  _after_update_callbacks.forEach(callback => callback());
-  _after_update_callbacks.splice(0);
+  }
+  while(_after_update_callbacks.length) {
+    (_after_update_callbacks.shift())();
+  }
+
   b8r.logEnd('async_update', 'update');
 };
 
@@ -302,6 +305,7 @@ b8r.touchByPath = (...args) => {
       async_update(bindList, element);
     }
   });
+
   b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'))
     .filter(notInListTemplate)
     .filter(element => element !== source_element)
@@ -980,7 +984,6 @@ b8r.insertComponent = function(component, element, data) {
     const get = path => b8r.getByPath(component_id, path);
     const set = (...args) => {
       b8r.setByPath(component_id, ...args);
-      b8r.trigger('change', element);
     };
     const on = (...args) => {
       args[1] = args[1].replace(/_component_/, component_id);
