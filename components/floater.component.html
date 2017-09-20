@@ -53,10 +53,10 @@ Use the class "floater-title" for the first child to get nice styling.
   <p>This is some test content</p>
 </div>
 <script>
-/* global component, on, set, b8r, console */
+/* global component, on, b8r, console */
 'use strict';
 
-  on('mousedown', '_component_.start_motion');
+  on('mousedown', 'floater-controller.start_motion');
 
   if(
     !component.style.left && !component.style.right &&
@@ -92,17 +92,18 @@ Use the class "floater-title" for the first child to get nice styling.
       b8r.trigger('close', target.parentElement);
       target.closest('.floater-component').remove();
     },
-  });
-
-  set ({
     start_motion: (evt) => {
-      const target = evt.target.closest('[data-event],input,select,textarea,button,a');
+      if (evt.target.closest('input,select,textarea,button,a')) {
+        return true;
+      }
+      const target = evt.target.closest('[data-event]');
       if(target.closest('.floater-title') || target.matches('.floater-component')) {
-        const style = getComputedStyle(target);
+        const floater = target.closest('.floater-component');
+        const style = getComputedStyle(floater);
         const x = parseFloat(style.left) - evt.pageX;
         const y = parseFloat(style.top) - evt.pageY;
         b8r.set('floater-controller.origin', {x,y});
-        b8r.set('floater-controller.target', target);
+        b8r.set('floater-controller.target', floater);
         b8r.onAny('mousemove', 'floater-controller.move');
         b8r.onAny('mouseup', 'floater-controller.end_motion');
       } else {
