@@ -796,7 +796,7 @@ course.
 
 const component_promises = {};
 
-b8r.component = function(name, url) {
+b8r.component = function(name, url, preserve_source) {
   if (url === undefined) {
     url = name;
     name = url.split('/').pop();
@@ -807,7 +807,7 @@ b8r.component = function(name, url) {
         resolve(components[name]);
       } else {
         b8r.ajax(`${url}.component.html`)
-          .then(source => resolve(b8r.makeComponent(name, source, url)))
+          .then(source => resolve(b8r.makeComponent(name, source, url, preserve_source)))
           .catch(err => {
             delete component_promises[name];
             console.error(err, `failed to load component ${url}`);
@@ -823,7 +823,7 @@ b8r.components = () => Object.keys(components);
 
 const makeStylesheet = require('./b8r.makeStylesheet.js');
 
-b8r.makeComponent = function(name, source, url) {
+b8r.makeComponent = function(name, source, url, preserve_source) {
   var css = false, content, script = false, parts, remains;
 
   // nothing <style> css </style> rest-of-component
@@ -870,6 +870,9 @@ b8r.makeComponent = function(name, source, url) {
     load,
     path : url.match(/^(.*?)(\/?)([^\/]+)$/)[1] || '',
   };
+  if (preserve_source) {
+    component._source = source;
+  }
   if (component_timeouts[name]) {
     clearInterval(component_timeouts[name]);
   }
