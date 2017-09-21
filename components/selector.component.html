@@ -31,6 +31,9 @@
 'use strict';
   set({
     select: (evt) => {
+      if (!evt.target.closest('[data-children] > *')) {
+        return;
+      }
       find('[data-children] > *:not([data-list])').forEach(child => {
         if (child === evt.target.closest('[data-children] > *')) {
           child.setAttribute('data-selected', '');
