@@ -180,16 +180,23 @@ module.exports = function(b8r) {
     },
     text: (element, value) => element.textContent = value,
     format: (element, value) => {
-      if(typeof value === 'string' && value.indexOf('${') > -1){
-        let content = b8r.interpolate(value, element);
-        if (content.match(/[*_]/) && !content.match('>')) {
-          element.innerHTML = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
-                                     .replace(/[*_](.*?)[*_]/g, '<i>$1</i>');
-        } else {
-          element.textContent = value;
-        }
+      let content = value || '';
+      if (typeof content !== 'string') {
+        throw 'format only accepts strings or falsy values';
+      }
+      let template = false;
+      if (content.match(/[*_]/) && !content.match('>')) {
+        template = true;
+        content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
+                                   .replace(/[*_](.*?)[*_]/g, '<i>$1</i>');
+      }
+      if(content.indexOf('${') > -1){
+        content = b8r.interpolate(content, element);
+      }
+      if (template) {
+        element.innerHTML = content;
       } else {
-        element.textContent = value;
+        element.textContent = content;
       }
     },
     fixed: (element, value, dest) => element.textContent = parseFloat(value).toFixed(dest || 1),
