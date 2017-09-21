@@ -225,8 +225,8 @@ function getByPath(obj, path) {
       if (!found.length) {
         found = undefined;
       } else if (part.indexOf('=') > -1) {
-        const [key_path, key_value] = part.split('=');
-        found = byKeyPath(found, key_path, key_value);
+        const [key_path, ...tail] = part.split('=');
+        found = byKeyPath(found, key_path, tail.join('='));
       } else {
         j = parseInt(part, 10);
         found = found[j];
