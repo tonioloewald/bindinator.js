@@ -1,0 +1,44 @@
+<!--
+# selector
+-->
+<style>
+.selector-component > * {
+  cursor: pointer;
+}
+
+.selector-component > [data-children] > * {
+  opacity: 0.5;
+}
+
+.selector-component > [data-children] > *+* {
+  margin-left: 0.5em;
+}
+
+.selector-component > [data-children] > [data-selected] {
+  opacity: 1;
+}
+</style>
+<div
+  data-children
+  data-event="mouseup:_component_.select"
+>
+  <span>One</span>
+  <span data-selected>Two</span>
+  <span>Three</span>
+</div>
+<script>
+/* global find, set */
+'use strict';
+  set({
+    select: (evt) => {
+      find('[data-children] > *:not([data-list])').forEach(child => {
+        if (child === evt.target.closest('[data-children] > *')) {
+          child.setAttribute('data-selected', '');
+        } else {
+          child.removeAttribute('data-selected');
+        }
+      });
+      return true;
+    }
+  });
+</script>

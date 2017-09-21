@@ -88,6 +88,66 @@ did the event occur within the element (with added margin)?
   })
 </script>
 ```
+
+    wrap(element, wrapper_element [, destination_selector]);
+
+wraps the element with a wrapper element. If a destination_selector is provided then
+the wrapped element is inserted within the indicated child, otherwise it is appended directly to
+the wrapper.
+
+    unwrap(element [, wrapper_selector]);
+
+unwraps the element of its immediate parent or its closest `wrapper_selector` if provided.
+
+```
+<button
+  data-event="
+    click:_component_.toggle_wrap;
+  "
+>
+  Click Me to toggle wrapping
+</button><br>
+<button
+  data-event="
+    click:_component_.toggle_deep_wrap;
+  "
+>
+  Click Me to toggle deep wrapping
+</button>
+<div class="wrapper" style="background-color: yellow; padding: 10px;">
+</div>
+<div class="deep-wrapper" style="background-color: red; padding: 10px;">
+  <div style="background-color: white; padding: 10px;">
+    <div class="dest" style="background-color: blue; padding: 10px;">
+    </div>
+  </div>
+</div>
+<script>
+  const target = findOne('.target');
+  const wrapper = findOne('.wrapper');
+  const deep_wrapper = findOne('.deep-wrapper');
+
+  wrapper.remove();
+  deep_wrapper.remove();
+
+  set ({
+    toggle_wrap: (evt, element) => {
+      if (element.closest('.wrapper')) {
+        b8r.unwrap(element);
+      } else {
+        b8r.wrap(element, wrapper);
+      }
+    },
+    toggle_deep_wrap: (evt, element) => {
+      if (element.closest('.deep-wrapper')) {
+        b8r.unwrap(element, '.deep-wrapper');
+      } else {
+        b8r.wrap(element, deep_wrapper, '.dest');
+      }
+    }
+  })
+</script>
+```
 */
 /* global module, require */
 'use strict';
@@ -156,7 +216,7 @@ module.exports = {
   },
   empty (element) {
     while (element.lastChild) {
-      element.removeChild(element.lastChild);
+      element.lastChild.remove();
     }
   },
   elementIndex (element) {
@@ -176,6 +236,26 @@ module.exports = {
   },
   offset (element) {
     return element.getBoundingClientRect();
+  },
+  wrap(element, wrapping_element, dest_selector) {
+    try {
+      const parent = element.parentElement;
+      const destination = dest_selector ? wrapping_element.querySelector(dest_selector) : wrapping_element;
+      parent.insertBefore(wrapping_element, element);
+      destination.appendChild(element);
+    } catch(e) {
+      throw 'wrap failed';
+    }
+  },
+  unwrap(element, wrapper_selector) {
+    try {
+      const wrapper = wrapper_selector ? element.closest(wrapper_selector) : element.parentElement;
+      const parent = wrapper.parentElement;
+      parent.insertBefore(element, wrapper);
+      wrapper.remove();
+    } catch(e) {
+      throw 'unwrap failed';
+    }
   },
   within (element, mouse_event, margin) {
     const r = element.getBoundingClientRect();

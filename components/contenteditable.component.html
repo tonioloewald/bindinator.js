@@ -1,0 +1,22 @@
+<style>
+  .contenteditable-component > div {
+    min-width: 100px;
+
+  }
+
+  .contenteditable-component > div[data-placeholder]:after {
+    content: attr(data-placeholder);
+    position: absolute;
+    color: rgba(0,0,0,0.5);
+  }
+</style>
+<div contenteditable="true"></div>
+<script>
+/* global component, findOne */
+'use strict';
+  const placeholder = component.getAttribute('placeholder');
+  const field = findOne('div');
+  if (placeholder) {
+    field.setAttribute('data-placeholder', placeholder);
+  }
+</script>

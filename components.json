@@ -122,5 +122,13 @@
 	{
 		"name": "webrtc",
 		"path": "webrtc"
+	},
+	{
+		"name": "Faux Input",
+		"path": "contenteditable"
+	},
+	{
+		"name": "Selector",
+		"path": "selector"
 	}
 ]

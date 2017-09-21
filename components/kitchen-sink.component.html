@@ -166,11 +166,27 @@ built-in functionality but augment it.
 	</div>
 	<button class="cancel">Cancel</button> <button>Whatever</button> <button class="default">Default</button>
 	<hr>
-	<select>
-		<option selected>Default</option>
-		<option>Another Option</option>
-		<option>Yet Another Option</option>
+	<select
+		data-bind="value=_component_.single_selection"
+	>
+		<option
+			data-list="_component_.multiselect"
+			data-bind="text=.text"
+		>
+			Item Text
+		</option>
 	</select>
+	<div
+		data-component="selector"
+		data-bind="value=_component_.single_selection"
+	>
+		<span
+			data-list="_component_.multiselect"
+			data-bind="text=.text"
+		>
+			Item Text
+		</span>
+	</div>
 	<select multiple>
 	  <option
 	    data-list="_component_.multiselect"
@@ -182,7 +198,8 @@ built-in functionality but augment it.
 	</select>
 	<hr>
 	<textarea>Text Area</textarea>
-	<input placeholder="input field">
+	<input placeholder="input field" data-bind="value=_component_.input_field">
+	<input placeholder="contenteditable" data-component="contenteditable" data-bind="value=_component_.input_field">
 	<input class="search" placeholder="search field">
 	<hr>
 	<label>
@@ -358,11 +375,15 @@ built-in functionality but augment it.
 	b8r.component('components/maxtoggle');
 	b8r.component('components/slider-numeric');
 	b8r.component('components/combo');
+	b8r.component('components/selector');
+	b8r.component('components/contenteditable');
+
 
 	['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
 
 	register({
 	  fuelrods: 17,
+	  single_selection: 'Another Option',
 	  multiselect: [
 	    {
 	      text: 'Default',

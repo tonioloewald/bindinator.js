@@ -922,8 +922,20 @@ data to the component).
 var component_count = 0;
 b8r.insertComponent = function(component, element, data) {
   const data_path = typeof data === 'string' ? data : b8r.getDataPath(element);
+  let input = null;
   if (!element) {
     element = b8r.create('div');
+  }
+  if (element.tagName === 'INPUT') {
+    input = element;
+    element = b8r.create('div');
+    input.parentElement.insertBefore(element, input);
+    if (input.hasAttribute('data-component')) {
+      element.setAttribute('data-component', input.getAttribute('data-component'));
+      input.removeAttribute('data-component');
+    }
+    input.style.display = 'none';
+    element.appendChild(input);
   }
   if (element.getAttribute('data-component') !== component.name ||
       component) {
@@ -1017,4 +1029,22 @@ b8r.insertComponent = function(component, element, data) {
   b8r.bindAll(element);
   b8r.logEnd('insertComponent', component.name);
   return element;
+};
+
+/**
+    b8r.componentOnce(url [,name]);
+
+This loads the component (if necessary) and then if there is no instance of the component in the DOM
+it creates one. It replaces the pattern:
+
+    b8r.component(url).then(c => b8r.insertComponent(c));
+
+And doesn't run the risk of leaking multiple instances of components into the DOM.
+*/
+b8r.componentOnce = (...args) => {
+  b8r.component(...args).then(c => {
+    if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
+      b8r.insertComponent(c);
+    }
+  });
 };
