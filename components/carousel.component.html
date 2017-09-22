@@ -97,9 +97,6 @@ Copyright ©2016-2017 Tonio Loewald
     <button data-event="click:_component_.add" class="iconic icon-plus2"></button>
   </div>
 </div>
-<div style="text-align: center; padding: 20px;" data-bind="show_if=_component_.show_slider">
-  <input type="range" min=0 max=1 step=0.0001 data-event="input,change:_component_.update" />
-</div>
 <script>
 /* global b8r, findOne, find, component, set, data */
 'use strict';
@@ -114,8 +111,6 @@ Copyright ©2016-2017 Tonio Loewald
   const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
   const min_scale = component.getAttribute('data-carousel-minscale') || 1;
   const drag_threshold = component.getAttribute('data-carousel-drag-threshold') || 10;
-
-  set({show_slider: component.hasAttribute('data-show-slider')});
 
   function ease_in_out(t) {
     var s = t > 0 ? 0.5 : -0.5;
@@ -177,7 +172,6 @@ Copyright ©2016-2017 Tonio Loewald
   const child_selector = component.getAttribute('child-selector') || '.carousel > div';
   const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'));
   const carousel = findOne('.carousel');
-  const slider = findOne('input');
   const {component_id} = data;
 
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
@@ -187,7 +181,6 @@ Copyright ©2016-2017 Tonio Loewald
     item_list.forEach((element, idx) => {
       setItemPosition(element, idx - position);
     });
-    slider.value = position / (item_list.length - 1);
   }
 
   function snapToTarget(element){
@@ -307,6 +300,14 @@ Copyright ©2016-2017 Tonio Loewald
     })();
   }
 
+
+  const update = evt => {
+    updateItems();
+    if(evt === true || (evt || {}).type === 'change') {
+      snapToTarget(Math.round(position));
+    }
+  };
+
   init();
 
   set({
@@ -319,7 +320,7 @@ Copyright ©2016-2017 Tonio Loewald
       if (Math.abs(drag_dx) < drag_threshold) {
         snapToTarget(evt.target);
       } else {
-        b8r.trigger('change', slider);
+        update(true);
       }
     },
     dragStart: evt => {
@@ -342,16 +343,10 @@ Copyright ©2016-2017 Tonio Loewald
     dragEnd: evt => {
       if (evt.target === carousel && dragging()) {
         dragOff();
-        b8r.trigger('change', slider);
+        update(true);
       }
     },
     change: init,
-    update: evt => {
-      position = slider.value * (items().length - 1);
-      updateItems();
-      if(evt.type === 'change') {
-        snapToTarget(Math.round(position));
-      }
-    }
+    update,
   });
 </script>
