@@ -107,6 +107,7 @@
 			list: [
 				{x: 10, y: 11},
 				{x: 12, y: 13},
+				{x: 'y=z'}
 			],
 			color: 'red',
 			type: 'range',
@@ -126,6 +127,8 @@
 		Test(() => getByPath(obj, 'sub.list[1]')).shouldBe(obj.sub.list[1]);
 		Test(() => getByPath(obj, 'list[1].x')).shouldBe(obj.list[1].x);
 		Test(() => getByPath(obj, 'nested_list[1][1]')).shouldBe(obj.nested_list[1][1]);
+		Test(() => getByPath(obj, 'list[x=12]')).shouldBe(obj.list[1])
+		Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2])
 		setByPath(obj, 'base', 42);
 		setByPath(obj, 'kettle.black', 11);
 		Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
