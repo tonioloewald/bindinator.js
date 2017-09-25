@@ -630,11 +630,13 @@ function bindList(list_template, data_path) {
     return;
   }
   const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
-  var method_path, list_path;
+  var method_path, list_path, arg_paths;
   try {
     // parse computed list method if any
-    [, , method_path, list_path] =
+    [, , method_path, arg_paths] =
       source_path.match(/^(([^()]*)\()?([^()]*)(\))?$/);
+    arg_paths = arg_paths.split(',')
+    list_path = arg_paths[0]
   } catch (e) {
     console.error('bindList failed; bad source path', source_path);
   }
@@ -650,7 +652,8 @@ function bindList(list_template, data_path) {
   if (method_path) {
     (function() {
       try {
-        const filtered_list = b8r.callMethod(method_path, list, list_template);
+        const args = arg_paths.map(b8r.get)
+        const filtered_list = b8r.callMethod(method_path, ...args, list_template);
         // debug warning
         if (filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
           console.warn(`list filter ${method_path} returned a new object (not from original list); this will break updates!`);
