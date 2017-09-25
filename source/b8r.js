@@ -862,7 +862,7 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
               ) :
               false;
   /*jshint evil: false */
-  const style = makeStylesheet(css, name);
+  const style = makeStylesheet(css, name + '-component');
   var component = {
     name,
     style,
