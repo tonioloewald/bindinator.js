@@ -44,6 +44,7 @@ Triggers all observers asynchronousely (on requestAnimationFrame).
 
 const {getByPath, setByPath} = require('./b8r.byPath.js');
 const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
+const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
 let listeners = [];  // { path_string_or_test, callback }
 
@@ -104,8 +105,10 @@ const get = (path, element) => {
 const getJSON = (path, element) => JSON.stringify(get(path, element));
 
 const touch = (path, source_element) => {
+  logStart('touch', path);
   listeners.filter(listener => listener.test(path))
       .forEach(listener => listener.callback(path, source_element));
+  logEnd('touch', path);
 };
 
 const _async_touch_dirty_list = [];

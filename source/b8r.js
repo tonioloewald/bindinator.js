@@ -303,17 +303,11 @@ b8r.touchByPath = (...args) => {
 
   b8r.logStart('touchByPath', full_path);
 
-  const lists = b8r.makeArray(document.querySelectorAll('[data-list*="' + full_path + '"]'));
-  lists.forEach(element => {
-    if (element !== source_element) {
-      async_update(bindList, element);
-    }
-  });
+  b8r.find('[data-list*="' + full_path + '"]')
+    .forEach(elt => async_update(bindList, elt));
 
-  b8r.makeArray(document.querySelectorAll('[data-bind*="' + full_path + '"]'))
-    .filter(notInListTemplate)
-    .filter(element => element !== source_element)
-    .forEach(element => async_update(bind, element));
+  b8r.find('[data-bind*="' + full_path + '"]')
+    .forEach(elt => notInListTemplate(elt) && elt !== source_element && async_update(bind, elt));
 
   b8r.logEnd('touchByPath', full_path);
 };
