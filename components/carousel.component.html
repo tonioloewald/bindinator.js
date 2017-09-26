@@ -184,6 +184,11 @@ Copyright ©2016-2017 Tonio Loewald
   }
 
   function snapToTarget(element){
+    if (element == null) {
+      console.warn('carousel cannot snap to target');
+      return;
+    }
+
     let target = -1;
     const item_list = items();
 
