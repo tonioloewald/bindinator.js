@@ -184,11 +184,6 @@ Copyright ©2016-2017 Tonio Loewald
   }
 
   function snapToTarget(element){
-    if (element == null) {
-      console.warn('carousel cannot snap to target');
-      return;
-    }
-    
     let target = -1;
     const item_list = items();
 
@@ -197,7 +192,6 @@ Copyright ©2016-2017 Tonio Loewald
     }
 
     if (typeof element === 'number') {
-      // shouldn't this also add/remove the carousel-target class?
       element = item_list[element];
     }
 
@@ -299,7 +293,7 @@ Copyright ©2016-2017 Tonio Loewald
         add: () => {
           add();
           set({items});
-          snapToTarget(items.length - 1);
+          b8r.after_update(() => snapToTarget(items.length - 1));
         },
         remove,
       });

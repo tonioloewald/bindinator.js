@@ -135,7 +135,7 @@ const set = (path, value, source_element) => {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
   } else if (path_parts.length === 1 && typeof value !== 'object') {
     throw 'cannot set ${path}; you can only register objects at root-level';
-  } else if (value !== getByPath(registry, path)) {
+  } else if (typeof value === 'object' || value !== getByPath(registry, path)) {
     setByPath(registry, path, value);
     touch(path, source_element);
   }
