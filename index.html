@@ -120,7 +120,7 @@
 					if (evt.target.matches('.current')) {
 						return;
 					}
-					window.location.hash = 'source=' + evt.target.getAttribute('data-file');
+					window.location.hash = 'source=' + (evt.target.getAttribute('data-file') || 'README.md');
 				},
 				inspector: function() {
 					const inspector = b8r.id('inspector');
