@@ -17,23 +17,26 @@ these problems. So, why use b8r?
 
 ### Why b8r doesn't suck
 
-- no new languages to learn (use javascript, html, and css)
-- no compilation step required
+- if you know HTML, CSS, and Javascript, you're almost done
+- no "compilation" required
 - no good habits to unlearn
-- use existing debugging tools
-- leans into things your browser is already good at
+- leverages existing debugging tools
+- *leans into* things your browser is already good at
 - almost boilerplate free
-- easy to learn
-- easy to get a project up and running
+- no dependencies
 - easy to test, host, and deploy
-- the easy way to do things is the right way
-- works with whatever you need it to work with
+- doing things the easy way is usually the right way
+- compatible with most other libraries
+- easy to add documentation, test cases, and examples in your code
 
 ## Registered Objects
 
 Registered — **named** — objects are *the central idea* in b8r's architecture.
 
-Registered objects are a kind of **observable**. But it's the *name* that's observed, not the *object* (i.e. you can bind to a registered object *by name* before the object itself is registered). This means you can bind to data before it's loaded, and events can trigger methods belonging to controllers before they are loaded, parsed, etc.
+Registered objects are a kind of **observable**. But it's the *name* that's observed, not the *object* (i.e. you can bind to a registered object *by name* before the object itself is registered). If you consider a typical scenario where you have data, views, and controllers, it doesn't matter
+which order they load -- everything just works.
+
+
 
 ### Path References
 
@@ -95,7 +98,6 @@ When an event is received, b8r looks at the event's target (the first element th
 Events are bound to methods of registered objects by path name, the binding in effect says "when the button receives mouseup_event, b8r.getByPath('model', 'method')(mouseup_event)".
 
 It's a little cleverer than that, see the note on *Asynchronous Event Binding* below.
-
 
 #### Multiple Event Handers
 
