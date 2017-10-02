@@ -217,8 +217,8 @@ const parseBinding = binding => {
   if (binding.indexOf('=') === -1) {
     throw 'binding is missing = sign; probably need a source or target';
   }
-  var [, targets, path] =
-      binding.trim().match(/^([^=]*)=(.*)$/m).map(s => s.trim());
+  let [, targets, path] =
+      binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim());
   targets = targets.split(',').map(function(target) {
     var parts = target.match(/(\w+)(\(([^)]+)\))?/);
     if (!parts) {
