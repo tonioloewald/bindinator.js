@@ -54,6 +54,7 @@ the string.
 
 -->
 <script>
+/* jshint latedef:false */
 /* global component, b8r */
 'use strict';
 
@@ -63,7 +64,7 @@ the string.
     const combos = {};
 
     const register = combo => {
-      const name = combo.getAttribute('data-combo-id');
+      const name = combo.dataset.comboId;
       if (!name) {
         throw 'cannot register combo with no data-combo-id';
       }
@@ -83,15 +84,15 @@ the string.
       if(!target) {
         throw 'cannot show combo, no data-combo attribute';
       }
-      const name = target.getAttribute('data-combo');
+      const name = target.dataset.combo;
       const combo = combos[name];
       if (!combo) {
         throw `cannot show combo, combo ${name} does not exist`;
       }
-      const position = element.getAttribute('data-combo-position') || combo.getAttribute('data-combo-position') || 'below';
+      const position = element.dataset.comboPosition || combo.dataset.comboPosition || 'below';
       const rect = element.getBoundingClientRect();
-      const filter_split = element.getAttribute('data-combo-filter-split') || combo.getAttribute('data-combo-filter-split');
-      const filter_start = element.getAttribute('data-combo-filter-start') || combo.getAttribute('data-combo-filter-start');
+      const filter_split = element.dataset.comboFilterSplit || combo.dataset.comboFilterSplit;
+      const filter_start = element.dataset.comboFilterStart || combo.dataset.comboFilterStart;
       return {combo, position, rect, filter_split, filter_start};
     };
 
@@ -136,7 +137,7 @@ the string.
         hide();
       }
       const filtered = b8r.makeArray(combo.children).filter(item => {
-        if(item.getAttribute('data-list')) {
+        if(item.dataset.list) {
           return false;
         } else if(item.textContent.toLowerCase().indexOf(match) > -1) {
           item.classList.remove('hidden');
@@ -157,7 +158,7 @@ the string.
     };
 
     const partial_match = (element, filter_split, filter_start) => {
-      let {text, selStart, selEnd} = getSelection(element);
+      let {text, selEnd} = getSelection(element);
       let match = text.toLowerCase();
 
       let start = 0;
@@ -184,7 +185,7 @@ the string.
       element.querySelectorAll('.selected').forEach(elt => elt.classList.remove('selected'));
       evt.target.closest('[data-component="combo"] > *').classList.add('selected');
       insert(evt, element._targetElement);
-    }
+    };
 
     const insert = (evt, element) => {
       const {combo, filter_start, filter_split} = get_combo(element);
@@ -215,7 +216,6 @@ the string.
             case 'ArrowUp':
             case 'ArrowDown':
               return false;
-              break;
             case 'Space':
             case 'NumpadEnter':
             case 'Enter':

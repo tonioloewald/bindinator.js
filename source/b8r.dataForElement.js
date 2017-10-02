@@ -31,7 +31,7 @@ const dataForElement = (target_element, _default) => {
     }
   }
 
-  const json = target_element.getAttribute('data-json');
+  const json = target_element.dataset.json;
   if (json) {
     return JSON.parse(json);
   }

@@ -103,14 +103,14 @@ Copyright ©2016-2017 Tonio Loewald
 
   let position = -1;
 
-  const max_rotation = parseFloat(component.getAttribute('data-carousel-rotation') || 0);
-  const max_distance = parseFloat(component.getAttribute('data-carousel-distance') || 50);
-  const inner_offset = parseFloat(component.getAttribute('data-carousel-inner-offset') || 150);
-  const item_offset = parseFloat(component.getAttribute('data-carousel-offset') || 100);
-  const item_spacing = parseFloat(component.getAttribute('data-carousel-spacing') || 10);
-  const centered_at_start = component.hasAttribute('data-carousel-centered') || true;
-  const min_scale = component.getAttribute('data-carousel-minscale') || 1;
-  const drag_threshold = component.getAttribute('data-carousel-drag-threshold') || 10;
+  const max_rotation = parseFloat(component.dataset.carouselRotation || 0);
+  const max_distance = parseFloat(component.dataset.carouselDistance || 50);
+  const inner_offset = parseFloat(component.dataset.carouselInnerOffset || 150);
+  const item_offset = parseFloat(component.dataset.carouselOffset || 100);
+  const item_spacing = parseFloat(component.dataset.carouselSpacing || 10);
+  const centered_at_start = component.hasAttribute('data-carousel-centered');
+  const min_scale = component.dataset.carouselMinscale || 1;
+  const drag_threshold = component.dataset.carouselDragThreshold || 10;
 
   function ease_in_out(t) {
     var s = t > 0 ? 0.5 : -0.5;
@@ -184,7 +184,7 @@ Copyright ©2016-2017 Tonio Loewald
   }
 
   function snapToTarget(element){
-    if (element == null) {
+    if (element === null || element === undefined) {
       console.warn('carousel cannot snap to target');
       return;
     }

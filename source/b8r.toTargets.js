@@ -175,15 +175,14 @@ module.exports = function(b8r) {
             element.value = value;
             // <select> element will not take value if no matching option exists
             if (value && !element.value) {
-              element.setAttribute('data-pending-value', JSON.stringify(value));
+              element.dataset.pendingValue = JSON.stringify(value);
               console.warn('could not set value', element, value);
             } else {
-              element.removeAttribute('data-value');
+              delete element.dataset.value;
             }
           } else {
-            const component_id = element.getAttribute('data-component-id');
-            if (component_id) {
-              b8r.set(`${component_id}.value`, value);
+            if (element.dataset.componentId) {
+              b8r.set(`${element.dataset.componentId}.value`, value);
             } else {
               console.error('could not set component value', element, value);
             }
@@ -308,7 +307,7 @@ module.exports = function(b8r) {
         }
       }
       if (component_name) {
-        const existing = element.getAttribute('data-component-id') || '';
+        const existing = element.dataset.componentId || '';
         if (existing.indexOf(`c#${component_name}#`) === -1) {
           b8r.insertComponent(component_name, element);
         }

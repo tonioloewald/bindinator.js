@@ -188,24 +188,24 @@ const {findWithin} = require('./b8r.dom.js');
 
 const addDataBinding = (element, toTarget, path) => {
   const binding = `${toTarget}=${path}`;
-  const existing = (element.getAttribute('data-bind') || '')
+  const existing = (element.dataset.bind || '')
                       .split(';').map(s => s.trim()).filter(s => !!s);
   if (existing.indexOf(binding) === -1) {
     existing.push(binding);
-    element.setAttribute('data-bind', existing.join(';'));
+    element.dataset.bind = existing.join(';');
   }
 };
 
 const removeDataBinding = (element, toTarget, path) => {
   const binding = `${toTarget}=${path}`;
   var existing =
-      (element.getAttribute('data-bind') || '').split(';').map(s => s.trim());
+      (element.dataset.bind || '').split(';').map(s => s.trim());
   if (existing.indexOf(binding) > -1) {
     existing = existing.filter(exists => exists !== binding);
     if (existing.length) {
-      element.setAttribute('data-bind', existing.join(';'));
+      element.dataset.bind = existing.join(';');
     } else {
-      element.removeAttribute('data-bind');
+      delete element.dataset.bind;
     }
   }
 };
@@ -255,25 +255,24 @@ const findLists = element => {
 };
 
 const getBindings = element => {
-  return element.getAttribute('data-bind')
-                .split(';')
-                .filter(s => !!s.trim())
-                .map(parseBinding);
+  return element.dataset.bind.split(';')
+                             .filter(s => !!s.trim())
+                             .map(parseBinding);
 };
 
 const getDataPath = element => {
   const data_parent = element ? element.closest('[data-path],[data-list-instance]') : false;
-  return data_parent ? (data_parent.getAttribute('data-path') || data_parent.getAttribute('data-list-instance')) : '';
+  return data_parent ? (data_parent.dataset.path || data_parent.dataset.listInstance) : '';
 };
 
 const getListInstancePath = element => {
   const component = element.closest('[data-list-instance]');
-  return component ? component.getAttribute('data-list-instance') : null;
+  return component ? component.dataset.listInstance : null;
 };
 
 const getComponentDataPath = element => {
   const component = element.closest('[data-component-id]');
-  return component ? component.getAttribute('data-component-id') : null;
+  return component ? component.dataset.componentId : null;
 };
 
 const replaceInBindings = (element, needle, replacement) => {

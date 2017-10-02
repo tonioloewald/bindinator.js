@@ -262,7 +262,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 	};
 	const exec = evt => {
 		doc.focus();
-		const args = evt.target.closest('[data-command]').getAttribute('data-command').split(',');
+		const args = evt.target.closest('[data-command]').dataset.command.split(',');
 		if (args.length > 1) {
 			document.execCommand(args[0], false, args[1]);
 		} else {
@@ -275,23 +275,24 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 			document.execCommand('createLink', false, url);
 		}
 	};
+
 	const note = () => {
 		const note = prompt('Please enter note');
 		if (note) {
-			document.execCommand('insertHTML', false, `<span class="note" contenteditable="false" data-note="${note}">*</span>`)
+			document.execCommand('insertHTML', false, `<span class="note" contenteditable="false" data-note="${note}">*</span>`);
 		}
-	}
+	};
 
 	const passThru = () => {
 		doc.focus();
 		return true;
 	};
 
-	const mouseupHandler = (evt, target) => {
+	const mouseupHandler = evt => {
 		if (evt.target.matches('.note')) {
-			const edited = prompt('Edit Note', evt.target.getAttribute('data-note'));
+			const edited = prompt('Edit Note', evt.target.dataset.note);
 			if (edited) {
-				evt.target.setAttribute('data-note', edited);
+				evt.target.dataset.note = edited;
 			}
 		} else {
 			return true;

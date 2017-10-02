@@ -165,7 +165,7 @@ b8r.throttle = (orig_fn, min_interval) => {
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
   const instances = b8r.find('[data-component-id]')
-                      .map(elt => elt.getAttribute('data-component-id'));
+                      .map(elt => elt.dataset.componentId);
   b8r.models().forEach((model) => {
     if (model.substr(0, 2) === 'c#' && instances.indexOf(model) === -1) {
       b8r.remove(model);
@@ -381,7 +381,7 @@ b8r.unshiftByPath = function(...args) {
 b8r.removeListInstance = function(elt) {
   elt = elt.closest('[data-list-instance]');
   if (elt) {
-    const ref = elt.getAttribute('data-list-instance');
+    const ref = elt.dataset.listInstance;
     try {
       const [, model, path, key] = ref.match(/^([^.]+)\.(.+)\[([^\]]+)\]$/);
       b8r.removeByPath(model, path, key);
@@ -594,13 +594,13 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
   const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
                      .filter(elt => !elt.closest('[data-list]'));
   elements.forEach(elt => {
-    let binding_source = elt.getAttribute('data-bind');
+    let binding_source = elt.dataset.bind;
     if (binding_source.indexOf('=.') > -1) {
       const path_prefix = `=${instance_path}.`;
-      elt.setAttribute('data-bind', binding_source.replace(/\=\./g, path_prefix));
+      elt.dataset.bind = binding_source.replace(/\=\./g, path_prefix);
     }
     if (binding_source.indexOf('${.') > -1) {
-      elt.setAttribute('data-bind', binding_source.replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}'));
+      elt.dataset.bind = binding_source.replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
     }
   });
 };
@@ -628,7 +628,7 @@ function bindList(list_template, data_path) {
   if (!list_template.parentElement) {
     return;
   }
-  const [source_path, id_path] = list_template.getAttribute('data-list').split(':');
+  const [source_path, id_path] = list_template.dataset.list.split(':');
   var method_path, list_path, arg_paths;
   try {
     // parse computed list method if any
@@ -676,12 +676,12 @@ function bindList(list_template, data_path) {
   const existing_list_instances = id_path ? b8r.listInstances(list_template) : [];
   const path_to_instance_map = {};
   if (existing_list_instances.length) {
-    existing_list_instances.forEach(elt => path_to_instance_map[elt.getAttribute('data-list-instance')] = elt);
+    existing_list_instances.forEach(elt => path_to_instance_map[elt.dataset.listInstance] = elt);
   }
 
   /* Safari refuses to hide hidden options */
   const template = list_template.cloneNode(true);
-  template.removeAttribute('data-list');
+  delete template.dataset.list;
   if (list_template.tagName === 'OPTION') {
     list_template.setAttribute('disabled', '');
     list_template.textContent = '';
@@ -698,7 +698,7 @@ function bindList(list_template, data_path) {
     instance = path_to_instance_map[itemPath];
     if (instance === undefined) {
       instance = template.cloneNode(true);
-      instance.setAttribute('data-list-instance', itemPath);
+      instance.dataset.listInstance = itemPath;
       resolveListInstanceBindings(instance, itemPath);
       binder(instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
@@ -912,7 +912,7 @@ function loadAvailableComponents(element, data_path) {
     .forEach(target => {
       if (!target.closest('[data-list]') &&
           !target.matches('[data-component-id]')) {
-        var name = target.getAttribute('data-component');
+        var name = target.dataset.component;
         b8r.insertComponent(name, target, data_path);
       }
     });
@@ -938,9 +938,9 @@ b8r.insertComponent = function(component, element, data) {
   if (!element) {
     element = b8r.create('div');
   }
-  if (element.getAttribute('data-component') !== component.name ||
+  if (element.dataset.component !== component.name ||
       component) {
-    element.setAttribute('data-component', component.name || component);
+    element.dataset.component = component.name || component;
   }
   if (typeof component === 'string') {
     if (!components[component]) {
@@ -957,7 +957,7 @@ b8r.insertComponent = function(component, element, data) {
     component = components[component];
   }
   b8r.logStart('insertComponent', component.name);
-  element.removeAttribute('data-component');
+  delete element.dataset.component;
   if (!data || data_path) {
     data = dataForElement(
         element,
@@ -988,7 +988,7 @@ b8r.insertComponent = function(component, element, data) {
       b8r.moveChildren(children, children_dest);
     }
   }
-  element.setAttribute('data-component-id', component_id);
+  element.dataset.componentId = component_id;
   b8r.makeArray(element.classList).forEach(c => {
     if (c.substr(-10) === '-component') {
       element.classList.remove(c);
@@ -996,7 +996,7 @@ b8r.insertComponent = function(component, element, data) {
   });
   element.classList.add(component.name + '-component');
   if (data_path) {
-    element.setAttribute('data-path', data_path);
+    element.dataset.path = data_path;
   }
   const register = component_data => b8r.register(component_id, component_data);
   data = Object.assign({}, data);

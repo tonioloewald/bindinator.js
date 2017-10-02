@@ -128,7 +128,7 @@
 					if (evt.target.matches('.current')) {
 						return;
 					}
-					window.location.hash = 'source=' + (evt.target.getAttribute('data-file') || 'README.md');
+					window.location.hash = 'source=' + (evt.target.dataset.file || 'README.md');
 				},
 				inspector: function() {
 					const inspector = b8r.id('inspector');
@@ -143,7 +143,7 @@
 					if (evt.target.matches('.current')) {
 						return;
 					}
-					window.location.hash = 'component=' + evt.target.getAttribute('data-file');
+					window.location.hash = 'component=' + evt.target.dataset.file;
 				},
 				alertKeystroke: evt => alert(b8r.keystroke(evt)),
 				fullscreen: () => {

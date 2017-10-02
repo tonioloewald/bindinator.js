@@ -34,7 +34,7 @@ This is a simple replacement for `<select>` elements.
   <span>Four</span>
 </div>
 <script>
-/* global find, findOne, set, data */
+/* global find, findOne, b8r, component, get, set, data */
 'use strict';
 
   const _value = element => element.value || element.getAttribute('value') || element.textContent;
@@ -45,10 +45,10 @@ This is a simple replacement for `<select>` elements.
     }
     find('[data-children] > *:not([data-list])').forEach(child => {
       if (child === evt.target.closest('[data-children] > *')) {
-        child.setAttribute('data-selected', '');
+        child.dataset.selected = '';
         set('value', _value(child));
       } else {
-        child.removeAttribute('data-selected');
+        delete child.dataset.selected;
       }
     });
     return true;
@@ -59,11 +59,11 @@ This is a simple replacement for `<select>` elements.
     }
     find('[data-children] > *:not([data-list])').forEach(child => {
       if ((child.getAttribute('value') || child.textContent) === value) {
-        child.setAttribute('data-selected', '');
+        child.dataset.selected = '';
         set('value', _value(child));
         b8r.trigger('change', component);
       } else {
-        child.removeAttribute('data-selected');
+        delete child.dataset.selected;
       }
     });
   };

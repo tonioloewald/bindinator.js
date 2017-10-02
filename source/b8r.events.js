@@ -48,7 +48,7 @@ const onOffArgs = args => {
 };
 
 const getEventHandlers = (element) => {
-  const source = element.getAttribute('data-event');
+  const source = element.dataset.event;
   const existing = source ?
                    source.
                    replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';').
@@ -154,7 +154,7 @@ function on (...args) {
       existing.push(handler);
     }
   }
-  element.setAttribute('data-event', existing.join(';'));
+  element.dataset.event = existing.join(';');
 }
 
 function off (...args) {
@@ -167,15 +167,15 @@ function off (...args) {
   } else {
     throw 'b8r.off requires three or four arguments';
   }
-  const existing = element.getAttribute('data-event').split(';');
+  const existing = element.dataset.event.split(';');
   const handler = makeHandler(event_type, method);
   const idx = existing.indexOf(handler);
   if (idx > -1) {
     existing.splice(idx, 1);
     if (existing.length) {
-      element.setAttribute('data-event', existing.join(';'));
+      element.dataset.event = existing.join(';');
     } else {
-      element.removeAttribute('data-event');
+      delete element.dataset.event;
     }
   }
 }
@@ -200,9 +200,9 @@ turns them into data-event-disabled attributes;
 const disable = (element, include_children) => {
   const elements = include_children ? findWithin(element, true) : [element];
   elements.forEach(elt => {
-    if (elt.getAttribute('data-event')) {
-      elt.setAttribute('data-event-disabled', elt.getAttribute('data-event'));
-      elt.removeAttribute('data-event');
+    if (elt.dataset.event) {
+      elt.dataset.eventDisabled = elt.dataset.event;
+      delete elt.dataset.event;
     }
     if (elt.disabled === false) {
       elt.disabled = true;
@@ -213,9 +213,9 @@ const disable = (element, include_children) => {
 const enable = (element, include_children) => {
   const elements = include_children ? findWithin(element, true) : [element];
   elements.forEach(elt => {
-    if (elt.getAttribute('data-event-disabled')) {
-      elt.setAttribute('data-event', elt.getAttribute('data-event-disabled'));
-      elt.removeAttribute('data-event-disabled');
+    if (elt.dataset.eventDisabled) {
+      elt.event = elt.dataset.eventDisabled;
+      delete elt.dataset.eventDisabled;
     }
     if (elt.disabled === true) {
       elt.disabled = false;
@@ -239,8 +239,8 @@ const get_component_with_method = function(element, path) {
   var component_id = false;
   element = element.closest('[data-component-id]');
   while (element instanceof Element) {
-    if (get(`${element.getAttribute('data-component-id')}.${path}`) instanceof Function) {
-      component_id = element.getAttribute('data-component-id');
+    if (get(`${element.dataset.componentId}.${path}`) instanceof Function) {
+      component_id = element.dataset.componentId;
       break;
     }
     element = element.parentElement.closest('[data-component-id]');
