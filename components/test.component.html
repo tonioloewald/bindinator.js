@@ -67,22 +67,26 @@ in a private context with _required_ and Test (the test.js module) passed as loc
 
 	set({show: false});
 
+	const notify_errors = () => {
+		b8r.findOne('.literate-errors').style.display = 'block';
+		set({show: true});
+	}
+
 	const Test = require('lib/test.js');
 	Test.onError = () => {
 		const test_error = b8r.findOne('.literate-errors');
 		if(test_error) {
-			b8r.findOne('.literate-errors').style.display = 'block';
-			set({show: true});
+			notify_errors();
 		}
-	}
+	};
+
 	Test.setReportContainer(findOne('.test-transcript'));
-	const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.getAttribute('data-component-id')}`); // jshint ignore:line
+	const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.dataset.componentId}`); // jshint ignore:line
 
 	try {
 		test_runner.call(null, Test, b8r, data._required_);
-
 	} catch(e) {
-		set({show: true});
+		notify_errors();
 		Test.report(`test runner threw exception: ${e}`, 'failure');
 	}
 </script>
