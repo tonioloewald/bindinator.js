@@ -38,7 +38,7 @@
 						class="loadable"
 						data-list="source_files"
 						data-bind="text=.name;attr(data-file)=.path"
-						data-event="mouseup,keydown(Space):demo.showDocs"
+						data-event="click,keydown(Space):demo.showDocs"
 						tabindex="0"
 					>
 						File Name
@@ -52,7 +52,7 @@
 						class="loadable"
 						data-list="components"
 						data-bind="text=.name;attr(data-file)=.path"
-						data-event="mouseup,keydown(Space):demo.loadComponent"
+						data-event="click,keydown(Space):demo.loadComponent"
 						tabindex="0"
 					>
 						File Name
@@ -196,7 +196,7 @@
 					});
 				} else {
 					// FIXME don't do this, behave as though there's a default hash so history behaves nicely
-					b8r.trigger('mouseup', b8r.findOne('.loadable'));
+					b8r.trigger('click', b8r.findOne('.loadable'));
 				}
 			}
 
