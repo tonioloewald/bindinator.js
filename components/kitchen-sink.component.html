@@ -5,6 +5,10 @@ Copyright ©2016-2017 Tonio Loewald
 The big difference between this and most web framework demos is that the majority of the
 "components" are merely standard HTML widgets. The goal is not to fight the browser's
 built-in functionality but augment it.
+
+A number of lightweight components have been provided and "synced" to standard widgets
+to show the ease with which a normal component may be swapped out for a custom component
+when and if the need arises.
 -->
 <style>
 	.kitchen-sink {
@@ -46,6 +50,10 @@ built-in functionality but augment it.
 		height: 270px;
 		object-fit: cover;
 		position: relative;
+	}
+
+	.kitchen-sink-component label > a {
+		margin-right: 8px;
 	}
 </style>
 <div class="kitchen-sink">
@@ -187,22 +195,34 @@ built-in functionality but augment it.
 		>
 			<span
 				data-list="_component_.multiselect:text"
+				tabindex="0"
 				data-bind="text=.text"
 			>
 				Item Text
 			</span>
 		</span>
 	</label>
-	<div data-bind="format=**${_component_.single_selection}** is selected">selection</div>
-	<select multiple>
-	  <option
-	    data-list="_component_.multiselect"
-	    data-bind="
-	      text=.text;
-	      selected=.selected
-	    "
-	  ></option>
-	</select>
+	<br><label>
+		Multi-select
+		<select multiple>
+		  <option
+		    data-list="_component_.multiselect"
+		    data-bind="
+		      text=.text;
+		      selected=.selected
+		    "
+		  ></option>
+		</select>
+	</label>
+	<hr>
+	<label>
+		Checkbox
+		<input type=checkbox data-bind="checked=_component_.checked">
+	</label>
+	<br><label>
+		<a href="#component=switch">Switch component</a>
+		<span data-component="switch" data-bind="value=_component_.checked"></span>
+	</label>
 	<hr>
 	<textarea>Text Area</textarea>
 	<br><label>
@@ -214,6 +234,12 @@ built-in functionality but augment it.
 			Input Component
 		</a>
 		<span data-component="input" data-bind="value=_component_.input_field"></span>
+	</label>
+	<br><label>
+		<a href="#component=input">
+			Input Component (bound using component targets)
+		</a>
+		<span data-component="input" data-bind="component(value)=_component_.input_field"></span>
 	</label>
 	<br><label>
 		<a href="#component=contenteditable">
@@ -242,7 +268,9 @@ built-in functionality but augment it.
 	</label>
 	<br>
 	<label>
-		slider-numeric component
+		<a href="#component=slider-numeric">
+			slider-numeric component
+		</a>
 		<span min=0 max=25 data-component="slider-numeric" data-bind="value=_component_.fuelrods"></span>
 	</label>
 	<br>
@@ -347,6 +375,18 @@ built-in functionality but augment it.
 				Pink
 			</label>
 		</fieldset>
+		<label>
+			<a href="#component=radioset">
+				Radioset Component
+			</a>
+			<div
+				data-component="radioset"
+				data-bind="
+					value=_component_.color;
+					component(options)=_component_.colors;
+				"
+			></div>
+		</label>
 		<button type="cancel">Cancel</button>
 		<button type="submit">OK</button>
 	</form>
@@ -408,6 +448,8 @@ built-in functionality but augment it.
 	b8r.component('components/selector');
 	b8r.component('components/input');
 	b8r.component('components/contenteditable');
+	b8r.component('components/switch');
+	b8r.component('components/radioset');
 
 
 	['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
@@ -416,6 +458,7 @@ built-in functionality but augment it.
 	  fuelrods: 17,
 	  single_selection: 'Another Option',
 	  input_field: 'edit this text',
+	  checked: true,
 	  multiselect: [
 	    {
 	      text: 'Default',
@@ -450,6 +493,11 @@ built-in functionality but augment it.
     	ctx.drawImage(video, 0, 0, sw, sh, 0, dh * 0.5, dw * 0.5, dh * 0.5);
     	ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, dh * 0.5, dw * 0.5, dh * 0.5);
     },
+    colors: [
+    	{text: 'Yellow', value: 'yellow'},
+    	{text: 'Pink', value: 'pink'},
+    	{text: 'Blue', value: 'blue'},
+    ],
 	  color: 'pink',
 		test: evt => {
 			console.log('menu pick', evt.target.textContent);

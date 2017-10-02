@@ -19,7 +19,7 @@ This is a simple replacement for `<select>` elements.
 <span
   data-children
   data-event="
-    mouseup:_component_.select;
+    mouseup,keydown(Space):_component_.select;
     change:_component_.pick;
   "
   data-bind="method(_component_.pick)=_component_.value"

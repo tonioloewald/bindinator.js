@@ -11,14 +11,14 @@ This component attempts to deal with the annoyances for you.
 	}
 	.radioset > input {
 		position: absolute;
-		top: -10000px;
+		left: -100px;
 	}
 
 	.radioset > input+span {
 		display: inline-block;
 		width: 10px;
 		height: 10px;
-		vertical-align: bottom;
+		vertical-align: middle;
 		margin-right: 4px;
 		position: relative;
 		border-radius: 2px;
@@ -39,27 +39,45 @@ This component attempts to deal with the annoyances for you.
 	}
 </style>
 <label class="radioset" data-list="_component_.options">
-	<input type="radio" data-bind="
-		attr(value)=.value;
-		value=_component_.value;
-		attr(name)=_component_.name;
-	">
+	<input
+		type="radio"
+		data-bind="
+			attr(name)=_component_.name;
+			attr(value)=.value;
+			value=_component_.value;
+		"
+	>
 	<span class="focus-follower">&nbsp;</span>
-	<span data-bind="text=.caption"></span>
+	<span data-bind="text=.text"></span>
 </label>
 <script>
-/* global data, find */
+/* global data, find, get, set, on */
 'use strict';
 	const example = {
-		name: 'test',
-		value: 2,
+		value: '2',
 		options: [
-			{caption: 'first', value: 1},
-			{caption: 'second', value: 2},
-			{caption: 'third', value: 3}
+			{text: 'first', value: 1},
+			{text: 'second', value: 2},
+			{text: 'third', value: 3}
 		]
 	};
-	if(!data.name || !data.options) {
+	if(!data.name) {
+		data.name = 'test';
+	}
+
+	const update = () => {
+		find('input').forEach(radio => {
+			if (radio.getAttribute('value') == get('value')) {
+				radio.checked = true;
+			}
+		});
+	};
+
+	set ({update});
+
+	on('change', '_component_.update');
+
+	if(!data.options) {
 		Object.assign(data, example);
 	}
 </script>

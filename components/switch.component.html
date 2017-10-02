@@ -2,23 +2,25 @@
 # switch
 Copyright ©2016-2017 Tonio Loewald
 
-This is an input checkbox disguised as a sliding on/off switch. 
+This is an input checkbox disguised as a sliding on/off switch.
 It uses a pair of nested `<span>` nodes to render the switch.
 -->
 <style>
-	.checkbox-slider {
+	.switch-component {
 		display: inline-block;
 		position: relative;
 		overflow: hidden;
+		vertical-align: middle;
 		min-height: 16px;
+		overflow: visible;
 	}
 
-	.checkbox-slider > input {
+	.switch-component input {
 		position: absolute;
 		top: -10000px;
 	}
 
-	.checkbox-slider > input + span {
+	.switch-component input + span {
 		vertical-align: bottom;
 		position: relative;
 		display: inline-block;
@@ -30,15 +32,15 @@ It uses a pair of nested `<span>` nodes to render the switch.
 		transition-duration: 0.25s;
 		box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
 	}
-	.checkbox-slider > input:not(:checked) + span {
+	.switch-component input:not(:checked) + span {
 		background-color: #c66;
 	}
 
-	.checkbox-slider > input:checked + span {
+	.switch-component input:checked + span {
 		background-color: #4f4;
 	}
 
-	.checkbox-slider > input + span > span {
+	.switch-component input + span > span {
 		content: " ";
 		display: block;
 		width: 14px;
@@ -53,15 +55,14 @@ It uses a pair of nested `<span>` nodes to render the switch.
 		transition-duration: 0.25s;
 	}
 
-	.checkbox-slider > input:not(:checked) + span > span {
+	.switch-component input:not(:checked) + span > span {
 		left: 0;
 	}
 
-	.checkbox-slider > input:checked + span > span {
+	.switch-component input:checked + span > span {
 		left: 12px;
 	}
 </style>
-<label class="checkbox-slider" style="overflow: visible;">
-	<input type="checkbox"><span class="focus-follower"><span>&nbsp;</span></span><span data-children></span>
-	This is a checkbox
+<label>
+	<input type="checkbox" data-bind="checked=_component_.value"><span class="focus-follower"><span>&nbsp;</span></span><span data-children></span>
 </label>
