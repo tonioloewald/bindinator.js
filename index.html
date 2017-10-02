@@ -29,7 +29,7 @@
 			</h1>
 		</div>
 		<div class="three_col">
-			<div class="nav" data-event="click:details-accordion-controller.change">
+			<div class="nav" data-event="click:details-accordion-controller.click">
 				<details open>
 					<summary>
 						Documentation
@@ -98,18 +98,24 @@
 			var content = b8r.id('example');
 			const nav = b8r.findOne('.nav');
 
-			function markCurrent(doc) {
-				b8r.findWithin(nav, '.current').forEach(elt => {
-					elt.classList.remove('current');
+			function markCurrent() {
+				b8r.after_update(() => {
+					const doc = window.location.hash.split('=').pop();
+					b8r.findWithin(nav, '.current').forEach(elt => {
+						elt.classList.remove('current');
+					});
+					const current = b8r.findOne('[data-file="' + doc + '"]');
+					if (current) {
+						current.classList.add('current');
+						b8r.find('.nav details').forEach(details => {
+							details.open = details.contains(current);
+						});
+					}
 				});
-				const current = b8r.findOne('[data-file="' + doc + '"]');
-				if (current) {
-					current.classList.add('current');
-				}
 			}
 
 			b8r.register('details-accordion-controller', {
-				change (evt) {
+				click (evt) {
 					const details = evt.target.closest('details');
 					// TODO shim for summary / details
 					if (details && !details.open) {
@@ -174,7 +180,7 @@
 				}
 				last_component_path = component_path;
 
-				markCurrent(component_path.split('=').pop());
+				markCurrent();
 
 				var pairs = component_path.split('&').map(pair => {
 					var [key, value] = pair.split('=');
