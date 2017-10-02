@@ -259,12 +259,12 @@ module.exports = {
   },
   within (element, mouse_event, margin) {
     const r = element.getBoundingClientRect();
-    const {pageX, pageY} = mouse_event;
+    const {clientX, clientY} = mouse_event;
     return (
-      pageX + margin > r.left &&
-      pageX - margin < r.right &&
-      pageY + margin > r.top &&
-      pageY - margin < r.bottom
+      clientX + margin > r.left &&
+      clientX - margin < r.right &&
+      clientY + margin > r.top &&
+      clientY - margin < r.bottom
     );
   },
 };
