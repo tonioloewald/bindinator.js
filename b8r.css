@@ -4,6 +4,7 @@ body {
 	font: 13px "Source Sans Pro", Sans-serif;
 	background-color: #c7ddbb;
 	color: #222222;
+	margin: 0;
 }
 
 * {
@@ -41,17 +42,8 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 }
 
 .layout {
-	position: fixed;
-	top: 8px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 60em;
-	max-width: 100%;
-	bottom: 8px;
-	box-shadow: 0 1px 2px black;
 	display: flex;
 	flex-direction: column;
-	border-radius: 5px;
 }
 
 .centered {
@@ -86,10 +78,8 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 	position: relative;
 	display: flex;
 	justify-content: center;
-	height: 60px;
 	background-color: #57A700;
 	flex-shrink: 0;
-	border-radius: 5px 5px 0 0;
 }
 
 .header > * {
@@ -121,10 +111,14 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 
 .content {
 	flex-grow: 1;
+	min-width: 600px;
 	background-color: white;
-	overflow-y: scroll;
 	overflow-y: overlay;
 	position: relative;
+}
+
+.content > * {
+	max-width: 800px;
 }
 
 .three_col > * > * {
@@ -132,11 +126,18 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 }
 
 .nav {
-	width: 160px;
+	min-width: 160px;
 	flex: none;
-	overflow-y: scroll;
+	flex-grow: 1;
 	overflow-y: overlay;
 	background-color: #BCED85;
+	text-align: right;
+}
+
+.nav > * {
+	margin-left: auto;
+	width: 160px;
+	text-align: left;
 }
 
 ::-webkit-details-marker {
@@ -155,10 +156,10 @@ summary {
 }
 
 details > * {
-	animation: fadein 0.25s ease-out;
+	animation: fade-in 0.25s ease-out;
 }
 
-@keyframes fadein {
+@keyframes fade-in {
 	from {
 		opacity: 0;
 	}
@@ -402,18 +403,8 @@ pre > code {
 }
 
 [data-component] {
+	opacity: 0;
 	display: none !important;
-}
-
-/* animations */
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 ::selection {
