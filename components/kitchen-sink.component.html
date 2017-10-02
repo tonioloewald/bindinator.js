@@ -181,12 +181,13 @@ built-in functionality but augment it.
 		data-bind="value=_component_.single_selection"
 	>
 		<span
-			data-list="_component_.multiselect"
+			data-list="_component_.multiselect:text"
 			data-bind="text=.text"
 		>
 			Item Text
 		</span>
 	</div>
+	<div data-bind="format=**${_component_.single_selection}** is selected">selection</div>
 	<select multiple>
 	  <option
 	    data-list="_component_.multiselect"
@@ -198,9 +199,23 @@ built-in functionality but augment it.
 	</select>
 	<hr>
 	<textarea>Text Area</textarea>
-	<input placeholder="input field" data-bind="value=_component_.input_field">
-	<input placeholder="contenteditable" data-component="contenteditable" data-bind="value=_component_.input_field">
-	<input class="search" placeholder="search field">
+	<br><label>
+		Input Field
+		<input placeholder="input field" data-bind="value=_component_.input_field">
+	</label>
+	<br><label>
+		Contenteditable Component
+		<div
+			placeholder="contenteditable"
+			data-component="contenteditable"
+			data-bind="value=_component_.input_field"
+		></div>
+	</label>
+	<br>
+	<label>
+		Search Field
+		<input class="search" placeholder="search field">
+	</label>
 	<hr>
 	<label>
 		Range
@@ -384,6 +399,7 @@ built-in functionality but augment it.
 	register({
 	  fuelrods: 17,
 	  single_selection: 'Another Option',
+	  input_field: 'edit this text',
 	  multiselect: [
 	    {
 	      text: 'Default',

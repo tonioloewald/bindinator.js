@@ -32,12 +32,26 @@ module.exports = function(b8r) {
 
 return {
 	value: function(element){
+		let pending_value = element.getAttribute('data-pending-value');
+		if (pending_value) {
+			pending_value = JSON.parse(pending_value);
+			element.value = pending_value;
+			if (element.value === pending_value) {
+				console.warn('restored pending value', element, pending_value);
+				element.removeAttribute('data-pending-value');
+			}
+		}
 		if(element.matches('input[type=radio]')){
 			const name = element.getAttribute('name');
 			const checked = b8r.find(`input[type=radio][name=${name}]`).find(elt => elt.checked);
 			return checked ? checked.value : null;
 		} else {
-			return element.value;
+			const component_id = element.getAttribute('data-component-id');
+			if (component_id) {
+				return b8r.get(`${component_id}.value`);
+			} else {
+				return element.value;
+			}
 		}
 	},
 	checked: element => element.checked,

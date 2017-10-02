@@ -20,6 +20,7 @@ const implicit_event_types = [
   'transitionend', 'animationend',
   'input', 'change',
   'keydown', 'keyup',
+  'cut', 'copy', 'paste',
   'focus', 'blur' // more to follow
 ];
 

@@ -235,8 +235,15 @@ const parseBinding = binding => {
 
 const findBindables = element => {
   return findWithin(element, '[data-bind]', true).filter(elt => {
-    var list = elt.closest('[data-list],[data-list-instance]');
-    return !list || list === element || !element.contains(list);
+    if (
+      elt.hasAttribute('data-component') &&
+      !elt.hasAttribute('data-component-id')
+    ) {
+      return false;
+    } else {
+      const list = elt.closest('[data-list],[data-list-instance]');
+      return !list || list === element || !element.contains(list);
+    }
   });
 };
 

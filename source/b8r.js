@@ -175,7 +175,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
 
 b8r.deregister = name => b8r.remove(name);
 
-const notInListTemplate = elt => !elt.closest('[data-list]');
+const notInTemplate = elt => !elt.closest('[data-component],[data-list]');
 
 /**
 > ### Experiment: Async Updates
@@ -307,7 +307,7 @@ b8r.touchByPath = (...args) => {
     .forEach(elt => async_update(bindList, elt));
 
   b8r.find('[data-bind*="' + full_path + '"]')
-    .forEach(elt => notInListTemplate(elt) && elt !== source_element && async_update(bind, elt));
+    .forEach(elt => notInTemplate(elt) && elt !== source_element && async_update(bind, elt));
 
   b8r.logEnd('touchByPath', full_path);
 };
@@ -462,6 +462,11 @@ b8r.getComponentData = elt => {
   return id ? b8r.get(id) : null;
 };
 
+b8r.setComponentData = (elt, path, value) => {
+  const id = getComponentDataPath(elt);
+  b8r.setByPath(id, path, value);
+};
+
 b8r.getListInstance = function(elt) {
   const instancePath = b8r.getListInstancePath(elt);
   return instancePath ? b8r.get(instancePath, elt) : null;
@@ -520,7 +525,7 @@ work exactly as expected.
 const toTargets = require('./b8r.toTargets.js')(b8r);
 const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
-b8r.onAny([ 'change', 'input' ], '_b8r_', '_update_', true);
+b8r.onAny([ 'change', 'input' ], '_b8r_._update_', true);
 
 b8r.interpolate = (template, elt) => {
   let formatted;
@@ -629,8 +634,8 @@ function bindList(list_template, data_path) {
     // parse computed list method if any
     [, , method_path, arg_paths] =
       source_path.match(/^(([^()]*)\()?([^()]*)(\))?$/);
-    arg_paths = arg_paths.split(',')
-    list_path = arg_paths[0]
+    arg_paths = arg_paths.split(',');
+    list_path = arg_paths[0];
   } catch (e) {
     console.error('bindList failed; bad source path', source_path);
   }
@@ -646,7 +651,7 @@ function bindList(list_template, data_path) {
   if (method_path) {
     (function() {
       try {
-        const args = arg_paths.map(b8r.get)
+        const args = arg_paths.map(b8r.get);
         const filtered_list = b8r.callMethod(method_path, ...args, list_template);
         // debug warning
         if (filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
@@ -674,8 +679,15 @@ function bindList(list_template, data_path) {
     existing_list_instances.forEach(elt => path_to_instance_map[elt.getAttribute('data-list-instance')] = elt);
   }
 
+  /* Safari refuses to hide hidden options */
   const template = list_template.cloneNode(true);
   template.removeAttribute('data-list');
+  if (list_template.tagName === 'OPTION') {
+    list_template.setAttribute('disabled', '');
+    list_template.textContent = '';
+    template.removeAttribute('disabled');
+  }
+
   const binder = makeListInstanceBinder(template);
 
   var previous_instance = list_template;
@@ -740,6 +752,7 @@ b8r.set('_b8r_', {
   stopEvent : () => {},
   _update_ : evt => {
     var elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
+    // update elements with selected fromTarget
     if (evt.target.tagName === 'SELECT') {
       const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
       elements = elements.concat(options);
@@ -751,8 +764,11 @@ b8r.set('_b8r_', {
         targets = targets.filter(t => fromTargets[t.target]);
         targets.forEach(t => {
           // all bets are off on bound values!
-          delete elt._b8rBoundValues;
-          b8r.setByPath(path, fromTargets[t.target](elt, t.key), elt);
+          const value = fromTargets[t.target](elt, t.key);
+          if (value !== undefined) {
+            delete elt._b8rBoundValues;
+            b8r.setByPath(path, value, elt);
+          }
         });
       }
     });
@@ -798,9 +814,9 @@ b8r.component = function(name, url, preserve_source) {
     url = name;
     name = url.split('/').pop();
   }
-  if (!component_promises[name]) {
+  if (!component_promises[name] || preserve_source) {
     component_promises[name] = new Promise(function(resolve, reject) {
-      if (components[name]) {
+      if (components[name] && !preserve_source) {
         resolve(components[name]);
       } else {
         b8r.ajax(`${url}.component.html`)
@@ -919,20 +935,8 @@ data to the component).
 var component_count = 0;
 b8r.insertComponent = function(component, element, data) {
   const data_path = typeof data === 'string' ? data : b8r.getDataPath(element);
-  let input = null;
   if (!element) {
     element = b8r.create('div');
-  }
-  if (element.tagName === 'INPUT') {
-    input = element;
-    element = b8r.create('div');
-    input.parentElement.insertBefore(element, input);
-    if (input.hasAttribute('data-component')) {
-      element.setAttribute('data-component', input.getAttribute('data-component'));
-      input.removeAttribute('data-component');
-    }
-    input.style.display = 'none';
-    element.appendChild(input);
   }
   if (element.getAttribute('data-component') !== component.name ||
       component) {
@@ -953,6 +957,7 @@ b8r.insertComponent = function(component, element, data) {
     component = components[component];
   }
   b8r.logStart('insertComponent', component.name);
+  element.removeAttribute('data-component');
   if (!data || data_path) {
     data = dataForElement(
         element,

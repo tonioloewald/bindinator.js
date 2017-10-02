@@ -171,7 +171,23 @@ module.exports = function(b8r) {
           element.checked = value;
           break;
         default:
-          element.value = value;
+          if (element.value !== undefined) {
+            element.value = value;
+            // <select> element will not take value if no matching option exists
+            if (value && !element.value) {
+              element.setAttribute('data-pending-value', JSON.stringify(value));
+              console.warn('could not set value', element, value);
+            } else {
+              element.removeAttribute('data-value');
+            }
+          } else {
+            const component_id = element.getAttribute('data-component-id');
+            if (component_id) {
+              b8r.set(`${component_id}.value`, value);
+            } else {
+              console.error('could not set component value', element, value);
+            }
+          }
       }
     },
     checked: (element, value) => element.checked = !!value,

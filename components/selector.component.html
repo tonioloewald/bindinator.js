@@ -1,5 +1,7 @@
 <!--
 # selector
+
+This is a simple replacement for `<select>` elements.
 -->
 <style>
 .selector-component > * {
@@ -20,28 +22,56 @@
 </style>
 <div
   data-children
-  data-event="mouseup:_component_.select"
+  data-event="
+    mouseup:_component_.select;
+    change:_component_.pick;
+  "
+  data-bind="method(_component_.pick)=_component_.value"
 >
   <span>One</span>
   <span data-selected>Two</span>
   <span>Three</span>
+  <span>Four</span>
 </div>
 <script>
-/* global find, set */
+/* global find, findOne, set, data */
 'use strict';
-  set({
-    select: (evt) => {
-      if (!evt.target.closest('[data-children] > *')) {
-        return;
-      }
-      find('[data-children] > *:not([data-list])').forEach(child => {
-        if (child === evt.target.closest('[data-children] > *')) {
-          child.setAttribute('data-selected', '');
-        } else {
-          child.removeAttribute('data-selected');
-        }
-      });
-      return true;
+
+  const _value = element => element.value || element.getAttribute('value') || element.textContent;
+
+  const select = evt => {
+    if (!evt.target.closest('[data-children] > *')) {
+      return;
     }
-  });
+    find('[data-children] > *:not([data-list])').forEach(child => {
+      if (child === evt.target.closest('[data-children] > *')) {
+        child.setAttribute('data-selected', '');
+        set('value', _value(child));
+      } else {
+        child.removeAttribute('data-selected');
+      }
+    });
+    return true;
+  };
+  const pick = (_, value) => {
+    if (_ instanceof Event) {
+      value = get('value');
+    }
+    find('[data-children] > *:not([data-list])').forEach(child => {
+      if ((child.getAttribute('value') || child.textContent) === value) {
+        child.setAttribute('data-selected', '');
+        set('value', _value(child));
+        b8r.trigger('change', component);
+      } else {
+        child.removeAttribute('data-selected');
+      }
+    });
+  };
+
+  const selected = findOne('[data-selected]');
+  if(!data.value && selected) {
+    set('value', _value(selected));
+  }
+
+  set({select, pick});
 </script>

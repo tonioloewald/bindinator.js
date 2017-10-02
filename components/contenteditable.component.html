@@ -1,22 +1,38 @@
 <style>
-  .contenteditable-component > div {
-    min-width: 100px;
-
+  .contenteditable-component {
+    display: inline-block;
   }
 
-  .contenteditable-component > div[data-placeholder]:after {
+  .contenteditable-component > div {
+    min-width: 150px;
+    display: inline-block;
+  }
+
+  .contenteditable-component > div:empty[data-placeholder]:after {
     content: attr(data-placeholder);
     position: absolute;
     color: rgba(0,0,0,0.5);
   }
 </style>
-<div contenteditable="true"></div>
+<div
+  contenteditable="true"
+  data-bind="text=_component_.value"
+  data-event="
+    focus:_component_.select_all;
+  "
+></div>
 <script>
-/* global component, findOne */
+/* global component, findOne, set */
 'use strict';
+
+  const selection = require('../lib/selection.js');
   const placeholder = component.getAttribute('placeholder');
   const field = findOne('div');
+
   if (placeholder) {
     field.setAttribute('data-placeholder', placeholder);
   }
+  set({
+    select_all: () => selection.setSelection(field, 0, field.textContent.length)
+  });
 </script>
