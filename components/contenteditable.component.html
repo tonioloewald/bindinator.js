@@ -1,10 +1,21 @@
+<!--
+# Input Replacement using contenteditable="true"
+
+This is a simple example of a component that can directly replace a typical text `<input>`.
+
+The key point is that you can bind to this component's `value` and it should work as expected.
+
+**Note** that it does not synthesize submit events (although it does prevent newlines from being entered)
+-->
 <style>
   .contenteditable-component {
     display: inline-block;
   }
 
   .contenteditable-component > div {
-    min-width: 150px;
+    width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
     display: inline-block;
   }
 
@@ -18,6 +29,7 @@
   contenteditable="true"
   data-bind="text=_component_.value"
   data-event="
+    keydown(Enter),keydown(NumpadEnter):_b8r_.stopEvent;
     focus:_component_.select_all;
   "
 ></div>
@@ -30,7 +42,7 @@
   const field = findOne('div');
 
   if (placeholder) {
-    field.setAttribute('data-placeholder', placeholder);
+    field.dataset.placeholder = placeholder;
   }
   set({
     select_all: () => selection.setSelection(field, 0, field.textContent.length)
