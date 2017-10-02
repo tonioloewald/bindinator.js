@@ -10,7 +10,11 @@ The following targets (attributes of a DOM element) can be bound to object data:
 
     data-bind="value=message.text"
 
-This is the value of `<input>` and `<textarea>` elements.)
+This is the value of `<input>` and `<textarea>` elements.) If attached to a radio button
+it tries to "do the right thing".
+
+If you bind to a **component instance**'s value it will map directly to the component's
+value.
 
 ### checked
 
@@ -123,6 +127,12 @@ purposes);
 Sets the style rule pointer-events to 'none' as appropriate (very simple way of disabling
 the content of an element)
 
+### component
+
+    data-bind="component(options)=path.to.options"
+
+The `component` target lets you set (and get) component properties.
+
 ## Comparison Values
 
 These terms are used for comparison to certain values in conditional toTargets.
@@ -165,7 +175,9 @@ module.exports = function(b8r) {
     value: function(element, value) {
       switch (element.getAttribute('type')) {
         case 'radio':
-          element.checked = (element.value == value);
+          if (element.checked !== (element.value == value)) {
+            element.checked = element.value == value;
+          }
           break;
         case 'checkbox':
           element.checked = value;
@@ -295,6 +307,10 @@ module.exports = function(b8r) {
     },
     json: function(element, value) {
       element.textContent = JSON.stringify(value, false, 2);
+    },
+    component: function(element, value, dest) {
+      const component_id = b8r.getComponentId(element);
+      b8r.setByPath(component_id, dest, value);
     },
     component_map: function(element, value, dest) {
       var component_options = dest.split('|');

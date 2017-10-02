@@ -12,6 +12,9 @@ when an input or change event fires on the bound element:
 The **value** of `<input>` and `<textarea>` elements; it will correctly return
 the value of `<input type="radio" ...>` elements.
 
+If you bind to a **component instance**'s value it will map directly to the component's
+value.
+
 ### checked
 
 The **checked** of an `<input type="checkbox">` or `<input type="radio">` element.
@@ -24,6 +27,12 @@ The **selected** attribute on an `<option>`.
 
 The **textContent** of a typical element (including div, span, and so forth). Note
 that these elements will only get change events if you send them.
+
+### component
+
+    data-bind="component(options)=path.to.options"
+
+The `component` target lets you get (and set) component properties.
 */
 /* global module */
 'use strict';
@@ -57,6 +66,10 @@ return {
 	selected: element => element.selected,
 	text: function(element){
 		return element.textContent;
+	},
+	component: function(element, path) {
+		const component_id = b8r.getComponentId(element);
+		return b8r.getByPath(component_id, path);
 	},
 	fromMethod: function(element, path) {
 		var [model, ...method] = path.split('.');
