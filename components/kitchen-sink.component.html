@@ -176,17 +176,23 @@ built-in functionality but augment it.
 			Item Text
 		</option>
 	</select>
-	<div
-		data-component="selector"
-		data-bind="value=_component_.single_selection"
-	>
+	<br><label>
+		<a href="#component=selector">
+			Selector Component
+		</a>
 		<span
-			data-list="_component_.multiselect:text"
-			data-bind="text=.text"
+			data-component="selector"
+			data-bind="value=_component_.single_selection"
+			style="display: inline-block; padding: 5px 10px; border: 1px solid var(--black-20);"
 		>
-			Item Text
+			<span
+				data-list="_component_.multiselect:text"
+				data-bind="text=.text"
+			>
+				Item Text
+			</span>
 		</span>
-	</div>
+	</label>
 	<div data-bind="format=**${_component_.single_selection}** is selected">selection</div>
 	<select multiple>
 	  <option
@@ -204,7 +210,15 @@ built-in functionality but augment it.
 		<input placeholder="input field" data-bind="value=_component_.input_field">
 	</label>
 	<br><label>
-		Contenteditable Component
+		<a href="#component=input">
+			Input Component
+		</a>
+		<span data-component="input" data-bind="value=_component_.input_field"></span>
+	</label>
+	<br><label>
+		<a href="#component=contenteditable">
+			Contenteditable Component
+		</a>
 		<div
 			placeholder="contenteditable"
 			data-component="contenteditable"
@@ -392,6 +406,7 @@ built-in functionality but augment it.
 	b8r.component('components/slider-numeric');
 	b8r.component('components/combo');
 	b8r.component('components/selector');
+	b8r.component('components/input');
 	b8r.component('components/contenteditable');
 
 

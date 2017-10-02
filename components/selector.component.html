@@ -8,19 +8,15 @@ This is a simple replacement for `<select>` elements.
   cursor: pointer;
 }
 
-.selector-component > [data-children] > * {
-  opacity: 0.5;
+.selector-component > [data-children] > :not([data-selected]) {
+  color: #aaa;
 }
 
 .selector-component > [data-children] > *+* {
   margin-left: 0.5em;
 }
-
-.selector-component > [data-children] > [data-selected] {
-  opacity: 1;
-}
 </style>
-<div
+<span
   data-children
   data-event="
     mouseup:_component_.select;
@@ -32,7 +28,7 @@ This is a simple replacement for `<select>` elements.
   <span data-selected>Two</span>
   <span>Three</span>
   <span>Four</span>
-</div>
+</span>
 <script>
 /* global find, findOne, b8r, component, get, set, data */
 'use strict';

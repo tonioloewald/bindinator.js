@@ -42,21 +42,19 @@ body {
 a {
 	color: var(--text-color);
 	text-decoration: none;
-	opacity: 0.8;
 	border-bottom: 1px solid var(--link-color);
 }
 
 a:hover {
-	opacity: 1.0;
+	border-bottom: 2px solid var(--link-color);
 }
 
 a:visited {
-	opacity: 0.7;
+	color: var(--faded-text-color);
 }
 
 a:active {
-	opacity: 1.0;
-	border-bottom: 1px solid var(--link-active-color);
+	border-bottom: 2px solid var(--link-active-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
