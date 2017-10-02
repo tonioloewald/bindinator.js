@@ -898,9 +898,8 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
   }
   components[name] = component;
 
-  b8r.find('[data-component="' + name + '"]').forEach(element => {
-    if (!element.closest('[data-list]') &&
-        !element.matches('[data-component-id]')) {
+  b8r.find(`[data-component="${name}"]`).forEach(element => {
+    if (!element.closest('[data-list]')) {
       b8r.insertComponent(component, element);
     }
   });

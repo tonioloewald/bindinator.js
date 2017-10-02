@@ -247,17 +247,17 @@
 		// components
 		b8r.component('test', 'test/test')
 			.then(() => {
-				Test(() => b8r.findOne('[data-component="test"] p').textContent, 'Component loaded')
+				Test(() => b8r.findOne('.test-component p').textContent, 'Component loaded')
 					.shouldBe('This is a test');
-				Test(() => b8r.findOne('[data-component="test"] input').value, 'Component bound')
+				Test(() => b8r.findOne('.test-component input').value, 'Component bound')
 					.shouldBe('55');
 				Test(() => window.getComputedStyle(b8r.findOne('.test-component > h2')).backgroundColor, 'Component stylesheet inserted')
 					.shouldBe(computed_color('purple'));
 				Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor, 'Component stylesheet did not "leak"')
 						.shouldBe(window.getComputedStyle(document.body).backgroundColor);
-				Test(() => b8r.findOne('[data-component="test"] h2').textContent, 'Component script ran')
+				Test(() => b8r.findOne('.test-component h2').textContent, 'Component script ran')
 					.shouldBe('Set on load');
-				Test(() => b8r.find('[data-component="test"] [data-children] p').length, 'Component received children')
+				Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
 					.shouldBe(2);
 			})
 	</script>

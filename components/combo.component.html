@@ -188,7 +188,7 @@ the string.
 
     const click = (evt, element) => {
       element.querySelectorAll('.selected').forEach(elt => elt.classList.remove('selected'));
-      evt.target.closest('[data-component="combo"] > *').classList.add('selected');
+      evt.target.closest('.combo-component > *').classList.add('selected');
       insert(evt, element._targetElement);
     };
 

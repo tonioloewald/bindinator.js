@@ -401,7 +401,7 @@ pre > code {
 	color: black;
 }
 
-[data-component]:not([data-component-id]) {
+[data-component] {
 	display: none !important;
 }
 
