@@ -1,7 +1,8 @@
 /* bindinator.js Copyright ©2016-2017 Tonio Loewald */
 
 :root {
-  --bg-color: #c7ddbb;
+  --bg-color: #cff2a6;
+  --content-bg-color: white;
   --text-color: #222;
   --code-text-color: #444;
   --faded-text-color: #666;
@@ -26,67 +27,67 @@
 }
 
 body {
-	font: 13px "Source Sans Pro", Sans-serif;
-	background-color: var(--bg-color);
-	color: var(--text-color);
-	margin: 0;
+  font: 13px "Source Sans Pro", Sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
 }
 
 * {
-	box-sizing: border-box;
-	/* overflow issue */
-	min-height: 0;
-	min-width: 0;
+  box-sizing: border-box;
+  /* overflow issue */
+  min-height: 0;
+  min-width: 0;
 }
 
 a {
-	color: var(--text-color);
-	text-decoration: none;
-	border-bottom: 1px solid var(--link-color);
+  color: var(--text-color);
+  text-decoration: none;
+  border-bottom: 1px solid var(--link-color);
 }
 
 a:hover {
-	border-bottom: 2px solid var(--link-color);
+  border-bottom: 2px solid var(--link-color);
 }
 
 a:visited {
-	color: var(--faded-text-color);
+  color: var(--faded-text-color);
 }
 
 a:active {
-	border-bottom: 2px solid var(--link-active-color);
+  border-bottom: 2px solid var(--link-active-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-weight: 200;
-	margin: 0 0 8px 0;
+  font-weight: 200;
+  margin: 0 0 8px 0;
 }
 
 .content h1,
 .content h2,
 .content h3 {
-	margin-top: 16px;
+  margin-top: 16px;
 }
 
 h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
-	color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .header > h1 {
-	color: white;
-	font-weight: 100;
-	text-align: center;
-	align-self: center;
+  color: white;
+  font-weight: 100;
+  text-align: center;
+  align-self: center;
 }
 
 .hidden,
 [data-list] {
-	display: none !important;
+  display: none !important;
 }
 
 .layout {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .centered {
@@ -99,235 +100,235 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 
 .fullscreen .layout,
 .fullscreen #example {
-	position: fixed;
-	transform: none;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	margin: 0;
-	max-width: none;
-	background: white;
-	box-sizing: content-box;
+  position: fixed;
+  transform: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  max-width: none;
+  background: white;
+  box-sizing: content-box;
 }
 
 .fullscreen #example {
-	overflow-y: scroll;
-	overflow-y: overlay;
-	padding: 16px;
+  overflow-y: scroll;
+  overflow-y: overlay;
+  padding: 16px;
 }
 
 .header {
-	position: relative;
-	display: flex;
-	justify-content: center;
-	background-color: var(--accent-color);
-	flex-shrink: 0;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background-color: var(--accent-color);
+  flex-shrink: 0;
 }
 
 .header > * {
-	margin: 0;
-	padding: 0;
-	width: 920px;
+  margin: 0;
+  padding: 0;
+  width: 920px;
 }
 
 .footer {
-	justify-content: center;
-	display: flex;
-	flex-shrink: 0;
-	height: 32px;
-	background-color: var(--bright-accent-color);
+  justify-content: center;
+  display: flex;
+  flex-shrink: 0;
+  height: 32px;
+  background-color: var(--bright-accent-color);
 }
 
 .footer > * {
-	text-align: center;
-	align-self: center;
+  text-align: center;
+  align-self: center;
 }
 
 .three_col {
-	justify-content: center;
-	display: flex;
-	flex-grow: 1;
+  justify-content: center;
+  display: flex;
+  flex-grow: 1;
 }
 
 .content {
-	flex-grow: 1;
-	min-width: 600px;
-	background-color: white;
-	overflow-y: scroll;
-	overflow-y: overlay;
-	position: relative;
+  flex-grow: 1;
+  min-width: 600px;
+  overflow-y: scroll;
+  overflow-y: overlay;
+  position: relative;
+  background: var(--content-bg-color);
 }
 
 .content > * {
-	max-width: 800px;
+  max-width: 800px;
 }
 
 .three_col > * > * {
-	margin: 6px 12px;
+  margin: 6px 12px;
 }
 
 .nav {
-	min-width: 160px;
-	flex: none;
-	flex-grow: 1;
-	overflow-y: scroll;
-	overflow-y: overlay;
-	background-color: var(--light-accent-color);
-	text-align: right;
+  min-width: 160px;
+  flex: none;
+  flex-grow: 1;
+  overflow-y: scroll;
+  overflow-y: overlay;
+  background-color: var(--light-accent-color);
+  text-align: right;
 }
 
 .nav > * {
-	margin-left: auto;
-	width: 160px;
-	text-align: left;
+  margin-left: auto;
+  width: 160px;
+  text-align: left;
 }
 
 ::-webkit-details-marker {
-	color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 summary {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .nav summary {
-	font-weight: 500;
-	color: var(--faded-text-color);
-	text-transform: uppercase;
-	font-size: 12px;
+  font-weight: 500;
+  color: var(--faded-text-color);
+  text-transform: uppercase;
+  font-size: 12px;
 }
 
 details > * {
-	animation: fade-in 0.25s ease-out;
+  animation: fade-in 0.25s ease-out;
 }
 
 @keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .loadable {
-	padding: 2px 8px;
-	margin-bottom: 4px;
-	cursor: pointer;
-	margin: 0 -12px;
+  padding: 2px 8px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  margin: 0 -12px;
 }
 
 .loadable:hover {
-	background-color: var(--bright-accent-color);
+  background-color: var(--bright-accent-color);
 }
 
 .loadable.current {
-	padding: 3px 8px 3px 4px;
-	margin: -1px -12px -1px -8px;
-	background-color: white;
+  padding: 3px 8px 3px 4px;
+  margin: -1px -12px -1px -8px;
+  background-color: white;
 }
 
 label {
-	vertical-align: baseline;
+  vertical-align: baseline;
 }
 
 button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {
-	font: 13px System, Sans-serif;
-	color: black;
-	line-height: 16px;
-	padding: 2px 4px;
-	background: white;
-	border: 1px solid var(--black-10);
-	outline: none;
+  font: 13px System, Sans-serif;
+  color: black;
+  line-height: 16px;
+  padding: 2px 4px;
+  background: white;
+  border: 1px solid var(--black-10);
+  outline: none;
 }
 
 :not(input)[placeholder]:empty:after {
-	content: attr(placeholder);
-	color: var(--hint-text-color);
+  content: attr(placeholder);
+  color: var(--hint-text-color);
 }
 
 ::placeholder {
-	color: var(--hint-text-color);
+  color: var(--hint-text-color);
 };
 
 select, .select {
-	vertical-align: top;
+  vertical-align: top;
 }
 
 button, .button,
 input, textarea, [contenteditable="true"] {
-	vertical-align: baseline;
+  vertical-align: baseline;
 }
 
 input, textarea {
-	padding: 2px 4px;
-	border-radius: 2px;
+  padding: 2px 4px;
+  border-radius: 2px;
 }
 
 textarea {
-	vertical-align: bottom;
-	resize: none;
+  vertical-align: bottom;
+  resize: none;
 }
 
 input[type=range] {
-	vertical-align: bottom;
+  vertical-align: bottom;
 }
 
 input[type=color] {
-	border: none;
-	width: 24px;
-	height: 24px;
+  border: none;
+  width: 24px;
+  height: 24px;
 }
 
 [currency]:before {
-	content: attr(currency);
-	display: inline-block;
+  content: attr(currency);
+  display: inline-block;
 }
 
 input.search {
-	border-radius: 50px;
-	padding: 2px 12px;
+  border-radius: 50px;
+  padding: 2px 12px;
 }
 
 button {
-	border-radius: 4px;
-	padding: 2px 5px;
-	font-size: 13px;
-	outline: none;
-	vertical-align: bottom;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 13px;
+  outline: none;
+  vertical-align: bottom;
 }
 
 button.default, button[type="submit"] {
-	background-color: var(--default-bg-color);
+  background-color: var(--default-bg-color);
 }
 
 button.cancel, button[type="cancel"] {
-	background-color: var(--cancel-bg-color);
+  background-color: var(--cancel-bg-color);
 }
 
 .iconic {
-	border: 0;
-	background: var(--white-50);
-	width: 24px;
-	height: 24px;
-	border-radius: 16px;
-	font-size: 14px;
-	line-height: 24px;
-	text-align: center;
+  border: 0;
+  background: var(--white-50);
+  width: 24px;
+  height: 24px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: center;
 }
 
 .iconic:focus,
 .iconic:hover {
-	border: 0;
-	background: var(--white-75);
+  border: 0;
+  background: var(--white-75);
 }
 
 .iconic:active {
-	border: 0;
-	background: white;
+  border: 0;
+  background: white;
 }
 
 button:hover, .button:hover,
@@ -336,78 +337,78 @@ button.default:hover, .button.default:hover,
 button:focus, .button:focus,
 button.cancel:focus, .button.cancel:focus,
 button.default:focus, .button.default:focus {
-	background-color: var(--accent-color);
-	border: 1px solid var(--black-20);
+  background-color: var(--accent-color);
+  border: 1px solid var(--black-20);
 }
 
 button:active, .button:active,
 button.cancel:active, .button.cancel:active,
 button.default:active, .button.default:active {
-	background-color: var(--accent-color);
-	color: white;
-	border: 1px solid var(--black-40);
+  background-color: var(--accent-color);
+  color: white;
+  border: 1px solid var(--black-40);
 }
 
 hr {
-	border: 0;
-	border-top: 1px solid var(--black-20);
+  border: 0;
+  border-top: 1px solid var(--black-20);
 }
 
 form {
-	padding: 8px 12px;
-	margin: 8px 0;
-	background-color: var(--black-10);
+  padding: 8px 12px;
+  margin: 8px 0;
+  background-color: var(--black-10);
 }
 
 fieldset {
-	border: 1px solid var(--black-20);
-	margin: 4px 0;
-	padding: 4px 8px;
+  border: 1px solid var(--black-20);
+  margin: 4px 0;
+  padding: 4px 8px;
 }
 
 :focus, :focus+.focus-follower {
-	box-shadow: 0 0 0 4px var(--focus-color);
-	outline: none;
+  box-shadow: 0 0 0 4px var(--focus-color);
+  outline: none;
 }
 
 pre {
-	font-family: Menlo, Monaco, Monospace;
-	padding: 4px 8px;
-	background-color: var(--pullquote-bg-color);
-	color: var(--code-text-color);
-	border-radius: 4px;
-	overflow: scroll;
-	overflow: overlay;
+  font-family: Menlo, Monaco, Monospace;
+  padding: 4px 8px;
+  background-color: var(--pullquote-bg-color);
+  color: var(--code-text-color);
+  border-radius: 4px;
+  overflow: scroll;
+  overflow: overlay;
 }
 
 code {
-	color: var(--accent-color);
-	font-family: Menlo, Monaco, Monospace;
-	font-size: 90%;
+  color: var(--accent-color);
+  font-family: Menlo, Monaco, Monospace;
+  font-size: 90%;
 }
 
 pre > code {
-	color: var(--code-text-color);
+  color: var(--code-text-color);
 }
 
 .content blockquote {
-	margin: 0;
-	padding: 5px 10px 10px 10px;
-	border-radius: 2px;
-	background: var(--pullquote-bg-color);
-	border-right: 4px solid var(--accent-color);
+  margin: 0;
+  padding: 5px 10px 10px 10px;
+  border-radius: 2px;
+  background: var(--pullquote-bg-color);
+  border-right: 4px solid var(--accent-color);
 }
 
 .content blockquote h2,
 .content blockquote h3,
 .content blockquote p {
-	margin-left: 10px;
-	padding: 0;
+  margin-left: 10px;
+  padding: 0;
 }
 
 .select {
-	background: white;
-	cursor: pointer;
+  background: white;
+  cursor: pointer;
 }
 
 .select > * {
@@ -427,18 +428,18 @@ pre > code {
 }
 
 .select > .selected {
-	background: var(--black-20);
-	color: black;
+  background: var(--black-20);
+  color: black;
 }
 
 [data-component] {
-	opacity: 0;
-	display: none !important;
+  opacity: 0;
+  display: none !important;
 }
 
 ::selection {
-	color: black;
-	background: var(--selection-color);
+  color: black;
+  background: var(--selection-color);
 }
 
 
