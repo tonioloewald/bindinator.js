@@ -113,6 +113,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 	flex-grow: 1;
 	min-width: 600px;
 	background-color: white;
+	overflow-y: scroll;
 	overflow-y: overlay;
 	position: relative;
 }
@@ -129,6 +130,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 	min-width: 160px;
 	flex: none;
 	flex-grow: 1;
+	overflow-y: scroll;
 	overflow-y: overlay;
 	background-color: #BCED85;
 	text-align: right;
