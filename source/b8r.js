@@ -649,7 +649,7 @@ function bindList(list_template, data_path) {
   }
   // compute list
   if (method_path) {
-    (function() {
+    (() => {
       try {
         const args = arg_paths.map(b8r.get);
         const filtered_list = b8r.callMethod(method_path, ...args, list_template);
@@ -661,7 +661,7 @@ function bindList(list_template, data_path) {
       } catch (e) {
         console.error(`bindList failed, ${method_path} threw error`, e);
       }
-    }());
+    })();
     if (!list) {
       throw 'could not compute list; async filtered list methods not supported (yet)';
     }
