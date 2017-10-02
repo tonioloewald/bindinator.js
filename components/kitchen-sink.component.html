@@ -218,22 +218,23 @@ built-in functionality but augment it.
 	</label>
 	<hr>
 	<label>
-		Range
-		<input type="range">
+		Range Input
+		<input min=0 max=25 type="range" data-bind="value=_component_.fuelrods">
 	</label>
 	<br>
 	<label>
-		Slider Numeric
-		<span min=0 max=25 data-component="slider-numeric" data-path="_component_.fuelrods"></span>
+		Number Input
+		<input type="number" data-bind="value=_component_.fuelrods">
+	</label>
+	<br>
+	<label>
+		slider-numeric component
+		<span min=0 max=25 data-component="slider-numeric" data-bind="value=_component_.fuelrods"></span>
 	</label>
 	<br>
 	<label>
 		Date
 		<input type="date" value="2014-04-01">
-	</label>
-	<label>
-		Number
-		<input type="number" value="5">
 	</label>
 	<label>
 		Color
@@ -242,7 +243,7 @@ built-in functionality but augment it.
 	<br>
 	<label>
 		Progress
-		<progress value="33" max="100"></progress>
+		<progress data-bind="attr(value)=_component_.fuelrods" max="25"></progress>
 	</label>
 	<br>
 	<form onsubmit="return false;">
