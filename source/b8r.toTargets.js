@@ -165,7 +165,7 @@ module.exports = function(b8r) {
     value: function(element, value) {
       switch (element.getAttribute('type')) {
         case 'radio':
-          element.checked = element.value === value;
+          element.checked = (element.value == value);
           break;
         case 'checkbox':
           element.checked = value;
