@@ -55,7 +55,7 @@ the string.
 -->
 <script>
 /* jshint latedef:false */
-/* global component, b8r */
+/* global component, b8r, require */
 'use strict';
 
   const {getSelection, setSelection} = require('lib/selection.js');
@@ -80,19 +80,24 @@ the string.
     };
 
     const get_combo = element => {
-      const target = element.closest('[data-combo]');
+      const combo_root = element.closest('[data-combo]');
+      const target = element.closest('.combo-target') || combo_root;
       if(!target) {
         throw 'cannot show combo, no data-combo attribute';
       }
-      const name = target.dataset.combo;
+      const name = element.closest('[data-combo]').dataset.combo;
       const combo = combos[name];
       if (!combo) {
         throw `cannot show combo, combo ${name} does not exist`;
       }
-      const position = element.dataset.comboPosition || combo.dataset.comboPosition || 'below';
-      const rect = element.getBoundingClientRect();
-      const filter_split = element.dataset.comboFilterSplit || combo.dataset.comboFilterSplit;
-      const filter_start = element.dataset.comboFilterStart || combo.dataset.comboFilterStart;
+      const position = target.dataset.comboPosition ||
+                       combo.dataset.comboPosition ||
+                       'below';
+      const rect = target.getBoundingClientRect();
+      const filter_split = target.dataset.comboFilterSplit ||
+                           combo.dataset.comboFilterSplit;
+      const filter_start = target.dataset.comboFilterStart ||
+                           combo.dataset.comboFilterStart;
       return {combo, position, rect, filter_split, filter_start};
     };
 
@@ -197,11 +202,13 @@ the string.
         return;
       }
       const selected = combo.querySelector('.selected');
+      const insertion_target = selected.querySelector('.combo-insert') || selected;
+      const inserted_text = insertion_target.textContent;
       if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
-        element.value = element.value.substr(0, start) + selected.textContent + element.value.substr(end);
+        element.value = element.value.substr(0, start) + inserted_text + element.value.substr(end);
       } else {
-        element.textContent = element.textContent.substr(0,start) + selected.textContent + element.textContent.substr(end);
-        const caret_position = start + selected.textContent.length;
+        element.textContent = element.textContent.substr(0,start) + inserted_text + element.textContent.substr(end);
+        const caret_position = start + inserted_text.length;
         setSelection(element, caret_position);
       }
       hide();
@@ -235,6 +242,7 @@ the string.
                 if (previous) {
                   current.classList.remove('selected');
                   previous.classList.add('selected');
+                  previous.scrollIntoView();
                 }
               }
               break;
@@ -244,6 +252,7 @@ the string.
                 if (next) {
                   current.classList.remove('selected');
                   next.classList.add('selected');
+                  next.scrollIntoView();
                 }
               }
               break;
@@ -282,6 +291,7 @@ the string.
       register,
       hide_on_click,
       update,
+      show, hide,
       click,
     });
   }
