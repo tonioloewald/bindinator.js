@@ -1,6 +1,8 @@
 /**
 # Components in Depth
 
+**Caution**: work in progress.
+
 ## Creating Components
 
 ## Component Lifecycle
@@ -18,9 +20,10 @@ Once a component is loaded:
 2. it will automatically be inserted in each appropriately marked DOM element (i.e. with the data-component attribute).
 
 After a given element has a component inserted:
+
 1. The `data-component` attribute (if any) will be removed and replaced with a unique `data-component-id`.
 2. Component data will be registered with the component's id.
-3. The eleemnt will also be given the class `name-component` (and any previous `...-component` class will be stripped).
+3. The element will also be given the class `name-component` (and any previous `...-component` class will be stripped).
 4. `_component_` will be replaced in data-bindings with the component's id
 4. Any already available sub-components will be inserted.
 6. The component's contents (including the containing element) will be bound to data as appropriate.
