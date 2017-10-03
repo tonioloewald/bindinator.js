@@ -149,11 +149,7 @@ const register = (name, obj, block_updates) => {
   registry[name] = obj;
   if (!block_updates) {
     touch(name);
-    // FIXME this could conceivably blow up!
-    // Sadly, require.lazy is broken for relative paths
-    // b8r.events.js dependes on b8r.registry.js
-    const {play_saved_messages} = require('./b8r.events.js');
-    play_saved_messages(name);
+    require.lazy('./b8r.events.js').then(({play_saved_messages}) => play_saved_messages(name));
   }
 };
 
