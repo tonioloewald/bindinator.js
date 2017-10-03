@@ -141,6 +141,22 @@ const set = (path, value, source_element) => {
   }
 };
 
+const register = (name, obj, block_updates) => {
+  if (name.match(/^_[^_]*_$/)) {
+    throw 'cannot register object as ' + name +
+      ', all names starting and ending with a single \'_\' are reserved.';
+  }
+  registry[name] = obj;
+  if (!block_updates) {
+    touch(name);
+    // FIXME this could conceivably blow up!
+    // Sadly, require.lazy is broken for relative paths
+    // b8r.events.js dependes on b8r.registry.js
+    const {play_saved_messages} = require('./b8r.events.js');
+    play_saved_messages(name);
+  }
+};
+
 const setJSON = (path, value) => set(path, JSON.parse(value));
 
 const push = (path, value) => {
@@ -280,6 +296,7 @@ module.exports = {
   observe,
   unobserve,
   models,
+  register,
   registered,
   remove,
   resolvePath,

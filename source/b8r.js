@@ -31,7 +31,6 @@ const {
   trigger,
   implicit_event_types,
   handle_event,
-  play_saved_messages,
 } = require('./b8r.events.js');
 Object.assign(b8r, { on, off, enable, disable, callMethod, trigger });
 const {
@@ -113,15 +112,6 @@ Also note that the new registry APIs provide an explicit *observable*.
 Removes a data-list-instance's corresponding list member and any other bound
 data-list-instances.
 */
-
-b8r.register = function(name, obj) {
-  if (name.match(/^_[^_]*_$/)) {
-    throw 'cannot register object as ' + name +
-      ', all names starting and ending with a single \'_\' are reserved.';
-  }
-  b8r.set(name, obj);
-  play_saved_messages(name);
-};
 
 b8r.componentInstances = () =>
   b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
@@ -1013,19 +1003,17 @@ b8r.insertComponent = function(component, element, data) {
       b8r.on(element, ...args);
     };
     const touch = (path) => b8r.touchByPath(component_id, path);
-    register(data);
+    b8r.register(component_id, data, true);
     const view_obj = component.load(
         window.require.relative(component.path),
         element, b8r, selector => b8r.findWithin(element, selector),
         selector => b8r.findOneWithin(element, selector), data, register, get,
         set, on, touch);
     if (view_obj) {
-      console.warn(
-        'returning from views is deprecated; please use register() instead');
-      b8r.register(component_id, view_obj);
+      throw 'returning from views is deprecated; please use register() instead';
     }
   } else {
-    register(data);
+    b8r.register(component_id, data, true);
   }
   if (data_path) {
     resolveListInstanceBindings(element, data_path);
