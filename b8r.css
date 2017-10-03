@@ -153,7 +153,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 
 .content {
   flex-grow: 1;
-  min-width: 600px;
+  width: 640px;
   overflow-y: scroll;
   overflow-y: overlay;
   position: relative;
@@ -161,7 +161,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 }
 
 .content > * {
-  max-width: 800px;
+  width: 640px;
 }
 
 .three_col > * > * {
