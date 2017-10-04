@@ -89,10 +89,11 @@ Suppose we save that as `my-component.component.html`, we can use a **component*
 You'll need to load it at some point:
 
 ```
+// we're in Javascript now...
 b8r.component('path/to/my-component');
 ```
 
-A **model*** looks like this:
+A **model** looks like this:
 
 ```
 b8r.register('my-model', {
@@ -110,14 +111,14 @@ b8r.register('my-controller', {
 });
 ```
 
-We can register the model and the controller and load the component in any order.
-Everything is asynchronous. If the user clicks the button before the controller is registered,
-the controller well be called when it becomes available.
+We can register the model and the controller and load the component *in any order*. Asynchronously.
+If the user clicks the button before the controller is registered, the controller well be called 
+when it becomes available.
 
 ### Key Points
 
-- components are just like little web pages (in a single file).
-- data and event bindings are just attributes of DOM nodes
+- components are just like little web pages (in a *single file*).
+- data and event bindings are just *attributes* of DOM nodes
 - if a DOM node is removed, it follows that its bindings are gone (that was easy!)
 - It's easy to refactor monolithic views into reusable components
 - Bindinator doesn't use a "virtual DOM". It uses the *actual DOM*.
@@ -194,6 +195,9 @@ relevant controller is bound, the event will be replayed (in order) for the cont
   return {count};
 </script>
 ```
+Note that the "bindinator way" to put data in the span would be to use a binding, but this
+is still just plain old javascript. (`findOne` is just `component.querySelector`,
+and `component` is just the element the component was loaded into.
 
 The component's script executes in a private scope, so each instance will count its own clicks.
 
