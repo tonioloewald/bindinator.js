@@ -175,7 +175,9 @@ function off (...args) {
     if (existing.length) {
       element.dataset.event = existing.join(';');
     } else {
-      delete element.dataset.event;
+      if (element.dataset.event) {
+        delete element.dataset.event;
+      }
     }
   }
 }
@@ -202,9 +204,11 @@ const disable = (element, include_children) => {
   elements.forEach(elt => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event;
-      delete elt.dataset.event;
+      if (elt.dataset.event) {
+        delete elt.dataset.event; 
+      }
     }
-    if (elt.disabled === false) {
+    if (!elt.disabled) {
       elt.disabled = true;
     }
   });
@@ -215,9 +219,11 @@ const enable = (element, include_children) => {
   elements.forEach(elt => {
     if (elt.dataset.eventDisabled) {
       elt.event = elt.dataset.eventDisabled;
-      delete elt.dataset.eventDisabled;
+      if (elt.dataset.eventDisabled) {
+        delete elt.dataset.eventDisabled;
+      }
     }
-    if (elt.disabled === true) {
+    if (elt.disabled) {
       elt.disabled = false;
     }
   });

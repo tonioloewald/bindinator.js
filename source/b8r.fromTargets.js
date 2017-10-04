@@ -47,7 +47,9 @@ return {
 			element.value = pending_value;
 			if (element.value === pending_value) {
 				console.warn('restored pending value', element, pending_value);
-				delete element.dataset.pendingValue;
+				if (element.dataset.pendingValue) {
+					delete element.dataset.pendingValue;
+				}
 			}
 		}
 		if(element.matches('input[type=radio]')){

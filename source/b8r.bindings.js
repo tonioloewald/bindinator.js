@@ -205,7 +205,9 @@ const removeDataBinding = (element, toTarget, path) => {
     if (existing.length) {
       element.dataset.bind = existing.join(';');
     } else {
-      delete element.dataset.bind;
+      if (element.dataset.bind) {
+        delete element.dataset.bind;
+      }
     }
   }
 };
