@@ -113,7 +113,9 @@
 			elt.dataset.event = handler_def;
 		} else {
 			elt.closest('li').dataset.event = handler_def;
-			delete elt.dataset.event;
+			if (elt.dataset.event) {
+				delete elt.dataset.event;	
+			}
 		}
 	});
 

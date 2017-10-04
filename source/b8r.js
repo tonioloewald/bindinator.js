@@ -674,7 +674,9 @@ function bindList(list_template, data_path) {
 
   /* Safari refuses to hide hidden options */
   const template = list_template.cloneNode(true);
-  delete template.dataset.list;
+  if (template.dataset.list) {
+    delete template.dataset.list;
+  }
   if (list_template.tagName === 'OPTION') {
     list_template.setAttribute('disabled', '');
     list_template.textContent = '';
@@ -949,7 +951,9 @@ b8r.insertComponent = function(component, element, data) {
     component = components[component];
   }
   b8r.logStart('insertComponent', component.name);
-  delete element.dataset.component;
+  if (element.dataset.component) {
+    delete element.dataset.component; 
+  }
   if (!data || data_path) {
     data = dataForElement(
         element,

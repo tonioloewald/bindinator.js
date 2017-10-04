@@ -190,7 +190,9 @@ module.exports = function(b8r) {
               element.dataset.pendingValue = JSON.stringify(value);
               console.warn('could not set value', element, value);
             } else {
-              delete element.dataset.value;
+              if (element.dataset.value) {
+                delete element.dataset.value;
+              }
             }
           } else {
             if (element.dataset.componentId) {
