@@ -205,7 +205,7 @@ const disable = (element, include_children) => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event;
       if (elt.dataset.event) {
-        delete elt.dataset.event; 
+        delete elt.dataset.event;
       }
     }
     if (!elt.disabled) {
@@ -218,7 +218,7 @@ const enable = (element, include_children) => {
   const elements = include_children ? findWithin(element, true) : [element];
   elements.forEach(elt => {
     if (elt.dataset.eventDisabled) {
-      elt.event = elt.dataset.eventDisabled;
+      elt.dataset.event = elt.dataset.eventDisabled;
       if (elt.dataset.eventDisabled) {
         delete elt.dataset.eventDisabled;
       }
