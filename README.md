@@ -2,7 +2,7 @@
 	<img
 		alt="bindinator b∞r logo"
 		style="width: 600px; height: 600px; padding: 5% 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
-		src="//bindinator.com/bindinator-logo.svg"
+		src="https://bindinator.com/bindinator-logo.svg"
 	>
 </div>
 
