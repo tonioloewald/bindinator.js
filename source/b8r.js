@@ -894,7 +894,9 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
   components[name] = component;
 
   b8r.find(`[data-component="${name}"]`).forEach(element => {
-    if (!element.closest('[data-list]')) {
+    // somehow things can happen in between find() and here so the
+    // second check is necessary to prevent race conditions
+    if (!element.closest('[data-list]') && element.dataset.component === name) {
       b8r.insertComponent(component, element);
     }
   });
@@ -932,10 +934,6 @@ b8r.insertComponent = function(component, element, data) {
   if (!element) {
     element = b8r.create('div');
   }
-  if (element.dataset.component !== component.name ||
-      component) {
-    element.dataset.component = component.name || component;
-  }
   if (typeof component === 'string') {
     if (!components[component]) {
       if (!component_timeouts[component]) {
@@ -952,6 +950,7 @@ b8r.insertComponent = function(component, element, data) {
   }
   b8r.logStart('insertComponent', component.name);
   if (element.dataset.component) {
+    console.log(element.dataset.component);
     delete element.dataset.component;
   }
   if (!data || data_path) {
@@ -972,7 +971,13 @@ b8r.insertComponent = function(component, element, data) {
   */
   const component_id = 'c#' + component.name + '#' + (++component_count);
   if (component.view.children.length) {
-    b8r.moveChildren(element, children);
+    if (element.dataset.componentId) {
+      if (element.querySelector('[data-children]')) {
+        b8r.moveChildren(element.querySelector('[data-children]'), children);
+      }
+    } else {
+      b8r.moveChildren(element, children);
+    }
     b8r.copyChildren(component.view, element);
     replaceInBindings(element, '_component_', component_id);
     if (data_path) {
@@ -1045,6 +1050,33 @@ b8r.insertComponent = function(component, element, data) {
 
   b8r.logEnd('insertComponent', component.name);
   return element;
+};
+
+/**
+    b8r.removeComponent(elt);
+
+If elt has a component in it (i.e. has the attribute data-component-id) removes the compoment, remove the id,
+and remove any class that ends with '-component'.
+*/
+
+b8r.removeComponent = elt => {
+  if (elt.dataset.componentId) {
+    if (elt.querySelector('[data-children]')) {
+      const children = b8r.fragment();
+      b8r.moveChildren(elt.querySelector('[data-children]'), children);
+      b8r.empty(elt);
+      b8r.moveChildren(children, elt);
+    } else {
+      b8r.empty(elt);
+    }
+    delete elt.dataset.componentId;
+    b8r.makeArray(elt.classList).forEach(c => {
+      if (/-component$/.test(c)) {
+        elt.classList.remove(c);
+      }
+    });
+    b8r.cleanupComponentInstances();
+  }
 };
 
 /**
