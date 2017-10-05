@@ -952,7 +952,7 @@ b8r.insertComponent = function(component, element, data) {
   }
   b8r.logStart('insertComponent', component.name);
   if (element.dataset.component) {
-    delete element.dataset.component; 
+    delete element.dataset.component;
   }
   if (!data || data_path) {
     data = dataForElement(
@@ -1023,6 +1023,26 @@ b8r.insertComponent = function(component, element, data) {
     resolveListInstanceBindings(element, data_path);
   }
   b8r.bindAll(element);
+
+  // nicer reveals
+  const reveal = element.closest('.b8r-hide-while-loading');
+  if (reveal) {
+    const unloaded = b8r.findWithin(reveal, '[data-component]').filter(elt => !elt.closest('[data-list]'));
+    if (unloaded.length) {
+      const missing_list = [];
+      unloaded.map(elt => {
+        const missing = elt.dataset.component;
+        if (missing_list.indexOf(missing) === -1) {
+          missing_list.push(missing);
+        }
+      });
+      console.log('waiting on components', missing_list);
+      reveal.classList.remove('b8r-loaded');
+    } else {
+      reveal.classList.add('b8r-loaded');
+    }
+  }
+
   b8r.logEnd('insertComponent', component.name);
   return element;
 };
