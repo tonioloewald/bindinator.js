@@ -29,51 +29,49 @@
 				bindinator.js
 			</h1>
 		</div>
-		<div class="three_col">
-			<div class="nav" data-event="click:details-accordion-controller.click">
-				<details open>
-					<summary>
-						Documentation
-					</summary>
-					<div
-						class="loadable"
-						data-list="source_files"
-						data-bind="text=.name;attr(data-file)=.path"
-						data-event="click,keydown(Space):demo.showDocs"
-						tabindex="0"
-					>
-						File Name
-					</div>
-				</details>
-				<details>
-					<summary>
-						Components
-					</summary>
-					<div
-						class="loadable"
-						data-list="components"
-						data-bind="text=.name;attr(data-file)=.path"
-						data-event="click,keydown(Space):demo.loadComponent"
-						tabindex="0"
-					>
-						File Name
-					</div>
-				</details>
-				<details>
-					<summary>
-						Tests
-					</summary>
-					<a href="tests.html">Unit Tests</a>
-				</details>
-				<details>
-					<summary>
-						Project
-					</summary>
-					<a target="_blank" href="https://trello.com/b/0OBL4IjC/bindinator">Trello</a>
-				</details>
-			</div>
-			<div class="content" id="example"></div>
+		<div class="nav" data-event="click:details-accordion-controller.click">
+			<details open>
+				<summary>
+					Documentation
+				</summary>
+				<div
+					class="loadable"
+					data-list="source_files"
+					data-bind="text=.name;attr(data-file)=.path"
+					data-event="click,keydown(Space):demo.showDocs"
+					tabindex="0"
+				>
+					File Name
+				</div>
+			</details>
+			<details>
+				<summary>
+					Components
+				</summary>
+				<div
+					class="loadable"
+					data-list="components"
+					data-bind="text=.name;attr(data-file)=.path"
+					data-event="click,keydown(Space):demo.loadComponent"
+					tabindex="0"
+				>
+					File Name
+				</div>
+			</details>
+			<details>
+				<summary>
+					Tests
+				</summary>
+				<a href="tests.html">Unit Tests</a>
+			</details>
+			<details>
+				<summary>
+					Project
+				</summary>
+				<a target="_blank" href="https://trello.com/b/0OBL4IjC/bindinator">Trello</a>
+			</details>
 		</div>
+		<div class="content" id="example"></div>
 		<div class="footer">
 			<div>
 				©2016-2017 Tonio Loewald | <a href="http://loewald.com">loewald.com</a> | <a href="#source=LICENSE.md">License</a>
