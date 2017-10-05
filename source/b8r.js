@@ -852,7 +852,7 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
 
   var div = b8r.create('div');
   div.innerHTML = content;
-  /*jshint evil: true */
+  /*jshint evil: true  */
   var load = script ?
              new Function(
                 'require',
