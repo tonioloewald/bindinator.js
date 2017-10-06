@@ -944,6 +944,7 @@ b8r.insertComponent = function(component, element, data) {
       if (data) {
         saveDataForElement(element, data);
       }
+      element.dataset.component = component;
       return;
     }
     component = components[component];
