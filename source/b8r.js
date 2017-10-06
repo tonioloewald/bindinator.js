@@ -217,7 +217,11 @@ const _update = () => {
 
   while(_update_list.length) {
     const {fn, element} = _update_list.shift();
-    fn(element);
+    try {
+      fn(element);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   while(_after_update_callbacks.length) {
