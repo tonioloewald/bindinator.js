@@ -127,6 +127,7 @@ Test(() => {
 }).shouldBe(null);
 ~~~~
 */
+/* jshint latedef:false */
 /* global module, console */
 
 'use strict';
@@ -236,7 +237,8 @@ function getByPath(obj, path) {
   return found === undefined ? null : found;
 }
 
-function setByPath(obj, path, val) {
+function setByPath(orig, path, val) {
+  let obj = orig;
   const parts = pathParts(path);
 
   while (obj && parts.length) {
@@ -287,11 +289,12 @@ function setByPath(obj, path, val) {
       throw 'setByPath failed';
     }
   }
-  throw `setByPath(${obj}, ${path}, ${val}) failed`;
+  console.error(`setByPath failed): "${path}" not found in`, orig);
+  throw `setByPath(${orig}, ${path}, ${val}) failed`;
 }
 
 function matchTypes(value, oldValue) {
-  if (value == null || oldValue == null || typeof value === typeof oldValue) {
+  if (value == null || oldValue == null || typeof value === typeof oldValue) { //jshint ignore:line
     return value;
   } else if (typeof value === 'string' && typeof oldValue === 'number') {
     return parseFloat(value);
@@ -299,8 +302,8 @@ function matchTypes(value, oldValue) {
     return value + '';
   } else if (typeof oldValue === 'boolean') {
     return value === 'false' ?
-        false :
-        !!value;  // maps undefined || null || '' || 0 => false
+                      false :
+                      !!value;  // maps undefined || null || '' || 0 => false
   } else if (oldValue !== undefined && oldValue !== null) {
     console.warn('setByPath found non-matching types');
   }
