@@ -950,7 +950,6 @@ b8r.insertComponent = function(component, element, data) {
   }
   b8r.logStart('insertComponent', component.name);
   if (element.dataset.component) {
-    console.log(element.dataset.component);
     delete element.dataset.component;
   }
   if (!data || data_path) {
@@ -1059,9 +1058,9 @@ If elt has a component in it (i.e. has the attribute data-component-id) removes 
 and remove any class that ends with '-component'.
 */
 
-b8r.removeComponent = elt => {
+b8r.removeComponent = (elt, remove_children) => {
   if (elt.dataset.componentId) {
-    if (elt.querySelector('[data-children]')) {
+    if (!remove_children && elt.querySelector('[data-children]')) {
       const children = b8r.fragment();
       b8r.moveChildren(elt.querySelector('[data-children]'), children);
       b8r.empty(elt);

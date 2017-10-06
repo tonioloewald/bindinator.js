@@ -80,14 +80,15 @@
 	</div>
 	<script src="lib/require.js"></script>
 	<script>
+	/* jshint latedef:false */
 	/* global require, alert, console */
 	'use strict';
 		require.autoPreload().
 		then(() => {
 			[
-		    "https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js",
-		    "https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js",
-		    "https://cdn.jsdelivr.net/ace/1.2.6/noconflict/ace.js",
+		    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js',
+		    'https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js',
+		    'https://cdn.jsdelivr.net/ace/1.2.6/noconflict/ace.js',
 		  ].map(require.lazy);
 			const b8r = require('source/b8r.js');
 
@@ -126,7 +127,7 @@
 					}
 					return true;
 				}
-			})
+			});
 
 			b8r.register('demo', {
 				showDocs: function(evt) {
@@ -191,6 +192,7 @@
 						value = `components/${value}.component.html`;
 					}
 					b8r.component('components/file-viewer').then(viewer => {
+						b8r.removeComponent(content, true);
 						b8r.insertComponent(viewer, content, {url: value});
 					});
 				} else {

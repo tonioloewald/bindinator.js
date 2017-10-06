@@ -1,22 +1,26 @@
 <!--
 # File-Viewer
 Copyright ©2016-2017 Tonio Loewald
-	
+
 This is a contentless component - in effect it routes to other components
 based on the filename (or specified file_type)
 
-Note that something similar could just as easily be implemented using a component_map 
-binding, but for more complex heterogeneous collections, something like this could 
+Note that something similar could just as easily be implemented using a component_map
+binding, but for more complex heterogeneous collections, something like this could
 implement a more sophisticated approach
 -->
+<div></div>
 <script>
-/* global data, b8r, component */
+/* global data, b8r, container, component */
 'use strict';
+
+	const container = findOne('div');
+
 	switch (data.file_type || data.url.split('.').pop()) {
 		case 'md':
 		case 'markdown':
 			b8r.component('components/markdown-viewer').then(viewer => {
-				b8r.insertComponent(viewer, component, data);
+				b8r.insertComponent(viewer, container, data);
 			});
 			break;
 
@@ -25,24 +29,24 @@ implement a more sophisticated approach
 			if(data.url.match(/\.component\.html$/)) {
 				data.url = data.url.substr(0, data.url.length - 15);
 				b8r.component('components/component-viewer').then(viewer => {
-					b8r.insertComponent(viewer, component, data);
+					b8r.insertComponent(viewer, container, data);
 				});
 			} else {
 				b8r.component('components/iframe').then(iframe => {
-					b8r.insertComponent(iframe, component, data);
-				});	
+					b8r.insertComponent(iframe, container, data);
+				});
 			}
 			break;
 
 		case 'text':
 			b8r.component('components/text-viewer').then(viewer => {
-				b8r.insertComponent(viewer, component, data);
+				b8r.insertComponent(viewer, container, data);
 			});
 			break;
 
 		case 'js':
 			b8r.component('components/literate-js-viewer').then(viewer => {
-				b8r.insertComponent(viewer, component, data);
+				b8r.insertComponent(viewer, container, data);
 			});
 			break;
 	}
