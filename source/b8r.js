@@ -220,15 +220,20 @@ const _update = () => {
     try {
       fn(element);
     } catch (e) {
-      console.error(e);
+      console.error('_update error', e, fn, element);
     }
   }
 
+  b8r.logStart('async_update', '_after_update_callbacks');
   while(_after_update_callbacks.length) {
-    b8r.logStart('async_update', '_after_update_callbacks');
-    (_after_update_callbacks.shift())();
-    b8r.logEnd('async_update', '_after_update_callbacks');
+    try {
+      const fn = _after_update_callbacks.shift();
+      fn();
+    } catch(e) {
+      console.error('_after_update_callback error', e, fn);
+    }
   }
+  b8r.logEnd('async_update', '_after_update_callbacks');
 
   b8r.logEnd('async_update', 'update');
 };
