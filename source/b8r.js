@@ -1053,6 +1053,7 @@ b8r.insertComponent = function(component, element, data) {
 
 /**
     b8r.removeComponent(elt);
+    b8r.removeComponent(elt, true); // preserve children
 
 If elt has a component in it (i.e. has the attribute data-component-id) removes the compoment, remove the id,
 and remove any class that ends with '-component'.

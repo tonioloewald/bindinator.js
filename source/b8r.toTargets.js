@@ -327,6 +327,7 @@ module.exports = function(b8r) {
       if (component_name) {
         const existing = element.dataset.componentId || '';
         if (existing.indexOf(`c#${component_name}#`) === -1) {
+          b8r.removeComponent(element, true);
           b8r.insertComponent(component_name, element);
         }
       }
