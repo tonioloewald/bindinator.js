@@ -150,6 +150,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   right: 0;
   bottom: 0;
   height: 32px;
+  padding: 8px;
   background-color: var(--bright-accent-color);
 }
 
