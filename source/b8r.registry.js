@@ -42,7 +42,7 @@ Triggers all observers asynchronousely (on requestAnimationFrame).
 /* global module, require, console */
 'use strict';
 
-const {getByPath, setByPath} = require('./b8r.byPath.js');
+const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
 const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
@@ -139,6 +139,7 @@ const set = (path, value, source_element) => {
     setByPath(registry, path, value);
     touch(path, source_element);
   }
+  return value;
 };
 
 const register = (name, obj, block_updates) => {
@@ -156,7 +157,7 @@ const register = (name, obj, block_updates) => {
 const setJSON = (path, value) => set(path, JSON.parse(value));
 
 const push = (path, value) => {
-  const list = get(path);
+  const list = get(path) || set(path, []);
   if(Array.isArray(list)) {
     list.push(value);
     async_touch(path);
@@ -269,16 +270,20 @@ const registered = path => !!registry[path.split('.')[0]];
 
 /**
     remove('root');
+    remove('path.to.property')
 
-You can remove a root-level object ("model-name").
+Will remove the specified property from the registry (including root-level objects). If the object
+does not exist, has no effect. So:
+
+~~~~
+const {register, remove, get} = b8r;
+register('foo', {bar: 17, baz: {lurman: true}});
+Test(() => {remove('foo.bar'); return get('foo.bar');}).shouldBe(null);
+Test(() => {remove('foo.boris.yeltsin'); return get('foo.boris')}).shouldBe(null);
+Test(() => {remove('foo.baz.lurman'); return Object.keys(get('foo.baz')).length}).shouldBe(0);
+~~~~
 */
-const remove = name => {
-  if (registry[name]) {
-    delete registry[name];
-  } else {
-    console.error(`remove model ${name} failed; does not exist`);
-  }
-};
+const remove = path => deleteByPath(registry, path);
 
 module.exports = {
   get,
