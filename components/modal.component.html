@@ -104,7 +104,11 @@ Copyright ©2016-2017 Tonio Loewald
     } else {
       console.warn('dialog has no callback; user pressed', evt.target.textContent);
     }
-    if (evt.target instanceof HTMLButtonElement) {
+
+    if (
+        evt.target instanceof HTMLButtonElement &&
+        (evt.target.classList.contains('default') || evt.target.classList.contains('cancel'))
+    ) {
       component.remove();
     } else {
       return true;
