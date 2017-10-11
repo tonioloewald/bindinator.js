@@ -192,7 +192,7 @@
 						value = `components/${value}.component.html`;
 					}
 					b8r.component('components/file-viewer').then(viewer => {
-						b8r.removeComponent(content, true);
+						b8r.removeComponent(content);
 						b8r.insertComponent(viewer, content, {url: value});
 					});
 				} else {
