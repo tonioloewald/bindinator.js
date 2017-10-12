@@ -537,7 +537,7 @@ b8r.interpolate = (template, elt) => {
   if (template.match(/\$\{.*?\}/)) {
     formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => {
       if (debug_paths && !b8r.isValidPath(path)) {
-        console.error('bad path', path, 'in binding', elt);
+        console.error('bad path', path, 'in data-bind', elt);
       } else {
         const value = b8r.get(path, elt);
         return value !== null ? value : '';
@@ -659,6 +659,10 @@ function bindList(list_template, data_path) {
     list_path = data_path + list_path;
   }
   b8r.logStart('bindList', b8r.elementSignature(list_template));
+  if (debug_paths && !b8r.isValidPath(list_path)) {
+    console.error('bad path', path, 'in data-list', elt);
+    return;
+  }
   let list = b8r.get(list_path, list_template);
   if (!list) {
     return;
