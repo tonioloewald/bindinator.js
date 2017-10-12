@@ -310,6 +310,12 @@ module.exports = function(b8r) {
     json: function(element, value) {
       element.textContent = JSON.stringify(value, false, 2);
     },
+    data_path: function(element, value) {
+      if (element.dataset.path !== value) {
+        element.dataset.path = value;
+        b8r.bindAll(element);
+      }
+    },
     component: function(element, value, dest) {
       const component_id = b8r.getComponentId(element);
       b8r.setByPath(component_id, dest, value);
