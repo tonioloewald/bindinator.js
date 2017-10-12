@@ -37,6 +37,24 @@ if you change a property independently of the registry.
     async_touch(path);
 
 Triggers all observers asynchronousely (on requestAnimationFrame).
+
+    isValidPath(path);
+
+`isValidPath` returns true if the path looks OK, false otherwise.
+
+~~~~
+Test(() => b8r.isValidPath('foo')).shouldBe(true);
+Test(() => b8r.isValidPath('foo.bar')).shouldBe(true);
+Test(() => b8r.isValidPath('.')).shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[1234]')).shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234]')).shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234].')).shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234')).shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[id]')).shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234]]')).shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms]')).shouldBe(false);
+~~~~
+
 */
 /* jshint latedef:false */
 /* global module, require, console */
@@ -47,6 +65,10 @@ const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
 let listeners = [];  // { path_string_or_test, callback }
+
+const valid_path = /^(\.|[^.\[\]])+(\.[^.\[\]]+|\[\d+\]|\[[^=\[\]]+\=[^\[\]]+\])*(\.)?$/;
+
+const isValidPath = path => valid_path.test(path);
 
 class Listener {
   constructor(test, callback) {
@@ -301,4 +323,5 @@ module.exports = {
   registered,
   remove,
   resolvePath,
+  isValidPath,
 };

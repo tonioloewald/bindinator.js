@@ -530,15 +530,25 @@ const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 b8r.onAny([ 'change', 'input' ], '_b8r_._update_', true);
 
+const debug_paths = true;
+
 b8r.interpolate = (template, elt) => {
-  let formatted;
+  let formatted = '';
   if (template.match(/\$\{.*?\}/)) {
     formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => {
-      const value = b8r.get(path, elt);
-      return value !== null ? value : '';
+      if (debug_paths && !b8r.isValidPath(path)) {
+        console.error('bad path', path, 'in binding', elt);
+      } else {
+        const value = b8r.get(path, elt);
+        return value !== null ? value : '';
+      }
     }) ;
   } else {
-    formatted = b8r.get(template, elt);
+    if (debug_paths && !b8r.isValidPath(template)) {
+      console.error('bad path', template, 'in binding', elt);
+    } else {
+      formatted = b8r.get(template, elt);
+    }
   }
   return formatted;
 };
