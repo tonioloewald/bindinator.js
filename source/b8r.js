@@ -314,7 +314,7 @@ b8r.touchByPath = (...args) => {
 
 b8r.setByPath = function(...args) {
   let name, path, value, source_element;
-  if (args.length === 2 && typeof args[1] === 'object') {
+  if (args.length === 2 && typeof args[1] === 'object' && !Array.isArray(args[1])) {
     [name, value] = args;
     b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val));
     return;
