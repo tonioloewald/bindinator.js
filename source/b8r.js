@@ -113,7 +113,7 @@ Removes a data-list-instance's corresponding list member and any other bound
 data-list-instances.
 */
 
-b8r.componentInstances = () =>
+b8r._component_instances = () =>
   b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 /**
@@ -154,14 +154,17 @@ b8r.throttle = (orig_fn, min_interval) => {
 
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
-  const instances = b8r.find('[data-component-id]')
-                      .map(elt => elt.dataset.componentId);
+  b8r.forEachKey(_component_instances, (element, component_id) => {
+    if (!element.closest('body') || element.dataset.componentId !== component_id) {
+      delete _component_instances[component_id];
+    }
+  });
   b8r.models().forEach((model) => {
-    if (model.substr(0, 2) === 'c#' && instances.indexOf(model) === -1) {
+    if (model.substr(0, 2) === 'c#' && !_component_instances[model]) {
       b8r.remove(model);
     }
   });
-}, 2000);
+}, 100);
 
 b8r.deregister = name => b8r.remove(name);
 
@@ -923,7 +926,7 @@ function loadAvailableComponents(element, data_path) {
   b8r.findWithin(element || document.body, '[data-component]', true)
     .forEach(target => {
       if (!target.closest('[data-list]') &&
-          !target.matches('[data-component-id]')) {
+          !target.dataset.componentId) {
         let name = target.dataset.component;
         b8r.insertComponent(name, target, data_path);
       }
@@ -945,6 +948,7 @@ data to the component).
 */
 
 let component_count = 0;
+const _component_instances = {};
 b8r.insertComponent = function(component, element, data) {
   const data_path = typeof data === 'string' ? data : b8r.getDataPath(element);
   if (!element) {
@@ -1006,6 +1010,7 @@ b8r.insertComponent = function(component, element, data) {
     }
   }
   element.dataset.componentId = component_id;
+  _component_instances[component_id] = element;
   b8r.makeArray(element.classList).forEach(c => {
     if (c.substr(-10) === '-component') {
       element.classList.remove(c);
@@ -1040,7 +1045,7 @@ b8r.insertComponent = function(component, element, data) {
       }
     } catch(e) {
       console.error('component', name, 'failed to load', e);
-      debugger;
+      debugger; // jshint ignore:line
     }
   } else {
     b8r.register(component_id, data, true);
