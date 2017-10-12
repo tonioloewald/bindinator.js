@@ -863,7 +863,9 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
   let div = b8r.create('div');
   div.innerHTML = content;
   /*jshint evil: true */
-  let load = script ?
+  let load = () => console.error('component', name, 'cannot load properly');
+  try {
+    load = script ?
              new Function(
                 'require',
                 'component',
@@ -879,6 +881,10 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
                 `${script}\n//# sourceURL=${name}(component)`
               ) :
               false;
+  } catch(e) {
+    console.error('error creating load method for component', name, e);
+    throw `component ${name} load method could not be created`;
+  }
   /*jshint evil: false */
   const style = makeStylesheet(css, name + '-component');
   let component = {
@@ -1023,13 +1029,18 @@ b8r.insertComponent = function(component, element, data) {
     };
     const touch = (path) => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
-    const view_obj = component.load(
-        window.require.relative(component.path),
-        element, b8r, selector => b8r.findWithin(element, selector),
-        selector => b8r.findOneWithin(element, selector), data, register, get,
-        set, on, touch);
-    if (view_obj) {
-      throw 'returning from views is deprecated; please use register() instead';
+    try {
+      const view_obj = component.load(
+          window.require.relative(component.path),
+          element, b8r, selector => b8r.findWithin(element, selector),
+          selector => b8r.findOneWithin(element, selector), data, register, get,
+          set, on, touch);
+      if (view_obj) {
+        throw 'returning from views is deprecated; please use register() instead';
+      }
+    } catch(e) {
+      console.error('component', name, 'failed to load', e);
+      debugger;
     }
   } else {
     b8r.register(component_id, data, true);
