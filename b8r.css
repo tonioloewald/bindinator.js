@@ -4,6 +4,7 @@
   --bg-color: #cff2a6;
   --content-bg-color: white;
   --text-color: #222;
+  --dark-text-color: #ddd;
   --code-text-color: #444;
   --faded-text-color: #666;
   --hint-text-color: #aaa;
@@ -56,6 +57,10 @@ a:visited {
 
 a:active {
   border-bottom: 2px solid var(--link-active-color);
+}
+
+.dark {
+  color: var(--dark-text-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -136,6 +141,14 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   right: 0;
   left: 0;
   z-index: 2;
+}
+
+.fullscreen .header {
+  transform: translateX(-100%);
+}
+
+.fullscreen .footer {
+  transform: translateY(100%);
 }
 
 .header > * {

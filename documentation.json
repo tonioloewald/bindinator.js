@@ -1,0 +1,258 @@
+{
+	"docs": [
+		{
+			"name": "Read Me First",
+			"path": "README.md"
+		},
+		{
+			"name": "Overview",
+			"path": "docs/overview.md"
+		},
+		{
+			"name": "Components",
+			"path": "docs/components.js"
+		},
+		{
+			"name": "Tutorial 1. Quick Start",
+			"path": "docs/tutorial-1.js"
+		},
+		{
+			"name": "Tutorial 2. Simple Components",
+			"path": "docs/tutorial-2.js"
+		},
+		{
+			"name": "Tutorial 3. Complex Component",
+			"path": "docs/tutorial-3.js"
+		},
+		{
+			"name": "License",
+			"path": "LICENSE.md"
+		},
+		{
+			"name": "Bindinator Core",
+			"path": "source/b8r.js"
+		},
+		{
+			"name": "(b8r) ajax",
+			"path": "source/b8r.ajax.js"
+		},
+		{
+			"name": "(b8r) bindings",
+			"path": "source/b8r.bindings.js"
+		},
+		{
+			"name": "(b8r) binding to dom",
+			"path": "source/b8r.toTargets.js"
+		},
+		{
+			"name": "(b8r) binding from dom",
+			"path": "source/b8r.fromTargets.js"
+		},
+		{
+			"name": "(b8r) byPath",
+			"path": "source/b8r.byPath.js"
+		},
+		{
+			"name": "(b8r) dom",
+			"path": "source/b8r.dom.js"
+		},
+		{
+			"name": "(b8r) events",
+			"path": "source/b8r.events.js"
+		},
+		{
+			"name": "(b8r) anyEvent",
+			"path": "source/b8r.anyEvent.js"
+		},
+		{
+			"name": "(b8r) imgSrc",
+			"path": "source/b8r.imgSrc.js"
+		},
+		{
+			"name": "(b8r) iterators",
+			"path": "source/b8r.iterators.js"
+		},
+		{
+			"name": "(b8r) keystroke",
+			"path": "source/b8r.keystroke.js"
+		},
+		{
+			"name": "(b8r) makeStylesheet",
+			"path": "source/b8r.makeStylesheet.js"
+		},
+		{
+			"name": "(b8r) perf",
+			"path": "source/b8r.perf.js"
+		},
+		{
+			"name": "(b8r) registry",
+			"path": "source/b8r.registry.js"
+		},
+		{
+			"name": "JS Viewer Test",
+			"path": "test/literate-test.js"
+		},
+		{
+			"name": "Exemplar",
+			"path": "lib/exemplar.js"
+		},
+		{
+			"name": "uuid",
+			"path": "lib/uuid.js"
+		},
+		{
+			"name": "require",
+			"path": "lib/require.js"
+		},
+		{
+			"name": "Test",
+			"path": "lib/test.js"
+		},
+		{
+			"name": "Drag and Drop",
+			"path": "lib/drag-and-drop.js"
+		},
+		{
+			"name": "Color Utilities",
+			"path": "lib/color.js"
+		}
+	],
+	"components": [
+		{
+			"name": "Hello",
+			"path": "hello"
+		},
+		{
+			"name": "Modal Test",
+			"path": "modal-test"
+		},
+		{
+			"name": "Instance Test",
+			"path": "instance-test"
+		},
+		{
+			"name": "Circle",
+			"path": "circle"
+		},
+		{
+			"name": "Floater",
+			"path": "floater"
+		},
+		{
+			"name": "Chart",
+			"path": "chart"
+		},
+		{
+			"name": "Photo Tabs",
+			"path": "photo-tabs"
+		},
+		{
+			"name": "Rich Text",
+			"path": "richtext"
+		},
+		{
+			"name": "Tab Selector",
+			"path": "tab-selector"
+		},
+		{
+			"name": "Photos",
+			"path": "photos"
+		},
+		{
+			"name": "Keyboard Event Utility",
+			"path": "keycodes"
+		},
+		{
+			"name": "Loading Spinner",
+			"path": "loading"
+		},
+		{
+			"name": "Checkbox Switch",
+			"path": "switch"
+		},
+		{
+			"name": "Radio Button Set",
+			"path": "radioset"
+		},
+		{
+			"name": "Carousel",
+			"path": "carousel"
+		},
+		{
+			"name": "Photo Carousel",
+			"path": "photo-carousel"
+		},
+		{
+			"name": "iframe",
+			"path": "iframe"
+		},
+		{
+			"name": "Mondrian",
+			"path": "mondrian"
+		},
+		{
+			"name": "Fiddle",
+			"path": "fiddle"
+		},
+		{
+			"name": "Kitchen Sink",
+			"path": "kitchen-sink"
+		},
+		{
+			"name": "Big List",
+			"path": "biglist"
+		},
+		{
+			"name": "Flexcordion",
+			"path": "flexcordion"
+		},
+		{
+			"name": "Slider Numeric",
+			"path": "slider-numeric"
+		},
+		{
+			"name": "To Do",
+			"path": "todo"
+		},
+		{
+			"name": "Stack",
+			"path": "stack"
+		},
+		{
+			"name": "3d (threejs)",
+			"path": "threejs"
+		},
+		{
+			"name": "3d (babylonjs)",
+			"path": "babylonjs"
+		},
+		{
+			"name": "asteroids (svg)",
+			"path": "asteroids"
+		},
+		{
+			"name": "Offline",
+			"path": "offline"
+		},
+		{
+			"name": "Center Scroller",
+			"path": "center-scroller-test"
+		},
+		{
+			"name": "webrtc",
+			"path": "webrtc"
+		},
+		{
+			"name": "Contenteditable DIV",
+			"path": "contenteditable"
+		},
+		{
+			"name": "Selector",
+			"path": "selector"
+		},
+		{
+			"name": "Input",
+			"path": "input"
+		}
+	]
+}

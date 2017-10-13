@@ -660,7 +660,7 @@ function bindList(list_template, data_path) {
   }
   b8r.logStart('bindList', b8r.elementSignature(list_template));
   if (debug_paths && !b8r.isValidPath(list_path)) {
-    console.error('bad path', path, 'in data-list', elt);
+    console.error('bad path', list_path, 'in data-list', list_template);
     return;
   }
   let list = b8r.get(list_path, list_template);
@@ -1089,6 +1089,13 @@ b8r.insertComponent = function(component, element, data) {
   }
 
   b8r.logEnd('insertComponent', component.name);
+};
+
+b8r.wrapWithComponent = (component, element, data) => {
+  const wrapper = b8r.create('div');
+  wrapper.classList.add('b8r-hide-while-loading');
+  b8r.wrap(element, wrapper);
+  b8r.insertComponent(component, wrapper, data);
 };
 
 /**
