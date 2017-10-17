@@ -253,6 +253,10 @@
 		{
 			"name": "Input",
 			"path": "input"
+		},
+		{
+			"name": "Bodymovin",
+			"path": "bodymovin"
 		}
 	]
 }

@@ -1,23 +1,23 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
 <div data-component="loading"></div>
 <script>
-/*global require, showdown, component, data, b8r */
+/*global require, component, data, b8r */
 	'use strict';
 
 	function render(source){
-		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js")
-					.then(() => {
-				 		var converter = new showdown.Converter();
-				  	component.innerHTML = converter.makeHtml(source);
-					});
+		require.lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').
+		then(showdown => {
+	 		var converter = new showdown.Converter();
+	  	component.innerHTML = converter.makeHtml(source);
+		});
 	}
-	
+
 	if (data.content) {
-		b8r.component('loading', 'components/loading')
-			.then(() => render(data.content));
+		b8r.component('loading', 'components/loading').
+		then(() => render(data.content));
 	} else if (data.url) {
-		b8r.component('loading', 'components/loading')
-			.then(() => b8r.ajax(data.url))
-		  .then(content => render(content));
+		b8r.component('loading', 'components/loading').
+		then(() => b8r.ajax(data.url)).
+		then(content => render(content));
 	}
 </script>
