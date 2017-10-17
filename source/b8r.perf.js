@@ -133,8 +133,10 @@ const perf = {
         mapped = filterObject(mapped, entry => entry.worst > threshold);
       }
       console.table(mapped, ['name', 'count', 'best', 'median', 'worst', 'total_time']);
+      return mapped;
     } else {
       console.table(logs, ['name', 'total_time']);
+      return logs;
     }
   },
 };

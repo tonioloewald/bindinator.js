@@ -76,6 +76,15 @@ Copyright ©2016-2017 Tonio Loewald
   .inspector-component .inspector-path {
     color: #c22;
   }
+
+  .inspector-component thead {
+    background: rgba(0,0,0,0.75);
+    color: white;
+  }
+
+  .inspector-component tbody tr:nth-child(even) > * {
+    background: rgba(0,0,0,0.1);
+  }
 </style>
 <h4 class="floater-title">
   b8r inspector
@@ -157,11 +166,37 @@ Copyright ©2016-2017 Tonio Loewald
       </div>
     </div>
   </div>
-  <div title="perf">
+  <div
+    title="perf"
+    data-event-disabled="show:_component_.show_logs"
+  >
+    <table>
+      <thead>
+        <tr>
+            <th>
+              Category
+            </th>
+            <th>
+              Time (ms)
+            </tr>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          data-event-disabled="click:_component_.show_log_detail"
+          data-list="_component_.logs:name"
+        >
+            <td data-bind="text=.name">
+            </td>
+            <td data-bind="fixed=.total_time">
+            </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 <script>
-/* global b8r, set, on, component, require, findOne */
+/* global b8r, set, component, require */
 'use strict';
   b8r.component('components/floater');
   b8r.component('components/tab-selector');
@@ -205,11 +240,14 @@ Copyright ©2016-2017 Tonio Loewald
   });
 
   const deselect = () => b8r.find('.inspector-component').forEach(elt => elt.classList.remove('inspector-component'));
+
   const events_on = () => {
     deselect();
     b8r.onAny('mouseover', 'inspector-controller.show_events');
   };
+
   const events_off = () => b8r.offAny('mouseover', 'inspector-controller.show_events');
+
   set({
     registry: [],
     components: [],
@@ -251,6 +289,17 @@ Copyright ©2016-2017 Tonio Loewald
       } else {
         output.value = '';
       }
+    },
+    logs: [],
+    show_logs: evt => {
+      if (evt.target.getAttribute('title') === 'perf') {
+        const logs = b8r.showLogs();
+        set({logs});
+      }
+    },
+    show_log_detail: (evt, target) => {
+      const row = b8r.getListInstance(target);
+      alert(row.name);
     },
     events_on,
     events_off,

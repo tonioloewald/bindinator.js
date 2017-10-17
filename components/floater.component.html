@@ -15,10 +15,6 @@ Use the class "floater-title" for the first child to get nice styling.
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
   }
 
-  .floater-component > [data-children] > * {
-    padding: 4px 8px;
-  }
-
   .floater-close {
     position: absolute;
     top: 4px;
@@ -47,7 +43,7 @@ Use the class "floater-title" for the first child to get nice styling.
 >&times;</button>
 <div data-children>
   <h4 class="floater-title">Drag Me!</h4>
-  <p>This is some test content</p>
+  <p style="padding: 4px 16px">This is some test content</p>
 </div>
 <script>
 /* global component, on, b8r, console */

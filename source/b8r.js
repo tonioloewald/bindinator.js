@@ -1091,6 +1091,43 @@ b8r.insertComponent = function(component, element, data) {
   b8r.logEnd('insertComponent', component.name);
 };
 
+/**
+    b8r.wrapWithComponent(component, element [, data_path]);
+
+Sometimes you want a component outside an element rather than inside it.
+The most common example is trying to create a specific modal or floater wrapped
+inside a generic modal or floater "wrapper". You could simply use the
+generic component inside the specific component but then the generic component
+has no simple way to "clean itself up".
+
+    <div
+      class="my-custom-dialog"
+      data-component="modal"
+    >
+      <button
+        data-event="click:_component_.terrific"
+      >Terrific</button>
+    </div>
+    <script>
+      set('terrific', () => alert('This is terrific!'));
+    </script>
+
+In the above example the modal ends up inside the `my-custom-dialog` div. Supposing
+that the modal's behavior includes removing itself on close, it will leave behind the
+component itself (with nothing inside).
+
+Instead with `wrapWithComponent` you could do this (in a component):
+
+    <button>Terrific</button>
+    <script>
+      b8r.component('components/modal');
+      b8r.wrapWithComponent('modal', component);
+      set('terrific', () => alert('This is terrific!'));
+    </script>
+
+(Note that this example doesn't play well with the inline-documentation system!)
+*/
+
 b8r.wrapWithComponent = (component, element, data) => {
   const wrapper = b8r.create('div');
   wrapper.classList.add('b8r-hide-while-loading');

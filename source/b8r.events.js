@@ -200,7 +200,7 @@ turns them into data-event-disabled attributes;
 */
 
 const disable = (element, include_children) => {
-  const elements = include_children ? findWithin(element, true) : [element];
+  const elements = include_children ? findWithin(element, '[data-event]', true) : [element];
   elements.forEach(elt => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event;
@@ -215,7 +215,7 @@ const disable = (element, include_children) => {
 };
 
 const enable = (element, include_children) => {
-  const elements = include_children ? findWithin(element, true) : [element];
+  const elements = include_children ? findWithin(element, '[data-event-disabled]', true) : [element];
   elements.forEach(elt => {
     if (elt.dataset.eventDisabled) {
       elt.dataset.event = elt.dataset.eventDisabled;
