@@ -9,6 +9,21 @@ Copyright ©2016-2017 Tonio Loewald
     flex-direction: row;
   }
 
+  .inspector-component .tab-selector-bodies > * {
+    max-height: 500px;
+    overflow: overlay;
+  }
+
+  .inspector-component table {
+    border-collapse: collapse;
+  }
+
+  .inspector-component td,
+  .inspector-component th {
+    padding: 2px 4px;
+    font-size: 11px;
+  }
+
   .inspector-browser,
   .inspector-component .tab-selector-bodies > * {
     min-width: 400px;
@@ -24,9 +39,11 @@ Copyright ©2016-2017 Tonio Loewald
     border: 0;
   }
 
-  .inspector-component textarea {
+  .inspector-component pre {
     font-family: Menlo, monaco, monospace;
-    font-size: 12px;
+    font-size: 11px;
+    margin: 0;
+    padding: 4px;
   }
 
   .inspector-browser > :nth-child(1) {
@@ -106,8 +123,7 @@ Copyright ©2016-2017 Tonio Loewald
         >
         </option>
       </select>
-      <textarea>
-      </textarea>
+      <pre></pre>
     </div>
   </div>
   <div
@@ -147,8 +163,7 @@ Copyright ©2016-2017 Tonio Loewald
           </option>
         </select>
       </div>
-      <textarea>
-      </textarea>
+      <pre></pre>
     </div>
   </div>
   <div
@@ -168,31 +183,53 @@ Copyright ©2016-2017 Tonio Loewald
   </div>
   <div
     title="perf"
+    class="perf"
     data-event-disabled="show:_component_.show_logs"
   >
-    <table>
-      <thead>
-        <tr>
-            <th>
-              Category
-            </th>
-            <th>
-              Time (ms)
-            </tr>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          data-event-disabled="click:_component_.show_log_detail"
-          data-list="_component_.logs:name"
-        >
-            <td data-bind="text=.name">
-            </td>
-            <td data-bind="fixed=.total_time">
-            </td>
-        </tr>
-      </tbody>
-    </table>
+    <div style="display: flex">
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Time (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            data-event-disabled="click:_component_.show_log_detail"
+            data-list="_component_.logs:name"
+          >
+            <td data-bind="text=.name"></td>
+            <td data-bind="fixed=.total_time"></td>
+          </tr>
+        </tbody>
+      </table>
+      <table data-bind="show_if=_component_.log_detail">
+        <thead>
+          <tr>
+            <th colspan=6 data-bind="text=_component_.log_detail.category"></th>
+          </tr>
+          <tr>
+            <th>Item</th>
+            <th>Count</th>
+            <th>Best</th>
+            <th>Median</th>
+            <th>Worst</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-list="_component_.log_detail.rows:name">
+            <td data-bind="text=.name"></td>
+            <td data-bind="text=.count"></td>
+            <td data-bind="fixed=.best"></td>
+            <td data-bind="fixed=.median"></td>
+            <td data-bind="fixed=.worst"></td>
+            <td data-bind="fixed=.total_time"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 <script>
@@ -239,10 +276,7 @@ Copyright ©2016-2017 Tonio Loewald
     }
   });
 
-  const deselect = () => b8r.find('.inspector-component').forEach(elt => elt.classList.remove('inspector-component'));
-
   const events_on = () => {
-    deselect();
     b8r.onAny('mouseover', 'inspector-controller.show_events');
   };
 
@@ -258,14 +292,12 @@ Copyright ©2016-2017 Tonio Loewald
                           .filter(name => name.substr(0,2) !== 'c#')
                           .map(name => {return {name};})
                           .sort();
-      deselect();
       set({registry});
     },
     show_components: () => {
       const components = b8r.components()
                           .map(name => {return {name, value: name};});
       components.unshift({name: 'All', value: '', selected: true});
-      deselect();
       set({components});
     },
     show_instances: (evt, target) => {
@@ -275,19 +307,19 @@ Copyright ©2016-2017 Tonio Loewald
                             .filter(name => name.substr(0,partial_id.length) === partial_id)
                             .map(name => {return {name};})
                             .sort();
-      deselect();
       set({instances});
     },
     select: (evt, target) => {
-      const output = target.closest('.inspector-browser').querySelector('textarea');
+      const pre = target.closest('.inspector-browser').querySelector('pre');
       if (target.value) {
-        output.value = JSON.stringify(remove_methods(b8r.get(target.value)), false, 2);
-        deselect();
+        const obj = b8r.get(target.value);
+        console.log(target.value, obj);
+        pre.textContent = JSON.stringify(remove_methods(obj), false, 2);
         if (target.value.substr(0,2) === 'c#') {
           b8r.findOne(`[data-component-id="${target.value}"]`).classList.add('inspector-component');
         }
       } else {
-        output.value = '';
+        pre.textContent = '';
       }
     },
     logs: [],
@@ -299,7 +331,10 @@ Copyright ©2016-2017 Tonio Loewald
     },
     show_log_detail: (evt, target) => {
       const row = b8r.getListInstance(target);
-      alert(row.name);
+      set('log_detail', {
+        category: row.name,
+        rows: b8r.showLogs(row.name, 2),
+      });
     },
     events_on,
     events_off,

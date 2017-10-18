@@ -130,7 +130,8 @@ const perf = {
         return {name, count, best, median, worst, total_time};
       });
       if (threshold) {
-        mapped = filterObject(mapped, entry => entry.worst > threshold);
+        // mapped = filterObject(mapped, entry => entry.worst > threshold);
+        mapped = mapped.filter(mapped => mapped.worst > threshold);
       }
       console.table(mapped, ['name', 'count', 'best', 'median', 'worst', 'total_time']);
       return mapped;
