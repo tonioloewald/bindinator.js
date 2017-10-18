@@ -44,7 +44,7 @@ This is a simple replacement for `<select>` elements.
         child.dataset.selected = '';
         set('value', _value(child));
       } else {
-        if (child.dataset.selected) {
+        if (child.dataset.selected !== undefined) {
           delete child.dataset.selected;
         }
       }
@@ -61,7 +61,7 @@ This is a simple replacement for `<select>` elements.
         set('value', _value(child));
         b8r.trigger('change', component);
       } else {
-        if (child.dataset.selected) {
+        if (child.dataset.selected !== undefined) {
           delete child.dataset.selected;
         }
       }

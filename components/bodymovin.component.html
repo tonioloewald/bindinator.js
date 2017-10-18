@@ -1,0 +1,25 @@
+<!--
+# bodymovin
+
+Set the component's `data-src` to specify an animation
+
+Example animation by [Oded Alyagon](https://www.lottiefiles.com/ODED)
+-->
+<script>
+/* global set, component */
+'use strict';
+
+  require.
+  lazy('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/4.11.1/bodymovin.min.js').
+  then(bodymovin => {
+    set({
+      animation: bodymovin.loadAnimation({
+        container: component,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: component.dataset.src || 'test/the_final_frontier.json'
+      })
+    });
+  });
+</script>

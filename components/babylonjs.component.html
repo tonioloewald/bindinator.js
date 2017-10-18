@@ -16,11 +16,11 @@ require that lets it work.
 <canvas class="babylonjs">
 </canvas>
 <script>
-/* global BABYLON, findOne, require */
+/* global findOne, require */
 'use strict';
   const canvas = findOne('canvas');
 
-  const run = () => {
+  const run = BABYLON => {
     const engine = new BABYLON.Engine(canvas, true);
 
     const createScene = () => {
@@ -61,5 +61,7 @@ require that lets it work.
     engine.runRenderLoop(scene.render.bind(scene));
   };
 
-  require.viaTag('https://cdnjs.cloudflare.com/ajax/libs/babylonjs/2.5.0/babylon.js').then(run);
+  require.
+  lazy('https://cdnjs.cloudflare.com/ajax/libs/babylonjs/2.5.0/babylon.js').
+  then(run);
 </script>

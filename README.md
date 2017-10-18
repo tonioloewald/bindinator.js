@@ -2,7 +2,7 @@
 	<img
 		alt="bindinator b∞r logo"
 		style="width: 600px; height: 600px; padding: 5% 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
-		src="//bindinator.com/bindinator-logo.svg"
+		src="https://bindinator.com/bindinator-logo.svg"
 	>
 </div>
 
@@ -33,76 +33,98 @@ And did I mention…
 
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
-A view looks like this:
+A **view** looks like this:
 
-	<input data-bind="model.foo">
-	<button data-event="controller.action">
-		Click Me
-	</button>
+```
+<input data-bind="my-model.foo.bar">
+<button
+  data-event="my-controller.action"
+>
+  Click Me
+</button>
+```
 
-A model looks like this:
+It can be converted into a self-contained, reusable **component** like this:
 
-	b8r.register('model', {
-		foo: 17
-	});
+```
+<input data-bind="_component_.value">
+<button
+  data-event="my-controller.action"
+>
+  Click Me
+</button>
+```
 
-A controller looks like this:
+Or, if we want to get fancy, this:
 
-	b8r.register('controller', {
-		action () {
-			console.log('ta da!');
-		}
-	});
+```
+<style>
+  .my-component-component {
+    background: #ff0;
+  }
+</style>
+<input data-bind="_component_.value">
+<button
+  data-event="_component_.click"
+>
+  Click Me
+</button>
+<script>
+  set ({
+    // we could also b8r.call('my-controller.action')
+    click: () => alert(get('value')),
+  });
+</script>
+```
+
+Suppose we save that as `my-component.component.html`, we can use a **component** like this:
+
+```
+<div
+  data-component="my-component"
+  data-bind="value=my-model.foo.bar"
+></div>
+```
+
+You'll need to load it at some point:
+
+```
+// we're in Javascript now...
+b8r.component('path/to/my-component');
+```
+
+A **model** looks like this:
+
+```
+b8r.register('my-model', {
+  foo: { bar: 17 }
+});
+```
+
+A **controller** looks like this:
+
+```
+b8r.register('my-controller', {
+  action () {
+    alert(`my-model.foo.bar == ${b8r.get('my-model.foo.bar')}`);
+  }
+});
+```
+
+We can register the model and the controller and load the component *in any order*. Asynchronously.
+If the user clicks the button before the controller is registered, the controller well be called 
+when it becomes available.
+
+### Key Points
+
+- components are just like little web pages (in a *single file*).
+- data and event bindings are just *attributes* of DOM nodes
+- if a DOM node is removed, it follows that its bindings are gone (that was easy!)
+- It's easy to refactor monolithic views into reusable components
+- Bindinator doesn't use a "virtual DOM". It uses the *actual DOM*.
+- Bindinator doesn't build DOM nodes. It lets the browser parse HTML and clones the results as needed.
 
 Bindinator lets you build *views* using any mechanics you like — plain HTML and CSS work fine — and attach data and behavior to those views using DOM attributes, implement the behavior using Javascript with exceptionally simple connections to data services.
-
-- You can create and destroy bindings using code, but this just creates and removes the relevant DOM attributes
-- You can create the DOM elements using Javascript, but it's simpler and more direct to just write HTML
-- Because bindings are just DOM attributes:
-	- bindings and the things they're bound to can be loaded asynchronously
-	- you don't need to tear down bindings when you throw away the associated view components, because the bindings are simply attributes of the DOM elements you throw away.
-
-Bindinator doesn't use a "virtual DOM". It uses the *actual DOM* and tries to be clever about how it updates it:
-- assuming you build your views using HTML the browser parses the HTML and renders the DOM nodes once.
-- finding the potential event handlers for a given event is O(log(n)) where n is the number of nodes in the document.
-- unless you explicitly use its convenience methods, bindinator *never* builds pieces of DOM (beyond the occasional `<div>` or `fragment` to use as a container for detached nodes, although it may `clone(true)` pieces the browser has already created.
-
-Bindinator lets you compose and reuse views as "components", where each component is a (hopefully) small self-contained file comprising the required HTML, CSS, and Javascript.
-
-A component looks like this:
-
-	<style>
-		.my-component {
-			background-color: red;
-		}
-	</style>
-	<div class="my-component">
-		<input data-bind="_data_.foo">
-		<button data-event="_component_.action">
-			Click Me
-		</button>
-	</div>
-	<script>
-		set('action', () => console.log('ta da!'));
-	</script>
-
-You save it in `path/to/my-component.component.html`.
-
-You use it like this:
-
-	<div
-		data-component="my-component"
-		data-path="model"
-	></div>
-	...
-	b8r.component('path/to/my-component');
-
-- Components strongly resemble simple web pages (including support for self-documentation)
-- Components are self-contained (`_component_` is a private context)
-- Components are highly reusable (note the `data-path` attribute)
-- Components are intrinsically asynchronous
-- It's easy to refactor monolithic views into reusable components
-- You don't need to "think in the Bindinator way" — create what you want and it will work as expected
 
 ## Core Concepts
 
@@ -160,19 +182,22 @@ relevant controller is bound, the event will be replayed (in order) for the cont
 
 ```
 <style>
-	/* style rules */
+  /* style rules */
 </style>
 <button data-event="mouseup:_component_.count">Hello World</button>
 <span></span>
 <script>
-	var times_clicked = 0;
-	function count(){
-		times_clicked += 1;
-		findOne('span').textContent = times_clicked;
-	}
-	return {count};
+  var times_clicked = 0;
+  function count(){
+    times_clicked += 1;
+    findOne('span').textContent = times_clicked;
+  }
+  return {count};
 </script>
 ```
+Note that the "bindinator way" to put data in the span would be to use a binding, but this
+is still just plain old javascript. (`findOne` is just `component.querySelector`,
+and `component` is just the element the component was loaded into.
 
 The component's script executes in a private scope, so each instance will count its own clicks.
 
@@ -188,8 +213,8 @@ Data can be bound to components:
 
 ```
 <div
-	data-component="click-counter"
-	data-path="path.to.data"
+  data-component="click-counter"
+  data-path="path.to.data"
 ></div>
 ```
 
@@ -198,9 +223,9 @@ Components can bind to their own private data objects by using "_component_" so 
 ```
 <p data-bind="text=_component_.message"></p>
 <button
-	data-event="click:_component_.doSomething"
+  data-event="click:_component_.doSomething"
 >
-	Click Me!
+  Click Me!
 </button>
 ```
 
@@ -208,8 +233,8 @@ Can simply set its own properties and method:
 
 ```
 set({
-	message: 'hello',
-	doSomething: () => {...}
+  message: 'hello',
+  doSomething: () => {...}
 });
 ```
 

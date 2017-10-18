@@ -9,7 +9,8 @@
 /* global b8r, data, findOne, require */
 'use strict';
 
-  b8r.component(data.url, undefined, true).then(component => {
+  b8r.component(data.url, undefined, true).
+  then(component => {
     b8r.insertComponent(component, findOne('.example'));
     const code = findOne('code');
     var info, source;
@@ -20,16 +21,16 @@
       source = component._source;
     }
     if(info) {
-      require.
-      lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').
-      then(() => {
+      require.lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').
+      then(showdown => {
         var converter = new showdown.Converter(); // jshint ignore:line
         findOne('.info').innerHTML = converter.makeHtml(info);
       });
     }
     code.textContent = source.replace(/\t/g, '  ');
 
-    require.lazy('https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js').then(() => {
+    require.lazy('https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js').
+    then(Prism => {
       Prism.highlightElement(code); // jshint ignore:line
       b8r.show(code.closest('div'));
     });

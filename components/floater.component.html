@@ -9,15 +9,10 @@ Use the class "floater-title" for the first child to get nice styling.
 <style>
   .floater-component {
     position: fixed;
-    color: white;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(255,255,255,0.9);
     border-radius: 4px;
     cursor: move;
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  }
-
-  .floater-component > [data-children] > * {
-    padding: 4px 8px;
   }
 
   .floater-close {
@@ -26,15 +21,13 @@ Use the class "floater-title" for the first child to get nice styling.
     left: 4px;
     font-size: 12px;
     width: 14px;
-    color: white;
     border: 0;
     padding: 0;
     background: transparent;
   }
 
   .floater-component .floater-title {
-    color: white;
-    background-color: rgba(0,0,0,0.25);
+    background-color: white;
     text-align: center;
     padding: 4px 32px;
     margin: 0;
@@ -50,7 +43,7 @@ Use the class "floater-title" for the first child to get nice styling.
 >&times;</button>
 <div data-children>
   <h4 class="floater-title">Drag Me!</h4>
-  <p>This is some test content</p>
+  <p style="padding: 4px 16px">This is some test content</p>
 </div>
 <script>
 /* global component, on, b8r, console */

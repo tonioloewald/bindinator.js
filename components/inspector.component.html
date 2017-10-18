@@ -10,22 +10,21 @@ Copyright ©2016-2017 Tonio Loewald
   }
 
   .inspector-browser,
-  #inspector .tab-selector-bodies > * {
+  .inspector-component .tab-selector-bodies > * {
     min-width: 400px;
     min-height: 200px;
   }
 
-  #inspector [data-children] * {
+  .floater-component .inspector-component {
+    padding: 0;
+  }
+
+  .inspector-component * {
     background: none;
-    color: white;
     border: 0;
   }
 
-  #inspector [data-children] .tab-selector-current {
-    background-color: rgba(0,0,0,0.5);
-  }
-
-  #inspeector textarea {
+  .inspector-component textarea {
     font-family: Menlo, monaco, monospace;
     font-size: 12px;
   }
@@ -43,7 +42,7 @@ Copyright ©2016-2017 Tonio Loewald
     flex-grow: 1;
   }
 
-  .inspector-component {
+  .inspector-component .throb {
     animation: inspector-throb 0.3s infinite alternate;
   }
 
@@ -60,119 +59,149 @@ Copyright ©2016-2017 Tonio Loewald
     flex-grow: 1;
   }
 
-  #inspector .inspector-node {
-    color: #ccf;
+  .inspector-component .inspector-node {
+    color: #228;
     padding: 0;
     margin: 4px 0 0;
   }
 
-  #inspector .inspector-handler {
+  .inspector-component .inspector-handler {
     padding-left: 12px;
   }
 
-  #inspector .inspector-eventtype {
-    color: #cfc;
+  .inspector-component .inspector-eventtype {
+    color: #2c2;
   }
 
-  #inspector .inspector-path {
-    color: #ffc;
+  .inspector-component .inspector-path {
+    color: #c22;
+  }
+
+  .inspector-component thead {
+    background: rgba(0,0,0,0.75);
+    color: white;
+  }
+
+  .inspector-component tbody tr:nth-child(even) > * {
+    background: rgba(0,0,0,0.1);
   }
 </style>
-<div
-  title="Inspector"
-  id="inspector"
-  style="display: none;"
-  data-component="floater"
->
-  <h4 class="floater-title">
-    b8r inspector
-  </h4>
-  <div data-component="tab-selector">
-    <div
-      title="registry"
-      class="inspector-registry"
-      data-event-disabled="show:_component_.show_registry"
-    >
-      <div class="inspector-browser">
+<h4 class="floater-title">
+  b8r inspector
+</h4>
+<div data-component="tab-selector">
+  <div
+    title="registry"
+    class="inspector-registry"
+    data-event-disabled="show:_component_.show_registry"
+  >
+    <div class="inspector-browser">
+      <select
+        multiple
+        data-event-disabled="change:_component_.select"
+      >
+        <option
+          data-list="_component_.registry"
+          data-bind="text=.name"
+        >
+        </option>
+      </select>
+      <textarea>
+      </textarea>
+    </div>
+  </div>
+  <div
+    title="components"
+    class="inspector-components"
+    data-event-disabled="show:_component_.show_components"
+  >
+    <div class="inspector-browser">
+      <div
+        style="display: flex; flex-direction: column;"
+      >
+        <h4>Types</h4>
+        <select
+          title="component type"
+          data-event-disabled="change:_component_.show_instances"
+        >
+          <option
+            data-list="_component_.components"
+            data-bind="
+              text=.name;
+              value=.value;
+              selected=.selected
+            "
+          >
+          </option>
+        </select>
+        <h4>Instances</h4>
         <select
           multiple
           data-event-disabled="change:_component_.select"
+          style="flex-grow: 1;"
         >
           <option
-            data-list="_component_.registry"
+            data-list="_component_.instances"
             data-bind="text=.name"
           >
           </option>
         </select>
-        <textarea>
-        </textarea>
       </div>
+      <textarea>
+      </textarea>
     </div>
-    <div
-      title="components"
-      class="inspector-components"
-      data-event-disabled="show:_component_.show_components"
-    >
-      <div class="inspector-browser">
-        <div
-          style="display: flex; flex-direction: column;"
-        >
-          <h4>Types</h4>
-          <select
-            title="component type"
-            data-event-disabled="change:_component_.show_instances"
-          >
-            <option
-              data-list="_component_.components"
-              data-bind="
-                text=.name;
-                value=.value;
-                selected=.selected
-              "
-            >
-            </option>
-          </select>
-          <h4>Instances</h4>
-          <select
-            multiple
-            data-event-disabled="change:_component_.select"
-            style="flex-grow: 1;"
-          >
-            <option
-              data-list="_component_.instances"
-              data-bind="text=.name"
-            >
-            </option>
-          </select>
-        </div>
-        <textarea>
-        </textarea>
-      </div>
-    </div>
-    <div
-      title="events"
-      data-event-disabled="
-        show:_component_.events_on;
-        hide:_component_.events_off;
-      "
-    >
-      <div data-list="_component_.event_info">
-        <div class="inspector-node" data-bind="text=.tag">&lt;tag class="foo"&gt;</div>
-        <div class="inspector-handler" data-list=".handlers">
-          <span class="inspector-eventtype" data-bind="text=.types">event_type, other_event_type</span>
-          <span class="inspector-path" data-bind="text=.path">path.to.method</span>
-        </div>
+  </div>
+  <div
+    title="events"
+    data-event-disabled="
+      show:_component_.events_on;
+      hide:_component_.events_off;
+    "
+  >
+    <div data-list="_component_.event_info">
+      <div class="inspector-node" data-bind="text=.tag">&lt;tag class="foo"&gt;</div>
+      <div class="inspector-handler" data-list=".handlers">
+        <span class="inspector-eventtype" data-bind="text=.types">event_type, other_event_type</span>
+        <span class="inspector-path" data-bind="text=.path">path.to.method</span>
       </div>
     </div>
   </div>
+  <div
+    title="perf"
+    data-event-disabled="show:_component_.show_logs"
+  >
+    <table>
+      <thead>
+        <tr>
+            <th>
+              Category
+            </th>
+            <th>
+              Time (ms)
+            </tr>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          data-event-disabled="click:_component_.show_log_detail"
+          data-list="_component_.logs:name"
+        >
+            <td data-bind="text=.name">
+            </td>
+            <td data-bind="fixed=.total_time">
+            </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 <script>
-/* global b8r, set, on, component, require, findOne */
+/* global b8r, set, component, require */
 'use strict';
-  Promise.all([
-    b8r.component('components/floater'),
-    b8r.component('components/tab-selector')
-  ]).then(() => b8r.show(findOne('#inspector')));
+  b8r.component('components/floater');
+  b8r.component('components/tab-selector');
+
+  b8r.wrapWithComponent('floater', component);
 
   const remove_methods = obj => {
     return b8r.mapEachKey(obj, value => {
@@ -186,8 +215,6 @@ Copyright ©2016-2017 Tonio Loewald
       }
     });
   };
-
-  on('close', '_component_.close');
 
   b8r.set('inspector-controller', {
     show_events: evt => {
@@ -213,11 +240,14 @@ Copyright ©2016-2017 Tonio Loewald
   });
 
   const deselect = () => b8r.find('.inspector-component').forEach(elt => elt.classList.remove('inspector-component'));
+
   const events_on = () => {
     deselect();
     b8r.onAny('mouseover', 'inspector-controller.show_events');
   };
+
   const events_off = () => b8r.offAny('mouseover', 'inspector-controller.show_events');
+
   set({
     registry: [],
     components: [],
@@ -260,10 +290,16 @@ Copyright ©2016-2017 Tonio Loewald
         output.value = '';
       }
     },
-    close: () => {
-      deselect();
-      events_off();
-      component.remove();
+    logs: [],
+    show_logs: evt => {
+      if (evt.target.getAttribute('title') === 'perf') {
+        const logs = b8r.showLogs();
+        set({logs});
+      }
+    },
+    show_log_detail: (evt, target) => {
+      const row = b8r.getListInstance(target);
+      alert(row.name);
     },
     events_on,
     events_off,

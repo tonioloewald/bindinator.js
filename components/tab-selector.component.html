@@ -8,6 +8,9 @@ The component's active_tab indicates the currently visible tab.
 	.tab-selector-bodies {
 		border: 1px solid #ddd;
 	}
+	.dark .tab-selector-bodies {
+		border: 1px solid #222;
+	}
 	.tab-selector-bodies > * {
 		display: none;
 	}
@@ -22,17 +25,26 @@ The component's active_tab indicates the currently visible tab.
 
 	.tab-selector-tabs > .tab-selector-tab {
 		padding: 3px 8px 2px;
-		background-color: #ddd;
 		display: inline-block;
 		margin: 0 0 0 3px;
 		border-radius: 4px 4px 0 0;
+		background-color: #ddd;
 		border: 1px solid #ddd;
 		border-bottom: 0;
 		cursor: pointer;
 	}
 
+	.dark .tab-selector-tabs > .tab-selector-tab {
+		background-color: #222;
+		border: 1px solid #222;
+	}
+
 	.tab-selector-tabs > .tab-selector-tab:hover {
 		background-color: #eee;
+	}
+
+	.dark .tab-selector-tabs > .tab-selector-tab:hover {
+		background-color: #111;
 	}
 
 	.tab-selector-tabs > .tab-selector-current {
@@ -41,31 +53,34 @@ The component's active_tab indicates the currently visible tab.
 		border-bottom: 1px solid white;
 		margin-bottom: -1px;
 	}
+
+	.dark .tab-selector-tabs > .tab-selector-current {
+		background-color: black;
+		border: 1px solid #222;
+	}
 </style>
-<div>
-	<div class="tab-selector-tabs">
-		<h4
-			data-list="_component_.tabs"
-			data-bind="text=.name;class(tab-selector-current)=.active"
-			class="tab-selector-tab"
-			data-event="
-				mouseup,keydown(Space):_component_.select_tab;
-				keydown(ArrowLeft):_component_.previous_tab;
-				keydown(ArrowRight):_component_.next_tab
-			"
-			tabindex="0"
-		>Tab Name</h4>
+<div class="tab-selector-tabs">
+	<h4
+		data-list="_component_.tabs"
+		data-bind="text=.name;class(tab-selector-current)=.active"
+		class="tab-selector-tab"
+		data-event="
+			mouseup,keydown(Space):_component_.select_tab;
+			keydown(ArrowLeft):_component_.previous_tab;
+			keydown(ArrowRight):_component_.next_tab
+		"
+		tabindex="0"
+	>Tab Name</h4>
+</div>
+<div class="tab-selector-bodies" data-children>
+	<div name="Tab A" style="text-align: center;">
+		<span style="font-size: 200px; color: red;">A</span>
 	</div>
-	<div class="tab-selector-bodies" data-children>
-		<div name="Tab A" style="text-align: center;">
-			<span style="font-size: 200px; color: red;">A</span>
-		</div>
-		<div name="Tab B" style="text-align: center;">
-			<span style="font-size: 200px; color: green;">B</span>
-		</div>
-		<div name="Tab C" style="text-align: center;">
-			<span style="font-size: 200px; color: blue;">C</span>
-		</div>
+	<div name="Tab B" style="text-align: center;">
+		<span style="font-size: 200px; color: green;">B</span>
+	</div>
+	<div name="Tab C" style="text-align: center;">
+		<span style="font-size: 200px; color: blue;">C</span>
 	</div>
 </div>
 <script>

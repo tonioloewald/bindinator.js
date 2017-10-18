@@ -4,6 +4,7 @@
   --bg-color: #cff2a6;
   --content-bg-color: white;
   --text-color: #222;
+  --dark-text-color: #ddd;
   --code-text-color: #444;
   --faded-text-color: #666;
   --hint-text-color: #aaa;
@@ -58,6 +59,10 @@ a:active {
   border-bottom: 2px solid var(--link-active-color);
 }
 
+.dark {
+  color: var(--dark-text-color);
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-weight: 200;
   margin: 0 0 8px 0;
@@ -98,6 +103,15 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   text-align: center;
 }
 
+.b8r-hide-while-loading {
+  visibility: hidden;
+}
+
+.b8r-hide-while-loading.b8r-loaded {
+  visibility: visible;
+  animation: fade-in 0.25s ease-out;
+}
+
 .fullscreen .layout,
 .fullscreen #example {
   position: fixed;
@@ -119,11 +133,22 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 }
 
 .header {
-  position: relative;
+  position: fixed;
   display: flex;
   justify-content: center;
   background-color: var(--accent-color);
-  flex-shrink: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.fullscreen .header {
+  transform: translateX(-100%);
+}
+
+.fullscreen .footer {
+  transform: translateY(100%);
 }
 
 .header > * {
@@ -133,10 +158,12 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 }
 
 .footer {
-  justify-content: center;
-  display: flex;
-  flex-shrink: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 32px;
+  padding: 8px;
   background-color: var(--bright-accent-color);
 }
 
@@ -145,33 +172,32 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   align-self: center;
 }
 
-.three_col {
-  justify-content: center;
-  display: flex;
-  flex-grow: 1;
-}
-
 .content {
-  flex-grow: 1;
-  width: 640px;
-  overflow-y: scroll;
-  overflow-y: overlay;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -240px;
+  right: 0;
+  padding: 64px 0 32px;
   background: var(--content-bg-color);
 }
 
 .content > * {
-  width: 640px;
+  width: 616px;
 }
 
-.three_col > * > * {
+.content > *,
+.nav > * {
   margin: 6px 12px;
 }
 
 .nav {
-  min-width: 160px;
-  flex: none;
-  flex-grow: 1;
+  position: fixed;
+  left: 0;
+  top: 64px;
+  right: 50%;
+  bottom: 32px;
+  margin-right: 240px;
   overflow-y: scroll;
   overflow-y: overlay;
   background-color: var(--light-accent-color);

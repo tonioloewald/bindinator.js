@@ -113,7 +113,7 @@ Removes a data-list-instance's corresponding list member and any other bound
 data-list-instances.
 */
 
-b8r.componentInstances = () =>
+b8r._component_instances = () =>
   b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 /**
@@ -132,7 +132,7 @@ if it was previously called within the specified interval.
 */
 
 b8r.debounce = (orig_fn, min_interval) => {
-  var debounce_id;
+  let debounce_id;
   return (...args) => {
     if (debounce_id) {
       clearTimeout(debounce_id);
@@ -142,7 +142,7 @@ b8r.debounce = (orig_fn, min_interval) => {
 };
 
 b8r.throttle = (orig_fn, min_interval) => {
-  var last_call = Date.now() - min_interval;
+  let last_call = Date.now() - min_interval;
   return (...args) => {
     const now = Date.now();
     if (now - last_call > min_interval) {
@@ -154,14 +154,17 @@ b8r.throttle = (orig_fn, min_interval) => {
 
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
-  const instances = b8r.find('[data-component-id]')
-                      .map(elt => elt.dataset.componentId);
+  b8r.forEachKey(_component_instances, (element, component_id) => {
+    if (!element.closest('body') || element.dataset.componentId !== component_id) {
+      delete _component_instances[component_id];
+    }
+  });
   b8r.models().forEach((model) => {
-    if (model.substr(0, 2) === 'c#' && instances.indexOf(model) === -1) {
+    if (model.substr(0, 2) === 'c#' && !_component_instances[model]) {
       b8r.remove(model);
     }
   });
-}, 2000);
+}, 100);
 
 b8r.deregister = name => b8r.remove(name);
 
@@ -217,14 +220,24 @@ const _update = () => {
 
   while(_update_list.length) {
     const {fn, element} = _update_list.shift();
-    fn(element);
+    try {
+      fn(element);
+    } catch (e) {
+      console.error('_update error', e, fn, element);
+    }
   }
 
+  b8r.logStart('async_update', '_after_update_callbacks');
   while(_after_update_callbacks.length) {
-    b8r.logStart('async_update', '_after_update_callbacks');
-    (_after_update_callbacks.shift())();
-    b8r.logEnd('async_update', '_after_update_callbacks');
+    let fn;
+    try {
+      fn = _after_update_callbacks.shift();
+      fn();
+    } catch(e) {
+      console.error('_after_update_callback error', e, fn);
+    }
   }
+  b8r.logEnd('async_update', '_after_update_callbacks');
 
   b8r.logEnd('async_update', 'update');
 };
@@ -303,8 +316,8 @@ b8r.touchByPath = (...args) => {
 };
 
 b8r.setByPath = function(...args) {
-  var name, path, value, source_element;
-  if (args.length === 2 && typeof args[1] === 'object') {
+  let name, path, value, source_element;
+  if (args.length === 2 && typeof args[1] === 'object' && !Array.isArray(args[1])) {
     [name, value] = args;
     b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val));
     return;
@@ -332,7 +345,7 @@ b8r.setByPath = function(...args) {
 };
 
 b8r.pushByPath = function(...args) {
-  var name, path, value, callback;
+  let name, path, value, callback;
   if (args.length === 2 || typeof args[2] === 'function') {
     [path, value, callback] = args;
     [name, path] = pathSplit(path);
@@ -352,7 +365,7 @@ b8r.pushByPath = function(...args) {
 };
 
 b8r.unshiftByPath = function(...args) {
-  var name, path, value;
+  let name, path, value;
   if (args.length === 2) {
     [path, value] = args;
     [name, path] = pathSplit(path);
@@ -392,7 +405,7 @@ function indexFromKey(list, key) {
 }
 
 b8r.removeByPath = function(...args) {
-  var name, path, key;
+  let name, path, key;
   if (args.length === 2) {
     [path, key] = args;
     [name, path] = pathSplit(path);
@@ -517,35 +530,45 @@ const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 b8r.onAny([ 'change', 'input' ], '_b8r_._update_', true);
 
+const debug_paths = true;
+
 b8r.interpolate = (template, elt) => {
-  let formatted;
+  let formatted = '';
   if (template.match(/\$\{.*?\}/)) {
     formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => {
-      const value = b8r.get(path, elt);
-      return value !== null ? value : '';
+      if (debug_paths && !b8r.isValidPath(path)) {
+        console.error('bad path', path, 'in data-bind', elt);
+      } else {
+        const value = b8r.get(path, elt);
+        return value !== null ? value : '';
+      }
     }) ;
   } else {
-    formatted = b8r.get(template, elt);
+    if (debug_paths && !b8r.isValidPath(template)) {
+      console.error('bad path', template, 'in binding', elt);
+    } else {
+      formatted = b8r.get(template, elt);
+    }
   }
   return formatted;
 };
 
 function bind(element) {
-  var bindings = getBindings(element);
+  let bindings = getBindings(element);
   const logArgs = [ 'bind', b8r.elementSignature(element) ];
   b8r.logStart(...logArgs);
   const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
   const newValues = {};
   let changed = false;
-  for (var i = 0; i < bindings.length; i++) {
-    var { targets, path } = bindings[i];
+  for (let i = 0; i < bindings.length; i++) {
+    let { targets, path } = bindings[i];
     const value = b8r.interpolate(path, element);
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
       changed = true;
       const signature = b8r.elementSignature(element);
       b8r.logStart('toTargets', signature);
       newValues[path] = value;
-      var _toTargets = targets.filter(t => toTargets[t.target]);
+      let _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
           toTargets[t.target](element, value, t.key);
@@ -574,7 +597,7 @@ function removeListInstances(element) {
 
 b8r.listInstances = list_template => {
   const instances = [];
-  var instance = list_template.previousSibling;
+  let instance = list_template.previousSibling;
   while (instance && instance instanceof Element &&
          instance.matches('[data-list-instance]')) {
     instances.push(instance);
@@ -622,7 +645,7 @@ function bindList(list_template, data_path) {
     return;
   }
   const [source_path, id_path] = list_template.dataset.list.split(':');
-  var method_path, list_path, arg_paths;
+  let method_path, list_path, arg_paths;
   try {
     // parse computed list method if any
     [, , method_path, arg_paths] =
@@ -636,7 +659,11 @@ function bindList(list_template, data_path) {
     list_path = data_path + list_path;
   }
   b8r.logStart('bindList', b8r.elementSignature(list_template));
-  var list = b8r.get(list_path, list_template);
+  if (debug_paths && !b8r.isValidPath(list_path)) {
+    console.error('bad path', list_path, 'in data-list', list_template);
+    return;
+  }
+  let list = b8r.get(list_path, list_template);
   if (!list) {
     return;
   }
@@ -685,9 +712,9 @@ function bindList(list_template, data_path) {
 
   const binder = makeListInstanceBinder(template);
 
-  var previous_instance = list_template;
-  var instance;
-  for (var i = list.length - 1; i >= 0; i--) {
+  let previous_instance = list_template;
+  let instance;
+  for (let i = list.length - 1; i >= 0; i--) {
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
     const itemPath = `${list_path}[${id}]`;
     instance = path_to_instance_map[itemPath];
@@ -746,16 +773,16 @@ b8r.set('_b8r_', {
   echo : evt => console.log(evt) || true,
   stopEvent : () => {},
   _update_ : evt => {
-    var elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
+    let elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
     // update elements with selected fromTarget
     if (evt.target.tagName === 'SELECT') {
       const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
       elements = elements.concat(options);
     }
     elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
-      var bindings = getBindings(elt);
-      for (var i = 0; i < bindings.length; i++) {
-        var { targets, path } = bindings[i];
+      let bindings = getBindings(elt);
+      for (let i = 0; i < bindings.length; i++) {
+        let { targets, path } = bindings[i];
         targets = targets.filter(t => fromTargets[t.target]);
         targets.forEach(t => {
           // all bets are off on bound values!
@@ -832,7 +859,7 @@ b8r.components = () => Object.keys(components);
 const makeStylesheet = require('./b8r.makeStylesheet.js');
 
 b8r.makeComponent = function(name, source, url, preserve_source) {
-  var css = false, content, script = false, parts, remains;
+  let css = false, content, script = false, parts, remains;
 
   // nothing <style> css </style> rest-of-component
   parts = source.split(/<style>|<\/style>/);
@@ -850,10 +877,12 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
     content = remains;
   }
 
-  var div = b8r.create('div');
+  let div = b8r.create('div');
   div.innerHTML = content;
   /*jshint evil: true */
-  var load = script ?
+  let load = () => console.error('component', name, 'cannot load properly');
+  try {
+    load = script ?
              new Function(
                 'require',
                 'component',
@@ -869,9 +898,13 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
                 `${script}\n//# sourceURL=${name}(component)`
               ) :
               false;
+  } catch(e) {
+    console.error('error creating load method for component', name, e);
+    throw `component ${name} load method could not be created`;
+  }
   /*jshint evil: false */
   const style = makeStylesheet(css, name + '-component');
-  var component = {
+  let component = {
     name,
     style,
     view : div,
@@ -894,7 +927,9 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
   components[name] = component;
 
   b8r.find(`[data-component="${name}"]`).forEach(element => {
-    if (!element.closest('[data-list]')) {
+    // somehow things can happen in between find() and here so the
+    // second check is necessary to prevent race conditions
+    if (!element.closest('[data-list]') && element.dataset.component === name) {
       b8r.insertComponent(component, element);
     }
   });
@@ -905,8 +940,8 @@ function loadAvailableComponents(element, data_path) {
   b8r.findWithin(element || document.body, '[data-component]', true)
     .forEach(target => {
       if (!target.closest('[data-list]') &&
-          !target.matches('[data-component-id]')) {
-        var name = target.dataset.component;
+          !target.dataset.componentId) {
+        let name = target.dataset.component;
         b8r.insertComponent(name, target, data_path);
       }
     });
@@ -926,15 +961,12 @@ from parent components or via binding, e.g. `data-path="path.to.data` binds that
 data to the component).
 */
 
-var component_count = 0;
+let component_count = 0;
+const _component_instances = {};
 b8r.insertComponent = function(component, element, data) {
   const data_path = typeof data === 'string' ? data : b8r.getDataPath(element);
   if (!element) {
     element = b8r.create('div');
-  }
-  if (element.dataset.component !== component.name ||
-      component) {
-    element.dataset.component = component.name || component;
   }
   if (typeof component === 'string') {
     if (!components[component]) {
@@ -946,13 +978,14 @@ b8r.insertComponent = function(component, element, data) {
       if (data) {
         saveDataForElement(element, data);
       }
+      element.dataset.component = component;
       return;
     }
     component = components[component];
   }
   b8r.logStart('insertComponent', component.name);
   if (element.dataset.component) {
-    delete element.dataset.component; 
+    delete element.dataset.component;
   }
   if (!data || data_path) {
     data = dataForElement(
@@ -962,7 +995,7 @@ b8r.insertComponent = function(component, element, data) {
   if (element.parentElement === null) {
     document.body.appendChild(element);
   }
-  var children = b8r.fragment();
+  let children = b8r.fragment();
   /*
     * if you're replacing a component, it should get the replaced component's children.
     * we probably want to be able to remove a component (i.e. pull out an instance's children
@@ -972,19 +1005,26 @@ b8r.insertComponent = function(component, element, data) {
   */
   const component_id = 'c#' + component.name + '#' + (++component_count);
   if (component.view.children.length) {
-    b8r.moveChildren(element, children);
+    if (element.dataset.componentId) {
+      if (element.querySelector('[data-children]')) {
+        b8r.moveChildren(element.querySelector('[data-children]'), children);
+      }
+    } else {
+      b8r.moveChildren(element, children);
+    }
     b8r.copyChildren(component.view, element);
     replaceInBindings(element, '_component_', component_id);
     if (data_path) {
       replaceInBindings(element, '_data_', data_path);
     }
-    var children_dest = b8r.findOneWithin(element, '[data-children]');
+    let children_dest = b8r.findOneWithin(element, '[data-children]');
     if (children.firstChild && children_dest) {
       b8r.empty(children_dest);
       b8r.moveChildren(children, children_dest);
     }
   }
   element.dataset.componentId = component_id;
+  _component_instances[component_id] = element;
   b8r.makeArray(element.classList).forEach(c => {
     if (c.substr(-10) === '-component') {
       element.classList.remove(c);
@@ -1008,13 +1048,18 @@ b8r.insertComponent = function(component, element, data) {
     };
     const touch = (path) => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
-    const view_obj = component.load(
-        window.require.relative(component.path),
-        element, b8r, selector => b8r.findWithin(element, selector),
-        selector => b8r.findOneWithin(element, selector), data, register, get,
-        set, on, touch);
-    if (view_obj) {
-      throw 'returning from views is deprecated; please use register() instead';
+    try {
+      const view_obj = component.load(
+          window.require.relative(component.path),
+          element, b8r, selector => b8r.findWithin(element, selector),
+          selector => b8r.findOneWithin(element, selector), data, register, get,
+          set, on, touch);
+      if (view_obj) {
+        throw 'returning from views is deprecated; please use register() instead';
+      }
+    } catch(e) {
+      console.error('component', name, 'failed to load', e);
+      debugger; // jshint ignore:line
     }
   } else {
     b8r.register(component_id, data, true);
@@ -1023,8 +1068,90 @@ b8r.insertComponent = function(component, element, data) {
     resolveListInstanceBindings(element, data_path);
   }
   b8r.bindAll(element);
+
+  // nicer reveals
+  const reveal = element.closest('.b8r-hide-while-loading');
+  if (reveal) {
+    const unloaded = b8r.findWithin(reveal, '[data-component]').filter(elt => !elt.closest('[data-list]'));
+    if (unloaded.length) {
+      const missing_list = [];
+      unloaded.map(elt => {
+        const missing = elt.dataset.component;
+        if (missing_list.indexOf(missing) === -1) {
+          missing_list.push(missing);
+        }
+      });
+      console.log('waiting on components', missing_list);
+      reveal.classList.remove('b8r-loaded');
+    } else {
+      reveal.classList.add('b8r-loaded');
+    }
+  }
+
   b8r.logEnd('insertComponent', component.name);
-  return element;
+};
+
+/**
+    b8r.wrapWithComponent(component, element [, data_path]);
+
+Sometimes you want a component outside an element rather than inside it.
+The most common example is trying to create a specific modal or floater wrapped
+inside a generic modal or floater "wrapper". You could simply use the
+generic component inside the specific component but then the generic component
+has no simple way to "clean itself up".
+
+    <div
+      class="my-custom-dialog"
+      data-component="modal"
+    >
+      <button
+        data-event="click:_component_.terrific"
+      >Terrific</button>
+    </div>
+    <script>
+      set('terrific', () => alert('This is terrific!'));
+    </script>
+
+In the above example the modal ends up inside the `my-custom-dialog` div. Supposing
+that the modal's behavior includes removing itself on close, it will leave behind the
+component itself (with nothing inside).
+
+Instead with `wrapWithComponent` you could do this (in a component):
+
+    <button>Terrific</button>
+    <script>
+      b8r.component('components/modal');
+      b8r.wrapWithComponent('modal', component);
+      set('terrific', () => alert('This is terrific!'));
+    </script>
+
+(Note that this example doesn't play well with the inline-documentation system!)
+*/
+
+b8r.wrapWithComponent = (component, element, data) => {
+  const wrapper = b8r.create('div');
+  wrapper.classList.add('b8r-hide-while-loading');
+  b8r.wrap(element, wrapper);
+  b8r.insertComponent(component, wrapper, data);
+};
+
+/**
+    b8r.removeComponent(elt);
+
+If elt has a component in it (i.e. has the attribute data-component-id) removes the compoment, remove the id,
+and remove any class that ends with '-component'. Note that removeComponent does not preserve children!
+*/
+
+b8r.removeComponent = elt => {
+  if (elt.dataset.componentId) {
+    delete elt.dataset.componentId;
+    b8r.makeArray(elt.classList).forEach(c => {
+      if (/-component$/.test(c)) {
+        elt.classList.remove(c);
+      }
+    });
+    b8r.cleanupComponentInstances();
+  }
 };
 
 /**

@@ -13,6 +13,10 @@ if path is not set or is set to '/' then obj is returned.
 sets a value inside an object by a path,
 e.g. setByPath(obj, "foo.bar", 17) is the equivalent of obj.foo.bar = 17.
 
+    deleteByPath(obj, 'path.to.value');
+
+if a value exists at the stipulated path it will be deleted. If not, nothing will happen.
+
 ## Examples
 
 Given:
@@ -127,6 +131,7 @@ Test(() => {
 }).shouldBe(null);
 ~~~~
 */
+/* jshint latedef:false */
 /* global module, console */
 
 'use strict';
@@ -236,7 +241,11 @@ function getByPath(obj, path) {
   return found === undefined ? null : found;
 }
 
-function setByPath(obj, path, val) {
+// unique token passed to set by path to delete properties
+const _delete_ = {};
+
+function setByPath(orig, path, val) {
+  let obj = orig;
   const parts = pathParts(path);
 
   while (obj && parts.length) {
@@ -265,7 +274,11 @@ function setByPath(obj, path, val) {
         if (parts.length) {
           obj = obj[idx];
         } else {
-          obj[idx] = matchTypes(val, obj[idx]);
+          if (val !== _delete_) {
+            obj[idx] = matchTypes(val, obj[idx]);
+          } else {
+            delete obj[idx];
+          }
           return true;
         }
       }
@@ -278,7 +291,11 @@ function setByPath(obj, path, val) {
           }
           obj = obj[key];
         } else {
-          obj[key] = matchTypes(val, obj[key]);
+          if (val !== _delete_) {
+            obj[key] = matchTypes(val, obj[key]);
+          } else {
+            delete obj[key];
+          }
           return true;
         }
       }
@@ -287,11 +304,18 @@ function setByPath(obj, path, val) {
       throw 'setByPath failed';
     }
   }
-  throw `setByPath(${obj}, ${path}, ${val}) failed`;
+  console.error(`setByPath failed): "${path}" not found in`, orig);
+  throw `setByPath(${orig}, ${path}, ${val}) failed`;
+}
+
+function deleteByPath(orig, path) {
+  if (getByPath(orig, path) !== null) {
+    setByPath(orig, path, _delete_);
+  }
 }
 
 function matchTypes(value, oldValue) {
-  if (value == null || oldValue == null || typeof value === typeof oldValue) {
+  if (value == null || oldValue == null || typeof value === typeof oldValue) { //jshint ignore:line
     return value;
   } else if (typeof value === 'string' && typeof oldValue === 'number') {
     return parseFloat(value);
@@ -299,13 +323,13 @@ function matchTypes(value, oldValue) {
     return value + '';
   } else if (typeof oldValue === 'boolean') {
     return value === 'false' ?
-        false :
-        !!value;  // maps undefined || null || '' || 0 => false
+                      false :
+                      !!value;  // maps undefined || null || '' || 0 => false
   } else if (oldValue !== undefined && oldValue !== null) {
     console.warn('setByPath found non-matching types');
   }
   return value;
 }
 
-module.exports = {getByPath, setByPath, matchTypes, pathParts, pathSplit};
+module.exports = {getByPath, setByPath, deleteByPath, matchTypes, pathParts, pathSplit};
 
