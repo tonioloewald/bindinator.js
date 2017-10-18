@@ -79,12 +79,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   on('keydown(alt-Space)', 'documentation-controller.fullscreen');
   on('keydown(alt-I)', 'documentation-controller.inspector');
 
-  [
-    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js',
-    'https://cdn.jsdelivr.net/ace/1.2.6/noconflict/ace.js',
-  ].map(require.lazy);
-
   // for convenience when debugging
   window.b8r = b8r;
 
