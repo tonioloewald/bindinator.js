@@ -16,18 +16,18 @@
 	var code = findOne('code');
 
 	function render(source) {
-		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js")
-					  .then(() => {
-					 		code.textContent = source.trim();
-							Prism.highlightElement(code);
-					  });
+		require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js").
+		then(() => {
+      code.textContent = source.trim();
+      Prism.highlightElement(code);
+    });
 	}
 
 	if(data.source) {
 		render(data.source.split('\n').filter(s => s.trim()).join('\n'));
 	} else if (data.url) {
-		b8r.component('loading', 'components/loading')
-			 .then(() => b8r.ajax(data.url))
-			 .then(source => render(source));
+		b8r.component('loading', 'components/loading').
+		then(() => b8r.ajax(data.url)).
+		then(source => render(source));
 	}
 </script>

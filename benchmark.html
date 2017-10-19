@@ -62,6 +62,7 @@
 require.autoPreload().then(() => {
 
 const b8r = require('source/b8r.js');
+window.b8r = b8r;
 var startTime;
 var lastMeasure;
 var startMeasure = function(name) {
