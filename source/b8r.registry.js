@@ -160,7 +160,7 @@ const set = (path, value, source_element) => {
     throw 'cannot set ${path}; you can only register objects at root-level';
   } else if (value === getByPath(registry, path)) {
     // nothing to see here, move along
-  } else if (typeof value === 'object') {
+  } else if (value && value.constructor) {
     if (path_parts.length === 1 && ! registry[path]) {
       register(path, value);
     } else {
