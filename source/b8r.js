@@ -769,7 +769,7 @@ You can use them the obvious way:
     _b8r_._update_ // this is used by b8r to update models automatically
 */
 
-b8r.set('_b8r_', {
+b8r._register('_b8r_', {
   echo : evt => console.log(evt) || true,
   stopEvent : () => {},
   _update_ : evt => {
