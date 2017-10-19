@@ -61,7 +61,6 @@ Test(() => b8r.isValidPath('airtime-rooms]')).shouldBe(false);
 'use strict';
 
 const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
-const {forEachKey} = require('./b8r.iterators.js');
 const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
@@ -168,7 +167,10 @@ const set = (path, value, source_element) => {
       // we only drill down into vanilla objects
       // not arrays or instances of custom classes
       if (value.constructor === Object && existing && existing.constructor === Object) {
-        forEachKey(value, (val, key) => set(`${path}.${key}`, val));
+        // using for vs. forEachKey because set will abort loop if setting something to false
+        for (let i = 0, keys = Object.keys(value); i < keys.length; i++) {
+          set(`${path}.${keys[i]}`, value[keys[i]]);
+        }
       } else {
         setByPath(registry, path, value);
       }
@@ -178,12 +180,12 @@ const set = (path, value, source_element) => {
     setByPath(registry, path, value);
     touch(path, source_element);
   }
-  return value;
+  return value; // convenient for things push (see below) but maybe an anti-feature?!
 };
 
 const _register = (name, obj) => {
   registry[name] = obj;
-}
+};
 
 const register = (name, obj, block_updates) => {
   if (name.match(/^_[^_]*_$/)) {
