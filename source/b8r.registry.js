@@ -61,6 +61,7 @@ Test(() => b8r.isValidPath('airtime-rooms]')).shouldBe(false);
 'use strict';
 
 const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
+const {forEachKey} = require('./b8r.iterators.js');
 const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
@@ -157,19 +158,40 @@ const set = (path, value, source_element) => {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
   } else if (path_parts.length === 1 && typeof value !== 'object') {
     throw 'cannot set ${path}; you can only register objects at root-level';
-  } else if (typeof value === 'object' || value !== getByPath(registry, path)) {
+  } else if (value === getByPath(registry, path)) {
+    // nothing to see here, move along
+  } else if (typeof value === 'object') {
+    if (path_parts.length === 1 && ! registry[path]) {
+      register(path, value);
+    } else {
+      // we only drill down into vanilla objects
+      // not arrays or instances of custom classes
+      if (value.constructor === Object) {
+        forEachKey(value, (val, key) => set(`${path}.${key}`, val));
+      } else {
+        setByPath(registry, path, value);
+      }
+      touch(path, source_element);
+    }
+  } else {
     setByPath(registry, path, value);
     touch(path, source_element);
   }
   return value;
 };
 
+const _register = (name, obj) => {
+  registry[name] = obj;
+}
+
 const register = (name, obj, block_updates) => {
   if (name.match(/^_[^_]*_$/)) {
     throw 'cannot register object as ' + name +
       ', all names starting and ending with a single \'_\' are reserved.';
   }
-  registry[name] = obj;
+
+  _register(name, obj, block_updates);
+
   if (!block_updates) {
     touch(name);
     require.lazy('./b8r.events.js').then(({play_saved_messages}) => play_saved_messages(name));
@@ -319,6 +341,7 @@ module.exports = {
   observe,
   unobserve,
   models,
+  _register,
   register,
   registered,
   remove,
