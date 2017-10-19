@@ -69,8 +69,7 @@ const ajax = (url, method, request_data, config) => {
         throw 'GET requests do not support request body data';
       }
       request_data = JSON.stringify(request_data);
-      config.headers.push(
-          {prop: 'Content-Type', value: 'application/json; charset=utf-8'});
+      config.headers.push({prop: 'Content-Type', value: 'application/json; charset=utf-8'});
     }
     config.headers.forEach(
         header => request.setRequestHeader(header.prop, header.value));
@@ -81,14 +80,12 @@ const ajax = (url, method, request_data, config) => {
 const json = (url, method, request_data, config) => {
   return new Promise(function(resolve, reject) {
     ajax(url, method, request_data, config).then(data => {
-      let parsed = 'null';
       try {
-        parsed = JSON.parse(data);
+        resolve(JSON.parse(data || 'null'));
       } catch(e) {
         console.error('Failed to parse data', data, e);
         reject(e, data);
       }
-      resolve(parsed);
     }, reject);
   });
 };
