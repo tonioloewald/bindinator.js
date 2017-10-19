@@ -154,11 +154,12 @@ const async_touch = path => {
 const set = (path, value, source_element) => {
   const path_parts = path.split(/\.|\[/);
   const model = path_parts[0];
+  const existing = getByPath(registry, path);
   if (path_parts.length > 1 && !registry[model]) {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
   } else if (path_parts.length === 1 && typeof value !== 'object') {
     throw 'cannot set ${path}; you can only register objects at root-level';
-  } else if (value === getByPath(registry, path)) {
+  } else if (value === existing) {
     // nothing to see here, move along
   } else if (value && value.constructor) {
     if (path_parts.length === 1 && ! registry[path]) {
@@ -166,7 +167,7 @@ const set = (path, value, source_element) => {
     } else {
       // we only drill down into vanilla objects
       // not arrays or instances of custom classes
-      if (value.constructor === Object) {
+      if (value.constructor === Object && existing && existing.constructor === Object) {
         forEachKey(value, (val, key) => set(`${path}.${key}`, val));
       } else {
         setByPath(registry, path, value);
