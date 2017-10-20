@@ -1081,7 +1081,6 @@ b8r.insertComponent = function(component, element, data) {
           missing_list.push(missing);
         }
       });
-      console.log('waiting on components', missing_list);
       reveal.classList.remove('b8r-loaded');
     } else {
       reveal.classList.add('b8r-loaded');

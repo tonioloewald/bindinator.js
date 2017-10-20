@@ -129,7 +129,7 @@ const getJSON = (path, element) => JSON.stringify(get(path, element));
 const touch = (path, source_element) => {
   logStart('touch', path);
   listeners.filter(listener => listener.test(path))
-      .forEach(listener => listener.callback(path, source_element));
+           .forEach(listener => listener.callback(path, source_element));
   logEnd('touch', path);
 };
 
