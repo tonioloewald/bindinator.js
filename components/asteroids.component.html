@@ -2,6 +2,8 @@
 # asteroids
 
 Demonstrates b8r's ability to bind to SVG elements. Performance relative to canvas is pretty terrible.
+
+Uses game-controller.js which relies on presence of a connected gamepad.
 -->
 <style>
 .asteroids {
@@ -117,38 +119,31 @@ Demonstrates b8r's ability to bind to SVG elements. Performance relative to canv
       h = starfield.offsetHeight + 100;
       asteroids.forEach(update);
 
-      gamepad.axes.forEach((axis, idx) => {
-        if (Math.abs(axis) > 0.25) {
-          console.log(`gamepad axis ${idx} === ${axis}`);
+      if (gamepad) {
+        b8r.forEachKey(axes, (axis, name) => {
+          if (Math.abs(axis) > 0.25) {
+            console.log(`axis ${name} === ${axis}`);
+          }
+        });
+        if (Math.abs(gamepad.axes[0]) > 0.25) {
+          player.r += gamepad.axes[0] * 5;
+        } else {
+          if (buttons.ArrowLeft || buttons.A) {
+            player.r -= 5;
+          }
+          if (buttons.ArrowRight || buttons.D) {
+            player.r += 5;
+          }
         }
-      });
-      gamepad.buttons.forEach((button, idx) => {
-        if (Math.abs(button.pressed)) {
-          console.log(`gamepad button ${idx} pressed`);
+        if (buttons.ArrowUp || buttons.W) {
+          let a = player.r * Math.PI / 180;
+          player.dy -= Math.cos(a) * 10;
+          player.dx += Math.sin(a) * 10;
         }
-      });
-      b8r.forEachKey(axes, (axis, name) => {
-        if (Math.abs(axis) > 0.25) {
-          console.log(`axis ${name} === ${axis}`);
-        }
-      });
-      if (Math.abs(gamepad.axes[0]) > 0.25) {
-        player.r += gamepad.axes[0] * 5;
-      } else {
-        if (buttons.ArrowLeft || buttons.A) {
-          player.r -= 5;
-        }
-        if (buttons.ArrowRight || buttons.D) {
-          player.r += 5;
-        }
-      }
-      if (buttons.ArrowUp || buttons.W) {
-        let a = player.r * Math.PI / 180;
-        player.dy -= Math.cos(a) * 10;
-        player.dx += Math.sin(a) * 10;
       }
       ships.forEach(update);
-      set({asteroids, ships});
+      touch('asteroids');
+      touch('ships');
       requestAnimationFrame(render);
     }
   };
