@@ -35,7 +35,7 @@ const ajax = (url, method, request_data, config) => {
   return new Promise(function(resolve, reject) {
     config = config || {};
     if (!config.headers) {
-      config.headers = [];
+      config.headers = {};
     }
     var request = new XMLHttpRequest();
     _requests_in_flight.push(request);
@@ -69,10 +69,11 @@ const ajax = (url, method, request_data, config) => {
         throw 'GET requests do not support request body data';
       }
       request_data = JSON.stringify(request_data);
-      config.headers.push({prop: 'Content-Type', value: 'application/json; charset=utf-8'});
+      config.headers['Content-Type'] = 'application/json; charset=utf-8';
     }
-    config.headers.forEach(
-        header => request.setRequestHeader(header.prop, header.value));
+    for(var prop in config.headers) {
+      request.setRequestHeader(prop, config.headers[prop])
+    }
     request.send(request_data);
   });
 };
