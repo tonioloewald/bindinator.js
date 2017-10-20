@@ -38,11 +38,12 @@ of awesome that this works at all.
   <div name="Source" class="code" data-event="keydown(Tab):_component_.indent"></div>
 </div>
 <script>
-/* global findOne, ace, b8r, data, component, register */
+/* global findOne, b8r, data, component, register, ace */
 /* jshint latedef:false */
 'use strict';
   const code_elt = findOne('.code');
   const container = findOne('[name="Example"]');
+  const uuid = require('../lib/uuid.js')
   var editor;
 
   // ACE editor — bleargh
@@ -83,7 +84,7 @@ of awesome that this works at all.
     const source = editor ? editor.getValue() : code_elt.textContent;
     if (source.match(/<\/\w+>/)) {
       b8r.insertComponent(
-        b8r.makeComponent('fiddle-example', source, require._path),
+        b8r.makeComponent(uuid(), source, require._path),
         container
       );
     } else {
