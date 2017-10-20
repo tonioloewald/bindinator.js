@@ -223,6 +223,10 @@ when and if the need arises.
 		<a href="#component=switch">Switch component</a>
 		<span data-component="switch" data-bind="value=_component_.checked"></span>
 	</label>
+	<br><label>
+		<a href="#component=switch">Animated Switch (bodymovin)</a>
+		<span data-component="animated-switch" data-bind="value=_component_.checked"></span>
+	</label>
 	<hr>
 	<textarea>Text Area</textarea>
 	<br><label>
@@ -449,8 +453,8 @@ when and if the need arises.
 	b8r.component('components/input');
 	b8r.component('components/contenteditable');
 	b8r.component('components/switch');
+	b8r.component('components/animated-switch');
 	b8r.component('components/radioset');
-
 
 	['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
 
