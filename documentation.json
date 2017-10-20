@@ -167,7 +167,7 @@
 			"path": "loading"
 		},
 		{
-			"name": "Checkbox Switch",
+			"name": "Toggle Switch (css)",
 			"path": "switch"
 		},
 		{
@@ -259,7 +259,7 @@
 			"path": "bodymovin"
 		},
 		{
-			"name": "Bodymovin switch",
+			"name": "Toggle Switch (bodymovin)",
 			"path": "animated-switch"
 		}
 	]
