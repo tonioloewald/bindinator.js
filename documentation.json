@@ -257,6 +257,10 @@
 		{
 			"name": "Bodymovin",
 			"path": "bodymovin"
+		},
+		{
+			"name": "Bodymovin switch",
+			"path": "animated-switch"
 		}
 	]
 }
