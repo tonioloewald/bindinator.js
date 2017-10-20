@@ -1,0 +1,65 @@
+<!--
+# animated switch
+
+This is an example of implementing an animated control using bodymovin.
+
+Note that I've had to use setTimeout to workaround a
+[bug in bodymovin](https://github.com/bodymovin/bodymovin/issues/688). Until
+this is fixed I wouldn't consider a control using bodymovin to be suitable
+for production.
+
+[bodymovin is documented in its README](https://github.com/bodymovin/bodymovin).
+
+*toggle_switch* animation by [Shafiu Hussain](https://www.lottiefiles.com/s)
+-->
+<style>
+  .animated-switch-component {
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    background: rgba(0,0,0,0.5);
+  }
+</style>
+<input
+  type="hidden"
+  data-bind="method(_component_.update)=_component_.value"
+>
+<script>
+/* global set, component, data, get, on */
+'use strict';
+
+  require.
+  lazy('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/4.11.1/bodymovin.min.js').
+  then(bodymovin => {
+    data.animation = bodymovin.loadAnimation({
+      container: component,
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      path: component.dataset.src || 'test/toggle_switch.json'
+    });
+
+    data.animation.setSpeed(4);
+    if (data.value) {
+      setTimeout(data.update, 30);
+    }
+  });
+
+  set({
+    toggle: () => {
+      set({value: ! get('value')});
+      b8r.trigger('change', component);
+    },
+    update: () => {
+      if (data.animation) {
+        if (data.value) {
+          data.animation.playSegments([0,50], true);
+        } else {
+          data.animation.playSegments([50,100], true);
+        }
+      }
+    }
+  });
+
+  on('mouseup,touchend', '_component_.toggle');
+</script>
