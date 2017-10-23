@@ -1088,7 +1088,7 @@ b8r.insertComponent = function(component, element, data) {
 };
 
 /**
-    b8r.wrapWithComponent(component, element [, data_path]);
+    b8r.wrapWithComponent(component, element [, data_path [, attributes]]);
 
 Sometimes you want a component outside an element rather than inside it.
 The most common example is trying to create a specific modal or floater wrapped
@@ -1124,8 +1124,9 @@ Instead with `wrapWithComponent` you could do this (in a component):
 (Note that this example doesn't play well with the inline-documentation system!)
 */
 
-b8r.wrapWithComponent = (component, element, data) => {
+b8r.wrapWithComponent = (component, element, data, attributes) => {
   const wrapper = b8r.create('div');
+  b8r.forEachKey(attributes, (val, prop) => wrapper.style[prop] = val);
   wrapper.classList.add('b8r-hide-while-loading');
   b8r.wrap(element, wrapper);
   b8r.insertComponent(component, wrapper, data);
