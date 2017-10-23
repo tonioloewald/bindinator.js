@@ -58,11 +58,10 @@ or (in case the intervening code changes the element signature):
 
 */
 /* jshint latedef:false */
-/* global module, require, console */
+/* global module, console */
 'use strict';
 
 const logs = []; // {name, total_time, entries: {name, count, times, total_time}}
-const {filterObject} = require('./b8r.iterators.js');
 
 const medianOfSortedArray = values =>
     (values[Math.floor(values.length / 2)] +
@@ -130,7 +129,6 @@ const perf = {
         return {name, count, best, median, worst, total_time};
       });
       if (threshold) {
-        // mapped = filterObject(mapped, entry => entry.worst > threshold);
         mapped = mapped.filter(mapped => mapped.worst > threshold);
       }
       console.table(mapped, ['name', 'count', 'best', 'median', 'worst', 'total_time']);

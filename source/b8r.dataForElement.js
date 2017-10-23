@@ -1,6 +1,7 @@
 /**
 # Data for Element
 */
+/* jshint latedef:false */
 /* global module */
 'use strict';
 

@@ -554,21 +554,19 @@ b8r.interpolate = (template, elt) => {
 };
 
 function bind(element) {
-  let bindings = getBindings(element);
+  const bindings = getBindings(element);
   const logArgs = [ 'bind', b8r.elementSignature(element) ];
   b8r.logStart(...logArgs);
   const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
   const newValues = {};
-  let changed = false;
   for (let i = 0; i < bindings.length; i++) {
-    let { targets, path } = bindings[i];
+    const { targets, path } = bindings[i];
     const value = b8r.interpolate(path, element);
     if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
-      changed = true;
       const signature = b8r.elementSignature(element);
       b8r.logStart('toTargets', signature);
       newValues[path] = value;
-      let _toTargets = targets.filter(t => toTargets[t.target]);
+      const _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
         _toTargets.forEach(t => {
           toTargets[t.target](element, value, t.key);
@@ -610,7 +608,7 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
   const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
                      .filter(elt => !elt.closest('[data-list]'));
   elements.forEach(elt => {
-    let binding_source = elt.dataset.bind;
+    const binding_source = elt.dataset.bind;
     if (binding_source.indexOf('=.') > -1) {
       const path_prefix = `=${instance_path}.`;
       elt.dataset.bind = binding_source.replace(/\=\./g, path_prefix);
@@ -780,11 +778,11 @@ b8r._register('_b8r_', {
       elements = elements.concat(options);
     }
     elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
-      let bindings = getBindings(elt);
+      const bindings = getBindings(elt);
       for (let i = 0; i < bindings.length; i++) {
-        let { targets, path } = bindings[i];
-        targets = targets.filter(t => fromTargets[t.target]);
-        targets.forEach(t => {
+        const { targets, path } = bindings[i];
+        const bound_targets = targets.filter(t => fromTargets[t.target]);
+        bound_targets.forEach(t => {
           // all bets are off on bound values!
           const value = fromTargets[t.target](elt, t.key);
           if (value !== undefined) {
@@ -877,7 +875,7 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
     content = remains;
   }
 
-  let div = b8r.create('div');
+  const div = b8r.create('div');
   div.innerHTML = content;
   /*jshint evil: true */
   let load = () => console.error('component', name, 'cannot load properly');
@@ -904,7 +902,7 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
   }
   /*jshint evil: false */
   const style = makeStylesheet(css, name + '-component');
-  let component = {
+  const component = {
     name,
     style,
     view : div,
@@ -941,7 +939,7 @@ function loadAvailableComponents(element, data_path) {
     .forEach(target => {
       if (!target.closest('[data-list]') &&
           !target.dataset.componentId) {
-        let name = target.dataset.component;
+        const name = target.dataset.component;
         b8r.insertComponent(name, target, data_path);
       }
     });
@@ -995,7 +993,7 @@ b8r.insertComponent = function(component, element, data) {
   if (element.parentElement === null) {
     document.body.appendChild(element);
   }
-  let children = b8r.fragment();
+  const children = b8r.fragment();
   /*
     * if you're replacing a component, it should get the replaced component's children.
     * we probably want to be able to remove a component (i.e. pull out an instance's children
@@ -1017,7 +1015,7 @@ b8r.insertComponent = function(component, element, data) {
     if (data_path) {
       replaceInBindings(element, '_data_', data_path);
     }
-    let children_dest = b8r.findOneWithin(element, '[data-children]');
+    const children_dest = b8r.findOneWithin(element, '[data-children]');
     if (children.firstChild && children_dest) {
       b8r.empty(children_dest);
       b8r.moveChildren(children, children_dest);
@@ -1059,7 +1057,6 @@ b8r.insertComponent = function(component, element, data) {
       }
     } catch(e) {
       console.error('component', name, 'failed to load', e);
-      debugger; // jshint ignore:line
     }
   } else {
     b8r.register(component_id, data, true);

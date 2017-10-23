@@ -64,7 +64,7 @@ const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
 const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
-let listeners = [];  // { path_string_or_test, callback }
+const listeners = [];  // { path_string_or_test, callback }
 
 const valid_path = /^(\.|[^.\[\]])+(\.[^.\[\]]+|\[\d+\]|\[[^=\[\]]+\=[^\[\]]+\])*(\.)?$/;
 

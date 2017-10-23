@@ -72,7 +72,7 @@ const ajax = (url, method, request_data, config) => {
       config.headers['Content-Type'] = 'application/json; charset=utf-8';
     }
     for(var prop in config.headers) {
-      request.setRequestHeader(prop, config.headers[prop])
+      request.setRequestHeader(prop, config.headers[prop]);
     }
     request.send(request_data);
   });
