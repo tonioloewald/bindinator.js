@@ -1126,7 +1126,7 @@ Instead with `wrapWithComponent` you could do this (in a component):
 
 b8r.wrapWithComponent = (component, element, data, attributes) => {
   const wrapper = b8r.create('div');
-  b8r.forEachKey(attributes, (val, prop) => wrapper.style[prop] = val);
+  b8r.forEachKey(attributes, (val, prop) => wrapper.setAttribute(prop, val));
   wrapper.classList.add('b8r-hide-while-loading');
   b8r.wrap(element, wrapper);
   b8r.insertComponent(component, wrapper, data);
