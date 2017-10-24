@@ -1056,7 +1056,7 @@ b8r.insertComponent = function(component, element, data) {
         throw 'returning from views is deprecated; please use register() instead';
       }
     } catch(e) {
-      console.error('component', name, 'failed to load', e);
+      console.error('component', component.name, 'failed to load', e);
     }
   } else {
     b8r.register(component_id, data, true);
