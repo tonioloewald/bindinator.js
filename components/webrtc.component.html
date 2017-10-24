@@ -17,9 +17,9 @@ WebRTC configuration (pick audio and video source). Exposes functionality in web
     border: 1px solid rgba(0,0,0,0.5);
   }
 </style>
-<div data-component="floater" style="width: 280px; right: 200px; top: 100px;" data-event="close:_component_.close">
+<div>
   <h4 class="floater-title">WebRTC Settings</h4>
-  <div style="padding: 4px 8px;">
+  <div style="padding: 5px 10px;">
     <label>
       Video Source
       <select
@@ -45,9 +45,9 @@ WebRTC configuration (pick audio and video source). Exposes functionality in web
   </div>
 </div>
 <script>
-/* global require, b8r, component, set */
+/* global require, b8r, component */
 'use strict';
   require('../lib/webrtc.js');
   b8r.component('components/floater');
-  set('close', () => component.remove());
+  b8r.wrapWithComponent('floater', component, null, {style: 'width: 280px; right: 200px; top: 100px;'});
 </script>

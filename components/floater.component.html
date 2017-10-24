@@ -50,6 +50,11 @@ Use the class "floater-title" for the first child to get nice styling.
 'use strict';
 
   on('mousedown', 'floater-controller.start_motion');
+  on('close', 'floater-controller.close');
+
+  if (component.dataset.hideClose !== undefined) {
+    b8r.hide(findOne('.floater-close'));
+  }
 
   if(
     !component.style.left && !component.style.right &&
@@ -82,8 +87,11 @@ Use the class "floater-title" for the first child to get nice styling.
       b8r.offAny('mouseup', 'floater-controller.end_motion');
     },
     close: (evt, target) => {
-      b8r.trigger('close', target.parentElement);
-      target.closest('.floater-component').remove();
+      const floater = target.closest('.floater-component');
+      require.lazy('../lib/remove-with-style.js').then(remove => remove(floater, {
+        transform: 'translateY(40px)',
+        opacity: 0,
+      }, 250));
     },
     start_motion: (evt) => {
       if (evt.target.closest('input,select,textarea,button,a')) {
