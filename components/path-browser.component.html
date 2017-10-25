@@ -1,0 +1,95 @@
+<!--
+# Path Browser
+
+A tool for browsing objects.
+-->
+<style>
+  .path-browser-component li {
+    cursor: pointer;
+  }
+</style>
+<select data-bind="value=_component_.value">
+  <option data-list="_component_.history" data-bind="text=."></option>
+</select>
+<!--
+<input data-bind="value=_component_.value">
+-->
+<ul>
+  <li
+    data-list="_component_.description(_component_.list,_component_.value)"
+    data-event="click:_component_.drill"
+    data-bind="attr(path)=.path"
+  >
+    <b data-bind="text=.key"></b>
+    <span data-bind="text=.val"></span>
+  </li>
+</ul>
+<script>
+/* global b8r, set, data */
+'use strict';
+
+  const history_select = findOne('select');
+
+  set('history', []);
+  set('list', []);
+
+  const describe = require('../lib/describe.js');
+  if (!data.value) {
+    set({value: 'object-browser-test'});
+    b8r.register('object-browser-test', {
+      foo: 17,
+      bar: 'hello world',
+      baz: {
+        lurman: false,
+      },
+      list: [{x: 0, y: 0}, {x: 1, y: 2}],
+      complex: {a: 0, b: 1, c: 2, d: 3, e: 4},
+      complex_list: [
+        {a: 0, b: 1, c: 2, d: 3, e: 4},
+        {a: 0, b: 1, c: 2, d: 3, e: 4},
+        {a: 0, b: 1, c: 2, d: 3, e: 4}
+      ],
+      empty_list: [],
+      null_value: null,
+      nan_value: NaN,
+    });
+  }
+
+  set({
+    description: (list, path) => {
+      const obj = b8r.get(path);
+
+      if (obj == null) {
+        return [];
+      }
+
+      if (get('history').indexOf(path) === -1) {
+        get('history').push(path);
+        touch('history');
+      }
+
+      list.splice(0);
+      if (Array.isArray(obj)) {
+        for (let i = 0; i < obj.length; i++) {
+          list.push({key: `[${i}]`, val: describe(obj[i]), path: `${path}[${i}]`});
+        }
+      } else if (obj && typeof obj === 'object') {
+        for(let i = 0, keys = Object.keys(obj); i < keys.length; i++) {
+          const key = keys[i];
+          list.push({key, val: describe(obj[key]), path: path ? `${path}.${key}` : key});
+        }
+      } else {
+        list.push({key: typeof obj, val: describe(obj)});
+      }
+      return list;
+    },
+
+    drill: evt => {
+      const obj = b8r.getListInstance(evt.target);
+      if (obj.path) {
+        set('value', obj.path);
+      }
+    }
+  });
+
+</script>

@@ -123,7 +123,10 @@ Copyright ©2016-2017 Tonio Loewald
         >
         </option>
       </select>
-      <pre></pre>
+      <div
+        data-component="path-browser"
+        data-bind="value="
+      ></div>
     </div>
   </div>
   <div
@@ -236,6 +239,7 @@ Copyright ©2016-2017 Tonio Loewald
 /* global b8r, set, component, require */
 'use strict';
   b8r.component('components/floater');
+  b8r.component('components/path-browser');
   b8r.component('components/tab-selector');
 
   b8r.wrapWithComponent('floater', component);

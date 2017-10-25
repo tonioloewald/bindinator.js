@@ -105,6 +105,10 @@
 			"path": "lib/require.js"
 		},
 		{
+			"name": "Describe",
+			"path": "lib/describe.js"
+		},
+		{
 			"name": "Test",
 			"path": "lib/test.js"
 		},
@@ -261,6 +265,10 @@
 		{
 			"name": "Toggle Switch (bodymovin)",
 			"path": "animated-switch"
+		},
+		{
+			"name": "Path Browser",
+			"path": "path-browser"
 		}
 	]
 }
