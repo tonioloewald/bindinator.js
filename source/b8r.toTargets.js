@@ -188,11 +188,9 @@ module.exports = function(b8r) {
             // <select> element will not take value if no matching option exists
             if (value && !element.value) {
               element.dataset.pendingValue = JSON.stringify(value);
-              console.warn('could not set value', element, value);
-            } else {
-              if (element.dataset.value) {
-                delete element.dataset.value;
-              }
+              console.warn('set value deferred', element, value);
+            } else if (element.dataset.pendingValue) {
+              delete element.dataset.pendingValue;
             }
           } else {
             if (element.dataset.componentId) {

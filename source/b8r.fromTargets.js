@@ -46,7 +46,7 @@ return {
 			pending_value = JSON.parse(pending_value);
 			element.value = pending_value;
 			if (element.value === pending_value) {
-				console.warn('restored pending value', element, pending_value);
+				console.log('restored pending value', element, pending_value);
 				if (element.dataset.pendingValue) {
 					delete element.dataset.pendingValue;
 				}
