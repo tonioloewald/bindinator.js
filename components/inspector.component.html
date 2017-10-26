@@ -115,7 +115,7 @@ Copyright ©2016-2017 Tonio Loewald
     <div class="inspector-browser">
       <select
         multiple
-        data-event-disabled="change:_component_.select"
+        data-event-disabled="change:_component_.set_registry_path"
       >
         <option
           data-list="_component_.registry"
@@ -125,7 +125,7 @@ Copyright ©2016-2017 Tonio Loewald
       </select>
       <div
         data-component="path-browser"
-        data-bind="value="
+        data-bind="value=_component_.registry_path"
       ></div>
     </div>
   </div>
@@ -156,7 +156,7 @@ Copyright ©2016-2017 Tonio Loewald
         <h4>Instances</h4>
         <select
           multiple
-          data-event-disabled="change:_component_.select"
+          data-event-disabled="change:_component_.set_instance_path"
           style="flex-grow: 1;"
         >
           <option
@@ -166,7 +166,10 @@ Copyright ©2016-2017 Tonio Loewald
           </option>
         </select>
       </div>
-      <pre></pre>
+      <div
+        data-component="path-browser"
+        data-bind="value=_component_.instance_path"
+      ></div>
     </div>
   </div>
   <div
@@ -313,19 +316,8 @@ Copyright ©2016-2017 Tonio Loewald
                             .sort();
       set({instances});
     },
-    select: (evt, target) => {
-      const pre = target.closest('.inspector-browser').querySelector('pre');
-      if (target.value) {
-        const obj = b8r.get(target.value);
-        console.log(target.value, obj);
-        pre.textContent = JSON.stringify(remove_methods(obj), false, 2);
-        if (target.value.substr(0,2) === 'c#') {
-          b8r.findOne(`[data-component-id="${target.value}"]`).classList.add('inspector-component');
-        }
-      } else {
-        pre.textContent = '';
-      }
-    },
+    set_registry_path: (evt, target) => set('registry_path', target.value),
+    set_instance_path: (evt, target) => set('instance_path', target.value),
     logs: [],
     show_logs: evt => {
       if (evt.target.getAttribute('title') === 'perf') {

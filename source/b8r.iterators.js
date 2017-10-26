@@ -38,6 +38,11 @@ predicateMethod
 
 Like find for arrays, but iterates over keys to find the value.
 
+    assignValues(dest, source); // returns modified dest
+
+This works like object.assign but skips the functions. (It does this
+recursively, except for class instances.)
+
 ~~~~
 Test(() => document.querySelectorAll('div') instanceof Array).shouldBe(false);
 Test(() => b8r.makeArray(document.querySelectorAll('div')) instanceof
@@ -139,6 +144,19 @@ const filterObject = (object, test) => {
   return filtered;
 };
 
+const assignValues = (object, ancestor) => {
+  forEachKey(ancestor, (val, key) => {
+    if (typeof val !== 'function') {
+      if (val && val.constructor === Object) {
+        object[key] = assignValues({}, val);
+      } else {
+        object[key] = val;
+      }
+    }
+  });
+  return object;
+};
+
 module.exports = {
   makeArray,
   last,
@@ -148,5 +166,6 @@ module.exports = {
   findKey,
   findValue,
   filterKeys,
-  filterObject
+  filterObject,
+  assignValues,
 };
