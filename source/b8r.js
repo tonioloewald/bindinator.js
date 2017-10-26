@@ -986,9 +986,7 @@ b8r.insertComponent = function(component, element, data) {
     delete element.dataset.component;
   }
   if (!data || data_path) {
-    data = dataForElement(
-        element,
-        b8r.getComponentData(element) || b8r.getListInstance(element) || {});
+    data = dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {});
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);
@@ -1033,8 +1031,7 @@ b8r.insertComponent = function(component, element, data) {
     element.dataset.path = data_path;
   }
   const register = component_data => b8r.register(component_id, component_data);
-  data = Object.assign({}, data);
-  Object.assign(data, { data_path, component_id });
+  data = b8r.assignValues({data_path, component_id}, data);
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
     const set = (...args) => {
@@ -1048,7 +1045,7 @@ b8r.insertComponent = function(component, element, data) {
     b8r.register(component_id, data, true);
     try {
       const view_obj = component.load(
-          window.require.relative(component.path),
+          require.relative(component.path),
           element, b8r, selector => b8r.findWithin(element, selector),
           selector => b8r.findOneWithin(element, selector), data, register, get,
           set, on, touch);
@@ -1126,7 +1123,9 @@ Instead with `wrapWithComponent` you could do this (in a component):
 
 b8r.wrapWithComponent = (component, element, data, attributes) => {
   const wrapper = b8r.create('div');
-  b8r.forEachKey(attributes, (val, prop) => wrapper.setAttribute(prop, val));
+  if (attributes) {
+    b8r.forEachKey(attributes, (val, prop) => wrapper.setAttribute(prop, val));
+  }
   wrapper.classList.add('b8r-hide-while-loading');
   b8r.wrap(element, wrapper);
   b8r.insertComponent(component, wrapper, data);
