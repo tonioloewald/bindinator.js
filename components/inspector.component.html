@@ -245,7 +245,7 @@ Copyright ©2016-2017 Tonio Loewald
   b8r.component('components/path-browser');
   b8r.component('components/tab-selector');
 
-  b8r.wrapWithComponent('floater', component);
+  b8r.wrapWithComponent('floater', component, null, {style: "bottom: 10px; left: 10px;"});
 
   const remove_methods = obj => {
     return b8r.mapEachKey(obj, value => {
