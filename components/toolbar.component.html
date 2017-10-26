@@ -5,41 +5,41 @@ Copyright ©2016-2017 Tonio Loewald
 The toolbar component merely styles its children and adds shortcut support.
 -->
 <style>
-	.toolbar {
-		margin: 0;
-		padding: 2px 4px;
-		height: 32px;
-		background-color: #f7f7f7;
-		box-sizing: border-box;
-		border-bottom: 1px solid rgba(0,0,0,0.1);
-		display: flex;
-	}
+  .toolbar {
+    margin: 0;
+    padding: 2px 4px;
+    height: 32px;
+    background-color: #f7f7f7;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    display: flex;
+  }
 
-	.toolbar hr {
-		border: 0;
-		display: block;
-		flex-grow: 1;
-	}
+  .toolbar hr {
+    border: 0;
+    display: block;
+    flex-grow: 1;
+  }
 
-	.toolbar hr.fixed {
-		flex-grow: 0;
-		width: 16px;
-	}
+  .toolbar hr.fixed {
+    flex-grow: 0;
+    width: 16px;
+  }
 
-	.toolbar > button {
-		min-width: 26px;
-	}
+  .toolbar > button {
+    min-width: 26px;
+  }
 
-	.toolbar > button + button {
-		margin-left: 2px;
-	}
+  .toolbar > button + button {
+    margin-left: 2px;
+  }
 </style>
 <script>
-	/*
-		^^^
-		Note that the toolbar component has no actual elements of its own — it simply decorates
-		the component.
-	*/
-	component.classList.add('toolbar');
-	require('../lib/shortcuts.js').update();
+  /*
+    ^^^
+    Note that the toolbar component has no actual elements of its own — it simply decorates
+    the component.
+  */
+  component.classList.add('toolbar');
+  require('../lib/shortcuts.js').update();
 </script>

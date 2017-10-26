@@ -6,29 +6,29 @@ A very simple component intended to show how easy it is for components
 to operate within a private scope.
 -->
 <style>
-	.hello {
-		border: 1px solid #eee;
-		padding: 4px;
-		margin: 4px;
-		border-radius: 3px;
-		background-color: white;
-	}
-	.hello > h4 {
-		color: red;
-	}
+  .hello {
+    border: 1px solid #eee;
+    padding: 4px;
+    margin: 4px;
+    border-radius: 3px;
+    background-color: white;
+  }
+  .hello > h4 {
+    color: red;
+  }
 </style>
 <div class="hello">
-	<h4>Hello Component</h4>
-	<button data-event="click:_component_.click">Click Me</button>
-	<p data-bind="show_if=_component_.click_count">
-		Number of times clicked: 
-		<span data-bind="text=_component_.click_count"></span>
-	</p>
-	<div data-children></div>
+  <h4>Hello Component</h4>
+  <button data-event="click:_component_.click">Click Me</button>
+  <p data-bind="show_if=_component_.click_count">
+    Number of times clicked: 
+    <span data-bind="text=_component_.click_count"></span>
+  </p>
+  <div data-children></div>
 </div>
 <script>
-	const click = () => set('click_count', get('click_count') + 1);
-	
-	// establish a private scope for this component
-	register({click, click_count: 0});
+  const click = () => set('click_count', get('click_count') + 1);
+  
+  // establish a private scope for this component
+  register({click, click_count: 0});
 </script>

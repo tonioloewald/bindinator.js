@@ -5,26 +5,26 @@ Copyright ©2016-2017 Tonio Loewald
 Another composition example. A single photos component "managed" by the carousel component.
 -->
 <style>
-	.carousel-img {
-		box-sizing: border-box;
-		padding: 8px;
-		background-color: white;
-		border: 2px solid rgba(0,0,0,0.1);
-		width: 60%;
-	}
+  .carousel-img {
+    box-sizing: border-box;
+    padding: 8px;
+    background-color: white;
+    border: 2px solid rgba(0,0,0,0.1);
+    width: 60%;
+  }
 </style>
 <div
-	data-component="carousel"
-	data-carousel-distance="1000"
-	data-carousel-inner-offset="300"
-	data-carousel-rotation="60"
-	data-carousel-centered
-	child-selector=".carousel-img"
-	style="perspective: 2000px;"
+  data-component="carousel"
+  data-carousel-distance="1000"
+  data-carousel-inner-offset="300"
+  data-carousel-rotation="60"
+  data-carousel-centered
+  child-selector=".carousel-img"
+  style="perspective: 2000px;"
 >
-	<div img-class="carousel-img" name="Street" data-component="photos" tags="amusement park"></div>
+  <div img-class="carousel-img" name="Street" data-component="photos" tags="amusement park"></div>
 </div>
 <script>
-	b8r.component('carousel', 'components/carousel');
-	b8r.component('photos', 'components/photos');
+  b8r.component('carousel', 'components/carousel');
+  b8r.component('photos', 'components/photos');
 </script>

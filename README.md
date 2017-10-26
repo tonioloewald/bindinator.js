@@ -1,9 +1,9 @@
 <div style="text-align: center">
-	<img
-		alt="bindinator b∞r logo"
-		style="width: 600px; height: 600px; padding: 5% 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
-		src="https://bindinator.com/bindinator-logo.svg"
-	>
+  <img
+    alt="bindinator b∞r logo"
+    style="width: 600px; height: 600px; padding: 5% 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
+    src="https://bindinator.com/bindinator-logo.svg"
+  >
 </div>
 
 [bindinator.com](http://bindinator.com/) |

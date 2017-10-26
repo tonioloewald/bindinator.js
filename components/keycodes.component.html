@@ -1,35 +1,35 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
 <div>
-	<h3>KeyboardEvent Code Tool</h3>
-	<p>
-		This is a utility component to determine the keyboard event <b>code</b> of a given keystroke.
-	</p>
-	<label>
-		Type here&nbsp;<input data-event="keydown:_component_.showCode">
-	</label>
-	&nbsp;
-	<div class="keycodes" style="margin-top: 1em;">
-		<h4>Keystrokes</h4>
-		<div></div>
-		<button style="margin-top: 0.5em;" data-event="click:_component_.clear">Clear</button>
-	</div>
+  <h3>KeyboardEvent Code Tool</h3>
+  <p>
+    This is a utility component to determine the keyboard event <b>code</b> of a given keystroke.
+  </p>
+  <label>
+    Type here&nbsp;<input data-event="keydown:_component_.showCode">
+  </label>
+  &nbsp;
+  <div class="keycodes" style="margin-top: 1em;">
+    <h4>Keystrokes</h4>
+    <div></div>
+    <button style="margin-top: 0.5em;" data-event="click:_component_.clear">Clear</button>
+  </div>
 </div>
 <script>
-	var keycodes = findOne('.keycodes');
-	findOne('input').focus();
-	b8r.hide(keycodes);
+  var keycodes = findOne('.keycodes');
+  findOne('input').focus();
+  b8r.hide(keycodes);
 
-	register({
-		showCode: evt => {
-			var div = b8r.create('div');
-			div.textContent = b8r.keystroke(evt); 
-			b8r.findOneWithin(keycodes, 'div').appendChild(div);
-			b8r.show(keycodes);
-			evt.preventDefault();
-		},
-		clear: () => {
-			find('.keycodes > div > div').forEach(elt => elt.remove());
-			findOne('input').focus();
-		}
-	});
+  register({
+    showCode: evt => {
+      var div = b8r.create('div');
+      div.textContent = b8r.keystroke(evt); 
+      b8r.findOneWithin(keycodes, 'div').appendChild(div);
+      b8r.show(keycodes);
+      evt.preventDefault();
+    },
+    clear: () => {
+      find('.keycodes > div > div').forEach(elt => elt.remove());
+      findOne('input').focus();
+    }
+  });
 </script>

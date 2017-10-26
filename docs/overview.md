@@ -42,25 +42,25 @@ which order they load -- everything just works.
 
 b8r needs to know when things happen to registered objects (including their being registered in the first place). So, properties can be accessed (get and set) by **path** — where path is exactly what you'd expect.
 
-	const obj = {foo: {bar: 'baz'}};
-	b8r.register('bob', obj);
-	b8r.getByPath('bob', 'foo.bar') === 'baz';
-		// will be true
-	b8r.setByPath('bob', 'foo.bar', 'hello');
-		// obj is now {foo: {bar: 'hello'}}
+  const obj = {foo: {bar: 'baz'}};
+  b8r.register('bob', obj);
+  b8r.getByPath('bob', 'foo.bar') === 'baz';
+    // will be true
+  b8r.setByPath('bob', 'foo.bar', 'hello');
+    // obj is now {foo: {bar: 'hello'}}
 
 These references are intended to be exactly what a javascript programmer would expect, e.g.
 
-	const arr = [1,1,2,3,5,8,13];
-	bar.register('fib', arr);
-	b8r.getByPath('fib', '[3]') === 5;
-		// will be true
+  const arr = [1,1,2,3,5,8,13];
+  bar.register('fib', arr);
+  b8r.getByPath('fib', '[3]') === 5;
+    // will be true
 
 Sometimes you'll need to simply tell b8r that something has changed (e.g. you might have completely rewritten a complex object, or not know exactly what was changed, or simply not want to bother figuring out what has changed), in which case:
 
-	b8r.touchByPath('bob', 'foo');
-		// tells b8r that the object registered as bob
-		// has had the contents of foo changed
+  b8r.touchByPath('bob', 'foo');
+    // tells b8r that the object registered as bob
+    // has had the contents of foo changed
 
 > Note that b8r tries to minimize DOM updates, but it doesn't maintain a "virtual DOM" of any kind. (If it becomes a performance issue, b8r may one day maintain a look-up table of bound elements rather than query the DOM when performing updates, but so far this has not been needed.)
 
@@ -70,15 +70,15 @@ There's one wrinkle on paths that goes beyond javascript programming norms, and 
 
 Instead of binding a list by index (the default) which would look like this:
 
-	<li data-list="foo.bar:user.id">
-		<span data-bind="text=.user.name"></span>
-	</li>
+  <li data-list="foo.bar:user.id">
+    <span data-bind="text=.user.name"></span>
+  </li>
 
 You can provide an id path:
 
-	<li data-list="foo.bar:user.id">
-		<span data-bind="text=.user.name"></span>
-	</li>
+  <li data-list="foo.bar:user.id">
+    <span data-bind="text=.user.name"></span>
+  </li>
 
 Among other things, paths allow lists to be updated more efficiently in the DOM, but they are also very useful for simply accessing
 objects in lists using arbitrary keys.
@@ -93,7 +93,7 @@ b8r places one event handler for each type of event it handles on the **document
 
 When an event is received, b8r looks at the event's target (the first element that received the event) and looks for a data-event on that element and its ancestors.
 
-	<button data-event="mouseup:model.method">click me</button>
+  <button data-event="mouseup:model.method">click me</button>
 
 Events are bound to methods of registered objects by path name, the binding in effect says "when the button receives mouseup_event, b8r.getByPath('model', 'method')(mouseup_event)".
 
@@ -101,11 +101,11 @@ It's a little cleverer than that, see the note on *Asynchronous Event Binding* b
 
 #### Multiple Event Handers
 
-	data-event="
-		mouseover:_component_.show_info;
-		mouseout:_component_.hide_info;
-		click,keydown(Space):_component_.action;
-	"
+  data-event="
+    mouseover:_component_.show_info;
+    mouseout:_component_.hide_info;
+    click,keydown(Space):_component_.action;
+  "
 
 A **data-event** attribute may have multiple (semicolon-delimited) handlers in it, in which case they are examined from left-to-right. (Just as with the native event handlers, you can have multiple event handlers for the same kind of event if you so desire; but unlike adding an event listener you can see what's going on in the DOM, and so won't chase your tail as much if this situation arises accidentally.)
 
@@ -117,7 +117,7 @@ If the method does *not* return **true**, the event has been handled, otherwise 
 
 > When an event is bound to an object, callMethod is used:
 
->		b8r.callMethod('model', 'method', mouse_event);
+>    b8r.callMethod('model', 'method', mouse_event);
 
 > And callMethod uses findByPath to check if model has been registered. If it has then it calls it on mouse_event. If it hasn't been registered, it records the message and plays it back (in order) *when the object is registered*.
 
@@ -135,7 +135,7 @@ In b8r terms, a **to**-binding sends data from an object, using a path, *to* a D
 
 The two most important bindings are value, checked, and text, all three work both ways.
 
-	<input data-bind="value=bob.foo.bar">
+  <input data-bind="value=bob.foo.bar">
 
 A data-binding is, in effect, a collection of event bindings. E.g. in the case of the **input** element above, it's effectively this set of event handlers:
 
@@ -151,63 +151,63 @@ b8r *actually inserts the input and change handlers into the DOM* when it first 
 
 Often, you'll want to bind a list of things to the DOM. To simplify this, there's a **data-list** attribute:
 
-	<h3 data-bind="text=_component_.title">Title</h3>
-	<ul>
-		<li
-			data-list="_component_.items"
-			data-bind="text=/"
-		>list item</li>
-	</ul>
-	<script>
-		const title = "Favorite Things";
-		const items = [
-			'Raindrops on roses',
-			'whiskers on kittens',
-			'Bright copper kettles',
-			'warm woollen mittens',
-			'Brown paper packages tied up with strings'
-		];
-		set({title, items});
-	</script>
+  <h3 data-bind="text=_component_.title">Title</h3>
+  <ul>
+    <li
+      data-list="_component_.items"
+      data-bind="text=/"
+    >list item</li>
+  </ul>
+  <script>
+    const title = "Favorite Things";
+    const items = [
+      'Raindrops on roses',
+      'whiskers on kittens',
+      'Bright copper kettles',
+      'warm woollen mittens',
+      'Brown paper packages tied up with strings'
+    ];
+    set({title, items});
+  </script>
 
 Obviously, that's a trivial example. The key thing to note is that you bind to properties of a list item using a "relative" binding path, so you could do something like this:
 
-	<h3 data-bind="text=_component_.title">Title</h3>
-	<ul>
-		<li
-			style="display: flex"
-			data-list="_component_.items"
-		>
-			<span style="flex-grow: 1" data-bind="text=.title">item</span>
-			<progress style="width:30px; flex-shrink: 0;" min=0 max=5 data-bind="value=.rating">>
-		</li>
-	</ul>
-	<script>
-		const title = "Favorite Things";
-		const items = [
-			{
-				title:'Raindrops on roses',
-				rating: 4.2
-			},
-			{
-				title: 'whiskers on kittens',
-				rating: 5
-			},
-			{
-				title: 'Bright copper kettles',
-				rating: 2.3
-			},
-			{
-				title: 'warm woollen mittens',
-				rating: 3.7
-			},
-			{
-				title: 'Brown paper packages tied up with strings',
-				rating: 5
-			},
-		];
-		set({title, items});
-	</script>
+  <h3 data-bind="text=_component_.title">Title</h3>
+  <ul>
+    <li
+      style="display: flex"
+      data-list="_component_.items"
+    >
+      <span style="flex-grow: 1" data-bind="text=.title">item</span>
+      <progress style="width:30px; flex-shrink: 0;" min=0 max=5 data-bind="value=.rating">>
+    </li>
+  </ul>
+  <script>
+    const title = "Favorite Things";
+    const items = [
+      {
+        title:'Raindrops on roses',
+        rating: 4.2
+      },
+      {
+        title: 'whiskers on kittens',
+        rating: 5
+      },
+      {
+        title: 'Bright copper kettles',
+        rating: 2.3
+      },
+      {
+        title: 'warm woollen mittens',
+        rating: 3.7
+      },
+      {
+        title: 'Brown paper packages tied up with strings',
+        rating: 5
+      },
+    ];
+    set({title, items});
+  </script>
 
 #### Note: Asynchronous Binding
 
@@ -223,13 +223,13 @@ When a component is loaded, b8r examines it for any bound elements in it and if 
 
 b8r's final core concept is the component. A component is written as a mini web page comprising:
 
-	<style>
-		... style declarations ...
-	</style>
-	... html markup ...
-	<script>
-		... view controller code ...
-	</script>
+  <style>
+    ... style declarations ...
+  </style>
+  ... html markup ...
+  <script>
+    ... view controller code ...
+  </script>
 
 Each of these pieces is *optional*.
 
@@ -237,17 +237,17 @@ Each of these pieces is *optional*.
 
 Anywhere inside your page's markup you can add a component binding, like this:
 
-	<div data-component="h2">
-		Hello world
-	</div>
+  <div data-component="h2">
+    Hello world
+  </div>
 
 When the component is loaded it will automatically be inserted elements bound to it. Let's suppose h2.component.html looks like this:
 
-	<h2 data-children></h2>
+  <h2 data-children></h2>
 
 You might load it thus:
 
-	b8r.component('path/to/h2');
+  b8r.component('path/to/h2');
 
 This returns a **promise** of the component, but you can ignore it unless you want code that only executes when the component is available. When the component is loaded an instance of the component inserted within the bound element, and the bound element's children (if any) will be moved to an element inside the component with the **data-children** attribute (if any).
 
@@ -273,21 +273,21 @@ The data object is a reference to the data with which the component was initiali
 
 Components can bind to their own data and methods by using the model name _component_, e.g.
 
-	<button
-		data-bind="text=_component_.caption"
-		data-event="click:_component_.show"
-	>untitled</button>
-	<input
-		placeholder="enter message"
-		data-bind="value=_component_.message"
-	>
-	<script>
-		set({
-			caption: 'hello',
-			message: 'hello message',
-			show: () => alert(get('message'))
-		});
-	</script>
+  <button
+    data-bind="text=_component_.caption"
+    data-event="click:_component_.show"
+  >untitled</button>
+  <input
+    placeholder="enter message"
+    data-bind="value=_component_.message"
+  >
+  <script>
+    set({
+      caption: 'hello',
+      message: 'hello message',
+      show: () => alert(get('message'))
+    });
+  </script>
 
 I hope it's completely obvious what this does! And note that if two of these are in the same page they'll be perfectly independent.
 
@@ -300,34 +300,34 @@ As mentioned above, if a component has an element with a **data-children** attri
 
 So given following markup:
 
-	<div
-		data-component="quotation"
-		data-json='{"author":"b8r"}'
-	>
-		<h2>Hello</h2>
-		<p>world</p>
-	</div>
+  <div
+    data-component="quotation"
+    data-json='{"author":"b8r"}'
+  >
+    <h2>Hello</h2>
+    <p>world</p>
+  </div>
 
 And the following component is registered as "quotation":
 
-	<blockquote data-children>
-		Experience is what you get when you didn't get what you wanted.
-	</blockquote>
-	<i data-bind="_component_.author">Randy Pausch</i>
+  <blockquote data-children>
+    Experience is what you get when you didn't get what you wanted.
+  </blockquote>
+  <i data-bind="_component_.author">Randy Pausch</i>
 
 You end up with this:
 
-	<div
-		data-component="composition-example"
-		data-json='{"author":"b8r"}'
-		data-component-id="c#composition-example#1"
-	>
-		<blockquote data-children>
-			<h2>Hello</h2>
-			<p>world</p>
-		</blockquote>
-		<i data-bind="_component_.author">b8r</i>
-	</div>
+  <div
+    data-component="composition-example"
+    data-json='{"author":"b8r"}'
+    data-component-id="c#composition-example#1"
+  >
+    <blockquote data-children>
+      <h2>Hello</h2>
+      <p>world</p>
+    </blockquote>
+    <i data-bind="_component_.author">b8r</i>
+  </div>
 
 ### Data and Composition
 
@@ -337,13 +337,13 @@ In general, elements are bound to data by name (via DOM attributes) or explicitl
 
 A component is loaded and registered thus:
 
-	b8r.component('something', 'components/my-product/something');
+  b8r.component('something', 'components/my-product/something');
 
 (It is assumed that the component's file name will end with `.component.html`—in this case the file would be `something.component.html`; the goal is for the filename to be explicit but the code to contain minimal boilerplate.)
 
 This could just as easily be:
 
-	b8r.component('components/my-product/something');
+  b8r.component('components/my-product/something');
 
 If only one parameter is provided, it's assumed to be the path, and the name is assumed to be the trailing path component ('something' in this case).
 
@@ -353,7 +353,7 @@ When a component's source is received, the **\<style\>** tag (if any) is inserte
 
 Once a component is registered, any element bound to that component will have an instance of that component loaded into it. A component binding looks like this:
 
-	<div data-component="something">...</div>
+  <div data-component="something">...</div>
 
 When a component is loaded, it will be inspected for nested bound components, and if available they will be loaded recursively; then data-bindings will be resolved.
 
@@ -376,7 +376,7 @@ As soon as the component is loaded, its view controller (the component's script)
 
 A component can also be explicitly inserted into an element using:
 
-	b8r.insertComponent(component, targetElement, data);
+  b8r.insertComponent(component, targetElement, data);
 
 (This is the only mechanism, aside from DOM attributes, for directly passing data to a component, and any data passed to insertComponent will be received by the component's controller.)
 

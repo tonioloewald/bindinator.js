@@ -1,264 +1,264 @@
 <!-- bindinator.js Copyright ©2016-2017 Tonio Loewald -->
 <style>
-	body {
-		font-family: Helvetica, Sans-serif;
-		font-size: 14px;
-	}
-	h2, p, ul, li {
-		margin: 0;
-	}
-	.test_widgets {
-		display: flex;
-	}
-	.test_widgets > div {
-		flex-grow: 1;
-		padding: 8px;
-	}
-	.success {
-		background-color: #bfb;
-	}
-	.failure {
-		background-color: #ffa;
-	}
-	.report p {
-		padding: 2px;
-		margin: 0;
-		border-bottom: 1px solid rgba(0,0,0,0.2);
-	}
-	[data-bind] {
-		display: block;
-	}
-	input[type=radio] {
-		display: inline-block;
-	}
-	[data-list] {
-		display: none;
-	}
+  body {
+    font-family: Helvetica, Sans-serif;
+    font-size: 14px;
+  }
+  h2, p, ul, li {
+    margin: 0;
+  }
+  .test_widgets {
+    display: flex;
+  }
+  .test_widgets > div {
+    flex-grow: 1;
+    padding: 8px;
+  }
+  .success {
+    background-color: #bfb;
+  }
+  .failure {
+    background-color: #ffa;
+  }
+  .report p {
+    padding: 2px;
+    margin: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+  }
+  [data-bind] {
+    display: block;
+  }
+  input[type=radio] {
+    display: inline-block;
+  }
+  [data-list] {
+    display: none;
+  }
 </style>
 <body>
-	<h2>b8r Tests</h2>
-	<div class="test_widgets">
-		<div>
-			<span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
-			<span id="c" data-bind="text=test1.sub.list[2]">A</span>
-			<span id="d" data-bind="text=test1.list[0].y">A</span>
-			<span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
-			<input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
-			<input id="f" data-bind="value=test1.sub.list[2]">
-		</div>
-		<div>
-			<select data-bind="value=test1.option">
-				<option>ONE</option>
-				<option>two</option>
-				<option>3</option>
-			</select>
-			<span id="g" data-bind="text=test1.option">A</span>
-			<input data-bind="checked=test1.checkbox" type="checkbox" checked>
-			<span id="h" data-bind="text=test1.checkbox">A</span>
-		</div>
-		<div>
-			<label>
-				<input data-bind="value=test1.list[0].y"> Test list-bound values
-			</label>
-			<ul>
-				<li data-list="test1.list">
-					<span style="display: inline" data-bind="text=.x">x</span>, <input style="display: inline" data-bind="value=.y">
-				</li>
-			</ul>
-			<label>
-				<input type="radio" name="group" value="first" data-bind="value=test1.radio">
-				first
-			</label>
-			<label>
-				<input type="radio" name="group" value="second" data-bind="value=test1.radio">
-				second
-			</label>
-			<label>
-				<input type="radio" name="group" value="third" data-bind="value=test1.radio">
-				third
-			</label>
-			<span data-bind="text=test1.radio"></span>
-		</div>
-		<div data-component="test">
-			<p>First Child</p>
-			<p>Second Child</p>
-		</div>
-		<div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
-	</div>
-	<div class="report"></div>
-	<script src="lib/require.js"></script>
-	<script>
-		'use strict';
-		const b8r = require('source/b8r.js');
-		const Test = require('lib/test.js');
-		const {getByPath, setByPath} = require('source/b8r.byPath.js');
+  <h2>b8r Tests</h2>
+  <div class="test_widgets">
+    <div>
+      <span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
+      <span id="c" data-bind="text=test1.sub.list[2]">A</span>
+      <span id="d" data-bind="text=test1.list[0].y">A</span>
+      <span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
+      <input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
+      <input id="f" data-bind="value=test1.sub.list[2]">
+    </div>
+    <div>
+      <select data-bind="value=test1.option">
+        <option>ONE</option>
+        <option>two</option>
+        <option>3</option>
+      </select>
+      <span id="g" data-bind="text=test1.option">A</span>
+      <input data-bind="checked=test1.checkbox" type="checkbox" checked>
+      <span id="h" data-bind="text=test1.checkbox">A</span>
+    </div>
+    <div>
+      <label>
+        <input data-bind="value=test1.list[0].y"> Test list-bound values
+      </label>
+      <ul>
+        <li data-list="test1.list">
+          <span style="display: inline" data-bind="text=.x">x</span>, <input style="display: inline" data-bind="value=.y">
+        </li>
+      </ul>
+      <label>
+        <input type="radio" name="group" value="first" data-bind="value=test1.radio">
+        first
+      </label>
+      <label>
+        <input type="radio" name="group" value="second" data-bind="value=test1.radio">
+        second
+      </label>
+      <label>
+        <input type="radio" name="group" value="third" data-bind="value=test1.radio">
+        third
+      </label>
+      <span data-bind="text=test1.radio"></span>
+    </div>
+    <div data-component="test">
+      <p>First Child</p>
+      <p>Second Child</p>
+    </div>
+    <div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
+  </div>
+  <div class="report"></div>
+  <script src="lib/require.js"></script>
+  <script>
+    'use strict';
+    const b8r = require('source/b8r.js');
+    const Test = require('lib/test.js');
+    const {getByPath, setByPath} = require('source/b8r.byPath.js');
 
-		Test.setReportContainer(b8r.findOne('.report'));
-	/*
-		Test(() => 2).shouldBe(2);
-		Test(() => 2).shouldBe(1);
-	*/
-		var obj = {
-			base: 17,
-			sub: {
-				list: [1,2,3],
-				prop: 'hello'
-			},
-			list: [
-				{x: 10, y: 11},
-				{x: 12, y: 13},
-				{x: 'y=z'}
-			],
-			color: 'red',
-			type: 'range',
-			nested_list: [
-				[4,5,6],
-				[7,8,9]
-			],
-			option: '3',
-			checkbox: true,
-			radio: 'second',
-		};
-		Test(() => getByPath(obj, '')).shouldBe(obj);
-		Test(() => getByPath(obj, '/')).shouldBe(obj);
-		Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
-		Test(() => getByPath(obj, 'sub.prop')).shouldBe(obj.sub.prop);
-		Test(() => getByPath(obj, 'sub.list')).shouldBe(obj.sub.list);
-		Test(() => getByPath(obj, 'sub.list[1]')).shouldBe(obj.sub.list[1]);
-		Test(() => getByPath(obj, 'list[1].x')).shouldBe(obj.list[1].x);
-		Test(() => getByPath(obj, 'nested_list[1][1]')).shouldBe(obj.nested_list[1][1]);
-		Test(() => getByPath(obj, 'list[x=12]')).shouldBe(obj.list[1])
-		Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2])
-		setByPath(obj, 'base', 42);
-		setByPath(obj, 'kettle.black', 11);
-		Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
-		Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
-		setByPath(obj, 'sub.list[2]', 25);
-		Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
+    Test.setReportContainer(b8r.findOne('.report'));
+  /*
+    Test(() => 2).shouldBe(2);
+    Test(() => 2).shouldBe(1);
+  */
+    var obj = {
+      base: 17,
+      sub: {
+        list: [1,2,3],
+        prop: 'hello'
+      },
+      list: [
+        {x: 10, y: 11},
+        {x: 12, y: 13},
+        {x: 'y=z'}
+      ],
+      color: 'red',
+      type: 'range',
+      nested_list: [
+        [4,5,6],
+        [7,8,9]
+      ],
+      option: '3',
+      checkbox: true,
+      radio: 'second',
+    };
+    Test(() => getByPath(obj, '')).shouldBe(obj);
+    Test(() => getByPath(obj, '/')).shouldBe(obj);
+    Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
+    Test(() => getByPath(obj, 'sub.prop')).shouldBe(obj.sub.prop);
+    Test(() => getByPath(obj, 'sub.list')).shouldBe(obj.sub.list);
+    Test(() => getByPath(obj, 'sub.list[1]')).shouldBe(obj.sub.list[1]);
+    Test(() => getByPath(obj, 'list[1].x')).shouldBe(obj.list[1].x);
+    Test(() => getByPath(obj, 'nested_list[1][1]')).shouldBe(obj.nested_list[1][1]);
+    Test(() => getByPath(obj, 'list[x=12]')).shouldBe(obj.list[1])
+    Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2])
+    setByPath(obj, 'base', 42);
+    setByPath(obj, 'kettle.black', 11);
+    Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
+    Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
+    setByPath(obj, 'sub.list[2]', 25);
+    Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
-		// binding (to), data mounting
-		b8r.async_updates(false);
-		b8r.register('test1', obj);
-		Test(() => b8r.id('a').textContent).shouldBe('42');
-		Test(() => b8r.id('b').textContent).shouldBe('hello');
-		Test(() => b8r.id('c').textContent).shouldBe(obj.sub.list[2] + '');
-		Test(() => b8r.id('d').textContent).shouldBe('11');
-		Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
-		Test(() => b8r.id('a').style.color).shouldBe('red');
-		Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
+    // binding (to), data mounting
+    b8r.async_updates(false);
+    b8r.register('test1', obj);
+    Test(() => b8r.id('a').textContent).shouldBe('42');
+    Test(() => b8r.id('b').textContent).shouldBe('hello');
+    Test(() => b8r.id('c').textContent).shouldBe(obj.sub.list[2] + '');
+    Test(() => b8r.id('d').textContent).shouldBe('11');
+    Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
+    Test(() => b8r.id('a').style.color).shouldBe('red');
+    Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
 
 
-		b8r.register('test2', {color: 'green'});
-		Test(() => b8r.id('b').style.color).shouldBe('green');
+    b8r.register('test2', {color: 'green'});
+    Test(() => b8r.id('b').style.color).shouldBe('green');
 
-		// list binding
-		Test(() => b8r.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
+    // list binding
+    Test(() => b8r.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
 
-		// binding (from)
-		b8r.findOne('input').value = 55;
-		Test.trigger('input', b8r.findOne('input'));
-		Test(() => b8r.id('e').value)
-		                   .shouldBe(obj.sub.list[2] + '');
-		Test(() => b8r.id('c').textContent)
-		                   .shouldBe(obj.sub.list[2] + '');
-		b8r.setByPath('test2', 'color', 'purple');
-		Test(() => b8r.id('b').style.color).shouldBe('purple');
-		b8r.findOne('select').value = 'two';
-		Test.trigger('change', 'select');
-		Test(() => obj.option).shouldBe('two');
-		b8r.findOne('[type=checkbox]').checked = false;
-		Test.trigger('input', '[type=checkbox]');
-		Test(() => obj.checkbox).shouldBe(false);
+    // binding (from)
+    b8r.findOne('input').value = 55;
+    Test.trigger('input', b8r.findOne('input'));
+    Test(() => b8r.id('e').value)
+                       .shouldBe(obj.sub.list[2] + '');
+    Test(() => b8r.id('c').textContent)
+                       .shouldBe(obj.sub.list[2] + '');
+    b8r.setByPath('test2', 'color', 'purple');
+    Test(() => b8r.id('b').style.color).shouldBe('purple');
+    b8r.findOne('select').value = 'two';
+    Test.trigger('change', 'select');
+    Test(() => obj.option).shouldBe('two');
+    b8r.findOne('[type=checkbox]').checked = false;
+    Test.trigger('input', '[type=checkbox]');
+    Test(() => obj.checkbox).shouldBe(false);
 
-		// verify type-matching
-		obj.checkbox = false;
-		b8r.findOne('[type=checkbox]').checked = true;
-		Test.trigger('input', '[type=checkbox]');
-		Test(() => obj.checkbox).shouldBe(true);
-		b8r.findOne('[type=radio][value=first]').checked = true;
-		Test.trigger('change', '[type=radio][value=first]');
-		Test(() => obj.radio).shouldBe('first');
+    // verify type-matching
+    obj.checkbox = false;
+    b8r.findOne('[type=checkbox]').checked = true;
+    Test.trigger('input', '[type=checkbox]');
+    Test(() => obj.checkbox).shouldBe(true);
+    b8r.findOne('[type=radio][value=first]').checked = true;
+    Test.trigger('change', '[type=radio][value=first]');
+    Test(() => obj.radio).shouldBe('first');
 
-		// ajax methods
-		b8r.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
-		{
-			var failures = 0;
-			b8r.ajax('test/does-not-exist.txt', 'GET')
-				.then(() => {}, () => failures++)
-				.then(() => Test(() => failures).shouldBe(1));
-		}
-		b8r.json('test/test.json', 'GET')
-			.then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
-		{
-			// loads malformed response, should reject with error
-			let failures = 0;
-			b8r.json('test/malformed.json', 'GET')
-				.then(() => {}, () => failures++)
-				.then(() => Test(() => failures).shouldBe(1));
-		}
-		{
-			// loads empty response, resolves with valid JSON "null" string
-			let failures = 0;
-			b8r.json('test/empty.json', 'GET')
-				.then(() => {}, () => failures++)
-				.then(() => Test(() => failures).shouldBe(0));
-		}
+    // ajax methods
+    b8r.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
+    {
+      var failures = 0;
+      b8r.ajax('test/does-not-exist.txt', 'GET')
+        .then(() => {}, () => failures++)
+        .then(() => Test(() => failures).shouldBe(1));
+    }
+    b8r.json('test/test.json', 'GET')
+      .then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
+    {
+      // loads malformed response, should reject with error
+      let failures = 0;
+      b8r.json('test/malformed.json', 'GET')
+        .then(() => {}, () => failures++)
+        .then(() => Test(() => failures).shouldBe(1));
+    }
+    {
+      // loads empty response, resolves with valid JSON "null" string
+      let failures = 0;
+      b8r.json('test/empty.json', 'GET')
+        .then(() => {}, () => failures++)
+        .then(() => Test(() => failures).shouldBe(0));
+    }
 
-		// method to and from targets
-		b8r.register('method_binding', {
-			test: (elt, value) => {
-				if (value) {
-					const [first,second] = value.split(',');
-					elt.setAttribute('first', first);
-					elt.setAttribute('second', second);
-				} else {
-					return elt.getAttribute('first') + ',' + elt.getAttribute('second');
-				}
-			},
-			val: 'A,B',
-		});
-		let elt = b8r.id('method_binding');
-		Test(() => elt.getAttribute('first')).shouldBe('A');
-		b8r.setByPath('method_binding', 'val', 'C,D');
-		Test(() => elt.getAttribute('second')).shouldBe('D');
-		elt.setAttribute('second', 'Q');
-		b8r.trigger('change', elt);
-		Test(() => b8r.getByPath('method_binding', 'val')).shouldBe('C,Q');
+    // method to and from targets
+    b8r.register('method_binding', {
+      test: (elt, value) => {
+        if (value) {
+          const [first,second] = value.split(',');
+          elt.setAttribute('first', first);
+          elt.setAttribute('second', second);
+        } else {
+          return elt.getAttribute('first') + ',' + elt.getAttribute('second');
+        }
+      },
+      val: 'A,B',
+    });
+    let elt = b8r.id('method_binding');
+    Test(() => elt.getAttribute('first')).shouldBe('A');
+    b8r.setByPath('method_binding', 'val', 'C,D');
+    Test(() => elt.getAttribute('second')).shouldBe('D');
+    elt.setAttribute('second', 'Q');
+    b8r.trigger('change', elt);
+    Test(() => b8r.getByPath('method_binding', 'val')).shouldBe('C,Q');
 
-		function computed_color(name) {
-			var p = b8r.create(p);
-			p.style.color = name;
-			p.style.display = 'none';
-			document.body.appendChild(p);
-			var computed = window.getComputedStyle(p).color;
-			document.body.removeChild(p);
-			return computed;
-		}
+    function computed_color(name) {
+      var p = b8r.create(p);
+      p.style.color = name;
+      p.style.display = 'none';
+      document.body.appendChild(p);
+      var computed = window.getComputedStyle(p).color;
+      document.body.removeChild(p);
+      return computed;
+    }
 
-		// async updates
-		b8r.async_updates(true);
-		b8r.set('test1.base', 86);
-		Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
-		b8r.after_update(() => {
-			Test(() => b8r.id('a').textContent, 'Async Update after_update').shouldBe('86');
-		});
-		b8r.async_updates(false);
+    // async updates
+    b8r.async_updates(true);
+    b8r.set('test1.base', 86);
+    Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
+    b8r.after_update(() => {
+      Test(() => b8r.id('a').textContent, 'Async Update after_update').shouldBe('86');
+    });
+    b8r.async_updates(false);
 
-		// components
-		b8r.component('test', 'test/test')
-			.then(() => {
-				Test(() => b8r.findOne('.test-component p').textContent, 'Component loaded')
-					.shouldBe('This is a test');
-				Test(() => b8r.findOne('.test-component input').value, 'Component bound')
-					.shouldBe('55');
-				Test(() => window.getComputedStyle(b8r.findOne('.test-component > h2')).backgroundColor, 'Component stylesheet inserted')
-					.shouldBe(computed_color('purple'));
-				Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor, 'Component stylesheet did not "leak"')
-						.shouldBe(window.getComputedStyle(document.body).backgroundColor);
-				Test(() => b8r.findOne('.test-component h2').textContent, 'Component script ran')
-					.shouldBe('Set on load');
-				Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
-					.shouldBe(2);
-			})
-	</script>
+    // components
+    b8r.component('test', 'test/test')
+      .then(() => {
+        Test(() => b8r.findOne('.test-component p').textContent, 'Component loaded')
+          .shouldBe('This is a test');
+        Test(() => b8r.findOne('.test-component input').value, 'Component bound')
+          .shouldBe('55');
+        Test(() => window.getComputedStyle(b8r.findOne('.test-component > h2')).backgroundColor, 'Component stylesheet inserted')
+          .shouldBe(computed_color('purple'));
+        Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor, 'Component stylesheet did not "leak"')
+            .shouldBe(window.getComputedStyle(document.body).backgroundColor);
+        Test(() => b8r.findOne('.test-component h2').textContent, 'Component script ran')
+          .shouldBe('Set on load');
+        Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
+          .shouldBe(2);
+      })
+  </script>
 </body>

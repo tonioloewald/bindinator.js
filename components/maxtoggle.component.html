@@ -1,43 +1,43 @@
 <style>
-	.maxtoggle {
-		position: absolute;
-		top: 2px;
-		right: 2px;
-		border-radius: 2px;
-		content: "+";
-		text-align: center;
-		width: 16px;
-		height: 16px;
+  .maxtoggle {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    border-radius: 2px;
+    content: "+";
+    text-align: center;
+    width: 16px;
+    height: 16px;
     font-size: 12px;
     line-height: 18px;
     padding: 2px;
-		cursor: pointer;
+    cursor: pointer;
     color: #57A700;
     background-color: white;
-	}
+  }
 
-	.maxtoggle:hover {
+  .maxtoggle:hover {
     color: #BCED85;
     background-color: rgba(0,0,0,0.4);
-	}
+  }
 
   .maxtoggle:active {
     color: #BCED85;
     background-color: rgba(0,0,0,0.7);
   }
 
-	body.fullscreen .maxtoggle-maximize {
-		display: none;
-	}
+  body.fullscreen .maxtoggle-maximize {
+    display: none;
+  }
 
-	body:not(.fullscreen) .maxtoggle-minimize {
-		display: none;
-	}
+  body:not(.fullscreen) .maxtoggle-minimize {
+    display: none;
+  }
 </style>
-	<span class="maxtoggle-maximize icon-enlarge7"></span>
-	<span class="maxtoggle-minimize icon-shrink7"></span>
+  <span class="maxtoggle-maximize icon-enlarge7"></span>
+  <span class="maxtoggle-minimize icon-shrink7"></span>
 <script>
-	component.classList.add('maxtoggle');
-	component.setAttribute('title', 'Toggle Maximize (alt-space)');
-	on('mouseup', 'demo.fullscreen');
+  component.classList.add('maxtoggle');
+  component.setAttribute('title', 'Toggle Maximize (alt-space)');
+  on('mouseup', 'demo.fullscreen');
 </script>

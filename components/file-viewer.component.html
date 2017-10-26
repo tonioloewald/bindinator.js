@@ -14,40 +14,40 @@ implement a more sophisticated approach
 /* global data, b8r, container, component */
 'use strict';
 
-	const container = findOne('div');
+  const container = findOne('div');
 
-	switch (data.file_type || data.url.split('.').pop()) {
-		case 'md':
-		case 'markdown':
-			b8r.component('components/markdown-viewer').then(viewer => {
-				b8r.insertComponent(viewer, container, data);
-			});
-			break;
+  switch (data.file_type || data.url.split('.').pop()) {
+    case 'md':
+    case 'markdown':
+      b8r.component('components/markdown-viewer').then(viewer => {
+        b8r.insertComponent(viewer, container, data);
+      });
+      break;
 
-		case 'html':
+    case 'html':
 
-			if(data.url.match(/\.component\.html$/)) {
-				data.url = data.url.substr(0, data.url.length - 15);
-				b8r.component('components/component-viewer').then(viewer => {
-					b8r.insertComponent(viewer, container, data);
-				});
-			} else {
-				b8r.component('components/iframe').then(iframe => {
-					b8r.insertComponent(iframe, container, data);
-				});
-			}
-			break;
+      if(data.url.match(/\.component\.html$/)) {
+        data.url = data.url.substr(0, data.url.length - 15);
+        b8r.component('components/component-viewer').then(viewer => {
+          b8r.insertComponent(viewer, container, data);
+        });
+      } else {
+        b8r.component('components/iframe').then(iframe => {
+          b8r.insertComponent(iframe, container, data);
+        });
+      }
+      break;
 
-		case 'text':
-			b8r.component('components/text-viewer').then(viewer => {
-				b8r.insertComponent(viewer, container, data);
-			});
-			break;
+    case 'text':
+      b8r.component('components/text-viewer').then(viewer => {
+        b8r.insertComponent(viewer, container, data);
+      });
+      break;
 
-		case 'js':
-			b8r.component('components/literate-js-viewer').then(viewer => {
-				b8r.insertComponent(viewer, container, data);
-			});
-			break;
-	}
+    case 'js':
+      b8r.component('components/literate-js-viewer').then(viewer => {
+        b8r.insertComponent(viewer, container, data);
+      });
+      break;
+  }
 </script>

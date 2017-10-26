@@ -1,17 +1,17 @@
 {
-	"foo": "bar",
-	"bar": {
-		"foo": "BAR",
-		"bar": {
-			"foo": "bAr"
-		},
-		"baz": [
-			{"foo": "bar"},
-			{"foo": "BAZ"}
-		]
-	},
-	"baz": [
-		{"foo": "bar"},
-		{"foo": "BAZ"}
-	]
+  "foo": "bar",
+  "bar": {
+    "foo": "BAR",
+    "bar": {
+      "foo": "bAr"
+    },
+    "baz": [
+      {"foo": "bar"},
+      {"foo": "BAZ"}
+    ]
+  },
+  "baz": [
+    {"foo": "bar"},
+    {"foo": "BAZ"}
+  ]
 }

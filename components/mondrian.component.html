@@ -3,117 +3,117 @@
 Copyright ©2016-2017 Tonio Loewald
 -->
 <style>
-	.mondrian {
-		position: relative;
-		height: 400px;
-		overflow: hidden;
-	}
-	.mondrian > * {
-		overflow: hidden;
-		position: absolute;
-		color: rgba(0,0,0,0.3);
-		transition: 0.5s ease-out;
-		object-fit: cover;
-		font-size: 48px;
-		text-align: center;
-	}
+  .mondrian {
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+  }
+  .mondrian > * {
+    overflow: hidden;
+    position: absolute;
+    color: rgba(0,0,0,0.3);
+    transition: 0.5s ease-out;
+    object-fit: cover;
+    font-size: 48px;
+    text-align: center;
+  }
 
-	.mondrian video {
-		border-radius: 2px;
-	}
+  .mondrian video {
+    border-radius: 2px;
+  }
 
-	.mondrian-label {
-		padding: 4px;
-		display: inline-block;
-	}
+  .mondrian-label {
+    padding: 4px;
+    display: inline-block;
+  }
 </style>
 <div class="mondrian" data-event="change,resize:_component_.update">
-	<video src="test/video/portrait1.mov" autoplay=true loop=true></video>
-	<video src="test/video/portrait2.mov" autoplay=true loop=true></video>
-	<video src="test/video/portrait3.mov" autoplay=true loop=true></video>
-	<video src="test/video/landscape1.mov" autoplay=true loop=true></video>
-	<video src="test/video/landscape2.mov" autoplay=true loop=true></video>
-	<video src="test/video/landscape3.mov" autoplay=true loop=true></video>
+  <video src="test/video/portrait1.mov" autoplay=true loop=true></video>
+  <video src="test/video/portrait2.mov" autoplay=true loop=true></video>
+  <video src="test/video/portrait3.mov" autoplay=true loop=true></video>
+  <video src="test/video/landscape1.mov" autoplay=true loop=true></video>
+  <video src="test/video/landscape2.mov" autoplay=true loop=true></video>
+  <video src="test/video/landscape3.mov" autoplay=true loop=true></video>
 </div>
 <button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
 <button class="show" data-event="click:_component_.show_random">Show Random</button>
 <label class="mondrian-label">
-	<input class="random_changes" type="checkbox" checked>Randomly add and remove items
+  <input class="random_changes" type="checkbox" checked>Randomly add and remove items
 </label>
 <label class="mondrian-label">
-	<select class="desired_aspect_ratio" data-event="change:_component_.update">
-		<option value="0.33">3:1 Extreme Portrait</option>
-		<option value="0.67">3:2 Portrait</option>
-		<option value="1" selected>Square</option>
-		<option value="1.33">4:3 Landscape</option>
-		<option value="1.78">16:9 Widescreen</option>
-		<option value="2">2:1 Extreme Widescreen</option>
-		<option value="4">4:1 Extreme Widescreen</option>
-	</select> Desired Aspect Ratio
+  <select class="desired_aspect_ratio" data-event="change:_component_.update">
+    <option value="0.33">3:1 Extreme Portrait</option>
+    <option value="0.67">3:2 Portrait</option>
+    <option value="1" selected>Square</option>
+    <option value="1.33">4:3 Landscape</option>
+    <option value="1.78">16:9 Widescreen</option>
+    <option value="2">2:1 Extreme Widescreen</option>
+    <option value="4">4:1 Extreme Widescreen</option>
+  </select> Desired Aspect Ratio
 </label>
 <script>
 /* jshint latedef:false */
 /* global find, findOne, require, register, b8r */
 'use strict';
 
-	const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
-	const hidden = () => find('.mondrian > .hidden');
-	const desired_aspect_ratio = () => parseFloat(findOne('.desired_aspect_ratio').value);
-	const random_changes = findOne('.random_changes');
+  const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
+  const hidden = () => find('.mondrian > .hidden');
+  const desired_aspect_ratio = () => parseFloat(findOne('.desired_aspect_ratio').value);
+  const random_changes = findOne('.random_changes');
 
-	const mondrian = require('lib/mondrian.js');
-	const resize = require('lib/resize.js');
+  const mondrian = require('lib/mondrian.js');
+  const resize = require('lib/resize.js');
 
-	function update() {
-		mondrian.arrange(visible(), desired_aspect_ratio());
-	}
+  function update() {
+    mondrian.arrange(visible(), desired_aspect_ratio());
+  }
 
-	const container = findOne('.mondrian');
-	resize.relayTo(container);
+  const container = findOne('.mondrian');
+  resize.relayTo(container);
 
-	function pick_random(arr) {
-		return arr[Math.floor(Math.random() * arr.length)];
-	}
+  function pick_random(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
 
-	function random_behavior () {
-		if(random_changes.checked) {
-			if(hidden().length === 0) {
-				hide_random();
-			} else if (visible().length === 0) {
-				show_random();
-			} else {
-				switch (Math.floor(Math.random() * 3)) {
-					case 0:
-						hide_random();
-						break;
-					case 1:
-						show_random();
-						break;
-				}
-			}
-		}
-	}
+  function random_behavior () {
+    if(random_changes.checked) {
+      if(hidden().length === 0) {
+        hide_random();
+      } else if (visible().length === 0) {
+        show_random();
+      } else {
+        switch (Math.floor(Math.random() * 3)) {
+          case 0:
+            hide_random();
+            break;
+          case 1:
+            show_random();
+            break;
+        }
+      }
+    }
+  }
 
-	const {domInterval} = require('lib/dom-timers.js');
-	domInterval(container, random_behavior, 2000);
+  const {domInterval} = require('lib/dom-timers.js');
+  domInterval(container, random_behavior, 2000);
 
-	function hide_random () {
-		const elt = pick_random(visible());
-		if (elt) {
-			elt.classList.add('hidden');
-			b8r.trigger('change', container);
-		}
-	}
+  function hide_random () {
+    const elt = pick_random(visible());
+    if (elt) {
+      elt.classList.add('hidden');
+      b8r.trigger('change', container);
+    }
+  }
 
-	function show_random () {
-		const elt = pick_random(hidden());
-		if (elt) {
-			elt.classList.remove('hidden');
-			b8r.trigger('change', container);
-		}
-	}
+  function show_random () {
+    const elt = pick_random(hidden());
+    if (elt) {
+      elt.classList.remove('hidden');
+      b8r.trigger('change', container);
+    }
+  }
 
-	update();
+  update();
 
-	register ({hide_random, show_random, update});
+  register ({hide_random, show_random, update});
 </script>

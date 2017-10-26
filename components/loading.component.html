@@ -9,7 +9,7 @@ Copyright ©2016-2017 Tonio Loewald
   }
 </style>
 <div style="text-align: center; padding: 10%; border-radius: 4px;" class="loading-spinner">
-	<svg style="width: 64px; height: 64px;" viewBox="0, 0, 128, 128">
+  <svg style="width: 64px; height: 64px;" viewBox="0, 0, 128, 128">
     <path d="M81.8,108.5 L87.7,123.3 C80.2,126.6 72.1,127.7 64,128 L64,112 L64,112 C70.0,111.9 76.1,110.9 81.8,108.5 z" fill-opacity="0.1"/>
     <path d="M39.7,105.4 C45.0,108.3 50.8,110.8 56.9,111.4 L54.6,127.1 C46.5,126.2 38.9,123.1 31.7,119.3 L39.7,105.4 z" fill-opacity="0.2"/>
     <path d="M22.4,87.9 C25.3,93.4 29.6,97.8 34.3,101.6 L24.4,114.2 C17.8,109.4 12.8,102.9 8.5,96 L22.4,87.9 z" fill-opacity="0.3"/>
@@ -20,21 +20,21 @@ Copyright ©2016-2017 Tonio Loewald
     <path d="M32.2,8.4 L40.2,22.3 C34.8,25.2 30.3,29.4 26.4,34.1 L13.9,24.3 C18.7,17.7 25.3,12.6 32.2,8.4 z" fill-opacity="0.6"/>
     <path d="M72.9,0.5 C81.0,1.4 88.6,4.5 95.7,8.4 L87.7,22.3 C82.5,19.3 76.6,17.0 70.6,16.4 L72.9,0.5 z" fill-opacity="0.8"/>
     <path d="M64,16 C57.9,16.0 51.8,17.0 46.1,19.4 L40.2,4.6 C47.7,1.2 55.8,0.3 64,-0 L64,16 z" fill-opacity="0.7"/>
-	</svg>
+  </svg>
 </div>
 <script>
-	var interval = parseInt(component.getAttribute('interval') || '250', 10);
-	var fill = component.getAttribute('fill') || 'white';
-	var div = findOne('div');
-	div.style.background = component.getAttribute('background') || 'rgba(0,0,0,0.25)';
-	find('path').forEach(elt => elt.style.fill = fill);
-	var rot = 0;
-	var interval = setInterval(() => {
-		if (div && div.closest('body')) {
-			rot = (rot + 30) % 360;
-			findOne('svg').style.transform = 'rotateZ(' + rot + 'deg)';
-		} else {
-			clearInterval(interval);
-		}
-	}, interval);
+  var interval = parseInt(component.getAttribute('interval') || '250', 10);
+  var fill = component.getAttribute('fill') || 'white';
+  var div = findOne('div');
+  div.style.background = component.getAttribute('background') || 'rgba(0,0,0,0.25)';
+  find('path').forEach(elt => elt.style.fill = fill);
+  var rot = 0;
+  var interval = setInterval(() => {
+    if (div && div.closest('body')) {
+      rot = (rot + 30) % 360;
+      findOne('svg').style.transform = 'rotateZ(' + rot + 'deg)';
+    } else {
+      clearInterval(interval);
+    }
+  }, interval);
 </script>

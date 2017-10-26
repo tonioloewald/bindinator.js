@@ -7,86 +7,86 @@ being tested (as _required_) and the test code. The test code will be executed
 in a private context with _required_ and Test (the test.js module) passed as local variables.
 -->
 <style>
-	.test-report > * {
-		padding: 2px 0;
-		margin: 0;
-	}
+  .test-report > * {
+    padding: 2px 0;
+    margin: 0;
+  }
 
-	.success {
-		background-color: #afa;
-	}
+  .success {
+    background-color: #afa;
+  }
 
-	.failure {
-		background-color: #faa;
-	}
+  .failure {
+    background-color: #faa;
+  }
 
-	.test-report {
-		font-family: Menlo, Monaco, monospace;
-		font-size: 12px;
-		position: relative;
-		overflow: hidden;
-		display: flex;
-	}
+  .test-report {
+    font-family: Menlo, Monaco, monospace;
+    font-size: 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+  }
 
-	@keyframes test-report-appear {
-		from {
-			opacity: 0;
-		}
+  @keyframes test-report-appear {
+    from {
+      opacity: 0;
+    }
 
-		to {
-			opacity: 1;
-		}
-	}
+    to {
+      opacity: 1;
+    }
+  }
 
-	.test-sizable {
-		flex-grow: 1;
-		min-width: 100px;
-		width: 50%;
-	}
+  .test-sizable {
+    flex-grow: 1;
+    min-width: 100px;
+    width: 50%;
+  }
 
-	.test-transcript > p {
-		margin: 0;
-		white-space: nowrap;
-	}
+  .test-transcript > p {
+    margin: 0;
+    white-space: nowrap;
+  }
 </style>
 <details data-bind="attr(open)=_component_.show">
-	<summary>
-		Test Results
-	</summary>
-	<div class="test-report">
-		<pre class="test-sizable" data-bind="text=_component_.source" style="overflow:hidden"></pre>
-		<div data-component="sizer"></div>
-		<div class="test-transcript test-sizable"></div>
-	</div>
+  <summary>
+    Test Results
+  </summary>
+  <div class="test-report">
+    <pre class="test-sizable" data-bind="text=_component_.source" style="overflow:hidden"></pre>
+    <div data-component="sizer"></div>
+    <div class="test-transcript test-sizable"></div>
+  </div>
 </details>
 <script>
-	/* global require, findOne, b8r, data, set */
-	'use strict';
+  /* global require, findOne, b8r, data, set */
+  'use strict';
 
-	b8r.component('components/sizer');
+  b8r.component('components/sizer');
 
-	set({show: false});
+  set({show: false});
 
-	const notify_errors = () => {
-		b8r.findOne('.literate-errors').style.display = 'block';
-		set({show: true});
-	}
+  const notify_errors = () => {
+    b8r.findOne('.literate-errors').style.display = 'block';
+    set({show: true});
+  }
 
-	const Test = require('lib/test.js');
-	Test.onError = () => {
-		const test_error = b8r.findOne('.literate-errors');
-		if(test_error) {
-			notify_errors();
-		}
-	};
+  const Test = require('lib/test.js');
+  Test.onError = () => {
+    const test_error = b8r.findOne('.literate-errors');
+    if(test_error) {
+      notify_errors();
+    }
+  };
 
-	Test.setReportContainer(findOne('.test-transcript'));
-	const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.dataset.componentId}`); // jshint ignore:line
+  Test.setReportContainer(findOne('.test-transcript'));
+  const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.dataset.componentId}`); // jshint ignore:line
 
-	try {
-		test_runner.call(null, Test, b8r, data._required_);
-	} catch(e) {
-		notify_errors();
-		Test.report(`test runner threw exception: ${e}`, 'failure');
-	}
+  try {
+    test_runner.call(null, Test, b8r, data._required_);
+  } catch(e) {
+    notify_errors();
+    Test.report(`test runner threw exception: ${e}`, 'failure');
+  }
 </script>
