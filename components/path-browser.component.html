@@ -4,8 +4,20 @@
 A tool for browsing objects.
 -->
 <style>
+  .path-browser-component ul {
+    margin: 0;
+    padding: 0;
+  }
   .path-browser-component li {
+    list-style: none;
     cursor: pointer;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .path-browser-component li:nth-child(2n) {
+    background-color: rgba(0,0,0,0.05);
   }
 </style>
 <select data-bind="value=_component_.value">
@@ -25,17 +37,22 @@ A tool for browsing objects.
   </li>
 </ul>
 <script>
-/* global b8r, set, data */
+/* global b8r, get, set, data, touch */
 'use strict';
 
-  const history_select = findOne('select');
+  const reset = path => {
+    set({
+      value: path,
+      history: [],
+      list: []
+    });
+  };
 
-  set('history', []);
-  set('list', []);
+  reset();
 
   const describe = require('../lib/describe.js');
-  if (!data.value) {
-    set({value: 'object-browser-test'});
+
+  if (component.matches('.example') && !data.value) {
     b8r.register('object-browser-test', {
       foo: 17,
       bar: 'hello world',
@@ -52,16 +69,25 @@ A tool for browsing objects.
       empty_list: [],
       null_value: null,
       nan_value: NaN,
+      func_value: (a, b, c, d) => {},
     });
+    set({value: 'object-browser-test'});
   }
 
   set({
-    description: (list, path) => {
-      const obj = b8r.get(path);
+    reset,
 
-      if (obj == null) {
+    description: (list, path) => {
+      if (!path) { // jshint ignore:line
         return [];
       }
+      const obj = b8r.get(path);
+
+      if (obj == null) { // jshint ignore:line
+        return [];
+      }
+
+      console.log(path, obj);
 
       if (get('history').indexOf(path) === -1) {
         get('history').push(path);
@@ -76,7 +102,7 @@ A tool for browsing objects.
       } else if (obj && typeof obj === 'object') {
         for(let i = 0, keys = Object.keys(obj); i < keys.length; i++) {
           const key = keys[i];
-          list.push({key, val: describe(obj[key]), path: path ? `${path}.${key}` : key});
+          list.push({key, val: describe(obj[key]), path: path && path !== '/' ? `${path}.${key}` : key});
         }
       } else {
         list.push({key: typeof obj, val: describe(obj)});
