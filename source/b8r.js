@@ -986,7 +986,7 @@ b8r.insertComponent = function(component, element, data) {
     delete element.dataset.component;
   }
   if (!data || data_path) {
-    data = dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {});
+    data = b8r.assignValues({}, dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {}));
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);
@@ -1031,7 +1031,7 @@ b8r.insertComponent = function(component, element, data) {
     element.dataset.path = data_path;
   }
   const register = component_data => b8r.register(component_id, component_data);
-  data = b8r.assignValues({data_path, component_id}, data);
+  data = Object.assign({data_path, component_id}, data);
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
     const set = (...args) => {
