@@ -986,7 +986,7 @@ b8r.insertComponent = function(component, element, data) {
     delete element.dataset.component;
   }
   if (!data || data_path) {
-    data = b8r.assignValues({}, dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {}));
+    data = dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {});
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);
