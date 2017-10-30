@@ -179,13 +179,27 @@ Copyright ©2016-2017 Tonio Loewald
       hide:_component_.events_off;
     "
   >
-    <div data-list="_component_.event_info">
-      <div class="inspector-node" data-bind="text=.tag">&lt;tag class="foo"&gt;</div>
-      <div class="inspector-handler" data-list=".handlers">
-        <span class="inspector-eventtype" data-bind="text=.types">event_type, other_event_type</span>
-        <span class="inspector-path" data-bind="text=.path">path.to.method</span>
-      </div>
-    </div>
+    <table data-bind="show_if=_component_.event_info.length">
+      <thead>
+        <tr>
+          <th>tag</th>
+          <th>handlers</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-list="_component_.event_info">
+          <td data-bind="text=.tag"></td>
+          <td>
+            <ul>
+              <li data-list=".handlers">
+                <span data-bind="text=.types"></span>:
+                <span data-bind="text=.path"></span>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <div
     title="perf"
@@ -279,6 +293,7 @@ Copyright ©2016-2017 Tonio Loewald
           }),
         });
       } while (target = target.parentElement.closest('[data-event]')); // jshint ignore:line
+      console.log(JSON.stringify(event_info, false, 2));
       set({event_info});
     }
   });
