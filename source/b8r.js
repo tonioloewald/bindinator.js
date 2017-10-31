@@ -562,7 +562,8 @@ function bind(element) {
   for (let i = 0; i < bindings.length; i++) {
     const { targets, path } = bindings[i];
     const value = b8r.interpolate(path, element);
-    if (typeof boundValues[path] === 'object' || boundValues[path] !== value) {
+    const existing = boundValues[path];
+    if (existing !== value || (value && value.constructor)) {
       const signature = b8r.elementSignature(element);
       b8r.logStart('toTargets', signature);
       newValues[path] = value;
