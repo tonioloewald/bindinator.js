@@ -326,7 +326,7 @@ function matchTypes(value, oldValue) {
                       false :
                       !!value;  // maps undefined || null || '' || 0 => false
   } else if (oldValue !== undefined && oldValue !== null) {
-    console.warn('setByPath found non-matching types');
+    console.warn('setByPath replaced', oldValue, 'with', value);
   }
   return value;
 }
