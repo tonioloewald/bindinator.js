@@ -39,10 +39,7 @@ for production.
       path: component.dataset.src || 'test/toggle_switch.json'
     });
 
-    data.animation.setSpeed(4);
-    if (data.value) {
-      setTimeout(data.update, 30);
-    }
+    setTimeout(data.update, 100);
   });
 
   set({
@@ -52,6 +49,7 @@ for production.
     },
     update: () => {
       if (data.animation) {
+        data.animation.setSpeed(4);
         if (data.value) {
           data.animation.playSegments([0,50], true);
         } else {

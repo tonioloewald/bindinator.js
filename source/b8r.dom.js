@@ -271,5 +271,5 @@ module.exports = {
       clientY - margin < r.bottom
     );
   },
-  isInBody: element => document.body.contains(element),
+  isInBody: element => element && (element instanceof Node) && document.body.contains(element),
 };
