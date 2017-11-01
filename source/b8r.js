@@ -217,13 +217,16 @@ const _after_update_callbacks = [];
 
 const _update = () => {
   b8r.logStart('async_update', 'update');
+  const body = document.body;
 
   while(_update_list.length) {
     const {fn, element} = _update_list.shift();
-    try {
-      fn(element);
-    } catch (e) {
-      console.error('_update error', e, fn, element);
+    if (body.contains(element)) {
+      try {
+        fn(element);
+      } catch (e) {
+        console.error('_update error', e, fn, element);
+      }
     }
   }
 
