@@ -303,7 +303,11 @@ module.exports = function(b8r) {
       if (model === '_component_') {
         model = get_component_with_method(element, method);
       }
-      b8r.callMethod(model, method, element, value);
+      if (model) {
+        b8r.callMethod(model, method, element, value);
+      } else {
+        console.warn(`method ${method} not found in`, element);
+      }
     },
     json: function(element, value) {
       element.textContent = JSON.stringify(value, false, 2);
