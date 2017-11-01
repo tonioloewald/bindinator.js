@@ -330,7 +330,10 @@ Test(() => {remove('foo.boris.yeltsin'); return get('foo.boris')}).shouldBe(null
 Test(() => {remove('foo.baz.lurman'); return Object.keys(get('foo.baz')).length}).shouldBe(0);
 ~~~~
 */
-const remove = path => deleteByPath(registry, path);
+const remove = path => {
+  deleteByPath(registry, path);
+  touch(path);
+};
 
 module.exports = {
   get,
