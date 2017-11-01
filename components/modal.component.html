@@ -101,8 +101,6 @@ Copyright ©2016-2017 Tonio Loewald
   data.button = evt => {
     if (data && data.callback) {
       data.callback(evt, component, data);
-    } else {
-      console.warn('dialog has no callback; user pressed', evt.target.textContent);
     }
 
     if (
