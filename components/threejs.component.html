@@ -61,7 +61,7 @@ It loads via require() but sets a global rather than passing back to module.expo
     b8r.onAny('mousemove', 'threejs-demo.mousemove');
     b8r.register('threejs-demo', {
       mousemove: evt => {
-        if (component.closest('body')) {
+        if (b8r.isInBody(component)) {
           const x = (evt.clientX / window.innerWidth - 0.5) * 2;
           const y = (evt.clientY / window.innerHeight - 0.5) * 2;
           b8r.set('threejs-demo.mouse', {x, y});
@@ -74,7 +74,7 @@ It loads via require() but sets a global rather than passing back to module.expo
     });
 
     function render() {
-      if(canvas.closest('body')) {
+      if(b8r.isInBody(canvas)) {
         update();
         requestAnimationFrame( render );
         renderer.render( scene, camera );

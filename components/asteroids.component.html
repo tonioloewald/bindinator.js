@@ -53,7 +53,7 @@ Uses game-controller.js which relies on presence of a connected gamepad.
   </svg>
 </div>
 <script>
-/* global findOne, register, component, set, require, b8r */
+/* global findOne, register, component, require, b8r, touch */
 'use strict';
 
   const uuid = require('lib/uuid.js');
@@ -67,7 +67,9 @@ Uses game-controller.js which relies on presence of a connected gamepad.
   let h = starfield.offsetHeight + 100;
 
   const repeat = (what, howMany) => {
-    for(let i = 0; i < howMany; i++) what();
+    for(let i = 0; i < howMany; i++) {
+      what();
+    }
   };
 
   const createAsteroid = (size) => {
@@ -113,7 +115,7 @@ Uses game-controller.js which relies on presence of a connected gamepad.
   };
 
   const render = () => {
-    if (component && component.closest('body')) {
+    if (component && b8r.isInBody(component)) {
       const gamepad = gamepads()[0];
       w = starfield.offsetWidth + 100;
       h = starfield.offsetHeight + 100;

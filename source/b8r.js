@@ -155,7 +155,7 @@ b8r.throttle = (orig_fn, min_interval) => {
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
   b8r.forEachKey(_component_instances, (element, component_id) => {
-    if (!element.closest('body') || element.dataset.componentId !== component_id) {
+    if (!b8r.isInBody(element) || element.dataset.componentId !== component_id) {
       delete _component_instances[component_id];
     }
   });
@@ -478,8 +478,13 @@ b8r.getListInstance = function(elt) {
   return instancePath ? b8r.get(instancePath, elt) : null;
 };
 
-implicit_event_types.forEach(
-  type => document.body.addEventListener(type, handle_event, true));
+if (document.body) {
+  implicit_event_types.forEach(type => document.body.addEventListener(type, handle_event, true));
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    implicit_event_types.forEach(type => document.body.addEventListener(type, handle_event, true));
+  });
+}
 
 /**
     b8r.implicityHandleEventsOfType(type_string)

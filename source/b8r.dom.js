@@ -18,6 +18,10 @@ element.querySelectorAll(selector) converted to a true array
 
 element.querySelector(selector)
 
+    isInBody(element); // document.body.contains(element)
+
+returns true if the element is in the document (versus "virtual")
+
     id(id_string)
 
 document.getElementById(id_string)
@@ -267,4 +271,5 @@ module.exports = {
       clientY - margin < r.bottom
     );
   },
+  isInBody: element => document.body.contains(element),
 };
