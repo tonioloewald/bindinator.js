@@ -4,36 +4,43 @@ Copyright ©2016-2017 Tonio Loewald
 -->
 <style>
   .mondrian {
+    background: rgba(0,0,0,0.5);
     position: relative;
-    height: 400px;
     overflow: hidden;
+    transition: 2s ease-in-out;
   }
   .mondrian > * {
     overflow: hidden;
     position: absolute;
-    color: rgba(0,0,0,0.3);
     transition: 0.5s ease-out;
     object-fit: cover;
-    font-size: 48px;
-    text-align: center;
-  }
-
-  .mondrian video {
-    border-radius: 2px;
+    border-radius: 0.5px; /* without this, overflow is broken */
   }
 
   .mondrian-label {
     padding: 4px;
     display: inline-block;
   }
+
+  .mondrian *.mondrian-letterbox {
+    border-radius: 0;
+    object-fit: contain;
+  }
 </style>
-<div class="mondrian" data-event="change,resize:_component_.update">
+<div
+  class="mondrian"
+  data-event="transitionend:_component_.update"
+  data-bind="style(height)=_component_.container_height"
+>
   <video src="test/video/portrait1.mov" autoplay=true loop=true></video>
   <video src="test/video/portrait2.mov" autoplay=true loop=true></video>
   <video src="test/video/portrait3.mov" autoplay=true loop=true></video>
   <video src="test/video/landscape1.mov" autoplay=true loop=true></video>
   <video src="test/video/landscape2.mov" autoplay=true loop=true></video>
   <video src="test/video/landscape3.mov" autoplay=true loop=true></video>
+  <img src="test/portraits/tentacle.png">
+  <img src="test/portraits/weasel.png">
+  <canvas width="128" height="128"></canvas>
 </div>
 <button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
 <button class="show" data-event="click:_component_.show_random">Show Random</button>
@@ -41,7 +48,9 @@ Copyright ©2016-2017 Tonio Loewald
   <input class="random_changes" type="checkbox" checked>Randomly add and remove items
 </label>
 <label class="mondrian-label">
-  <select class="desired_aspect_ratio" data-event="change:_component_.update">
+  <select
+    data-bind="value=_component_.desired_aspect_ratio"
+  >
     <option value="0.33">3:1 Extreme Portrait</option>
     <option value="0.67">3:2 Portrait</option>
     <option value="1" selected>Square</option>
@@ -51,22 +60,49 @@ Copyright ©2016-2017 Tonio Loewald
     <option value="4">4:1 Extreme Widescreen</option>
   </select> Desired Aspect Ratio
 </label>
+  <select
+    data-bind="value=_component_.container_height"
+  >
+    <option value="800px">Tall</option>
+    <option value="400px">Normal</option>
+    <option value="200px" selected>Wide</option>
+  </select> Container Shape
+</label>
+<label class="mondrian-label">
+  <input type="range" min="1" max="2" step="0.05" data-bind="value=_component_.letterbox_threshold">
+  <span data-bind="fixed(2)=_component_.letterbox_threshold"></span> Letterbox Threshold
+</label>
 <script>
 /* jshint latedef:false */
-/* global find, findOne, require, register, b8r */
+/* global find, findOne, require, register, b8r, on, get */
 'use strict';
 
   const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
   const hidden = () => find('.mondrian > .hidden');
-  const desired_aspect_ratio = () => parseFloat(findOne('.desired_aspect_ratio').value);
   const random_changes = findOne('.random_changes');
+  const canvas = findOne('canvas');
+
+  on('change,update', '_component_.update');
+
+  /* test canvas */
+  const g = canvas.getContext('2d');
+  g.fillStyle = 'red';
+  g.fillRect(0,0,64,64);
+  g.fillStyle = 'green';
+  g.fillRect(64,0,64,64);
+  g.fillStyle = 'blue';
+  g.fillRect(0,64,64,64);
+  g.fillStyle = 'yellow';
+  g.fillRect(64,64,64,64);
 
   const mondrian = require('lib/mondrian.js');
   const resize = require('lib/resize.js');
 
-  function update() {
-    mondrian.arrange(visible(), desired_aspect_ratio());
-  }
+  const update = () => requestAnimationFrame(() => {
+    console.time('arrange');
+    mondrian.arrange(visible(), get('desired_aspect_ratio'), get('letterbox_threshold'));
+    console.timeEnd('arrange');
+  });
 
   const container = findOne('.mondrian');
   resize.relayTo(container);
@@ -113,7 +149,7 @@ Copyright ©2016-2017 Tonio Loewald
     }
   }
 
-  update();
+  register ({hide_random, show_random, update, container_height: '400px', desired_aspect_ratio: 1, letterbox_threshold: 1.25});
 
-  register ({hide_random, show_random, update});
+  update();
 </script>
