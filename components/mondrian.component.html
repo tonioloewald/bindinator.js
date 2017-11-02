@@ -7,7 +7,6 @@ Copyright ©2016-2017 Tonio Loewald
     background: rgba(0,0,0,0.5);
     position: relative;
     overflow: hidden;
-    transition: 2s ease-in-out;
   }
   .mondrian > * {
     overflow: hidden;
@@ -29,7 +28,6 @@ Copyright ©2016-2017 Tonio Loewald
 </style>
 <div
   class="mondrian"
-  data-event="transitionend:_component_.update"
   data-bind="style(height)=_component_.container_height"
 >
   <video src="test/video/portrait1.mov" autoplay=true loop=true></video>
@@ -70,7 +68,7 @@ Copyright ©2016-2017 Tonio Loewald
 </label>
 <label class="mondrian-label">
   <input type="range" min="1" max="2" step="0.05" data-bind="value=_component_.letterbox_threshold">
-  <span data-bind="fixed(2)=_component_.letterbox_threshold"></span> Letterbox Threshold
+  (<span data-bind="fixed(2)=_component_.letterbox_threshold"></span>) Letterbox Threshold
 </label>
 <script>
 /* jshint latedef:false */
@@ -99,9 +97,10 @@ Copyright ©2016-2017 Tonio Loewald
   const resize = require('lib/resize.js');
 
   const update = () => requestAnimationFrame(() => {
-    console.time('arrange');
+    const signature = b8r.elementSignature(findOne('.mondrian'));
+    b8r.logStart('mondrian', signature);
     mondrian.arrange(visible(), get('desired_aspect_ratio'), get('letterbox_threshold'));
-    console.timeEnd('arrange');
+    b8r.logEnd('mondrian', signature);
   });
 
   const container = findOne('.mondrian');
@@ -150,6 +149,8 @@ Copyright ©2016-2017 Tonio Loewald
   }
 
   register ({hide_random, show_random, update, container_height: '400px', desired_aspect_ratio: 1, letterbox_threshold: 1.25});
+
+  setTimeout(() => b8r.showLogs('mondrian'), 10000);
 
   update();
 </script>
