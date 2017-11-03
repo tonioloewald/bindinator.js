@@ -728,7 +728,7 @@ function bindList(list_template, data_path) {
   for (let i = list.length - 1; i >= 0; i--) {
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
     if (ids[id]) {
-      console.warn(`${id} is not unique ${id_path} in list bound to`, list_template);
+      console.warn(`${id} not unique ${id_path} in ${list_template.dataset.list}`);
       continue;
     }
     ids[id] = true;
