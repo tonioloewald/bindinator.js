@@ -703,7 +703,9 @@ function bindList(list_template, data_path) {
   const existing_list_instances = id_path ? b8r.listInstances(list_template) : [];
   const path_to_instance_map = {};
   if (existing_list_instances.length) {
-    existing_list_instances.forEach(elt => path_to_instance_map[elt.dataset.listInstance] = elt);
+    existing_list_instances.forEach(elt => {
+      path_to_instance_map[elt.dataset.listInstance] = elt;
+    });
   }
 
   /* Safari refuses to hide hidden options */
@@ -721,8 +723,15 @@ function bindList(list_template, data_path) {
 
   let previous_instance = list_template;
   let instance;
+
+  const ids = {};
   for (let i = list.length - 1; i >= 0; i--) {
     const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
+    if (ids[id]) {
+      console.warn(`${id} is not unique ${id_path} in list bound to`, list_template);
+      continue;
+    }
+    ids[id] = true;
     const itemPath = `${list_path}[${id}]`;
     instance = path_to_instance_map[itemPath];
     if (instance === undefined) {

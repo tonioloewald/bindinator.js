@@ -82,6 +82,9 @@
     <div data-component="test">
       <p>First Child</p>
       <p>Second Child</p>
+      <ul>
+      	<li class="bad-list" data-list="test1.id_list:id" data-bind="text=.label"></li>
+      </ul>
     </div>
     <div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
   </div>
@@ -115,6 +118,7 @@
         [4,5,6],
         [7,8,9]
       ],
+      id_list: [{id: 'A', label: 'A'}, {id: 'B', label: 'B'}, {id: 'C', label: 'C'}, {id: 'A', label: 'bogus A'}],
       option: '3',
       checkbox: true,
       radio: 'second',
@@ -146,6 +150,7 @@
     Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
     Test(() => b8r.id('a').style.color).shouldBe('red');
     Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
+    Test(() => b8r.find('.bad-list[data-list-instance]').length).shouldBe(3);
 
 
     b8r.register('test2', {color: 'green'});
