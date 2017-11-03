@@ -13,6 +13,9 @@ build/*
 *.xcworkspace
 xcuserdata
 
+# nodejs noise
+node_modules
+
 # intellij noise
 .idea/
 
