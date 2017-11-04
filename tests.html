@@ -85,6 +85,9 @@
       <ul>
       	<li class="bad-list" data-list="test1.id_list:id" data-bind="text=.label"></li>
       </ul>
+      <ul>
+      	<li class="obj-list" data-list="test1.obj_list" data-bind="text=.label"></li>
+      </ul>
     </div>
     <div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
   </div>
@@ -119,6 +122,11 @@
         [7,8,9]
       ],
       id_list: [{id: 'A', label: 'A'}, {id: 'B', label: 'B'}, {id: 'C', label: 'C'}, {id: 'A', label: 'bogus A'}],
+      obj_list: {
+      	a: {label: 'object a'},
+      	b: {label: 'object b'},
+      	c: {label: 'object c'},
+      },
       option: '3',
       checkbox: true,
       radio: 'second',
@@ -131,8 +139,8 @@
     Test(() => getByPath(obj, 'sub.list[1]')).shouldBe(obj.sub.list[1]);
     Test(() => getByPath(obj, 'list[1].x')).shouldBe(obj.list[1].x);
     Test(() => getByPath(obj, 'nested_list[1][1]')).shouldBe(obj.nested_list[1][1]);
-    Test(() => getByPath(obj, 'list[x=12]')).shouldBe(obj.list[1])
-    Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2])
+    Test(() => getByPath(obj, 'list[x=12]')).shouldBe(obj.list[1]);
+    Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2]);
     setByPath(obj, 'base', 42);
     setByPath(obj, 'kettle.black', 11);
     Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
@@ -264,6 +272,6 @@
           .shouldBe('Set on load');
         Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
           .shouldBe(2);
-      })
+      });
   </script>
 </body>

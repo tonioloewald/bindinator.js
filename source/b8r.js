@@ -647,6 +647,22 @@ function makeListInstanceBinder (list_template) {
   }
 }
 
+const forEachItemIn = (obj, func) => {
+  if (Array.isArray(obj)) {
+    for (let i = obj.length - 1; i >= 0; i--) {
+      func(obj[i], i);
+    }
+  } else if (obj.constructor === Object) {
+    const keys = Object.keys(obj);
+    for (let i = keys.length - 1; i >= 0; i--) {
+      const key = keys[i];
+      func(obj[key], `=${key}`);
+    }
+  } else if (obj !== null) {
+    console.error('cannot iterate over', obj);
+  }
+};
+
 function bindList(list_template, data_path) {
   if (!list_template.parentElement) {
     return;
@@ -680,7 +696,7 @@ function bindList(list_template, data_path) {
       try {
         const args = arg_paths.map(b8r.get);
         const filtered_list = b8r.callMethod(method_path, ...args, list_template);
-        // debug warning
+        // debug warning for lists that get "filtered" into new objects
         if (filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
           console.warn(`list filter ${method_path} returned a new object (not from original list); this will break updates!`);
         }
@@ -725,11 +741,11 @@ function bindList(list_template, data_path) {
   let instance;
 
   const ids = {};
-  for (let i = list.length - 1; i >= 0; i--) {
-    const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
+  forEachItemIn(list, (item, i) => {
+    const id = id_path ? id_path + '=' + getByPath(item, id_path) : i;
     if (ids[id]) {
       console.warn(`${id} not unique ${id_path} in ${list_template.dataset.list}`);
-      continue;
+      return;
     }
     ids[id] = true;
     const itemPath = `${list_path}[${id}]`;
@@ -748,7 +764,7 @@ function bindList(list_template, data_path) {
       }
     }
     previous_instance = instance;
-  }
+  });
   // anything still there is no longer in the list and can be removed
   if (id_path) {
     b8r.forEachKey(path_to_instance_map, instance => instance.remove());

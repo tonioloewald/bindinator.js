@@ -47,6 +47,7 @@ Test(() => b8r.isValidPath('foo')).shouldBe(true);
 Test(() => b8r.isValidPath('foo.bar')).shouldBe(true);
 Test(() => b8r.isValidPath('.')).shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[1234]')).shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[=abcd]')).shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[id=1234]')).shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[id=1234].')).shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[id=1234')).shouldBe(false);
@@ -66,7 +67,7 @@ const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
 const listeners = [];  // { path_string_or_test, callback }
 
-const valid_path = /^(\.|[^.\[\]])+(\.[^.\[\]]+|\[\d+\]|\[[^=\[\]]+\=[^\[\]]+\])*(\.)?$/;
+const valid_path = /^(\.|[^.\[\]])+(\.[^.\[\]]+|\[\d+\]|\[[^=\[\]]*\=[^\[\]]+\])*(\.)?$/;
 
 const isValidPath = path => valid_path.test(path);
 

@@ -34,8 +34,10 @@ Given:
 The following paths work:
 
     foo → 17
+    [=foo] → 17
     bar[1] → 2
     baz[1].id → 42
+    [=baz][1][=id] → 42
     baz[id=17].name → "fred"
     baz[deeper.and_deeper=4].name → "fred"
 
@@ -108,7 +110,9 @@ const list = [
 ]
 
 Test(() => getByPath(obj, 'foo')).shouldBe(17);
+Test(() => getByPath(obj, '[=foo]')).shouldBe(17);
 Test(() => getByPath(obj, 'bar.baz')).shouldBe('hello');
+Test(() => getByPath(obj, '[=bar][=baz]')).shouldBe('hello');
 Test(() => getByPath(list, '[0].id')).shouldBe(17);
 Test(() => getByPath(list, '[id=100].name')).shouldBe('boris');
 Test(() => getByPath(list, '[bar.baz=hello].foo')).shouldBe(17);
@@ -129,12 +133,53 @@ Test(() => {
   setByPath(obj, 'obj', null);
   return obj.obj;
 }).shouldBe(null);
+Test(() => {
+  setByPath(obj, '[=obj]', {hello: 'world'});
+  return obj.obj.hello;
+}).shouldBe('world');
+Test(() => {
+  setByPath(obj, '[=obj][=hello]', 'mars');
+  return obj.obj.hello;
+}).shouldBe('mars');
+Test(() => {
+  setByPath(obj, 'list[id=17]', {id: 17, name: 'vlad'});
+  return getByPath(obj, 'list[id=17].name');
+}).shouldBe('vlad');
+Test(() => {
+  setByPath(obj, 'list[id=17]', {id: 17, name: 'vlad'});
+  return getByPath(obj, 'list[id=17].name');
+}).shouldBe('vlad');
+Test(() => {
+  setByPath(obj, 'list[id=13]', {id:13, name:'success'});
+  return getByPath(obj, 'list[id=13].name');
+}, 'insert-by-id works for new elements').shouldBe('success');
+Test(() => {
+  setByPath(obj, 'list[id=13].name', 'replaced');
+  return getByPath(obj, 'list[id=13].name');
+}, 'id-path in middle of path works').shouldBe('replaced');
+Test(() => {
+  setByPath(obj, 'list[id=13]', {id:13, name:'overwrite'});
+  return getByPath(obj, 'list').length;
+}, 'insert-by-id works does not create duplicates').shouldBe(3);
+Test(() => {
+  let caught = 0;
+  try {
+    setByPath(obj, 'list[id=20]', {name: 'failure'});
+  } catch(e) {
+    caught++;
+  }
+  return caught;
+}, 'item inserted at id_path must satisfy it').shouldBe(1);
 ~~~~
 */
 /* jshint latedef:false */
 /* global module, console */
 
 'use strict';
+
+// unique tokens passed to set by path to delete or create properties
+const _delete_ = {};
+const _new_object_ = {};
 
 function pathSplit(full_path) {
   let [, model,, start, path] = full_path.match(/^(.*?)(([\.\[])(.*))?$/);
@@ -201,21 +246,64 @@ function buildKeypathMap(array, key_path) {
   return record;
 }
 
-function byKeyPath(array, key_path, key_value) {
-  const _keypath_map = getKeypathMap(array, key_path);
-  let idx = _keypath_map.value_map[key_value];
-  if (idx === undefined || getByPath(array[idx], key_path) + '' !== key_value + '') {
-    _keypath_map.value_map = buildKeypathValueMap(array, key_path);
-    idx = _keypath_map.value_map[key_value];
+function byKey(obj, key) {
+  if (!obj[key]) {
+    obj[key] = {};
   }
-  /*
-  let idx = array.findIndex(item => getByPath(item, key_path) + '' == key_value);
-  */
+  return obj[key];
+}
+
+function byKeyPath(array, key_path, key_value, value_to_insert) {
+  let idx;
+  if (!key_path) {
+    idx = key_value;
+  } else {
+    const _keypath_map = getKeypathMap(array, key_path);
+    idx = _keypath_map.value_map[key_value];
+    if (idx === undefined || getByPath(array[idx], key_path) + '' !== key_value + '') {
+      _keypath_map.value_map = buildKeypathValueMap(array, key_path);
+      idx = _keypath_map.value_map[key_value];
+    }
+  }
+  if (value_to_insert === _delete_) {
+    if (!key_path) {
+      delete array[idx];
+    } else {
+      array.splice(idx, 1);
+    }
+    return null;
+  } else if (value_to_insert === _new_object_) {
+    if (!key_path && !array[idx]) {
+      array[idx] = {};
+    }
+  } else if (value_to_insert) {
+    if (idx !== undefined) {
+      array[idx] = matchTypes(value_to_insert, array[idx]);
+    } else if (key_path && getByPath(value_to_insert, key_path) + '' === key_value + '') {
+      array.push(value_to_insert);
+      idx = array.length - 1;
+    } else {
+      throw `byKeyPath insert failed at [${key_path}=${key_value}]`;
+    }
+  }
   return array[idx];
 }
 
-function getByPath(obj, path) {
+function expectArray (obj) {
+  if (!Array.isArray(obj)) {
+    console.error('setByPath failed: expected array, found', obj);
+    throw 'setByPath failed: expected array';
+  }
+}
 
+function expectObject (obj) {
+  if (!obj || obj.constructor !== Object) {
+    console.error('setByPath failed: expected Object, found', obj);
+    throw 'setByPath failed: expected object';
+  }
+}
+
+function getByPath(obj, path) {
   const parts = pathParts(path);
   var found = obj;
   var i, max_i, j, max_j;
@@ -228,7 +316,11 @@ function getByPath(obj, path) {
       }
     } else {
       if (!found.length) {
-        found = undefined;
+        if (part[0] === '=') {
+          found = found[part.substr(1)];
+        } else {
+          found = undefined;
+        }
       } else if (part.indexOf('=') > -1) {
         const [key_path, ...tail] = part.split('=');
         found = byKeyPath(found, key_path, tail.join('='));
@@ -241,9 +333,6 @@ function getByPath(obj, path) {
   return found === undefined ? null : found;
 }
 
-// unique token passed to set by path to delete properties
-const _delete_ = {};
-
 function setByPath(orig, path, val) {
   let obj = orig;
   const parts = pathParts(path);
@@ -251,25 +340,21 @@ function setByPath(orig, path, val) {
   while (obj && parts.length) {
     const part = parts.shift();
     if (typeof part === 'string') {
-      if (!Array.isArray(obj)) {
-        console.error('setByPath failed: expected array, found', obj);
-        throw 'setByPath failed: expected array';
-      }
       const equals_offset = part.indexOf('=');
       if (equals_offset > -1) {
+        if (equals_offset === 0) {
+          expectObject(obj);
+        } else {
+          expectArray(obj);
+        }
         const key_path = part.substr(0, equals_offset);
         const key_value = part.substr(equals_offset + 1);
-        obj = byKeyPath(obj, key_path, key_value);
+        obj = byKeyPath(obj, key_path, key_value, parts.length ? _new_object_ : val);
         if (!parts.length) {
-          if (typeof obj === 'object') {
-            Object.assign(obj, val);
-            return true;
-          } else {
-            console.error('setByPath failed): expected object, found', obj);
-            throw 'setByPath failed: expected object';
-          }
+          return true;
         }
       } else {
+        expectArray(obj);
         const idx = parseInt(part, 10);
         if (parts.length) {
           obj = obj[idx];
@@ -277,19 +362,17 @@ function setByPath(orig, path, val) {
           if (val !== _delete_) {
             obj[idx] = matchTypes(val, obj[idx]);
           } else {
-            delete obj[idx];
+            obj.splice(idx, 1);
           }
           return true;
         }
       }
     } else if (Array.isArray(part) && part.length) {
+      expectObject(obj);
       while (part.length) {
-        var key = part.shift();
+        const key = part.shift();
         if (part.length || parts.length) {
-          if (!obj[key]) {
-            obj[key] = {};
-          }
-          obj = obj[key];
+          obj = byKey(obj, key);
         } else {
           if (val !== _delete_) {
             obj[key] = matchTypes(val, obj[key]);
