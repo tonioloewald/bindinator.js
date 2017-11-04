@@ -1068,7 +1068,7 @@ b8r.insertComponent = function(component, element, data) {
     element.dataset.path = data_path;
   }
   const register = component_data => b8r.register(component_id, component_data);
-  data = Object.assign({data_path, component_id}, data);
+  data = Object.assign(data, {data_path, component_id});
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
     const set = (...args) => {
