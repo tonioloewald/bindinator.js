@@ -36,8 +36,6 @@ Registered — **named** — objects are *the central idea* in b8r's architectur
 Registered objects are a kind of **observable**. But it's the *name* that's observed, not the *object* (i.e. you can bind to a registered object *by name* before the object itself is registered). If you consider a typical scenario where you have data, views, and controllers, it doesn't matter
 which order they load -- everything just works.
 
-
-
 ### Path References
 
 b8r needs to know when things happen to registered objects (including their being registered in the first place). So, properties can be accessed (get and set) by **path** — where path is exactly what you'd expect.
@@ -135,7 +133,9 @@ In b8r terms, a **to**-binding sends data from an object, using a path, *to* a D
 
 The two most important bindings are value, checked, and text, all three work both ways.
 
-  <input data-bind="value=bob.foo.bar">
+```
+<input data-bind="value=bob.foo.bar">
+```
 
 A data-binding is, in effect, a collection of event bindings. E.g. in the case of the **input** element above, it's effectively this set of event handlers:
 
@@ -151,63 +151,67 @@ b8r *actually inserts the input and change handlers into the DOM* when it first 
 
 Often, you'll want to bind a list of things to the DOM. To simplify this, there's a **data-list** attribute:
 
-  <h3 data-bind="text=_component_.title">Title</h3>
-  <ul>
-    <li
-      data-list="_component_.items"
-      data-bind="text=/"
-    >list item</li>
-  </ul>
-  <script>
-    const title = "Favorite Things";
-    const items = [
-      'Raindrops on roses',
-      'whiskers on kittens',
-      'Bright copper kettles',
-      'warm woollen mittens',
-      'Brown paper packages tied up with strings'
-    ];
-    set({title, items});
-  </script>
+```
+<h3 data-bind="text=_component_.title">Title</h3>
+<ul>
+  <li
+    data-list="_component_.items"
+    data-bind="text=/"
+  >list item</li>
+</ul>
+<script>
+  const title = "Favorite Things";
+  const items = [
+    'Raindrops on roses',
+    'whiskers on kittens',
+    'Bright copper kettles',
+    'warm woollen mittens',
+    'Brown paper packages tied up with strings'
+  ];
+  set({title, items});
+</script>
+```
 
 Obviously, that's a trivial example. The key thing to note is that you bind to properties of a list item using a "relative" binding path, so you could do something like this:
 
-  <h3 data-bind="text=_component_.title">Title</h3>
-  <ul>
-    <li
-      style="display: flex"
-      data-list="_component_.items"
-    >
-      <span style="flex-grow: 1" data-bind="text=.title">item</span>
-      <progress style="width:30px; flex-shrink: 0;" min=0 max=5 data-bind="value=.rating">>
-    </li>
-  </ul>
-  <script>
-    const title = "Favorite Things";
-    const items = [
-      {
-        title:'Raindrops on roses',
-        rating: 4.2
-      },
-      {
-        title: 'whiskers on kittens',
-        rating: 5
-      },
-      {
-        title: 'Bright copper kettles',
-        rating: 2.3
-      },
-      {
-        title: 'warm woollen mittens',
-        rating: 3.7
-      },
-      {
-        title: 'Brown paper packages tied up with strings',
-        rating: 5
-      },
-    ];
-    set({title, items});
-  </script>
+```
+<h3 data-bind="text=_component_.title">Title</h3>
+<ul>
+  <li
+    style="display: flex"
+    data-list="_component_.items"
+  >
+    <span style="flex-grow: 1" data-bind="text=.title">item</span>
+    <progress style="width:30px; flex-shrink: 0;" min=0 max=5 data-bind="value=.rating">>
+  </li>
+</ul>
+<script>
+  const title = "Favorite Things";
+  const items = [
+    {
+      title:'Raindrops on roses',
+      rating: 4.2
+    },
+    {
+      title: 'whiskers on kittens',
+      rating: 5
+    },
+    {
+      title: 'Bright copper kettles',
+      rating: 2.3
+    },
+    {
+      title: 'warm woollen mittens',
+      rating: 3.7
+    },
+    {
+      title: 'Brown paper packages tied up with strings',
+      rating: 5
+    },
+  ];
+  set({title, items});
+</script>
+```
 
 #### Note: Asynchronous Binding
 
@@ -273,26 +277,27 @@ The data object is a reference to the data with which the component was initiali
 
 Components can bind to their own data and methods by using the model name _component_, e.g.
 
-  <button
-    data-bind="text=_component_.caption"
-    data-event="click:_component_.show"
-  >untitled</button>
-  <input
-    placeholder="enter message"
-    data-bind="value=_component_.message"
-  >
-  <script>
-    set({
-      caption: 'hello',
-      message: 'hello message',
-      show: () => alert(get('message'))
-    });
-  </script>
+```
+<button
+  data-bind="text=_component_.caption"
+  data-event="click:_component_.show"
+>untitled</button>
+<input
+  placeholder="enter message"
+  data-bind="value=_component_.message"
+>
+<script>
+  set({
+    caption: 'hello',
+    message: 'hello message',
+    show: () => alert(get('message'))
+  });
+</script>
+```
 
 I hope it's completely obvious what this does! And note that if two of these are in the same page they'll be perfectly independent.
 
 > **Note**: in case you're concerned about, for example, instantiating thousands of components with their own even handlers, note that the script is turned into a function (and parsed and compiled) *once* only. (b8r is designed to be DRY for the coder and the CPU…) For extra efficiency, you can simply stick your methods in another module (and register them as a single controller object, if so desired).
-
 
 #### Composing Components
 
@@ -300,34 +305,40 @@ As mentioned above, if a component has an element with a **data-children** attri
 
 So given following markup:
 
-  <div
-    data-component="quotation"
-    data-json='{"author":"b8r"}'
-  >
-    <h2>Hello</h2>
-    <p>world</p>
-  </div>
+```
+<div
+  data-component="quotation"
+  data-json='{"author":"b8r"}'
+>
+  <h2>Hello</h2>
+  <p>world</p>
+</div>
+```
 
 And the following component is registered as "quotation":
 
-  <blockquote data-children>
-    Experience is what you get when you didn't get what you wanted.
-  </blockquote>
-  <i data-bind="_component_.author">Randy Pausch</i>
+```
+<blockquote data-children>
+  Experience is what you get when you didn't get what you wanted.
+</blockquote>
+<i data-bind="_component_.author">Randy Pausch</i>
+```
 
 You end up with this:
 
-  <div
-    data-component="composition-example"
-    data-json='{"author":"b8r"}'
-    data-component-id="c#composition-example#1"
-  >
-    <blockquote data-children>
-      <h2>Hello</h2>
-      <p>world</p>
-    </blockquote>
-    <i data-bind="_component_.author">b8r</i>
-  </div>
+```
+<div
+  data-component="composition-example"
+  data-json='{"author":"b8r"}'
+  data-component-id="c#composition-example#1"
+>
+  <blockquote data-children>
+    <h2>Hello</h2>
+    <p>world</p>
+  </blockquote>
+  <i data-bind="_component_.author">b8r</i>
+</div>
+```
 
 ### Data and Composition
 
