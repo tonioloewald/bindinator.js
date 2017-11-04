@@ -74,6 +74,12 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 16px;
 }
 
+.content h4,
+.content h5,
+.content h6 {
+  margin-top: 8px;
+}
+
 h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   color: var(--accent-color);
 }
