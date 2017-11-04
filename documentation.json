@@ -105,6 +105,10 @@
       "path": "lib/require.js"
     },
     {
+      "name": "catPath",
+      "path": "lib/cat-path.js"
+    },
+    {
       "name": "Describe",
       "path": "lib/describe.js"
     },
