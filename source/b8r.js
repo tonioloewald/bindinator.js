@@ -647,19 +647,23 @@ function makeListInstanceBinder (list_template) {
   }
 }
 
-const forEachItemIn = (obj, func) => {
+const forEachItemIn = (obj, id_path, func) => {
   if (Array.isArray(obj)) {
     for (let i = obj.length - 1; i >= 0; i--) {
-      func(obj[i], i);
+      const item = obj[i];
+      func(item, id_path ? `${id_path}=${getByPath(item, id_path)}` : i);
     }
   } else if (obj.constructor === Object) {
+    if (id_path) {
+      throw `id-path is not supported for objects bound as lists`;
+    }
     const keys = Object.keys(obj);
     for (let i = keys.length - 1; i >= 0; i--) {
       const key = keys[i];
       func(obj[key], `=${key}`);
     }
   } else if (obj !== null) {
-    console.error('cannot iterate over', obj);
+    throw 'can only bind Array and Object instances as lists';
   }
 };
 
@@ -697,7 +701,7 @@ function bindList(list_template, data_path) {
         const args = arg_paths.map(b8r.get);
         const filtered_list = b8r.callMethod(method_path, ...args, list_template);
         // debug warning for lists that get "filtered" into new objects
-        if (filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
+        if (Array.isArray(list) && filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
           console.warn(`list filter ${method_path} returned a new object (not from original list); this will break updates!`);
         }
         list = filtered_list;
@@ -741,8 +745,7 @@ function bindList(list_template, data_path) {
   let instance;
 
   const ids = {};
-  forEachItemIn(list, (item, i) => {
-    const id = id_path ? id_path + '=' + getByPath(item, id_path) : i;
+  forEachItemIn(list, id_path, (item, id) => {
     if (ids[id]) {
       console.warn(`${id} not unique ${id_path} in ${list_template.dataset.list}`);
       return;
