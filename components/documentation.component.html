@@ -123,7 +123,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       }
       window.location.hash = 'source=' + (evt.target.dataset.file || 'README.md');
     },
-    inspector: () => b8r.componentOnce('./components/inspector'),
+    inspector: () => b8r.componentOnce('components/inspector'),
     loadComponent: function(evt) {
       if (evt.target.matches('.current')) {
         return;
