@@ -14,6 +14,6 @@ A simple example of binding. The range and number inputs are both bound to the s
 <script>
   const slider = findOne('[type="range"]');
   slider.setAttribute('min', component.getAttribute('min') || get('min') || 0);
-  slider.setAttribute('max', component.getAttribute('max') || get('max') || 10);
-  set('value', data.value || 5);
+  slider.setAttribute('max', component.getAttribute('max') || get('max') || 42);
+  set('value', data.value || 17);
 </script>
