@@ -654,6 +654,26 @@ function makeListInstanceBinder (list_template) {
   }
 }
 
+const forEachItemIn = (obj, id_path, func) => {
+  if (Array.isArray(obj)) {
+    for (let i = obj.length - 1; i >= 0; i--) {
+      const item = obj[i];
+      func(item, id_path ? `${id_path}=${getByPath(item, id_path)}` : i);
+    }
+  } else if (obj.constructor === Object) {
+    if (id_path) {
+      throw `id-path is not supported for objects bound as lists`;
+    }
+    const keys = Object.keys(obj);
+    for (let i = keys.length - 1; i >= 0; i--) {
+      const key = keys[i];
+      func(obj[key], `=${key}`);
+    }
+  } else if (obj !== null) {
+    throw 'can only bind Array and Object instances as lists';
+  }
+};
+
 function bindList(list_template, data_path) {
   if (!list_template.parentElement) {
     return;
@@ -687,8 +707,12 @@ function bindList(list_template, data_path) {
       try {
         const args = arg_paths.map(b8r.get);
         const filtered_list = b8r.callMethod(method_path, ...args, list_template);
-        // debug warning
-        if (filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
+        // debug warning for lists that get "filtered" into new objects
+        if (
+          Array.isArray(list) &&
+          filtered_list.length &&
+          list.indexOf(filtered_list[0]) === -1
+        ) {
           console.warn(
             `list filter ${method_path} returned a new object` + 
             ` (not from original list); this will break updates!`
@@ -732,8 +756,14 @@ function bindList(list_template, data_path) {
 
   let previous_instance = list_template;
   let instance;
-  for (let i = list.length - 1; i >= 0; i--) {
-    const id = id_path ? id_path + '=' + getByPath(list[i], id_path) : i;
+
+  const ids = {};
+  forEachItemIn(list, id_path, (item, id) => {
+    if (ids[id]) {
+      console.warn(`${id} not unique ${id_path} in ${list_template.dataset.list}`);
+      return;
+    }
+    ids[id] = true;
     const itemPath = `${list_path}[${id}]`;
     instance = path_to_instance_map[itemPath];
     if (instance === undefined) {
@@ -750,7 +780,7 @@ function bindList(list_template, data_path) {
       }
     }
     previous_instance = instance;
-  }
+  });
   // anything still there is no longer in the list and can be removed
   if (id_path) {
     b8r.forEachKey(path_to_instance_map, instance => instance.remove());
@@ -1058,17 +1088,12 @@ b8r.insertComponent = function(component, element, data) {
     element.dataset.path = data_path;
   }
   const register = component_data => b8r.register(component_id, component_data);
-  data = Object.assign({data_path, component_id}, data);
+  data = Object.assign({}, data, {data_path, component_id});
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
-    const set = (...args) => {
-      b8r.setByPath(component_id, ...args);
-    };
-    const on = (...args) => {
-      args[1] = args[1].replace(/_component_/, component_id);
-      b8r.on(element, ...args);
-    };
-    const touch = path => b8r.touchByPath(component_id, path);
+    const set = (...args) => b8r.setByPath(component_id, ...args);
+    const on = (...args) => b8r.on(element, ...args);
+    const touch = (path) => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
     try {
       _component_path = component.path;

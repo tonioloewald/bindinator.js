@@ -384,7 +384,7 @@ button.default:hover, .button.default:hover,
 button:focus, .button:focus,
 button.cancel:focus, .button.cancel:focus,
 button.default:focus, .button.default:focus {
-  background-color: var(--accent-color);
+  background-color: var(--light-accent-color);
   border: 1px solid var(--black-20);
 }
 
