@@ -1068,16 +1068,11 @@ b8r.insertComponent = function(component, element, data) {
     element.dataset.path = data_path;
   }
   const register = component_data => b8r.register(component_id, component_data);
-  data = Object.assign(data, {data_path, component_id});
+  data = Object.assign({}, data, {data_path, component_id});
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
-    const set = (...args) => {
-      b8r.setByPath(component_id, ...args);
-    };
-    const on = (...args) => {
-      args[1] = args[1].replace(/_component_/, component_id);
-      b8r.on(element, ...args);
-    };
+    const set = (...args) => b8r.setByPath(component_id, ...args);
+    const on = (...args) => b8r.on(element, ...args);
     const touch = (path) => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
     try {
