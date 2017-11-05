@@ -13,7 +13,7 @@ const keys = require('./b8r.keystroke.js');
 const {pathSplit} = require('./b8r.byPath.js');
 
 const implicit_event_types = [
-  'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click',
+  'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click', 'dblclick',
   'mouseleave', 'mouseenter',
   'mousewheel', 'scroll', // FIXEME passive?!
   'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
