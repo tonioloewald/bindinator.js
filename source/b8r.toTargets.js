@@ -227,6 +227,16 @@ module.exports = function(b8r) {
       }
     },
     fixed: (element, value, dest) => element.textContent = parseFloat(value).toFixed(dest || 1),
+    bytes: (element, value) => {
+      const suffixes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB'];
+      let suffix = suffixes.shift();
+      element.title = `${value} bytes`;
+      while (value > 1024 && suffix.length) {
+        value = Math.round(value / 1024);
+        suffix = suffixes.shift();
+      }
+      element.textContent = `${value} ${suffix}`;
+    },
     attr: function(element, value, dest) {
       if (value === undefined || value === null) {
         element.removeAttribute(dest);
