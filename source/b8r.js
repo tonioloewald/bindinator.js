@@ -879,14 +879,10 @@ course.
 
 const component_promises = {};
 
-let _component_path = false;
 b8r.component = function(name, url, preserve_source) {
   if (url === undefined) {
     url = name;
     name = url.split('/').pop();
-  }
-  if (_component_path && url.indexOf('//') === -1) {
-    url = `${_component_path}/${url}`.replace(/components\/components/, 'components');
   }
   if (!component_promises[name] || preserve_source) {
     component_promises[name] = new Promise(function(resolve, reject) {
@@ -904,6 +900,21 @@ b8r.component = function(name, url, preserve_source) {
     });
   }
   return component_promises[name];
+};
+
+const _path_relative_b8r = _path => {
+  return Object.assign({}, b8r, {
+    _path,
+    component: (...args) => {
+      const path_index = args[1] ? 1 : 0;
+      let url = args[path_index];
+      if (url.indexOf('://') === -1) {
+        url = `${_path}/${url}`.replace(/components\/components/, 'components');
+        args[path_index] = url;
+      }
+      return b8r.component(...args);
+    }
+  });
 };
 
 b8r.components = () => Object.keys(components);
@@ -1096,14 +1107,12 @@ b8r.insertComponent = function(component, element, data) {
     const touch = (path) => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
     try {
-      _component_path = component.path;
       component.load(
         require.relative(component.path),
-        element, b8r, selector => b8r.findWithin(element, selector),
+        element, _path_relative_b8r(component.path), selector => b8r.findWithin(element, selector),
         selector => b8r.findOneWithin(element, selector), data, register,
         get, set, on, touch, component
       );
-      _component_path = false;
     } catch(e) {
       console.error('component', component.name, 'failed to load', e);
     }
@@ -1215,7 +1224,8 @@ in the DOM it creates one. It replaces the pattern:
 And doesn't run the risk of leaking multiple instances of components into the DOM.
 */
 b8r.componentOnce = (...args) => {
-  b8r.component(...args).then(c => {
+  // may be switched out for relative version
+  this.component(...args).then(c => {
     if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
       b8r.insertComponent(c);
     }
