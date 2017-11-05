@@ -1,6 +1,7 @@
 /* bindinator.js Copyright ©2016-2017 Tonio Loewald */
 
 :root {
+  --ui-font: 13px system-ui;
   --bg-color: #cff2a6;
   --content-bg-color: white;
   --text-color: #222;
@@ -28,7 +29,7 @@
 }
 
 body {
-  font: 13px "Source Sans Pro", Sans-serif;
+  font: var(--ui-font);
   background-color: var(--bg-color);
   color: var(--text-color);
   margin: 0;
@@ -283,7 +284,7 @@ label {
 button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {
-  font: 13px System, Sans-serif;
+  font: var(--ui-font);
   color: black;
   line-height: 16px;
   padding: 2px 4px;
