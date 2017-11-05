@@ -232,7 +232,7 @@ module.exports = function(b8r) {
       let suffix = suffixes.shift();
       element.title = `${value} bytes`;
       while (value > 1024 && suffix.length) {
-        value = Math.round(value / 1024);
+        value = (value / 1024).toFixed(1);
         suffix = suffixes.shift();
       }
       element.textContent = `${value} ${suffix}`;
