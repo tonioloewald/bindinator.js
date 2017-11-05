@@ -1,0 +1,166 @@
+<!--
+# Electron File Browser
+
+A file browser for use in Electron Apps
+-->
+<style>
+  .electron-file-browser-component {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .electron-file-browser-component.disabled:after {
+    content: "requires electron";
+    color: white;
+    background-color: red;
+    padding: 4px 8px;
+    border-radius: 2px;
+  }
+
+  .electron-file-browser-component.disabled > * {
+    display: none;
+  }
+
+  .faux-tr {
+    cursor: default;
+    padding: 0 5px;
+    display: block;
+    user-select: none;
+  }
+
+  .faux-tr > * {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 5px;
+    border-right: 1px solid rgba(0,0,0,0.1);
+    position: relative;
+  }
+
+  .electron-file-browser-component .file:nth-child(2n+1) {
+    background-color: rgba(0,0,0,0.03);
+  }
+
+  .electron-file-browser-component .file:hover {
+    background-color: rgba(0,255,64,0.1);
+  }
+
+  .electron-file-browser-component .file:focus {
+    background-color: rgba(0,255,64,0.2);
+  }
+
+  .electron-file-browser-component .directory:after {
+    content: '/';
+  }
+
+  .electron-file-browser-component .file-name {
+    width: 200px;
+  }
+
+  .electron-file-browser-component .file-size {
+    width: 60px;
+    text-align: right;
+  }
+</style>
+<div style="padding: 10px; flex-shrink: 0; background-color: #ddd; border-bottom: 1px solid #ccc;">
+  <button
+    data-bind="disabled_if=_component_.root"
+    data-event="click:_component_.parent"
+  >Parent</button>
+  <button data-event="click:_component_.pick">Pick Folder…</button>
+  <label>
+    <input type="checkbox" data-bind="checked=_component_.show_hidden">
+    Show Hidden
+  </label>
+</div>
+<div style="flex-shrink: 0; background: #eee;">
+  <div class="faux-tr">
+    <span class="file-name">Name</span>
+    <span class="file-size">Size</span>
+  </div>
+</div>
+<div style="flex-grow: 1; flex-shrink: 1; overflow-y: overlay;">
+  <div 
+    tabindex="0"
+    class="faux-tr file"
+    data-list="_component_.files:name"
+    data-bind="class(hidden)=.hidden"
+    data-event="keydown(Enter),dblclick:_component_.open"
+  >
+    <span class="file-name" data-bind="text=.name;class(directory)=.isDirectory">file-name.type</span>
+    <span class="file-size" data-bind="bytes=.size">size</span>
+  </div>
+</div>
+<script>
+  /* global require, b8r, component, data, get, set, console */
+  'use strict';
+
+  if (!require.electron) {
+    component.classList.add('disabled');
+    return;
+  }
+  const fs = require.globalRequire('fs');
+  const {remote:{dialog, BrowserWindow, app}, ipcRenderer} = require.globalRequire('electron');
+  b8r.addDataBinding(component, 'class(show-hidden)', `${data.component_id}.show_hidden`);
+  
+  console.log(ipcRenderer, BrowserWindow);
+
+  function add_info (folder_path, file_name) {
+    fs.stat(folder_path + '/' + file_name, function(err, stats) {
+      set(`files[name=${file_name}]`, {
+        isFile: stats.isFile(),
+        isDirectory: stats.isDirectory(),
+        size: stats.size,
+        mode: stats.mode,
+      });
+    });
+  }
+
+  function list_path (path) {
+    if (Array.isArray(path) && path.length) {
+      path = path[0];
+    }
+    if (!path) {
+      return;
+    }
+    fs.readdir(path, (err, items) => {
+      set({
+        path,
+        root: path.length <= 1,
+        files: items.
+          filter(name => !/\r/.test(name)).
+          map(name => { 
+            add_info(path, name);
+            return {
+              name,
+              hidden: name[0] === '.'
+            }; 
+          })
+      });
+    });
+  }
+
+  list_path(app.getPath('home'));
+
+  function parent () {
+    list_path (get('path').split('/').slice(0, -1).join('/') || '/');
+  }
+
+  function pick () {
+    dialog.showOpenDialog(
+      BrowserWindow.getFocusedWindow(),
+      { properties: ['openDirectory', 'createDirectory'], }, 
+      list_path
+    );
+  }
+
+  function open (evt, target) {
+    const file = b8r.getListInstance(target);
+    if (file.isDirectory) {
+      list_path (`${get('path')}/${file.name}`);
+    }
+  }
+
+  set ( { parent, pick, open } );
+</script>

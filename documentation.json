@@ -273,6 +273,10 @@
     {
       "name": "Path Browser",
       "path": "path-browser"
+    },
+    {
+      "name": "Electron File Browser",
+      "path": "electron-file-browser"
     }
   ]
 }
