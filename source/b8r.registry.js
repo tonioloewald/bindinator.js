@@ -159,7 +159,7 @@ const set = (path, value, source_element) => {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
   } else if (path_parts.length === 1 && typeof value !== 'object') {
     throw 'cannot set ${path}; you can only register objects at root-level';
-  } else if (value === existing) {
+  } else if (value === existing && ! (Array.isArray(value) || Array.isArray(existing))) {
     // nothing to see here, move along
   } else if (value && value.constructor) {
     if (path_parts.length === 1 && ! registry[path]) {
