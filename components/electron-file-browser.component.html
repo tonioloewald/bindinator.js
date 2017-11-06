@@ -5,7 +5,8 @@ A file browser for use in Electron Apps
 -->
 <style>
   .electron-file-browser-component > .fb-header {
-    padding: 10px;
+    -webkit-app-region: drag;
+    padding: 5px 8px;
     flex-shrink: 0;
     border-top: 1px solid #eeedee;
     border-bottom: 1px solid #939293;
@@ -13,6 +14,15 @@ A file browser for use in Electron Apps
     background: #e9e6e9; /* Old browsers */
     background: linear-gradient(to bottom,  #e9e6e9 0%,#d1cfd1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   }
+
+  .electron-file-browser-component > .fb-header button,
+  .electron-file-browser-component > .fb-header input,
+  .electron-file-browser-component > .fb-header label {
+    -webkit-app-region: no-drag;
+    user-select: none;
+    margin: 0 2px;
+  }
+
   .electron-file-browser-component {
     display: flex;
     flex-direction: column;
@@ -36,6 +46,7 @@ A file browser for use in Electron Apps
     cursor: default;
     padding: 0 5px;
     display: block;
+    white-space: nowrap;
     user-select: none;
     height: 20px;
   }
@@ -100,19 +111,33 @@ A file browser for use in Electron Apps
   }
 </style>
 <div class="fb-header">
-  <button
-    data-bind="disabled_if=_component_.root"
-    data-event="click:_component_.parent"
-    title="parent folder"
-  ><span class="icon-folder-upload"></span></button>
-  <button 
-    data-event="click:_component_.pick"
-    title="choose folder"
-  ><span class="icon-folder-search"></span></button>
-  <label>
-    <input type="checkbox" data-bind="checked=_component_.show_hidden">
-    Show Hidden
-  </label>
+  <div style="height: 16px; text-align: center">
+    <span class="icon-folder"></span> <span data-bind="text=_component_.name"></span>
+  </div>
+  <div style="padding-top: 5px; display: flex;">
+    <button
+      data-event="click:_component_.home"
+      title="home folder"
+    ><span class="icon-home5"></span></button>
+    <button
+      data-bind="disabled_if=_component_.root"
+      data-event="click:_component_.parent"
+      title="parent folder"
+    ><span class="icon-folder-upload"></span></button>
+    <button 
+      data-event="click:_component_.pick"
+      title="choose folder"
+    ><span class="icon-folder-search"></span></button>
+    <span style="flex-grow: 1"></span>
+    <button>
+      <span class="icon-cog2"></span>
+      <span style="font-size: 50%; line-height: 50%; vertical-align: 60%; margin-left: 2px" class="icon-arrow-down3"></span>
+    </button>
+    <label style="font-size: 11px; line-height: 24px">
+      <input type="checkbox" data-bind="checked=_component_.show_hidden">
+      Show Hidden
+    </label>
+  </div>
 </div>
 <div style="flex-shrink: 0; background: #eee; border-bottom: 1px solid #ccc;">
   <div class="faux-tr">
@@ -198,6 +223,7 @@ A file browser for use in Electron Apps
     fs.readdir(path, (err, items) => {
       set({
         path,
+        name: path.split('/').pop(),
         root: path.length <= 1,
         files: items.
           filter(name => !/\r/.test(name)).
@@ -215,7 +241,9 @@ A file browser for use in Electron Apps
     });
   }
 
-  list_path(app.getPath('home'));
+  function home () {
+    list_path(app.getPath('home'));
+  }
 
   function parent () {
     list_path (get('path').split('/').slice(0, -1).join('/') || '/');
@@ -244,5 +272,7 @@ A file browser for use in Electron Apps
     }
   }
 
-  set ( { parent, pick, open, filter } );
+  home();
+
+  set ( { parent, home, pick, open, filter } );
 </script>
