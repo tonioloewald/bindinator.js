@@ -4,6 +4,15 @@
 A file browser for use in Electron Apps
 -->
 <style>
+  .electron-file-browser-component > .fb-header {
+    padding: 10px;
+    flex-shrink: 0;
+    border-top: 1px solid #eeedee;
+    border-bottom: 1px solid #939293;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e9e6e9+0,d1cfd1+100 */
+    background: #e9e6e9; /* Old browsers */
+    background: linear-gradient(to bottom,  #e9e6e9 0%,#d1cfd1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  }
   .electron-file-browser-component {
     display: flex;
     flex-direction: column;
@@ -43,6 +52,22 @@ A file browser for use in Electron Apps
     font-size: 12px;
   }
 
+  /*
+    The entire purpose of this pseudo-element is to make the cursor change
+    TODO: implement column sizing
+    Note: without :hover a bazillion pseudo elements are created and performance is terrible
+  */
+  .faux-tr > *:hover:after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: ew-resize;
+  }
+
   .electron-file-browser-component .file:nth-child(2n+1) {
     background-color: rgba(0,0,0,0.03);
   }
@@ -55,9 +80,10 @@ A file browser for use in Electron Apps
     background-color: rgba(0,255,64,0.2);
   }
 
-  .electron-file-browser-component .directory:after {
-    content: '/';
+  .electron-file-browser-component .icon-file-empty,
+  .electron-file-browser-component .icon-folder {
     color: #0b0;
+    margin-right: 5px;
   }
 
   .electron-file-browser-component .file-name {
@@ -73,12 +99,16 @@ A file browser for use in Electron Apps
     width: 160px;
   }
 </style>
-<div style="padding: 10px; flex-shrink: 0; background-color: #ddd; border-bottom: 1px solid #ccc;">
+<div class="fb-header">
   <button
     data-bind="disabled_if=_component_.root"
     data-event="click:_component_.parent"
-  >Parent</button>
-  <button data-event="click:_component_.pick">Pick Folder…</button>
+    title="parent folder"
+  ><span class="icon-folder-upload"></span></button>
+  <button 
+    data-event="click:_component_.pick"
+    title="choose folder"
+  ><span class="icon-folder-search"></span></button>
   <label>
     <input type="checkbox" data-bind="checked=_component_.show_hidden">
     Show Hidden
@@ -99,10 +129,13 @@ A file browser for use in Electron Apps
     data-list="_component_.filter(_component_.files,_component_.show_hidden):name"
     data-event="keydown(Enter),dblclick:_component_.open"
   >
-    <span class="file-name" data-bind="text=.name;class(directory)=.isDirectory">file-name.type</span>
-    <span class="file-size" data-bind="bytes=.size">size</span>
-    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.ctimeMs">date-time</span>
-    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.mtimeMs">date-time</span>
+    <span class="file-name">
+      <span data-bind="class(icon-folder)=.isDirectory;class(icon-file-empty)=.isFile"></span>
+      <span data-bind="text=.name">file-name.type</span>
+    </span>
+    <span class="file-size" data-bind="bytes=.size"></span>
+    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.ctimeMs"></span>
+    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.mtimeMs"></span>
   </div>
 </div>
 <script>
@@ -114,17 +147,43 @@ A file browser for use in Electron Apps
     return;
   }
   const fs = require.globalRequire('fs');
-  const {remote:{dialog, BrowserWindow, app}, ipcRenderer} = require.globalRequire('electron');
+  const {remote:{dialog, BrowserWindow, app}} = require.globalRequire('electron');
   b8r.addDataBinding(component, 'class(show-hidden)', `${data.component_id}.show_hidden`);
 
-  function add_info (folder_path, file_name) {
-    fs.stat(folder_path + '/' + file_name, function(err, stats) {
-      const {size, mode, atimeMs, ctimeMs, mtimeMs} = stats;
-      set(`files[name=${file_name}]`, {
-        isFile: stats.isFile(),
-        isDirectory: stats.isDirectory(),
-        size, mode, atimeMs, ctimeMs, mtimeMs,
+  const _get_stats = (path, file) => {
+    return new Promise(resolve => {
+      fs.stat(path + '/' + file.name, function(err, stats) {
+        const {size, mode, atimeMs, ctimeMs, mtimeMs} = stats;
+        // optimization -- we change the file directly and don't touch it
+        Object.assign(file, {
+          isFile: stats.isFile(),
+          isDirectory: stats.isDirectory(),
+          size, mode, atimeMs, ctimeMs, mtimeMs,
+        });
+        resolve(file);
       });
+    });
+  };
+
+  function add_info () {
+    console.time('add_info');
+    const path = get('path');
+    const files = get('files').filter(file => file.info_needed);
+    const info_promises = [];
+    for (let i = 0; files.length && i < 200; i++) {
+      const file = files.shift();
+      delete file.info_needed;
+      info_promises.push(_get_stats(path, file));
+    }
+    Promise.all(info_promises).then(file_infos => {
+      console.time('resolve info_promises');
+      // optimization -- now we force the file to be updated
+      file_infos.forEach(file => touch(`files[name=${file.name}]`));
+      console.timeEnd('resolve info_promises');
+      if (files.length) {
+        setTimeout(add_info, 20);
+      }
+      console.timeEnd('add_info');
     });
   }
 
@@ -142,16 +201,18 @@ A file browser for use in Electron Apps
         root: path.length <= 1,
         files: items.
           filter(name => !/\r/.test(name)).
-          map(name => { 
-            add_info(path, name);
+          map(name => {
             return {
               name,
-              hidden: name[0] === '.'
+              hidden: name[0] === '.',
+              info_needed: true,
             }; 
           })
       });
+      console.timeEnd(`list_path ${path}`);
+      console.log(`${path} contains ${get('files').length} items`);
+      add_info();
     });
-    console.timeEnd(`list_path ${path}`);
   }
 
   list_path(app.getPath('home'));
