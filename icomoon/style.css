@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?bbel6e');
-  src:  url('fonts/icomoon.eot?bbel6e#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?bbel6e') format('truetype'),
-    url('fonts/icomoon.woff?bbel6e') format('woff'),
-    url('fonts/icomoon.svg?bbel6e#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?o2gvlg');
+  src:  url('fonts/icomoon.eot?o2gvlg#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?o2gvlg') format('truetype'),
+    url('fonts/icomoon.woff?o2gvlg') format('woff'),
+    url('fonts/icomoon.svg?o2gvlg#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,11 +24,29 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-wifi-off:before {
-  content: "\e911";
+.icon-home5:before {
+  content: "\e913";
 }
-.icon-wifi:before {
-  content: "\e912";
+.icon-file-empty:before {
+  content: "\e99d";
+}
+.icon-file-empty2:before {
+  content: "\e99e";
+}
+.icon-folder:before {
+  content: "\e9d0";
+}
+.icon-folder-search:before {
+  content: "\e9d1";
+}
+.icon-folder-upload:before {
+  content: "\e9d3";
+}
+.icon-wrench:before {
+  content: "\eb58";
+}
+.icon-cog2:before {
+  content: "\eb61";
 }
 .icon-umbrella:before {
   content: "\ecd5";
@@ -98,6 +116,12 @@
 }
 .icon-indent-decrease2:before {
   content: "\eec6";
+}
+.icon-wifi-off:before {
+  content: "\e911";
+}
+.icon-wifi:before {
+  content: "\e912";
 }
 .icon-bindinator-logo .path1:before {
   content: "\e900";
