@@ -707,6 +707,7 @@ function bindList(list_template, data_path) {
     console.error('bad path', list_path, 'in data-list', list_template);
     return;
   }
+  // without this step, nested lists will not have fully-resolved paths
   list_path = b8r.resolvePath(list_path, list_template);
   let list = b8r.get(list_path);
   if (!list) {
