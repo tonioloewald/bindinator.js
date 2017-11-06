@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <title>Benchmark</title>
-    <script src="lib/require.js"></script>
+    <script src="../lib/require.js"></script>
 </head>
 <body>
 <div id='main'>
@@ -61,7 +61,7 @@
 
 require.autoPreload().then(() => {
 
-const b8r = require('source/b8r.js');
+const b8r = require('../source/b8r.js');
 window.b8r = b8r;
 var startTime;
 var lastMeasure;
