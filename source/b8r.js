@@ -182,9 +182,7 @@ b8r.deregister = name => b8r.remove(name);
 > instead for the time being we get the following usage:
 >
 > <pre>
-> b8r.async_updates(); // returns true | false
-> b8r.async_updates(true); // enable async updates
-> b8r.async_updates(false); // disable async updates
+> b8r.force_update(); // flushes all queued updates immediately
 > b8r.after_update(callback); // fires callback after async updates are complete
 > </pre>
 >
@@ -195,25 +193,26 @@ b8r.deregister = name => b8r.remove(name);
 > console.log(b8r.findOne('[data-bind="text=foo.bar"]').value); // logs 17
 > </pre>
 >
-> You could now have to write this:
+> You would now have to write this:
 >
 > <pre>
-> b8r.async_updates(true);
 > b8r.register('foo', {bar: 17});
-> b8r.after_update(() => {
->   console.log(b8r.findOne('[data-bind="text=foo.bar"]').value);
-> });
+> b8r.force_update(); // or wrap next line in after_update(() => {...})
+> console.log(b8r.findOne('[data-bind="text=foo.bar"]').value);
 > </pre>
 >
 > Note that async_updates is a **global** setting, so you could easily break other
 > stuff by doing this. The end goal is to use async_updates everywhere.
 */
 
-let _async_updates = true;
 const _update_list = []; // {path, element}
 const _after_update_callbacks = [];
+let _update_frame = null;
 
-const _update = () => {
+b8r.force_update = () => {
+  cancelAnimationFrame(_update_frame);
+  _update_frame = null;
+
   b8r.logStart('async_update', 'update');
 
   const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
@@ -230,7 +229,7 @@ const _update = () => {
       filter(bound => bound.elt !== source && bound.list_binding.indexOf(path) > -1).
       forEach(({elt}) => bindList(elt));
     } catch (e) {
-      console.error('_update error', e, path, source);
+      console.error('update error', e, path, source);
     }
   }
 
@@ -271,31 +270,18 @@ const _trigger_change = element => {
 };
 
 const async_update = (path, source) => {
-  if (!_async_updates) {
-    b8r.find(`[data-bind*="${path}"]`).filter(elt => elt !== source).forEach(bind);
-    b8r.find(`[data-list*="${path}"]`).filter(elt => elt !== source).forEach(bindList);
+  b8r.logStart('async_update', 'queue');
+  const item = _update_list.find(item => item.path === path);
+  if (item) {
+    // if the path was already marked for update, then the new source element is (now) correct
+    item.source = source;
   } else {
-    b8r.logStart('async_update', 'queue');
-    const item = _update_list.find(item => item.path === path);
-    if (item) {
-      // if the path was already marked for update, then the new source element is (now) correct
-      item.source = source;
-    } else {
-      if (!_update_list.length) {
-        requestAnimationFrame(_update);
-      }
-      _update_list.push({ path, source });
+    if (!_update_frame) {
+      _update_frame = requestAnimationFrame(b8r.force_update);
     }
-    b8r.logEnd('async_update', 'queue');
+    _update_list.push({ path, source });
   }
-};
-
-b8r.async_updates = setting => {
-  if (setting === undefined) {
-    return _async_updates;
-  } else {
-    _async_updates = !!setting;
-  }
+  b8r.logEnd('async_update', 'queue');
 };
 
 b8r.after_update = callback => {
@@ -987,6 +973,9 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
     load,
     path : url.split('/').slice(0,-1).join('/'),
   };
+  if (component.path === 'undefined') {
+    debugger;
+  }
   if (preserve_source) {
     component._source = source;
   }
@@ -1127,6 +1116,7 @@ b8r.insertComponent = function(component, element, data) {
         get, set, on, touch, component
       );
     } catch(e) {
+      debugger;
       console.error('component', component.name, 'failed to load', e);
     }
   } else {
