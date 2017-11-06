@@ -168,8 +168,6 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
 
 b8r.deregister = name => b8r.remove(name);
 
-const notInTemplate = elt => !elt.closest('[data-component],[data-list]');
-
 /**
 > ### Experiment: Async Updates
 >
@@ -212,21 +210,27 @@ const notInTemplate = elt => !elt.closest('[data-component],[data-list]');
 */
 
 let _async_updates = true;
-const _update_list = [];
+const _update_list = []; // {path, element}
 const _after_update_callbacks = [];
 
 const _update = () => {
   b8r.logStart('async_update', 'update');
-  const body = document.body;
+
+  const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
+  const lists = b8r.find('[data-list]').map(elt => { return {elt, list_binding: elt.dataset.list}; });
 
   while(_update_list.length) {
-    const {fn, element} = _update_list.shift();
-    if (body.contains(element)) {
-      try {
-        fn(element);
-      } catch (e) {
-        console.error('_update error', e, fn, element);
-      }
+    const {path, source} = _update_list.shift();
+    try {
+      binds.
+      filter(bound => bound.elt !== source && bound.data_binding.indexOf(path) > -1).
+      forEach(({elt}) => bind(elt));
+
+      lists.
+      filter(bound => bound.elt !== source && bound.list_binding.indexOf(path) > -1).
+      forEach(({elt}) => bindList(elt));
+    } catch (e) {
+      console.error('_update error', e, path, source);
     }
   }
 
@@ -266,15 +270,22 @@ const _trigger_change = element => {
   }
 };
 
-const async_update = (fn, element) => {
+const async_update = (path, source) => {
   if (!_async_updates) {
-    fn(element);
-  } else if (!_update_list.find(item => item.fn === fn && item.element === element)) {
+    b8r.find(`[data-bind*="${path}"]`).filter(elt => elt !== source).forEach(bind);
+    b8r.find(`[data-list*="${path}"]`).filter(elt => elt !== source).forEach(bindList);
+  } else {
     b8r.logStart('async_update', 'queue');
-    if (!_update_list.length) {
-      requestAnimationFrame(_update);
+    const item = _update_list.find(item => item.path === path);
+    if (item) {
+      // if the path was already marked for update, then the new source element is (now) correct
+      item.source = source;
+    } else {
+      if (!_update_list.length) {
+        requestAnimationFrame(_update);
+      }
+      _update_list.push({ path, source });
     }
-    _update_list.push({ fn, element });
     b8r.logEnd('async_update', 'queue');
   }
 };
@@ -309,11 +320,7 @@ b8r.touchByPath = (...args) => {
 
   b8r.logStart('touchByPath', full_path);
 
-  b8r.find('[data-list*="' + full_path + '"]').
-  forEach(elt => async_update(bindList, elt));
-
-  b8r.find('[data-bind*="' + full_path + '"]').
-  forEach(elt => notInTemplate(elt) && elt !== source_element && async_update(bind, elt));
+  async_update(full_path, source_element);
 
   b8r.logEnd('touchByPath', full_path);
 };
@@ -568,6 +575,9 @@ b8r.interpolate = (template, elt) => {
 };
 
 function bind(element) {
+  if (element.closest('[data-component],[data-list]')) {
+    return;
+  }
   const bindings = getBindings(element);
   const logArgs = [ 'bind', b8r.elementSignature(element) ];
   b8r.logStart(...logArgs);
@@ -675,7 +685,7 @@ const forEachItemIn = (obj, id_path, func) => {
 };
 
 function bindList(list_template, data_path) {
-  if (!list_template.parentElement) {
+  if (!list_template.parentElement || list_template.closest('[data-component]')) {
     return;
   }
   const [source_path, id_path] = list_template.dataset.list.split(':');
