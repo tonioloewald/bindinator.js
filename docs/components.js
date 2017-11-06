@@ -6,7 +6,7 @@
 ## Creating Components
 
 There are two usual paths to creating a component. One is to design and build a component
-from scratch, another is to take some piece of a  view that has been implemented 
+from scratch, another is to take some piece of a view that has been implemented
 conventionally, and convert it into a component.
 
 In both cases, it's very similar to the way you might write a function or class
