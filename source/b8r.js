@@ -2,8 +2,8 @@
 #bindinator
 Copyright ©2016-2017 Tonio Loewald
 
-Bindinator (b8r) binds data and methods to the DOM and lets you quickly turn chunks of markup,
-style, and code into reusable components so you can concentrate on your project.
+Bindinator (b8r) binds data and methods to the DOM and lets you quickly turn chunks of 
+markup, style, and code into reusable components so you can concentrate on your project.
 
 b8r leverages your understanding of the DOM and the browser rather than trying to
 implement some kind of virtual machine to replace it.
@@ -168,8 +168,6 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
 
 b8r.deregister = name => b8r.remove(name);
 
-const notInTemplate = elt => !elt.closest('[data-component],[data-list]');
-
 /**
 > ### Experiment: Async Updates
 >
@@ -180,8 +178,8 @@ const notInTemplate = elt => !elt.closest('[data-component],[data-list]');
 > broken up into time-budgeted chunks (e.g. 1/30 or 1/60 of a second)
 >
 > Initial experiments seem to cause no breakage *except* for unit tests, but simply
-> updating the unit tests and then turning them on by default seems a bit risky, so instead
-> for the time being we get the following usage:
+> updating the unit tests and then turning them on by default seems a bit risky, so 
+> instead for the time being we get the following usage:
 >
 > <pre>
 > b8r.async_updates(); // returns true | false
@@ -212,21 +210,27 @@ const notInTemplate = elt => !elt.closest('[data-component],[data-list]');
 */
 
 let _async_updates = true;
-const _update_list = [];
+const _update_list = []; // {path, element}
 const _after_update_callbacks = [];
 
 const _update = () => {
   b8r.logStart('async_update', 'update');
-  const body = document.body;
+
+  const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
+  const lists = b8r.find('[data-list]').map(elt => { return {elt, list_binding: elt.dataset.list}; });
 
   while(_update_list.length) {
-    const {fn, element} = _update_list.shift();
-    if (body.contains(element)) {
-      try {
-        fn(element);
-      } catch (e) {
-        console.error('_update error', e, fn, element);
-      }
+    const {path, source} = _update_list.shift();
+    try {
+      binds.
+      filter(bound => bound.elt !== source && bound.data_binding.indexOf(path) > -1).
+      forEach(({elt}) => bind(elt));
+
+      lists.
+      filter(bound => bound.elt !== source && bound.list_binding.indexOf(path) > -1).
+      forEach(({elt}) => bindList(elt));
+    } catch (e) {
+      console.error('_update error', e, path, source);
     }
   }
 
@@ -266,15 +270,22 @@ const _trigger_change = element => {
   }
 };
 
-const async_update = (fn, element) => {
+const async_update = (path, source) => {
   if (!_async_updates) {
-    fn(element);
-  } else if (!_update_list.find(item => item.fn === fn && item.element === element)) {
+    b8r.find(`[data-bind*="${path}"]`).filter(elt => elt !== source).forEach(bind);
+    b8r.find(`[data-list*="${path}"]`).filter(elt => elt !== source).forEach(bindList);
+  } else {
     b8r.logStart('async_update', 'queue');
-    if (!_update_list.length) {
-      requestAnimationFrame(_update);
+    const item = _update_list.find(item => item.path === path);
+    if (item) {
+      // if the path was already marked for update, then the new source element is (now) correct
+      item.source = source;
+    } else {
+      if (!_update_list.length) {
+        requestAnimationFrame(_update);
+      }
+      _update_list.push({ path, source });
     }
-    _update_list.push({ fn, element });
     b8r.logEnd('async_update', 'queue');
   }
 };
@@ -309,11 +320,7 @@ b8r.touchByPath = (...args) => {
 
   b8r.logStart('touchByPath', full_path);
 
-  b8r.find('[data-list*="' + full_path + '"]')
-    .forEach(elt => async_update(bindList, elt));
-
-  b8r.find('[data-bind*="' + full_path + '"]')
-    .forEach(elt => notInTemplate(elt) && elt !== source_element && async_update(bind, elt));
+  async_update(full_path, source_element);
 
   b8r.logEnd('touchByPath', full_path);
 };
@@ -340,7 +347,11 @@ b8r.setByPath = function(...args) {
     } else {
       // setByPath(model, path, value);
       // b8r.touchByPath(name, path, source_element);
-      b8r.set(path[0] === '[' || !path ? `${name}${path}` : `${name}.${path}`, value, source_element);
+      b8r.set(
+        path[0] === '[' || !path ?
+        `${name}${path}` :
+        `${name}.${path}`, value, source_element
+      );
     }
   } else {
     console.error(`setByPath failed; ${name} is not a registered model`);
@@ -479,10 +490,12 @@ b8r.getListInstance = function(elt) {
 };
 
 if (document.body) {
-  implicit_event_types.forEach(type => document.body.addEventListener(type, handle_event, true));
+  implicit_event_types.
+  forEach(type => document.body.addEventListener(type, handle_event, true));
 } else {
   document.addEventListener('DOMContentLoaded', () => {
-    implicit_event_types.forEach(type => document.body.addEventListener(type, handle_event, true));
+    implicit_event_types.
+    forEach(type => document.body.addEventListener(type, handle_event, true));
   });
 }
 
@@ -514,7 +527,7 @@ The key public methods are:
 
 Or:
 
-    b8r.bindAll(target, 'path.to.data'); // as above, but uses provided path for dynamic bindings
+    b8r.bindAll(target, 'path.to.data'); // as above, but uses path for dynamic bindings
 
 Note (FIXME): bindAll only applies its path to components and lists; it doesn't do it to
 individual elements, which it probably should.
@@ -562,6 +575,9 @@ b8r.interpolate = (template, elt) => {
 };
 
 function bind(element) {
+  if (element.closest('[data-component],[data-list]')) {
+    return;
+  }
   const bindings = getBindings(element);
   const logArgs = [ 'bind', b8r.elementSignature(element) ];
   b8r.logStart(...logArgs);
@@ -615,7 +631,7 @@ b8r.listInstances = list_template => {
 
 const resolveListInstanceBindings = (instance_elt, instance_path) => {
   const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
-                     .filter(elt => !elt.closest('[data-list]'));
+                      .filter(elt => !elt.closest('[data-list]'));
   elements.forEach(elt => {
     const binding_source = elt.dataset.bind;
     if (binding_source.indexOf('=.') > -1) {
@@ -623,7 +639,8 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
       elt.dataset.bind = binding_source.replace(/\=\./g, path_prefix);
     }
     if (binding_source.indexOf('${.') > -1) {
-      elt.dataset.bind = binding_source.replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
+      elt.dataset.bind = binding_source.
+                         replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
     }
   });
 };
@@ -668,7 +685,7 @@ const forEachItemIn = (obj, id_path, func) => {
 };
 
 function bindList(list_template, data_path) {
-  if (!list_template.parentElement) {
+  if (!list_template.parentElement || list_template.closest('[data-component]')) {
     return;
   }
   const [source_path, id_path] = list_template.dataset.list.split(':');
@@ -690,7 +707,9 @@ function bindList(list_template, data_path) {
     console.error('bad path', list_path, 'in data-list', list_template);
     return;
   }
-  let list = b8r.get(list_path, list_template);
+  // without this step, nested lists will not have fully-resolved paths
+  list_path = b8r.resolvePath(list_path, list_template);
+  let list = b8r.get(list_path);
   if (!list) {
     return;
   }
@@ -701,8 +720,15 @@ function bindList(list_template, data_path) {
         const args = arg_paths.map(b8r.get);
         const filtered_list = b8r.callMethod(method_path, ...args, list_template);
         // debug warning for lists that get "filtered" into new objects
-        if (Array.isArray(list) && filtered_list.length && list.indexOf(filtered_list[0]) === -1) {
-          console.warn(`list filter ${method_path} returned a new object (not from original list); this will break updates!`);
+        if (
+          Array.isArray(list) &&
+          filtered_list.length &&
+          list.indexOf(filtered_list[0]) === -1
+        ) {
+          console.warn(
+            `list filter ${method_path} returned a new object` + 
+            ` (not from original list); this will break updates!`
+          );
         }
         list = filtered_list;
       } catch (e) {
@@ -723,9 +749,8 @@ function bindList(list_template, data_path) {
   const existing_list_instances = id_path ? b8r.listInstances(list_template) : [];
   const path_to_instance_map = {};
   if (existing_list_instances.length) {
-    existing_list_instances.forEach(elt => {
-      path_to_instance_map[elt.dataset.listInstance] = elt;
-    });
+    existing_list_instances.
+    forEach(elt => path_to_instance_map[elt.dataset.listInstance] = elt);
   }
 
   /* Safari refuses to hide hidden options */
@@ -889,6 +914,21 @@ b8r.component = function(name, url, preserve_source) {
   return component_promises[name];
 };
 
+const _path_relative_b8r = _path => {
+  return Object.assign({}, b8r, {
+    _path,
+    component: (...args) => {
+      const path_index = args[1] ? 1 : 0;
+      let url = args[path_index];
+      if (url.indexOf('://') === -1) {
+        url = `${_path}/${url}`.replace(/components\/components/, 'components');
+        args[path_index] = url;
+      }
+      return b8r.component(...args);
+    }
+  });
+};
+
 b8r.components = () => Object.keys(components);
 
 const makeStylesheet = require('./b8r.makeStylesheet.js');
@@ -944,7 +984,7 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
     style,
     view : div,
     load,
-    path : url.match(/^(.*?)(\/?)([^\/]+)$/)[1] || '',
+    path : url.split('/').slice(0,-1).join('/'),
   };
   if (preserve_source) {
     component._source = source;
@@ -1023,7 +1063,8 @@ b8r.insertComponent = function(component, element, data) {
     delete element.dataset.component;
   }
   if (!data || data_path) {
-    data = dataForElement(element, b8r.getComponentData(element) || b8r.getListInstance(element) || {});
+    data = dataForElement(element, b8r.getComponentData(element) || 
+                                   b8r.getListInstance(element) || {});
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);
@@ -1031,10 +1072,12 @@ b8r.insertComponent = function(component, element, data) {
   const children = b8r.fragment();
   /*
     * if you're replacing a component, it should get the replaced component's children.
-    * we probably want to be able to remove a component (i.e. pull out an instance's children
-      and then delete element's contents, replace the children, and remove its id)
-    * note that components with no DOM nodes present a problem since they may have passed-through
-      child elements that aren't distinguishable from a component's original body
+    * we probably want to be able to remove a component (i.e. pull out an instance's 
+      children and then delete element's contents, replace the children, and remove 
+      its id)
+    * note that components with no DOM nodes present a problem since they may have 
+      passed-through child elements that aren't distinguishable from a component's 
+      original body
   */
   const component_id = 'c#' + component.name + '#' + (++component_count);
   if (component.view.children.length) {
@@ -1076,14 +1119,12 @@ b8r.insertComponent = function(component, element, data) {
     const touch = (path) => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
     try {
-      const view_obj = component.load(
-          require.relative(component.path),
-          element, b8r, selector => b8r.findWithin(element, selector),
-          selector => b8r.findOneWithin(element, selector), data, register, get,
-          set, on, touch);
-      if (view_obj) {
-        throw 'returning from views is deprecated; please use register() instead';
-      }
+      component.load(
+        require.relative(component.path),
+        element, _path_relative_b8r(component.path), selector => b8r.findWithin(element, selector),
+        selector => b8r.findOneWithin(element, selector), data, register,
+        get, set, on, touch, component
+      );
     } catch(e) {
       console.error('component', component.name, 'failed to load', e);
     }
@@ -1098,7 +1139,8 @@ b8r.insertComponent = function(component, element, data) {
   // nicer reveals
   const reveal = element.closest('.b8r-hide-while-loading');
   if (reveal) {
-    const unloaded = b8r.findWithin(reveal, '[data-component]').filter(elt => !elt.closest('[data-list]'));
+    const unloaded = b8r.findWithin(reveal, '[data-component]').
+                     filter(elt => !elt.closest('[data-list]'));
     if (unloaded.length) {
       const missing_list = [];
       unloaded.map(elt => {
@@ -1166,8 +1208,9 @@ b8r.wrapWithComponent = (component, element, data, attributes) => {
 /**
     b8r.removeComponent(elt);
 
-If elt has a component in it (i.e. has the attribute data-component-id) removes the compoment, remove the id,
-and remove any class that ends with '-component'. Note that removeComponent does not preserve children!
+If elt has a component in it (i.e. has the attribute data-component-id) removes the 
+compoment, remove the id, and remove any class that ends with '-component'. Note that 
+removeComponent does not preserve children!
 */
 
 b8r.removeComponent = elt => {
@@ -1185,15 +1228,16 @@ b8r.removeComponent = elt => {
 /**
     b8r.componentOnce(url [,name]);
 
-This loads the component (if necessary) and then if there is no instance of the component in the DOM
-it creates one. It replaces the pattern:
+This loads the component (if necessary) and then if there is no instance of the component
+in the DOM it creates one. It replaces the pattern:
 
     b8r.component(url).then(c => b8r.insertComponent(c));
 
 And doesn't run the risk of leaking multiple instances of components into the DOM.
 */
-b8r.componentOnce = (...args) => {
-  b8r.component(...args).then(c => {
+b8r.componentOnce = function(...args) {
+  // may be switched out for relative version
+  this.component(...args).then(c => {
     if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
       b8r.insertComponent(c);
     }

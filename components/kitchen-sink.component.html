@@ -11,13 +11,14 @@ to show the ease with which a normal component may be swapped out for a custom c
 when and if the need arises.
 -->
 <style>
-  .kitchen-sink {
+  .kitchen-sink-component {
     padding: 0 8px;
     position: relative;
     border: 1px solid rgba(0,0,0,0.25);
+    background: white;
   }
 
-  .fullscreen .kitchen-sink {
+  .fullscreen .kitchen-sink-component {
     position: fixed;
     top: 0;
     left: 0;
@@ -27,20 +28,20 @@ when and if the need arises.
     background-color: white;
   }
 
-  .kitchen-sink input,
-  .kitchen-sink textarea,
-  .kitchen-sink select {
+  .kitchen-sink-component input,
+  .kitchen-sink-component textarea,
+  .kitchen-sink-component select {
     background-color: white;
   }
 
-  .kitchen-sink > hr,
-  .kitchen-sink > .menubar,
-  .kitchen-sink > .toolbar {
+  .kitchen-sink-component > hr,
+  .kitchen-sink-component > .menubar,
+  .kitchen-sink-component > .toolbar-component {
     margin-left: -8px;
     margin-right: -8px;
   }
 
-  .kitchen-sink > .toolbar {
+  .kitchen-sink-component > .toolbar-component {
     margin-bottom: 8px;
   }
 
@@ -56,390 +57,388 @@ when and if the need arises.
     margin-right: 8px;
   }
 </style>
-<div class="kitchen-sink">
-  <ul data-component="menubar">
-    <li>
-      File
-      <ul>
-        <li>
-          <a data-shortcut="ctrl-N" data-event="menuclick:_component_.test">New</a>
-        </li>
-        <li>
-          <a data-shortcut="ctrl-O" data-event="menuclick:_component_.test">Open…</a>
-        </li>
-        <li>
-          <span>Open Recent</span>
-          <ul>
-            <li>Recent File</li>
-            <li>Another Recent File</li>
-          </ul>
-        </li>
-        <li>
-          <span data-shortcut="ctrl-S">Save</span>
-        </li>
-        <li>
-          <a data-shortcut="ctrl-shift-S">Save As…</a>
-        </li>
-        <li class="separator"></li>
-        <li>
-          <a data-shortcut="ctrl-Q">Quit</a>
-        </li>
-      </ul>
-    </li>
-    <li>
-      Edit
-      <ul>
-        <li>
-          <a data-shortcut="meta-Z" data-event="menuclick:_component_.test">Undo</a>
-        </li>
-        <li class="separator"></li>
-        <li>
-          <a data-shortcut="ctrl-X">Cut</a>
-        </li>
-        <li>
-          <a data-shortcut="ctrl-C">Copy</a>
-        </li>
-        <li>
-          <a data-shortcut="ctrl-V">Paste</a>
-        </li>
-      </ul>
-    </li>
-    <li>
-      Format
-      <ul>
-        <li>
-          <span>Document</span>
-        </li>
-        <li>
-          <span>Section</span>
-        </li>
-        <li>
-          <span>Page</span>
-        </li>
-        <li>
-          <span>Paragraph</span>
-          <ul>
-            <li>
-              <b>Heading</b>
-            </li>
-            <li>
-              <b>Subheading</b>
-            </li>
-            <li>
-              <span style="padding: 0 12px">Blockquote</span>
-            </li>
-            <li class="separator"></li>
-            <li>
-              <span>Body</span>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <span>Character</span>
-          <ul>
-            <li>
-              <b>Bold</b>
-            </li>
-            <li>
-              <i>Italic</i>
-            </li>
-            <li>
-              <u>Underline</u>
-            </li>
-            <li>
-              <del>Strikethrough</del>
-            </li>
-            <li class="separator"></li>
-            <li>
-              <span>Plain</span>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-  <div data-component="toolbar">
-    <button>Test</button>
-    <button>Test</button>
-    <button>Test</button>
-    <hr class="fixed">
-    <button data-shortcut="ctrl-P" data-event="shortcut,click:_component_.test">P</button>
-    <button data-shortcut="ctrl-B" data-event="shortcut,click:_component_.test"><b>B</b></button>
-    <button data-shortcut="ctrl-I" data-event="shortcut,click:_component_.test"><i>I</i></button>
-    <hr>
-    <button>Test</button>
-    <button>Test</button>
-    <button>Test</button>
-    <button>Test</button>
-  </div>
-  <button class="cancel">Cancel</button> <button>Whatever</button> <button class="default">Default</button>
+<ul data-component="menubar">
+  <li>
+    File
+    <ul>
+      <li>
+        <a data-shortcut="ctrl-N" data-event="menuclick:_component_.test">New</a>
+      </li>
+      <li>
+        <a data-shortcut="ctrl-O" data-event="menuclick:_component_.test">Open…</a>
+      </li>
+      <li>
+        <span>Open Recent</span>
+        <ul>
+          <li>Recent File</li>
+          <li>Another Recent File</li>
+        </ul>
+      </li>
+      <li>
+        <span data-shortcut="ctrl-S">Save</span>
+      </li>
+      <li>
+        <a data-shortcut="ctrl-shift-S">Save As…</a>
+      </li>
+      <li class="separator"></li>
+      <li>
+        <a data-shortcut="ctrl-Q">Quit</a>
+      </li>
+    </ul>
+  </li>
+  <li>
+    Edit
+    <ul>
+      <li>
+        <a data-shortcut="meta-Z" data-event="menuclick:_component_.test">Undo</a>
+      </li>
+      <li class="separator"></li>
+      <li>
+        <a data-shortcut="ctrl-X">Cut</a>
+      </li>
+      <li>
+        <a data-shortcut="ctrl-C">Copy</a>
+      </li>
+      <li>
+        <a data-shortcut="ctrl-V">Paste</a>
+      </li>
+    </ul>
+  </li>
+  <li>
+    Format
+    <ul>
+      <li>
+        <span>Document</span>
+      </li>
+      <li>
+        <span>Section</span>
+      </li>
+      <li>
+        <span>Page</span>
+      </li>
+      <li>
+        <span>Paragraph</span>
+        <ul>
+          <li>
+            <b>Heading</b>
+          </li>
+          <li>
+            <b>Subheading</b>
+          </li>
+          <li>
+            <span style="padding: 0 12px">Blockquote</span>
+          </li>
+          <li class="separator"></li>
+          <li>
+            <span>Body</span>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <span>Character</span>
+        <ul>
+          <li>
+            <b>Bold</b>
+          </li>
+          <li>
+            <i>Italic</i>
+          </li>
+          <li>
+            <u>Underline</u>
+          </li>
+          <li>
+            <del>Strikethrough</del>
+          </li>
+          <li class="separator"></li>
+          <li>
+            <span>Plain</span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div data-component="toolbar">
+  <button>Test</button>
+  <button>Test</button>
+  <button>Test</button>
+  <hr class="fixed">
+  <button data-shortcut="ctrl-P" data-event="shortcut,click:_component_.test">P</button>
+  <button data-shortcut="ctrl-B" data-event="shortcut,click:_component_.test"><b>B</b></button>
+  <button data-shortcut="ctrl-I" data-event="shortcut,click:_component_.test"><i>I</i></button>
   <hr>
-  <select
-    data-bind="value=_component_.single_selection"
+  <button>Test</button>
+  <button>Test</button>
+  <button>Test</button>
+  <button>Test</button>
+</div>
+<button class="cancel">Cancel</button> <button>Whatever</button> <button class="default">Default</button>
+<hr>
+<select
+  data-bind="value=_component_.single_selection"
+>
+  <option
+    data-list="_component_.multiselect"
+    data-bind="text=.text"
   >
-    <option
-      data-list="_component_.multiselect"
+    Item Text
+  </option>
+</select>
+<br><label>
+  <a href="#component=selector">
+    Selector Component
+  </a>
+  <span
+    data-component="selector"
+    data-bind="value=_component_.single_selection"
+    style="display: inline-block; padding: 5px 10px; border: 1px solid var(--black-20);"
+  >
+    <span
+      data-list="_component_.multiselect:text"
+      tabindex="0"
       data-bind="text=.text"
     >
       Item Text
-    </option>
-  </select>
-  <br><label>
-    <a href="#component=selector">
-      Selector Component
-    </a>
-    <span
-      data-component="selector"
-      data-bind="value=_component_.single_selection"
-      style="display: inline-block; padding: 5px 10px; border: 1px solid var(--black-20);"
-    >
-      <span
-        data-list="_component_.multiselect:text"
-        tabindex="0"
-        data-bind="text=.text"
-      >
-        Item Text
-      </span>
     </span>
-  </label>
-  <br><label>
-    Multi-select
-    <select multiple>
-      <option
-        data-list="_component_.multiselect"
-        data-bind="
-          text=.text;
-          selected=.selected
-        "
-      ></option>
-    </select>
-  </label>
-  <hr>
+  </span>
+</label>
+<br><label>
+  Multi-select
+  <select multiple>
+    <option
+      data-list="_component_.multiselect"
+      data-bind="
+        text=.text;
+        selected=.selected
+      "
+    ></option>
+  </select>
+</label>
+<hr>
+<label>
+  Checkbox
+  <input type=checkbox data-bind="checked=_component_.checked">
+</label>
+<br><label>
+  <a href="#component=switch">Switch component</a>
+  <span data-component="switch" data-bind="value=_component_.checked"></span>
+</label>
+<br><label>
+  <a href="#component=switch">Animated Switch (bodymovin)</a>
+  <span data-component="animated-switch" data-bind="value=_component_.checked"></span>
+</label>
+<hr>
+<textarea>Text Area</textarea>
+<br><label>
+  Input Field
+  <input placeholder="input field" data-bind="value=_component_.input_field">
+</label>
+<br><label>
+  <a href="#component=input">
+    Input Component
+  </a>
+  <span data-component="input" data-bind="value=_component_.input_field"></span>
+</label>
+<br><label>
+  <a href="#component=input">
+    Input Component (bound using component targets)
+  </a>
+  <span data-component="input" data-bind="component(value)=_component_.input_field"></span>
+</label>
+<br><label>
+  <a href="#component=contenteditable">
+    Contenteditable Component
+  </a>
+  <div
+    placeholder="contenteditable"
+    data-component="contenteditable"
+    data-bind="value=_component_.input_field"
+  ></div>
+</label>
+<br>
+<label>
+  Search Field
+  <input class="search" placeholder="search field">
+</label>
+<hr>
+<label>
+  Range Input
+  <input min=0 max=25 type="range" data-bind="value=_component_.fuelrods">
+</label>
+<br>
+<label>
+  Number Input
+  <input type="number" data-bind="value=_component_.fuelrods">
+</label>
+<br>
+<label>
+  <a href="#component=slider-numeric">
+    slider-numeric component
+  </a>
+  <span min=0 max=25 data-component="slider-numeric" data-bind="value=_component_.fuelrods"></span>
+</label>
+<br>
+<label>
+  Date
+  <input type="date" value="2014-04-01">
+</label>
+<label>
+  Color
+  <input type="color" value="#57A700">
+</label>
+<br>
+<label>
+  Progress
+  <progress data-bind="attr(value)=_component_.fuelrods" max="25"></progress>
+</label>
+<br>
+<form onsubmit="return false;">
+  <h4>Fields with Combos / Autocomplete</h4>
   <label>
-    Checkbox
-    <input type=checkbox data-bind="checked=_component_.checked">
-  </label>
-  <br><label>
-    <a href="#component=switch">Switch component</a>
-    <span data-component="switch" data-bind="value=_component_.checked"></span>
-  </label>
-  <br><label>
-    <a href="#component=switch">Animated Switch (bodymovin)</a>
-    <span data-component="animated-switch" data-bind="value=_component_.checked"></span>
-  </label>
-  <hr>
-  <textarea>Text Area</textarea>
-  <br><label>
-    Input Field
-    <input placeholder="input field" data-bind="value=_component_.input_field">
-  </label>
-  <br><label>
-    <a href="#component=input">
-      Input Component
-    </a>
-    <span data-component="input" data-bind="value=_component_.input_field"></span>
-  </label>
-  <br><label>
-    <a href="#component=input">
-      Input Component (bound using component targets)
-    </a>
-    <span data-component="input" data-bind="component(value)=_component_.input_field"></span>
-  </label>
-  <br><label>
-    <a href="#component=contenteditable">
-      Contenteditable Component
-    </a>
+    What is your name?
+    <input
+      style="width: 200px;"
+      data-combo="names"
+      data-combo-position="above"
+      placeholder="match @name"
+      data-event="focus,keydown,keyup:combo-controller.update"
+    >
+  </label><br>
+  <label>
+    What is your quest?
+    <input
+      style="width: 200px;"
+      data-combo="quests"
+      data-combo-position="above"
+      placeholder="match whole field"
+      data-event="focus,keydown,keyup:combo-controller.update"
+    >
+  </label><br>
+  <label>
+    What is the average airspeed of an unladen swallow?
+    <input
+      style="width: 200px;"
+      data-combo="quests"
+      placeholder="match whole field"
+      data-event="focus,keydown,keyup:combo-controller.update"
+    >
+  </label><br>
+  <label>
+    What is your favorite color?
+    <input
+      style="width: 200px;"
+      data-combo="colors"
+      placeholder="words match colors"
+      data-event="focus,keydown,keyup:combo-controller.update"
+    >
+  </label><br>
+  <label>
+    div with contenteditable="true"
     <div
-      placeholder="contenteditable"
-      data-component="contenteditable"
-      data-bind="value=_component_.input_field"
+      contenteditable="true"
+      placeholder="match @name"
+      style="width: 200px; display: inline-block;"
+      data-combo="names"
+      data-event="focus,keydown,keyup:combo-controller.update"
+    ></div>
+  </label><br>
+  <label>
+    div with contenteditable="true"
+    <div
+      contenteditable="true"
+      placeholder="match field"
+      style="width: 200px; display: inline-block;"
+      data-combo="quests"
+      data-event="focus,keydown,keyup:combo-controller.update"
+    ></div>
+  </label><br>
+  <label>
+    div with contenteditable="true"
+    <div
+      contenteditable="true"
+      placeholder="words match colors"
+      style="width: 200px; display: inline-block;"
+      data-combo="colors"
+      data-event="focus,keydown,keyup:combo-controller.update"
     ></div>
   </label>
-  <br>
-  <label>
-    Search Field
-    <input class="search" placeholder="search field">
-  </label>
-  <hr>
-  <label>
-    Range Input
-    <input min=0 max=25 type="range" data-bind="value=_component_.fuelrods">
-  </label>
-  <br>
-  <label>
-    Number Input
-    <input type="number" data-bind="value=_component_.fuelrods">
-  </label>
-  <br>
-  <label>
-    <a href="#component=slider-numeric">
-      slider-numeric component
-    </a>
-    <span min=0 max=25 data-component="slider-numeric" data-bind="value=_component_.fuelrods"></span>
-  </label>
-  <br>
-  <label>
-    Date
-    <input type="date" value="2014-04-01">
-  </label>
-  <label>
-    Color
-    <input type="color" value="#57A700">
-  </label>
-  <br>
-  <label>
-    Progress
-    <progress data-bind="attr(value)=_component_.fuelrods" max="25"></progress>
-  </label>
-  <br>
-  <form onsubmit="return false;">
-    <h4>Fields with Combos / Autocomplete</h4>
-    <label>
-      What is your name?
-      <input
-        style="width: 200px;"
-        data-combo="names"
-        data-combo-position="above"
-        placeholder="match @name"
-        data-event="focus,keydown,keyup:combo-controller.update"
-      >
-    </label><br>
-    <label>
-      What is your quest?
-      <input
-        style="width: 200px;"
-        data-combo="quests"
-        data-combo-position="above"
-        placeholder="match whole field"
-        data-event="focus,keydown,keyup:combo-controller.update"
-      >
-    </label><br>
-    <label>
-      What is the average airspeed of an unladen swallow?
-      <input
-        style="width: 200px;"
-        data-combo="quests"
-        placeholder="match whole field"
-        data-event="focus,keydown,keyup:combo-controller.update"
-      >
-    </label><br>
+  <fieldset>
     <label>
       What is your favorite color?
-      <input
-        style="width: 200px;"
-        data-combo="colors"
-        placeholder="words match colors"
-        data-event="focus,keydown,keyup:combo-controller.update"
-      >
-    </label><br>
-    <label>
-      div with contenteditable="true"
-      <div
-        contenteditable="true"
-        placeholder="match @name"
-        style="width: 200px; display: inline-block;"
-        data-combo="names"
-        data-event="focus,keydown,keyup:combo-controller.update"
-      ></div>
-    </label><br>
-    <label>
-      div with contenteditable="true"
-      <div
-        contenteditable="true"
-        placeholder="match field"
-        style="width: 200px; display: inline-block;"
-        data-combo="quests"
-        data-event="focus,keydown,keyup:combo-controller.update"
-      ></div>
-    </label><br>
-    <label>
-      div with contenteditable="true"
-      <div
-        contenteditable="true"
-        placeholder="words match colors"
-        style="width: 200px; display: inline-block;"
-        data-combo="colors"
-        data-event="focus,keydown,keyup:combo-controller.update"
-      ></div>
     </label>
-    <fieldset>
-      <label>
-        What is your favorite color?
-      </label>
-      <label>
-        <input name="favorite-color" value="yellow" type="radio" data-bind="value=_component_.color">
-        Yellow
-      </label>
-      <label>
-        <input name="favorite-color" value="blue" type="radio" data-bind="value=_component_.color">
-        Blue
-      </label>
-      <label>
-        <input name="favorite-color" value="pink" type="radio" data-bind="value=_component_.color">
-        Pink
-      </label>
-    </fieldset>
     <label>
-      <a href="#component=radioset">
-        Radioset Component
-      </a>
-      <div
-        data-component="radioset"
-        data-bind="
-          value=_component_.color;
-          component(options)=_component_.colors;
-        "
-      ></div>
+      <input name="favorite-color" value="yellow" type="radio" data-bind="value=_component_.color">
+      Yellow
     </label>
-    <button type="cancel">Cancel</button>
-    <button type="submit">OK</button>
-  </form>
-  <div data-component="maxtoggle"></div>
-  <div
-    data-component="combo"
-    data-combo-id="quests"
-    class="select"
-  >
-    <div>My name is Sir Launcelot of Camelot</div>
-    <div>To seek the Holy Grail</div>
-    <div>Blue</div>
-    <div>Sir Robin of Camelot</div>
-    <div>What is the capital of Assyria?</div>
-    <div>Sir Galahad of Camelot</div>
-    <div>Blue.  No yel--</div>
-    <div>It is Arthur, King of the Britons</div>
-    <div>What do you mean?  An African or European swallow?</div>
-  </div>
-  <div
-    data-component="combo"
-    data-combo-id="names"
-    data-combo-filter-start="@"
-    data-combo-filter-split=" "
-    class="select"
-  >
-    <div>RealArthurKingOfBritons</div>
-    <div>SirLauncelot</div>
-    <div>SirRobinTheNotSoBrave</div>
-    <div>SirNotAppearingInThisFilm</div>
-    <div>HolyHandGrenade</div>
-    <div>VorpalBunny</div>
-  </div>
-  <div
-    data-component="combo"
-    data-combo-id="colors"
-    data-combo-filter-split=" "
-    class="select"
-  >
-    <div>Blue</div>
-    <div>Chartreuse</div>
-    <div>Lilac</div>
-    <div>Pink</div>
-    <div>Red</div>
-    <div>Yellow</div>
-  </div>
-  <video class="video-with-still" src="test/video/landscape1.mov" loop="true" controls="true" data-event="seeked,loadeddata,timeupdate:_component_.video_snapshot"></video>
-  <canvas></canvas>
+    <label>
+      <input name="favorite-color" value="blue" type="radio" data-bind="value=_component_.color">
+      Blue
+    </label>
+    <label>
+      <input name="favorite-color" value="pink" type="radio" data-bind="value=_component_.color">
+      Pink
+    </label>
+  </fieldset>
+  <label>
+    <a href="#component=radioset">
+      Radioset Component
+    </a>
+    <div
+      data-component="radioset"
+      data-bind="
+        value=_component_.color;
+        component(options)=_component_.colors;
+      "
+    ></div>
+  </label>
+  <button type="cancel">Cancel</button>
+  <button type="submit">OK</button>
+</form>
+<div data-component="maxtoggle"></div>
+<div
+  data-component="combo"
+  data-combo-id="quests"
+  class="select"
+>
+  <div>My name is Sir Launcelot of Camelot</div>
+  <div>To seek the Holy Grail</div>
+  <div>Blue</div>
+  <div>Sir Robin of Camelot</div>
+  <div>What is the capital of Assyria?</div>
+  <div>Sir Galahad of Camelot</div>
+  <div>Blue.  No yel--</div>
+  <div>It is Arthur, King of the Britons</div>
+  <div>What do you mean?  An African or European swallow?</div>
 </div>
+<div
+  data-component="combo"
+  data-combo-id="names"
+  data-combo-filter-start="@"
+  data-combo-filter-split=" "
+  class="select"
+>
+  <div>RealArthurKingOfBritons</div>
+  <div>SirLauncelot</div>
+  <div>SirRobinTheNotSoBrave</div>
+  <div>SirNotAppearingInThisFilm</div>
+  <div>HolyHandGrenade</div>
+  <div>VorpalBunny</div>
+</div>
+<div
+  data-component="combo"
+  data-combo-id="colors"
+  data-combo-filter-split=" "
+  class="select"
+>
+  <div>Blue</div>
+  <div>Chartreuse</div>
+  <div>Lilac</div>
+  <div>Pink</div>
+  <div>Red</div>
+  <div>Yellow</div>
+</div>
+<video class="video-with-still" src="test/video/landscape1.mov" loop="true" controls="true" data-event="seeked,loadeddata,timeupdate:_component_.video_snapshot"></video>
+<canvas></canvas>
 <script>
 /* global b8r, register, console */
 'use strict';

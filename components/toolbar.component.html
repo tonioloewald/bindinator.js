@@ -5,9 +5,9 @@ Copyright ©2016-2017 Tonio Loewald
 The toolbar component merely styles its children and adds shortcut support.
 -->
 <style>
-  .toolbar {
+  .toolbar-component {
     margin: 0;
-    padding: 2px 4px;
+    padding: 4px;
     height: 32px;
     background-color: #f7f7f7;
     box-sizing: border-box;
@@ -15,22 +15,23 @@ The toolbar component merely styles its children and adds shortcut support.
     display: flex;
   }
 
-  .toolbar hr {
+  .toolbar-component hr {
     border: 0;
     display: block;
     flex-grow: 1;
   }
 
-  .toolbar hr.fixed {
+  .toolbar-component hr.fixed {
     flex-grow: 0;
     width: 16px;
   }
 
-  .toolbar > button {
+  .toolbar-component > button {
+    height: 24px;
     min-width: 26px;
   }
 
-  .toolbar > button + button {
+  .toolbar-component > button + button {
     margin-left: 2px;
   }
 </style>
@@ -40,6 +41,5 @@ The toolbar component merely styles its children and adds shortcut support.
     Note that the toolbar component has no actual elements of its own — it simply decorates
     the component.
   */
-  component.classList.add('toolbar');
   require('../lib/shortcuts.js').update();
 </script>

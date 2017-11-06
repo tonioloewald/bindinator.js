@@ -5,6 +5,28 @@
 
 ## Creating Components
 
+There are two usual paths to creating a component. One is to design and build a component
+from scratch, another is to take some piece of a  view that has been implemented 
+conventionally, and convert it into a component.
+
+In both cases, it's very similar to the way you might write a function or class
+with a specific purpose in mind, while the other is to refactor a piece of code so
+you can reuse it, or simplify or generalize bespoke code to make it "DRY"".
+
+Imagine the case of a simple slider control with a bound numerical input:
+
+    <label>
+      <input type="range"><input type="number">
+      <span>Volume</span>
+    </label>
+
+In a real application, it would probably come with extra attributes, such as
+`id` or `class` to both provide hooks for styling and code, and then of course there
+will be code somewhere to synchronize the two `<input>` elements with each other and
+the data model, and presumably to do stuff when the values change.
+
+[Here's what this looks like as a b8r component](#component=slider-numeric).
+
 ## Component Lifecycle
 
 A component is loaded *asynchronously*. `b8r.component(...)` returns

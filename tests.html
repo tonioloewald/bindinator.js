@@ -114,7 +114,7 @@
       list: [
         {x: 10, y: 11},
         {x: 12, y: 13},
-        {x: 'y=z'}
+        {x: 'y=z', y: Math.PI}
       ],
       color: 'red',
       type: 'range',
@@ -159,7 +159,6 @@
     Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
     Test(() => b8r.id('a').style.color).shouldBe('red');
     Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
-    Test(() => b8r.find('.bad-list[data-list-instance]').length).shouldBe(3);
 
 
     b8r.register('test2', {color: 'green'});
@@ -273,6 +272,7 @@
           .shouldBe('Set on load');
         Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
           .shouldBe(2);
+        Test(() => b8r.find('.bad-list[data-list-instance]').length).shouldBe(3);
       });
   </script>
 </body>

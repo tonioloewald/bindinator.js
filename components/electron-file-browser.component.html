@@ -1,0 +1,278 @@
+<!--
+# Electron File Browser
+
+A file browser for use in Electron Apps
+-->
+<style>
+  .electron-file-browser-component > .fb-header {
+    -webkit-app-region: drag;
+    padding: 5px 8px;
+    flex-shrink: 0;
+    border-top: 1px solid #eeedee;
+    border-bottom: 1px solid #939293;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e9e6e9+0,d1cfd1+100 */
+    background: #e9e6e9; /* Old browsers */
+    background: linear-gradient(to bottom,  #e9e6e9 0%,#d1cfd1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  }
+
+  .electron-file-browser-component > .fb-header button,
+  .electron-file-browser-component > .fb-header input,
+  .electron-file-browser-component > .fb-header label {
+    -webkit-app-region: no-drag;
+    user-select: none;
+    margin: 0 2px;
+  }
+
+  .electron-file-browser-component {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .electron-file-browser-component.disabled:after {
+    content: "requires electron";
+    color: white;
+    background-color: red;
+    margin: 10px;
+    padding: 4px 8px;
+    border-radius: 2px;
+    text-align: center;
+  }
+
+  .electron-file-browser-component.disabled > * {
+    display: none;
+  }
+
+  .faux-tr {
+    cursor: default;
+    padding: 0 5px;
+    display: block;
+    white-space: nowrap;
+    user-select: none;
+    height: 20px;
+  }
+
+  .faux-tr > * {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 5px;
+    border-right: 1px solid rgba(0,0,0,0.1);
+    position: relative;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  /*
+    The entire purpose of this pseudo-element is to make the cursor change
+    TODO: implement column sizing
+    Note: without :hover a bazillion pseudo elements are created and performance is terrible
+  */
+  .faux-tr > *:hover:after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: ew-resize;
+  }
+
+  .electron-file-browser-component .file:nth-child(2n+1) {
+    background-color: rgba(0,0,0,0.03);
+  }
+
+  .electron-file-browser-component .file:hover {
+    background-color: rgba(0,255,64,0.1);
+  }
+
+  .electron-file-browser-component .file:focus {
+    background-color: rgba(0,255,64,0.2);
+  }
+
+  .electron-file-browser-component .icon-file-empty,
+  .electron-file-browser-component .icon-folder {
+    color: #0b0;
+    margin-right: 5px;
+  }
+
+  .electron-file-browser-component .file-name {
+    width: 228px;
+  }
+
+  .electron-file-browser-component .file-size {
+    width: 72px;
+    text-align: right;
+  }
+
+  .electron-file-browser-component .file-time {
+    width: 160px;
+  }
+</style>
+<div class="fb-header">
+  <div style="height: 16px; text-align: center">
+    <span class="icon-folder"></span> <span data-bind="text=_component_.name"></span>
+  </div>
+  <div style="padding-top: 5px; display: flex;">
+    <button
+      data-event="click:_component_.home"
+      title="home folder"
+    ><span class="icon-home5"></span></button>
+    <button
+      data-bind="disabled_if=_component_.root"
+      data-event="click:_component_.parent"
+      title="parent folder"
+    ><span class="icon-folder-upload"></span></button>
+    <button 
+      data-event="click:_component_.pick"
+      title="choose folder"
+    ><span class="icon-folder-search"></span></button>
+    <span style="flex-grow: 1"></span>
+    <button>
+      <span class="icon-cog2"></span>
+      <span style="font-size: 50%; line-height: 50%; vertical-align: 60%; margin-left: 2px" class="icon-arrow-down3"></span>
+    </button>
+    <label style="font-size: 11px; line-height: 24px">
+      <input type="checkbox" data-bind="checked=_component_.show_hidden">
+      Show Hidden
+    </label>
+  </div>
+</div>
+<div style="flex-shrink: 0; background: #eee; border-bottom: 1px solid #ccc;">
+  <div class="faux-tr">
+    <span class="file-name">Name</span>
+    <span class="file-size">Size</span>
+    <span class="file-time">Created</span>
+    <span class="file-time">Modified</span>
+  </div>
+</div>
+<div style="flex-grow: 1; flex-shrink: 1; overflow-y: overlay;">
+  <div 
+    tabindex="0"
+    class="faux-tr file"
+    data-list="_component_.filter(_component_.files,_component_.show_hidden):name"
+    data-event="keydown(Enter),dblclick:_component_.open"
+  >
+    <span class="file-name">
+      <span data-bind="class(icon-folder)=.isDirectory;class(icon-file-empty)=.isFile"></span>
+      <span data-bind="text=.name">file-name.type</span>
+    </span>
+    <span class="file-size" data-bind="bytes=.size"></span>
+    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.ctimeMs"></span>
+    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.mtimeMs"></span>
+  </div>
+</div>
+<script>
+  /* global require, b8r, component, data, get, set, console */
+  'use strict';
+
+  if (!require.electron) {
+    component.classList.add('disabled');
+    return;
+  }
+  const fs = require.globalRequire('fs');
+  const {remote:{dialog, BrowserWindow, app}} = require.globalRequire('electron');
+  b8r.addDataBinding(component, 'class(show-hidden)', `${data.component_id}.show_hidden`);
+
+  const _get_stats = (path, file) => {
+    return new Promise(resolve => {
+      fs.stat(path + '/' + file.name, function(err, stats) {
+        const {size, mode, atimeMs, ctimeMs, mtimeMs} = stats;
+        // optimization -- we change the file directly and don't touch it
+        Object.assign(file, {
+          isFile: stats.isFile(),
+          isDirectory: stats.isDirectory(),
+          size, mode, atimeMs, ctimeMs, mtimeMs,
+        });
+        resolve(file);
+      });
+    });
+  };
+
+  function add_info () {
+    console.time('add_info');
+    const path = get('path');
+    const files = get('files').filter(file => file.info_needed);
+    const info_promises = [];
+    for (let i = 0; files.length && i < 200; i++) {
+      const file = files.shift();
+      delete file.info_needed;
+      info_promises.push(_get_stats(path, file));
+    }
+    Promise.all(info_promises).then(file_infos => {
+      console.time('resolve info_promises');
+      // optimization -- now we force the file to be updated
+      file_infos.forEach(file => touch(`files[name=${file.name}]`));
+      console.timeEnd('resolve info_promises');
+      if (files.length) {
+        setTimeout(add_info, 20);
+      }
+      console.timeEnd('add_info');
+    });
+  }
+
+  function list_path (path) {
+    if (Array.isArray(path) && path.length) {
+      path = path[0];
+    }
+    if (!path) {
+      return;
+    }
+    console.time(`list_path ${path}`);
+    fs.readdir(path, (err, items) => {
+      set({
+        path,
+        name: path.split('/').pop(),
+        root: path.length <= 1,
+        files: items.
+          filter(name => !/\r/.test(name)).
+          map(name => {
+            return {
+              name,
+              hidden: name[0] === '.',
+              info_needed: true,
+            }; 
+          })
+      });
+      console.timeEnd(`list_path ${path}`);
+      console.log(`${path} contains ${get('files').length} items`);
+      add_info();
+    });
+  }
+
+  function home () {
+    list_path(app.getPath('home'));
+  }
+
+  function parent () {
+    list_path (get('path').split('/').slice(0, -1).join('/') || '/');
+  }
+
+  function pick () {
+    dialog.showOpenDialog(
+      BrowserWindow.getFocusedWindow(),
+      { properties: ['openDirectory', 'createDirectory'], }, 
+      list_path
+    );
+  }
+
+  function open (evt, target) {
+    const file = b8r.getListInstance(target);
+    if (file.isDirectory) {
+      list_path (`${get('path')}/${file.name}`);
+    }
+  }
+
+  function filter(files, show_hidden) {
+    if (show_hidden) {
+      return files;
+    } else {
+      return files.filter(file => !file.hidden);
+    }
+  }
+
+  home();
+
+  set ( { parent, home, pick, open, filter } );
+</script>
