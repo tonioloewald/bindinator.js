@@ -10,30 +10,17 @@ The following targets (attributes of a DOM element) can be bound to object data:
 
     data-bind="value=message.text"
 
-This is the value of `<input>` and `<textarea>` elements.) If attached to a radio button
-it tries to "do the right thing".
+This is the value of `<input>`, `<textarea>`, and `<select>` elements.) 
+If attached to an `<input type="radio">` button it tries to "do the right thing".
 
 If you bind to a **component instance**'s value it will map directly to the component's
 value.
-
-### checked
-
-    data-bind="checked=message.private"
-
-This is the checked property on `<input type="checked">` and `<input
-type="radio">` elements.
-
-### selected
-
-    data-bind="selected=message.selected"
-
-This is the selected attribute of `<option>` elements.
 
 ### text
 
     data-bind="text=message.sender.name"
 
-This sets the textContent property of most standard elements.
+This sets the `textContent` property of most standard elements.
 
 Note that b8r allows you to use ES6-flavored interpolated strings on the
 right-hand-side of data-bind bindings. E.g.
@@ -44,18 +31,49 @@ right-hand-side of data-bind bindings. E.g.
 
     data-bind="format=**${error.type}** ${error.detail}"
 
-This sets the content of an element with the value supplied by honoring
+This sets `textContent` of an element with the value supplied by honoring
 a markdown-style bold or italics (e.g. replacing `**bold**` or `_italic_`
 with `<b>bold</b>` and `<i>italic</i>`).
 
-*No other formatting is supported* and if the string contains a '>' character
+*No other formatting is supported* and if the string contains a `>` character
 no formatting is applied and the `textContent` of the element is set instead.
+
+### checked
+
+    data-bind="checked=message.private"
+
+This is the `checked` property on `<input type="checked">` and `<input
+type="radio">` elements.
+
+### selected
+
+    data-bind="selected=message.selected"
+
+This is the selected attribute of `<option>` elements.
 
 > ## Note
 > `value`, `checked`, `selected`, and `text` are also "fromTargets",
 > which means bindings are two-way (changes in the DOM will be copied to the
 > bound object). In the case of text bindings, unless an input or change event
 > occurs, bound data will not be updated.
+
+### bytes
+
+    data-bind="bytes=path.to.size.in.bytes"
+
+Sets the `textContent` of element to the file size in appropriate units,
+rounded to one decimal place. E.g. `600` => "600 B", `4096` => "4.0 kB". Calculations
+are in binary "k" (so 1 kB === 1024 B, and so on). Annotation stops at `EB` (exabytes).
+
+### timestamp
+
+    data-bind="timestamp=path.to.zulu"
+    data-bind="timestamp(m-d-yy)=path.to.milliseconds"
+
+Sets the `textContent` of the element to a human readable timestamp, using 
+`new Date(...).localString()` by default, but supporting 
+[data.format](http://blog.stevenlevithan.com/archives/date-time-format)
+options if supplied.
 
 ### attr()
 
