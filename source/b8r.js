@@ -2,7 +2,7 @@
 #bindinator
 Copyright ©2016-2017 Tonio Loewald
 
-Bindinator (b8r) binds data and methods to the DOM and lets you quickly turn chunks of 
+Bindinator (b8r) binds data and methods to the DOM and lets you quickly turn chunks of
 markup, style, and code into reusable components so you can concentrate on your project.
 
 b8r leverages your understanding of the DOM and the browser rather than trying to
@@ -178,7 +178,7 @@ b8r.deregister = name => b8r.remove(name);
 > broken up into time-budgeted chunks (e.g. 1/30 or 1/60 of a second)
 >
 > Initial experiments seem to cause no breakage *except* for unit tests, but simply
-> updating the unit tests and then turning them on by default seems a bit risky, so 
+> updating the unit tests and then turning them on by default seems a bit risky, so
 > instead for the time being we get the following usage:
 >
 > <pre>
@@ -726,7 +726,7 @@ function bindList(list_template, data_path) {
           list.indexOf(filtered_list[0]) === -1
         ) {
           console.warn(
-            `list filter ${method_path} returned a new object` + 
+            `list filter ${method_path} returned a new object` +
             ` (not from original list); this will break updates!`
           );
         }
@@ -915,13 +915,14 @@ b8r.component = function(name, url, preserve_source) {
 };
 
 const _path_relative_b8r = _path => {
-  return Object.assign({}, b8r, {
+  _path = _path.replace(/\bcomponents$/, '');
+  return !_path ? b8r : Object.assign({}, b8r, {
     _path,
     component: (...args) => {
       const path_index = args[1] ? 1 : 0;
       let url = args[path_index];
       if (url.indexOf('://') === -1) {
-        url = `${_path}/${url}`.replace(/components\/components/, 'components');
+        url = `${_path}/${url}`;
         args[path_index] = url;
       }
       return b8r.component(...args);
@@ -1063,7 +1064,7 @@ b8r.insertComponent = function(component, element, data) {
     delete element.dataset.component;
   }
   if (!data || data_path) {
-    data = dataForElement(element, b8r.getComponentData(element) || 
+    data = dataForElement(element, b8r.getComponentData(element) ||
                                    b8r.getListInstance(element) || {});
   }
   if (element.parentElement === null) {
@@ -1072,11 +1073,11 @@ b8r.insertComponent = function(component, element, data) {
   const children = b8r.fragment();
   /*
     * if you're replacing a component, it should get the replaced component's children.
-    * we probably want to be able to remove a component (i.e. pull out an instance's 
-      children and then delete element's contents, replace the children, and remove 
+    * we probably want to be able to remove a component (i.e. pull out an instance's
+      children and then delete element's contents, replace the children, and remove
       its id)
-    * note that components with no DOM nodes present a problem since they may have 
-      passed-through child elements that aren't distinguishable from a component's 
+    * note that components with no DOM nodes present a problem since they may have
+      passed-through child elements that aren't distinguishable from a component's
       original body
   */
   const component_id = 'c#' + component.name + '#' + (++component_count);
@@ -1208,9 +1209,9 @@ b8r.wrapWithComponent = (component, element, data, attributes) => {
 /**
     b8r.removeComponent(elt);
 
-If elt has a component in it (i.e. has the attribute data-component-id) removes the 
-compoment, remove the id, and remove any class that ends with '-component'. Note that 
-removeComponent does not preserve children!
+If elt has a component in it (i.e. has the attribute data-component-id) removes the
+element's contents, removes the component-id, and removes any class that ends with '-component'.
+Note that `removeComponent` does not preserve children!
 */
 
 b8r.removeComponent = elt => {
