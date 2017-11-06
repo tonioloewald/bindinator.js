@@ -13,8 +13,10 @@ A file browser for use in Electron Apps
     content: "requires electron";
     color: white;
     background-color: red;
+    margin: 10px;
     padding: 4px 8px;
     border-radius: 2px;
+    text-align: center;
   }
 
   .electron-file-browser-component.disabled > * {
@@ -26,7 +28,7 @@ A file browser for use in Electron Apps
     padding: 0 5px;
     display: block;
     user-select: none;
-    height: 24px;
+    height: 20px;
   }
 
   .faux-tr > * {
@@ -37,7 +39,8 @@ A file browser for use in Electron Apps
     padding: 2px 5px;
     border-right: 1px solid rgba(0,0,0,0.1);
     position: relative;
-    height: 24px;
+    height: 20px;
+    font-size: 12px;
   }
 
   .electron-file-browser-component .file:nth-child(2n+1) {
@@ -65,6 +68,10 @@ A file browser for use in Electron Apps
     width: 72px;
     text-align: right;
   }
+
+  .electron-file-browser-component .file-time {
+    width: 160px;
+  }
 </style>
 <div style="padding: 10px; flex-shrink: 0; background-color: #ddd; border-bottom: 1px solid #ccc;">
   <button
@@ -81,6 +88,8 @@ A file browser for use in Electron Apps
   <div class="faux-tr">
     <span class="file-name">Name</span>
     <span class="file-size">Size</span>
+    <span class="file-time">Created</span>
+    <span class="file-time">Modified</span>
   </div>
 </div>
 <div style="flex-grow: 1; flex-shrink: 1; overflow-y: overlay;">
@@ -92,6 +101,8 @@ A file browser for use in Electron Apps
   >
     <span class="file-name" data-bind="text=.name;class(directory)=.isDirectory">file-name.type</span>
     <span class="file-size" data-bind="bytes=.size">size</span>
+    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.ctimeMs">date-time</span>
+    <span class="file-time" data-bind="timestamp(m/d/yy h:mm tt)=.mtimeMs">date-time</span>
   </div>
 </div>
 <script>
@@ -105,16 +116,14 @@ A file browser for use in Electron Apps
   const fs = require.globalRequire('fs');
   const {remote:{dialog, BrowserWindow, app}, ipcRenderer} = require.globalRequire('electron');
   b8r.addDataBinding(component, 'class(show-hidden)', `${data.component_id}.show_hidden`);
-  
-  console.log(ipcRenderer, BrowserWindow);
 
   function add_info (folder_path, file_name) {
     fs.stat(folder_path + '/' + file_name, function(err, stats) {
+      const {size, mode, atimeMs, ctimeMs, mtimeMs} = stats;
       set(`files[name=${file_name}]`, {
         isFile: stats.isFile(),
         isDirectory: stats.isDirectory(),
-        size: stats.size,
-        mode: stats.mode,
+        size, mode, atimeMs, ctimeMs, mtimeMs,
       });
     });
   }
@@ -126,6 +135,7 @@ A file browser for use in Electron Apps
     if (!path) {
       return;
     }
+    console.time(`list_path ${path}`);
     fs.readdir(path, (err, items) => {
       set({
         path,
@@ -141,6 +151,7 @@ A file browser for use in Electron Apps
           })
       });
     });
+    console.timeEnd(`list_path ${path}`);
   }
 
   list_path(app.getPath('home'));
