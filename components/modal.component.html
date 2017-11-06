@@ -62,7 +62,8 @@ Copyright ©2016-2017 Tonio Loewald
           data-bind="
             text=.caption;
             class(default)=.default;
-            class(cancel)=.cancel
+            class(cancel)=.cancel;
+            class(close)=.close;
           "
         >Button Name</button>
       </div>
@@ -104,8 +105,7 @@ Copyright ©2016-2017 Tonio Loewald
     }
 
     if (
-        evt.target instanceof HTMLButtonElement &&
-        (evt.target.classList.contains('default') || evt.target.classList.contains('cancel'))
+        evt.target instanceof HTMLButtonElement && evt.target.matches('.default,.cancel,.close')
     ) {
       component.remove();
     } else {

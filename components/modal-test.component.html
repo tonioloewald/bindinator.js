@@ -43,8 +43,8 @@ Demonstrates use of modal dialogs.
         message: 'What is your quest?',
         placeholder: 'Enter quest here',
         text: '',
-        buttons: [{caption: 'I don’t really have a quest', cancel: true}, {caption: 'Done', default: true}],
-        callback: (evt, component, data) => result.textContent = 'user entered: ' + data.text,
+        buttons: [{caption: 'I don’t really have a quest', cancel: true}, {caption: 'Onward Patsy!', default: true}],
+        callback: (evt, component, data) => result.textContent = evt.target.matches('.cancel') ? 'user cancelled' : 'user entered: ' + data.text,
       }));
     },
 
