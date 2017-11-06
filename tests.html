@@ -144,14 +144,16 @@
     Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2]);
     setByPath(obj, 'base', 42);
     setByPath(obj, 'kettle.black', 11);
+    b8r.force_update();
     Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
     Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
     setByPath(obj, 'sub.list[2]', 25);
+    b8r.force_update();
     Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
     // binding (to), data mounting
-    b8r.async_updates(false);
     b8r.register('test1', obj);
+    b8r.force_update();
     Test(() => b8r.id('a').textContent).shouldBe('42');
     Test(() => b8r.id('b').textContent).shouldBe('hello');
     Test(() => b8r.id('c').textContent).shouldBe(obj.sub.list[2] + '');
@@ -162,6 +164,7 @@
 
 
     b8r.register('test2', {color: 'green'});
+    b8r.force_update();
     Test(() => b8r.id('b').style.color).shouldBe('green');
 
     // list binding
@@ -170,11 +173,13 @@
     // binding (from)
     b8r.findOne('input').value = 55;
     Test.trigger('input', b8r.findOne('input'));
+    b8r.force_update();
     Test(() => b8r.id('e').value)
                        .shouldBe(obj.sub.list[2] + '');
     Test(() => b8r.id('c').textContent)
                        .shouldBe(obj.sub.list[2] + '');
     b8r.setByPath('test2', 'color', 'purple');
+    b8r.force_update();
     Test(() => b8r.id('b').style.color).shouldBe('purple');
     b8r.findOne('select').value = 'two';
     Test.trigger('change', 'select');
@@ -231,8 +236,10 @@
       val: 'A,B',
     });
     let elt = b8r.id('method_binding');
+    b8r.force_update();
     Test(() => elt.getAttribute('first')).shouldBe('A');
     b8r.setByPath('method_binding', 'val', 'C,D');
+    b8r.force_update();
     Test(() => elt.getAttribute('second')).shouldBe('D');
     elt.setAttribute('second', 'Q');
     b8r.trigger('change', elt);
@@ -249,17 +256,15 @@
     }
 
     // async updates
-    b8r.async_updates(true);
     b8r.set('test1.base', 86);
     Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
-    b8r.after_update(() => {
-      Test(() => b8r.id('a').textContent, 'Async Update after_update').shouldBe('86');
-    });
-    b8r.async_updates(false);
+    b8r.force_update();
+    Test(() => b8r.id('a').textContent, 'Async Update after_update').shouldBe('86');
 
     // components
     b8r.component('test', 'test/test')
       .then(() => {
+        b8r.force_update();
         Test(() => b8r.findOne('.test-component p').textContent, 'Component loaded')
           .shouldBe('This is a test');
         Test(() => b8r.findOne('.test-component input').value, 'Component bound')
