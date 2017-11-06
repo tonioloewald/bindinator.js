@@ -143,7 +143,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 * `_null_`
 */
 /* jshint expr: true */
-/* global require, module */
+/* global require, module, console */
 'use strict';
 
 module.exports = function(b8r) {
@@ -317,6 +317,17 @@ module.exports = function(b8r) {
         b8r.callMethod(model, method, element, value);
       } else {
         console.warn(`method ${method} not found in`, element);
+      }
+    },
+    timestamp: function(element, zulu, format) {
+      if (!format) {
+        const date = new Date(zulu);
+        element.textContent = date.toLocaleString();
+      } else {
+        require.lazy('../lib/date.format.js').then(() => {
+          const date = new Date(zulu);
+          element.textContent = date.format(format);
+        });
       }
     },
     json: function(element, value) {
