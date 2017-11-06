@@ -19,7 +19,7 @@ Demonstrates use of modal dialogs.
   var result = findOne('.result');
   register({
     alert: () => {
-        b8r.component('../b8r/components/modal').then(c => b8r.insertComponent(c, null, {
+        b8r.component('components/modal').then(c => b8r.insertComponent(c, null, {
         title: 'Alert',
         backdropColor: 'rgba(0,0,0,0.4)',
         message: 'I have a bad feeling about this.',
@@ -28,7 +28,7 @@ Demonstrates use of modal dialogs.
       }));
     },
     confirm: () => {
-      b8r.component('../b8r/components/modal').then(c => b8r.insertComponent(c, null, {
+      b8r.component('components/modal').then(c => b8r.insertComponent(c, null, {
         title: 'Confirm',
         backdropColor: 'rgba(0,0,0,0.4)',
         message: 'Are you completely sure you want to do it?',
@@ -37,7 +37,7 @@ Demonstrates use of modal dialogs.
       }));
     },
     prompt: () => {
-      b8r.component('../b8r/components/modal').then(c => b8r.insertComponent(c, null, {
+      b8r.component('components/modal').then(c => b8r.insertComponent(c, null, {
         title: 'Prompt',
         backdropColor: 'rgba(0,0,0,0.4)',
         message: 'What is your quest?',
