@@ -39,7 +39,7 @@ for production.
       path: component.dataset.src || 'test/toggle_switch.json'
     });
 
-    setTimeout(data.update, 100);
+    data.animation.addEventListener('DOMLoaded', data.update);
   });
 
   set({
