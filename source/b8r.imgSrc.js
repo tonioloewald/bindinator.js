@@ -35,7 +35,8 @@ const imgSrc = (img, url, opacity) => {
   if(img instanceof HTMLImageElement && img.src === url) {
     return;
   }
-  img.style.opacity = 0;
+  img.src = pixel.src;
+  img.style.opacity = 0.1;
   if (url) {
     imagePromise(url).then(image => {
       if(!getComputedStyle(img).transition) {
@@ -57,8 +58,6 @@ const imgSrc = (img, url, opacity) => {
         ctx.drawImage(image, sx, sy, sw, sh, 0, 0, w, h);
       }
     });
-  } else {
-    img.removeAttribute('src');
   }
 };
 
