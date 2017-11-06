@@ -1233,7 +1233,7 @@ in the DOM it creates one. It replaces the pattern:
 
 And doesn't run the risk of leaking multiple instances of components into the DOM.
 */
-b8r.componentOnce = (...args) => {
+b8r.componentOnce = function(...args) {
   // may be switched out for relative version
   this.component(...args).then(c => {
     if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
