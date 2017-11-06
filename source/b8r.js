@@ -631,7 +631,7 @@ b8r.listInstances = list_template => {
 
 const resolveListInstanceBindings = (instance_elt, instance_path) => {
   const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
-                     .filter(elt => !elt.closest('[data-list]'));
+                      .filter(elt => !elt.closest('[data-list]'));
   elements.forEach(elt => {
     const binding_source = elt.dataset.bind;
     if (binding_source.indexOf('=.') > -1) {
@@ -707,7 +707,8 @@ function bindList(list_template, data_path) {
     console.error('bad path', list_path, 'in data-list', list_template);
     return;
   }
-  let list = b8r.get(list_path, list_template);
+  list_path = b8r.resolvePath(list_path, list_template);
+  let list = b8r.get(list_path);
   if (!list) {
     return;
   }
