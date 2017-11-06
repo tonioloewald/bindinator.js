@@ -84,7 +84,7 @@ of awesome that this works at all.
     const source = editor ? editor.getValue() : code_elt.textContent;
     if (source.match(/<\/\w+>/)) {
       b8r.insertComponent(
-        b8r.makeComponent(uuid(), source, `${b8r._path}/`),
+        b8r.makeComponent(uuid(), source, b8r._path ? `${b8r._path}/` : ''),
         container
       );
     } else {
