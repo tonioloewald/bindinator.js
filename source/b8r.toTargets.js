@@ -228,6 +228,10 @@ module.exports = function(b8r) {
     },
     fixed: (element, value, dest) => element.textContent = parseFloat(value).toFixed(dest || 1),
     bytes: (element, value) => {
+      if (!value) {
+        element.textContent = '';
+        return;
+      }
       const suffixes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB'];
       let suffix = suffixes.shift();
       element.title = `${value} bytes`;
@@ -320,7 +324,9 @@ module.exports = function(b8r) {
       }
     },
     timestamp: function(element, zulu, format) {
-      if (!format) {
+      if (!zulu) {
+        element.textContent = '';
+      } else if (!format) {
         const date = new Date(zulu);
         element.textContent = date.toLocaleString();
       } else {
