@@ -973,9 +973,6 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
     load,
     path : url.split('/').slice(0,-1).join('/'),
   };
-  if (component.path === 'undefined') {
-    debugger;
-  }
   if (preserve_source) {
     component._source = source;
   }
@@ -1116,7 +1113,7 @@ b8r.insertComponent = function(component, element, data) {
         get, set, on, touch, component
       );
     } catch(e) {
-      debugger;
+      debugger; // jshint ignore:line
       console.error('component', component.name, 'failed to load', e);
     }
   } else {
