@@ -277,6 +277,10 @@
     {
       "name": "Electron File Browser",
       "path": "electron-file-browser"
+    },
+    {
+      "name": "Grid",
+      "path": "grid"
     }
   ]
 }

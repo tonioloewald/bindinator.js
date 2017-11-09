@@ -1,0 +1,31 @@
+<style>
+  .grid-component > .grid-layout {
+    text-align: center;
+  }
+  .grid-component > .grid-layout > * {
+    user-select: none;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,0.5);
+    border-radius: 4px;
+    width: 150px;
+    height: 100px;
+    margin: 10px;
+    font-size: 48px;
+    text-align: center;
+    line-height: 100px;
+  }
+  .grid-component > .grid-layout > :hover {
+    background: rgba(0,0,0,0.1);
+  }
+  .grid-component > .grid-layout > :active {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.75);
+  }
+</style>
+<div class="grid-layout" data-children>
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+  <div>D</div>
+  <div>E</div>
+</div>
