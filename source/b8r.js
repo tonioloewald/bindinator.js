@@ -688,7 +688,6 @@ function bindList(list_template, data_path) {
   if (data_path) {
     list_path = data_path + list_path;
   }
-  b8r.logStart('bindList', b8r.elementSignature(list_template));
   if (debug_paths && !b8r.isValidPath(list_path)) {
     console.error('bad path', list_path, 'in data-list', list_template);
     return;
@@ -699,6 +698,8 @@ function bindList(list_template, data_path) {
   if (!list) {
     return;
   }
+  const elt_signature =  b8r.elementSignature(list_template);
+  b8r.logStart('bindList', elt_signature);
   // compute list
   if (method_path) {
     (() => {
@@ -785,7 +786,7 @@ function bindList(list_template, data_path) {
   }
   b8r.hide(list_template);
   _trigger_change(list_template.parentElement);
-  b8r.logEnd('bindList', b8r.elementSignature(list_template));
+  b8r.logEnd('bindList', elt_signature);
 }
 
 b8r.bindAll = (element, data_path) => {
