@@ -113,8 +113,7 @@ Removes a data-list-instance's corresponding list member and any other bound
 data-list-instances.
 */
 
-b8r._component_instances = () =>
-  b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
+b8r._component_instances = () => b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 /**
     b8r.debounce(method, min_interval_ms) => debounced method
@@ -554,10 +553,36 @@ b8r.interpolate = (template, elt) => {
     if (debug_paths && !b8r.isValidPath(template)) {
       console.error('bad path', template, 'in binding', elt);
     } else {
-      formatted = b8r.get(template, elt);
+      if (template.indexOf(',') === -1) {
+        formatted = b8r.get(template, elt);
+      } else {
+        formatted = [];
+        template.split(',').forEach(
+          path => formatted.push(b8r.get(path, elt))
+        );
+      }
     }
   }
   return formatted;
+};
+
+const _unequal = (a, b) => {
+  if (!a || !b || !a.constructor || !b.constructor) {
+    return a !== b;
+  } else if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return true;
+    } else {
+      for(let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+          return true;
+        }
+      }
+      return false;
+    }
+  } else {
+    return a !== b;
+  }
 };
 
 function bind(element) {
@@ -573,7 +598,7 @@ function bind(element) {
     const { targets, path } = bindings[i];
     const value = b8r.interpolate(path, element);
     const existing = boundValues[path];
-    if (existing !== value || (value && value.constructor)) {
+    if (_unequal(existing, value)) {
       const signature = b8r.elementSignature(element);
       b8r.logStart('toTargets', signature);
       newValues[path] = value;
@@ -975,7 +1000,7 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
     path : url.split('/').slice(0,-1).join('/'),
   };
   if (component.path === 'undefined') {
-    debugger;
+    debugger; // jshint ignore:line
   }
   if (preserve_source) {
     component._source = source;
@@ -1117,7 +1142,7 @@ b8r.insertComponent = function(component, element, data) {
         get, set, on, touch, component
       );
     } catch(e) {
-      debugger;
+      debugger; // jshint ignore:line
       console.error('component', component.name, 'failed to load', e);
     }
   } else {
