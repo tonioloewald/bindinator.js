@@ -120,6 +120,12 @@ the element, value, and data source as parameters. (This means that methods
 registered as event handlers will need to deal with being passed a naked element
 instead of an event)
 
+#### Passing multiple values to a bound method
+
+You can pass an array of values to a bound method by comma-delimiting the paths, e.g.
+
+    data-bind="nethod(path.to.method=path.to.value,path.to.other,another.path"
+
 ### `component_map()`
 
     data-bind="component-map(
