@@ -10,7 +10,7 @@ The following targets (attributes of a DOM element) can be bound to object data:
 
     data-bind="value=message.text"
 
-This is the value of `<input>`, `<textarea>`, and `<select>` elements.) 
+This is the value of `<input>`, `<textarea>`, and `<select>` elements.)
 If attached to an `<input type="radio">` button it tries to "do the right thing".
 
 If you bind to a **component instance**'s value it will map directly to the component's
@@ -70,8 +70,8 @@ are in binary "k" (so 1 kB === 1024 B, and so on). Annotation stops at `EB` (exa
     data-bind="timestamp=path.to.zulu"
     data-bind="timestamp(m-d-yy)=path.to.milliseconds"
 
-Sets the `textContent` of the element to a human readable timestamp, using 
-`new Date(...).localString()` by default, but supporting 
+Sets the `textContent` of the element to a human readable timestamp, using
+`new Date(...).localString()` by default, but supporting
 [data.format](http://blog.stevenlevithan.com/archives/date-time-format)
 options if supplied.
 
@@ -337,7 +337,7 @@ module.exports = function(b8r) {
       }
       if (model) {
         b8r.callMethod(model, method, element, value);
-      } else {
+      } else if (element.closest('body')) {
         console.warn(`method ${method} not found in`, element);
       }
     },
