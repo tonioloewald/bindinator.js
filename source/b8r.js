@@ -113,8 +113,7 @@ Removes a data-list-instance's corresponding list member and any other bound
 data-list-instances.
 */
 
-b8r._component_instances = () =>
-  b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
+b8r._component_instances = () => b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
 
 /**
     b8r.debounce(method, min_interval_ms) => debounced method
@@ -554,10 +553,36 @@ b8r.interpolate = (template, elt) => {
     if (debug_paths && !b8r.isValidPath(template)) {
       console.error('bad path', template, 'in binding', elt);
     } else {
-      formatted = b8r.get(template, elt);
+      if (template.indexOf(',') === -1) {
+        formatted = b8r.get(template, elt);
+      } else {
+        formatted = [];
+        template.split(',').forEach(
+          path => formatted.push(b8r.get(path, elt))
+        );
+      }
     }
   }
   return formatted;
+};
+
+const _unequal = (a, b) => {
+  if (!a || !b || !a.constructor || !b.constructor) {
+    return a !== b;
+  } else if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return true;
+    } else {
+      for(let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+          return true;
+        }
+      }
+      return false;
+    }
+  } else {
+    return a !== b;
+  }
 };
 
 function bind(element) {
@@ -573,7 +598,7 @@ function bind(element) {
     const { targets, path } = bindings[i];
     const value = b8r.interpolate(path, element);
     const existing = boundValues[path];
-    if (existing !== value || (value && value.constructor)) {
+    if (_unequal(existing, value)) {
       const signature = b8r.elementSignature(element);
       b8r.logStart('toTargets', signature);
       newValues[path] = value;
@@ -688,7 +713,6 @@ function bindList(list_template, data_path) {
   if (data_path) {
     list_path = data_path + list_path;
   }
-  b8r.logStart('bindList', b8r.elementSignature(list_template));
   if (debug_paths && !b8r.isValidPath(list_path)) {
     console.error('bad path', list_path, 'in data-list', list_template);
     return;
@@ -699,6 +723,8 @@ function bindList(list_template, data_path) {
   if (!list) {
     return;
   }
+  const elt_signature =  b8r.elementSignature(list_template);
+  b8r.logStart('bindList', elt_signature);
   // compute list
   if (method_path) {
     (() => {
@@ -785,7 +811,7 @@ function bindList(list_template, data_path) {
   }
   b8r.hide(list_template);
   _trigger_change(list_template.parentElement);
-  b8r.logEnd('bindList', b8r.elementSignature(list_template));
+  b8r.logEnd('bindList', elt_signature);
 }
 
 b8r.bindAll = (element, data_path) => {
@@ -973,6 +999,9 @@ b8r.makeComponent = function(name, source, url, preserve_source) {
     load,
     path : url.split('/').slice(0,-1).join('/'),
   };
+  if (component.path === 'undefined') {
+    debugger; // jshint ignore:line
+  }
   if (preserve_source) {
     component._source = source;
   }

@@ -193,6 +193,9 @@ const addDataBinding = (element, toTarget, path) => {
   if (existing.indexOf(binding) === -1) {
     existing.push(binding);
     element.dataset.bind = existing.join(';');
+    require.lazy('./b8r.js').then(b8r => {
+      b8r.bindAll(element);
+    });
   }
 };
 
