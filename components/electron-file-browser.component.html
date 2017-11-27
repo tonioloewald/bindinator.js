@@ -188,6 +188,13 @@ A file browser for use in Electron Apps
       title="choose folder"
     ><span class="icon-folder-search"></span></button>
     <span style="flex-grow: 1"></span>
+    <span class="icon-search3" style="position: relative; top: 5px; margin-right: -22px"></span>
+    <input 
+      class="search"
+      placeholder="name filter"
+      data-bind="value=_component_.filter_text"
+      style="padding-left: 24px; font-size: 12px"
+    >
     <button data-event="mousedown:_component_.show_settings">
       <span class="icon-cog2"></span>
       <span style="font-size: 50%; line-height: 50%; vertical-align: 60%; margin-left: 2px" class="icon-arrow-down3"></span>
@@ -206,7 +213,7 @@ A file browser for use in Electron Apps
   <div 
     tabindex="0"
     class="faux-tr file"
-    data-list="_component_.filter(_component_.files,_component_.show_hidden):id"
+    data-list="_component_.filter(_component_.files,_component_.show_hidden,_component_.filter_text):id"
     data-event="keydown(Enter),dblclick:_component_.open"
   >
     <span class="file-name">
@@ -235,7 +242,7 @@ A file browser for use in Electron Apps
   </label>
 </div>
 <script>
-  /* global require, b8r, findOne, component, data, get, set, console, touch */
+  /* global require, b8r, findOne, component, data, get, set, on, console, touch */
   'use strict';
 
   if (!require.electron) {
@@ -243,7 +250,8 @@ A file browser for use in Electron Apps
     return;
   }
   const fs = require.globalRequire('fs');
-  const {remote:{dialog, BrowserWindow, app}} = require.globalRequire('electron');
+  const {remote:{dialog, getCurrentWindow, app}} = require.globalRequire('electron');
+  const menu = require('../lib/electron-menu.js');
   const folder_menu = findOne('.folder-menu');
   const settings_menu = findOne('.settings-menu');
   let file_id = 0;
@@ -344,7 +352,7 @@ A file browser for use in Electron Apps
 
   function pick () {
     dialog.showOpenDialog(
-      BrowserWindow.getFocusedWindow(),
+      getCurrentWindow(),
       { properties: ['openDirectory', 'createDirectory'], }, 
       list_path
     );
@@ -357,7 +365,11 @@ A file browser for use in Electron Apps
     }
   }
 
-  function filter(files, show_hidden) {
+  function filter(files, show_hidden, filter_text) {
+    if (filter_text) {
+      filter_text = filter_text.toLowerCase();
+      files = files.filter(file => file.name.toLowerCase().indexOf(filter_text) > -1);
+    }
     if (show_hidden) {
       return files;
     } else {
@@ -381,21 +393,36 @@ A file browser for use in Electron Apps
     const {path} = b8r.getListInstance(target);
     hide_menus();
     list_path(path);
-  }
+  };
 
   const show_settings = (evt, target) => {
     b8r.hide(folder_menu);
     b8r.show(settings_menu);
     placement.topRight(settings_menu, target);
-  }
+  };
 
   const hide_menus = () => {
     b8r.hide(folder_menu);
     b8r.hide(settings_menu);
     return true;
-  }
+  };
 
   on('mousedown', '_component_.hide_menus');
 
   set ( { parent, home, pick, open, filter, pick_folder, show_folders, show_settings, hide_menus } );
+
+  menu.setApplicationMenu([
+    {
+      label: 'File',
+      submenu: [
+        {label: 'New Folder'},
+        {
+          label: 'Select Folder',
+          click: pick,
+          accelerator: 'CommandOrControl+O'
+        },
+      ],
+    },
+    menu.editMenu,
+  ]);
 </script>
