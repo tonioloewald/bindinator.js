@@ -370,6 +370,7 @@ A file browser for use in Electron Apps
   const placement = require('../lib/relative-placement.js');
 
   const show_folders = (evt, target) => {
+    b8r.hide(settings_menu);
     if (get('folders').length) {
       b8r.show(folder_menu);
       placement.top(folder_menu, target);
@@ -382,15 +383,16 @@ A file browser for use in Electron Apps
     list_path(path);
   }
 
+  const show_settings = (evt, target) => {
+    b8r.hide(folder_menu);
+    b8r.show(settings_menu);
+    placement.topRight(settings_menu, target);
+  }
+
   const hide_menus = () => {
     b8r.hide(folder_menu);
     b8r.hide(settings_menu);
     return true;
-  }
-
-  const show_settings = (evt, target) => {
-    b8r.show(settings_menu);
-    placement.topRight(settings_menu, target);
   }
 
   on('mousedown', '_component_.hide_menus');
