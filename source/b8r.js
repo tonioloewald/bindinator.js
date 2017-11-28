@@ -653,7 +653,7 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
   binding a buttload of fairly simple elements).
 */
 function makeListInstanceBinder (list_template) {
-  if (b8r.findWithin(list_template, '[data-list],[data-component]').length) {
+  if (b8r.findWithin(list_template, '[data-list],[data-component]').length, true) {
     return (instance, itemPath) => {
       findBindables(instance).forEach(elt => bind(elt));
       findLists(instance).forEach(elt => bindList(elt, itemPath));
@@ -687,7 +687,7 @@ const forEachItemIn = (obj, id_path, func) => {
 };
 
 function bindList(list_template, data_path) {
-  if (!list_template.parentElement || list_template.closest('[data-component]')) {
+  if (!list_template.parentElement || list_template.parentElement.closest('[data-component]')) {
     return;
   }
   const [source_path, id_path] = list_template.dataset.list.split(':');
