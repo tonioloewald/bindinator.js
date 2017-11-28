@@ -893,6 +893,7 @@ course.
 */
 
 const component_promises = {};
+const component_preload_list = [];
 
 b8r.component = function(name, url, preserve_source) {
   if (url === undefined) {
@@ -904,6 +905,9 @@ b8r.component = function(name, url, preserve_source) {
       if (components[name] && !preserve_source) {
         resolve(components[name]);
       } else {
+        if (component_preload_list.indexOf(url) === -1) {
+          component_preload_list.push(url);
+        }
         b8r.ajax(`${url}.component.html`)
           .then(source => resolve(b8r.makeComponent(name, source, url, preserve_source)))
           .catch(err => {
@@ -916,6 +920,24 @@ b8r.component = function(name, url, preserve_source) {
   }
   return component_promises[name];
 };
+
+b8r.preloadData = () => JSON.stringify(component_preload_list, false, 2);
+b8r.preload = component_list => {
+  if (!component_list || !component_list.length) {
+    return;
+  } else if (requestIdleCallback) {
+    requestIdleCallback(deadline => {
+      if (!deadline.didTimeout) {
+        component_list.splice(0,5).forEach(c => b8r.component(c));
+      } else {
+        console.warn('b8r.preload timed out');
+      }
+      b8r.preload(component_list);
+    }, {timeout: 1000});
+  } else {
+    console.warn('b8r.preload requires requestIdleCallback');
+  }
+}
 
 const _path_relative_b8r = _path => {
   _path = _path.replace(/\bcomponents$/, '');
