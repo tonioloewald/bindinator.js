@@ -111,11 +111,7 @@ Also note that the new registry APIs provide an explicit *observable*.
 
 Removes a data-list-instance's corresponding list member and any other bound
 data-list-instances.
-*/
 
-b8r._component_instances = () => b8r.models().filter(key => key.indexOf(/^c#/) !== -1);
-
-/**
     b8r.debounce(method, min_interval_ms) => debounced method
     b8r.throttle(method, min_interval_ms) => throttled method
 
@@ -548,18 +544,14 @@ b8r.interpolate = (template, elt) => {
         const value = b8r.get(path, elt);
         return value !== null ? value : '';
       }
-    }) ;
+    });
   } else {
     if (debug_paths && !b8r.isValidPath(template)) {
       console.error('bad path', template, 'in binding', elt);
     } else {
-      if (template.indexOf(',') === -1) {
-        formatted = b8r.get(template, elt);
-      } else {
-        formatted = [];
-        template.split(',').forEach(
-          path => formatted.push(b8r.get(path, elt))
-        );
+      formatted = template.split(',').map(path => b8r.get(path, elt));
+      if (formatted.length === 1) {
+        formatted = formatted[0];
       }
     }
   }
@@ -567,9 +559,7 @@ b8r.interpolate = (template, elt) => {
 };
 
 const _unequal = (a, b) => {
-  if (!a || !b || !a.constructor || !b.constructor) {
-    return a !== b;
-  } else if (Array.isArray(a) && Array.isArray(b)) {
+  if (Array.isArray(a) && Array.isArray(b)) {
     if (a.length !== b.length) {
       return true;
     } else {
@@ -581,6 +571,7 @@ const _unequal = (a, b) => {
       return false;
     }
   } else {
+    // TODO consider looking inside objects
     return a !== b;
   }
 };
