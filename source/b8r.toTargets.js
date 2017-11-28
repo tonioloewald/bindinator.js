@@ -364,7 +364,7 @@ module.exports = function(b8r) {
       element.textContent = JSON.stringify(value, false, 2);
     },
     data_path: function(element, value) {
-      if (element.dataset.path !== value) {
+      if (!element.dataset.path || value && element.dataset.path.substr(-value.length) !== value) {
         element.dataset.path = value;
         b8r.bindAll(element);
       }

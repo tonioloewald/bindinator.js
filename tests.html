@@ -79,6 +79,11 @@
         third
       </label>
       <span data-bind="text=test1.radio"></span>
+      <h4>Complex Bindings</h4>
+      <ul id="complex-list">
+        <li data-list="test1.complex_list:id"><span data-component="show-bar" data-path=".foo"></span></li>
+      </ul>
+      <div id="indirect-bind" data-component="show-bar" data-bind="data_path=test1.bind_path"></div>
     </div>
     <div data-component="test">
       <p>First Child</p>
@@ -116,6 +121,10 @@
         {x: 12, y: 13},
         {x: 'y=z', y: Math.PI}
       ],
+      complex_list: [
+        {id: -3, foo: {bar: 'baz'}},
+        {id: 42, foo: {bar: 'lurman'}},
+      ],
       color: 'red',
       type: 'range',
       nested_list: [
@@ -131,7 +140,9 @@
       option: '3',
       checkbox: true,
       radio: 'second',
+      bind_path: 'test1.complex_list[id=-3].foo',
     };
+    b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
     Test(() => getByPath(obj, '')).shouldBe(obj);
     Test(() => getByPath(obj, '/')).shouldBe(obj);
     Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
@@ -161,6 +172,9 @@
     Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
     Test(() => b8r.id('a').style.color).shouldBe('red');
     Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
+
+    Test(() => b8r.id('complex-list').querySelectorAll('li')[1].textContent, 'explicitly setting data-path for component').shouldBe('lurman');
+    Test(() => b8r.id('indirect-bind').textContent, 'indirect binding via data_path toTarget').shouldBe('baz');
 
 
     b8r.register('test2', {color: 'green'});
