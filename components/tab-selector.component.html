@@ -39,11 +39,11 @@ The component's active_tab indicates the currently visible tab.
     border: 1px solid #222;
   }
 
-  .tab-selector-tabs > .tab-selector-tab:hover {
+  .tab-selector-tabs > .tab-selector-tab:not(.tab-selector-current):hover {
     background-color: #eee;
   }
 
-  .dark .tab-selector-tabs > .tab-selector-tab:hover {
+  .dark .tab-selector-tabs > .tab-selector-tab:not(.tab-selector-current):hover {
     background-color: #111;
   }
 
