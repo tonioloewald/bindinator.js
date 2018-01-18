@@ -1,0 +1,193 @@
+<!--
+# touch examples
+-->
+<style>
+  .game {
+    background: #203;
+    height: 400px;
+    position: relative;
+    color: white;
+  }
+
+  .joystick-component {
+    width: 128px;
+    height: 128px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+  }
+
+  .joystick-component:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .joystick-knob {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  .joystick-component:hover .joystick-knob {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .joystick-component:active .joystick-knob {
+    background: rgba(255,255,255,0.45);
+  }
+
+  .joystick-component[title="right"] {
+    top: 16px;
+    left: auto;
+    right: 16px;
+  }
+
+  .game-button-component {
+    width: 64px;
+    height: 64px;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .game-button-component:hover {
+    background: rgba(255,255,255,0.25);
+  }
+
+  .game-button-component:active {
+    background: rgba(255,255,255,0.5);
+  }
+
+  .game-button-component[title="alt_fire"] {
+    right: 96px;
+  }
+
+  .game-button-component[title="toggle_test"] {
+    bottom: 96px;
+  }
+
+  .game-button-component[title="toggle_test_2"] {
+    right: 96px;
+    bottom: 96px;
+  }
+
+  .game-button-component[title^="justify"] {
+    bottom: 176px;
+  }
+
+  .game-button-component[title="justify_left"] {
+    right: 176px;
+  }
+
+  .game-button-component[title="justify_center"] {
+    right: 96px;
+  }
+
+  .game-button-component[title="justify_right"] {
+    right: 16px;
+  }
+
+  .game-button-component > * {
+    position: absolute;
+    display: block;
+    font-size: 32px;
+    line-height: 64px;
+    text-align: center;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    transition: 0.1s;
+    opacity: 0.25;
+  }
+
+  .game-button-component:active > *,
+  .game-button-component.game-button-toggle-on > * {
+    opacity: 0.5;
+  }
+
+  .game-button-component.game-button-toggle-on:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    background: rgba(64,192,255,0.5);
+    border-radius: 999px;
+  }
+</style>
+<div
+  class="game"
+>
+  <div
+    title="left"
+    class="joystick-component"
+    data-event="touchstart,mousedown:touch-game-controller.stick_start"
+  ><div class="joystick-knob"></div></div>
+  <div
+    title="right"
+    class="joystick-component"
+    data-event="touchstart,mousedown:touch-game-controller.stick_start"
+  ><div class="joystick-knob"></div></div>
+  <div></div>
+  <div 
+    title="alt_fire"
+    class="game-button-component"
+    data-event="touchstart,mousedown:touch-game-controller.button_down"
+  ></div>
+  <div 
+    title="fire"
+    class="game-button-component"
+    data-event="touchstart,mousedown:touch-game-controller.button_down"
+  ></div>
+  <div
+    title="justify_left"
+    class="game-button-component"
+    data-radioset="justify_left,justify_center,justify_right"
+    data-bind="class(game-button-toggle-on)=touch-game-controller.buttons.justify_left.toggle"
+    data-event="touchstart,mousedown:touch-game-controller.button_down"
+  ><span class="icon-paragraph-left3"></span></div>
+  <div
+    title="justify_center"
+    class="game-button-component"
+    data-radioset="justify_left,justify_center,justify_right"
+    data-bind="class(game-button-toggle-on)=touch-game-controller.buttons.justify_center.toggle"
+    data-event="touchstart,mousedown:touch-game-controller.button_down"
+  ><span class="icon-paragraph-center3"></span></div>
+  <div
+    title="justify_right"
+    class="game-button-component"
+    data-radioset="justify_left,justify_center,justify_right"
+    data-bind="class(game-button-toggle-on)=touch-game-controller.buttons.justify_right.toggle"
+    data-event="touchstart,mousedown:touch-game-controller.button_down"
+  ><span class="icon-paragraph-right3"></span></div>
+  <div
+    title="toggle_test"
+    class="game-button-component"
+    data-bind="class(game-button-toggle-on)=touch-game-controller.buttons.toggle_test.toggle"
+    data-event="touchstart,mousedown:touch-game-controller.button_down"
+  ><span class="icon-cog2"></span></div>
+  <div
+    title="toggle_test_2"
+    class="game-button-component"
+    data-bind="class(game-button-toggle-on)=touch-game-controller.buttons.toggle_test_2.toggle"
+    data-event="touchstart,mousedown:touch-game-controller.button_down"
+  ><span class="icon-umbrella"></span></div>
+</div>
+<script>
+  /* global require */
+  'use strict';
+
+  require('lib/touch-game-controller.js');
+</script>
