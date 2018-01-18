@@ -46,6 +46,11 @@ takes a map of class names to booleans and adds / removes those classes accordin
 
 takes a map of style settings to values and sets those styles accordingly.
 
+    cssVar(name); // obtains the value of a :root css-variable.
+    cssVar(name, value); // sets the value of a :root css-variable.
+
+`cssVar` allows you to manipulate css-variables.
+
     create(tagName)
 
 document.createElement(tagName)
@@ -272,4 +277,13 @@ module.exports = {
     );
   },
   isInBody: element => element && (element instanceof Node) && document.body.contains(element),
+  cssVar: (name, value) => {
+    window.getComputedStyle(document.body.parentElement).getPropertyValue(name)
+    if (value === undefined) {
+      const htmlStyles = window.getComputedStyle(document.querySelector('html'));
+      return htmlStyles.getPropertyValue(name);
+    } else {
+      document.querySelector('html').style.setProperty(name, value);
+    }
+  }
 };

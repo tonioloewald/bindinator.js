@@ -39,22 +39,22 @@ The component's active_tab indicates the currently visible tab.
     border: 1px solid #222;
   }
 
-  .tab-selector-tabs > .tab-selector-tab:not(.tab-selector-current):hover {
+  .tab-selector-tabs > .tab-selector-tab:hover {
     background-color: #eee;
   }
 
-  .dark .tab-selector-tabs > .tab-selector-tab:not(.tab-selector-current):hover {
+  .dark .tab-selector-tabs > .tab-selector-tab:hover {
     background-color: #111;
   }
 
-  .tab-selector-tabs > .tab-selector-current {
+  .tab-selector-tabs > .tab-selector-tab.tab-selector-current {
     background-color: white;
     border: 1px solid #ddd;
     border-bottom: 1px solid white;
     margin-bottom: -1px;
   }
 
-  .dark .tab-selector-tabs > .tab-selector-current {
+  .dark .tab-selector-tabs > .tab-selector-tab.tab-selector-current {
     background-color: black;
     border: 1px solid #222;
   }

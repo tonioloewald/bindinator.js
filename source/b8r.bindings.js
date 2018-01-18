@@ -267,7 +267,8 @@ const getBindings = element => {
 
 const getDataPath = element => {
   const data_parent = element ? element.closest('[data-path],[data-list-instance]') : false;
-  return data_parent ? (data_parent.dataset.path || data_parent.dataset.listInstance) : '';
+  const path = data_parent ? (data_parent.dataset.path || data_parent.dataset.listInstance) : '';
+  return ['.', '['].indexOf(path[0]) === -1 ? path : getDataPath(data_parent.parentElement) + path;
 };
 
 const getListInstancePath = element => {
@@ -282,15 +283,15 @@ const getComponentDataPath = element => {
 
 const replaceInBindings = (element, needle, replacement) => {
   const needle_regexp = new RegExp(needle, 'g');
-  findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
-      .forEach(elt => {
-        ['data-bind', 'data-list', 'data-path'].forEach(attr => {
-          const val = elt.getAttribute(attr);
-          if (val) {
-            elt.setAttribute(attr, val.replace(needle_regexp, replacement));
-          }
-        });
-      });
+  findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`).
+  forEach(elt => {
+    ['data-bind', 'data-list', 'data-path'].forEach(attr => {
+      const val = elt.getAttribute(attr);
+      if (val) {
+        elt.setAttribute(attr, val.replace(needle_regexp, replacement));
+      }
+    });
+  });
 };
 
 module.exports = {

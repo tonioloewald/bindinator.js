@@ -38,6 +38,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 </div>
 <script>
 /* global require, findOne, data, component, set, get, b8r */
+/* jshint latedef:false */
 'use strict';
 
   const resize = require('../lib/resize.js');
@@ -45,9 +46,9 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   const container = findOne('[data-children]');
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
 
-  const center_gap = parseInt(data.center_gap || component.getAttribute('center-gap') || 64, 10);
-  const min_item_width = parseInt(data.min_item_width || component.getAttribute('minimum-item-width') || 28, 10);
-  const item_spacing = parseInt(data.item_spacing || component.getAttribute('item-spacing') || 2, 10);
+  const center_gap = parseInt(data.center_gap || component.dataset.centerGap || 64, 10);
+  const min_item_width = parseInt(data.min_item_width || component.dataset.minimumItemWidth || 28, 10);
+  const item_spacing = parseInt(data.item_spacing || component.dataset.itemSpacing || 2, 10);
   set({center_gap, min_item_width, item_spacing});
   const component_id = b8r.getComponentId(component);
 
@@ -60,7 +61,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   let position = null;
   let items;
   let item_count;
-  let velocity;
 
   const update = () => {
     items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
@@ -114,7 +114,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       }
     }
   };
-  const dragEnd = evt => {
+  const dragEnd = () => {
     const dragging = get('dragging');
     if (dragging) {
       set('dragging', null);
