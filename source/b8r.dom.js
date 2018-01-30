@@ -22,6 +22,11 @@ element.querySelector(selector)
 
 returns true if the element is in the document (versus "virtual")
 
+    isVisible(element); // getComputedStyle(element).display !== 'none'
+    isVisible(element, true); // as above, but check ancestors as well
+
+returns true if the element is not hidden by virtue of having its `display` set to 'none'
+
     id(id_string)
 
 document.getElementById(id_string)
@@ -163,6 +168,10 @@ unwraps the element of its immediate parent or its closest `wrapper_selector` if
 
 const {makeArray, forEachKey} = require('./b8r.iterators.js');
 
+const isVisible = (element, include_parents) => element &&
+  getComputedStyle(element).display !== 'none' &&
+  ((! include_parents) || element === document.body || isVisible(element.parentElement, true));
+
 module.exports = {
   find: selector => makeArray(document.querySelectorAll(selector)),
   findOne: document.querySelector.bind(document),
@@ -276,11 +285,11 @@ module.exports = {
       clientY - margin < r.bottom
     );
   },
-  isInBody: element => element && (element instanceof Node) && document.body.contains(element),
+  isVisible,
+  isInBody: element => element && document.body.contains(element),
   cssVar: (name, value) => {
-    window.getComputedStyle(document.body.parentElement).getPropertyValue(name)
     if (value === undefined) {
-      const htmlStyles = window.getComputedStyle(document.querySelector('html'));
+      const htmlStyles = getComputedStyle(document.querySelector('html'));
       return htmlStyles.getPropertyValue(name);
     } else {
       document.querySelector('html').style.setProperty(name, value);

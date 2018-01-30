@@ -110,15 +110,6 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   text-align: center;
 }
 
-.b8r-hide-while-loading {
-  visibility: hidden;
-}
-
-.b8r-hide-while-loading.b8r-loaded {
-  visibility: visible;
-  animation: fade-in 0.25s ease-out;
-}
-
 .fullscreen .layout,
 .fullscreen #example {
   position: fixed;

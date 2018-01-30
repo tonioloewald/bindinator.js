@@ -7,9 +7,26 @@ markup, style, and code into reusable components so you can concentrate on your 
 
 b8r leverages your understanding of the DOM and the browser rather than trying to
 implement some kind of virtual machine to replace it.
+
+## Core Functionality
+- [The Registry](#source=source/b8r.registry.js)
+- [Binding Data](#source=source/b8r.bindings.js)
+  - [toTargets](#source=source/b8r.toTargets.js)
+  - [fromTargets](#source=source/b8r.fromTargets.js)
+  - [keystroke](#source=source/b8r.keystroke.js)
+- [Events](#source=source/b8r.events.js)
+- [Components](#source=source/b8r.component.js)
+
+## Utilities
+- [AJAX](#source=source/b8r.ajax.js)
+- [DOM Utilities](#source=source/b8r.dom.js)
+- [Functions](#source=source/b8r.functions.js)
+- [Iterators](#source=source/b8r.iterators.js)
+- [Showing and Hiding](#source=source/b8r.show.js)
+- [Performance Logging](#source=source/b8r.perf.js)
 */
 /* jshint esnext:true, loopfunc:true, latedef:false */
-/* globals console, require, module */
+/* global console, require, module */
 
 'use strict';
 
@@ -58,94 +75,7 @@ const { keystroke, modifierKeys } = require('./b8r.keystroke.js');
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
 
-/**
-    b8r.register(name, obj);
-
-registers an object by name as data or controller. The names `_component_`,
-`_data_` and `_b8r_` are reserved; other similar names may be reserved later.
-
-`_b8r_` is the name of the collection of internal event handlers for bound variables.
-
-    b8r.deregister(name); // removes a registered object
-    b8r.deregister(); // just cleans up obsolete component data
-
-Remove a registered (named) object. deregister also removes component instance objects
-for components no longer in the DOM.
-
-    b8r.setByPath('model', 'data.path, value);
-    b8r.setByPath('model.data.path', value);
-
-Set a registered object's property by path; bound elements will be updated automatically.
-
-    b8r.getByPath('model', 'data.path');
-    b8r.getByPath('model.data.path');
-
-Get a registered object's property by path.
-
-    b8r.pushByPath('model', 'data.path', item, callback);
-    b8r.pushByPath('model.data.path', item, callback);
-
-As above, but unshift (and no callback).
-
-    b8r.unshiftByPath('model', 'data.path', item);
-    b8r.unshiftByPath('model.data.path', item);
-
-Insert an item into the specified array property. (Automatically updates bound
-lists).
-
-
-> ### Note
->
-> Having gained experience with the framework, I am doubling down
-> on object paths and simplifying the API in favor of:
-> <pre>
-> b8r.get('path.to.value');
-> b8r.set('path.to.value', new_value);
-> </pre>
-> The older APIs (setByPath, etc.) will ultimately be deprecated. Even now they
-> are little more than wrappers for set/get. See the *Registry* docs.
-
-Also note that the new registry APIs provide an explicit *observable*.
-
-    b8r.removeListInstance(element);
-
-Removes a data-list-instance's corresponding list member and any other bound
-data-list-instances.
-
-    b8r.debounce(method, min_interval_ms) => debounced method
-    b8r.throttle(method, min_interval_ms) => throttled method
-
-Two utility functios for preventing a method from being called too frequently.
-Not recommended for use on methods which take arguments!
-
-The key difference is that **debounce** is guaranteed to actually call the
-original method after the debounced wrapper stops being called for the
-minimum interval.
-
-Meanwhile **throttle** will refuse to call the original method again
-if it was previously called within the specified interval.
-*/
-
-b8r.debounce = (orig_fn, min_interval) => {
-  let debounce_id;
-  return (...args) => {
-    if (debounce_id) {
-      clearTimeout(debounce_id);
-    }
-    debounce_id = setTimeout(() => orig_fn(...args), min_interval);
-  };
-};
-
-b8r.throttle = (orig_fn, min_interval) => {
-  let last_call = Date.now() - min_interval;
-  return (...args) => {
-    const now = Date.now();
-    if (now - last_call > min_interval) {
-      last_call = now;
-      orig_fn(args);
-    }
-  };
-};
+Object.assign(b8r, require('./b8r.functions.js'));
 
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
@@ -161,150 +91,53 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
   });
 }, 100);
 
-b8r.deregister = name => b8r.remove(name);
-
-/**
-> ### Experiment: Async Updates
->
-> With the goal of keeping all updates smooth and seamless, the idea here is to
-> make automatically generated DOM updates asynchronous (via requestAnimationFrame)
-> This has the advantage of deduplicating updates (i.e. not updating a given element)
-> more than once owing to underlying data changes) and also allowing updates to be
-> broken up into time-budgeted chunks (e.g. 1/30 or 1/60 of a second)
->
-> Initial experiments seem to cause no breakage *except* for unit tests, but simply
-> updating the unit tests and then turning them on by default seems a bit risky, so
-> instead for the time being we get the following usage:
->
-> <pre>
-> b8r.force_update(); // flushes all queued updates immediately
-> b8r.after_update(callback); // fires callback after async updates are complete
-> </pre>
->
-> So, if you had code that looked like this:
->
-> <pre>
-> b8r.register('foo', {bar: 17});
-> console.log(b8r.findOne('[data-bind="text=foo.bar"]').value); // logs 17
-> </pre>
->
-> You would now have to write this:
->
-> <pre>
-> b8r.register('foo', {bar: 17});
-> b8r.force_update(); // or wrap next line in after_update(() => {...})
-> console.log(b8r.findOne('[data-bind="text=foo.bar"]').value);
-> </pre>
->
-> Note that async_updates is a **global** setting, so you could easily break other
-> stuff by doing this. The end goal is to use async_updates everywhere.
-*/
-
-const _update_list = []; // {path, element}
-const _after_update_callbacks = [];
-let _update_frame = null;
+const {
+  async_update,
+  get_update_list,
+  after_update,
+  touchElement,
+  touchByPath,
+  _trigger_change,
+  _after_update,
+  _set_force_update,
+} = require('./b8r.update.js');
+Object.assign(b8r, {async_update, after_update, touchElement, touchByPath});
 
 b8r.force_update = () => {
-  cancelAnimationFrame(_update_frame);
-  _update_frame = null;
-
   b8r.logStart('async_update', 'update');
 
-  const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
-  const lists = b8r.find('[data-list]').map(elt => { return {elt, list_binding: elt.dataset.list}; });
+  let update_list;
 
-  while(_update_list.length) {
-    const {path, source} = _update_list.shift();
-    try {
-      binds.
-      filter(bound => bound.elt !== source && bound.data_binding.indexOf(path) > -1).
-      forEach(({elt}) => bind(elt));
+  while(!! (update_list = get_update_list())) {
+    const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
+    const lists = b8r.find('[data-list]').map(elt => { return {elt, list_binding: elt.dataset.list}; });
 
-      lists.
-      filter(bound => bound.elt !== source && bound.list_binding.indexOf(path) > -1).
-      forEach(({elt}) => bindList(elt));
-    } catch (e) {
-      console.error('update error', e, path, source);
+    while(update_list.length) {
+      const {path, source} = update_list.shift();
+      try {
+        if (path) {
+          lists.
+          filter(bound => bound.elt !== source && bound.list_binding.indexOf(path) > -1).
+          forEach(({elt}) => bindList(elt));
+
+          binds.
+          filter(bound => bound.elt !== source && bound.data_binding.indexOf(path) > -1).
+          forEach(({elt}) => bind(elt));
+        } else {
+          b8r.bindAll(source);
+        }
+      } catch (e) {
+        console.error('update error', e, path, source);
+      }
     }
   }
-
-  b8r.logStart('async_update', '_after_update_callbacks');
-  while(_after_update_callbacks.length) {
-    let fn;
-    try {
-      fn = _after_update_callbacks.shift();
-      fn();
-    } catch(e) {
-      console.error('_after_update_callback error', e, fn);
-    }
-  }
-  b8r.logEnd('async_update', '_after_update_callbacks');
 
   b8r.logEnd('async_update', 'update');
+
+  _after_update();
 };
 
-const _change_list = [];
-
-const _trigger_changes = () => {
-  b8r.logStart('async_update', 'changes');
-  while (_change_list.length) {
-    b8r.trigger('change', _change_list.shift());
-  }
-  b8r.logEnd('async_update', 'changes');
-};
-
-const _trigger_change = element => {
-  if (element instanceof HTMLElement) {
-    if (!_change_list.length) {
-      requestAnimationFrame(_trigger_changes);
-    }
-    if (_change_list.indexOf(element) === -1) {
-      _change_list.push(element);
-    }
-  }
-};
-
-const async_update = (path, source) => {
-  b8r.logStart('async_update', 'queue');
-  const item = _update_list.find(item => item.path === path);
-  if (item) {
-    // if the path was already marked for update, then the new source element is (now) correct
-    item.source = source;
-  } else {
-    if (!_update_frame) {
-      _update_frame = requestAnimationFrame(b8r.force_update);
-    }
-    _update_list.push({ path, source });
-  }
-  b8r.logEnd('async_update', 'queue');
-};
-
-b8r.after_update = callback => {
-  if (_update_list.length) {
-    if (_after_update_callbacks.indexOf(callback) === -1) {
-      _after_update_callbacks.push(callback);
-    }
-  } else {
-    callback();
-  }
-};
-
-b8r.touchByPath = (...args) => {
-  let full_path, source_element, name, path;
-
-  if (args[1] instanceof HTMLElement) {
-    [full_path, source_element] = args;
-  } else {
-    [name, path, source_element] = args;
-    full_path = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path;
-  }
-
-  b8r.logStart('touchByPath', full_path);
-
-  async_update(full_path, source_element);
-
-  b8r.logEnd('touchByPath', full_path);
-};
+_set_force_update(b8r.force_update);
 
 b8r.setByPath = function(...args) {
   let name, path, value, source_element;
@@ -429,30 +262,6 @@ b8r.listItems = element =>
 b8r.listIndex = element =>
   b8r.listItems(element.parentElement).indexOf(element);
 
-/**
-### Finding Bound Data
-
-To get a component's id (which you should not need to do very often)
-you can call getComponentId:
-
-    b8r.getComponentId(elt)
-
-The component id looks like c# _component name_ # _n_ where _n_ is the
-simply the creation order. It follows that component ids are guaranteed
-to be unique.
-
-To quickly obtain bound data a component from an element inside it:
-
-    b8r.getComponentData(elt)
-
-In effect this simply gets the component id and then finds the corresponding
-registered data object (or "model").
-
-To quickly obtain bound data a list instance from an element inside it:
-
-    b8r.getListInstance(elt)
-*/
-
 b8r.getComponentId = getComponentDataPath;
 
 b8r.getComponentData = elt => {
@@ -465,7 +274,12 @@ b8r.setComponentData = (elt, path, value) => {
   b8r.setByPath(id, path, value);
 };
 
-b8r.getListInstance = function(elt) {
+b8r.getData = elt => {
+  const dataPath = b8r.getDataPath(elt);
+  return dataPath ? b8r.get(dataPath, elt) : null;
+};
+
+b8r.getListInstance = elt => {
   const instancePath = b8r.getListInstancePath(elt);
   return instancePath ? b8r.get(instancePath, elt) : null;
 };
@@ -480,14 +294,6 @@ if (document.body) {
   });
 }
 
-/**
-    b8r.implicityHandleEventsOfType(type_string)
-
-Adds implicit event handling for a new event type. E.g. you might want
-to use `data-event` bindings for the seeking `media` event, which you
-could do with `b8r.implicityHandleEventsOfType('seeking')`.
-*/
-
 b8r.implicitlyHandleEventsOfType = type => {
   if (implicit_event_types.indexOf(type) === -1) {
     implicit_event_types.push(type);
@@ -495,86 +301,32 @@ b8r.implicitlyHandleEventsOfType = type => {
   }
 };
 
-/**
-## Data Binding
-
-Data binding is implemented via the data-bind and data-list attributes.
-
-See the docs on binding data to and from the DOM for more detail.
-
-The key public methods are:
-
-    b8r.bindAll(target); // binds all elements within target; loads available components
-
-Or:
-
-    b8r.bindAll(target, 'path.to.data'); // as above, but uses path for dynamic bindings
-
-Note (FIXME): bindAll only applies its path to components and lists; it doesn't do it to
-individual elements, which it probably should.
-
-Also, there's a utility method:
-
-    b8r.interpolate('string with ${data.to.path} and ${data.with.other.path}');
-    b8r.interpolate('string with ${data.to.path} and ${data.with.other.path}', element);
-
-The second argument is required if any path used is relative (e.g. `.foo.bar`),
-data-relative (e.g. `_data_.foo.bar`), or component-relative (e.g. `_component_.foo.bar`).
-
-In essence, if you want to use string interpolation, bindinator uses the ES6-style
-interpolations for data paths (javascript is not supported, just data paths). Data
-paths are evaluated normally, so _data_, _component_, and relative paths should
-work exactly as expected.
-*/
-
 const toTargets = require('./b8r.toTargets.js')(b8r);
-const fromTargets = require('./b8r.fromTargets.js')(b8r);
 
 b8r.onAny([ 'change', 'input' ], '_b8r_._update_', true);
-
-const debug_paths = true;
 
 b8r.interpolate = (template, elt) => {
   let formatted = '';
   if (template.match(/\$\{.*?\}/)) {
     formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => {
-      if (debug_paths && !b8r.isValidPath(path)) {
-        console.error('bad path', path, 'in data-bind', elt);
-      } else {
-        const value = b8r.get(path, elt);
-        return value !== null ? value : '';
-      }
+      const value = b8r.get(path, elt);
+      return value !== null ? value : '';
     });
   } else {
-    if (debug_paths && !b8r.isValidPath(template)) {
-      console.error('bad path', template, 'in binding', elt);
-    } else {
-      formatted = template.split(',').map(path => b8r.get(path, elt));
-      if (formatted.length === 1) {
-        formatted = formatted[0];
-      }
+    const paths = template.split(',');
+    if (paths.indexOf('') > -1) {
+      throw `empty path in binding ${template}`;
+    }
+    formatted = paths.map(path => b8r.get(path, elt));
+    if (formatted.length === 1) {
+      formatted = formatted[0];
     }
   }
   return formatted;
 };
 
-const _unequal = (a, b) => {
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) {
-      return true;
-    } else {
-      for(let i = 0; i < a.length; i++) {
-        if (a[i] !== b[i]) {
-          return true;
-        }
-      }
-      return false;
-    }
-  } else {
-    // TODO consider looking inside objects
-    return a !== b;
-  }
-};
+const _unequal = (a, b) => (a !== b) || (a && typeof a === 'object');
+
 
 function bind(element) {
   if (element.closest('[data-component],[data-list]')) {
@@ -647,25 +399,6 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
   });
 };
 
-/**
-  This is an optimization that eliminates the costlier parts of bindAll
-  for list elements, especially in the finest-grained case (where you're
-  binding a buttload of fairly simple elements).
-*/
-function makeListInstanceBinder (list_template) {
-  if (b8r.findWithin(list_template, '[data-list],[data-component]').length, true) {
-    return (instance, itemPath) => {
-      findBindables(instance).forEach(elt => bind(elt));
-      findLists(instance).forEach(elt => bindList(elt, itemPath));
-      loadAvailableComponents(instance, itemPath);
-    };
-  } else {
-    return instance => {
-      findBindables(instance).forEach(elt => bind(elt));
-    };
-  }
-}
-
 const forEachItemIn = (obj, id_path, func) => {
   if (Array.isArray(obj)) {
     for (let i = obj.length - 1; i >= 0; i--) {
@@ -704,10 +437,6 @@ function bindList(list_template, data_path) {
   if (data_path) {
     list_path = data_path + list_path;
   }
-  if (debug_paths && !b8r.isValidPath(list_path)) {
-    console.error('bad path', list_path, 'in data-list', list_template);
-    return;
-  }
   // without this step, nested lists will not have fully-resolved paths
   list_path = b8r.resolvePath(list_path, list_template);
   let list = b8r.get(list_path);
@@ -718,6 +447,11 @@ function bindList(list_template, data_path) {
   b8r.logStart('bindList', elt_signature);
   // compute list
   if (method_path) {
+    if (!b8r.get(method_path)) {
+      // method_path is not yet available; when it becomes available it will trigger
+      // the binding so we can ignore it for now
+      return;
+    }
     (() => {
       try {
         const args = arg_paths.map(b8r.get);
@@ -742,6 +476,7 @@ function bindList(list_template, data_path) {
       throw 'could not compute list; async filtered list methods not supported (yet)';
     }
   }
+
   b8r.show(list_template);
   if (!id_path) {
     removeListInstances(list_template);
@@ -753,7 +488,15 @@ function bindList(list_template, data_path) {
   const path_to_instance_map = {};
   if (existing_list_instances.length) {
     existing_list_instances.
-    forEach(elt => path_to_instance_map[elt.dataset.listInstance] = elt);
+    forEach(instance => {
+      const instance_path = instance.dataset.listInstance;
+      const item = b8r.get(instance_path);
+      if (item && list.includes(item)) {
+        path_to_instance_map[instance_path] = instance;
+      } else {
+        instance.remove();
+      }
+    });
   }
 
   /* Safari refuses to hide hidden options */
@@ -766,8 +509,6 @@ function bindList(list_template, data_path) {
     list_template.textContent = '';
     template.removeAttribute('disabled');
   }
-
-  const binder = makeListInstanceBinder(template);
 
   let previous_instance = list_template;
   let instance;
@@ -785,21 +526,17 @@ function bindList(list_template, data_path) {
       instance = template.cloneNode(true);
       instance.dataset.listInstance = itemPath;
       resolveListInstanceBindings(instance, itemPath);
-      binder(instance);
+      async_update(null, instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
       delete path_to_instance_map[itemPath];
-      binder(instance);
+      async_update(null, instance);
       if (instance.nextSibling !== previous_instance) {
         list_template.parentElement.insertBefore(instance, previous_instance);
       }
     }
     previous_instance = instance;
   });
-  // anything still there is no longer in the list and can be removed
-  if (id_path) {
-    b8r.forEachKey(path_to_instance_map, instance => instance.remove());
-  }
   b8r.hide(list_template);
   _trigger_change(list_template.parentElement);
   b8r.logEnd('bindList', elt_signature);
@@ -815,118 +552,15 @@ b8r.bindAll = (element, data_path) => {
   b8r.cleanupComponentInstances();
 };
 
-/**
-## `_b8r_`
-
-The _b8r_ object is registered by default as a useful set of always available
-methods, especially for handling events.
-
-You can use them the obvious way:
-
-    <button data-event="click:_b8r_.echo">
-      Click Me, I cause console spam
-    </button>
-
-    _b8r_.echo // logs events to the console
-    _b8r_.stopEvent // use this to simply catch an event silently
-    _b8r_._update_ // this is used by b8r to update models automatically
-*/
-
-b8r._register('_b8r_', {
-  echo : evt => console.log(evt) || true,
-  stopEvent : () => {},
-  _update_ : evt => {
-    let elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
-    // update elements with selected fromTarget
-    if (evt.target.tagName === 'SELECT') {
-      const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
-      elements = elements.concat(options);
-    }
-    elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
-      const bindings = getBindings(elt);
-      for (let i = 0; i < bindings.length; i++) {
-        const { targets, path } = bindings[i];
-        const bound_targets = targets.filter(t => fromTargets[t.target]);
-        bound_targets.forEach(t => {
-          // all bets are off on bound values!
-          const value = fromTargets[t.target](elt, t.key);
-          if (value !== undefined) {
-            delete elt._b8rBoundValues;
-            b8r.setByPath(path, value, elt);
-          }
-        });
-      }
-    });
-    return true;
-  },
-});
-
-const ajax = require('./b8r.ajax.js');
-Object.assign(b8r, ajax);
-
-const components = {};
-const component_timeouts = {};
-
-/**
-    b8r.component(name, url);
-
-Loads component from url registers it as "name". (Components are registered
-separately from other objects.)
-Returns a promise of the component once loaded.
-
-    b8r.component('path/to/name');
-
-If just a url parameter is provided, the name of the component will be
-inferred.
-
-**Note**: the extension .component.html is appended to url
-
-Instances of the component will automatically be inserted as expected once
-loaded.
-
-**Also note**: you can usually avoid the pattern:
-
-    b8r.component(...).then(c => b8r.insertComponent(c, target))
-
-By simply binding the component to the target and letting nature take its
-course.
-*/
-
-const component_promises = {};
-const component_preload_list = [];
-
-b8r.component = function(name, url, preserve_source) {
-  if (url === undefined) {
-    url = name;
-    name = url.split('/').pop();
-  }
-  if (!component_promises[name] || preserve_source) {
-    component_promises[name] = new Promise(function(resolve, reject) {
-      if (components[name] && !preserve_source) {
-        resolve(components[name]);
-      } else {
-        if (component_preload_list.indexOf(url) === -1) {
-          component_preload_list.push(url);
-        }
-        b8r.ajax(`${url}.component.html`)
-          .then(source => resolve(b8r.makeComponent(name, source, url, preserve_source)))
-          .catch(err => {
-            delete component_promises[name];
-            console.error(err, `failed to load component ${url}`);
-            reject(err);
-          });
-      }
-    });
-  }
-  return component_promises[name];
-};
+require('./b8r._b8r_.js')(b8r);
+Object.assign(b8r, require('./b8r.ajax.js'));
 
 b8r.preloadData = () => JSON.stringify(component_preload_list, false, 2);
 b8r.preload = component_list => {
   if (!component_list || !component_list.length) {
     return;
-  } else if (requestIdleCallback) {
-    requestIdleCallback(deadline => {
+  } else if (window.requestIdleCallback) {
+    window.requestIdleCallback(deadline => {
       if (!deadline.didTimeout) {
         component_list.splice(0,5).forEach(c => b8r.component(c));
       } else {
@@ -935,9 +569,9 @@ b8r.preload = component_list => {
       b8r.preload(component_list);
     }, {timeout: 1000});
   } else {
-    console.warn('b8r.preload requires requestIdleCallback');
+    console.warn('b8r.preload works better with requestIdleCallback');
   }
-}
+};
 
 const _path_relative_b8r = _path => {
   _path = _path.replace(/\bcomponents$/, '');
@@ -955,90 +589,16 @@ const _path_relative_b8r = _path => {
   });
 };
 
+const {
+  component,
+  components,
+  component_timeouts,
+  component_preload_list,
+  makeComponent
+} = require('./b8r.component.js');
+Object.assign(b8r, {component, makeComponent});
+
 b8r.components = () => Object.keys(components);
-
-const makeStylesheet = require('./b8r.makeStylesheet.js');
-
-b8r.makeComponent = function(name, source, url, preserve_source) {
-  let css = false, content, script = false, parts, remains;
-
-  // nothing <style> css </style> rest-of-component
-  parts = source.split(/<style>|<\/style>/);
-  if (parts.length === 3) {
-    [, css, remains] = parts;
-  } else {
-    remains = source;
-  }
-
-  // content <script> script </script> nothing
-  parts = remains.split(/<script>|<\/script>/);
-  if (parts.length === 3) {
-    [content, script] = parts;
-  } else {
-    content = remains;
-  }
-
-  const div = b8r.create('div');
-  div.innerHTML = content;
-  /*jshint evil: true */
-  let load = () => console.error('component', name, 'cannot load properly');
-  try {
-    load = script ?
-             new Function(
-                'require',
-                'component',
-                'b8r',
-                'find',
-                'findOne',
-                'data',
-                'register',
-                'get',
-                'set',
-                'on',
-                'touch',
-                `${script}\n//# sourceURL=${name}(component)`
-              ) :
-              false;
-  } catch(e) {
-    console.error('error creating load method for component', name, e);
-    throw `component ${name} load method could not be created`;
-  }
-  /*jshint evil: false */
-  const style = makeStylesheet(css, name + '-component');
-  const component = {
-    name,
-    style,
-    view : div,
-    load,
-    path : url.split('/').slice(0,-1).join('/'),
-  };
-  if (component.path === 'undefined') {
-    debugger; // jshint ignore:line
-  }
-  if (preserve_source) {
-    component._source = source;
-  }
-  if (component_timeouts[name]) {
-    clearInterval(component_timeouts[name]);
-  }
-  if (components[name]) {
-    // don't want to leak stylesheets
-    if (components[name].style) {
-      components[name].style.remove();
-    }
-    console.warn('component %s has been redefined', name);
-  }
-  components[name] = component;
-
-  b8r.find(`[data-component="${name}"]`).forEach(element => {
-    // somehow things can happen in between find() and here so the
-    // second check is necessary to prevent race conditions
-    if (!element.closest('[data-list]') && element.dataset.component === name) {
-      b8r.insertComponent(component, element);
-    }
-  });
-  return component;
-};
 
 function loadAvailableComponents(element, data_path) {
   b8r.findWithin(element || document.body, '[data-component]', true)
@@ -1051,19 +611,12 @@ function loadAvailableComponents(element, data_path) {
     });
 }
 
-/**
-    b8r.insertComponent(component, element, data);
-
-insert a component by name or by passing a component record (e.g. promised by
-component() or produced by makeComponent)
-
-If no element is provided, the component will be appended to document.body
-
-Data will be passed to the component's load method and registered as the
-component's private instance data. (Usually data is passed automatically
-from parent components or via binding, e.g. `data-path="path.to.data` binds that
-data to the component).
-*/
+const getData = element => {
+  const source = element.closest('[data-path],[data-list-instance],[data-component-id]');
+  return source ?
+         b8r.get(source.dataset.componentId || b8r.getDataPath(source)) :
+         null;
+};
 
 let component_count = 0;
 const _component_instances = {};
@@ -1071,6 +624,8 @@ b8r.insertComponent = function(component, element, data) {
   const data_path = typeof data === 'string' ? data : b8r.getDataPath(element);
   if (!element) {
     element = b8r.create('div');
+  } else if (! b8r.isInBody(element)) {
+    return;
   }
   if (typeof component === 'string') {
     if (!components[component]) {
@@ -1092,8 +647,7 @@ b8r.insertComponent = function(component, element, data) {
     delete element.dataset.component;
   }
   if (!data || data_path) {
-    data = dataForElement(element, b8r.getComponentData(element) ||
-                                   b8r.getListInstance(element) || {});
+    data = dataForElement(element) || getData(element) || {};
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);
@@ -1113,11 +667,14 @@ b8r.insertComponent = function(component, element, data) {
     if (element.dataset.componentId) {
       if (element.querySelector('[data-children]')) {
         b8r.moveChildren(element.querySelector('[data-children]'), children);
+      } else {
+        b8r.empty(element);
       }
     } else {
       b8r.moveChildren(element, children);
     }
-    b8r.copyChildren(component.view, element);
+    const source = component.view.querySelector('[data-parent]') || component.view;
+    b8r.copyChildren(source, element);
     replaceInBindings(element, '_component_', component_id);
     if (data_path) {
       replaceInBindings(element, '_data_', data_path);
@@ -1164,84 +721,19 @@ b8r.insertComponent = function(component, element, data) {
   if (data_path) {
     resolveListInstanceBindings(element, data_path);
   }
-  b8r.bindAll(element);
-
-  // nicer reveals
-  const reveal = element.closest('.b8r-hide-while-loading');
-  if (reveal) {
-    const unloaded = b8r.findWithin(reveal, '[data-component]').
-                     filter(elt => !elt.closest('[data-list]'));
-    if (unloaded.length) {
-      const missing_list = [];
-      unloaded.map(elt => {
-        const missing = elt.dataset.component;
-        if (missing_list.indexOf(missing) === -1) {
-          missing_list.push(missing);
-        }
-      });
-      reveal.classList.remove('b8r-loaded');
-    } else {
-      reveal.classList.add('b8r-loaded');
-    }
-  }
+  async_update(false, element);
 
   b8r.logEnd('insertComponent', component.name);
 };
-
-/**
-    b8r.wrapWithComponent(component, element [, data_path [, attributes]]);
-
-Sometimes you want a component outside an element rather than inside it.
-The most common example is trying to create a specific modal or floater wrapped
-inside a generic modal or floater "wrapper". You could simply use the
-generic component inside the specific component but then the generic component
-has no simple way to "clean itself up".
-
-    <div
-      class="my-custom-dialog"
-      data-component="modal"
-    >
-      <button
-        data-event="click:_component_.terrific"
-      >Terrific</button>
-    </div>
-    <script>
-      set('terrific', () => alert('This is terrific!'));
-    </script>
-
-In the above example the modal ends up inside the `my-custom-dialog` div. Supposing
-that the modal's behavior includes removing itself on close, it will leave behind the
-component itself (with nothing inside).
-
-Instead with `wrapWithComponent` you could do this (in a component):
-
-    <button>Terrific</button>
-    <script>
-      b8r.component('components/modal');
-      b8r.wrapWithComponent('modal', component);
-      set('terrific', () => alert('This is terrific!'));
-    </script>
-
-(Note that this example doesn't play well with the inline-documentation system!)
-*/
 
 b8r.wrapWithComponent = (component, element, data, attributes) => {
   const wrapper = b8r.create('div');
   if (attributes) {
     b8r.forEachKey(attributes, (val, prop) => wrapper.setAttribute(prop, val));
   }
-  wrapper.classList.add('b8r-hide-while-loading');
   b8r.wrap(element, wrapper);
   b8r.insertComponent(component, wrapper, data);
 };
-
-/**
-    b8r.removeComponent(elt);
-
-If elt has a component in it (i.e. has the attribute data-component-id) removes the
-element's contents, removes the component-id, and removes any class that ends with '-component'.
-Note that `removeComponent` does not preserve children!
-*/
 
 b8r.removeComponent = elt => {
   if (elt.dataset.componentId) {
@@ -1249,22 +741,13 @@ b8r.removeComponent = elt => {
     b8r.makeArray(elt.classList).forEach(c => {
       if (/-component$/.test(c)) {
         elt.classList.remove(c);
+        b8r.empty(elt);
       }
     });
     b8r.cleanupComponentInstances();
   }
 };
 
-/**
-    b8r.componentOnce(url [,name]);
-
-This loads the component (if necessary) and then if there is no instance of the component
-in the DOM it creates one. It replaces the pattern:
-
-    b8r.component(url).then(c => b8r.insertComponent(c));
-
-And doesn't run the risk of leaking multiple instances of components into the DOM.
-*/
 b8r.componentOnce = function(...args) {
   // may be switched out for relative version
   this.component(...args).then(c => {

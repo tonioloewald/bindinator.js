@@ -92,6 +92,8 @@ const getParsedEventHandlers = element => {
       type_args: types.map(s => {
         if (s.substr(0,3) === 'key') {
           s = s.replace(/Key|Digit/g, '');
+          // Allows for a key to be CMD in Mac and Ctrl in Windows
+          s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl');
         }
         var args = s.match(/\(([^)]+)\)/);
         return args && args[1] ? args[1].split(',') : false;
@@ -143,6 +145,7 @@ To make it easy to handle specific keystrokes, you can bind to keystrokes by nam
 For your convenience, there's a *Keyboard Event Utility*.
 */
 
+// TODO use parsed event handlers to do this properly
 function on (...args) {
   const {element, event_type, path, prepend} = onOffArgs(args);
   const handler = makeHandler(event_type, path);
@@ -153,10 +156,11 @@ function on (...args) {
     } else {
       existing.push(handler);
     }
+    element.dataset.event = existing.join(';');
   }
-  element.dataset.event = existing.join(';');
 }
 
+// TODO use parsed event handlers to do this properly
 function off (...args) {
   var element, event_type, object, method;
   if(args.length === 4) {
@@ -376,6 +380,16 @@ const handle_event = evt => {
   }
 };
 
+/**
+## Handling Other Event Types
+
+    b8r.implicityHandleEventsOfType(type_string)
+
+Adds implicit event handling for a new event type. E.g. you might want
+to use `data-event` bindings for the seeking `media` event, which you
+could do with `b8r.implicityHandleEventsOfType('seeking')`.
+*/
+
 module.exports = {
   makeHandler,
   getEventHandlers,
@@ -383,4 +397,3 @@ module.exports = {
   on, off, enable, disable, dispatch, trigger, callMethod,
   implicit_event_types, get_component_with_method, handle_event, play_saved_messages,
 };
-

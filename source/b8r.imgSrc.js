@@ -43,7 +43,7 @@ const imgSrc = (img, url, opacity) => {
         img.style.transition = '0.25s ease-out';
       }
       img.style.opacity = opacity || '';
-      img.setAttribute('src', image.src);
+      img.classList.add('-b8r-rendered');
       if (img instanceof HTMLCanvasElement) {
         img.width = img.offsetWidth;
         img.height = img.offsetHeight;
@@ -56,6 +56,8 @@ const imgSrc = (img, url, opacity) => {
         const sx = (image.width - sw) * 0.5;
         const sy = (image.height - sh) * 0.5;
         ctx.drawImage(image, sx, sy, sw, sh, 0, 0, w, h);
+      } else {
+        img.setAttribute('src', image.src);
       }
     });
   }

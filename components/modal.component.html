@@ -31,6 +31,10 @@ Copyright ©2016-2017 Tonio Loewald
   .modal-dialog button {
     margin-left: 5px;
   }
+
+  .dialog-cancel .hidden {
+    display: none;
+  }
 </style>
 <div class="modal-dialog-backdrop">
   <div
@@ -42,6 +46,12 @@ Copyright ©2016-2017 Tonio Loewald
       keyup(Escape):_component_.cancel;
     "
   >
+  <button
+    style="position: absolute; left: 7px; top: 8px;"
+    class="iconic tiny circled cancel dialog-cancel hidden"
+  >
+    <span class="icon-x-solo"></span>
+  </button>
     <div data-children>
       <h3 data-bind="text=_component_.title">Placeholder</h3>
       <label>
@@ -80,6 +90,10 @@ Copyright ©2016-2017 Tonio Loewald
     dialog.classList.add(data.className);
   }
 
+  if (data.needsClose) {
+    b8r.findOneWithin(dialog, 'button.dialog-cancel').classList.remove('hidden');
+  }
+
   if (data.backdropColor) {
     findOne('.modal-dialog-backdrop').style.backgroundColor = data.backdropColor;
   }
@@ -105,7 +119,8 @@ Copyright ©2016-2017 Tonio Loewald
     }
 
     if (
-        evt.target instanceof HTMLButtonElement && evt.target.matches('.default,.cancel,.close')
+        evt.target instanceof HTMLButtonElement && evt.target.matches('.default,.cancel,.close') ||
+        evt.target.parentElement.matches('.cancel')
     ) {
       component.remove();
     } else {

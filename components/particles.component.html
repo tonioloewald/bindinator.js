@@ -1,0 +1,133 @@
+<!--
+# three.js particle system
+
+[threejs](https://threejs.org//) is a 3D engine created by Ricardo Cabello.
+
+It loads via require() but sets a global rather than passing back to module.exports.
+-->
+<style>
+  .particles-component {
+    width: 100%;
+    height: 400px;
+    background: #ddd;
+  }
+
+  .particles-component canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+</style>
+<script>
+/* global component, require, THREE, TWEEN, b8r, set, on */
+'use strict';
+
+/*
+  set('spawn', event => {
+    const vector = new THREE.Vector3();
+    vector.set(
+        ( event.clientX / window.innerWidth ) * 2 - 1,
+        - ( event.clientY / window.innerHeight ) * 2 + 1,
+        0.5 );
+
+    vector.unproject( camera );
+
+    const dir = vector.sub( camera.position ).normalize();
+    const distance = - camera.position.z / dir.z;
+    const pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+  });
+
+*/
+  const generateSprite = char => {
+    var canvas = document.createElement( 'canvas' );
+    canvas.width = 64;
+    canvas.height = 64;
+    var g = canvas.getContext( '2d' );
+    g.font = '60px sans-serif';
+    g.textAlign = 'center';
+    g.fillText(char, 32, 60);
+    return canvas;
+  };
+
+  let camera, scene;
+  const initParticle = ( particle, delay, x, y, z ) => {
+    particle = this instanceof THREE.Sprite ? this : particle;
+    delay = delay !== undefined ? delay : 0;
+    particle.position.set( x, y, z );
+    particle.scale.x = particle.scale.y = Math.random() * 48 + 24;
+    new TWEEN.Tween( particle )
+      .delay( delay )
+      .to( {}, 2000 )
+      .onComplete(p => scene.remove(p))
+      .start();
+    new TWEEN.Tween( particle.position )
+      .delay( delay )
+      .to( { x: x + Math.random() * 400 - 200, y: y + Math.random() * 600 - 50, z: z + Math.random() * 250 }, 2000 )
+      .start();
+    new TWEEN.Tween( particle.material )
+      .delay( delay )
+      .to( {opacity: 0}, 2000 )
+      .start();
+  };
+
+  require.lazy('https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js').
+  then(() => require.lazy('https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js')).
+  then(() => {
+    const aspect_ratio = window.innerWidth/window.innerHeight;
+    camera = new THREE.PerspectiveCamera( 90, aspect_ratio, 1, 5000 );
+    camera.position.z = 1000;
+
+    scene = new THREE.Scene();
+    camera.lookAt( scene.position );
+
+    set('spawn', event => {
+      console.log(event);
+      const vector = new THREE.Vector3();
+      vector.set(
+          ( event.clientX / window.innerWidth ) * 2 - 1,
+          - ( event.clientY / window.innerHeight ) * 2 + 1,
+          0 );
+
+      vector.unproject(camera);
+      const projection_distance = camera.position.z / (camera.position.z - vector.z);
+      const pos = vector.clone().multiplyScalar(projection_distance);
+      const emoji = ['😀', '💜', '👍', '💩', '🍆'][Math.floor(Math.random() * 5)];
+      const material = new THREE.SpriteMaterial( {
+        map: new THREE.CanvasTexture( generateSprite(emoji) ),
+        blending: THREE.NormalBlending
+      });
+
+      for (let i = 0; i < 50; i++ ) {
+        const particle = new THREE.Sprite( material );
+        initParticle( particle, i, pos.x, pos.y, 0 );
+        scene.add( particle );
+      }
+
+      render();
+    });
+
+    on ('mouseup', '_component_.spawn');
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    component.appendChild( renderer.domElement );
+
+    function render() {
+      if(b8r.isInBody(renderer.domElement)) {
+        TWEEN.update();
+        renderer.render( scene, camera );
+        if (scene.children.length) {
+          requestAnimationFrame(render);
+        }
+      }
+    }
+
+    // initialize camera projection
+    render();
+  });
+</script>

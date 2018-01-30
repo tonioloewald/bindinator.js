@@ -165,11 +165,11 @@ A file browser for use in Electron Apps
   }
 </style>
 <div class="fb-header">
-  <div 
+  <div
     style="height: 16px; text-align: center"
   >
     <span data-event="mousedown:_component_.show_folders">
-      <span class="icon-folder"></span> 
+      <span class="icon-folder"></span>
       <span data-bind="text=_component_.name"></span>
     </span>
   </div>
@@ -183,13 +183,13 @@ A file browser for use in Electron Apps
       data-event="click:_component_.parent"
       title="parent folder"
     ><span class="icon-folder-upload"></span></button>
-    <button 
+    <button
       data-event="click:_component_.pick"
       title="choose folder"
     ><span class="icon-folder-search"></span></button>
     <span style="flex-grow: 1"></span>
     <span class="icon-search3" style="position: relative; top: 5px; margin-right: -22px"></span>
-    <input 
+    <input
       class="search"
       placeholder="name filter"
       data-bind="value=_component_.filter_text"
@@ -210,7 +210,7 @@ A file browser for use in Electron Apps
   </div>
 </div>
 <div style="flex-grow: 1; flex-shrink: 1; overflow-y: overlay;">
-  <div 
+  <div
     tabindex="0"
     class="faux-tr file"
     data-list="_component_.filter(_component_.files,_component_.show_hidden,_component_.filter_text):id"
@@ -226,8 +226,8 @@ A file browser for use in Electron Apps
   </div>
 </div>
 <div class="folder-menu menu-top" style="display: none">
-  <div 
-    data-list="_component_.folders" 
+  <div
+    data-list="_component_.folders"
     data-bind="text=.name"
     data-event="
       mousedown:_b8r_.stopEvent;
@@ -250,7 +250,7 @@ A file browser for use in Electron Apps
     return;
   }
   const fs = require.globalRequire('fs');
-  const {remote:{dialog, getCurrentWindow, app}} = require.globalRequire('electron');
+  const {dialog, getCurrentWindow, app} = require.electron_remote;
   const menu = require('../lib/electron-menu.js');
   const folder_menu = findOne('.folder-menu');
   const settings_menu = findOne('.settings-menu');
@@ -333,7 +333,7 @@ A file browser for use in Electron Apps
               id: ++file_id,
               hidden: name[0] === '.',
               info_needed: true,
-            }; 
+            };
           }),
       });
       console.timeEnd(`list_path ${path}`);
@@ -353,7 +353,7 @@ A file browser for use in Electron Apps
   function pick () {
     dialog.showOpenDialog(
       getCurrentWindow(),
-      { properties: ['openDirectory', 'createDirectory'], }, 
+      { properties: ['openDirectory', 'createDirectory'], },
       list_path
     );
   }

@@ -29,7 +29,7 @@
       "path": "LICENSE.md"
     },
     {
-      "name": "Bindinator Core",
+      "name": "(b8r) Bindinator Core",
       "path": "source/b8r.js"
     },
     {
@@ -53,12 +53,24 @@
       "path": "source/b8r.byPath.js"
     },
     {
+      "name": "(b8r) component",
+      "path": "source/b8r.component.js"
+    },
+    {
       "name": "(b8r) dom",
       "path": "source/b8r.dom.js"
     },
     {
       "name": "(b8r) events",
       "path": "source/b8r.events.js"
+    },
+    {
+      "name": "(b8r) _b8r_",
+      "path": "source/b8r._b8r_.js"
+    },
+    {
+      "name": "(b8r) functions",
+      "path": "source/b8r.functions.js"
     },
     {
       "name": "(b8r) anyEvent",
@@ -87,6 +99,14 @@
     {
       "name": "(b8r) registry",
       "path": "source/b8r.registry.js"
+    },
+    {
+      "name": "(b8r) show",
+      "path": "source/b8r.show.js"
+    },
+    {
+      "name": "(b8r) update",
+      "path": "source/b8r.update.js"
     },
     {
       "name": "JS Viewer Test",
@@ -163,6 +183,10 @@
       "path": "tab-selector"
     },
     {
+      "name": "Particles",
+      "path": "particles"
+    },
+    {
       "name": "Photos",
       "path": "photos"
     },
@@ -205,6 +229,10 @@
     {
       "name": "Kitchen Sink",
       "path": "kitchen-sink"
+    },
+    {
+      "name": "Big Grid",
+      "path": "biggrid-test"
     },
     {
       "name": "Big List",
@@ -281,6 +309,10 @@
     {
       "name": "Grid",
       "path": "grid"
+    },
+    {
+      "name": "Table",
+      "path": "table"
     }
   ]
 }

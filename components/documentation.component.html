@@ -9,7 +9,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   z-index: 3;
 }
 </style>
-<div class="layout b8r-hide-while-loading">
+<div class="layout">
   <div class="header">
     <img
       alt="bindinator.js"
@@ -30,7 +30,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       <div
         class="loadable"
         data-list="_component_.docs"
-        data-bind="text=.name;attr(data-file)=.path"
+        data-bind="text=.name;data(file)=.path"
         data-event="click,keydown(Space):documentation-controller.showDocs"
         tabindex="0"
       >
@@ -44,7 +44,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       <div
         class="loadable"
         data-list="_component_.components"
-        data-bind="text=.name;attr(data-file)=.path"
+        data-bind="text=.name;data(file)=.path"
         data-event="click,keydown(Space):documentation-controller.loadComponent"
         tabindex="0"
       >
@@ -157,8 +157,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     }
     last_component_path = component_path;
 
-    markCurrent();
-
     var pairs = component_path.split('&').map(pair => {
       var [key, value] = pair.split('=');
       return {key, value};
@@ -176,6 +174,8 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       // FIXME don't do this, behave as though there's a default hash so history behaves nicely
       b8r.trigger('click', b8r.findOne('.loadable'));
     }
+
+    markCurrent();
   }
 
   window.addEventListener('hashchange', update);

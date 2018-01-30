@@ -16,7 +16,7 @@ priority, with completed items having low priority.
     <option value="2">Normal</option>
     <option value="3">Low</option>
   </select>
-  <button 
+  <button
     title="delete item"
     data-event="click:app.remove"
   >&times;</button>
@@ -31,22 +31,24 @@ priority, with completed items having low priority.
     <option value="3">Low</option>
   </select>
 </label>
-<input 
-  data-bind="value=app.composer.text" 
+<input
+  data-bind="value=app.composer.text"
   data-event="keydown(Enter):app.addItem"
   placeholder="Write a reminder…"
 >
 <script>
+  /* global b8r */
+  'use strict';
+
   function comparePriority(a, b) {
-    return (a.done ? a.priority + 3 : a.priority) - 
+    return (a.done ? a.priority + 3 : a.priority) -
            (b.done ? b.priority + 3 : b.priority);
   }
 
-  function prioritySort (evt) {
-    setTimeout(() => {
-      b8r.getByPath('app', 'todolist').sort(comparePriority);
-      b8r.touchByPath('app', 'todolist');
-    })
+  function prioritySort () {
+    requestAnimationFrame(() => {
+      b8r.sort('app.todolist', comparePriority);
+    });
   }
 
   function addItem(){

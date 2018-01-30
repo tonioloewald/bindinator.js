@@ -246,9 +246,9 @@ function buildKeypathMap(array, key_path) {
   return record;
 }
 
-function byKey(obj, key) {
+function byKey(obj, key, value_to_insert) {
   if (!obj[key]) {
-    obj[key] = {};
+    obj[key] = value_to_insert;
   }
   return obj[key];
 }
@@ -372,7 +372,8 @@ function setByPath(orig, path, val) {
       while (part.length) {
         const key = part.shift();
         if (part.length || parts.length) {
-          obj = byKey(obj, key);
+          // if we're at the end of part.length then we need to insert an array
+          obj = byKey(obj, key, part.length ? {} : []);
         } else {
           if (val !== _delete_) {
             obj[key] = matchTypes(val, obj[key]);
