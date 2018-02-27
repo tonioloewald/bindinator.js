@@ -1,0 +1,90 @@
+<!--
+# markdown-editor
+-->
+<style>
+	.markdown-editor-component {
+		background: white;
+	}
+
+	.markdown-editor-component .header {
+    -webkit-app-region: drag;
+    border-top: 1px solid #eeedee;
+    border-bottom: 1px solid #939293;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e9e6e9+0,d1cfd1+100 */
+    background: #e9e6e9; /* Old browsers */
+    background: linear-gradient(to bottom,  #e9e6e9 0%,#d1cfd1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+	}
+
+	.markdown-editor-component .workspace {
+		position: absolute;
+		top: 44px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+	}
+	.markdown-editor-component .editor {
+		padding: 10px;
+		font-size: 14px;
+		background: #222;
+		color: white;
+		font-family: Menlo, Monaco, monospace;
+	}
+
+	.markdown-editor-component .preview {
+		padding: 10px;
+    font-family: Helvetica Neue, Helvetica, Arial, Sans-serif;
+	}
+
+	.markdown-editor-component .sizable {
+    flex-grow: 1;
+    min-width: 100px;
+    width: 50%;
+	}
+</style>
+<div class="header">
+</div>
+<div class="workspace">
+	<textarea 
+		class="editor sizable"
+		data-bind="value=_component_.source"
+		data-event="input:_component_.update"
+	></textarea>
+	<div data-component="sizer"></div>
+	<div class="preview sizable"></div>
+</div>
+<script>
+	/*global require, b8r, get, set, findOne */
+  'use strict';
+
+  b8r.component('./components/sizer');
+
+  let source = `# Heading
+
+Here is some text
+`;
+
+  let converter = false;
+	require.lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').then(showdown => {
+		converter = new showdown.Converter();
+		update();
+	});
+
+  const preview = findOne('.preview');
+
+  const update = b8r.debounce(() => {
+  	if (converter) {
+  		preview.innerHTML = converter.makeHtml(get('source'));
+  	}
+  }, 250);
+
+  set ({
+  	update, 
+  	source
+ 	});
+</script>
