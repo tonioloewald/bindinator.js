@@ -376,7 +376,7 @@ const handle_event = evt => {
         }
       }
     }
-    target = target === anyElement ? evt.target : target.parentElement;
+    target = target === anyElement ? evt.target.closest('[data-event]') : target.parentElement.closest('[data-event]');
   }
 };
 
