@@ -178,6 +178,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   right: 0;
   padding: 64px 0 32px;
   background: var(--content-bg-color);
+  min-height: 100vh;
 }
 
 .content > * {
