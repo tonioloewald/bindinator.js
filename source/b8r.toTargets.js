@@ -146,7 +146,7 @@ backgroundColor).
 
 The optional second parameter lets you specify *units* (such as px, %, etc.).
 
-### class(), class_unless(), class_map()
+### class(), `class_unless()`, `class_map()`
 
     data-bind="class(name)=message.truthyValue"
     data-bind="class_unless(name)=message.truthyValue"
@@ -159,7 +159,7 @@ You can also provide the `class()` toTarget with a pair of classes
 separated by a bar and it will assign the first if the value is truthy
 and the second otherwise.
 
-    data-bind="class_aap(happy:happy-class|sad|sad-class|indifferent-class)"
+    data-bind="class_map(happy:happy-class|sad|sad-class|indifferent-class)"
 
 ```
 <style>
