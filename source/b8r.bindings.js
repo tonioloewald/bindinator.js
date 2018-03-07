@@ -260,10 +260,14 @@ to be unique.
 
 To quickly obtain bound data a component from an element inside it:
 
-    b8r.getComponentData(elt)
+    b8r.getComponentData(elt [, type]); // gives you the component data
 
 In effect this simply gets the component id and then finds the corresponding
 registered data object (or "model").
+
+    b8r.getComponentDataId(elt [, type]); // gives you the component path
+
+If you just need the component id (i.e. its data-path).
 
 To quickly obtain bound data a list instance from an element inside it:
 
@@ -326,6 +330,26 @@ const parseBinding = binding => {
   return {targets, path};
 };
 
+/**
+    splitPaths('foo.bar.baz,foo[id=17].bar.baz,path.to.method(foo.bar,foo[id=17].baz)');
+      // returns ['foo.bar.baz', 'foo[id=17].bar.baz', 'path.to.method(foo.bar,foo[id=17].baz)']
+
+splitPaths is used to prise apart data-paths in bindings.
+~~~~
+const {splitPaths} = require('./source/b8r.bindings.js');
+
+Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
+Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
+Test(() => splitPaths('foo.bar,foo[path.to.id=this is not a test],path.to.method(foo.bar[id=17])')).
+  shouldBeJSON(["foo.bar", "foo[path.to.id=this is not a test]", "path.to.method(foo.bar[id=17])"]);
+Test(() => splitPaths('path.to.value,path.to[id=17].value,path.to.method(path.to.value,path[11].to.value)')).
+  shouldBeJSON(["path.to.value", "path.to[id=17].value", "path.to.method(path.to.value,path[11].to.value)"]);
+Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.value,path.to[id=17].value')).
+  shouldBeJSON(["path.to.method(path.to.value,path[11].to.value)", "path.to.value", "path.to[id=17].value"]);
+~~~~
+*/
+const splitPaths = paths => paths.match(/(([^,(]+\([^)]+\))|([^,()]+))/g);
+
 const findBindables = element => {
   return findWithin(element, '[data-bind]', true).filter(elt => {
     if (
@@ -364,7 +388,10 @@ const getListInstancePath = element => {
   return component ? component.dataset.listInstance : null;
 };
 
-const getComponentDataPath = element => {
+const getComponentDataPath = (element, type) => {
+  if (type) {
+    element = element.closest(`.${type}-component`);
+  }
   const component = element.closest('[data-component-id]');
   return component ? component.dataset.componentId : null;
 };
@@ -386,13 +413,12 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
   const elements = findWithin(instance_elt, '[data-bind]', true).
                    filter(elt => !elt.closest('[data-list]'));
   elements.forEach(elt => {
-    const binding_source = elt.dataset.bind;
-    if (binding_source.indexOf('=.') > -1) {
-      const path_prefix = `=${instance_path}.`;
-      elt.dataset.bind = binding_source.replace(/\=\./g, path_prefix);
+    if (/(,|=|\()\./.test(elt.dataset.bind)) {
+      elt.dataset.bind = elt.dataset.bind.
+                         replace(/(,|=|\()\./g, '$1' + path_prefix);
     }
-    if (binding_source.indexOf('${.') > -1) {
-      elt.dataset.bind = binding_source.
+    if (elt.dataset.bind.indexOf('${.') > -1) {
+      elt.dataset.bind = elt.dataset.bind.
                          replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
     }
   });
@@ -410,4 +436,5 @@ module.exports = {
   getBindings,
   replaceInBindings,
   resolveListInstanceBindings,
+  splitPaths,
 };

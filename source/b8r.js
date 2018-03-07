@@ -59,7 +59,8 @@ const {
   findLists,
   findBindables,
   getBindings,
-  replaceInBindings
+  replaceInBindings,
+  splitPaths,
 } = require('./b8r.bindings.js');
 Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getListInstancePath});
 const { saveDataForElement, dataForElement } =
@@ -264,8 +265,8 @@ b8r.listIndex = element =>
 
 b8r.getComponentId = getComponentDataPath;
 
-b8r.getComponentData = elt => {
-  const id = getComponentDataPath(elt);
+b8r.getComponentData = (elt, type) => {
+  const id = getComponentDataPath(elt, type);
   return id ? b8r.get(id) : null;
 };
 
@@ -313,7 +314,7 @@ b8r.interpolate = (template, elt) => {
       return value !== null ? value : '';
     });
   } else {
-    const paths = template.split(',');
+    const paths = splitPaths(template);
     if (paths.indexOf('') > -1) {
       throw `empty path in binding ${template}`;
     }
@@ -419,11 +420,12 @@ const forEachItemIn = (obj, id_path, func) => {
   }
 };
 
+let id_count = 0; // used to assign unique ids as required
 function bindList(list_template, data_path) {
   if (!list_template.parentElement || list_template.parentElement.closest('[data-component]')) {
     return;
   }
-  const [source_path, id_path] = list_template.dataset.list.split(':');
+  const [source_path, id_path] = list_template.dataset.list.split(':').concat('_auto_');
   let method_path, list_path, arg_paths;
   try {
     // parse computed list method if any
@@ -442,6 +444,15 @@ function bindList(list_template, data_path) {
   let list = b8r.get(list_path);
   if (!list) {
     return;
+  }
+  // assign unique ids if no id-path is specified
+  if (id_path === '_auto_') {
+    for(let i = 0; i < list.length; i++) {
+      if (!list[i]._auto_) {
+        id_count += 1;
+        list[i]._auto_ = id_count;
+      }
+    }
   }
   const elt_signature =  b8r.elementSignature(list_template);
   b8r.logStart('bindList', elt_signature);
@@ -700,9 +711,15 @@ b8r.insertComponent = function(component, element, data) {
   data = Object.assign({}, data, {data_path, component_id});
   if (component.load) {
     const get = path => b8r.getByPath(component_id, path);
-    const set = (...args) => b8r.setByPath(component_id, ...args);
+    const set = (...args) => {
+      b8r.setByPath(component_id, ...args);
+      // updates value bindings
+      if (args[0] === 'value' || args[0].hasOwnProperty('value')) {
+        b8r.trigger('change', element);
+      }
+    };
     const on = (...args) => b8r.on(element, ...args);
-    const touch = (path) => b8r.touchByPath(component_id, path);
+    const touch = path => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
     try {
       component.load(

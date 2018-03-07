@@ -77,8 +77,9 @@ Test(() => {
 }).shouldBe('b');
 Test(() => {
   const a = [1,2,3,4,5,6,7,8,9];
-  b8r.filter(a, x => a % 2 && x % 3);
-}).shouldBe('[1,5,7')
+  b8r.filter(a, x => x % 2 && x % 3);
+  return a;
+}).shouldBeJSON([1,5,7]);
 Test(() => {
   const obj = {a: 10, b: 12, c: 5};
   return JSON.stringify(b8r.filterKeys(obj, val => val % 5 === 0));

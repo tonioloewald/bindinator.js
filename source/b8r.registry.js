@@ -67,17 +67,29 @@ Two convenience methods are provided for working with JSON data:
 `isValidPath` returns true if the path looks OK, false otherwise.
 
 ~~~~
-Test(() => b8r.isValidPath('foo')).shouldBe(true);
-Test(() => b8r.isValidPath('foo.bar')).shouldBe(true);
-Test(() => b8r.isValidPath('.')).shouldBe(true);
-Test(() => b8r.isValidPath('airtime-rooms[1234]')).shouldBe(true);
-Test(() => b8r.isValidPath('airtime-rooms[=abcd]')).shouldBe(true);
-Test(() => b8r.isValidPath('airtime-rooms[id=1234]')).shouldBe(true);
-Test(() => b8r.isValidPath('airtime-rooms[id=1234].')).shouldBe(true);
-Test(() => b8r.isValidPath('airtime-rooms[id=1234')).shouldBe(false);
-Test(() => b8r.isValidPath('airtime-rooms[id]')).shouldBe(false);
-Test(() => b8r.isValidPath('airtime-rooms[id=1234]]')).shouldBe(false);
-Test(() => b8r.isValidPath('airtime-rooms]')).shouldBe(false);
+Test(() => b8r.isValidPath(''), 'NO empty paths').shouldBe(false);
+Test(() => b8r.isValidPath('.'), 'NO bare period').shouldBe(false);
+Test(() => b8r.isValidPath('.foo'), 'list-instance binding').shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234].'), 'NO trailing period').shouldBe(false);
+Test(() => b8r.isValidPath('foo'), 'simple variable names').shouldBe(true);
+Test(() => b8r.isValidPath('_foo'), 'simple variable names').shouldBe(true);
+Test(() => b8r.isValidPath('foo_17'), 'simple variable names').shouldBe(true);
+Test(() => b8r.isValidPath('foo.bar'), 'simple.paths').shouldBe(true);
+Test(() => b8r.isValidPath('path.to.value,another.path'), 'NO comma-delimited paths').shouldBe(false);
+Test(() => b8r.isValidPath('foo()'), 'NO method calls').shouldBe(false);
+Test(() => b8r.isValidPath('foo(path.to.value,another.path)'), 'NO method calls').shouldBe(false);
+Test(() => b8r.isValidPath('/'), 'root path').shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[1234]'), 'array index').shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[=abcd]'), 'NO empty id-path').shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[/=abcd]'), 'array lookup by element value').shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234]'), 'simple id-path').shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[url=https://foo.bar/baz?x=y]'), 'id-path with nasty value').shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms[url=https://foo.bar/baz?x=y&foo=this, that, and the other.jpg]'), 'id-path with nastier value').shouldBe(true);
+Test(() => b8r.isValidPath('airtime-rooms]'), 'NO failed to open brackets').shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234'), 'NO fail to close brackets').shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[id]'), 'NO non-numeric array index / missing comparison').shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[id=1234]]'), 'NO extra close bracket').shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[]]'), 'NO failure to provide index').shouldBe(false);
 ~~~~
 
 ## Examples
@@ -123,15 +135,15 @@ lists).
 'use strict';
 
 const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
-const {getDataPath, getComponentInstancePath} = require('./b8r.bindings.js');
+const {getDataPath, getComponentInstancePath, splitPaths} = require('./b8r.bindings.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
 const listeners = [];  // { path_string_or_test, callback }
 const debug_paths = true;
-
-const valid_path = /^(\.|[^.\[\]])+(\.[^.\[\]]+|\[\d+\]|\[[^=\[\]]*\=[^\[\]]+\])*(\.)?$/;
+const valid_path = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]+\=[^[\]()]+\])*$/;
 
 const isValidPath = path => valid_path.test(path);
+let call, get; // defined later
 
 class Listener {
   constructor(test, callback) {
@@ -182,13 +194,346 @@ const resolvePath = (path, element) => {
   return path;
 };
 
-const get = (path, element) => {
-  path = resolvePath(path, element);
-  if (debug_paths && ! isValidPath(path)) {
-    console.error(`getting invalid path ${path}`);
+const _compute = (expression_path, element) => {
+  const [,method_path, value_paths] = expression_path.match(/([^(]+)\(([^)]+)\)/);
+  return value_paths.indexOf(',') === -1 ?
+         call(method_path, get(value_paths, element)) :
+         call(method_path, ...get(value_paths, element));
+};
+
+const _get = (path, element) => {
+  if (path.substr(-1) === ')') {
+    return _compute(path, element);
   } else {
-    return getByPath(registry, path);
+    path = resolvePath(path, element);
+    if (debug_paths && ! isValidPath(path)) {
+      console.error(`getting invalid path ${path}`);
+    } else {
+      return getByPath(registry, path);
+    }
   }
+};
+
+/**
+## Computed Properties, b8r-style
+
+Computed properties are a newish feature in Javascript, but for various reasons they don't play
+well with b8r.
+
+First, `b8r.set('foo', {bar})` is implemented as:
+
+    registry.foo = Object.assign({}, foo, {bar});
+
+It's possible this can be improved, but it's not for no reason.
+
+Second, there's no obvious way for b8r to "know" when something changes that would change
+the evaluation of a computed property. For example:
+
+    const foo = {
+      a: Math.PI,
+      get bar() { return this.a; }
+    };
+    register('foo', foo);
+    set('foo.a', 17); // how does b8r know to update something bound to foo.bar?
+
+Also note that if we naively do something like:
+
+    set('foo.b', 17); // we've killed it!
+
+You can immunize yourself from the latter by (for example) putting in an explicit
+set method:
+
+    const foo = {
+      a: Math.PI,
+      get bar() { return this.a; },
+      set bar(_) { console.error('bar is read only') }
+    };
+
+But that won't save you from lots of problems, notably foo being deep in the
+hierarchy of a shallow-cloned object.
+
+To solve this, b8r's path-bindings have been made *slightly* more powerful.
+
+Originally, b8r supported binding to a simple path like this:
+
+    <div data-bind="text=path.to.text">I will be replaced!</div>
+
+You can put a method on the left-side of a binding using the method() binding:
+
+    <div data-bind="method(path.to.method)=path.to.text">Who knows?!</div>
+
+This is actually enough to do everything we want, but there are some downsides.
+
+First, the syntax sucks. (And it will be improved!)
+
+Second, it makes the simple case more complex (e.g. in this case not only does the method need
+to know what to do with the text but it also needs to modify the DOM directly; aside from the
+extra work, who knows what whacky edge-cases the underlying `text` toTarget handles which the
+method won't.) More code, more work, more bugs.
+
+So instead let's suppose we `register` a controller object of some kind:
+
+    b8r.register('text-controller', {
+      decode: text => decodeURIComponent(text),
+    });
+
+We can now write:
+
+    <div data-bind="text=text-controller.decode(path.to.text)">I will be replaced!</div>
+
+OK, so let's look at a more concrete and realistic example. Suppose you have a giant message
+list that is constantly being updated. So initially you do something like:
+
+    b8r.json('messages').then(data => b8r.register('messages'));
+
+Except you have some extra properties you need to synthesize. E.g. you might want to dim the
+messages of a user who is offline, and the user is off in the users list:
+
+    b8r.json('users').then(data => b8r.register('users'));
+
+### Without computed properties
+
+You might end up doing something like this:
+
+    b8r.json('messages').then(messages => {
+      messages.forEach(message => {
+        message._user_online = b8r.get(`users[id=${message.user}].online`);
+      });
+    });
+
+Also, if you receive a new/updated message you'll need to set the value (and do it via
+'set' so that if the message is already in the DOM it gets updated properly), e.g.
+
+    socket.on('message', message => {
+      message._user_online = b8r.get(`users[id=${message.user}].online`);
+      b8r.set(`messages[id=${message.id}]`, message);
+    });
+
+Oh, and if a user's online status changes you need to remember to update all the messages.
+
+Note that the property name has a leading underscore because we're using some kind of
+convention to make locally added properties look different from stuff we got from the server
+(e.g. in case we want to mutate them back to the server and strip the crap out first).
+
+And the binding looks like this:
+
+    <div class="message" data-bind="class(online)=._user_online">...
+
+### With computed properties
+
+Although you don't need to perform calculations on every message you receive, you do need to
+"decorate" every message:
+
+    const message_decorator = message => {
+      Object.defineProperty(
+        message,
+        '_user_online',
+        { get: function() { return b8r.get(`users[id=${this.user}].online`) } }
+      );
+      return message;
+    };
+
+    b8r.json('messages').then(messages => {
+      b8r.register('messages', messages.map(message_decorator));
+    });
+
+    socket.on('message', message => {
+      b8r.set(`messages[id=${message.id}]`, message_decorator(message));
+    });
+
+And again, you'll need to do this when you get new messages (but not necessarily
+when you update existing messages, modulo the b8r issue mentioned at the outset).
+
+Also, you need to deal with the user list being updated just as before.
+
+And we still need to know how to strip out crap before sending it back to the server because
+the computed property looks like a property on first inspection (and after `JSON.stringify`).
+
+### Using b8r method-paths
+
+We can do this:
+
+    b8r.register('message-controller', {
+      user_online: user => b8r.get(`users[id=${this.user}].online`),
+    })
+
+And the binding now looks like this:
+
+    <div class="message" data-bind="class(online)=message-controller.user_online(.user)">...
+
+So we have several immediate wins over javascript computed properties:
+
+- we write less code
+- we don't need to decorate every object
+- we don't touch the objects at all (no figuring out which properties are "real")
+- we don't perform *any work* for stuff that isn't actually displayed
+- you can see the dependencies in the bindings (and so can b8r) so updates mostly work for free
+
+At this point, if we're merely computing properties from an object's own properties, we're done.
+But in this case the property is being computed based on the state of a completely different object.
+
+So, what happens if the user's online state changes? There's no trivial solution, but there's one
+fairly straightforward option, we can rewrite the binding so that it has the correct path
+dependency, then everything "just works"™:
+
+    <div class="message">
+    ...
+    <script>
+      const div = findOne('.component');
+      const {user} = b8r.getListInstance(component);
+      div.addDataBinding(div, 'class(online)', `message-controller.user_online(users[id=${user}])`);
+    </script>
+
+There's one final issue that hasn't been discussed, and that is the convenience of simply using
+a computed property in ordinary code:
+
+    foo = {a: 17}
+    Object.defineProperty(foo, 'bar', {
+      get: function(){ return this.a; },
+      set: function(x){ this.a = x; }
+    });
+    const x = foo.bar; // x is now 17;
+    foo.bar = Math.PI; // foo.a is now Math.PI
+
+If we instead use the "controller" strategy we end up with something like:
+
+    foo = {a: 17}
+    b8r.register('foo-controller', {bar(foo, x) => x === undefined ? foo.a : foo.a = x});
+    const x = b8r.call('foo-controller.bar', foo);
+    b8r.call('foo-controller.bar', foo, Math.PI);
+
+Clearly, the approach outlined is (slightly) less cumbersome to set up, but (slightly) more
+cumbersome to use -- unless you're targeting values in the registry, then, something like:
+
+    b8r.get('foo-controller.bar(list-of-foo[id=${which_foo}],path.to.something.else)');
+
+is actually pretty slick.
+
+```
+<style>
+  .offline { opacity: 0.5; }
+</style>
+<div><b>People</b></div>
+<div style="display: flex">
+  <div style="flex: 1 0 20%">
+    <div data-list="computed-properties.people:id">
+      <input type="checkbox" data-bind="checked=.online">
+      <span data-bind="text=[${.id}] ${.name}">
+    </div>
+  </div>
+  <div style="margin-left: 10px">
+    If you toggle the online state of the users, observe that the
+    statically bound list instances do not automatically update.<br>
+    <button data-event="click:computed-properties.update">Force Update</button>
+  </div>
+</div>
+<div style="display: flex">
+  <div>
+    <div><b>Static binding to .from</b></div>
+    <div
+      data-list="computed-properties.messages:id"
+      data-bind="
+        text=${computed-properties.sender_name(.from)}: ${.body};
+        class(offline)=computed-properties.is_offline(.from);
+      "
+    ></div>
+  </div>
+  <div style="margin-left: 10px" class="foreign-path">
+    <div><b>Programmatically bound to correct path</b></div>
+    <div
+      data-list="computed-properties.messages:id"
+      data-bind="
+        text=${computed-properties.sender_name(.from)}: ${.body};
+      "
+    ></div>
+  </div>
+</div>
+<script>
+  b8r.register('computed-properties', {
+    is_offline: user => {
+      return ! b8r.get(`computed-properties.people[id=${user}].online`);
+    },
+    not: bool => !bool,
+    sender_name: user => {
+      return b8r.get(`computed-properties.people[id=${user}].name`);
+    },
+    people: [
+      {id: 1, name: 'Tomasina', online: true},
+      {id: 2, name: 'Carlita', online: false},
+    ],
+    messages: [
+      {id: 1, from: 1, body: 'hello world!'},
+      {id: 2, from: 2, body: 'is anybody there?'},
+      {id: 3, from: 1, body: 'i\'m here!'},
+      {id: 4, from: 2, body: 'thank goodness'},
+    ],
+    update: () => b8r.touch('computed-properties.message'),
+  });
+
+  b8r.after_update(() => {
+    find('.foreign-path [data-list-instance]').forEach(elt => {
+      const message = b8r.getListInstance(elt);
+      b8r.addDataBinding(elt, 'class(offline)', `computed-properties.not(computed-properties.people[id=${message.from}].online)`);
+    });
+  });
+</script>
+```
+
+### Tests
+
+These tests cover the low-level functionality necessary to make all this work. Notice
+that more complex cases than discussed above are handled, such as computed properties which
+look at multiple parameters from multiple different places.
+~~~~
+b8r.register('_data', {
+  location: 'a',
+  other_location: 'b',
+  person: {
+      name: 'juanita',
+      online: false,
+      location: 'a',
+  },
+  people: [
+    {
+      name: 'juanita',
+      online: false,
+      location: 'a',
+    },
+    {
+      name: 'tomasina',
+      online: true,
+      location: 'b',
+    },
+    {
+      name: 'benito',
+      online: true,
+      location: 'a',
+    },
+    {
+      name: 'carlita',
+      online: false,
+      location: 'b',
+    },
+  ]
+});
+b8r.register('_controller', {
+  is_in_location: (where, online, location) => {
+    return online && where === location;
+  },
+});
+Test(() => b8r.get('_data.location,_data.person.online,_data.person.location')).shouldBeJSON(["a", false, "a"]);
+Test(() => b8r.get('_controller.is_in_location(_data.location,_data.person.online,_data.person.location)')).shouldBe(false);
+Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[0].online,_data.people[0].location)')).shouldBe(false);
+Test(() => b8r.get('_controller.is_in_location(_data.other_location,_data.people[name=tomasina].online,_data.people[name=tomasina].location)')).shouldBe(true);
+Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[2].online,_data.people[2].location)')).shouldBe(true);
+~~~~
+*/
+
+get = (path, element) => {
+  const paths = splitPaths(path);
+  return paths.length === 1 ?
+         _get(paths[0], element) :
+         paths.map(path => _get(path, element));
 };
 
 const getJSON = (path, element, pretty) => {
@@ -371,7 +716,7 @@ const sort = (path, comparison) => {
 Call a method by path with the arguments provided.
 */
 
-const call = (path, ...args) => {
+call = (path, ...args) => {
   const method = get(path);
   if (method instanceof Function) {
     return method(...args);

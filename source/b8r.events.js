@@ -16,6 +16,7 @@ const implicit_event_types = [
   'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click', 'dblclick',
   'mouseleave', 'mouseenter',
   'mousewheel', 'scroll', // FIXEME passive?!
+  'contextmenu',
   'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
   'transitionend', 'animationend',
   'input', 'change',
@@ -233,8 +234,9 @@ const enable = (element, include_children) => {
   });
 };
 
-const dispatch = (type, target) => {
+const dispatch = (type, target, ...args) => {
   const event = new Event(type);
+  event.args = args;
   target.dispatchEvent(event);
   return event;
 };
@@ -330,12 +332,13 @@ const trigger = (type, target, ...args) => {
       type,
       target
     );
+    return;
   }
   if (target) {
-    const event = dispatch(type, target);
+    const event = dispatch(type, target, ...args);
     if (target instanceof Element &&
         implicit_event_types.indexOf(type) === -1) {
-      handle_event(event, ...args);
+      handle_event(event);
     }
   } else {
     console.warn('b8r.trigger called with no specified target');
@@ -344,6 +347,7 @@ const trigger = (type, target, ...args) => {
 
 const handle_event = evt => {
   var target = anyElement;
+  var args = evt.args || [];
   var keystroke = evt instanceof KeyboardEvent ? keys.keystroke(evt) : {};
   while (target) {
     var handlers = getParsedEventHandlers(target);
@@ -360,7 +364,7 @@ const handle_event = evt => {
               handler.model = get_component_with_method(target, handler.method);
             }
             if (handler.model) {
-              result = callMethod(handler.model, handler.method, evt, target);
+              result = callMethod(handler.model, handler.method, evt, target, ...args);
             } else {
               console.warn(`_component_.${handler.method} not found`, target);
             }

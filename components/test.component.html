@@ -7,25 +7,23 @@ being tested (as _required_) and the test code. The test code will be executed
 in a private context with _required_ and Test (the test.js module) passed as local variables.
 -->
 <style>
-  .test-report > * {
-    padding: 2px 0;
-    margin: 0;
-  }
-
-  .success {
-    background-color: #afa;
-  }
-
-  .failure {
-    background-color: #faa;
-  }
-
-  .test-report {
+  .test-component .tab-selector-bodies {
     font-family: Menlo, Monaco, monospace;
     font-size: 12px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
+  }
+
+  .test-component > details {
+    width: 100%;
+    height: 100%;
+  }
+
+  .test-component .success {
+    color: green;
+  }
+
+  .test-component .failure {
+    color: white;
+    background-color: red;
   }
 
   @keyframes test-report-appear {
@@ -38,39 +36,43 @@ in a private context with _required_ and Test (the test.js module) passed as loc
     }
   }
 
-  .test-sizable {
-    flex-grow: 1;
-    min-width: 100px;
-    width: 50%;
-  }
-
   .test-transcript > p {
     margin: 0;
-    white-space: nowrap;
+    padding: 5px;
+    filter: brightness(0.8);
+  }
+
+  .test-transcript > p:hover {
+    filter: brightness(1);
+  }
+
+  .test-component .tab-selector-bodies > * {
+    padding: 5px;
+    margin: 0;
   }
 </style>
 <details data-bind="attr(open)=_component_.show">
   <summary>
     Test Results
   </summary>
-  <div class="test-report">
-    <pre class="test-sizable" data-bind="text=_component_.source" style="overflow:hidden"></pre>
-    <div data-component="sizer"></div>
-    <div class="test-transcript test-sizable"></div>
+  <div data-component="tab-selector">
+    <div name="results" class="test-transcript"></div>
+    <pre name="source" data-bind="text=_component_.source" style="overflow:hidden"></pre>
   </div>
 </details>
 <script>
   /* global require, findOne, b8r, data, set */
   'use strict';
 
-  b8r.component('components/sizer');
+  b8r.component('components/tab-selector');
+  b8r.component('components/resizer');
 
   set({show: false});
 
   const notify_errors = () => {
     b8r.findOne('.literate-errors').style.display = 'block';
     set({show: true});
-  }
+  };
 
   const Test = require('lib/test.js');
   Test.onError = () => {
