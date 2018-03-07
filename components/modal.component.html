@@ -36,13 +36,13 @@ Copyright ©2016-2017 Tonio Loewald
     display: none;
   }
 </style>
-<div class="modal-dialog-backdrop">
+<div class="modal-dialog-backdrop" data-event="click:_component_.dismiss;">
   <div
     class="modal-dialog"
     tabindex="0"
     data-event="
       click:_component_.button;
-      keyup(Enter):_component_.default;
+      keydown(Enter),keydown(NumpadEnter):_component_.default;
       keyup(Escape):_component_.cancel;
     "
   >
@@ -87,7 +87,7 @@ Copyright ©2016-2017 Tonio Loewald
 
   if (data.className) {
     dialog.classList.remove('modal-dialog');
-    dialog.classList.add(data.className);
+    dialog.className += data.className;
   }
 
   if (data.needsClose) {
@@ -128,10 +128,30 @@ Copyright ©2016-2017 Tonio Loewald
     }
   };
 
-  requestAnimationFrame(() => {
-    const defaultWidget = typeof data.text === 'string' ? findOne('input') : findOne('.default');
+  data.dismiss = (evt) => {
+    if (evt.target.classList.value.indexOf('modal-dialog-backdrop') >= 0)
+    {
+      b8r.trigger('click', findOne('button.cancel') || findOne('button.default'));
+    }
+    return true;
+  }
+
+  const startTime = new Date().getTime();
+  // Unless we create a component.ready() then we need the
+  // timeout to give the dialog a change to get in the DOM.
+  const setFocus = () => {
+    let defaultWidget;
+    if (typeof data.text === 'string') {
+      defaultWidget = findOne('input');
+    } else {
+      defaultWidget = b8r.findOne('.default');
+     }
     if (defaultWidget) {
       defaultWidget.focus();
+    } else if ((new Date().getTime() - startTime) < 2000) {
+      setTimeout(() => setFocus(), 100);
     }
-  });
+  };
+
+    requestAnimationFrame(() => setFocus());
 </script>
