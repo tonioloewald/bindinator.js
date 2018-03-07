@@ -61,11 +61,11 @@ right-hand-side of data-bind bindings. E.g.
 
     data-bind="format=**${error.type}** ${error.detail}"
 
-This sets `textContent` of an element with the value supplied by honoring
-a markdown-style bold or italics (e.g. replacing `**bold**` or `_italic_`
-with `<b>bold</b>` and `<i>italic</i>`).
+This populates the element with html that is rendered by converting markdown-style
+bold or italics to tags (e.g. replacing `**bold**` or `_italic_` with `<b>bold</b>`
+and `<i>italic</i>`).
 
-*No other formatting is supported* and if the string contains a `>` character
+*No other formatting is supported* and if the string contains a `<` or `>` character
 no formatting is applied and the `textContent` of the element is set instead.
 ```
 <h2 data-bind="format=_component_.message"></h2>
@@ -146,7 +146,7 @@ backgroundColor).
 
 The optional second parameter lets you specify *units* (such as px, %, etc.).
 
-### class(), `class_unless()`, `class_map()`
+### class(), class_unless(), class_map()
 
     data-bind="class(name)=message.truthyValue"
     data-bind="class_unless(name)=message.truthyValue"
@@ -159,7 +159,7 @@ You can also provide the `class()` toTarget with a pair of classes
 separated by a bar and it will assign the first if the value is truthy
 and the second otherwise.
 
-    data-bind="class_map(happy:happy-class|sad|sad-class|indifferent-class)"
+    data-bind="class_aap(happy:happy-class|sad|sad-class|indifferent-class)"
 
 ```
 <style>
@@ -383,7 +383,7 @@ module.exports = function(b8r) {
         throw 'format only accepts strings or falsy values';
       }
       let template = false;
-      if (content.match(/[*_]/) && !content.match('>')) {
+      if (content.match(/[*_]/) && !content.match(/<|>/)) {
         template = true;
         content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
                                    .replace(/[*_](.*?)[*_]/g, '<i>$1</i>');
@@ -525,7 +525,7 @@ module.exports = function(b8r) {
         const date = new Date(zulu);
         element.textContent = date.toLocaleString();
       } else {
-        require.lazy('../lib/date.format.js').then(() => {
+        require.lazy('../third-party/date.format.js').then(() => {
           const date = new Date(zulu);
           element.textContent = date.format(format);
         });
