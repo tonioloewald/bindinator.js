@@ -4,12 +4,16 @@
 This is a simple replacement for `<select>` elements.
 -->
 <style>
+.selector-component > [data-children] {
+  display: flex;
+  align-items: center;
+}
 .selector-component > * {
   cursor: pointer;
 }
 
 .selector-component > [data-children] > :not([data-selected]) {
-  color: #aaa;
+  opacity: 0.5;
 }
 
 .selector-component > [data-children] > * {
@@ -26,14 +30,16 @@ This is a simple replacement for `<select>` elements.
 >
   <span>One</span>
   <span data-selected>Two</span>
-  <span>Three</span>
-  <span>Four</span>
+  <span style="font-size: 36px;">3</span>
+  <span style="font-size: 24px;">🕓</span>
 </span>
 <script>
 /* global find, findOne, b8r, component, get, set, data */
 'use strict';
 
-  const _value = element => element.value || element.getAttribute('value') || element.textContent;
+  const _value = element => element.value !== undefined ? element.value :
+                            element.dataset.value !== undefined ? element.dataset.value :
+                            element.textContent;
 
   const select = evt => {
     if (!evt.target.closest('[data-children] > *')) {
@@ -56,7 +62,7 @@ This is a simple replacement for `<select>` elements.
       value = get('value');
     }
     find('[data-children] > *:not([data-list])').forEach(child => {
-      if ((child.getAttribute('value') || child.textContent) === value) {
+      if (_value(child) === value) {
         child.dataset.selected = '';
         set('value', _value(child));
         b8r.trigger('change', component);
