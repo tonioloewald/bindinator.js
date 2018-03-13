@@ -232,7 +232,7 @@
         "path": "components/webrtc"
       },
       {
-        "name": "Contenteditable DIV",
+        "name": "Input (contenteditable)",
         "path": "components/contenteditable"
       },
       {
@@ -258,6 +258,10 @@
       {
         "name": "Grid",
         "path": "components/grid"
+      },
+      {
+        "name": "Search Field",
+        "path": "components/search-field"
       },
       {
         "name": "Table",
