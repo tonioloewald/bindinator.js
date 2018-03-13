@@ -1,318 +1,357 @@
-{
-  "docs": [
-    {
-      "name": "Read Me First",
-      "path": "README.md"
-    },
-    {
-      "name": "Overview",
-      "path": "docs/overview.md"
-    },
-    {
-      "name": "Components",
-      "path": "docs/components.js"
-    },
-    {
-      "name": "Tutorial 1. Quick Start",
-      "path": "docs/tutorial-1.js"
-    },
-    {
-      "name": "Tutorial 2. Simple Components",
-      "path": "docs/tutorial-2.js"
-    },
-    {
-      "name": "Tutorial 3. Complex Component",
-      "path": "docs/tutorial-3.js"
-    },
-    {
-      "name": "License",
-      "path": "LICENSE.md"
-    },
-    {
-      "name": "(b8r) Bindinator Core",
-      "path": "source/b8r.js"
-    },
-    {
-      "name": "(b8r) ajax",
-      "path": "source/b8r.ajax.js"
-    },
-    {
-      "name": "(b8r) bindings",
-      "path": "source/b8r.bindings.js"
-    },
-    {
-      "name": "(b8r) binding to dom",
-      "path": "source/b8r.toTargets.js"
-    },
-    {
-      "name": "(b8r) binding from dom",
-      "path": "source/b8r.fromTargets.js"
-    },
-    {
-      "name": "(b8r) byPath",
-      "path": "source/b8r.byPath.js"
-    },
-    {
-      "name": "(b8r) component",
-      "path": "source/b8r.component.js"
-    },
-    {
-      "name": "(b8r) dom",
-      "path": "source/b8r.dom.js"
-    },
-    {
-      "name": "(b8r) events",
-      "path": "source/b8r.events.js"
-    },
-    {
-      "name": "(b8r) _b8r_",
-      "path": "source/b8r._b8r_.js"
-    },
-    {
-      "name": "(b8r) functions",
-      "path": "source/b8r.functions.js"
-    },
-    {
-      "name": "(b8r) anyEvent",
-      "path": "source/b8r.anyEvent.js"
-    },
-    {
-      "name": "(b8r) imgSrc",
-      "path": "source/b8r.imgSrc.js"
-    },
-    {
-      "name": "(b8r) iterators",
-      "path": "source/b8r.iterators.js"
-    },
-    {
-      "name": "(b8r) keystroke",
-      "path": "source/b8r.keystroke.js"
-    },
-    {
-      "name": "(b8r) makeStylesheet",
-      "path": "source/b8r.makeStylesheet.js"
-    },
-    {
-      "name": "(b8r) perf",
-      "path": "source/b8r.perf.js"
-    },
-    {
-      "name": "(b8r) registry",
-      "path": "source/b8r.registry.js"
-    },
-    {
-      "name": "(b8r) show",
-      "path": "source/b8r.show.js"
-    },
-    {
-      "name": "(b8r) update",
-      "path": "source/b8r.update.js"
-    },
-    {
-      "name": "JS Viewer Test",
-      "path": "test/literate-test.js"
-    },
-    {
-      "name": "Exemplar",
-      "path": "lib/exemplar.js"
-    },
-    {
-      "name": "uuid",
-      "path": "lib/uuid.js"
-    },
-    {
-      "name": "require",
-      "path": "lib/require.js"
-    },
-    {
-      "name": "catPath",
-      "path": "lib/cat-path.js"
-    },
-    {
-      "name": "Describe",
-      "path": "lib/describe.js"
-    },
-    {
-      "name": "Test",
-      "path": "lib/test.js"
-    },
-    {
-      "name": "Drag and Drop",
-      "path": "lib/drag-and-drop.js"
-    },
-    {
-      "name": "Color Utilities",
-      "path": "lib/color.js"
-    }
-  ],
-  "components": [
-    {
-      "name": "Hello",
-      "path": "hello"
-    },
-    {
-      "name": "Modal Test",
-      "path": "modal-test"
-    },
-    {
-      "name": "Instance Test",
-      "path": "instance-test"
-    },
-    {
-      "name": "Circle",
-      "path": "circle"
-    },
-    {
-      "name": "Floater",
-      "path": "floater"
-    },
-    {
-      "name": "Chart",
-      "path": "chart"
-    },
-    {
-      "name": "Photo Tabs",
-      "path": "photo-tabs"
-    },
-    {
-      "name": "Rich Text",
-      "path": "richtext"
-    },
-    {
-      "name": "Tab Selector",
-      "path": "tab-selector"
-    },
-    {
-      "name": "Particles",
-      "path": "particles"
-    },
-    {
-      "name": "Photos",
-      "path": "photos"
-    },
-    {
-      "name": "Keyboard Event Utility",
-      "path": "keycodes"
-    },
-    {
-      "name": "Loading Spinner",
-      "path": "loading"
-    },
-    {
-      "name": "Toggle Switch (css)",
-      "path": "switch"
-    },
-    {
-      "name": "Radio Button Set",
-      "path": "radioset"
-    },
-    {
-      "name": "Carousel",
-      "path": "carousel"
-    },
-    {
-      "name": "Photo Carousel",
-      "path": "photo-carousel"
-    },
-    {
-      "name": "iframe",
-      "path": "iframe"
-    },
-    {
-      "name": "Mondrian",
-      "path": "mondrian"
-    },
-    {
-      "name": "Fiddle",
-      "path": "fiddle"
-    },
-    {
-      "name": "Kitchen Sink",
-      "path": "kitchen-sink"
-    },
-    {
-      "name": "Big Grid",
-      "path": "biggrid-test"
-    },
-    {
-      "name": "Big List",
-      "path": "biglist"
-    },
-    {
-      "name": "Flexcordion",
-      "path": "flexcordion"
-    },
-    {
-      "name": "Slider Numeric",
-      "path": "slider-numeric"
-    },
-    {
-      "name": "To Do",
-      "path": "todo"
-    },
-    {
-      "name": "Stack",
-      "path": "stack"
-    },
-    {
-      "name": "3d (threejs)",
-      "path": "threejs"
-    },
-    {
-      "name": "3d (babylonjs)",
-      "path": "babylonjs"
-    },
-    {
-      "name": "asteroids (svg)",
-      "path": "asteroids"
-    },
-    {
-      "name": "Offline",
-      "path": "offline"
-    },
-    {
-      "name": "Center Scroller",
-      "path": "center-scroller-test"
-    },
-    {
-      "name": "webrtc",
-      "path": "webrtc"
-    },
-    {
-      "name": "Contenteditable DIV",
-      "path": "contenteditable"
-    },
-    {
-      "name": "Selector",
-      "path": "selector"
-    },
-    {
-      "name": "Input",
-      "path": "input"
-    },
-    {
-      "name": "Bodymovin",
-      "path": "bodymovin"
-    },
-    {
-      "name": "Toggle Switch (bodymovin)",
-      "path": "animated-switch"
-    },
-    {
-      "name": "Path Browser",
-      "path": "path-browser"
-    },
-    {
-      "name": "Electron File Browser",
-      "path": "electron-file-browser"
-    },
-    {
-      "name": "Grid",
-      "path": "grid"
-    },
-    {
-      "name": "Table",
-      "path": "table"
-    }
-  ]
-}
+[
+  {
+    "title": "documentation",
+    "parts": [
+        {
+          "name": "Read Me First",
+          "path": "README.md"
+        },
+        {
+          "name": "Overview",
+          "path": "docs/overview.md"
+        },
+        {
+          "name": "License",
+          "path": "LICENSE.md"
+        }
+      ]
+  },
+  {
+    "title": "b8r core",
+    "parts": [
+      {
+        "name": "(b8r) Bindinator Core",
+        "path": "source/b8r.js"
+      },
+      {
+        "name": "(b8r) ajax",
+        "path": "source/b8r.ajax.js"
+      },
+      {
+        "name": "(b8r) bindings",
+        "path": "source/b8r.bindings.js"
+      },
+      {
+        "name": "(b8r) binding to dom",
+        "path": "source/b8r.toTargets.js"
+      },
+      {
+        "name": "(b8r) binding from dom",
+        "path": "source/b8r.fromTargets.js"
+      },
+      {
+        "name": "(b8r) byPath",
+        "path": "source/b8r.byPath.js"
+      },
+      {
+        "name": "(b8r) component",
+        "path": "source/b8r.component.js"
+      },
+      {
+        "name": "(b8r) dom",
+        "path": "source/b8r.dom.js"
+      },
+      {
+        "name": "(b8r) events",
+        "path": "source/b8r.events.js"
+      },
+      {
+        "name": "(b8r) _b8r_",
+        "path": "source/b8r._b8r_.js"
+      },
+      {
+        "name": "(b8r) functions",
+        "path": "source/b8r.functions.js"
+      },
+      {
+        "name": "(b8r) anyEvent",
+        "path": "source/b8r.anyEvent.js"
+      },
+      {
+        "name": "(b8r) imgSrc",
+        "path": "source/b8r.imgSrc.js"
+      },
+      {
+        "name": "(b8r) iterators",
+        "path": "source/b8r.iterators.js"
+      },
+      {
+        "name": "(b8r) keystroke",
+        "path": "source/b8r.keystroke.js"
+      },
+      {
+        "name": "(b8r) makeStylesheet",
+        "path": "source/b8r.makeStylesheet.js"
+      },
+      {
+        "name": "(b8r) perf",
+        "path": "source/b8r.perf.js"
+      },
+      {
+        "name": "(b8r) registry",
+        "path": "source/b8r.registry.js"
+      },
+      {
+        "name": "(b8r) show",
+        "path": "source/b8r.show.js"
+      },
+      {
+        "name": "(b8r) update",
+        "path": "source/b8r.update.js"
+      },
+      {
+        "name": "require",
+        "path": "lib/require.js"
+      }
+    ]
+  },
+  {
+    "title": "libraries",
+    "sort": true,
+    "parts": [
+      {
+        "name": "Exemplar",
+        "path": "lib/exemplar.js"
+      },
+      {
+        "name": "uuid",
+        "path": "lib/uuid.js"
+      },
+      {
+        "name": "catPath",
+        "path": "lib/cat-path.js"
+      },
+      {
+        "name": "Describe",
+        "path": "lib/describe.js"
+      },
+      {
+        "name": "Test",
+        "path": "lib/test.js"
+      },
+      {
+        "name": "Drag and Drop",
+        "path": "lib/drag-and-drop.js"
+      },
+      {
+        "name": "Color Utilities",
+        "path": "lib/color.js"
+      }
+    ]
+  },
+  {
+    "title": "components",
+    "sort": true,
+    "parts": [
+      {
+        "name": "Circle",
+        "path": "components/circle"
+      },
+      {
+        "name": "Floater",
+        "path": "components/floater"
+      },
+      {
+        "name": "Rich Text",
+        "path": "components/richtext"
+      },
+      {
+        "name": "Tab Selector",
+        "path": "components/tab-selector"
+      },
+      {
+        "name": "Particles",
+        "path": "components/particles"
+      },
+      {
+        "name": "Keyboard Event Utility",
+        "path": "components/keycodes"
+      },
+      {
+        "name": "Loading Spinner",
+        "path": "components/loading"
+      },
+      {
+        "name": "Toggle Switch (css)",
+        "path": "components/switch"
+      },
+      {
+        "name": "Radio Button Set",
+        "path": "components/radioset"
+      },
+      {
+        "name": "Carousel",
+        "path": "components/carousel"
+      },
+      {
+        "name": "iframe",
+        "path": "components/iframe"
+      },
+      {
+        "name": "Mondrian",
+        "path": "components/mondrian"
+      },
+      {
+        "name": "Fiddle",
+        "path": "components/fiddle"
+      },
+      {
+        "name": "Kitchen Sink",
+        "path": "components/kitchen-sink"
+      },
+      {
+        "name": "Big Grid",
+        "path": "components/biggrid-test"
+      },
+      {
+        "name": "Big List",
+        "path": "components/biglist"
+      },
+      {
+        "name": "Flexcordion",
+        "path": "components/flexcordion"
+      },
+      {
+        "name": "Slider Numeric",
+        "path": "components/slider-numeric"
+      },
+      {
+        "name": "Stack",
+        "path": "components/stack"
+      },
+      {
+        "name": "Offline",
+        "path": "components/offline"
+      },
+      {
+        "name": "Center Scroller",
+        "path": "components/center-scroller-test"
+      },
+      {
+        "name": "webrtc settings",
+        "path": "components/webrtc"
+      },
+      {
+        "name": "Contenteditable DIV",
+        "path": "components/contenteditable"
+      },
+      {
+        "name": "Selector",
+        "path": "components/selector"
+      },
+      {
+        "name": "Input",
+        "path": "components/input"
+      },
+      {
+        "name": "Toggle Switch (bodymovin)",
+        "path": "components/animated-switch"
+      },
+      {
+        "name": "Path Browser",
+        "path": "components/path-browser"
+      },
+      {
+        "name": "Electron File Browser",
+        "path": "components/electron-file-browser"
+      },
+      {
+        "name": "Grid",
+        "path": "components/grid"
+      },
+      {
+        "name": "Table",
+        "path": "components/table"
+      }
+    ]
+  },
+  {
+    "title": "tutorials",
+    "parts": [
+      {
+        "name": "Tutorial 1. Quick Start",
+        "path": "docs/tutorial-1.js"
+      },
+      {
+        "name": "Tutorial 2. Simple Components",
+        "path": "docs/tutorial-2.js"
+      },
+      {
+        "name": "Tutorial 3. Complex Component",
+        "path": "docs/tutorial-3.js"
+      },
+      {
+        "name": "Components",
+        "path": "docs/components.js"
+      }
+    ]
+  },
+  {
+    "title": "tests",
+    "sort": true,
+    "parts": [
+      {
+        "name": "Low Level Unit Tests",
+        "path": "tests.html"
+      },
+      {
+        "name": "JS Viewer",
+        "path": "test/literate-test.js"
+      },
+      {
+        "name": "Instance Test",
+        "path": "components/instance-test"
+      },
+      {
+        "name": "Modal Test",
+        "path": "components/modal-test"
+      }
+    ]
+  },
+  {
+    "title": "demos",
+    "sort": true,
+    "parts": [
+      {
+        "name": "Photo Carousel",
+        "path": "components/photo-carousel"
+      },
+      {
+        "name": "Bodymovin",
+        "path": "components/bodymovin"
+      },
+      {
+        "name": "Hello",
+        "path": "components/hello"
+      },
+      {
+        "name": "To Do",
+        "path": "components/todo"
+      },
+      {
+        "name": "Photos",
+        "path": "components/photos"
+      },
+      {
+        "name": "Photo Tabs",
+        "path": "components/photo-tabs"
+      },
+      {
+        "name": "3d (threejs)",
+        "path": "components/threejs"
+      },
+      {
+        "name": "3d (babylonjs)",
+        "path": "components/babylonjs"
+      },
+      {
+        "name": "Chart",
+        "path": "components/chart"
+      },
+      {
+        "name": "asteroids (svg)",
+        "path": "components/asteroids"
+      }
+    ]
+  }
+]
