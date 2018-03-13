@@ -220,9 +220,9 @@ const _get = (path, element) => {
 Computed properties are a newish feature in Javascript, but for various reasons they don't play
 well with b8r.
 
-First, `b8r.set('foo', {bar})` is implemented as:
+First, `b8r.set('foo', bar)` is implemented as:
 
-    registry.foo = Object.assign({}, foo, {bar});
+    registry.foo = Object.assign(bar, Object.assign({}, registry.foo, bar));
 
 It's possible this can be improved, but it's not for no reason.
 

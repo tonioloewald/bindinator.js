@@ -261,6 +261,16 @@ const get_component_with_method = function(element, path) {
 };
 
 /**
+## Calling Event Handlers
+
+You can, of course, call any registered method via `b8r.get('path.to.function')(...args)`
+and there's even a convenient method that reduces this to `b8r.call('path.to.function', ...args)`.
+But `b8r.callMethod` is specifically used to call event handlers because it allows for the case
+where the event occurs *before the handler has been registered*. So, in particular, if you
+load component which calls a method that the component's script will register *afterwards* or which
+relies on, say, a library that is being asynchronously loaded, you can still just write the handler
+as normal and, under the hood, it will be saved and executed when the method is registered.
+
     b8r.callMethod(method_path, ...args)
     b8r.callMethod(model, method, ...args);
 
@@ -315,6 +325,18 @@ const callMethod = (...args) => {
 };
 
 /**
+### Triggering Events
+
+Sometimes you will want to simulate a user action, e.g. click a button as though
+the user clicked it, rather than call a handler directly. In vanilla javascript you can to
+this specifically via `button.click()` but in a more general sense you can use
+`element.dispatchEvent(new Event('click'))`.
+
+b8r provides a convenience method that wraps all this stuff up but, more importantly, is
+aware of which events b8r itself handles so it can short-circuit the event propagation system
+(effectively route the call directly to the relevant event-handler and pass arguments directly
+to it).
+
     b8r.trigger(type, target, ...args); //
 
 Trigger a synthetic implicit (only!) event. Note that you can trigger and

@@ -9,6 +9,7 @@ b8r leverages your understanding of the DOM and the browser rather than trying t
 implement some kind of virtual machine to replace it.
 
 ## Core Functionality
+- [require](#source=lib/require.js)
 - [The Registry](#source=source/b8r.registry.js)
 - [Binding Data](#source=source/b8r.bindings.js)
   - [toTargets](#source=source/b8r.toTargets.js)

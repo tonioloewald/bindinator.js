@@ -2,7 +2,7 @@
 # fromTargets
 Copyright ©2016-2017 Tonio Loewald
 
-## collecting data from the DOM
+## Getting bound data from the DOM
 
 The following binding *targets* will automatically copy data from the DOM to bound objects
 when an input or change event fires on the bound element:
@@ -14,6 +14,13 @@ the value of `<input type="radio" ...>` elements.
 
 If you bind to a **component instance**'s value it will map directly to the component's
 value.
+
+> ### Two-Way Bindings
+>
+> `value` and most "from"-bindings are also ["to"-bindings](#source=source/b8r.toTargets.js).
+> which means that an element will automatically be populated with bound data, and updated
+> when it is set or changed *by path* (e.g. `set('path.to.data', new_value)`) or the path to that
+> data is `touch()`ed (e.g. `touch('path.to.data'))`).
 
 ### checked
 

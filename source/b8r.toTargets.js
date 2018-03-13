@@ -2,7 +2,7 @@
 # toTargets
 Copyright ©2016-2017 Tonio Loewald
 
-## Flushing data to the DOM
+## Binding data to the DOM
 
 The following targets (attributes of a DOM element) can be bound to object data:
 
@@ -15,6 +15,12 @@ If attached to an `<input type="radio">` button it tries to "do the right thing"
 
 If you bind to a **component instance**'s value it will map directly to the component's
 value.
+
+> ### Two-Way Bindings
+>
+> `value` is also a ["from"-binding](#source=source/b8r.fromTargets.js). which means that
+> if the user changes the value of an element (that normally has a value) the change will
+> automatically be picked up by b8r and the bound data updated -- per the example below.
 
 ```
 <label>
