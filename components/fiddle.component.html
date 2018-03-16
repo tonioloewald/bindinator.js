@@ -96,12 +96,12 @@ of awesome that this works at all.
   if(data.source) {
     code_elt.textContent = data.source;
     init_editor();
-    setTimeout(run);
+    // setTimeout(run);
   } else {
-    b8r.component(uuid(), component.dataset.path || 'components/hello', true).then(c => {
+    b8r.component('fiddle-' + uuid(), component.dataset.path || 'components/hello', true).then(c => {
       code_elt.textContent = c._source.replace(/\t/g, '  ');
-      b8r.insertComponent(c, container);
       init_editor();
+      // b8r.insertComponent(c, container);
     });
   }
 
@@ -113,11 +113,12 @@ of awesome that this works at all.
   }
 
   function run() {
+    console.log('run', data.component_id)
     b8r.empty(container);
     const source = editor ? editor.getValue() : code_elt.textContent;
     if (source.match(/<\/\w+>/)) {
       b8r.insertComponent(
-        b8r.makeComponent(uuid(), source, b8r._path ? `${b8r._path}/` : ''),
+        b8r.makeComponent('fiddle-' + uuid(), source, b8r._path ? `${b8r._path}/` : ''),
         container
       );
     } else {

@@ -157,7 +157,8 @@ const makeComponent = function(name, source, url, preserve_source) {
     throw `component ${name} load method could not be created`;
   }
   /*jshint evil: false */
-  const style = makeStylesheet(css, name + '-component');
+  const class_name = `${name}-component`;
+  const style = css ? makeStylesheet(css.replace(/_component_/g, class_name), class_name) : false;
   const component = {
     name,
     style,
