@@ -508,3 +508,16 @@ progress::-webkit-progress-value {
   background-color: var(--accent-color);
   border-radius: 5px;
 }
+
+/* used by tooltips.js */
+.tooltips-tooltip {
+  position: fixed;
+  background: rgba(0,0,0,0.75);
+  padding: 2px 6px;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 4px;
+  color: white;
+  max-width: 25vw;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
