@@ -34,10 +34,6 @@ You can call a method by path.
 Triggers all observers as though the value at path has changed. Useful
 if you change a property independently of the registry.
 
-    async_touch(path);
-
-Triggers all observers asynchronousely (on requestAnimationFrame).
-
     isValidPath(path);
 
 `isValidPath` returns true if the path looks OK, false otherwise.
@@ -134,23 +130,6 @@ const touch = (path, source_element) => {
   logEnd('touch', path);
 };
 
-const _async_touch_dirty_list = [];
-let _async_touch_id = null;
-
-const _async_touch = () => {
-  _async_touch_dirty_list.forEach(touch);
-  _async_touch_dirty_list.splice(0);
-};
-
-const async_touch = path => {
-  if (_async_touch_dirty_list.indexOf(path) === -1) {
-    _async_touch_dirty_list.push(path);
-  }
-  if (!_async_touch_id) {
-    _async_touch_id = requestAnimationFrame(_async_touch);
-  }
-};
-
 const set = (path, value, source_element) => {
   const path_parts = path.split(/\.|\[/);
   const model = path_parts[0];
@@ -204,11 +183,14 @@ const register = (name, obj, block_updates) => {
 
 const setJSON = (path, value) => set(path, JSON.parse(value));
 
-const push = (path, value) => {
+const push = (path, value, callback) => {
   const list = get(path) || set(path, []);
   if(Array.isArray(list)) {
     list.push(value);
-    async_touch(path);
+    if (callback) {
+      callback(list);
+    }
+    touch(path);
   }
 };
 
@@ -344,7 +326,6 @@ module.exports = {
   push,
   call,
   touch,
-  async_touch,
   observe,
   unobserve,
   models,
