@@ -24,6 +24,7 @@ Copyright ©2016-2017 Tonio Loewald
 <div
   class="mondrian"
   data-bind="style(height)=_component_.container_height"
+  data-event="click:_component_.focus"
 >
   <video src="test/video/portrait1.mov" autoplay=true loop=true></video>
   <video src="test/video/portrait2.mov" autoplay=true loop=true></video>
@@ -60,6 +61,14 @@ Copyright ©2016-2017 Tonio Loewald
     <option value="400px">Normal</option>
     <option value="200px" selected>Wide</option>
   </select> Container Shape
+</label>
+<label class="mondrian-label">
+  <input
+    type="checkbox"
+    data-bind="checked=_component_.focus_enabled"
+    data-event="change:_component_.change_focus_enabled"
+  >
+  Focus Enabled (click to focus on elements)
 </label>
 <label class="mondrian-label">
   <input type="checkbox" data-bind="checked=_component_.letterbox_enabled">
@@ -99,7 +108,7 @@ Copyright ©2016-2017 Tonio Loewald
   const update = () => requestAnimationFrame(() => {
     const signature = b8r.elementSignature(findOne('.mondrian'));
     b8r.logStart('mondrian', signature);
-    mondrian.arrange(visible(), get('desired_aspect_ratio'), get('letterbox_enabled') && get('letterbox_threshold'));
+    mondrian.arrange_with_focus(visible(), get('desired_aspect_ratio'), get('letterbox_enabled') && get('letterbox_threshold'));
     b8r.logEnd('mondrian', signature);
   });
 
@@ -154,8 +163,27 @@ Copyright ©2016-2017 Tonio Loewald
     update,
     container_height: '400px',
     desired_aspect_ratio: 1,
+    focus_enabled: true,
     letterbox_enabled: true,
     letterbox_threshold: 1.25,
+    change_focus_enabled: () => {
+      if (! get('focus_enabled')) {
+        find('.mondrian-focus').forEach(elt => elt.classList.remove('mondrian-focus'));
+        update();
+      }
+    },
+    focus: (evt, elt) => {
+      if (! get('focus_enabled')) {
+        return;
+      }
+      if (evt.target.classList.contains('mondrian-focus')) {
+        evt.target.classList.remove('mondrian-focus');
+      } else {
+        find('.mondrian-focus').forEach(elt => elt.classList.remove('mondrian-focus'));
+        evt.target.classList.add('mondrian-focus');
+      }
+      update();
+    }
   });
 
   setTimeout(() => b8r.showLogs('mondrian'), 10000);
