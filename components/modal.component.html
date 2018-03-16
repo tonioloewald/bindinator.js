@@ -111,7 +111,10 @@ Copyright ©2016-2017 Tonio Loewald
     }];
   }
 
-  data.cancel = () => b8r.trigger('click', findOne('button.cancel') || findOne('button.default'));
+  data.cancel = () => b8r.trigger('click',
+    findOne('[data-children] button.cancel')
+    || findOne('button.cancel')
+    || findOne('button.default'));
   data.default = () => b8r.trigger('click', findOne('button.default'));
   data.button = evt => {
     if (data && data.callback) {
@@ -131,7 +134,7 @@ Copyright ©2016-2017 Tonio Loewald
   data.dismiss = (evt) => {
     if (evt.target.classList.value.indexOf('modal-dialog-backdrop') >= 0)
     {
-      b8r.trigger('click', findOne('button.cancel') || findOne('button.default'));
+      data.cancel();
     }
     return true;
   }
