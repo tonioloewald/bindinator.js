@@ -138,6 +138,10 @@
         "path": "lib/color.js"
       },
       {
+        "name": "Tooltips",
+        "path": "lib/tooltips.js"
+      },
+      {
         "name": "Mondrian",
         "path": "components/mondrian"
       }
