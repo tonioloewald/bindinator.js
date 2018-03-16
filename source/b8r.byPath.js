@@ -388,7 +388,7 @@ function setByPath(orig, path, val) {
       throw 'setByPath failed';
     }
   }
-  console.error(`setByPath failed): "${path}" not found in`, orig);
+  console.error(`setByPath failed: "${path}" not found in`, orig);
   throw `setByPath(${orig}, ${path}, ${val}) failed`;
 }
 
