@@ -18,6 +18,10 @@ Just like `Array.prototype.forEach` except you can interrupt it by returning `fa
 
 Exactly like forEach except it iterates on the object's keys.
 
+    mapKeys(object, (value, key) => {... return ...}) // => [map]
+
+Just like map, except it creates an array from an object (using its keys).
+
     mapEachKey(object, (value, key) => {... return ...}) // => {map}
 
 Just like map, except it creates an object from an object instead of an array
@@ -27,6 +31,10 @@ from an array.
     // => first key whose corresponding value passes the test.
 
 Like findIndex for arrays, but returns key instead.
+
+    filter(array, value => ... test conditions ...); // filters array in place
+
+Just like filter except it modifies the array in place (using splice).
 
     filterKeys(object, value => { ... return true|false })
     // => array of keys whose corresponding values pass the test
@@ -54,6 +62,11 @@ Test(() => {
   return s.join(',');
 }).shouldBe('a=10,b=5');
 Test(() => {
+  const obj = {a: 10, b: 12, c: 5};
+  const map = b8r.mapKeys(obj, (val, key) => `${key} ${val}`);
+  return JSON.stringify(map)
+}).shouldBe('["a 10","b 12","c 5"]');
+Test(() => {
   const obj = {a: 10, b: 5};
   const map = b8r.mapEachKey(obj, (val, key) => key.charCodeAt(0) + val);
   return JSON.stringify(map);
@@ -62,6 +75,11 @@ Test(() => {
   const obj = {a: 10, b: 12, c: 5};
   return b8r.findKey(obj, val => val % 3 === 0);
 }).shouldBe('b');
+Test(() => {
+  const a = [1,2,3,4,5,6,7,8,9];
+  b8r.filter(a, x => x % 2 && x % 3);
+  return a;
+}).shouldBeJSON([1,5,7]);
 Test(() => {
   const obj = {a: 10, b: 12, c: 5};
   return JSON.stringify(b8r.filterKeys(obj, val => val % 5 === 0));
@@ -102,6 +120,12 @@ const forEachKey = (object, method) => {
   }
 };
 
+const mapKeys = (object, method) => {
+  const map = [];
+  forEachKey(object, (val, key) => map.push(method(val, key)));
+  return map;
+};
+
 const mapEachKey = (object, method) => {
   const map = {};
   forEachKey(object, (val, key) => map[key] = method(val, key));
@@ -122,6 +146,14 @@ const findKey = (object, test) => {
 const findValue = (object, test) => {
   const key = findKey(object, test);
   return key ? object[key] : null;
+};
+
+const filter = (list, test) => {
+  for(let i = list.length - 1; i >= 0; i--) {
+    if (! test(list[i])) {
+      list.splice(i, 1);
+    }
+  }
 };
 
 const filterKeys = (object, test) => {
@@ -162,9 +194,11 @@ module.exports = {
   last,
   forEach,
   forEachKey,
+  mapKeys,
   mapEachKey,
   findKey,
   findValue,
+  filter,
   filterKeys,
   filterObject,
   assignValues,

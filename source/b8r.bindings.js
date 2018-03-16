@@ -1,6 +1,54 @@
 /**
 # Data Bindings
 
+Data binding is implemented via the `data-bind` and `data-list` attributes. Bindings tie
+[registered data](#source=source/b8r.registry.js) to and from view (DOM) elements.
+
+```
+<h3 data-bind="text=binding-example.text"></h3>
+<ul>
+  <li
+    data-list="binding-example.list"
+    data-bind="text=.name"
+  ></li>
+</ul>
+<script>
+  b8r.register('binding-example', {
+    text: 'hello, world',
+    list: [
+      {name: 'Discovery'},
+      {name: 'Enterprise'},
+      {name: 'Deep Space 9'},
+      {name: 'Voyager'},
+      {name: 'Next Generation'},
+      {name: 'Star Trek'},
+    ],
+  })
+</script>
+```
+
+The key public methods are:
+
+    b8r.bindAll(target); // binds all elements within target; loads available components
+
+And:
+
+    b8r.bindList(target); // bind a list to a target with a data-list attribute
+
+These two functions have variants (mostly used internally) for explicitly passing a path
+for use in dynamically resolved bindings.
+
+    b8r.bindAll(target, 'path.to.data'); // as above, but uses path for dynamic bindings
+
+Or:
+
+    b8r.bindList(target, 'path.to.list'); // as above, but uses path for dynamic bindings
+
+Note (FIXME): bindAll only applies its path to components and lists; it doesn't do it to
+individual elements, which it probably should.
+
+## Binding Elements with data-bind
+
 The simplest way to bind data to DOM elements is by using `data-bind` attributes.
 
 Usage:
@@ -135,7 +183,20 @@ with:
 This only works in to-bindings (it won't parse DOM contents back into data
 structures for you!).
 
-## Lists
+You can access the underlying method directly:
+
+    b8r.interpolate('string with ${data.to.path} and ${data.with.other.path}');
+    b8r.interpolate('string with ${data.to.path} and ${data.with.other.path}', element);
+
+The second argument is required if any path used is relative (e.g. `.foo.bar`),
+data-relative (e.g. `_data_.foo.bar`), or component-relative (e.g. `_component_.foo.bar`).
+
+In essence, if you want to use string interpolation, bindinator uses the ES6-style
+interpolations for data paths (javascript is not supported, just data paths). Data
+paths are evaluated normally, so _data_, _component_, and relative paths should
+work exactly as expected.
+
+## Binding Lists with data-list
 
 If you want to create one instance of an element for every member of a list
 you can use a list binding. Again, this is just an attribute (`data-list`):
@@ -176,10 +237,41 @@ identify list instances and minimize dom updates. Where possible, use an
 
 For more information on *id paths* see the `byPath` documentation.
 
+    b8r.removeListInstance(element);
+
+Removes a data-list-instance's corresponding list member and any other bound
+data-list-instances.
+
 ## Mystery Methods
 
 Most of the other methods in this module are used internally. They're not
 secret, private methods and their purposes should be self-explanatory.
+
+## Finding Bound Data
+
+To get a component's id (which you should not need to do very often)
+you can call getComponentId:
+
+    b8r.getComponentId(elt)
+
+The component id looks like c# _component name_ # _n_ where _n_ is the
+simply the creation order. It follows that component ids are guaranteed
+to be unique.
+
+To quickly obtain bound data a component from an element inside it:
+
+    b8r.getComponentData(elt [, type]); // gives you the component data
+
+In effect this simply gets the component id and then finds the corresponding
+registered data object (or "model").
+
+    b8r.getComponentDataId(elt [, type]); // gives you the component path
+
+If you just need the component id (i.e. its data-path).
+
+To quickly obtain bound data a list instance from an element inside it:
+
+    b8r.getListInstance(elt)
 */
 /* global module, require, console */
 'use strict';
@@ -238,6 +330,26 @@ const parseBinding = binding => {
   return {targets, path};
 };
 
+/**
+    splitPaths('foo.bar.baz,foo[id=17].bar.baz,path.to.method(foo.bar,foo[id=17].baz)');
+      // returns ['foo.bar.baz', 'foo[id=17].bar.baz', 'path.to.method(foo.bar,foo[id=17].baz)']
+
+splitPaths is used to prise apart data-paths in bindings.
+~~~~
+const {splitPaths} = require('./source/b8r.bindings.js');
+
+Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
+Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
+Test(() => splitPaths('foo.bar,foo[path.to.id=this is not a test],path.to.method(foo.bar[id=17])')).
+  shouldBeJSON(["foo.bar", "foo[path.to.id=this is not a test]", "path.to.method(foo.bar[id=17])"]);
+Test(() => splitPaths('path.to.value,path.to[id=17].value,path.to.method(path.to.value,path[11].to.value)')).
+  shouldBeJSON(["path.to.value", "path.to[id=17].value", "path.to.method(path.to.value,path[11].to.value)"]);
+Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.value,path.to[id=17].value')).
+  shouldBeJSON(["path.to.method(path.to.value,path[11].to.value)", "path.to.value", "path.to[id=17].value"]);
+~~~~
+*/
+const splitPaths = paths => paths.match(/(([^,(]+\([^)]+\))|([^,()]+))/g);
+
 const findBindables = element => {
   return findWithin(element, '[data-bind]', true).filter(elt => {
     if (
@@ -253,7 +365,7 @@ const findBindables = element => {
 };
 
 const findLists = element => {
-  return findWithin(element, '[data-list]').filter(elt => {
+  return findWithin(element, '[data-list]', true).filter(elt => {
     var list = elt.parentElement.closest('[data-list]');
     return !list || !element.contains(list);
   });
@@ -276,7 +388,10 @@ const getListInstancePath = element => {
   return component ? component.dataset.listInstance : null;
 };
 
-const getComponentDataPath = element => {
+const getComponentDataPath = (element, type) => {
+  if (type) {
+    element = element.closest(`.${type}-component`);
+  }
   const component = element.closest('[data-component-id]');
   return component ? component.dataset.componentId : null;
 };
@@ -294,6 +409,21 @@ const replaceInBindings = (element, needle, replacement) => {
   });
 };
 
+const resolveListInstanceBindings = (instance_elt, instance_path) => {
+  const elements = findWithin(instance_elt, '[data-bind]', true).
+                   filter(elt => !elt.closest('[data-list]'));
+  elements.forEach(elt => {
+    if (/(,|=|\()\./.test(elt.dataset.bind)) {
+      elt.dataset.bind = elt.dataset.bind.
+                         replace(/(,|=|\()\./g, '$1' + path_prefix);
+    }
+    if (elt.dataset.bind.indexOf('${.') > -1) {
+      elt.dataset.bind = elt.dataset.bind.
+                         replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
+    }
+  });
+};
+
 module.exports = {
   addDataBinding,
   removeDataBinding,
@@ -305,4 +435,6 @@ module.exports = {
   findBindables,
   getBindings,
   replaceInBindings,
+  resolveListInstanceBindings,
+  splitPaths,
 };

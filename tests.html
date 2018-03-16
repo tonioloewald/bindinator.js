@@ -181,8 +181,8 @@
     b8r.force_update();
     Test(() => b8r.id('b').style.color).shouldBe('green');
 
-    // list binding
-    Test(() => b8r.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
+    // note that this test is now pretty fragile because _auto_ will be incremented by any list-binding lacking an id-path
+    Test(() => b8r.findOne('[data-list-instance="test1.list[_auto_=1]"] span').textContent).shouldBe('10');
 
     // binding (from)
     b8r.findOne('input').value = 55;
@@ -274,6 +274,14 @@
     Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
     b8r.force_update();
     Test(() => b8r.id('a').textContent, 'Async Update after_update').shouldBe('86');
+
+    b8r.register('empty_obj', {});
+    b8r.set('empty_obj.array[id=5]', {id: 5, name: 'fred'});
+    b8r.set('empty_obj.array[3]', {id:17, name: 'bloggs'});
+    b8r.set('empty_obj.x.y', {id: 5, name: 'fred'});
+    Test(() => b8r.get('empty_obj.array[0].name'), 'automatic array insertion by id path').shouldBe('fred');
+    Test(() => b8r.get('empty_obj.array[id=17].name'), 'array insertion by index').shouldBe('bloggs');
+    Test(() => b8r.get('empty_obj.x.y.id'), 'object insertion by path').shouldBe(5);
 
     // components
     b8r.component('test', 'test/test')

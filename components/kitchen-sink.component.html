@@ -247,7 +247,7 @@ when and if the need arises.
 </label>
 <br><label>
   <a href="#component=contenteditable">
-    Contenteditable Component
+    Input (contenteditable) Component
   </a>
   <div
     placeholder="contenteditable"
@@ -258,7 +258,7 @@ when and if the need arises.
 <br>
 <label>
   Search Field
-  <input class="search" placeholder="search field">
+  <span data-component="search-field"></span>
 </label>
 <hr>
 <label>
@@ -454,6 +454,7 @@ when and if the need arises.
   b8r.component('components/switch');
   b8r.component('components/animated-switch');
   b8r.component('components/radioset');
+  b8r.component('components/search-field');
 
   ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
 

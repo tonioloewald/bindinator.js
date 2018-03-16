@@ -227,13 +227,13 @@ When a component is loaded, b8r examines it for any bound elements in it and if 
 
 b8r's final core concept is the component. A component is written as a mini web page comprising:
 
-  <style>
-    ... style declarations ...
-  </style>
-  ... html markup ...
-  <script>
-    ... view controller code ...
-  </script>
+    <style>
+      ... style declarations ...
+    </style>
+    ... html markup ...
+    <script>
+      ... view controller code ...
+    </script>
 
 Each of these pieces is *optional*.
 
@@ -241,17 +241,17 @@ Each of these pieces is *optional*.
 
 Anywhere inside your page's markup you can add a component binding, like this:
 
-  <div data-component="h2">
-    Hello world
-  </div>
+    <div data-component="h2">
+      Hello world
+    </div>
 
 When the component is loaded it will automatically be inserted elements bound to it. Let's suppose h2.component.html looks like this:
 
-  <h2 data-children></h2>
+    <h2 data-children></h2>
 
 You might load it thus:
 
-  b8r.component('path/to/h2');
+    b8r.component('path/to/h2');
 
 This returns a **promise** of the component, but you can ignore it unless you want code that only executes when the component is available. When the component is loaded an instance of the component inserted within the bound element, and the bound element's children (if any) will be moved to an element inside the component with the **data-children** attribute (if any).
 
@@ -364,7 +364,7 @@ When a component's source is received, the **\<style\>** tag (if any) is inserte
 
 Once a component is registered, any element bound to that component will have an instance of that component loaded into it. A component binding looks like this:
 
-  <div data-component="something">...</div>
+    <div data-component="something">...</div>
 
 When a component is loaded, it will be inspected for nested bound components, and if available they will be loaded recursively; then data-bindings will be resolved.
 

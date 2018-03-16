@@ -13,6 +13,31 @@ component into an iframe (which would isolate it from the documentation app) - i
 of awesome that this works at all.
 -->
 <style>
+  .fiddle-component {
+    position: relative;
+    height: 200px;
+  }
+
+  .fiddle-component .resizer-component {
+    z-index: 1;
+  }
+
+  .fiddle-component .tab-selector-component {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fiddle-component .tab-selector-tabs {
+    flex: 0 0 24px;
+  }
+
+  .fiddle-component .tab-selector-bodies {
+    flex: 1 0;
+    overflow-y: overlay;
+  }
+
   .code {
     font-size: 13px;
     font-family: Menlo, Monaco, monospace;
@@ -30,13 +55,14 @@ of awesome that this works at all.
 
   .fiddle-component .tab-selector-bodies > * {
     padding: 10px;
-    min-height: 200px;
+    height: 100%;
   }
 </style>
 <div data-component="tab-selector">
   <div name="Example" data-event="show:_component_.run"></div>
   <div name="Source" class="code" data-event="keydown(Tab):_component_.indent"></div>
 </div>
+<span data-component="resizer"></span>
 <script>
 /* global require, findOne, b8r, data, component, register, ace */
 /* jshint latedef:false */
@@ -45,6 +71,9 @@ of awesome that this works at all.
   const container = findOne('[name="Example"]');
   const uuid = require('../lib/uuid.js');
   var editor;
+
+  component.classList.add('resizer-target');
+  b8r.component('./components/resizer');
 
   // ACE editor — bleargh
   const init_editor = () => {

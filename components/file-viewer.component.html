@@ -25,7 +25,6 @@ implement a more sophisticated approach
       break;
 
     case 'html':
-
       if(data.url.match(/\.component\.html$/)) {
         data.url = data.url.substr(0, data.url.length - 15);
         b8r.component('components/component-viewer').then(viewer => {

@@ -62,7 +62,12 @@ Copyright ©2016-2017 Tonio Loewald
   </select> Container Shape
 </label>
 <label class="mondrian-label">
-  <input type="range" min="1" max="2" step="0.05" data-bind="value=_component_.letterbox_threshold">
+  <input type="checkbox" data-bind="checked=_component_.letterbox_enabled">
+  Letterbox Enabled
+</label>
+<label class="mondrian-label" data-bind="show_if=_component_.letterbox_enabled">
+  <input type="range" min="1" max="2" step="0.05" data-bind="value=_component_.letterbox_threshold"
+  >
   (<span data-bind="fixed(2)=_component_.letterbox_threshold"></span>) Letterbox Threshold
 </label>
 <script>
@@ -94,7 +99,7 @@ Copyright ©2016-2017 Tonio Loewald
   const update = () => requestAnimationFrame(() => {
     const signature = b8r.elementSignature(findOne('.mondrian'));
     b8r.logStart('mondrian', signature);
-    mondrian.arrange(visible(), get('desired_aspect_ratio'), get('letterbox_threshold'));
+    mondrian.arrange(visible(), get('desired_aspect_ratio'), get('letterbox_enabled') && get('letterbox_threshold'));
     b8r.logEnd('mondrian', signature);
   });
 
@@ -143,7 +148,15 @@ Copyright ©2016-2017 Tonio Loewald
     }
   }
 
-  register ({hide_random, show_random, update, container_height: '400px', desired_aspect_ratio: 1, letterbox_threshold: 1.25});
+  register ({
+    hide_random,
+    show_random,
+    update,
+    container_height: '400px',
+    desired_aspect_ratio: 1,
+    letterbox_enabled: true,
+    letterbox_threshold: 1.25,
+  });
 
   setTimeout(() => b8r.showLogs('mondrian'), 10000);
 

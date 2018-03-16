@@ -66,7 +66,7 @@ It loads via require() but sets a global rather than passing back to module.expo
           const y = (evt.clientY / window.innerHeight - 0.5) * 2;
           b8r.set('threejs-demo.mouse', {x, y});
         } else {
-          b8r.deregister('threejs-demo');
+          b8r.remove('threejs-demo');
           b8r.offAny('mousemove', 'threejs-demo.mousemove');
         }
         return true;

@@ -2,7 +2,7 @@
 # toTargets
 Copyright ©2016-2017 Tonio Loewald
 
-## Flushing data to the DOM
+## Binding data to the DOM
 
 The following targets (attributes of a DOM element) can be bound to object data:
 
@@ -16,6 +16,35 @@ If attached to an `<input type="radio">` button it tries to "do the right thing"
 If you bind to a **component instance**'s value it will map directly to the component's
 value.
 
+> ### Two-Way Bindings
+>
+> `value` is also a ["from"-binding](#source=source/b8r.fromTargets.js). which means that
+> if the user changes the value of an element (that normally has a value) the change will
+> automatically be picked up by b8r and the bound data updated -- per the example below.
+
+```
+<label>
+  <input data-bind="value=_component_.test">
+  bound to "_component_.test"
+</label><br>
+<label>
+  <input data-bind="value=_component_.test">
+  also bound to "_component_.test"
+</label><br>
+<label>
+  <input type="number" data-bind="value=_component_.number">
+  also bound to "_component_.number"
+</label><br>
+<label>
+  <input type="range" data-bind="value=_component_.number">
+  also bound to "_component_.number"
+</label><br>
+<script>
+  set('test', 'hello, world');
+  set('number', 3);
+</script>
+```
+
 ### text
 
     data-bind="text=message.sender.name"
@@ -27,16 +56,29 @@ right-hand-side of data-bind bindings. E.g.
 
     data-bind="text=${message.sender.lastname}, ${message.sender.firstname}"
 
+```
+<h2 data-bind="text=_component_.message"></h2>
+<script>
+  set('message', 'hello, world');
+</script>
+```
+
 ### format
 
     data-bind="format=**${error.type}** ${error.detail}"
 
-This sets `textContent` of an element with the value supplied by honoring
-a markdown-style bold or italics (e.g. replacing `**bold**` or `_italic_`
-with `<b>bold</b>` and `<i>italic</i>`).
+This populates the element with html that is rendered by converting markdown-style
+bold or italics to tags (e.g. replacing `**bold**` or `_italic_` with `<b>bold</b>`
+and `<i>italic</i>`).
 
-*No other formatting is supported* and if the string contains a `>` character
+*No other formatting is supported* and if the string contains a `<` or `>` character
 no formatting is applied and the `textContent` of the element is set instead.
+```
+<h2 data-bind="format=_component_.message"></h2>
+<script>
+  set('message', '**hello**, world (_are you there_?)');
+</script>
+```
 
 ### checked
 
@@ -44,6 +86,16 @@ no formatting is applied and the `textContent` of the element is set instead.
 
 This is the `checked` property on `<input type="checked">` and `<input
 type="radio">` elements.
+
+```
+<label>
+  <input type="checkbox" data-bind="checked=_component_.checked">
+  <span data-bind="text=_component_.checked"></span>
+</label>
+<script>
+  set('checked', true);
+</script>
+```
 
 ### selected
 
@@ -82,6 +134,13 @@ options if supplied.
 This is the specified attribute. This can also be used to set "special"
 properties like id, class, and style.
 
+### data()
+
+    data-bind="data(imageUrl)=".image.url"
+
+This allows you to set data attributes using camelcase. (The example shown
+would set the `data-image-url` attribute.)
+
 ### style()
 
     data-bind="style(color)=message.textColor"
@@ -93,11 +152,69 @@ backgroundColor).
 
 The optional second parameter lets you specify *units* (such as px, %, etc.).
 
-### class()
+### class(), class_unless(), class_map()
 
     data-bind="class(name)=message.truthyValue"
+    data-bind="class_unless(name)=message.truthyValue"
 
 This lets you toggle a class based on a bound property.
+
+    data-bind="class(true_class|false_class)=.message.booleanValue";
+
+You can also provide the `class()` toTarget with a pair of classes
+separated by a bar and it will assign the first if the value is truthy
+and the second otherwise.
+
+    data-bind="class_aap(happy:happy-class|sad|sad-class|indifferent-class)"
+
+```
+<style>
+  .happy-class:before {
+    content: "😀";
+  }
+  .sad-class:before {
+    content: "😢";
+  }
+  .indifferent-class:before {
+    content: "😑";
+  }
+</style>
+<label>
+  <input type="checkbox" data-bind="checked=_component_.on">
+  Toggle Me!
+</label>
+<ul>
+  <li>
+    icon displayed if checked:
+    <span data-bind="class(icon-umbrella)=_component_.on"></span>
+  </li>
+  <li>
+    icon displayed if NOT checked:
+    <span data-bind="class_unless(icon-wrench)=_component_.on"></span>
+  </li>
+  <li>
+    icon changes depending on checked:
+    <span data-bind="class(icon-umbrella|icon-wrench)=_component_.on"></span>
+  </li>
+</ul>
+<label>
+  <span style="font-size: 32px" data-bind="class_map(
+    happy:happy-class
+    |sad:sad-class
+    |indifferent-class
+  )=_component_.emotion"></span><br>
+  <select data-bind="value=_component_.emotion">
+    <option>happy</option>
+    <option>sad</option>
+    <option>indifferent</option>
+  </select>
+</label>
+<script>
+  set('emotion', 'sad');
+</script>
+```
+
+This lets you pick between two classes.
 
 ### `show_if`, `show_if()`, `hide_if`, `hide_if()`
 
@@ -119,6 +236,32 @@ Calls the specified method, passing it the bound value. The method will receive
 the element, value, and data source as parameters. (This means that methods
 registered as event handlers will need to deal with being passed a naked element
 instead of an event)
+
+```
+<input type="range" data-bind="value=_component_.num">
+<span data-bind="method(_component_.order)=_component_.num"></span>
+<script>
+  const is_prime = x => {
+    const max = Math.sqrt(x);
+    for(let i = 2; i < max; i++) {
+      if (x % i === 0) { return false; }
+    }
+    return true;
+  }
+  set('order', (elt, val) => {
+    const info = [];
+    info.push(val % 2 ? 'odd' : 'even');
+    if (Math.floor(Math.sqrt(val)) === Math.sqrt(val)) {
+      info.push('perfect square');
+    }
+    if (is_prime(val)) {
+      info.push('prime');
+    }
+    elt.textContent = val + ' is ' + info.join(', ');
+  });
+  set('num', 1);
+</script>
+```
 
 #### Passing multiple values to a bound method
 
@@ -182,7 +325,7 @@ module.exports = function(b8r) {
     '_null_': null,
   };
 
-  function equals(value_to_match, value) {
+  const equals = (value_to_match, value) => {
     if (typeof value === 'string') {
       value = value.replace(/\&nbsp;/g, '').trim();
     }
@@ -193,7 +336,17 @@ module.exports = function(b8r) {
     } else {
       return !!value;
     }
-  }
+  };
+
+  const parse_options = source => {
+    if (!source) {
+      throw 'expected options';
+    }
+    return source.split('|').map(s => s.trim()).filter(s => !!s).map(s => {
+      s = s.split(':').map(s => s.trim());
+      return s.length === 1 ? {value: s[0]} : {match: s[0], value: s[1]};
+    });
+  };
 
   return {
     value: function(element, value) {
@@ -236,7 +389,7 @@ module.exports = function(b8r) {
         throw 'format only accepts strings or falsy values';
       }
       let template = false;
-      if (content.match(/[*_]/) && !content.match('>')) {
+      if (content.match(/[*_]/) && !content.match(/<|>/)) {
         template = true;
         content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
                                    .replace(/[*_](.*?)[*_]/g, '<i>$1</i>');
@@ -272,6 +425,9 @@ module.exports = function(b8r) {
         element.setAttribute(dest, value);
       }
     },
+    data: function(element, value, dest) {
+      element.dataset[dest] = value;
+    },
     img,
     bgImg: (element, value) => {
       if (value) {
@@ -292,15 +448,36 @@ module.exports = function(b8r) {
       }
     },
     class: function(element, value, class_to_toggle) {
-      if (class_to_toggle) {
-        if (value) {
-          element.classList.add(class_to_toggle);
-        } else {
-          element.classList.remove(class_to_toggle);
-        }
-      } else {
-        element.setAttribute('class', value);
+      if (!class_to_toggle) {
+        throw 'class toTarget requires a class to be specified';
       }
+      const options = parse_options(class_to_toggle);
+      element.classList.toggle(options[0].value, !!value);
+      if (options.length > 1) {
+        element.classList.toggle(options[1].value, !value);
+      }
+    },
+    class_unless: function(element, value, class_to_toggle) {
+      if (!class_to_toggle) {
+        throw 'class_unless toTarget requires a class to be specified';
+      }
+      if (! value) {
+        element.classList.add(class_to_toggle);
+      } else {
+        element.classList.remove(class_to_toggle);
+      }
+    },
+    class_map: function(element, value, map) {
+      const class_options = parse_options(map);
+      let done = false;
+      class_options.forEach(item => {
+        if (done || (item.match && !equals(item.match, value))) {
+          element.classList.remove(item.value);
+        } else {
+          element.classList.add(item.value);
+          done = true;
+        }
+      });
     },
     contenteditable: function(element, value, dest) {
       if (equals(dest, value)) {
@@ -336,7 +513,7 @@ module.exports = function(b8r) {
       equals(dest, value) ? b8r.hide(element) : b8r.show(element);
     },
     method: function(element, value, dest) {
-      var [model, ...method] = dest.split('.');
+      let [model, ...method] = dest.split('.');
       method = method.join('.');
       if (model === '_component_') {
         model = get_component_with_method(element, method);
@@ -354,7 +531,7 @@ module.exports = function(b8r) {
         const date = new Date(zulu);
         element.textContent = date.toLocaleString();
       } else {
-        require.lazy('../lib/date.format.js').then(() => {
+        require.lazy('../third-party/date.format.js').then(() => {
           const date = new Date(zulu);
           element.textContent = date.format(format);
         });
@@ -373,17 +550,11 @@ module.exports = function(b8r) {
       const component_id = b8r.getComponentId(element);
       b8r.setByPath(component_id, dest, value);
     },
-    component_map: function(element, value, dest) {
-      var component_options = dest.split('|');
-      var component_name;
-      for (var i = 0; i < component_options.length; i++) {
-        var parts = component_options[i].split(':').map(s => s.trim());
-        if (parts.length === 1 || parts[0] == value) {
-          component_name = parts.pop();
-          break;
-        }
-      }
-      if (component_name) {
+    component_map: function(element, value, map) {
+      const component_options = parse_options(map);
+      const option = component_options.find(item => !item.match || item.match == value);
+      if (option) {
+        const component_name = option.value;
         const existing = element.dataset.componentId || '';
         if (existing.indexOf(`c#${component_name}#`) === -1) {
           b8r.removeComponent(element);

@@ -1,0 +1,20 @@
+<!--
+# resizer
+
+Makes the thing you stick it into resizable.
+-->
+<style>
+  .resizer-component {
+    position: absolute;
+    cursor: nwse-resize;
+    bottom: 0;
+    right: 0;
+    padding: 2px;
+  }
+</style>
+<script>
+  require('../lib/resizer.js');
+
+  component.classList.add('icon-dots');
+  on('mousedown', 'resizer.mousedown');
+</script>

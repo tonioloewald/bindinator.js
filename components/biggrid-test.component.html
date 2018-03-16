@@ -1,0 +1,84 @@
+<!--
+# biggrid test
+-->
+<style>
+  .biggrid-test-component {
+    height: 600px;
+    position: relative;
+  }
+
+  .biggrid-test-scroller {
+    overflow-y: scroll;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(0,0,0,0.25);
+  }
+
+  .biggrid-test-item {
+    width: 120px;
+    height: 80px;
+    margin: 8px;
+    display: inline-block;
+    font-size: 32px;
+    line-height: 80px;
+    text-align: center;
+    animation: biggrid-test-fadein 1s ease-out;
+  }
+
+  @keyframes biggrid-test-fadein {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .biggrid-test-info {
+    position: absolute;
+    background: #444;
+    color: white;
+    padding: 2px 4px;
+    bottom: 0;
+    left: 0;
+  }
+</style>
+<div class="biggrid-test-scroller resizer-target">
+  <div
+    class="biggrid-test-item"
+    data-list="biggrid.slice(biggrid-test.list):id"
+    data-bind="
+      style(backgroundColor)=.color;
+      text=.id;
+    "
+  ></div>
+</div>
+<span data-component="resizer"></span>
+<div
+  class="biggrid-test-info"
+  data-bind="text=total items: ${biggrid-test.list.length}, items in DOM: ${biggrid-test.dom.items}"
+></div>
+<script>
+  /* global b8r, component, find */
+  'use strict';
+
+  require('../lib/biggrid.js');
+  b8r.component('components/resizer');
+
+  const colors = require('../lib/color.js').cssColorNames();
+  const {domInterval} = require('../lib/dom-timers.js');
+  const list = [];
+
+  for (let i = 0; i < 10000; i++) {
+    list.push({
+      id: i,
+      color: colors[Math.floor(Math.random() * colors.length)],
+    });
+  }
+
+  domInterval(component, () => {
+    b8r.set('biggrid-test.dom.items', find('[data-list-instance]').length);
+  }, 1000);
+
+  b8r.register('biggrid-test', {list, dom: {items: 0}});
+</script>

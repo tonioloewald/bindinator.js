@@ -1,0 +1,90 @@
+<!--
+# three.js particle system
+-->
+<style>
+  .particles-component > .spawn-area {
+    width: 100%;
+    height: 400px;
+    background: #ddd;
+    padding: 20px;
+    text-align: center;
+  }
+
+  canvas.particle-controller {
+    z-index: 3;
+  }
+</style>
+<div class="spawn-area" data-event="click:_component_.spawn">
+</div>
+<div>
+  <h3>Click on the rectangle to spawn a particle effect</h3>
+  <label>How many? <input data-bind="value=_component_.particle_count" type="range" min="1" max="50" value="25"></label>
+  <label>Size? <input data-bind="value=_component_.particle_size" type="range" min="1" max="256" value="48"></label>
+  <div
+    data-component="tab-selector"
+    data-bind="component(active_tab)=_component_.mode"
+  >
+    <div name="random emoji">
+      <label>One of these 😀 💜 👍 💩 🍆</label>
+    </div>
+    <div name="characters">
+      <label>Character(s) to spawn <input data-bind="value=_component_.chars"></label>
+    </div>
+    <div name="canvas">
+      <canvas width="64" height="64"></canvas>
+    </div>
+  </div>
+</div>
+<script>
+/* global b8r, require, get, set, findOne */
+'use strict';
+
+  const color = require('../lib/color.js');
+
+  b8r.component('./components/tab-selector');
+  const particle_controller = require('../lib/particle-controller.js');
+
+  const canvas = findOne('canvas');
+  const g = canvas.getContext('2d');
+
+  setInterval(() => {
+    g.clearRect(0,0,64,64);
+    for(let i = 0; i < 10; i++) {
+      const x = Math.random() * 32 + 16;
+      const y = Math.random() * 32 + 16;
+      const w = Math.random() * 16;
+      const h = Math.random() * 16;
+      g.fillStyle = color.randomCssColor();
+      if (Math.random() < 0.5) {
+        g.fillRect(x - w, y - h, w * 2, h * 2);
+      } else {
+        g.beginPath()
+        g.ellipse(x, y, w, h, 0, 0, Math.PI * 2)
+        g.closePath();
+        g.fill();
+      }
+    }
+  }, 250);
+
+
+  set({
+    particle_count: 25,
+    particle_size: 48,
+    mode: 0,
+    chars: '@#$!',
+    spawn: click => {
+      switch(get('mode')) {
+        case 0:
+          const emoji = ['😀', '💜', '👍', '💩', '🍆'][Math.floor(Math.random() * 5)];
+          particle_controller.spawnAt(click.clientX, click.clientY, emoji, get('particle_count'), get('particle_size'));
+          break;
+        case 1:
+          particle_controller.spawnAt(click.clientX, click.clientY, get('chars').split(''), get('particle_count'), get('particle_size'));
+          break;
+        case 2:
+          particle_controller.spawnAt(click.clientX, click.clientY, [canvas], get('particle_count'), get('particle_size'));
+          break;
+      }
+    },
+  });
+</script>

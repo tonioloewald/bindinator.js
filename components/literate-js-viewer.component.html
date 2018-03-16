@@ -20,7 +20,8 @@
 </div>
 <div
   data-list="_component_.parts"
-  data-bind="component_map(js:js-viewer|markdown:markdown-viewer|component:fiddle|test:test)=.type">
+  data-bind="component_map(js:js-viewer|markdown:markdown-viewer|component:fiddle|test:test)=.type"
+>
   <div data-component="loading"></div>
 </div>
 <script>
@@ -52,7 +53,7 @@
         if (source.replace(/\s/g, '')) {
           parts.push({type, source: source.replace(/^\n+|\n+$/g, '')});
         }
-      }
+      };
       const addDocs = content => parts.push({type: 'markdown', content});
       var factory = false, module = {};
       if(data.url.indexOf('b8r') === -1) {
