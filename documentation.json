@@ -142,6 +142,10 @@
         "path": "lib/tooltips.js"
       },
       {
+        "name": "Particles",
+        "path": "components/particles"
+      },
+      {
         "name": "Mondrian",
         "path": "components/mondrian"
       }
@@ -166,10 +170,6 @@
       {
         "name": "Tab Selector",
         "path": "components/tab-selector"
-      },
-      {
-        "name": "Particles",
-        "path": "components/particles"
       },
       {
         "name": "Keyboard Event Utility",
