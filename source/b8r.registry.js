@@ -80,7 +80,7 @@ Test(() => b8r.isValidPath('foo()'), 'NO method calls').shouldBe(false);
 Test(() => b8r.isValidPath('foo(path.to.value,another.path)'), 'NO method calls').shouldBe(false);
 Test(() => b8r.isValidPath('/'), 'root path').shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[1234]'), 'array index').shouldBe(true);
-Test(() => b8r.isValidPath('airtime-rooms[=abcd]'), 'NO empty id-path').shouldBe(false);
+Test(() => b8r.isValidPath('airtime-rooms[=abcd]'), 'object key paths').shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[/=abcd]'), 'array lookup by element value').shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[id=1234]'), 'simple id-path').shouldBe(true);
 Test(() => b8r.isValidPath('airtime-rooms[url=https://foo.bar/baz?x=y]'), 'id-path with nasty value').shouldBe(true);
@@ -140,7 +140,7 @@ const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
 const listeners = [];  // { path_string_or_test, callback }
 const debug_paths = true;
-const valid_path = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]+\=[^[\]()]+\])*$/;
+const valid_path = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*\=[^[\]()]+\])*$/;
 
 const isValidPath = path => valid_path.test(path);
 let call, get; // defined later
