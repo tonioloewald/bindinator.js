@@ -355,6 +355,10 @@
       {
         "name": "asteroids (svg)",
         "path": "components/asteroids"
+      },
+      {
+        "name": "Clock",
+        "path": "components/clock"
       }
     ]
   }

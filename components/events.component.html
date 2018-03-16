@@ -1,0 +1,15 @@
+<button data-event="click:example4.click">Click Me!</button>
+<p 
+  data-bind="
+    text=I have been clicked ${example4.clicks} time(s);
+    show_if=example4.clicks
+  "
+></p>
+<script>
+  b8r.register('example4', {
+    click () {
+      b8r.set('example4.clicks', b8r.get('example4.clicks') + 1);
+    },
+    clicks: 0
+  });
+</script>

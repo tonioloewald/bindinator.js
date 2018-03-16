@@ -1,0 +1,27 @@
+<!--
+# Clock
+
+Inspired by the React "stateful component" example. **Note** that the DOM is only 
+updated when the time actually changes (even though the timer fires 10x per second).
+
+Also note that the timer is removed when if component is destroyed.
+-->
+<style>
+  .clock {
+    display: inline-block;
+    font-size: 30px;
+    font-family: Monaco, Menlo, monospace;
+    color: #2f8;
+    background: black;
+    padding: 5px 20px;
+    border-radius: 5px;
+  }
+</style>
+<div class="clock" data-bind="text=_component_.time"></div>
+<script>
+  /* global require, set, findOne */
+  'use strict';
+  const clock = findOne('.clock');
+  const {domInterval} = require('lib/dom-timers.js');
+  domInterval(clock, () => set('time', new Date().toLocaleTimeString()), 100);
+</script>

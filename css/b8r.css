@@ -138,7 +138,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   top: 0;
   right: 0;
   left: 0;
-  z-index: 2;
+  z-index: 5;
 }
 
 .fullscreen .header {
@@ -162,6 +162,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   bottom: 0;
   height: 32px;
   padding: 8px;
+  z-index: 5;
   background-color: var(--bright-accent-color);
 }
 
