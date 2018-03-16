@@ -426,7 +426,7 @@ function bindList(list_template, data_path) {
   if (!list_template.parentElement || list_template.parentElement.closest('[data-component]')) {
     return;
   }
-  const [source_path, id_path] = list_template.dataset.list.split(':');
+  const [source_path, id_path] = list_template.dataset.list.split(':').concat('_auto_');
   let method_path, list_path, arg_paths;
   try {
     // parse computed list method if any
