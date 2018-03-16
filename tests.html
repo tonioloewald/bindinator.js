@@ -133,9 +133,9 @@
       ],
       id_list: [{id: 'A', label: 'A'}, {id: 'B', label: 'B'}, {id: 'C', label: 'C'}, {id: 'A', label: 'bogus A'}],
       obj_list: {
-      	a: {label: 'object a'},
-      	b: {label: 'object b'},
-      	c: {label: 'object c'},
+      	a: {label: 'object.a'},
+      	b: {label: 'object.b'},
+      	c: {label: 'object.c'},
       },
       option: '3',
       checkbox: true,
@@ -182,7 +182,7 @@
     Test(() => b8r.id('b').style.color).shouldBe('green');
 
     // note that this test is now pretty fragile because _auto_ will be incremented by any list-binding lacking an id-path
-    Test(() => b8r.findOne('[data-list-instance="test1.list[_auto_=1]"] span').textContent).shouldBe('10');
+    Test(() => b8r.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
 
     // binding (from)
     b8r.findOne('input').value = 55;
