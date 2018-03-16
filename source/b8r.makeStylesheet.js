@@ -3,6 +3,7 @@
 
 Usage:
 
+    const makeStyleSheet = ('path/to/makeStylesheet.js');
     makeStylesheet('h1 { font-size: 100px; }', 'my style sheet');
 
 Inserts the source in a `<style>` tag and sticks in in the document head. It will have the
