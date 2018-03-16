@@ -8,7 +8,7 @@ Items can be marked done or deleted and have their priorities set. Items automat
 priority, with completed items having low priority.
 -->
 <h3>To Do List</h3>
-<div data-list="app.todolist">
+<div data-list="app.todolist:id">
   <input title="done" type="checkbox" data-bind="checked=.done" data-event="change:app.prioritySort">
   <input data-bind="value=.text">
   <select data-bind="value=.priority" data-event="change:app.prioritySort">
@@ -37,32 +37,27 @@ priority, with completed items having low priority.
   placeholder="Write a reminder…"
 >
 <script>
-  function comparePriority(a, b) {
-    return (a.done ? a.priority + 3 : a.priority) - 
-           (b.done ? b.priority + 3 : b.priority);
-  }
-
-  function prioritySort (evt) {
-    setTimeout(() => {
-      b8r.getByPath('app', 'todolist').sort(comparePriority);
-      b8r.touchByPath('app', 'todolist');
-    })
-  }
-
-  function addItem(){
-    const item = Object.assign(
-      {done: false},
-      b8r.getByPath('app', 'composer')
-    );
-    b8r.pushByPath('app', 'todolist', item, list => list.sort(comparePriority));
-    b8r.setByPath('app', 'composer.text', '');
-  }
+  /* global b8r */
+  'use strict';
+  const comparePriority = (a, b) => (a.done ? a.priority + 3 : a.priority) - (b.done ? b.priority + 3 : b.priority);
+  let id = 0;
 
   b8r.register('app', {
     todolist: [],
     composer: {text: '', priority: 2},
-    addItem,
-    prioritySort,
+    addItem () {
+      id++;
+      const item = Object.assign(
+        {done: false, id},
+        b8r.get('app.composer')
+      );
+      b8r.push('app.todolist', item, list => list.sort(comparePriority));
+      b8r.set('app.composer.text', '');
+    },
+    prioritySort () {
+      b8r.get('app.todolist').sort(comparePriority);
+      b8r.touch('app.todolist');
+    },
     remove: evt => b8r.removeListInstance(evt.target)
   });
 </script>
