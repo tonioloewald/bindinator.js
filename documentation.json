@@ -136,6 +136,10 @@
       {
         "name": "Color Utilities",
         "path": "lib/color.js"
+      },
+      {
+        "name": "Mondrian",
+        "path": "components/mondrian"
       }
     ]
   },
@@ -186,10 +190,6 @@
       {
         "name": "iframe",
         "path": "components/iframe"
-      },
-      {
-        "name": "Mondrian",
-        "path": "components/mondrian"
       },
       {
         "name": "Fiddle",
