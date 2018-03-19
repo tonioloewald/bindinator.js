@@ -39,7 +39,7 @@ Copyright ©2016-2017 Tonio Loewald
 <button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
 <button class="show" data-event="click:_component_.show_random">Show Random</button>
 <label class="mondrian-label">
-  <input class="random_changes" type="checkbox" checked>Randomly add and remove items
+  <input class="random_changes" type="checkbox" checked>Randomly add/remove/focus items
 </label>
 <label class="mondrian-label">
   <select
@@ -126,12 +126,15 @@ Copyright ©2016-2017 Tonio Loewald
       } else if (visible().length === 0) {
         show_random();
       } else {
-        switch (Math.floor(Math.random() * 3)) {
+        switch (Math.floor(Math.random() * 4)) {
           case 0:
             hide_random();
             break;
           case 1:
             show_random();
+            break;
+          case 3:
+            pick_random().click();
             break;
         }
       }
