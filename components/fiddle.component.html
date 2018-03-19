@@ -96,12 +96,12 @@ of awesome that this works at all.
   if(data.source) {
     code_elt.textContent = data.source;
     init_editor();
-    // setTimeout(run);
+    setTimeout(run);
   } else {
     b8r.component('fiddle-' + uuid(), component.dataset.path || 'components/hello', true).then(c => {
       code_elt.textContent = c._source.replace(/\t/g, '  ');
       init_editor();
-      // b8r.insertComponent(c, container);
+      run();
     });
   }
 
@@ -112,11 +112,17 @@ of awesome that this works at all.
     document.execCommand('insertText', false, '  ');
   }
 
+  let last_code = '';
   function run() {
-    console.log('run', data.component_id)
-    b8r.empty(container);
     const source = editor ? editor.getValue() : code_elt.textContent;
-    if (source.match(/<\/\w+>/)) {
+
+    if (last_code === source.trim()) {
+      return;
+    }
+    console.log(data.component_id, 'run');
+    b8r.empty(container);
+    last_code = source;
+    if (source.match(/<\/\w+>|<\w+[^>]*>/)) {
       b8r.insertComponent(
         b8r.makeComponent('fiddle-' + uuid(), source, b8r._path ? `${b8r._path}/` : ''),
         container
