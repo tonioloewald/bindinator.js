@@ -6,12 +6,19 @@ This is a horizontal sizer component. Place it between two elements in a flex (r
 and it lets the user dynamically resize them.
 -->
 <style>
+  .sizer-component {
+    width: 8px;
+    min-width: 8px !important;
+    overflow: hidden;
+    flex-grow: 0 !important;
+  }
   .ew-sizer {
     width: 8px;
     cursor: ew-resize;
     margin: 0 0 -10000px;
     padding: 0 0 10000px;
   }
+
   .ew-sizer:hover {
     background-color: rgba(0,0,0,0.15);
   }
@@ -24,7 +31,6 @@ and it lets the user dynamically resize them.
 <script>
 /* global component, findOne, b8r */
 'use strict';
-  component.style.overflow = 'hidden';
   var ew_sizer = findOne('.ew-sizer');
   var next_elt;
   var prev_elt;
