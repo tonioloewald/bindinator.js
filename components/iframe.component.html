@@ -2,15 +2,16 @@
 # iframe
 Copyright ©2016-2017 Tonio Loewald
 
-A simple iframe component. By default it loads the test page.
+A simple iframe component. By default it loads `tests.html` (`b8r`'s
+unit tests).
+
+It can be passed a url as the component's `data-src` attribute, or
+as `src` property in the data passed when inserting it.
 -->
-<iframe style="width: 100%; min-height: 800px; border: 0;" src="tests.html"></iframe>
+<iframe style="width: 100%; min-height: 800px; border: 0;"></iframe>
 <script>
 /* global data, findOne */
 'use strict';
-
-  if (data.src) {
-    console.log(data);
-    findOne('iframe').setAttribute('src', data.src);
-  }
+  const url = data.src || component.dataset.src || 'tests.html';
+  findOne('iframe').setAttribute('src', url);
 </script>
