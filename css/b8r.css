@@ -130,15 +130,19 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   padding: 16px;
 }
 
-.header {
+.header,
+.footer {
   position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.header {
   display: flex;
   justify-content: center;
   background-color: var(--accent-color);
   top: 0;
-  right: 0;
-  left: 0;
-  z-index: 5;
 }
 
 .fullscreen .header {
@@ -156,13 +160,9 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
 }
 
 .footer {
-  position: fixed;
-  left: 0;
-  right: 0;
   bottom: 0;
   height: 32px;
   padding: 8px;
-  z-index: 5;
   background-color: var(--bright-accent-color);
 }
 
@@ -370,6 +370,23 @@ button.cancel, button[type="cancel"] {
 .iconic:active {
   border: 0;
   background: white;
+}
+
+.hidden-checkbox {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+
+.show-after-checked,
+:checked+.show-after-unchecked,
+:checked+.show-after-checked+.show-after-unchecked {
+  display: none;
+}
+
+:checked+.show-after-checked,
+.show-after-unchecked {
+  display: inline-block;
 }
 
 button:hover, .button:hover,
