@@ -410,15 +410,17 @@ const replaceInBindings = (element, needle, replacement) => {
 };
 
 const resolveListInstanceBindings = (instance_elt, instance_path) => {
-  const elements = findWithin(instance_elt, '[data-bind]', true).
-                   filter(elt => !elt.closest('[data-list]'));
-  elements.forEach(elt => {
-    if (/(,|=|\()\./.test(elt.dataset.bind)) {
-      elt.dataset.bind = elt.dataset.bind.
-                         replace(/(,|=|\()\./g, '$1' + path_prefix);
+  findWithin(instance_elt, '[data-bind]', true).
+  filter(elt => !elt.closest('[data-list]')).
+  forEach(elt => {
+    const binding_source = elt.dataset.bind;
+    if (binding_source.indexOf('=.') > -1) {
+      elt.dataset.bind = binding_source.
+                         replace(/\=\.([^;\s]+)/g, `=${instance_path}.$1`).
+                         replace(/\=\./g, `=${instance_path}`);
     }
-    if (elt.dataset.bind.indexOf('${.') > -1) {
-      elt.dataset.bind = elt.dataset.bind.
+    if (binding_source.indexOf('${.') > -1) {
+      elt.dataset.bind = binding_source.
                          replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
     }
   });

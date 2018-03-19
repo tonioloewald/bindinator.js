@@ -62,7 +62,7 @@
         <input data-bind="value=test1.list[0].y"> Test list-bound values
       </label>
       <ul>
-        <li data-list="test1.list">
+        <li data-list="test1.list:_auto_">
           <span style="display: inline" data-bind="text=.x">x</span>, <input style="display: inline" data-bind="value=.y">
         </li>
       </ul>
@@ -181,8 +181,7 @@
     b8r.force_update();
     Test(() => b8r.id('b').style.color).shouldBe('green');
 
-    // note that this test is now pretty fragile because _auto_ will be incremented by any list-binding lacking an id-path
-    Test(() => b8r.findOne('[data-list-instance="test1.list[0]"] span').textContent).shouldBe('10');
+    Test(() => b8r.findOne('[data-list-instance="test1.list[_auto_=2]"] span').textContent).shouldBe('12');
 
     // binding (from)
     b8r.findOne('input').value = 55;
