@@ -135,7 +135,7 @@ lists).
 'use strict';
 
 const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
-const {getDataPath, getComponentInstancePath, splitPaths} = require('./b8r.bindings.js');
+const {getDataPath, getComponentId, splitPaths} = require('./b8r.bindings.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
 const listeners = [];  // { path_string_or_test, callback }
@@ -185,11 +185,11 @@ const resolvePath = (path, element) => {
       throw 'cannot evaluate _data_ path without element';
     }
     path = getDataPath(element) + path.substr(6);
-  } else if (path.substr() === '_component_') {
+  } else if (path.substr(0, 11) === '_component_') {
     if (!element) {
       throw 'cannot evaluate _component_ path without element';
     }
-    path = getComponentInstancePath(element) + path;
+    path = getComponentId(element) + path.substr(11);
   }
   return path;
 };

@@ -279,6 +279,7 @@ To quickly obtain bound data a list instance from an element inside it:
 const {findWithin} = require('./b8r.dom.js');
 
 const addDataBinding = (element, toTarget, path) => {
+  path = path.replace(/_component_/g, getComponentId(element));
   const binding = `${toTarget}=${path}`;
   const existing = (element.dataset.bind || '')
                       .split(';').map(s => s.trim()).filter(s => !!s);
@@ -388,7 +389,7 @@ const getListInstancePath = element => {
   return component ? component.dataset.listInstance : null;
 };
 
-const getComponentDataPath = (element, type) => {
+const getComponentId = (element, type) => {
   if (type) {
     element = element.closest(`.${type}-component`);
   }
@@ -431,7 +432,7 @@ module.exports = {
   removeDataBinding,
   getDataPath,
   getListInstancePath,
-  getComponentDataPath,
+  getComponentId,
   parseBinding,
   findLists,
   findBindables,

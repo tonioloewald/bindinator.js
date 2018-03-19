@@ -56,14 +56,14 @@ const {
   removeDataBinding,
   getDataPath,
   getListInstancePath,
-  getComponentDataPath,
+  getComponentId,
   findLists,
   findBindables,
   getBindings,
   replaceInBindings,
   splitPaths,
 } = require('./b8r.bindings.js');
-Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getListInstancePath});
+Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getComponentId, getListInstancePath});
 const { saveDataForElement, dataForElement } =
   require('./b8r.dataForElement.js');
 const {onAny, offAny, anyListeners} =
@@ -264,15 +264,13 @@ b8r.listItems = element =>
 b8r.listIndex = element =>
   b8r.listItems(element.parentElement).indexOf(element);
 
-b8r.getComponentId = getComponentDataPath;
-
 b8r.getComponentData = (elt, type) => {
-  const id = getComponentDataPath(elt, type);
+  const id = getComponentId(elt, type);
   return id ? b8r.get(id) : null;
 };
 
 b8r.setComponentData = (elt, path, value) => {
-  const id = getComponentDataPath(elt);
+  const id = getComponentId(elt);
   b8r.setByPath(id, path, value);
 };
 
