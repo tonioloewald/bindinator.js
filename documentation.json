@@ -192,10 +192,6 @@
         "path": "components/carousel"
       },
       {
-        "name": "iframe",
-        "path": "components/iframe"
-      },
-      {
         "name": "Fiddle",
         "path": "components/fiddle"
       },
@@ -298,6 +294,10 @@
     "title": "tests",
     "sort": true,
     "parts": [
+      {
+        "name": "Unit Tests",
+        "path": "components/iframe"
+      },
       {
         "name": "Low Level Unit Tests",
         "path": "tests.html"
