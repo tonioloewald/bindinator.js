@@ -15,13 +15,12 @@ of awesome that this works at all.
 <style>
   .fiddle-component {
     position: relative;
-    min-height: 200px;
     display: flex;
     flex-direction: column;
   }
 
   .fiddle-component .resizer-component {
-    z-index: 4;
+    z-index: 9;
   }
 
   .fiddle-header {
@@ -65,11 +64,44 @@ of awesome that this works at all.
     background: rgba(255,255,255,0.75);
     margin: 1px;
   }
+
+  .fiddle-component.minimized .fiddle-bodies,
+  .fiddle-component.minimized .resizer-component {
+    display: none;
+  }
+
+  .fiddle-header [data-selected] {
+    position: relative;
+  }
+
+  .fiddle-header [data-selected]:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 0;
+    height: 0;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom: 6px solid white;
+  }
 </style>
 <div class="fiddle-header">
+  <label title="toggle visibility">
+    <input
+      type="checkbox"
+      class="hidden-checkbox"
+      data-bind="checked=_component_.minimized"
+    >
+    <span class="show-after-checked icon-eye-blocked2"></span>
+    <span class="show-after-unchecked icon-eye2"></span>
+    &nbsp;
+  </label>
   <div
     data-component="selector"
     data-bind="value=_component_.mode"
+    data-event="change:_component_.reveal"
   >
     <span data-value="all">Show All</span>
     <span data-value="example">Example</span>
@@ -83,7 +115,7 @@ of awesome that this works at all.
     name="Example"
     data-bind="hide_if(source)=_component_.mode"
     data-event="show:_component_.run"
-    style="width: 70%"
+    style="width: 60%; padding: 10px;"
   ></div>
   <div
     data-bind="show_if(all)=_component_.mode"
@@ -93,7 +125,7 @@ of awesome that this works at all.
     name="Source"
     data-bind="hide_if(example)=_component_.mode"
     class="code"
-    style="width: 30%"
+    style="width: 40%"
     data-event="keydown(Tab):_component_.indent"
   ></div>
 </div>
@@ -111,6 +143,8 @@ of awesome that this works at all.
   b8r.component('./components/resizer');
   b8r.component('components/selector');
   component.classList.add('resizer-target');
+
+  b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
 
   // ACE editor — bleargh
   const init_editor = () => {
@@ -186,6 +220,7 @@ of awesome that this works at all.
     run,
     fullscreen,
     indent,
+    reveal: () => set('minimized', false),
     mode: component.dataset.mode || data.mode || 'all',
     title: 'inline',
   });
