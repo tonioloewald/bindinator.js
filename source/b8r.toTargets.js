@@ -117,6 +117,13 @@ Sets the `textContent` of element to the file size in appropriate units,
 rounded to one decimal place. E.g. `600` => "600 B", `4096` => "4.0 kB". Calculations
 are in binary "k" (so 1 kB === 1024 B, and so on). Annotation stops at `EB` (exabytes).
 
+```
+<input data-bind="value=_component_.number"> is <span data-bind="bytes=_component_.number"></span>
+<script>
+  set('number', 50000);
+</script>
+```
+
 ### timestamp
 
     data-bind="timestamp=path.to.zulu"
@@ -126,6 +133,13 @@ Sets the `textContent` of the element to a human readable timestamp, using
 `new Date(...).localString()` by default, but supporting
 [data.format](http://blog.stevenlevithan.com/archives/date-time-format)
 options if supplied.
+
+```
+<span data-bind="timestamp(longDate)=_component_.timestamp"></span>
+<script>
+  set('timestamp', Date.now());
+</script>
+```
 
 ### attr()
 
@@ -165,7 +179,7 @@ You can also provide the `class()` toTarget with a pair of classes
 separated by a bar and it will assign the first if the value is truthy
 and the second otherwise.
 
-    data-bind="class_aap(happy:happy-class|sad|sad-class|indifferent-class)"
+    data-bind="class_map(happy:happy-class|sad|sad-class|indifferent-class)"
 
 ```
 <style>
