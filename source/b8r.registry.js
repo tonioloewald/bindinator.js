@@ -418,7 +418,7 @@ is actually pretty slick.
   <div style="flex: 1 0 20%">
     <div data-list="computed-properties.people:id">
       <input type="checkbox" data-bind="checked=.online">
-      <span data-bind="text=[${.id}] ${.name}">
+      <span data-bind="text=[${.id}] ${.name}"></span>
     </div>
   </div>
   <div style="margin-left: 10px">
@@ -678,7 +678,7 @@ Sorts the array at path using the provided sorting function.
 
 ```
 <table>
-  </thead>
+  <thead>
     <tr data-event="click:_component_.sort">
       <th>Name</th><th>Age</th>
     </tr>
