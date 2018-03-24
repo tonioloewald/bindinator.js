@@ -17,7 +17,7 @@ cd "$here" || exit 1
 
 if [ ! -f localhost-ssl/private.pem ]
 then
-  echo "create ssh certificates first -- e.g. via server-certs.command"
+  error "create ssh certificates first -- e.g. via server-certs.command"
   exit 1
 fi
 

@@ -19,13 +19,13 @@ cd "$here" || exit 1
 
 if [ ! -d localhost-ssl ]
 then
-  echo "creating directory localhost-ssl"
+  error "creating directory localhost-ssl"
   mkdir localhost-ssl
 fi
 
 if [ -f localhost-ssl/private.pem ]
 then
-  echo "private.pem already exists; delete first if you want to regenerate keys"
+  error "private.pem already exists; delete first if you want to regenerate keys"
   exit 1
 fi
 
