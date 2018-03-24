@@ -377,7 +377,6 @@ button.cancel, button[type="cancel"] {
 .hidden-checkbox {
   position: absolute;
   left: -9999px;
-  top: -9999px;
 }
 
 .show-after-checked,
