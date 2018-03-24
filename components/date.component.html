@@ -1,0 +1,175 @@
+<!--
+# Date
+
+This is a calendar-style date display / picker.
+
+To disable it (make it read-only) give it a `data-disabled` attribute.
+
+**Note** that right now the date component assumes its value will be an 
+**ISO string** or a `Date` object or UNIX timestamp (milliseconds since epoch) 
+and not a `yyyy-mm-dd` formatted string  the way standard inputs work because 
+date strings with no timezone are *incredibly stupid* and no-one should use
+them for anything.
+-->
+<style>
+  .date-component {
+    position: relative;
+    width: 200px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .date-component[data-disabled] {
+    pointer-events: none;
+  }
+
+  .date-component-month {
+    text-align: center;
+    color: white;
+    background: var(--accent-color);
+    padding: 4px;
+  }
+
+  .date-component-day-of-week {
+    color: var(--accent-color);
+    background: var(--light-accent-color); 
+  }
+
+  .date-component-body {
+    display: flex;
+  }
+
+  .date-component-body > button {
+    padding: 2px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .date-component-days {
+    flex-grow: 1;
+    position: relative;
+    width: 100%;
+  }
+
+  .date-component-days > * {
+    display: inline-block;
+    width: 14.28%;
+    text-align: center;
+    padding: 2px;
+    cursor: default;
+    color: #aaa;
+  }
+
+  .date-component-current {
+    color: white;
+    background: var(--accent-color);
+  }
+
+  .date-component-current-month {
+    color: black;
+  }
+</style>
+<div
+  class="date-component-month"
+  data-bind="timestamp(mmmm yyyy)=_component_.value"
+></div>
+<div
+  class="date-component-days"
+  data-event="keydown(Space),mousedown,touchstart:_component_.select;"
+>
+  <div
+    class="date-component-day-of-week"
+    data-list="_component_.weekdays:_auto_"
+    data-bind="text=.initial;attr(title)=.name"
+  >
+  </div>
+  <div 
+    data-list="_component_.days:_auto_"
+    data-bind="text=.day;attr(title)=.date;class(date-component-current)=.current;class(date-component-current-month)=.current_month"
+    tabindex="0"
+  ></div>
+</div>
+<script>
+  'use strict';
+  /* global b8r, get, set, data, component, findOne, touch */
+  const DAY_IN_MS = 24 * 3600 * 1000;
+  if (! data.value) {
+    data.value = (component.dataset.date
+                 ? new Date(component.dataset.date).valueOf()
+                 : Date.now());
+  }
+
+  const update = date => {
+    const currentMonth = date.getMonth();
+    const currentDate = date.toLocaleDateString();
+    const firstDayOfMonth = new Date(`${date.getFullYear()}-${currentMonth + 1}-1`);
+
+    const firstDay = firstDayOfMonth - firstDayOfMonth.getDay() * DAY_IN_MS;
+    const days = get('firstDayOfMonth') - firstDayOfMonth ? [] : get('days');
+
+    // do we need to [re]build days?
+    if (! days.length) {
+      let timestamp;
+      for (let day = 0; day < 42; day++) {
+        timestamp = new Date(firstDay + day * DAY_IN_MS);
+        days.push({
+          day: timestamp.getDate(),
+          date: timestamp.toLocaleDateString(),
+          current: timestamp.toLocaleDateString() === currentDate,
+          current_month: timestamp.getMonth() === currentMonth,
+          timestamp,
+        });
+        // skip trailing weeks
+        if (day % 7 === 6 && new Date(firstDay + (day + 1) * DAY_IN_MS).getMonth() !== currentMonth) {
+          break;
+        }
+      }
+      set({
+        weekdays: [
+          {initial: 'S', name: 'Sunday'},
+          {initial: 'M', name: 'Monday'},
+          {initial: 'T', name: 'Tuesday'},
+          {initial: 'W', name: 'Wednesday'},
+          {initial: 'T', name: 'Thursday'},
+          {initial: 'F', name: 'Friday'},
+          {initial: 'S', name: 'Saturday'},
+        ],
+        firstDayOfMonth,
+        value: date.valueOf(),
+        dateValue: date.toISOString().split('T')[0],
+        days,
+      });  
+    } else {
+      if (get('days[current=true].date') === currentDate) {
+        // our work is done
+        return;
+      }
+      set('days[current=true].current', false);
+      set(`days[date=${currentDate}].current`, true);
+      set({
+        value: date.valueOf(),
+        dateValue: date.toISOString().split('T')[0],
+      });
+      touch('days');
+    }
+  };
+
+  update(new Date(data.value));
+
+  const pick = (_, value) => {
+    update(new Date(value));
+    // focus the (new) current day once we've rendered the update
+    b8r.after_update(() => {
+      const current = findOne('.date-component-current');
+      if (current) current.focus();
+    });
+  };
+
+  const select = evt => {
+    pick(null, b8r.getListInstance(evt.target).timestamp);
+  };
+
+  b8r.addDataBinding(findOne('.date-component-days'), 'method(_component_.pick)', '_component_.value');
+
+  set({pick, select});
+</script>

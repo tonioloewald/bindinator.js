@@ -266,6 +266,10 @@
       {
         "name": "Table",
         "path": "components/table"
+      },
+      {
+        "name": "Date",
+        "path": "components/date"
       }
     ]
   },
