@@ -4,6 +4,11 @@
 A file browser for use in Electron Apps
 -->
 <style>
+  .documentation-component .electron-file-browser-component {
+    height: 50vh;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
   .electron-file-browser-component > .fb-header {
     -webkit-app-region: drag;
     padding: 5px 8px;
@@ -29,7 +34,7 @@ A file browser for use in Electron Apps
   }
 
   .electron-file-browser-component.disabled:after {
-    content: "requires electron";
+    content: "requires electron or nwjs";
     color: white;
     background-color: red;
     margin: 10px;
@@ -227,13 +232,15 @@ A file browser for use in Electron Apps
 </div>
 <div class="folder-menu menu-top" style="display: none">
   <div
-    data-list="_component_.folders"
-    data-bind="text=.name"
+    data-list="_component_.folders:_auto_"
     data-event="
       mousedown:_b8r_.stopEvent;
       click:_component_.pick_folder;
     "
-  ></div>
+  >
+    <span class="icon-folder"></span>
+    <span data-bind="text=.name"></span>
+  </div>
 </div>
 <div class="settings-menu menu-top-right" style="display: none">
   <label data-event="mousedown:_bur_.stopEvent">
@@ -242,15 +249,38 @@ A file browser for use in Electron Apps
   </label>
 </div>
 <script>
-  /* global require, b8r, findOne, component, data, get, set, on, console, touch */
+  /* global require, b8r, findOne, component, data, get, set, on, console, touch, nw, process */
   'use strict';
 
-  if (!require.electron) {
+  let pick, home;
+
+  if (require.electron) {
+    const {dialog, getCurrentWindow, app} = require.electron_remote;
+
+    pick = () => {
+      dialog.showOpenDialog(
+        getCurrentWindow(),
+        { properties: ['openDirectory', 'createDirectory'], },
+        list_path
+      );
+    };
+
+    home = () => list_path(app.getPath('home'));
+  } else if (nw) {
+    const file = b8r.create('input');
+    file.type = 'file';
+    file.setAttribute('webkitdirectory', '');
+    file.onchange = () => list_path(file.value.split(';')[0].split('/').slice(0,-1).join('/'));
+
+    pick = file.click.bind(file);
+
+    home = () => list_path(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME']);
+  } else {
     component.classList.add('disabled');
     return;
   }
+
   const fs = require.globalRequire('fs');
-  const {dialog, getCurrentWindow, app} = require.electron_remote;
   const menu = require('../lib/electron-menu.js');
   const folder_menu = findOne('.folder-menu');
   const settings_menu = findOne('.settings-menu');
@@ -306,15 +336,11 @@ A file browser for use in Electron Apps
     if (path !== '/') {
       const paths = path.split('/');
       paths.pop();
-      folders.push({
-        name: '/',
-        path: '/',
-      });
       let folder_path = '';
       paths.forEach(name => {
         folder_path += `/${name}`;
-        folders.push({
-          name,
+        folders.unshift({
+          name: name || '/',
           path: folder_path,
         });
       });
@@ -342,20 +368,8 @@ A file browser for use in Electron Apps
     });
   }
 
-  function home () {
-    list_path(app.getPath('home'));
-  }
-
   function parent () {
     list_path (get('path').split('/').slice(0, -1).join('/') || '/');
-  }
-
-  function pick () {
-    dialog.showOpenDialog(
-      getCurrentWindow(),
-      { properties: ['openDirectory', 'createDirectory'], },
-      list_path
-    );
   }
 
   function open (evt, target) {

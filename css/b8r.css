@@ -136,6 +136,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   left: 0;
   right: 0;
   z-index: 10;
+  -webkit-user-select: none;
 }
 
 .header {
@@ -143,6 +144,7 @@ h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
   justify-content: center;
   background-color: var(--accent-color);
   top: 0;
+  -webkit-app-region: drag;
 }
 
 .fullscreen .header {
@@ -225,8 +227,8 @@ summary {
   font-size: 12px;
 }
 
-.fade-in,
-details > * {
+details[open] summary ~ *,
+.fade-in {
   animation: fade-in 0.25s ease-out;
 }
 
