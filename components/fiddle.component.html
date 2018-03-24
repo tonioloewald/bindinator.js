@@ -17,6 +17,8 @@ of awesome that this works at all.
     position: relative;
     display: flex;
     flex-direction: column;
+    min-width: 500px;
+    min-height: 228px;
   }
 
   .fiddle-component .resizer-component {
@@ -45,6 +47,10 @@ of awesome that this works at all.
 
   .fiddle-component .refresh:active {
     opacity: 1;
+  }
+
+  .fiddle-component .sizer-component {
+    background: var(--light-accent-color);
   }
 
   .fiddle-bodies {
@@ -90,7 +96,7 @@ of awesome that this works at all.
     position: relative;
   }
 
-  .fiddle-header [data-selected]:after {
+  .fiddle-component:not(.minimized) .fiddle-header [data-selected]:after {
     content: " ";
     display: block;
     position: absolute;
@@ -101,6 +107,7 @@ of awesome that this works at all.
     transform: translateX(-50%);
     border: 8px solid transparent;
     border-bottom: 8px solid white;
+    animation: fade-in 0.25s ease-out;
   }
 </style>
 <div class="fiddle-header">
@@ -140,7 +147,7 @@ of awesome that this works at all.
     name="Example"
     data-bind="hide_if(source)=_component_.mode"
     data-event="show:_component_.run"
-    style="width: 60%; padding: 10px;"
+    style="width: 50%; padding: 10px;"
   ></div>
   <div
     data-bind="show_if(all)=_component_.mode"
@@ -150,7 +157,7 @@ of awesome that this works at all.
     name="Source"
     data-bind="hide_if(example)=_component_.mode"
     class="code"
-    style="width: 40%"
+    style="width: 50%"
     data-event="keydown(Tab):_component_.indent"
   ></div>
 </div>
@@ -162,7 +169,7 @@ of awesome that this works at all.
   const code_elt = findOne('.code');
   const container = findOne('[name="Example"]');
   const uuid = require('../lib/uuid.js');
-  let editor, title;
+  let editor;
 
   b8r.component('./components/sizer');
   b8r.component('./components/resizer');
