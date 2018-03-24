@@ -89,7 +89,7 @@ A file browser for use in Electron Apps
     cursor: ew-resize;
   }
 
-  .electron-file-browser-component .file:nth-child(2n+1) {
+  .electron-file-browser-component .shaded {
     background-color: rgba(0,0,0,0.03);
   }
 
@@ -225,6 +225,7 @@ A file browser for use in Electron Apps
     class="faux-tr file"
     data-list="_component_.filter(_component_.files,_component_.show_hidden,_component_.filter_text):id"
     data-event="keydown(Enter),dblclick:_component_.open"
+    data-bind="class(shaded)=._shade_row"
   >
     <span class="file-name">
       <span data-bind="class(icon-folder)=.isDirectory;class(icon-file-empty)=.isFile"></span>
@@ -395,6 +396,7 @@ A file browser for use in Electron Apps
     if (! show_hidden) {
       files = files.filter(file => !file.hidden);
     }
+    files.forEach((file, idx) => file._shade_row = idx % 2);
     return slice(files, file_row, true);
   }
 
