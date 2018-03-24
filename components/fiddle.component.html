@@ -29,6 +29,22 @@ of awesome that this works at all.
     flex-shrink: 0;
     background: var(--accent-color);
     color: white;
+    align-items: center;
+  }
+
+  .fiddle-component .refresh {
+    background: none;
+    border: none;
+    opacity: 0.5;
+    color: white;
+  }
+
+  .fiddle-component .refresh:hover {
+    opacity: 0.75;
+  }
+
+  .fiddle-component .refresh:active {
+    opacity: 1;
   }
 
   .fiddle-bodies {
@@ -108,6 +124,15 @@ of awesome that this works at all.
     <span data-value="source">Source</span>
   </div>
   <span style="flex-grow: 1"></span>
+  &nbsp;
+  <button
+    data-event="click:_component_.run"
+    class="refresh"
+    title="refresh"
+  >
+    <span class="icon-wrench"></span>
+    Refresh
+  </button>
   <span data-bind="text=_component_.title"></span>
 </div>
 <div class="fiddle-bodies">
@@ -220,7 +245,10 @@ of awesome that this works at all.
     run,
     fullscreen,
     indent,
-    reveal: () => set('minimized', false),
+    reveal: () => {
+      set('minimized', false);
+      run();
+    },
     mode: component.dataset.mode || data.mode || 'all',
     title: 'inline',
   });
