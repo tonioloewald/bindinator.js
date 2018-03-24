@@ -4,12 +4,12 @@
 /*global require, component, data, b8r */
   'use strict';
 
-  const fiddle_promise = b8r.component('components/fiddle');
+  b8r.component('components/fiddle');
 
   function render(source){
     require.lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').
     then(showdown => {
-       var converter = new showdown.Converter();
+      var converter = new showdown.Converter();
       component.innerHTML = converter.makeHtml(source);
       b8r.bindAll(component);
     });
