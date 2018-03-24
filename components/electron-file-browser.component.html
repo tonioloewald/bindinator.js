@@ -257,6 +257,8 @@ A file browser for use in Electron Apps
   /* global require, b8r, findOne, component, data, get, set, on, console, touch, nw, process */
   'use strict';
 
+  const {slice} = require('../lib/biggrid.js');
+
   let pick, home;
 
   if (require.electron) {
@@ -384,16 +386,16 @@ A file browser for use in Electron Apps
     }
   }
 
+  const file_row = findOne('.file');
   function filter(files, show_hidden, filter_text) {
     if (filter_text) {
       filter_text = filter_text.toLowerCase();
       files = files.filter(file => file.name.toLowerCase().indexOf(filter_text) > -1);
     }
-    if (show_hidden) {
-      return files;
-    } else {
-      return files.filter(file => !file.hidden);
+    if (! show_hidden) {
+      files = files.filter(file => !file.hidden);
     }
+    return slice(files, file_row, true);
   }
 
   home();
