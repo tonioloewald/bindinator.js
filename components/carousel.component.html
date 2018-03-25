@@ -166,7 +166,7 @@ Copyright ©2016-2017 Tonio Loewald
     var s = 1 - Math.min(abs_offset, 1 - min_scale);
 
     element.style.transform = `translateX(-50%) translateY(-50%) translateX(${dx}px) translateZ(${dz}px) rotateY(${ry}deg) scale(${s})`;
-    element.style.zIndex = Math.round(30 - 10 * abs_offset);
+    element.style.zIndex = Math.round(6 - 2 * abs_offset);
   }
 
   const child_selector = component.getAttribute('child-selector') || '.carousel > div';
