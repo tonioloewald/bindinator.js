@@ -100,7 +100,7 @@ Instead with `wrapWithComponent` you could do this (in a component):
 
 (Note that this example doesn't play well with the inline-documentation system!)
 */
-
+/* global require, module */
 'use strict';
 
 const components = {};
@@ -108,7 +108,7 @@ const component_timeouts = [];
 const component_promises = {};
 const component_preload_list = [];
 const {async_update} = require('./b8r.update.js');
-const {create, find} = require('./b8r.dom.js');
+const {create, find, findWithin} = require('./b8r.dom.js');
 const {ajax} = require('./b8r.ajax.js');
 const makeStylesheet = require('./b8r.makeStylesheet.js');
 
@@ -159,6 +159,8 @@ const makeComponent = function(name, source, url, preserve_source) {
   /*jshint evil: false */
   const class_name = `${name}-component`;
   const style = css ? makeStylesheet(css.replace(/_component_/g, class_name), class_name) : false;
+  const update_classes = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, class_name));
+  findWithin(div, '[class*="_component_"]').forEach(update_classes);
   const component = {
     name,
     style,
