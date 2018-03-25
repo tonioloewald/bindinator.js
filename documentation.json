@@ -118,6 +118,10 @@
         "path": "lib/uuid.js"
       },
       {
+        "name": "placement",
+        "path": "lib/placement.js"
+      },
+      {
         "name": "catPath",
         "path": "lib/cat-path.js"
       },
@@ -270,6 +274,14 @@
       {
         "name": "Date",
         "path": "components/date"
+      },
+      {
+        "name": "Date (ISO) <input>",
+        "path": "components/iso-date"
+      },
+      {
+        "name": "iframe",
+        "path": "components/iframe"
       }
     ]
   },
@@ -300,10 +312,6 @@
     "parts": [
       {
         "name": "Unit Tests",
-        "path": "components/iframe"
-      },
-      {
-        "name": "Low Level Unit Tests",
         "path": "tests.html"
       },
       {
