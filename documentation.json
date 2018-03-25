@@ -114,20 +114,24 @@
         "path": "lib/exemplar.js"
       },
       {
-        "name": "uuid",
+        "name": "UUID",
         "path": "lib/uuid.js"
       },
       {
-        "name": "placement",
+        "name": "Placement",
         "path": "lib/placement.js"
       },
       {
-        "name": "catPath",
+        "name": "cat-path",
         "path": "lib/cat-path.js"
       },
       {
         "name": "Describe",
         "path": "lib/describe.js"
+      },
+      {
+        "name": "dom-timers",
+        "path": "lib/dom-timers.js"
       },
       {
         "name": "Test",
@@ -140,6 +144,10 @@
       {
         "name": "Color Utilities",
         "path": "lib/color.js"
+      },
+      {
+        "name": "Shortuts",
+        "path": "lib/shortcuts.js"
       },
       {
         "name": "Tooltips",
