@@ -216,6 +216,15 @@ when and if the need arises.
 </label>
 <hr>
 <label>
+  <span data-component="iso-date" data-bind="value=_component_.test_date"></span>
+  <a href="#source=components/iso-date">iso-date</a> (date input wrapped with ISO-savvy component)
+</label>
+<div data-component="date" data-bind="value=_component_.test_date"></div>
+<p>
+  This is a fancy calendar-style <a href="#source=components/date">date</a> component.
+</p>
+<hr>
+<label>
   Checkbox
   <input type=checkbox data-bind="checked=_component_.checked">
 </label>
@@ -455,6 +464,8 @@ when and if the need arises.
   b8r.component('components/animated-switch');
   b8r.component('components/radioset');
   b8r.component('components/search-field');
+  b8r.component('components/date');
+  b8r.component('components/iso-date');
 
   ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
 
@@ -463,6 +474,7 @@ when and if the need arises.
     single_selection: 'Another Option',
     input_field: 'edit this text',
     checked: true,
+    test_date: '1976-04-01T08:00:00.000Z',
     multiselect: [
       {
         text: 'Default',
