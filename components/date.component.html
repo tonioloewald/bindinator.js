@@ -3,6 +3,9 @@
 
 This is a calendar-style date display / picker.
 
+Aside from binding its value you can also initialize it via ISOString to
+its data-date. To initialise it to the current date, use `data-date="today"`.
+
 To disable it (make it read-only) give it a `data-disabled` attribute.
 
 **Note** that right now the date component assumes its value will be an 
@@ -75,7 +78,8 @@ them for anything.
 ></div>
 <div
   class="date-component-days"
-  data-event="keydown(Space),mousedown,touchstart:_component_.select;"
+  data-event="keydown(Space),mousedown,touchstart:_component_.select"
+  data-bind="method(_component_.pick)=_component_.value"
 >
   <div
     class="date-component-day-of-week"
@@ -91,13 +95,8 @@ them for anything.
 </div>
 <script>
   'use strict';
-  /* global b8r, get, set, data, component, findOne, touch */
+  /* global b8r, get, set, component, findOne, touch */
   const DAY_IN_MS = 24 * 3600 * 1000;
-  if (! data.value) {
-    data.value = (component.dataset.date
-                 ? new Date(component.dataset.date).valueOf()
-                 : Date.now());
-  }
 
   const update = date => {
     const currentMonth = date.getMonth();
@@ -135,7 +134,7 @@ them for anything.
           {initial: 'S', name: 'Saturday'},
         ],
         firstDayOfMonth,
-        value: date.valueOf(),
+        value: date.toISOString(),
         dateValue: date.toISOString().split('T')[0],
         days,
       });  
@@ -147,29 +146,32 @@ them for anything.
       set('days[current=true].current', false);
       set(`days[date=${currentDate}].current`, true);
       set({
-        value: date.valueOf(),
+        value: date.toISOString(),
         dateValue: date.toISOString().split('T')[0],
       });
       touch('days');
     }
   };
 
-  update(new Date(data.value));
+  if (component.dataset.date) {
+    update(component.dataset.date === 'today' ? new Date() : new Date(component.dataset.date));
+  }
 
   const pick = (_, value) => {
+    const had_focus = component.contains(document.activeElement);
     update(new Date(value));
     // focus the (new) current day once we've rendered the update
-    b8r.after_update(() => {
-      const current = findOne('.date-component-current');
-      if (current) current.focus();
-    });
+    if (had_focus) {
+      b8r.after_update(() => {
+        const current = findOne('.date-component-current');
+        if (current) current.focus();
+      });
+    }
   };
 
   const select = evt => {
     pick(null, b8r.getListInstance(evt.target).timestamp);
   };
-
-  b8r.addDataBinding(findOne('.date-component-days'), 'method(_component_.pick)', '_component_.value');
 
   set({pick, select});
 </script>
