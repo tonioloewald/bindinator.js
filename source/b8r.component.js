@@ -99,6 +99,17 @@ Instead with `wrapWithComponent` you could do this (in a component):
     </script>
 
 (Note that this example doesn't play well with the inline-documentation system!)
+
+## Destructors
+
+Component instances are automatically cleaned up once the component element is
+removed from the DOM or its id changes (e.g. a new component is loaded over it).
+If you want to force a cleanup, you can call:
+
+    b8r.cleanupComponentInstances();
+
+If a component has a property named `destroy` (and it's a method) it will
+be called just before the instance is removed from the registry.
 */
 /* global require, module */
 'use strict';

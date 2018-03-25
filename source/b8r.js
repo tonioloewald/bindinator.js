@@ -88,6 +88,8 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
   });
   b8r.models().forEach((model) => {
     if (model.substr(0, 2) === 'c#' && !_component_instances[model]) {
+      const obj = b8r.get(model);
+      if (obj && obj.destroy && typeof obj.destroy === 'function') obj.destroy();
       b8r.remove(model);
     }
   });
