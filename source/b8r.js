@@ -586,7 +586,6 @@ b8r.preload = component_list => {
 };
 
 const _path_relative_b8r = _path => {
-  _path = _path.replace(/\bcomponents$/, '');
   return !_path ? b8r : Object.assign({}, b8r, {
     _path,
     component: (...args) => {
