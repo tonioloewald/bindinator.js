@@ -18,6 +18,9 @@ of awesome that this works at all.
     display: flex;
     flex-direction: column;
     min-width: 500px;
+  }
+
+  .fiddle-component:not(.minimized) {
     min-height: 228px;
   }
 
@@ -109,6 +112,10 @@ of awesome that this works at all.
     border-bottom: 8px solid white;
     animation: fade-in 0.25s ease-out;
   }
+
+  .fiddle-bodies > .sizer-component {
+    background: var(--pullquote-bg-color);
+  }
 </style>
 <div class="fiddle-header">
   <label title="toggle visibility">
@@ -116,6 +123,7 @@ of awesome that this works at all.
       type="checkbox"
       class="hidden-checkbox"
       data-bind="checked=_component_.minimized"
+      tabindex=-1
     >
     <span class="show-after-checked icon-eye-blocked2"></span>
     <span class="show-after-unchecked icon-eye2"></span>
@@ -171,9 +179,9 @@ of awesome that this works at all.
   const uuid = require('../lib/uuid.js');
   let editor;
 
-  b8r.component('./components/sizer');
-  b8r.component('./components/resizer');
-  b8r.component('components/selector');
+  b8r.component('sizer');
+  b8r.component('resizer');
+  b8r.component('selector');
   component.classList.add('resizer-target');
 
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
@@ -184,7 +192,7 @@ of awesome that this works at all.
     then(() => {
       editor = ace.edit(code_elt);
       ace.config.set('basePath', 'https://cdn.jsdelivr.net/ace/1.2.6/noconflict/');
-      editor.setTheme('ace/theme/github');
+      editor.setTheme('ace/theme/monokai');
       editor.session.setOptions({
         mode: 'ace/mode/html',
         tabSize: 2,
@@ -198,7 +206,7 @@ of awesome that this works at all.
     init_editor();
     setTimeout(run);
   } else {
-    const path = component.dataset.path || 'components/hello';
+    const path = component.dataset.path || 'hello';
     b8r.component('fiddle-' + uuid(), path, true).then(c => {
       set('title', path);
       code_elt.textContent = c._source.replace(/\t/g, '  ');
@@ -223,7 +231,7 @@ of awesome that this works at all.
     }
     b8r.empty(container);
     last_code = source;
-    if (source.match(/<\/\w+>|<\w+[^>]*>/)) {
+    if (source.match(/<\w+[^<>]*>/)) {
       b8r.insertComponent(
         b8r.makeComponent('fiddle-' + uuid(), source, b8r._path ? `${b8r._path}/` : ''),
         container
