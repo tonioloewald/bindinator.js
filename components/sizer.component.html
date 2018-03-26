@@ -7,13 +7,17 @@ and it lets the user dynamically resize them.
 -->
 <style>
   .sizer-component {
-    width: 8px;
-    min-width: 8px !important;
+    width: 6px;
+    min-width: 6px !important;
     overflow: hidden;
     flex-grow: 0 !important;
   }
   .ew-sizer {
-    width: 8px;
+    width: 6px;
+    border-style: solid;
+    border-left-color: rgba(0,0,0,0.05);
+    border-right-color: rgba(0,0,0,0.1);
+    border-width: 0 1px;
     cursor: ew-resize;
     margin: 0 0 -10000px;
     padding: 0 0 10000px;
@@ -27,7 +31,7 @@ and it lets the user dynamically resize them.
     background-color: rgba(0,0,0,0.25);
   }
 </style>
-<div data-event="mousedown:sizer.beginSizing" class="ew-sizer"> </div>
+<div data-event="mousedown:sizer.beginSizing" class="ew-sizer"></div>
 <script>
 /* global component, findOne, b8r */
 'use strict';
