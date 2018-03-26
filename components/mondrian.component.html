@@ -108,7 +108,13 @@ Copyright ©2016-2017 Tonio Loewald
   const update = () => requestAnimationFrame(() => {
     const signature = b8r.elementSignature(findOne('.mondrian'));
     b8r.logStart('mondrian', signature);
-    mondrian.arrange_with_focus(visible(), get('desired_aspect_ratio'), get('letterbox_enabled') && get('letterbox_threshold'));
+    mondrian.arrange_with_focus(
+      visible(),
+      {
+        aspect_ratio: get('desired_aspect_ratio'),
+        letterbox: get('letterbox_enabled') && get('letterbox_threshold')
+      }
+    );
     b8r.logEnd('mondrian', signature);
   });
 
@@ -175,7 +181,7 @@ Copyright ©2016-2017 Tonio Loewald
         update();
       }
     },
-    focus: (evt, elt) => {
+    focus: evt => {
       if (! get('focus_enabled')) {
         return;
       }
