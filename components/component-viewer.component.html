@@ -2,30 +2,28 @@
 <div class="example"></div>
 <div>
   <pre>
-    <code style="font-size: 12px; white-space: pre-wrap;" id="source-code" class="language-markup"></code>
+    <code style="font-size: 12px; white-space: pre-wrap;" class="language-markup"></code>
   </pre>
 </div>
 <script>
 /* global b8r, data, findOne, require */
 'use strict';
+  const code = findOne('code');
+  const info = findOne('.info');
+  const {md} = require('../lib/text-render.js');
 
   b8r.component(data.url, undefined, true).
-  then(component => {
-    b8r.insertComponent(component, findOne('.example'));
-    const code = findOne('code');
-    var info, source;
-    if (component._source.indexOf('<!--') === 0) {
-      [info, source] = component._source.substr(4).split('-->');
+  then(c => {
+    b8r.insertComponent(c, findOne('.example'));
+    var docs_md, source;
+    if (c._source.indexOf('<!--') === 0) {
+      [docs_md, source] = c._source.substr(4).split('-->');
     } else {
-      info = `# ${data.url}`;
-      source = component._source;
+      docs_md = `# ${data.url}`;
+      source = c._source;
     }
-    if(info) {
-      require.lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').
-      then(showdown => {
-        var converter = new showdown.Converter(); // jshint ignore:line
-        findOne('.info').innerHTML = converter.makeHtml(info);
-      });
+    if(docs_md) {
+      md(docs_md, info);
     }
     code.textContent = source.replace(/\t/g, '  ');
 
