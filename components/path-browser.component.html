@@ -21,7 +21,7 @@ A tool for browsing objects.
   }
 </style>
 <select data-bind="value=_component_.value">
-  <option data-list="_component_.history" data-bind="text=."></option>
+  <option data-list="_component_.history" data-bind="text=.path"></option>
 </select>
 <!--
 <input data-bind="value=_component_.value">
@@ -43,7 +43,7 @@ A tool for browsing objects.
   const reset = path => {
     set({
       value: path,
-      history: [],
+      history: [], // {path}
       list: []
     });
   };
@@ -90,7 +90,7 @@ A tool for browsing objects.
       console.log(path, obj);
 
       if (get('history').indexOf(path) === -1) {
-        get('history').push(path);
+        get('history').push({path});
         touch('history');
       }
 
