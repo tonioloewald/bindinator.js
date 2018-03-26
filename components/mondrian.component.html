@@ -1,6 +1,7 @@
 <!--
 # mondrian
-Copyright ©2016-2017 Tonio Loewald
+
+A component for messing around with the `mondrian.js` layout library.
 -->
 <style>
   .mondrian {
@@ -89,7 +90,7 @@ Copyright ©2016-2017 Tonio Loewald
   const random_changes = findOne('.random_changes');
   const canvas = findOne('canvas');
 
-  on('change,update', '_component_.update');
+  on('change,update,resize', '_component_.update');
 
   /* test canvas */
   const g = canvas.getContext('2d');
