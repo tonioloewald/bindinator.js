@@ -217,7 +217,7 @@ Copyright ©2016-2017 Tonio Loewald
         <tbody>
           <tr
             data-event-disabled="click:_component_.show_log_detail"
-            data-list="_component_.logs:name"
+            data-list="_component_.logs:_auto_"
           >
             <td data-bind="text=.name"></td>
             <td data-bind="fixed=.total_time"></td>
@@ -255,9 +255,9 @@ Copyright ©2016-2017 Tonio Loewald
 <script>
 /* global b8r, set, component, require */
 'use strict';
-  b8r.component('components/floater');
-  b8r.component('components/path-browser');
-  b8r.component('components/tab-selector');
+  b8r.component('floater');
+  b8r.component('path-browser');
+  b8r.component('tab-selector');
 
   b8r.wrapWithComponent('floater', component, null, {style: "bottom: 10px; left: 10px;"});
 
@@ -276,7 +276,7 @@ Copyright ©2016-2017 Tonio Loewald
 
   b8r.set('inspector-controller', {
     show_events: evt => {
-      const {getParsedEventHandlers} = require('source/b8r.events.js');
+      const {getParsedEventHandlers} = require('../source/b8r.events.js');
       const event_info = [];
       let target = evt.target.closest('[data-event]');
       do {
