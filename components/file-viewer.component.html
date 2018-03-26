@@ -9,44 +9,55 @@ Note that something similar could just as easily be implemented using a componen
 binding, but for more complex heterogeneous collections, something like this could
 implement a more sophisticated approach
 -->
+<style>
+  .file-viewer-component > .iframe-component {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+</style>
 <div></div>
 <script>
-/* global data, b8r, container, component */
+/* global data, b8r, findOne */
 'use strict';
 
   const container = findOne('div');
 
-  switch (data.file_type || data.url.split('.').pop()) {
+  switch (data.file_type || (data.url.match(/\.(\w+|component\.html)$/) || [])[1]) {
     case 'md':
     case 'markdown':
-      b8r.component('components/markdown-viewer').then(viewer => {
+      b8r.component('markdown-viewer').then(viewer => {
         b8r.insertComponent(viewer, container, data);
       });
       break;
 
     case 'html':
-      if(data.url.match(/\.component\.html$/)) {
-        data.url = data.url.substr(0, data.url.length - 15);
-        b8r.component('components/component-viewer').then(viewer => {
-          b8r.insertComponent(viewer, container, data);
-        });
-      } else {
-        b8r.component('components/iframe').then(iframe => {
-          b8r.insertComponent(iframe, container, data);
-        });
-      }
+      b8r.component('iframe').then(iframe => {
+        b8r.insertComponent(iframe, container, {src: data.url});
+      });
+      break;
+
+    case 'component.html':
+      b8r.component('component-viewer').then(viewer => {
+        data.url = data.url.match(/^(.*)\.component\.html$/)[1];
+        b8r.insertComponent(viewer, container, data);
+      });
       break;
 
     case 'text':
-      b8r.component('components/text-viewer').then(viewer => {
+      b8r.component('text-viewer').then(viewer => {
         b8r.insertComponent(viewer, container, data);
       });
       break;
 
     case 'js':
-      b8r.component('components/literate-js-viewer').then(viewer => {
+      b8r.component('literate-js-viewer').then(viewer => {
         b8r.insertComponent(viewer, container, data);
       });
       break;
+
+    default:
+      console.error('unknown file type', data);
   }
 </script>
