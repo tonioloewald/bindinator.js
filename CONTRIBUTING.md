@@ -1,6 +1,6 @@
 # Contributing
 
-All contributions are welcome, but please include tests where possible and keep PRs as specific as possible
-(but no simpler!)
+All contributions are welcome, but please include inline examples, documentation, and tests where
+possible and keep PRs as specific as possible.
 
-Thanks for even thinking about contributing!
+Thanks for even _thinking_ about contributing!
