@@ -73,6 +73,11 @@ You can build a **To Do List** app like this:
 
 <div data-component="fiddle" data-path="todo"></div>
 
+And you can use third-party libraries easily as well (this example uses `showdown.js`) via
+the [text-render.js](#source=lib/text-render.js) library to render markdown.
+
+<div data-component="fiddle" data-path="markdown-editor"></div>
+
 ## In a Nut
 
 - bind data to (and from) the DOM using `data-bind`.
