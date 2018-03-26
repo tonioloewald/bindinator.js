@@ -57,7 +57,9 @@ Note that the order is not important! (We live in an async world.)
 ```
 <input data-bind="value=root.title">
 ...
-b8r.register('root', {title: 'Edit Me'}); // input will now contain 'Edit Me'
+<script>
+  b8r.register('root', {title: 'Edit Me'}); // input will now contain 'Edit Me'
+</script>
 ```
 
 ## binding methods to events with data-event
@@ -72,7 +74,9 @@ The general form is `data-event="event_type:path.to.method`.
 ```
 <button data-event="click:root.action">Click Me!</button>
 ...
-b8r.register('root', {action: () => alert('I was clicked')});
+<script>
+  b8r.register('root', {action: () => alert('I was clicked')});
+</script>
 ```
 
 Again, the order is not important. You can bind a path to an event and then bind the method later (e.g. when the code for it becomes available). In fact, if the user clicks the button before the method has been bound to the path, it will call the method when it becomes available.
@@ -91,8 +95,10 @@ The general form is `data-list="path.to.array"` or, optionally `data-list="path.
   <li data-list="root.list" data-bind=".name"></list>
 </ul>
 ...
-b8r.set('root.list', [{name: 'Juanita'}, {name: 'Mahatma'}]);
+<script>
+  b8r.set('root.list', [{name: 'Juanita'}, {name: 'Mahatma'}]);
   // the list will have two (visible) items.
+</script>
 ```
 
 Within the list template, you can use **relative paths** (e.g. `.name`) which reference paths within the list element.
@@ -152,7 +158,6 @@ b8r.component('path/to/example');
   - `component` is a reference to the element the component was loaded into
   - `data` is the component's instance data
   - `register` lets you completely replace the component's instance data
-  - `require` and `b8r.component` will have the parent of the component's directory as default path. (Sorry about that.)
   - `set`, `get`, and `touch` affect paths within the component's instance data.
   - `find` and `findOne` are `querySelectorAll` and `querySelector` scoped to `component` (`find` returns proper arrays)
 - if the component sets a `destroy` method it will be called when the component is removed or replaced.
