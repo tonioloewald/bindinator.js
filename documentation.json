@@ -143,11 +143,11 @@
       },
       {
         "name": "Particles",
-        "path": "particles"
+        "path": "particles.component.html"
       },
       {
         "name": "Mondrian",
-        "path": "mondrian"
+        "path": "mondrian.component.html"
       },
       {
         "name": "Shortuts",
@@ -169,127 +169,131 @@
     "parts": [
       {
         "name": "Circle",
-        "path": "circle"
+        "path": "circle.component.html"
       },
       {
         "name": "Floater",
-        "path": "floater"
+        "path": "floater.component.html"
       },
       {
         "name": "Rich Text",
-        "path": "richtext"
+        "path": "richtext.component.html"
       },
       {
         "name": "Tab Selector",
-        "path": "tab-selector"
+        "path": "tab-selector.component.html"
       },
       {
         "name": "Keyboard Event Utility",
-        "path": "keycodes"
+        "path": "keycodes.component.html"
       },
       {
         "name": "Loading Spinner",
-        "path": "loading"
+        "path": "loading.component.html"
       },
       {
         "name": "Toggle Switch (css)",
-        "path": "switch"
+        "path": "switch.component.html"
       },
       {
         "name": "Radio Button Set",
-        "path": "radioset"
+        "path": "radioset.component.html"
       },
       {
         "name": "Carousel",
-        "path": "carousel"
+        "path": "carousel.component.html"
       },
       {
         "name": "Fiddle",
-        "path": "fiddle"
+        "path": "fiddle.component.html"
       },
       {
         "name": "Kitchen Sink",
-        "path": "kitchen-sink"
+        "path": "kitchen-sink.component.html"
       },
       {
         "name": "Big Grid",
-        "path": "biggrid-test"
+        "path": "biggrid-test.component.html"
       },
       {
         "name": "Big List",
-        "path": "biglist"
+        "path": "biglist.component.html"
       },
       {
         "name": "Flexcordion",
-        "path": "flexcordion"
+        "path": "flexcordion.component.html"
       },
       {
         "name": "Slider Numeric",
-        "path": "slider-numeric"
+        "path": "slider-numeric.component.html"
       },
       {
         "name": "Stack",
-        "path": "stack"
+        "path": "stack.component.html"
       },
       {
         "name": "Offline",
-        "path": "offline"
+        "path": "offline.component.html"
       },
       {
         "name": "Center Scroller",
-        "path": "center-scroller-test"
+        "path": "center-scroller-test.component.html"
       },
       {
         "name": "webrtc settings",
-        "path": "webrtc"
+        "path": "webrtc.component.html"
       },
       {
         "name": "Input (contenteditable)",
-        "path": "contenteditable"
+        "path": "contenteditable.component.html"
       },
       {
         "name": "Selector",
-        "path": "selector"
+        "path": "selector.component.html"
       },
       {
         "name": "Input",
-        "path": "input"
+        "path": "input.component.html"
       },
       {
         "name": "Toggle Switch (bodymovin)",
-        "path": "animated-switch"
+        "path": "animated-switch.component.html"
       },
       {
         "name": "Path Browser",
-        "path": "path-browser"
+        "path": "path-browser.component.html"
       },
       {
         "name": "Electron File Browser",
-        "path": "electron-file-browser"
+        "path": "electron-file-browser.component.html"
       },
       {
         "name": "Grid",
-        "path": "grid"
+        "path": "grid.component.html"
       },
       {
         "name": "Search Field",
-        "path": "search-field"
+        "path": "search-field.component.html"
       },
       {
         "name": "Date",
-        "path": "date"
+        "path": "date.component.html"
       },
       {
         "name": "Date (ISO) <input>",
-        "path": "iso-date"
+        "path": "iso-date.component.html"
       },
       {
         "name": "Table",
-        "path": "table"
+        "path": "table.component.html"
       },
       {
         "name": "iframe",
-        "path": "iframe"
+        "path": "iframe.component.html"
+      },
+      {
+        "name": "Markdown Editor",
+        "path": "markdown-editor.component.html"
       }
     ]
   },
@@ -328,11 +332,11 @@
       },
       {
         "name": "Instance Test",
-        "path": "instance-test"
+        "path": "instance-test.component.html"
       },
       {
         "name": "Modal Test",
-        "path": "modal-test"
+        "path": "modal-test.component.html"
       },
       {
         "name": "Icons",
@@ -346,47 +350,47 @@
     "parts": [
       {
         "name": "Photo Carousel",
-        "path": "photo-carousel"
+        "path": "photo-carousel.component.html"
       },
       {
         "name": "Bodymovin",
-        "path": "bodymovin"
+        "path": "bodymovin.component.html"
       },
       {
         "name": "Hello",
-        "path": "hello"
+        "path": "hello.component.html"
       },
       {
         "name": "To Do",
-        "path": "todo"
+        "path": "todo.component.html"
       },
       {
         "name": "Photos",
-        "path": "photos"
+        "path": "photos.component.html"
       },
       {
         "name": "Photo Tabs",
-        "path": "photo-tabs"
+        "path": "photo-tabs.component.html"
       },
       {
         "name": "3d (threejs)",
-        "path": "threejs"
+        "path": "threejs.component.html"
       },
       {
         "name": "3d (babylonjs)",
-        "path": "babylonjs"
+        "path": "babylonjs.component.html"
       },
       {
         "name": "Chart",
-        "path": "chart"
+        "path": "chart.component.html"
       },
       {
         "name": "asteroids (svg)",
-        "path": "asteroids"
+        "path": "asteroids.component.html"
       },
       {
         "name": "Clock",
-        "path": "clock"
+        "path": "clock.component.html"
       }
     ]
   }
