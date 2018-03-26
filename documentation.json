@@ -118,20 +118,12 @@
         "path": "lib/uuid.js"
       },
       {
-        "name": "Placement",
-        "path": "lib/placement.js"
-      },
-      {
-        "name": "cat-path",
+        "name": "catPath",
         "path": "lib/cat-path.js"
       },
       {
         "name": "Describe",
         "path": "lib/describe.js"
-      },
-      {
-        "name": "dom-timers",
-        "path": "lib/dom-timers.js"
       },
       {
         "name": "Test",
@@ -146,20 +138,28 @@
         "path": "lib/color.js"
       },
       {
-        "name": "Shortuts",
-        "path": "lib/shortcuts.js"
-      },
-      {
         "name": "Tooltips",
         "path": "lib/tooltips.js"
       },
       {
         "name": "Particles",
-        "path": "components/particles"
+        "path": "particles"
       },
       {
         "name": "Mondrian",
-        "path": "components/mondrian"
+        "path": "mondrian"
+      },
+      {
+        "name": "Shortuts",
+        "path": "lib/shortcuts.js"
+      },
+      {
+        "name": "Placement",
+        "path": "lib/placement.js"
+      },
+      {
+        "name": "dom-timers",
+        "path": "lib/dom-timers.js"
       }
     ]
   },
@@ -169,127 +169,127 @@
     "parts": [
       {
         "name": "Circle",
-        "path": "components/circle"
+        "path": "circle"
       },
       {
         "name": "Floater",
-        "path": "components/floater"
+        "path": "floater"
       },
       {
         "name": "Rich Text",
-        "path": "components/richtext"
+        "path": "richtext"
       },
       {
         "name": "Tab Selector",
-        "path": "components/tab-selector"
+        "path": "tab-selector"
       },
       {
         "name": "Keyboard Event Utility",
-        "path": "components/keycodes"
+        "path": "keycodes"
       },
       {
         "name": "Loading Spinner",
-        "path": "components/loading"
+        "path": "loading"
       },
       {
         "name": "Toggle Switch (css)",
-        "path": "components/switch"
+        "path": "switch"
       },
       {
         "name": "Radio Button Set",
-        "path": "components/radioset"
+        "path": "radioset"
       },
       {
         "name": "Carousel",
-        "path": "components/carousel"
+        "path": "carousel"
       },
       {
         "name": "Fiddle",
-        "path": "components/fiddle"
+        "path": "fiddle"
       },
       {
         "name": "Kitchen Sink",
-        "path": "components/kitchen-sink"
+        "path": "kitchen-sink"
       },
       {
         "name": "Big Grid",
-        "path": "components/biggrid-test"
+        "path": "biggrid-test"
       },
       {
         "name": "Big List",
-        "path": "components/biglist"
+        "path": "biglist"
       },
       {
         "name": "Flexcordion",
-        "path": "components/flexcordion"
+        "path": "flexcordion"
       },
       {
         "name": "Slider Numeric",
-        "path": "components/slider-numeric"
+        "path": "slider-numeric"
       },
       {
         "name": "Stack",
-        "path": "components/stack"
+        "path": "stack"
       },
       {
         "name": "Offline",
-        "path": "components/offline"
+        "path": "offline"
       },
       {
         "name": "Center Scroller",
-        "path": "components/center-scroller-test"
+        "path": "center-scroller-test"
       },
       {
         "name": "webrtc settings",
-        "path": "components/webrtc"
+        "path": "webrtc"
       },
       {
         "name": "Input (contenteditable)",
-        "path": "components/contenteditable"
+        "path": "contenteditable"
       },
       {
         "name": "Selector",
-        "path": "components/selector"
+        "path": "selector"
       },
       {
         "name": "Input",
-        "path": "components/input"
+        "path": "input"
       },
       {
         "name": "Toggle Switch (bodymovin)",
-        "path": "components/animated-switch"
+        "path": "animated-switch"
       },
       {
         "name": "Path Browser",
-        "path": "components/path-browser"
+        "path": "path-browser"
       },
       {
         "name": "Electron File Browser",
-        "path": "components/electron-file-browser"
+        "path": "electron-file-browser"
       },
       {
         "name": "Grid",
-        "path": "components/grid"
+        "path": "grid"
       },
       {
         "name": "Search Field",
-        "path": "components/search-field"
-      },
-      {
-        "name": "Table",
-        "path": "components/table"
+        "path": "search-field"
       },
       {
         "name": "Date",
-        "path": "components/date"
+        "path": "date"
       },
       {
         "name": "Date (ISO) <input>",
-        "path": "components/iso-date"
+        "path": "iso-date"
+      },
+      {
+        "name": "Table",
+        "path": "table"
       },
       {
         "name": "iframe",
-        "path": "components/iframe"
+        "path": "iframe"
       }
     ]
   },
@@ -328,11 +328,15 @@
       },
       {
         "name": "Instance Test",
-        "path": "components/instance-test"
+        "path": "instance-test"
       },
       {
         "name": "Modal Test",
-        "path": "components/modal-test"
+        "path": "modal-test"
+      },
+      {
+        "name": "Icons",
+        "path": "icomoon/demo.html"
       }
     ]
   },
@@ -342,47 +346,47 @@
     "parts": [
       {
         "name": "Photo Carousel",
-        "path": "components/photo-carousel"
+        "path": "photo-carousel"
       },
       {
         "name": "Bodymovin",
-        "path": "components/bodymovin"
+        "path": "bodymovin"
       },
       {
         "name": "Hello",
-        "path": "components/hello"
+        "path": "hello"
       },
       {
         "name": "To Do",
-        "path": "components/todo"
+        "path": "todo"
       },
       {
         "name": "Photos",
-        "path": "components/photos"
+        "path": "photos"
       },
       {
         "name": "Photo Tabs",
-        "path": "components/photo-tabs"
+        "path": "photo-tabs"
       },
       {
         "name": "3d (threejs)",
-        "path": "components/threejs"
+        "path": "threejs"
       },
       {
         "name": "3d (babylonjs)",
-        "path": "components/babylonjs"
+        "path": "babylonjs"
       },
       {
         "name": "Chart",
-        "path": "components/chart"
+        "path": "chart"
       },
       {
         "name": "asteroids (svg)",
-        "path": "components/asteroids"
+        "path": "asteroids"
       },
       {
         "name": "Clock",
-        "path": "components/clock"
+        "path": "clock"
       }
     ]
   }
