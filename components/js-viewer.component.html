@@ -6,28 +6,20 @@
   <pre>
     <code
       style="font-size: 12px; white-space: pre-wrap;"
-      class="language-js"
     ></code>
   </pre>
 </details>
 <script>
-/* global findOne, require, Prism, b8r, data */
+/* global findOne, require, b8r, data */
 'use strict';
-  var code = findOne('code');
-
-  function render(source) {
-    require.lazy("https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js").
-    then(() => {
-      code.textContent = source.trim();
-      Prism.highlightElement(code);
-    });
-  }
+  const code = findOne('code');
+  const render = require('lib/text-render.js');
 
   if(data.source) {
-    render(data.source.split('\n').filter(s => s.trim()).join('\n'));
+    render.code(data.source.split('\n').filter(s => s.trim()).join('\n'), code, 'js');
   } else if (data.url) {
-    b8r.component('loading', 'components/loading').
+    b8r.component('loading', 'loading').
     then(() => b8r.ajax(data.url)).
-    then(source => render(source));
+    then(source => render.code(source, code, 'js'));
   }
 </script>

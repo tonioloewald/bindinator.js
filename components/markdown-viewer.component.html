@@ -4,23 +4,16 @@
 /*global require, component, data, b8r */
   'use strict';
 
-  b8r.component('components/fiddle');
-
-  function render(source){
-    require.lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').
-    then(showdown => {
-      var converter = new showdown.Converter();
-      component.innerHTML = converter.makeHtml(source);
-      b8r.bindAll(component);
-    });
-  }
+  const {md} = require('../lib/text-render.js');
+  const loading = b8r.component('loading');
+  b8r.component('fiddle');
 
   if (data.content) {
-    b8r.component('loading', 'components/loading').
-    then(() => render(data.content));
+    loading.
+    then(() => md(data.content, component));
   } else if (data.url) {
-    b8r.component('loading', 'components/loading').
+    loading.
     then(() => b8r.ajax(data.url)).
-    then(content => render(content));
+    then(content => md(content, component));
   }
 </script>

@@ -2,33 +2,17 @@
 # markdown-editor
 -->
 <style>
-	.markdown-editor-component {
-		background: white;
-	}
-
-	.markdown-editor-component .header {
-    -webkit-app-region: drag;
-    border-top: 1px solid #eeedee;
-    border-bottom: 1px solid #939293;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e9e6e9+0,d1cfd1+100 */
-    background: #e9e6e9; /* Old browsers */
-    background: linear-gradient(to bottom,  #e9e6e9 0%,#d1cfd1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 44px;
-	}
-
-	.markdown-editor-component .workspace {
-		position: absolute;
-		top: 44px;
-		left: 0;
-		right: 0;
-		bottom: 0;
+  ._component_ {
+    min-height: 50vh;
+    position: relative;
 		display: flex;
 	}
-	.markdown-editor-component .editor {
+
+  .documentation-component ._component_ {
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+	._component_ .editor {
 		padding: 10px;
 		font-size: 14px;
 		background: #222;
@@ -36,55 +20,49 @@
 		font-family: Menlo, Monaco, monospace;
 	}
 
-	.markdown-editor-component .preview {
+	._component_ .preview {
 		padding: 10px;
     font-family: Helvetica Neue, Helvetica, Arial, Sans-serif;
 	}
 
-	.markdown-editor-component .sizable {
-    flex-grow: 1;
-    min-width: 100px;
+	._component_ .sizable {
+    flex: 1 1 auto;
     width: 50%;
+    min-width: 100px;
 	}
 </style>
-<div class="header">
-</div>
-<div class="workspace">
-	<textarea 
-		class="editor sizable"
-		data-bind="value=_component_.source"
-		data-event="input:_component_.update"
-	></textarea>
-	<div data-component="sizer"></div>
-	<div class="preview sizable"></div>
-</div>
+<textarea
+	class="editor sizable"
+	data-bind="value=_component_.source"
+	data-event="input:_component_.update"
+></textarea>
+<div data-component="sizer"></div>
+<div class="preview sizable"></div>
 <script>
 	/*global require, b8r, get, set, findOne */
   'use strict';
 
-  b8r.component('./components/sizer');
+  b8r.component('sizer');
+  const {md} = require('../lib/text-render.js');
 
   let source = `# Heading
 
-Here is some text
-`;
+![b8r logo](images/bindinator-logo-notext.svg)
 
-  let converter = false;
-	require.lazy('https://cdnjs.cloudflare.com/ajax/libs/showdown/1.4.3/showdown.min.js').then(showdown => {
-		converter = new showdown.Converter();
-		update();
-	});
+Here is some text
+
+    // and here is some code
+    let x = x;
+`;
 
   const preview = findOne('.preview');
 
-  const update = b8r.debounce(() => {
-  	if (converter) {
-  		preview.innerHTML = converter.makeHtml(get('source'));
-  	}
-  }, 250);
+  const update = b8r.debounce(() => md(get('source'), preview), 250);
+
+  update();
 
   set ({
-  	update, 
+  	update,
   	source
  	});
 </script>

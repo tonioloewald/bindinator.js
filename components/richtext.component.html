@@ -240,7 +240,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
   <button data-event="click:_component_.exec" data-command="undo"><span class="icon-undo"></span></button>
   <button data-event="click:_component_.exec" data-command="redo"><span class="icon-redo"></span></button>
 </div>
-<div 
+<div
   class="richtext"
   contenteditable="true"
   data-event="
@@ -259,9 +259,9 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 /*global b8r, findOne, set, get, prompt, on */
 'use strict';
 
-  b8r.component('components/menubar');
-  b8r.component('components/toolbar');
-  b8r.component('components/maxtoggle');
+  b8r.component('menubar');
+  b8r.component('toolbar');
+  b8r.component('maxtoggle');
 
   set('filename', 'Untitled.html');
 
@@ -354,7 +354,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
   const tab_key = evt => {
     const selection = document.getSelection();
 
-    const cell = selection.anchorNode.closest ? 
+    const cell = selection.anchorNode.closest ?
                  selection.anchorNode.closest('td,th') :
                  selection.anchorNode.parentElement.closest('td,th');
     if (cell) {

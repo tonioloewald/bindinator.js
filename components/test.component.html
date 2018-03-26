@@ -17,6 +17,11 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     height: 100%;
   }
 
+  .test-component .pending {
+    color: #888;
+    background-color: #ddd;
+  }
+
   .test-component .success {
     color: green;
   }
@@ -64,8 +69,8 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   /* global require, findOne, b8r, data, set */
   'use strict';
 
-  b8r.component('components/tab-selector');
-  b8r.component('components/resizer');
+  b8r.component('tab-selector');
+  b8r.component('resizer');
 
   set({show: false});
 
