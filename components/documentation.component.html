@@ -4,42 +4,196 @@
 b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 -->
 <style>
-  .floater-component {
-    z-index: 3;
+  .documentation-component {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 10px 180px auto auto 180px 0;
+    grid-template-rows: 64px auto 32px;
+    background-color: var(--accent-color);
+  }
+
+  .documentation-component > * {
+    position: relative;
+  }
+
+  .documentation-component > .header {
+    grid-area: 1 / 1 / 2 / 7;
+    -webkit-app-region: drag;
+  }
+  .documentation-component > .nav {
+    grid-area: 2 / 2 / 3 / 3;
+    background-color: var(--light-accent-color);
+    box-shadow: -10px 0 0 0 var(--light-accent-color);
+    overflow-y: scroll;
+    overflow-y: overlay;
+    text-align: right;
+  }
+
+  .documentation-component > .content {
+    grid-area: 2 / 3 / 3 / 6;
+  }
+
+  .documentation-component > .footer {
+    grid-area: 3 / 1 / 4 / 7;
+    background-color: var(--bright-accent-color);
+    padding: 8px;
+  }
+
+  .fullscreen .content {
+    position: fixed;
+    transform: none;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    max-width: none;
+    background: white;
+    box-sizing: content-box;
+    overflow-y: scroll;
+    overflow-y: overlay;
+    padding: 16px;
+  }
+
+  .fullscreen .header,
+  .fullscreen .footer,
+  .fullscreen .nav {
+    display: none;
+  }
+
+  .documentation-component > .header,
+  .documentation-component > .footer {
+    text-align: center;
+    -webkit-user-select: none;
+  }
+
+  .documentation-component > .header > * {
+    margin: 0;
+    padding: 0;
+    width: 920px;
+  }
+
+  .documentation-component > .footer > * {
+    text-align: center;
+  }
+
+  .documentation-component > .content {
+    padding: 0;
+    background: var(--content-bg-color);
+    overflow-y: scroll;
+    overflow-y: overlay;
+  }
+
+  .documentation-component > .content > *,
+  .documentation-component > .nav > * {
+    max-width: 100%;
+    margin: 6px 12px;
+  }
+
+  .documentation-component > .nav > * {
+    margin-left: auto;
+    width: 160px;
+    text-align: left;
+  }
+
+  ::-webkit-details-marker {
+    color: var(--accent-color);
+  }
+
+  .documentation-component > .nav summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--faded-text-color);
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+
+  .documentation-component > .nav details[open] summary ~ * {
+    animation: fade-in 0.25s ease-out;
+  }
+
+  .header > h1 {
+    color: white;
+    font-weight: 100;
+    text-align: center;
+    align-self: center;
+  }
+
+  .content h1,
+  .content h2,
+  .content h3,
+  .content h4,
+  .content h5,
+  .content h6,
+  .content p,
+  .content blockquote,
+  .content ul,
+  .content ol {
+    max-width: 600px;
+  }
+
+  .content pre,
+  .content pre code {
+    background: #272822;
+    color: #eee;
+  }
+
+  .content h1,
+  .content h2,
+  .content h3 {
+    margin-top: 16px;
+  }
+
+  .content h4,
+  .content h5,
+  .content h6 {
+    margin-top: 8px;
+  }
+
+  .content blockquote {
+    margin: 8px 0;
+    padding: 5px 10px 10px 10px;
+    border-radius: 2px;
+    background: var(--pullquote-bg-color);
+    border-radius: 6px;
+    border: 3px solid var(--accent-color);
+  }
+
+  .content blockquote h2,
+  .content blockquote h3,
+  .content blockquote p {
+    margin-left: 10px;
+    padding: 0;
   }
 </style>
-<div class="layout">
-  <div class="header">
-    <img
-      alt="bindinator.js"
-      style="height: 64px; width: 64px; margin: 0 12px;"
-      src="images/bindinator-logo-notext-mono.svg"
+<div class="header">
+  <img
+    alt="bindinator.js"
+    style="height: 64px; width: 64px; margin: 0 12px;"
+    src="images/bindinator-logo-notext-mono.svg"
+  >
+</div>
+<div class="nav" data-event="click:details-accordion-controller.click">
+  <details data-list="_component_.docs:title">
+    <summary data-bind="text=.title">Title</summary>
+    <div
+      class="loadable"
+      data-list=".parts"
+      data-bind="text=.name;data(ref)=.path"
+      data-event="click,keydown(Space):documentation-controller.showDocs"
+      tabindex="0"
     >
-    <h1
-      style="flex-grow: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.75));"
-    >
-      bindinator.js
-    </h1>
-  </div>
-  <div class="nav" data-event="click:details-accordion-controller.click">
-    <details data-list="_component_.docs:title">
-      <summary data-bind="text=.title">Title</summary>
-      <div
-        class="loadable"
-        data-list=".parts"
-        data-bind="text=.name;data(ref)=.path"
-        data-event="click,keydown(Space):documentation-controller.showDocs"
-        tabindex="0"
-      >
-        File Name
-      </div>
-    </details>
-  </div>
-  <div class="content" id="example"></div>
-  <div class="footer">
-    <div>
-      ©2016-<span data-bind="text=_component_.year">xxxx</span> Tonio Loewald | <a href="http://loewald.com">loewald.com</a> | <a href="#source=LICENSE.md">License</a>
+      File Name
     </div>
+  </details>
+</div>
+<div class="content" id="example"></div>
+<div class="footer">
+  <div>
+    ©2016-<span data-bind="text=_component_.year">xxxx</span> Tonio Loewald | <a href="http://loewald.com">loewald.com</a> | <a href="#source=LICENSE.md">License</a>
   </div>
 </div>
 <script>
@@ -56,6 +210,8 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   var content = b8r.id('example');
   const nav = b8r.findOne('.nav');
   set({year: new Date().getFullYear()});
+
+  document.body.style.background = 'var(--accent-color)';
 
   function markCurrent() {
     b8r.after_update(() => {
@@ -96,7 +252,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       const part = b8r.getListInstance(evt.target) || {path: 'README.md'};
       window.location.hash = 'source=' + part.path;
     },
-    inspector: () => b8r.componentOnce('components/inspector'),
+    inspector: () => b8r.componentOnce('inspector'),
     alertKeystroke: evt => alert(b8r.keystroke(evt)),
     fullscreen: () => {
       if (!document.body.matches('.fullscreen')) {
@@ -133,10 +289,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     });
     var {key, value} = pairs[0];
     if (key && value) {
-      if (value.substr(0, 11) === 'components/' && value.split('.').length === 1) {
-        value += '.component.html';
-      }
-      b8r.component('components/file-viewer').then(viewer => {
+      b8r.component('file-viewer').then(viewer => {
         b8r.removeComponent(content);
         b8r.insertComponent(viewer, content, {url: value});
       });
