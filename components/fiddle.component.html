@@ -171,7 +171,7 @@ of awesome that this works at all.
 </div>
 <span data-component="resizer"></span>
 <script>
-/* global require, findOne, set, b8r, data, component, register, ace */
+/* global require, findOne, set, b8r, on, data, component, register, ace */
 /* jshint latedef:false */
 'use strict';
   const code_elt = findOne('.code');
@@ -185,6 +185,7 @@ of awesome that this works at all.
   component.classList.add('resizer-target');
 
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
+  on('resize', '_component_.resize');
 
   // ACE editor — bleargh
   const init_editor = () => {
@@ -264,6 +265,7 @@ of awesome that this works at all.
       set('minimized', false);
       run();
     },
+    resize: () => editor.resize(true),
     mode: component.dataset.mode || data.mode || 'all',
     title: 'inline',
   });
