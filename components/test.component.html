@@ -80,7 +80,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
 
   set({
     show: false,
-    js: (elt, source) => code(source, elt, 'js'),
+    js: (elt, source) => code(elt, source, 'js'),
   });
 
   const notify_errors = () => {
