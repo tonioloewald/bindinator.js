@@ -190,7 +190,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     </div>
   </details>
 </div>
-<div class="content" id="example"></div>
+<div class="content"></div>
 <div class="footer">
   <div>
     ©2016-<span data-bind="text=_component_.year">xxxx</span> Tonio Loewald | <a href="http://loewald.com">loewald.com</a> | <a href="#source=LICENSE.md">License</a>
@@ -198,7 +198,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 </div>
 <script>
 /* jshint latedef:false */
-/* global on, b8r, alert, component, set */
+/* global on, b8r, alert, component, set, findOne */
   'use strict';
 
   on('keydown(alt-Space)', 'documentation-controller.fullscreen');
@@ -207,8 +207,8 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   // for convenience when debugging
   window.b8r = b8r;
 
-  var content = b8r.id('example');
-  const nav = b8r.findOne('.nav');
+  var content = findOne('.content');
+  const nav = findOne('.nav');
   set({year: new Date().getFullYear()});
 
   document.body.style.background = 'var(--accent-color)';
@@ -279,7 +279,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   function update() {
     var component_path = window.location.hash.substr(1).split('?')[0];
     if(component_path === last_component_path) {
-      console.warn('ignoring hash change within component');
+      // ignoring hash change within component
       return;
     }
     last_component_path = component_path;
