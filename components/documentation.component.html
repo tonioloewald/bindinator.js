@@ -99,8 +99,20 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     text-align: left;
   }
 
-  ::-webkit-details-marker {
+  .documentation-component > .nav ::-webkit-details-marker {
     color: var(--accent-color);
+  }
+
+  .documentation-component > .content details {
+    border: 1px solid var(--accent-color);
+    padding: 0 5px;
+  }
+
+  .documentation-component > .content summary {
+    margin: 0 -5px;
+    padding: 6px 12px;
+    color: white;
+    background: var(--accent-color);
   }
 
   .documentation-component > .nav summary {

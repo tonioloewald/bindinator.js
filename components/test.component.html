@@ -45,6 +45,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     margin: 0;
     padding: 5px;
     filter: brightness(0.8);
+    max-width: initial;
   }
 
   .test-transcript > p:hover {
@@ -55,6 +56,10 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     padding: 5px;
     margin: 0;
   }
+
+  .test-component .tab-selector-component {
+    margin: 3px 0 5px;
+  }
 </style>
 <details data-bind="attr(open)=_component_.show">
   <summary>
@@ -62,7 +67,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   </summary>
   <div data-component="tab-selector">
     <div name="results" class="test-transcript"></div>
-    <pre name="source" data-bind="text=_component_.source" style="overflow:hidden"></pre>
+    <pre name="source" data-bind="method(_component_.js)=_component_.source" style="overflow:hidden"></pre>
   </div>
 </details>
 <script>
@@ -71,8 +76,12 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
 
   b8r.component('tab-selector');
   b8r.component('resizer');
+  const {code} = require('../lib/text-render.js');
 
-  set({show: false});
+  set({
+    show: false,
+    js: (elt, source) => code(source, elt, 'js'),
+  });
 
   const notify_errors = () => {
     b8r.findOne('.literate-errors').style.display = 'block';
