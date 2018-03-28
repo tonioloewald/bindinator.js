@@ -18,7 +18,7 @@
   if(data.source) {
     render.code(code, data.source.split('\n').filter(s => s.trim()).join('\n'), 'js');
   } else if (data.url) {
-    b8r.component('loading', 'loading').
+    b8r.component('loading').
     then(() => b8r.ajax(data.url)).
     then(source => render.code(code, source, 'js'));
   }
