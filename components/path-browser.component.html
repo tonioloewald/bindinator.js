@@ -89,7 +89,7 @@ A tool for browsing objects.
 
       console.log(path, obj);
 
-      if (get('history').indexOf(path) === -1) {
+      if (! get(`history[path=${path}]`)) {
         get('history').push({path});
         touch('history');
       }
