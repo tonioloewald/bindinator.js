@@ -207,12 +207,22 @@ const makeComponent = function(name, source, url, preserve_source) {
   return component;
 };
 
+// copied from require.js
+// path/to/../foo -> path/foo
+const collapse = path => {
+  while (path.match(/([^/]+\/\.\.\/)/)) {
+    path = path.replace(/([^/]+\/\.\.\/)/g, '');
+  }
+  return path;
+};
+
 const component = (name, url, preserve_source) => {
   if (url === undefined) {
     url = name;
     name = url.split('/').pop();
   }
   if (!component_promises[name] || preserve_source) {
+    url = collapse(url);
     component_promises[name] = new Promise(function(resolve, reject) {
       if (components[name] && !preserve_source) {
         resolve(components[name]);

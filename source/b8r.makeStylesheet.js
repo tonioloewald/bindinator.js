@@ -12,7 +12,7 @@ supplied title as its `data-title` attribute;
 /* global module, require */
 'use strict';
 
-const {create, text} = require('./b8r.dom.js');
+const {create, text, findOne} = require('./b8r.dom.js');
 
 module.exports = (source, title) => {
   const style = source ? create('style') : false;
@@ -24,3 +24,13 @@ module.exports = (source, title) => {
   }
   return style;
 };
+
+module.exports.viaLink = href => {
+  if (! findOne(`link[href="${href}"]`)) {
+    const link = create('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = href;
+    document.head.append(link);
+  }
+}
