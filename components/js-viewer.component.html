@@ -16,7 +16,7 @@
   const render = require('lib/text-render.js');
 
   if(data.source) {
-    render.code(data.source.split('\n').filter(s => s.trim()).join('\n'), code, 'js');
+    render.code(code, data.source.split('\n').filter(s => s.trim()).join('\n'), 'js');
   } else if (data.url) {
     b8r.component('loading', 'loading').
     then(() => b8r.ajax(data.url)).
