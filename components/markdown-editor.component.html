@@ -57,7 +57,7 @@ Here is some text
 
   const preview = findOne('.preview');
 
-  const update = b8r.debounce(() => md(get('source'), preview), 250);
+  const update = b8r.debounce(() => md(preview, get('source')), 250);
 
   update();
 

@@ -10,10 +10,10 @@
 
   if (data.content) {
     loading.
-    then(() => md(data.content, component));
+    then(() => md(component, data.content));
   } else if (data.url) {
     loading.
     then(() => b8r.ajax(data.url)).
-    then(content => md(content, component));
+    then(content => md(component, content));
   }
 </script>

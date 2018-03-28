@@ -433,7 +433,7 @@ module.exports = function(b8r) {
       element.textContent = `${value} ${suffix}`;
     },
     attr: function(element, value, dest) {
-      if (value === undefined || value === null) {
+      if (value === undefined || value === null || value === false) {
         element.removeAttribute(dest);
       } else {
         element.setAttribute(dest, value);
