@@ -76,9 +76,9 @@ A component for messing around with the `mondrian.js` layout library.
   Letterbox Enabled
 </label>
 <label class="mondrian-label" data-bind="show_if=_component_.letterbox_enabled">
-  <input type="range" min="1" max="2" step="0.05" data-bind="value=_component_.letterbox_threshold"
+  <input type="range" min="1" max="2" step="0.05" data-bind="value=_component_.letterbox"
   >
-  (<span data-bind="fixed(2)=_component_.letterbox_threshold"></span>) Letterbox Threshold
+  (<span data-bind="fixed(2)=_component_.letterbox"></span>) Letterbox Threshold
 </label>
 <script>
 /* jshint latedef:false */
@@ -113,7 +113,7 @@ A component for messing around with the `mondrian.js` layout library.
       visible(),
       {
         aspect_ratio: get('desired_aspect_ratio'),
-        letterbox: get('letterbox_enabled') && get('letterbox_threshold')
+        letterbox: get('letterbox_enabled') && get('letterbox')
       }
     );
     b8r.logEnd('mondrian', signature);
@@ -175,7 +175,7 @@ A component for messing around with the `mondrian.js` layout library.
     desired_aspect_ratio: 1,
     focus_enabled: true,
     letterbox_enabled: true,
-    letterbox_threshold: 1.25,
+    letterbox: 1.25,
     change_focus_enabled: () => {
       if (! get('focus_enabled')) {
         find('.mondrian-focus').forEach(elt => elt.classList.remove('mondrian-focus'));
