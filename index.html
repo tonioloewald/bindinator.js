@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- bindinator.js Copyright ©2016-2017 Tonio Loewald -->
+  <!-- bindinator.js Copyright ©2016-2018 Tonio Loewald -->
   <meta charset="utf-8">
   <title>bindinator</title>
   <link rel="stylesheet" type="text/css" href="css/b8r.css">
@@ -13,9 +13,27 @@
     require.autoPreload().
     then(() => {
       const b8r = require('source/b8r.js');
-      b8r.component('components/documentation');
+      // if the # contains 'body=path/to/component' load that
+      // othersize load 'components/documentation'
+      const component_path = (window.location.hash.match(/\bbody=([^=]+)/) || [])[1]
+                             || 'components/documentation';
+      const div = b8r.create('div');
+      b8r.styles(div, {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+      });
+      document.body.appendChild(div);
+      b8r.component(component_path).
+          then(c => {
+            document.title = c.name;
+            b8r.insertComponent(c, div);
+          });
     });
   </script>
 </head>
-<body data-component="documentation"></body>
+<body>
+</body>
 </html>

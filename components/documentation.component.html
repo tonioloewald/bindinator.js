@@ -12,7 +12,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     display: grid;
     grid-template-columns: 10px 180px auto auto 180px 0;
     grid-template-rows: 64px auto 32px;
-    background-color: var(--accent-color);
+    background-color: var(--bg-color);
   }
 
   .documentation-component > * {
@@ -21,6 +21,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 
   .documentation-component > .header {
     grid-area: 1 / 1 / 2 / 7;
+    background: var(--accent-color);
     -webkit-app-region: drag;
   }
   .documentation-component > .nav {
@@ -228,8 +229,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   const nav = findOne('.nav');
   set({year: new Date().getFullYear()});
 
-  document.body.style.background = 'var(--accent-color)';
-
   function markCurrent() {
     b8r.after_update(() => {
       const doc = window.location.hash.split('=').pop();
@@ -267,7 +266,13 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
         return;
       }
       const part = b8r.getListInstance(evt.target) || {path: 'README.md'};
-      window.location.hash = 'source=' + part.path;
+      /* global nw */ // nwjs
+      if (nw && evt.metaKey) {
+        const component_name = part.path.split('.').shift();
+        nw.Window.open(`index.html#body=components/${component_name}`, {width: 720, height: 400});
+      } else {
+        window.location.hash = 'source=' + part.path;
+      }
     },
     inspector: () => b8r.componentOnce('inspector'),
     alertKeystroke: evt => alert(b8r.keystroke(evt)),

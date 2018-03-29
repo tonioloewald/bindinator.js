@@ -30,7 +30,6 @@
 
 body {
   font: var(--ui-font);
-  background-color: var(--bg-color);
   color: var(--text-color);
   margin: 0;
 }

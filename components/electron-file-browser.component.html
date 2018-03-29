@@ -18,11 +18,10 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
     -webkit-app-region: drag;
     padding: 5px 8px;
     flex-shrink: 0;
-    border-top: 1px solid #eeedee;
     border-bottom: 1px solid #939293;
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e9e6e9+0,d1cfd1+100 */
-    background: #e9e6e9; /* Old browsers */
-    background: linear-gradient(to bottom,  #e9e6e9 0%,#d1cfd1 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    background: #d4d4d4; /* Old browsers */
+    background: linear-gradient(to bottom,  #d4d4d4 0%,#c7c7c7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   }
 
   .electron-file-browser-component > .fb-header button,
@@ -31,6 +30,12 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
     -webkit-app-region: no-drag;
     user-select: none;
     margin: 0 2px;
+  }
+
+  .fb-header .folder-name,
+  .fb-header .folder-name > * {
+    cursor: default;
+    vertical-align: middle;
   }
 
   .electron-file-browser-component {
@@ -175,42 +180,37 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
     cursor: default;
   }
 </style>
-<div class="fb-header">
-  <div
-    style="height: 16px; text-align: center"
+<div class="fb-header" style="display: flex;">
+  <button
+    data-event="click:_component_.home"
+    title="home folder"
+  ><span class="icon-home5"></span></button>
+  <button
+    data-bind="disabled_if=_component_.root"
+    data-event="click:_component_.parent"
+    title="parent folder"
+  ><span class="icon-folder-upload"></span></button>
+  <button
+    data-event="click:_component_.pick"
+    title="choose folder"
+  ><span class="icon-folder-search"></span></button>
+  <span style="flex-grow: 1"></span>
+  <span class="folder-name" data-event="mousedown:_component_.show_folders">
+    <span class="icon-folder"></span>
+    <span data-bind="text=_component_.name"></span>
+  </span>
+  <span style="flex-grow: 1"></span>
+  <span class="icon-search3" style="position: relative; top: 5px; margin-right: -22px"></span>
+  <input
+    class="search"
+    placeholder="name filter"
+    data-bind="value=_component_.filter_text"
+    style="padding-left: 24px; font-size: 12px"
   >
-    <span data-event="mousedown:_component_.show_folders">
-      <span class="icon-folder"></span>
-      <span data-bind="text=_component_.name"></span>
-    </span>
-  </div>
-  <div style="padding-top: 5px; display: flex;">
-    <button
-      data-event="click:_component_.home"
-      title="home folder"
-    ><span class="icon-home5"></span></button>
-    <button
-      data-bind="disabled_if=_component_.root"
-      data-event="click:_component_.parent"
-      title="parent folder"
-    ><span class="icon-folder-upload"></span></button>
-    <button
-      data-event="click:_component_.pick"
-      title="choose folder"
-    ><span class="icon-folder-search"></span></button>
-    <span style="flex-grow: 1"></span>
-    <span class="icon-search3" style="position: relative; top: 5px; margin-right: -22px"></span>
-    <input
-      class="search"
-      placeholder="name filter"
-      data-bind="value=_component_.filter_text"
-      style="padding-left: 24px; font-size: 12px"
-    >
-    <button data-event="mousedown:_component_.show_settings">
-      <span class="icon-cog2"></span>
-      <span style="font-size: 50%; line-height: 50%; vertical-align: 60%; margin-left: 2px" class="icon-arrow-down3"></span>
-    </button>
-  </div>
+  <button data-event="mousedown:_component_.show_settings">
+    <span class="icon-cog2"></span>
+    <span style="font-size: 50%; line-height: 50%; vertical-align: 60%; margin-left: 2px" class="icon-arrow-down3"></span>
+  </button>
 </div>
 <div style="flex-shrink: 0; background: #eee; border-bottom: 1px solid #ccc;">
   <div class="faux-tr">
