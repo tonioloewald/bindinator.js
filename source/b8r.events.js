@@ -75,9 +75,9 @@ is returned as
 */
 
 const getParsedEventHandlers = element => {
-  var handlers = getEventHandlers(element);
+  const handlers = getEventHandlers(element);
   return handlers.map(function(instruction){
-    var [type, handler] = instruction.split(':');
+    const [type, handler] = instruction.split(':');
     if (!handler) {
       if(instruction.indexOf('.')) {
         console.error('bad event handler (missing event type)', instruction, 'in', element);
@@ -86,8 +86,8 @@ const getParsedEventHandlers = element => {
       }
       return { types: [] };
     }
-    var [model, method] = handler.trim().split('.');
-    var types = type.split(',').sort();
+    const [, model, method] = handler.trim().match(/^([^\.]+)\.(.+)$/);
+    const types = type.split(',').sort();
     return {
       types: types.map(s => s.split('(')[0].trim()),
       type_args: types.map(s => {

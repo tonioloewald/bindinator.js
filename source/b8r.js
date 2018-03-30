@@ -305,7 +305,7 @@ b8r.implicitlyHandleEventsOfType = type => {
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
 
-b8r.onAny([ 'change', 'input' ], '_b8r_._update_', true);
+b8r.onAny([ 'change', 'input' ], '_b8r_._update_');
 
 b8r.interpolate = (template, elt) => {
   let formatted = '';
