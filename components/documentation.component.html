@@ -267,7 +267,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       }
       const part = b8r.getListInstance(evt.target) || {path: 'README.md'};
       /* global nw */ // nwjs
-      if (nw && evt.metaKey) {
+      if (window.nw && evt.metaKey) {
         const component_name = part.path.split('.').shift();
         nw.Window.open(`index.html#body=components/${component_name}`, {width: 720, height: 400});
       } else {
