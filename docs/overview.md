@@ -21,7 +21,7 @@ b8r.get('root.test') // 17
 You can update the value at the path:
 
 ```
-b8r.set('root.test') // 17
+b8r.set('root.test', Math.PI)
 ```
 
 ### paths for array items

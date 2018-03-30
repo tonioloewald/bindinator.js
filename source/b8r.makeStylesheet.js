@@ -8,6 +8,16 @@ Usage:
 
 Inserts the source in a `<style>` tag and sticks in in the document head. It will have the
 supplied title as its `data-title` attribute;
+
+    makeStyleSheet.viaLink('path/to/styles.css');
+
+Adds:
+
+    <link rel="stylesheet" type="text/css" href="path/to/styles.css">
+
+to the document header if (and only if) no such tag is already present (it only checks for
+`<link>` tags with the same href, so if you're doing something *really weird* with links this
+might lead to problems.)
 */
 /* global module, require */
 'use strict';

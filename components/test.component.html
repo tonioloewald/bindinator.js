@@ -7,9 +7,14 @@ being tested (as `_required_`) and the test code. The test code will be executed
 in a private context with `_required_` and `Test` (the test.js module) passed as local variables.
 -->
 <style>
+  .test-component .tab-selector-tabs {
+    background: var(--accent-color);
+  }
+
   .test-component .tab-selector-bodies {
     font-family: Menlo, Monaco, monospace;
     font-size: 12px;
+    border: 0;
   }
 
   .test-component > details {
@@ -58,7 +63,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   }
 
   .test-component .tab-selector-component {
-    margin: 3px 0 5px;
+    margin: 0 -6px;
   }
 </style>
 <details data-bind="attr(open)=_component_.show">
