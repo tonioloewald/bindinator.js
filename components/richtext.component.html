@@ -310,7 +310,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     doc.focus();
     const args = evt.target.closest('[data-command]').dataset.command.split(',');
     if (args.length > 1) {
-      document.execCommand(args[0], false, JSON.parse(args[1]));
+      document.execCommand(args[0], false, args[1]);
     } else {
       document.execCommand(args[0]);
     }
