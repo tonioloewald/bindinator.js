@@ -20,4 +20,6 @@ then
   exit 1
 fi
 
+cp nwjs/package.json package.json
 /Applications/nwjs.app/Contents/MacOS/nwjs .
+cp electron/package.json package.json

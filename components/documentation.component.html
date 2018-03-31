@@ -267,10 +267,16 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
         return;
       }
       const part = b8r.getListInstance(evt.target) || {path: 'README.md'};
-      /* global nw */ // nwjs
-      if (window.nw && evt.metaKey) {
+      /* global require, nw */ // nwjs
+      if (evt.metaKey && part.path.endsWith('.component.html')) {
         const component_name = part.path.split('.').shift();
-        nw.Window.open(`index.html#body=components/${component_name}`, {width: 720, height: 400});
+        if (require.electron_remote) {
+          const win = new require.electron_remote.BrowserWindow();
+          win.loadURL(`${window.location.origin}${window.location.pathname}#body=components/${component_name}`);
+          win.opener_id = require.electron_remote.getCurrentWindow().id;
+        } else if (window.nw) {
+          nw.Window.open(`index.html#body=components/${component_name}`, {width: 720, height: 400});
+        }
       } else {
         window.location.hash = 'source=' + part.path;
       }

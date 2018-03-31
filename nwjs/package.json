@@ -1,0 +1,9 @@
+{
+  "name": "b8r",
+  "main": "index.html",
+  "window": {
+    "id": "b8r",
+    "min_width": 840,
+    "min_height": 500
+  }
+}

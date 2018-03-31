@@ -9,6 +9,12 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
     border: 1px solid rgba(0,0,0,0.1);
   }
 
+  .electron-file-browser-component :focus,
+  .electron-file-browser-component :focus+.focus-follower {
+    box-shadow: none;
+    outline: none;
+  }
+
   .electron-file-browser-component {
     max-height: 100vh;
     background: white;
@@ -18,10 +24,8 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
     -webkit-app-region: drag;
     padding: 5px 8px;
     flex-shrink: 0;
-    border-bottom: 1px solid #939293;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e9e6e9+0,d1cfd1+100 */
-    background: #d4d4d4; /* Old browsers */
-    background: linear-gradient(to bottom,  #d4d4d4 0%,#c7c7c7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    border-bottom: 1px solid #ccc;
+    background: #e7e7e7;
   }
 
   .electron-file-browser-component > .fb-header button,
@@ -275,7 +279,7 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
     };
 
     home = () => list_path(app.getPath('home'));
-  } else if (nw) {
+  } else if (window.nw) {
     const file = b8r.create('input');
     file.type = 'file';
     file.setAttribute('webkitdirectory', '');

@@ -31,6 +31,14 @@
             document.title = c.name;
             b8r.insertComponent(c, div);
           });
+      b8r.set('_b8r_.toggleDebug', () => {
+        if (window.nw) {
+          nw.Window.get().showDevTools();
+        } else if (require.electron_remote) {
+          require.electron_remote.getCurrentWindow().toggleDevTools();
+        }
+      });
+      b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
     });
   </script>
 </head>
