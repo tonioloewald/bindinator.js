@@ -1,5 +1,5 @@
 {
-  "name": "b8r",
+  "name": "b8r | electron",
   "main": "electron/main.js",
   "dependencies": {
     "electron": "^1.8.4"
