@@ -13,7 +13,6 @@ Use the class "floater-title" for the first child to get nice styling.
     border-radius: 4px;
     cursor: move;
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    z-index: 20;
   }
 
   .floater-close {
@@ -64,6 +63,8 @@ Use the class "floater-title" for the first child to get nice styling.
     component.style.top = '10px';
   }
 
+  document.body.appendChild(component);
+
   b8r.set('floater-controller', {
     element: null,
     move: (evt) => {
@@ -103,6 +104,7 @@ Use the class "floater-title" for the first child to get nice styling.
         const style = getComputedStyle(floater);
         const x = parseFloat(style.left) - evt.pageX;
         const y = parseFloat(style.top) - evt.pageY;
+        document.body.appendChild(floater);
         b8r.set('floater-controller.origin', {x,y});
         b8r.set('floater-controller.target', floater);
         b8r.onAny('mousemove', 'floater-controller.move');
