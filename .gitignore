@@ -26,3 +26,4 @@ CVS
 # certs
 *.pem
 *.p12
+/package.json
