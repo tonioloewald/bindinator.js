@@ -8,9 +8,9 @@ its data-date. To initialise it to the current date, use `data-date="today"`.
 
 To disable it (make it read-only) give it a `data-disabled` attribute.
 
-**Note** that right now the date component assumes its value will be an 
-**ISO string** or a `Date` object or UNIX timestamp (milliseconds since epoch) 
-and not a `yyyy-mm-dd` formatted string  the way standard inputs work because 
+**Note** that right now the date component assumes its value will be an
+**ISO string** or a `Date` object or UNIX timestamp (milliseconds since epoch)
+and not a `yyyy-mm-dd` formatted string  the way standard inputs work because
 date strings with no timezone are *incredibly stupid* and no-one should use
 them for anything.
 -->
@@ -34,7 +34,7 @@ them for anything.
 
   .date-component-day-of-week {
     color: var(--accent-color);
-    background: var(--light-accent-color); 
+    background: var(--light-accent-color);
   }
 
   .date-component-body {
@@ -87,13 +87,14 @@ them for anything.
     data-bind="text=.initial;attr(title)=.name"
   >
   </div>
-  <div 
+  <div
     data-list="_component_.days:_auto_"
     data-bind="text=.day;attr(title)=.date;class(date-component-current)=.current;class(date-component-current-month)=.current_month"
     tabindex="0"
   ></div>
 </div>
 <script>
+  /* jshint curly:false */
   'use strict';
   /* global b8r, get, set, component, findOne, touch */
   const DAY_IN_MS = 24 * 3600 * 1000;
@@ -101,10 +102,12 @@ them for anything.
   const update = date => {
     const currentMonth = date.getMonth();
     const currentDate = date.toLocaleDateString();
-    const firstDayOfMonth = new Date(`${date.getFullYear()}-${currentMonth + 1}-1`);
-
+    const timezone = new Date().toISOString().split('T')[1];
+    // Safari turns out to be super strict about the date strings it will parse
+    const month = currentMonth < 9 ? '0' + (currentMonth + 1) : (currentMonth + 1);
+    const firstDayOfMonth = new Date(`${date.getFullYear()}-${month}-01T${timezone}`);
     const firstDay = firstDayOfMonth - firstDayOfMonth.getDay() * DAY_IN_MS;
-    const days = get('firstDayOfMonth') - firstDayOfMonth ? [] : get('days');
+    const days = ! get('firstDayOfMonth') || (get('firstDayOfMonth') - firstDayOfMonth) ? [] : get('days');
 
     // do we need to [re]build days?
     if (! days.length) {
@@ -137,7 +140,7 @@ them for anything.
         value: date.toISOString(),
         dateValue: date.toISOString().split('T')[0],
         days,
-      });  
+      });
     } else {
       if (get('days[current=true].date') === currentDate) {
         // our work is done
@@ -159,6 +162,11 @@ them for anything.
 
   const pick = (_, value) => {
     const had_focus = component.contains(document.activeElement);
+
+    if (typeof value === 'string' && value.match(/^\d{4,4}\-\d{2,2}\-\d{2,2}$/)) {
+      value += 'T' + new Date().toISOString().split('T')[1];
+    }
+
     update(new Date(value));
     // focus the (new) current day once we've rendered the update
     if (had_focus) {
