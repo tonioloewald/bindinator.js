@@ -265,7 +265,7 @@ of awesome that this works at all.
       set('minimized', false);
       run();
     },
-    resize: () => editor.resize(true),
+    resize: () => editor && editor.resize(true),
     mode: component.dataset.mode || data.mode || 'all',
     title: 'inline',
   });
