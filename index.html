@@ -13,6 +13,10 @@
     require.autoPreload().
     then(() => {
       const b8r = require('source/b8r.js');
+
+      // for convenience when debugging
+      window.b8r = b8r;
+
       // if the # contains 'body=path/to/component' load that
       // othersize load 'components/documentation'
       const component_path = (window.location.hash.match(/\bbody=([^=]+)/) || [])[1]
@@ -31,9 +35,30 @@
             document.title = c.name;
             b8r.insertComponent(c, div);
           });
+
+      // hacks to allow access to opener's registry
+      if (require.electron_remote) {
+        if (window.opener_id !== undefined) {
+          const opener = require.electron_remote.webContents.fromId(window.opener_id);
+          b8r.opener_get = path => opener.executeJavaScript(`b8r.get("${path}")`);
+          b8r.opener_set = (path, data) => {
+            const json = JSON.stringify(data);
+            opener.executeJavaScript(`b8r.set("${path}", ${json})`);
+          };
+        }
+      } else {
+        // works for vanilla browser and nwjs -- opener_get is promised for compatibility
+        b8r.opener_get = path => new Promise(resolve => resolve(window.opener.b8r.get(path)));
+        b8r.opener_set = (path, data) => window.opener.b8r.set(path, data);
+      }
+
+      // debug tools
       b8r.set('_b8r_.toggleDebug', () => {
         if (window.nw) {
-          nw.Window.get().showDevTools();
+          const win = window.nw.Window.get();
+          // bizarrely, isDevToolsOpen requires the SDK build of nwjs but show/close does not
+          const show_dev_tools = !(win.isDevToolsOpen && win.isDevToolsOpen());
+          if (show_dev_tools) win.showDevTools(); else win.closeDevTools();
         } else if (require.electron_remote) {
           require.electron_remote.getCurrentWindow().toggleDevTools();
         }

@@ -223,9 +223,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   on('keydown(alt-Space)', 'documentation-controller.fullscreen');
   on('keydown(alt-I)', 'documentation-controller.inspector');
 
-  // for convenience when debugging
-  window.b8r = b8r;
-
   var content = findOne('.content');
   const nav = findOne('.nav');
   set({year: new Date().getFullYear()});
@@ -273,9 +270,14 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
         if (require.electron_remote) {
           const win = new require.electron_remote.BrowserWindow();
           win.loadURL(`${window.location.origin}${window.location.pathname}#body=components/${component_name}`);
-          win.opener_id = require.electron_remote.getCurrentWindow().id;
+          // electron doesn't support window.opener, so we're tucking the id of the current window
+          // into the new browserWindow's window global so it can find its opener later
+          const id = require.electron_remote.getCurrentWindow().webContents.id;
+          win.webContents.executeJavaScript(`window.opener_id = ${id}`);
         } else if (window.nw) {
           nw.Window.open(`index.html#body=components/${component_name}`, {width: 720, height: 400});
+        } else {
+          window.open(`${window.location.origin}${window.location.pathname}#body=components/${component_name}`);
         }
       } else {
         window.location.hash = 'source=' + part.path;
