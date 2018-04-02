@@ -1,0 +1,53 @@
+<!--
+# Analog Clock
+
+Here's an analog version of the clock component. Note that it sets the aria-label attribute
+so that it's still accessible.
+-->
+<canvas
+  data-bind="attr(aria-label)=_component_.time"
+  width="256" height="256"
+></canvas>
+<script>
+  /* global require, get, set, findOne */
+  'use strict';
+  const clock = findOne('canvas');
+  const {domInterval} = require('lib/dom-timers.js');
+  const g = clock.getContext('2d');
+  g.fillStyle = '#222';
+  const d2r = Math.PI / 180;
+  const drawRay = (width, angle, r0, r1, color='#fff') => {
+    g.strokeStyle = color;
+    g.lineWidth = width;
+    const x0 = 128 + r0 * Math.sin(angle * d2r);
+    const y0 = 128 - r0 * Math.cos(angle * d2r);
+    const x1 = 128 + r1 * Math.sin(angle * d2r);
+    const y1 = 128 - r1 * Math.cos(angle * d2r);
+    g.beginPath();
+    g.moveTo(x0, y0);
+    g.lineTo(x1, y1);
+    g.stroke();
+  };
+
+  const update = () => {
+    const now = new Date();
+    const time_text = now.toLocaleTimeString();
+    if (time_text !== get('time')) {
+      set('time', time_text);
+      g.clearRect(0,0,256,256);
+      g.beginPath();
+      g.ellipse(128, 128, 128, 128, 0, 0, 2 * Math.PI);
+      g.fill();
+      for (let h = 0; h < 12; h++){
+        drawRay(4, h * 30, 104, 120);
+      }
+      const hourHand = (now.getHours() % 12 * 30) + now.getMinutes() * 0.5;
+      const minuteHand = now.getMinutes() * 6;
+      const secondHand = now.getSeconds() * 6;
+      drawRay(6, hourHand, 0, 80);
+      drawRay(4, minuteHand, 0, 116);
+      drawRay(2, secondHand, 0, 120, 'red');
+    }
+  };
+  domInterval(clock, update, 100);
+</script>
