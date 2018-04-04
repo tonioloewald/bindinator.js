@@ -98,7 +98,7 @@ Test(() => {
 
 'use strict';
 
-const makeArray = arrayish => [].slice.apply(arrayish);
+const makeArray = arrayish => [...arrayish];
 
 const forEach = (array, method) => {
   for (var i = 0; i < array.length; i++) {
