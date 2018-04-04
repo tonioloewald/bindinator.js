@@ -1,7 +1,7 @@
 /* bindinator.js Copyright ©2016-2017 Tonio Loewald */
 
 :root {
-  --ui-font: 13px system-ui;
+  --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
   --bg-color: #cff2a6;
   --content-bg-color: white;
   --text-color: #222;
