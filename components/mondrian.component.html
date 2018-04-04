@@ -10,11 +10,10 @@ A component for messing around with the `mondrian.js` layout library.
     overflow: hidden;
   }
   .mondrian > * {
-    overflow: hidden;
+    object-fit: cover;
+    border-radius: 0.5px; /* without this, object-fit is broken in Chrome */
     position: absolute;
     transition: 0.5s ease-out;
-    object-fit: cover;
-    border-radius: 0.5px; /* without this, overflow is broken */
   }
 
   .mondrian-label {
@@ -31,7 +30,15 @@ A component for messing around with the `mondrian.js` layout library.
   <video src="test/video/portrait2.mov" autoplay=true loop=true></video>
   <video src="test/video/portrait3.mov" autoplay=true loop=true></video>
   <video src="test/video/landscape1.mov" autoplay=true loop=true></video>
-  <video src="test/video/landscape2.mov" autoplay=true loop=true></video>
+  <div style="overflow: hidden">
+    <video src="test/video/portrait3.mov" style="display: none" autoplay=true loop=true></video>
+    <video
+      style="width: 100%; height: 100%; object-fit: cover;"
+      src="test/video/landscape2.mov"
+      autoplay=true
+      loop=true
+    ></video>
+  </div>
   <video src="test/video/landscape3.mov" autoplay=true loop=true></video>
   <img src="test/portraits/tentacle.png">
   <img src="test/portraits/weasel.png">
@@ -186,11 +193,12 @@ A component for messing around with the `mondrian.js` layout library.
       if (! get('focus_enabled')) {
         return;
       }
-      if (evt.target.classList.contains('mondrian-focus')) {
-        evt.target.classList.remove('mondrian-focus');
+      const target = evt.target.closest('.mondrian > *');
+      if (target && target.classList.contains('mondrian-focus')) {
+        target.classList.remove('mondrian-focus');
       } else {
         find('.mondrian-focus').forEach(elt => elt.classList.remove('mondrian-focus'));
-        evt.target.classList.add('mondrian-focus');
+        if (target) target.classList.add('mondrian-focus');
       }
       update();
     }
