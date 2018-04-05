@@ -577,5 +577,9 @@ when and if the need arises.
     });
   } else {
     register({video_snapshot});
+
+    if (! b8r.get('kitchen-sink-demo')) {
+      b8r.register('kitchen-sink-demo', {});
+    }
   }
 </script>
