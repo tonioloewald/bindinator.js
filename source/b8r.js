@@ -86,7 +86,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
       delete _component_instances[component_id];
     }
   });
-  b8r.models().forEach((model) => {
+  b8r.models().forEach(model => {
     if (model.substr(0, 2) === 'c#' && !_component_instances[model]) {
       const obj = b8r.get(model);
       if (obj && obj.destroy && typeof obj.destroy === 'function') obj.destroy();
@@ -624,9 +624,12 @@ function loadAvailableComponents(element, data_path) {
 
 const getData = element => {
   const source = element.closest('[data-path],[data-list-instance],[data-component-id]');
-  return source ?
-         b8r.get(source.dataset.componentId || b8r.getDataPath(source)) :
-         null;
+  if (! source) {
+    return null;
+  } else {
+    const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source));
+    return JSON.parse(JSON.stringify(data));
+  }
 };
 
 let component_count = 0;
