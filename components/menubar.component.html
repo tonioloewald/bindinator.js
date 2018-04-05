@@ -1,6 +1,6 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
 <style>
-  .menubar {
+  .menubar-component {
     height: 24px;
     background-color: #eee;
     list-style: none;
@@ -10,15 +10,19 @@
     box-sizing: border-box;
   }
 
-  .menubar a {
+  ul.menubar-component {
+    max-width: initial;
+  }
+
+  .menubar-component a {
     border: none;
   }
 
-  .menubar [data-shortcut] {
+  .menubar-component [data-shortcut] {
     padding-right: 40px;
   }
 
-  .menubar [data-shortcut]:after {
+  .menubar-component [data-shortcut]:after {
     content: attr(title);
     display: block;
     position: absolute;
@@ -27,12 +31,12 @@
     color: #57A700;
   }
 
-  .menubar * {
+  .menubar-component * {
     box-sizing: border-box;
     transition: 0.1s;
   }
 
-  .menubar li {
+  .menubar-component li {
     position: relative;
     cursor: default;
     margin: 0;
@@ -44,15 +48,15 @@
     min-width: 40px;
   }
 
-  .menubar li.open {
+  .menubar-component li.open {
     background-color: #BCED85;
   }
 
-  .menubar li:active {
+  .menubar-component li:active {
     background-color: #7ED321;
   }
 
-  .menubar ul {
+  .menubar-component ul {
     position: absolute;
     padding: 0;
     margin: 0 -8px;
@@ -66,38 +70,37 @@
     opacity: 0;
   }
 
-  .menubar ul ul {
+  .menubar-component ul ul {
     z-index: 1;
     left: 40px;
   }
 
-  .menubar li.open > ul {
+  .menubar-component li.open > ul {
     display: block;
     opacity: 1.0;
   }
 
-  .menubar li.separator {
+  .menubar-component li.separator {
     background-color: rgba(0,0,0,0.25);
     height: 1px;
     padding: 0;
     margin: 4px 0;
   }
 
-  .menubar ul li {
+  .menubar-component ul li {
     display: flex;
   }
 
-  .menubar ul li > *:first-child {
+  .menubar-component ul li > *:first-child {
     flex-grow: 1;
   }
 
-  .menubar ul li > *:not(:first-child) {
+  .menubar-component ul li > *:not(:first-child) {
     margin-left: 8px;
   }
 </style>
 <script>
   const shortcuts = require('../lib/shortcuts.js');
-  component.classList.add('menubar');
   b8r.on(component, ['mouseup', 'keydown(Space)'], 'menubar', 'action');
   b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open');
   b8r.on(component, ['blur', 'keydown(Escape)'], 'menubar', 'close');
@@ -114,7 +117,7 @@
     } else {
       elt.closest('li').dataset.event = handler_def;
       if (elt.dataset.event) {
-        delete elt.dataset.event;  
+        delete elt.dataset.event;
       }
     }
   });
@@ -126,12 +129,12 @@
 
   function close_all_menus() {
     b8r.off(document.body, 'mousedown', 'menubar', 'close');
-    b8r.find('.menubar.open,.menubar .open').forEach(elt => elt.classList.remove('open'));
+    b8r.find('.menubar-component.open,.menubar-component .open').forEach(elt => elt.classList.remove('open'));
   }
 
   b8r.register('menubar', {
     action(evt){
-      if(!evt.target.matches('.menubar') && !evt.target.parentElement.matches('.menubar')) {
+      if(!evt.target.matches('.menubar-component') && !evt.target.parentElement.matches('.menubar-component')) {
         close_all_menus();
       }
     },
@@ -140,23 +143,23 @@
       if(!li) {
         return;
       }
-      if(li.parentElement.matches('.menubar.open') && evt.type === 'mousedown') {
+      if(li.parentElement.matches('.menubar-component.open') && evt.type === 'mousedown') {
         close_all_menus();
         return;
       }
-      if(li.closest('.menubar.open') || evt.type !== 'mouseover') {
-        const menubar = evt.target.closest('.menubar');
+      if(li.closest('.menubar-component.open') || evt.type !== 'mouseover') {
+        const menubar = evt.target.closest('.menubar-component');
         menubar.classList.add('open');
         b8r.on(document.body, 'mousedown', 'menubar', 'close');
         menubar.querySelectorAll('.open').forEach(elt => elt.classList.remove('open'));
         if(evt.target.matches('li')) {
           evt.target.classList.add('open');
         }
-        b8r.findAbove(evt.target, 'li', '.menubar').forEach(elt => elt.classList.add('open'));
+        b8r.findAbove(evt.target, 'li', '.menubar-component').forEach(elt => elt.classList.add('open'));
       }
     },
     close(evt){
-      if (!evt || !evt.relatedTarget || !evt.relatedTarget.closest('.menubar')) {
+      if (!evt || !evt.relatedTarget || !evt.relatedTarget.closest('.menubar-component')) {
         close_all_menus();
       }
     }
