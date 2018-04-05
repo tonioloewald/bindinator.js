@@ -48,6 +48,10 @@
         "path": "source/b8r.component.js"
       },
       {
+        "name": "(b8r) component v2",
+        "path": "source/b8r.component_v2.js"
+      },
+      {
         "name": "(b8r) dom",
         "path": "source/b8r.dom.js"
       },
@@ -160,6 +164,10 @@
       {
         "name": "dom-timers",
         "path": "lib/dom-timers.js"
+      },
+      {
+        "name": "windows",
+        "path": "lib/windows.js"
       }
     ]
   },
@@ -391,6 +399,10 @@
       {
         "name": "Clock",
         "path": "clock.component.html"
+      },
+      {
+        "name": "Analog Clock",
+        "path": "analog-clock.component.html"
       }
     ]
   }
