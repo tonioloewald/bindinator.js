@@ -147,6 +147,7 @@ let call, get; // defined later
 
 class Listener {
   constructor(test, callback) {
+    this._orig_test = test; // keep it around for unobserve
     if (typeof test === 'string') {
       this.test = t =>
           t.length >= test.length && test === t.substr(0, test.length);
@@ -799,14 +800,15 @@ const unobserve = test => {
     } else {
       console.error('unobserve failed, listener not found');
     }
-  } else {
+  } else if (test) {
     for (let i = listeners.length - 1; i >= 0; i--) {
-      if (listeners[i].test === test) {
+      if (listeners[i]._orig_test === test) {
         listeners.splice(i, 1);
         found = true;
       }
     }
   }
+
   return found;
 };
 
