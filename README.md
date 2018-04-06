@@ -22,7 +22,7 @@ via `b8r.register`. You can update data using `b8r.set`, e.g.
 
 Note the use of an ES6-*like* interpolated string (it doesn't do `eval`, it just looks up paths!).
 If a binding does not include `${...}` it is assumed to be a data-path. You can try to change the
-binding to, for example `data-bind="text=example.name"`.
+binding to `data-bind="text=example.name"` or `data-bind="text=${example.name} says “hi”"`.
 
 ```
 b8r.set('example.name', 'Trump')
