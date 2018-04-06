@@ -14,15 +14,20 @@ so that it's still accessible.
   const clock = findOne('canvas');
   const {domInterval} = require('lib/dom-timers.js');
   const g = clock.getContext('2d');
-  g.fillStyle = '#222';
+  const logo = new Image();
+  logo.src = 'images/bindinator-logo-notext.svg';
+  g.fillStyle = '#111';
   const d2r = Math.PI / 180;
   const drawRay = (width, angle, r0, r1, color='#fff') => {
     g.strokeStyle = color;
     g.lineWidth = width;
-    const x0 = 128 + r0 * Math.sin(angle * d2r);
-    const y0 = 128 - r0 * Math.cos(angle * d2r);
-    const x1 = 128 + r1 * Math.sin(angle * d2r);
-    const y1 = 128 - r1 * Math.cos(angle * d2r);
+    const radians = angle * d2r;
+    const sin_r = Math.sin(radians);
+    const cos_r = Math.cos(radians);
+    const x0 = 128 + r0 * sin_r;
+    const y0 = 128 - r0 * cos_r;
+    const x1 = 128 + r1 * sin_r;
+    const y1 = 128 - r1 * cos_r;
     g.beginPath();
     g.moveTo(x0, y0);
     g.lineTo(x1, y1);
@@ -38,16 +43,17 @@ so that it's still accessible.
       g.beginPath();
       g.ellipse(128, 128, 128, 128, 0, 0, 2 * Math.PI);
       g.fill();
+      g.drawImage(logo, 108, 160, 40, 29);
       for (let h = 0; h < 12; h++){
-        drawRay(4, h * 30, 104, 120);
+        drawRay(6, h * 30, 96, 120, 'gold');
       }
       const hourHand = (now.getHours() % 12 * 30) + now.getMinutes() * 0.5;
-      const minuteHand = now.getMinutes() * 6;
-      const secondHand = now.getSeconds() * 6;
+      const minuteHand = now.getMinutes() * 6 + now.getSeconds() * 0.1;
+      const secondHand = now.getSeconds() * 6; // + now.getMilliseconds() * 0.006;
       drawRay(6, hourHand, 0, 80);
       drawRay(4, minuteHand, 0, 116);
-      drawRay(2, secondHand, 0, 120, 'red');
+      drawRay(2, secondHand, 0, 116, 'red');
     }
   };
-  domInterval(clock, update, 100);
+  domInterval(clock, update, 16.6);
 </script>
