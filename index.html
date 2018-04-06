@@ -31,12 +31,16 @@
         width: '100vw',
         height: '100vh',
       });
-      document.body.appendChild(div);
-      b8r.component(component_path).
-          then(c => {
-            document.title = c.name;
-            b8r.insertComponent(c, div);
-          });
+
+      requestAnimationFrame(() => {
+        // sometimes document.body doesn't exist yet
+        document.body.appendChild(div);
+        b8r.component(component_path).
+            then(c => {
+              document.title = c.name;
+              b8r.insertComponent(c, div);
+            });
+      });
 
       // debug tools
       b8r.set('_b8r_.toggleDebug', () => {
