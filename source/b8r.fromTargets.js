@@ -35,6 +35,10 @@ The **selected** attribute on an `<option>`.
 The **textContent** of a typical element (including div, span, and so forth). Note
 that these elements will only get change events if you send them.
 
+### prop
+
+Allows you to get data from element properties (e.g. the `currentTime` of an `HTMLMediaElement`).
+
 ### component
 
     data-bind="component(options)=path.to.options"
@@ -53,7 +57,7 @@ return {
       pending_value = JSON.parse(pending_value);
       element.value = pending_value;
       if (element.value === pending_value) {
-        console.log('restored pending value', element, pending_value);
+        // console.log('restored pending value', element, pending_value);
         if (element.dataset.pendingValue) {
           delete element.dataset.pendingValue;
         }
@@ -76,6 +80,9 @@ return {
   text: function(element){
     return element.textContent;
   },
+  currentTime: element => element.currentTime,
+  playbackRate: element => element.playbackRate,
+  prop: (element, property) => element[property],
   component: function(element, path) {
     const component_id = b8r.getComponentId(element);
     return b8r.getByPath(component_id, path);

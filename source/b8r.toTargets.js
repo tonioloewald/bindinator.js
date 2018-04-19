@@ -148,6 +148,16 @@ options if supplied.
 This is the specified attribute. This can also be used to set "special"
 properties like id, class, and style.
 
+
+### prop()
+
+    data-bind="prop(currentTime)=_component_.video.position"
+    ...
+    b8r.implicityHandleEventsOfType('timeupdate'); // ask b8r to intercept timeupdate events
+    b8r.onAny('timeupdate', '_b8r_._update_'); // ask b8r to trigger updates on timeupdate
+
+This is the specified element property.
+
 ### data()
 
     data-bind="data(imageUrl)=".image.url"
@@ -379,7 +389,7 @@ module.exports = function(b8r) {
             // <select> element will not take value if no matching option exists
             if (value && !element.value) {
               element.dataset.pendingValue = JSON.stringify(value);
-              console.warn('set value deferred', element, value);
+              // console.warn('set value deferred', element, value);
             } else if (element.dataset.pendingValue) {
               delete element.dataset.pendingValue;
             }
@@ -438,6 +448,9 @@ module.exports = function(b8r) {
       } else {
         element.setAttribute(dest, value);
       }
+    },
+    prop: function(element, value, property) {
+      element[property] = value;
     },
     data: function(element, value, dest) {
       element.dataset[dest] = value;
