@@ -43,14 +43,15 @@
       });
 
       // debug tools
+      require('./lib/electron-debug.js');
       b8r.set('_b8r_.toggleDebug', () => {
         if (window.nw) {
           const win = window.nw.Window.get();
           // bizarrely, isDevToolsOpen requires the SDK build of nwjs but show/close does not
           const show_dev_tools = !(win.isDevToolsOpen && win.isDevToolsOpen());
           if (show_dev_tools) win.showDevTools(); else win.closeDevTools();
-        } else if (require.electron_remote) {
-          require.electron_remote.getCurrentWindow().toggleDevTools();
+        } else if (require.electron) {
+          require.electron.remote.getCurrentWindow().toggleDevTools();
         }
       });
       b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');

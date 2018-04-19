@@ -268,7 +268,7 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
   let pick, home;
 
   if (require.electron) {
-    const {dialog, getCurrentWindow, app} = require.electron_remote;
+    const {dialog, getCurrentWindow, app} = require.electron.remote;
 
     pick = () => {
       dialog.showOpenDialog(
