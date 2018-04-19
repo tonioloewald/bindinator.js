@@ -628,7 +628,7 @@ const getData = element => {
     return null;
   } else {
     const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source));
-    return JSON.parse(JSON.stringify(data));
+    return b8r.filterObject(data, v => typeof v !== 'function');
   }
 };
 
@@ -753,6 +753,7 @@ b8r.wrapWithComponent = (component, element, data, attributes) => {
   }
   b8r.wrap(element, wrapper);
   b8r.insertComponent(component, wrapper, data);
+  return wrapper;
 };
 
 b8r.removeComponent = elt => {
