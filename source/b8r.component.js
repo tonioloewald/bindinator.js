@@ -73,6 +73,8 @@ inside a generic modal or floater "wrapper". You could simply use the
 generic component inside the specific component but then the generic component
 has no simple way to "clean itself up".
 
+`b8r.wrapWithComponent()` returns the wrapping element.
+
     <div
       class="my-custom-dialog"
       data-component="modal"
