@@ -1,12 +1,12 @@
 <!--
 # Analog Clock
 
-Here's an analog version of the clock component. Note that it sets the aria-label attribute
-so that it's still accessible.
+Here's an analog version of the clock component. Note that it sets the `aria-label` and `title`
+attributes so that it's still accessible.
 -->
 <canvas
-  data-bind="attr(aria-label)=_component_.time"
-  width="256" height="256"
+  data-bind="attr(aria-label),attr(title)=clock showing ${_component_.time}"
+  width="256" height="256" style="width: 128px; height: 128px;"
 ></canvas>
 <script>
   /* global require, get, set, findOne */
@@ -15,10 +15,10 @@ so that it's still accessible.
   const {domInterval} = require('lib/dom-timers.js');
   const g = clock.getContext('2d');
   const logo = new Image();
-  logo.src = 'images/bindinator-logo-notext.svg';
-  g.fillStyle = '#111';
+  logo.src = 'images/bindinator-logo-notext-mono.svg';
+  g.fillStyle = '#f7f7f7';
   const d2r = Math.PI / 180;
-  const drawRay = (width, angle, r0, r1, color='#fff') => {
+  const drawRay = (width, angle, r0, r1, color='#222') => {
     g.strokeStyle = color;
     g.lineWidth = width;
     const radians = angle * d2r;
@@ -45,7 +45,7 @@ so that it's still accessible.
       g.fill();
       g.drawImage(logo, 108, 160, 40, 29);
       for (let h = 0; h < 12; h++){
-        drawRay(6, h * 30, 96, 120, 'gold');
+        drawRay(6, h * 30, 96, 120, '#444');
       }
       const hourHand = (now.getHours() % 12 * 30) + now.getMinutes() * 0.5;
       const minuteHand = now.getMinutes() * 6 + now.getSeconds() * 0.1;
