@@ -9,23 +9,33 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     left: 0;
     width: 100vw;
     height: 100vh;
+    /*
     display: grid;
     grid-template-columns: 10px 180px auto auto 180px 0;
     grid-template-rows: 64px auto 32px;
+    */
     background-color: var(--bg-color);
   }
 
   .documentation-component > * {
-    position: relative;
+    position: absolute;
+    transition: 0.25s ease-out;
   }
 
   .documentation-component > .header {
-    grid-area: 1 / 1 / 2 / 7;
+    top: 0;;
+    right: 0;
+    width: 100vw;
+    height: 64px;
     background: var(--accent-color);
     -webkit-app-region: drag;
   }
   .documentation-component > .nav {
-    grid-area: 2 / 2 / 3 / 3;
+    top: 0;
+    left: 10px;
+    bottom: 0;
+    width: 180px;
+    padding-top: 64px;
     background-color: var(--light-accent-color);
     box-shadow: -10px 0 0 0 var(--light-accent-color);
     overflow-y: scroll;
@@ -34,47 +44,54 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   }
 
   .documentation-component > .content {
-    grid-area: 2 / 3 / 3 / 6;
+    top: 64px;
+    left: 190px;
+    right: 0;
+    bottom: 32px;
+    background: white;
+    overflow-y: scroll;
+    overflow-y: overlay;
   }
 
   .documentation-component > .footer {
-    grid-area: 3 / 1 / 4 / 7;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 32px;
     background-color: var(--bright-accent-color);
     padding: 8px;
   }
 
-  .fullscreen .content {
-    position: fixed;
-    transform: none;
+  .fullwindow .documentation-component > .content {
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 0;
-    max-width: none;
-    background: white;
-    box-sizing: content-box;
-    overflow-y: scroll;
-    overflow-y: overlay;
     padding: 16px;
   }
 
-  .fullscreen .header,
-  .fullscreen .footer,
-  .fullscreen .nav {
-    display: none;
+  .fullwindow .documentation-component > .header {
+    width: 64px;
+    background: transparent;
+    opacity: 0.5;
+  }
+
+  .fullwindow .documentation-component > .header:hover {
+    opacity: 1;
+  }
+
+  .fullwindow .documentation-component > .nav {
+    left: -190px;
+  }
+
+  .fullwindow .documentation-component > .footer {
+    bottom: -32px;
   }
 
   .documentation-component > .header,
   .documentation-component > .footer {
     text-align: center;
     -webkit-user-select: none;
-  }
-
-  .documentation-component > .header > * {
-    margin: 0;
-    padding: 0;
-    width: 920px;
   }
 
   .documentation-component > .footer > * {
@@ -188,13 +205,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     padding: 0;
   }
 </style>
-<div class="header">
-  <img
-    alt="bindinator.js"
-    style="height: 64px; width: 64px; margin: 0 12px;"
-    src="images/bindinator-logo-notext-mono.svg"
-  >
-</div>
+<div class="content"></div>
 <div class="nav" data-event="click:details-accordion-controller.click">
   <details data-list="_component_.docs:title">
     <summary data-bind="text=.title">Title</summary>
@@ -209,7 +220,17 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     </div>
   </details>
 </div>
-<div class="content"></div>
+<div
+  class="header"
+  data-event="click:documentation-controller.fullwindow"
+  title="click to toggle navigation (alt-space)"
+>
+  <img
+    alt="bindinator.js"
+    style="position: relative; max-height: 60%; top: 50%; transform: translateY(-50%)"
+    src="images/bindinator-logo-notext-mono.svg"
+  >
+</div>
 <div class="footer">
   <div>
     ©2016-<span data-bind="text=_component_.year">xxxx</span> Tonio Loewald | <a href="http://loewald.com">loewald.com</a> | <a href="#source=LICENSE.md">License</a>
@@ -220,8 +241,8 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 /* global on, b8r, alert, component, set, findOne */
   'use strict';
 
-  on('keydown(alt-Space)', 'documentation-controller.fullscreen');
-  on('keydown(alt-I)', 'documentation-controller.inspector');
+  b8r.on(document.body, 'keydown(alt-Space)', 'documentation-controller.fullwindow');
+  b8r.on(document.body, 'keydown(alt-I)', 'documentation-controller.inspector');
 
   const windows = require('../lib/windows.js');
   var content = findOne('.content');
@@ -277,11 +298,11 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     },
     inspector: () => b8r.componentOnce('inspector'),
     alertKeystroke: evt => alert(b8r.keystroke(evt)),
-    fullscreen: () => {
-      if (!document.body.matches('.fullscreen')) {
-        document.body.classList.add('fullscreen');
+    fullwindow: () => {
+      if (!document.body.matches('.fullwindow')) {
+        document.body.classList.add('fullwindow');
       } else {
-        document.body.classList.remove('fullscreen');
+        document.body.classList.remove('fullwindow');
       }
       b8r.trigger('resize', window);
     },
