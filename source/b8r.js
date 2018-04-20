@@ -628,7 +628,7 @@ const getData = element => {
     return null;
   } else {
     const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source));
-    return b8r.filterObject(data, v => typeof v !== 'function');
+    return b8r.filterObject(data || {}, v => typeof v !== 'function');
   }
 };
 
