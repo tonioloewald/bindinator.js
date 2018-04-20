@@ -1,0 +1,160 @@
+<!--
+# tab-scroller
+
+Tab-scroller is a tab-control for a very big list which keeps the tab selection in sync with
+the scrolling region. It automatically picks up elements with a `data-tab-name` attribute.
+
+Note that it's set up as a vertical scroller. A horizontal equivalent would simply need to check
+scrollLeft and offsetLeft (and, obviously, be styled differently).
+
+The heavy lifting is mostly done by the [animated_scroll](#source=lib/animated-scroll.js) library,
+so making similar components with different attributes should be pretty straightforward.
+-->
+<style>
+.tab-scroller-component {
+  display: flex;
+  overflow: hidden;
+}
+
+.tab-scroller-tabs {
+  flex: 0 0 auto;
+  cursor: default;
+  position: relative;
+}
+
+.tab-scroller {
+  flex: 1 1 auto;
+  overflow-y: overlay;
+  position: relative;
+}
+
+.tab-scroller-component {
+  height: 400px;
+}
+
+.example .tab-scroller {
+  padding-left: 10px;
+  padding-bottom: 300px;
+}
+
+.example .tab-scroller-tabs {
+  background: #ddd;
+  color: #444;
+  border: 5px solid #ddd;
+  border-right: 0;
+  overflow-y: overlay;
+}
+
+.example .tab-scroller-tabs > * {
+  padding: 5px 0 5px 5px;
+  transition: 0.25s ease-out;
+}
+
+.example .tab-scroller-tabs > *:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.example .tab-scroller-tabs > .tab-scroller-active {
+  background: white;
+  color: black;
+}
+
+.example .tab-scroller [data-tab-name]:before {
+  content: attr(data-tab-name);
+  display: block;
+  padding: 15px 0 5px;
+  font-weight: bold;
+}
+
+.example .tab-scroller-tabs {
+  width: 200px;
+}
+</style>
+<div class="tab-scroller-tabs">
+  <div
+    data-list="_component_.tabs:_auto_"
+    data-bind="
+      text=.name;
+      class(tab-scroller-active)=.active;
+    "
+    tabindex="0"
+    data-event="mouseup,touchend,keydown(Space),focus:_component_.show"
+  ></div>
+</div>
+<div
+  class="tab-scroller"
+  data-event="
+    change:_component_.update_tabs;
+    scroll:_component_.update_active;
+  "
+  data-children
+>
+  <div
+    data-list="_component_.dummy_content_list:_auto_"
+    data-bind="text=.text;data(tabName)=.name"
+  >
+  </div>
+</div>
+<script>
+/* jshint curly:false */
+/* global component, set, get, find, findOne, b8r */
+  'use strict';
+
+  const animated_scroll = require('../lib/animated-scroll.js');
+  const scroller = findOne('.tab-scroller');
+
+  if (component.matches('.example')) {
+    const dummy_content_list = [];
+    for (let i = 0; i < 500; i++) {
+      dummy_content_list.push({
+        text: `This is just dummy text ${i}.`,
+        name: i % 17 === 0 ? `Title ${i / 17}` : null,
+      });
+    }
+    set({dummy_content_list});
+  }
+
+  const update_active = () => {
+    const tabs = get('tabs');
+    if (!tabs.length) return;
+
+    let active_index = 0;
+    tabs.forEach((tab, idx) => {
+      if (tab.elt.offsetTop - tab.elt.offsetHeight <= scroller.scrollTop) active_index = idx;
+      tab.active = false;
+    });
+    tabs[active_index].active = true;
+    set({tabs});
+    b8r.after_update(() => {
+      if (! animated_scroll.visible(findOne('.tab-scroller-active'))) {
+        animated_scroll.into_view(findOne('.tab-scroller-active'));
+      }
+    });
+  };
+
+  const update_tabs = () => {
+    const tabs = find('.tab-scroller > [data-tab-name]').map(elt => {
+      return {
+        name: elt.dataset.tabName,
+        elt,
+        active: false,
+      };
+    });
+    set({tabs});
+    update_active();
+  };
+
+  update_tabs();
+
+  const show = (evt, elt) => {
+    const tab = b8r.getListInstance(elt);
+    animated_scroll(scroller, tab.elt.offsetTop);
+  };
+
+  set({
+    show,
+    update_tabs,
+    update_active,
+  });
+</script>

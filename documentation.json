@@ -166,6 +166,10 @@
         "path": "lib/dom-timers.js"
       },
       {
+        "name": "animated-scroll",
+        "path": "lib/animated-scroll.js"
+      },
+      {
         "name": "windows",
         "path": "lib/windows.js"
       }
@@ -302,6 +306,10 @@
       {
         "name": "Markdown Editor",
         "path": "markdown-editor.component.html"
+      },
+      {
+        "name": "Tab Scroller",
+        "path": "tab-scroller.component.html"
       }
     ]
   },
