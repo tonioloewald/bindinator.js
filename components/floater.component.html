@@ -12,7 +12,7 @@ Use the class "floater-title" for the first child to get nice styling.
     background-color: rgba(255,255,255,0.9);
     border-radius: 4px;
     cursor: move;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)) /* drop shadow for when using corner arrows */;
   }
 
   .floater-close {
@@ -65,9 +65,16 @@ Use the class "floater-title" for the first child to get nice styling.
 
   document.body.appendChild(component);
 
+  const remove_menu_arrow = () => {
+    for (const c of component.classList)
+      if (/^menu-balloon/.test(c))
+        component.classList.remove(c)
+  };
+
   b8r.set('floater-controller', {
     element: null,
     move: (evt) => {
+      remove_menu_arrow();
       const target = b8r.get('floater-controller.target');
       const origin = b8r.get('floater-controller.origin');
       if(target) {
