@@ -26,7 +26,7 @@ implement some kind of virtual machine to replace it.
 - [Showing and Hiding](#source=source/b8r.show.js)
 - [Performance Logging](#source=source/b8r.perf.js)
 */
-/* jshint esnext:true, loopfunc:true, latedef:false */
+/* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
 /* global console, require, module */
 
 'use strict';
@@ -622,13 +622,14 @@ function loadAvailableComponents(element, data_path) {
     });
 }
 
-const getData = element => {
+const inheritData = element => {
+  const reserved = ['destroy']; // reserved lifecycle methods
   const source = element.closest('[data-path],[data-list-instance],[data-component-id]');
   if (! source) {
     return null;
   } else {
     const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source));
-    return b8r.filterObject(data || {}, v => typeof v !== 'function');
+    return b8r.filterObject(data, (v, k) => reserved.indexOf(k) === - 1 || typeof v !== 'function');
   }
 };
 
@@ -661,7 +662,7 @@ b8r.insertComponent = function(component, element, data) {
     delete element.dataset.component;
   }
   if (!data || data_path) {
-    data = dataForElement(element) || getData(element) || {};
+    data = dataForElement(element) || inheritData(element) || {};
   }
   if (element.parentElement === null) {
     document.body.appendChild(element);
