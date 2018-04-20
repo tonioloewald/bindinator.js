@@ -453,7 +453,7 @@ module.exports = function(b8r) {
       element[property] = value;
     },
     data: function(element, value, dest) {
-      if (value == null) {
+      if (value === undefined || value === null || value === false) {
         delete element.dataset[dest];
       } else {
         element.dataset[dest] = value;
