@@ -62,8 +62,14 @@ grid cells that are currently in view.
     transition: 0.1s ease-out;
   }
 
-  .raw-viewer-tile:hover > span {
+  .raw-viewer-tile:hover > span,
+  .raw-viewer-tile:focus > span {
     opacity: 1;
+  }
+
+  .raw-viewer-tile:focus {
+    box-shadow: none;
+    outline: none;
   }
 
   .raw-viewer-component img {
@@ -127,7 +133,8 @@ grid cells that are currently in view.
   <div
     class="raw-viewer-tile"
     data-list="biggrid.slice(_component_.rawfiles):_auto_"
-    data-event="mouseup:_component_.pick"
+    data-event="mouseup,keydown(Space):_component_.pick"
+    tabindex="0"
   >
     <img data-bind="
       method(_component_.convertRAW)=.filepath;
@@ -149,6 +156,15 @@ grid cells that are currently in view.
   <table
     class="metadata"
   >
+    <tr>
+      <th>Display Name</th>
+      <td data-bind="text=_component_.rawfile.metadata.ItemDisplayName"></td>
+    </tr>
+    <tr>
+      <th>Creation Data</th>
+      <td data-bind="timestamp()=_component_.rawfile.metadata.ItemContentCreationDate"></td>
+    </tr>
+
     <tr>
       <th>Camera</th>
       <td data-bind="text=_component_.rawfile.metadata.ItemAcquisitionModel"></td>
@@ -220,8 +236,8 @@ grid cells that are currently in view.
         console.error(`${filepath} metadata extraction failed`, err);
       } else {
         const metadata = {orig: {}};
-        stdout.split('\n').forEach(line => {
-          const [, key, value] = line.match(/kMD(\w+)\s*\=\s"?([^"]*)"?/) || [];
+        stdout.split('\nkMD').forEach(item => {
+          const [key, value] = item.split('=').map(s => s.trim());
           if (key && !value.match(/^(\s+|\(null\))$/)) {
             metadata[key] = value;
           }
