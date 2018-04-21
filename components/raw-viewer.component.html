@@ -4,8 +4,9 @@
 Sorry, this demo is macOS and electron only.
 
 1. It finds all the `NEF`, `CR2`, and `DNG` files using spotlight `mdfind`
-2. It generates previews in `/tmp/` using `sips`
-3. It shows you the previews using `biggrid`
+2. It extracts all EXIF metadata using `mdls`
+3. It generates previews in `/tmp/` using `sips`
+4. It shows you the previews using `biggrid`
 
 The previews are generated asynchronously up to three at a time. (I picked three
 because chances are you have at least four virtual cores, but it looks like sips
@@ -17,16 +18,25 @@ grid cells that are currently in view.
 -->
 <style>
   .raw-viewer-component {
-    line-height: 0;
-    overflow-y: scroll;
-    overflow-y: overlay;
+    display: flex;
   }
 
   .example.raw-viewer-component {
     height: 480px;
   }
 
-  .raw-viewer-component > div {
+  .raw-viewer-scroller {
+    flex: 1 1 auto;
+    line-height: 0;
+    overflow-y: scroll;
+    overflow-y: overlay;
+  }
+
+  .raw-viewer-scroller.one-column {
+    flex: 0 0 128px;
+  }
+
+  .raw-viewer-tile {
     margin: 0;
     padding: 0;
     display: inline-block;
@@ -36,7 +46,7 @@ grid cells that are currently in view.
     position: relative;
   }
 
-  .raw-viewer-component > div > span {
+  .raw-viewer-tile > span {
     position: absolute;
     display: block;
     color: white;
@@ -49,9 +59,10 @@ grid cells that are currently in view.
     text-overflow: ellipsis;
     line-height: 20px;
     opacity: 0.5;
+    transition: 0.1s ease-out;
   }
 
-  .raw-viewer-component > div:hover > span {
+  .raw-viewer-tile:hover > span {
     opacity: 1;
   }
 
@@ -60,16 +71,115 @@ grid cells that are currently in view.
     height: 100%;
     object-fit: cover;
   }
+
+  .raw-viewer-component img[data-orientation="1"] {
+    transform: rotateZ(-90deg);
+  }
+
+  .raw-viewer-detail {
+    flex: 1 1 auto;
+    position: relative;
+  }
+
+  .raw-viewer-detail .icon-cross2 {
+    position: absolute;
+    color: white;
+    font-size: 24px;
+    line-height: 24px;
+    top: 10px;
+    right: 10px;
+    cursor: default;
+    opacity: 0.5;
+    transition: 0.1s ease-out;
+  }
+
+  .raw-viewer-detail .metadata {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: white;
+    background: rgba(0,0,0,0.75);
+    padding: 5px;
+    border-radius: 5px;
+    opacity: 0.5;
+    transition: 0.1s ease-out;
+  }
+
+  .raw-viewer-detail .icon-cross2:hover,
+  .raw-viewer-detail .metadata:hover {
+    opacity: 1;
+  }
+
+  .raw-viewer-detail th {
+    text-align: right;
+    padding-right: 5px;
+  }
 </style>
-<div data-list="biggrid.slice(_component_.rawfiles):_auto_">
-  <img data-bind="
-    method(_component_.convertRAW)=.filepath;
-    img=${.preview};
-  ">
-  <span data-bind="text=.filename"></span>
+<div
+  class="raw-viewer-scroller"
+  data-bind="class(one-column)=_component_.rawfile"
+>
+  <div
+    class="raw-viewer-tile"
+    data-list="biggrid.slice(_component_.rawfiles):_auto_"
+    data-event="mouseup:_component_.pick"
+  >
+    <img data-bind="
+      method(_component_.convertRAW)=.filepath;
+      img=${.preview};
+      data(orientation)=.metadata.ItemOrientation;
+    ">
+    <span data-bind="text=.filename"></span>
+  </div>
+</div>
+<div
+  class="raw-viewer-detail"
+  data-bind="show_if=_component_.rawfile"
+>
+  <img data-bind="img=_component_.rawfile.preview">
+  <div
+    class="icon-cross2"
+    data-event="mouseup:_component_.closeDetail"
+  ></div>
+  <table
+    class="metadata"
+  >
+    <tr>
+      <th>Camera</th>
+      <td data-bind="text=_component_.rawfile.metadata.ItemAcquisitionModel"></td>
+    </tr>
+    <tr>
+      <th>Lens</th>
+      <td data-bind="text=_component_.rawfile.metadata.ItemLensModel"></td>
+    </tr>
+    <tr>
+      <th>Focal Length</th>
+      <td data-bind="text=${_component_.rawfile.metadata.ItemFocalLength}mm"></td>
+    </tr>
+    <tr>
+      <th>35mm equiv.</th>
+      <td data-bind="text=${_component_.rawfile.metadata.ItemFocalLength35mm}mm"></td>
+    </tr>
+    <tr>
+      <th>Aperture</th>
+      <td data-bind="text=_component_.rawfile.metadata.ItemFNumber"></td>
+    </tr>
+    <tr>
+      <th>Shutter Speed</th>
+      <td data-bind="text=_component_.rawfile.metadata.ItemExposureTimeSeconds"></td>
+    </tr>
+    <tr>
+      <th>ISO</th>
+      <td data-bind="text=_component_.rawfile.metadata.ItemISOSpeed"></td>
+    </tr>
+    <tr>
+      <th>Resolution</th>
+      <td data-bind="text=${_component_.rawfile.metadata.ItemPixelWidth} ⨉ ${_component_.rawfile.metadata.ItemPixelHeight}"></td>
+    </tr>
+  </table>
 </div>
 <script>
-  /* global require, console, get, set, data, findOne, component */
+  /* global require, console, get, set, data, findOne, component, b8r */
   'use strict';
 
   require('../lib/biggrid.js');
@@ -100,11 +210,29 @@ grid cells that are currently in view.
       }
     };
 
+    exec(`mdls "${filepath}"`, (err, stdout) => {
+      if (err) {
+        console.error(`${filepath} metadata extraction failed`, err);
+      } else {
+        const metadata = {orig: {}};
+        stdout.split('\n').forEach(line => {
+          const [, key, value] = line.match(/kMD(\w+)\s*\=\s"?([^"]*)"?/) || [];
+          if (key && !value.match(/^(\s+|\(null\))$/)) {
+            metadata[key] = value;
+          }
+        });
+        if (metadata.ItemExposureTimeSeconds < 1) {
+          metadata.ItemExposureTimeSeconds = '1/' + Math.round(1/metadata.ItemExposureTimeSeconds);
+        }
+        set(`rawfiles[_auto_=${_auto_}].metadata`, metadata);
+      }
+    });
+
     fs.access(preview, fs.constants.R_OK, err => {
       if (err) {
         exec(`sips -s format jpeg -s formatOptions 75 -Z 512 "${filepath}" --out "${preview}"`, err => {
           if (err) {
-            console.error('RAW conversion failed', err);
+            console.error(`${filepath} RAW conversion failed`, err);
           } else {
             done();
           }
@@ -155,7 +283,6 @@ grid cells that are currently in view.
             rawfiles.push({
               filename,
               filepath,
-              ready: false,
             });
           }
         );
@@ -164,9 +291,18 @@ grid cells that are currently in view.
     });
   };
 
-  set({convertRAW});
+  const pick = evt => {
+    set('rawfile', b8r.getListInstance(evt.target));
+    touch('rawfiles');
+  };
 
-  // Nikon only right now
+  const closeDetail = () => {
+    set('rawfile', null);
+    touch('rawfiles');
+  };
+
+  set({convertRAW, pick, closeDetail});
+
   let rawfiles = [];
 
   findFiles('NEF');
