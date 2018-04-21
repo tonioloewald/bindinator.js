@@ -30,10 +30,12 @@ grid cells that are currently in view.
     line-height: 0;
     overflow-y: scroll;
     overflow-y: overlay;
+    text-align: center;
+    padding: 8px;
   }
 
   .raw-viewer-scroller.one-column {
-    flex: 0 0 128px;
+    flex: 0 0 160px;
   }
 
   .raw-viewer-tile {
@@ -44,6 +46,9 @@ grid cells that are currently in view.
     height: 128px;
     overflow: hidden;
     position: relative;
+    background: #ddd;
+    box-shadow: 0 2px 4px rgba(255,255,255,0.5);
+    margin: 8px;
   }
 
   .raw-viewer-tile > span {
@@ -148,7 +153,7 @@ grid cells that are currently in view.
   class="raw-viewer-detail"
   data-bind="show_if=_component_.rawfile"
 >
-  <img data-bind="img=_component_.rawfile.preview">
+  <img data-bind="img=_component_.rawfile.fullsize">
   <div
     class="icon-cross2"
     data-event="mouseup:_component_.closeDetail"
@@ -200,26 +205,32 @@ grid cells that are currently in view.
   </table>
 </div>
 <script>
-  /* global require, console, get, set, data, findOne, component, b8r */
+  /* global require, console, get, set, data, findOne, component, b8r, touch */
   'use strict';
 
   require('../lib/biggrid.js');
+  const {imagePromise} = require('../source/b8r.imgSrc.js');
 
   if (! require.electron || window.process.platform !== 'darwin') {
     return;
+  }
+
+  if (! component.matches('.example')) {
+    document.body.style.overflow = 'hidden';
   }
 
   const fs = require.globalRequire('fs');
   const {exec} = require.globalRequire('child_process');
 
   const MAX_PROCESSING = 3;
+  const PREVIEW_SIZE = 256;
   const waiting = [];
   let processing = 0;
   const {component_id} = data;
 
   const process = rawfile => {
     const {_auto_, filepath} = rawfile;
-    const preview = '/tmp/' + filepath.match(/^.*?([^/]+)\.nef$/i)[1] + '.jpg';
+    const preview = '/tmp/' + rawfile.basename + `-${PREVIEW_SIZE}.jpg`;
     //console.log('generating', preview, {processing, waiting: waiting.length});
 
     const done = () => {
@@ -251,7 +262,7 @@ grid cells that are currently in view.
 
     fs.access(preview, fs.constants.R_OK, err => {
       if (err) {
-        exec(`sips -s format jpeg -s formatOptions 75 -Z 512 "${filepath}" --out "${preview}"`, err => {
+        exec(`sips -s format jpeg -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`, err => {
           if (err) {
             console.error(`${filepath} RAW conversion failed`, err);
           } else {
@@ -303,6 +314,7 @@ grid cells that are currently in view.
             const filename = filepath.split('/').pop();
             rawfiles.push({
               filename,
+              basename: filename.split('.').slice(0,-1).join('.'),
               filepath,
             });
           }
@@ -313,7 +325,22 @@ grid cells that are currently in view.
   };
 
   const pick = evt => {
-    set('rawfile', b8r.getListInstance(evt.target));
+    const rawfile = b8r.getListInstance(evt.target);
+    if (!rawfile.fullsize) {
+      const {filepath} = rawfile;
+      rawfile.fullsize = rawfile.preview;
+      const fullsize = '/tmp/' + rawfile.basename + '.jpg';
+      exec(`sips -s format jpeg -s formatOptions 90 "${filepath}" --out "${fullsize}"`, err => {
+        if (err) {
+          console.error(`${filepath} RAW conversion failed`, err);
+        } else {
+          imagePromise('file://' + fullsize).
+          then(() => set('rawfile.fullsize', 'file://' + fullsize));
+        }
+      });
+    }
+    set({rawfile});
+    // force grid to resize
     touch('rawfiles');
   };
 
