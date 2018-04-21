@@ -411,6 +411,10 @@
       {
         "name": "Analog Clock",
         "path": "analog-clock.component.html"
+      },
+      {
+        "name": "RAW Viewer",
+        "path": "raw-viewer.component.html"
       }
     ]
   }
