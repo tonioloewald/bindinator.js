@@ -132,6 +132,7 @@ grid cells that are currently in view.
   }
 
   .raw-viewer-detail img {
+    object-fit: contain;
     transition: opacity 0.5s ease-out;
   }
 
@@ -179,7 +180,7 @@ grid cells that are currently in view.
   >
     <img data-bind="
       img=${.preview};
-      data(orientation)=.metadata.ItemOrientation;
+      data(orientation)=.metadata.Orientation;
     ">
     <span data-bind="text=.filename"></span>
   </div>
@@ -199,45 +200,45 @@ grid cells that are currently in view.
   <table
     class="metadata"
   >
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemDisplayName">
+    <tr data-bind="show_if=_component_.rawfile.metadata.DisplayName">
       <th>Display Name</th>
-      <td data-bind="text=_component_.rawfile.metadata.ItemDisplayName"></td>
+      <td data-bind="text=_component_.rawfile.metadata.DisplayName"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemContentCreationDate">
+    <tr data-bind="show_if=_component_.rawfile.metadata.ContentCreationDate">
       <th>Creation Data</th>
-      <td data-bind="timestamp()=_component_.rawfile.metadata.ItemContentCreationDate"></td>
+      <td data-bind="timestamp()=_component_.rawfile.metadata.ContentCreationDate"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemAcquisitionModel">
+    <tr data-bind="show_if=_component_.rawfile.metadata.AcquisitionModel">
       <th>Camera</th>
-      <td data-bind="text=_component_.rawfile.metadata.ItemAcquisitionModel"></td>
+      <td data-bind="text=_component_.rawfile.metadata.AcquisitionModel"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemLensModel">
+    <tr data-bind="show_if=_component_.rawfile.metadata.LensModel">
       <th>Lens</th>
-      <td data-bind="text=_component_.rawfile.metadata.ItemLensModel"></td>
+      <td data-bind="text=_component_.rawfile.metadata.LensModel"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemFocalLength">
+    <tr data-bind="show_if=_component_.rawfile.metadata.FocalLength">
       <th>Focal Length</th>
-      <td data-bind="text=${_component_.rawfile.metadata.ItemFocalLength}mm"></td>
+      <td data-bind="text=${_component_.rawfile.metadata.FocalLength}mm"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemFocalLength35mm">
+    <tr data-bind="show_if=_component_.rawfile.metadata.FocalLength35mm">
       <th>35mm equiv.</th>
-      <td data-bind="text=${_component_.rawfile.metadata.ItemFocalLength35mm}mm"></td>
+      <td data-bind="text=${_component_.rawfile.metadata.FocalLength35mm}mm"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemFNumber">
+    <tr data-bind="show_if=_component_.rawfile.metadata.FNumber">
       <th>Aperture</th>
-      <td data-bind="text=_component_.rawfile.metadata.ItemFNumber"></td>
+      <td data-bind="text=_component_.rawfile.metadata.FNumber"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemExposureTimeSeconds">
+    <tr data-bind="show_if=_component_.rawfile.metadata.ExposureTimeSeconds">
       <th>Shutter Speed</th>
-      <td data-bind="text=_component_.rawfile.metadata.ItemExposureTimeSeconds"></td>
+      <td data-bind="text=_component_.rawfile.metadata.ExposureTimeSeconds"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemISOSpeed">
+    <tr data-bind="show_if=_component_.rawfile.metadata.ISOSpeed">
       <th>ISO</th>
-      <td data-bind="text=_component_.rawfile.metadata.ItemISOSpeed"></td>
+      <td data-bind="text=_component_.rawfile.metadata.ISOSpeed"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ItemPixelWidth">
+    <tr data-bind="show_if=_component_.rawfile.metadata.PixelWidth">
       <th>Resolution</th>
-      <td data-bind="text=${_component_.rawfile.metadata.ItemPixelWidth} ⨉ ${_component_.rawfile.metadata.ItemPixelHeight}"></td>
+      <td data-bind="text=${_component_.rawfile.metadata.PixelWidth} ⨉ ${_component_.rawfile.metadata.PixelHeight}"></td>
     </tr>
   </table>
 </div>
@@ -288,14 +289,14 @@ grid cells that are currently in view.
           console.error(`${filepath} metadata extraction failed`, err);
         } else {
           const metadata = {orig: {}};
-          stdout.split('\nkMD').forEach(item => {
+          stdout.split(/\nkMDItem|\nkMDFS/).forEach(item => {
             const [key, value] = item.split('=').map(s => s.trim());
             if (key && !value.match(/^(\s+|\(null\))$/)) {
               metadata[key] = value.match(/^"*(.*?)"*$/m)[1]; // strip outer quotation marks
             }
           });
-          if (metadata.ItemExposureTimeSeconds < 1) {
-            metadata.ItemExposureTimeSeconds = '1/' + Math.round(1/metadata.ItemExposureTimeSeconds);
+          if (metadata.ExposureTimeSeconds < 1) {
+            metadata.ExposureTimeSeconds = '1/' + Math.round(1/metadata.ExposureTimeSeconds);
           }
           set(`rawfiles[_auto_=${_auto_}].metadata`, metadata);
         }
