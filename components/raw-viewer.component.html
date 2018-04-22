@@ -137,12 +137,11 @@ grid cells that are currently in view.
 >
   <div
     class="raw-viewer-tile"
-    data-list="biggrid.slice(_component_.rawfiles):_auto_"
+    data-list="_component_.slice(_component_.rawfiles):_auto_"
     data-event="mouseup,keydown(Space):_component_.pick"
     tabindex="0"
   >
     <img data-bind="
-      method(_component_.convertRAW)=.filepath;
       img=${.preview};
       data(orientation)=.metadata.ItemOrientation;
     ">
@@ -161,54 +160,53 @@ grid cells that are currently in view.
   <table
     class="metadata"
   >
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemDisplayName">
       <th>Display Name</th>
       <td data-bind="text=_component_.rawfile.metadata.ItemDisplayName"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemContentCreationDate">
       <th>Creation Data</th>
       <td data-bind="timestamp()=_component_.rawfile.metadata.ItemContentCreationDate"></td>
     </tr>
-
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemAcquisitionModel">
       <th>Camera</th>
       <td data-bind="text=_component_.rawfile.metadata.ItemAcquisitionModel"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemLensModel">
       <th>Lens</th>
       <td data-bind="text=_component_.rawfile.metadata.ItemLensModel"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemFocalLength">
       <th>Focal Length</th>
       <td data-bind="text=${_component_.rawfile.metadata.ItemFocalLength}mm"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemFocalLength35mm">
       <th>35mm equiv.</th>
       <td data-bind="text=${_component_.rawfile.metadata.ItemFocalLength35mm}mm"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemFNumber">
       <th>Aperture</th>
       <td data-bind="text=_component_.rawfile.metadata.ItemFNumber"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemExposureTimeSeconds">
       <th>Shutter Speed</th>
       <td data-bind="text=_component_.rawfile.metadata.ItemExposureTimeSeconds"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemISOSpeed">
       <th>ISO</th>
       <td data-bind="text=_component_.rawfile.metadata.ItemISOSpeed"></td>
     </tr>
-    <tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.ItemPixelWidth">
       <th>Resolution</th>
       <td data-bind="text=${_component_.rawfile.metadata.ItemPixelWidth} ⨉ ${_component_.rawfile.metadata.ItemPixelHeight}"></td>
     </tr>
   </table>
 </div>
 <script>
-  /* global require, console, get, set, data, findOne, component, b8r, touch */
+  /* global require, console, get, set, component, b8r, touch */
   'use strict';
 
-  require('../lib/biggrid.js');
+  const biggrid = require('../lib/biggrid.js');
   const {imagePromise} = require('../source/b8r.imgSrc.js');
 
   if (! require.electron || window.process.platform !== 'darwin') {
@@ -224,9 +222,9 @@ grid cells that are currently in view.
 
   const MAX_PROCESSING = 3;
   const PREVIEW_SIZE = 256;
-  const waiting = [];
+  const PREGENERATE_PREVIEWS = false;
+  let rawfiles_visible = [];
   let processing = 0;
-  const {component_id} = data;
 
   const process = rawfile => {
     const {_auto_, filepath} = rawfile;
@@ -242,33 +240,39 @@ grid cells that are currently in view.
       }
     };
 
-    exec(`mdls "${filepath}"`, (err, stdout) => {
-      if (err) {
-        console.error(`${filepath} metadata extraction failed`, err);
-      } else {
-        const metadata = {orig: {}};
-        stdout.split('\nkMD').forEach(item => {
-          const [key, value] = item.split('=').map(s => s.trim());
-          if (key && !value.match(/^(\s+|\(null\))$/)) {
-            metadata[key] = value;
+    exec(
+      `mdls "${filepath}"`,
+      (err, stdout) => {
+        if (err) {
+          console.error(`${filepath} metadata extraction failed`, err);
+        } else {
+          const metadata = {orig: {}};
+          stdout.split('\nkMD').forEach(item => {
+            const [key, value] = item.split('=').map(s => s.trim());
+            if (key && !value.match(/^(\s+|\(null\))$/)) {
+              metadata[key] = value.match(/^"*(.*?)"*$/m)[1]; // strip outer quotation marks
+            }
+          });
+          if (metadata.ItemExposureTimeSeconds < 1) {
+            metadata.ItemExposureTimeSeconds = '1/' + Math.round(1/metadata.ItemExposureTimeSeconds);
           }
-        });
-        if (metadata.ItemExposureTimeSeconds < 1) {
-          metadata.ItemExposureTimeSeconds = '1/' + Math.round(1/metadata.ItemExposureTimeSeconds);
+          set(`rawfiles[_auto_=${_auto_}].metadata`, metadata);
         }
-        set(`rawfiles[_auto_=${_auto_}].metadata`, metadata);
       }
-    });
+    );
 
     fs.access(preview, fs.constants.R_OK, err => {
       if (err) {
-        exec(`sips -s format jpeg -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`, err => {
-          if (err) {
-            console.error(`${filepath} RAW conversion failed`, err);
-          } else {
-            done();
+        exec(
+          `sips -s format jpeg -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`,
+          err => {
+            if (err) {
+              console.error(`${filepath} RAW conversion failed`, err);
+            } else {
+              done();
+            }
           }
-        });
+        );
       } else {
         done();
       }
@@ -276,10 +280,12 @@ grid cells that are currently in view.
   };
 
   const dequeue = () => {
-    const waiting_on_screen = waiting.filter(
-      rawfile => findOne(`[data-list-instance="${component_id}.rawfiles[_auto_=${rawfile._auto_}]"]`)
-    );
-    const list = waiting_on_screen.length ? waiting_on_screen : waiting;
+    if (processing >= MAX_PROCESSING) {
+      return;
+    }
+
+    const waiting = rawfiles_visible.filter(f => ! f.preview);
+    const list = waiting.length || ! PREGENERATE_PREVIEWS ? waiting : get('rawfiles').filter(f => ! f.preview);
     while(processing < MAX_PROCESSING && list.length) {
       const rand = Math.floor(Math.random() * list.length);
       processing += 1;
@@ -292,36 +298,31 @@ grid cells that are currently in view.
     }
   };
 
-  const convertRAW = (img, filepath) => {
-    // console.log(filename, preview, ready);
-    const rawfile = get(`rawfiles[filepath=${filepath}]`);
-    if (! rawfile.queued) {
-      rawfile.queued = true;
-      waiting.push(rawfile);
-      dequeue();
-    }
-  };
-
   const findFiles = extension => {
-    exec(`mdfind "kMDItemDisplayName == '*.${extension}'"`, (err, stdout) => {
-      if (err) {
-        console.error('spotlight search failed', err);
-      } else {
-        stdout.split('\n').
-        filter(f => !!f).
-        forEach(
-          filepath => {
-            const filename = filepath.split('/').pop();
-            rawfiles.push({
-              filename,
-              basename: filename.split('.').slice(0,-1).join('.'),
-              filepath,
-            });
-          }
-        );
-        set({rawfiles});
+    const rawfiles = get('rawfiles');
+    exec(
+      `mdfind "kMDItemDisplayName == '*.${extension}'"`, 
+      {maxBuffer: 1024 * 10000}, // 10MB buffer because 
+      (err, stdout) => {
+        if (err) {
+          console.error('spotlight search failed', err);
+        } else {
+          stdout.split('\n').
+          filter(f => !!f).
+          forEach(
+            filepath => {
+              const filename = filepath.split('/').pop();
+              rawfiles.push({
+                filename,
+                basename: filename.split('.').slice(0,-1).join('.'),
+                filepath,
+              });
+            }
+          );
+          set({rawfiles});
+        }
       }
-    });
+    );
   };
 
   const pick = evt => {
@@ -349,9 +350,13 @@ grid cells that are currently in view.
     touch('rawfiles');
   };
 
-  set({convertRAW, pick, closeDetail});
+  const slice = (list, container) => {
+    rawfiles_visible = biggrid.slice(list, container);
+    dequeue();
+    return rawfiles_visible;
+  };
 
-  let rawfiles = [];
+  set({slice, pick, closeDetail, rawfiles: []});
 
   findFiles('NEF');
   findFiles('DNG');
