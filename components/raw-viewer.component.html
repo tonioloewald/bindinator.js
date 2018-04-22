@@ -372,18 +372,21 @@ grid cells that are currently in view.
       const {filepath} = rawfile;
       rawfile.fullsize = rawfile.preview;
       const fullsize = '/tmp/' + rawfile.basename + '.jpg';
-      set('rawfile.generating_fullsize', true);
+      rawfile.generating_fullsize = true;
       exec(`sips -s format jpeg -s formatOptions 90 "${filepath}" --out "${fullsize}"`, err => {
         if (err) {
           console.error(`${filepath} RAW conversion failed`, err);
         } else {
           imagePromise('file://' + fullsize).
           then(() => {
-            set('rawfile.generating_fullsize', false);
-            set('rawfile.fullsize', 'file://' + fullsize);
+            rawfile.generating_fullsize = false;
+            rawfile.fullsize = 'file://' + fullsize;
+            touch('rawfile');
           });
         }
       });
+    } else {
+      rawfile.generating_fullsize = false;
     }
     set({rawfile});
     // force grid to resize
