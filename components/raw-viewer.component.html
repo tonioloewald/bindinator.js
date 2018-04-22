@@ -130,6 +130,41 @@ grid cells that are currently in view.
     text-align: right;
     padding-right: 5px;
   }
+
+  .raw-viewer-detail img {
+    transition: opacity 0.5s ease-out;
+  }
+
+  .raw-viewer-detail.loading img {
+    opacity: 0.75;
+    image-rendering: pixelated;
+  }
+
+  .raw-viewer-tile.loading:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0);
+    transform: translateX(-50%) translateY(-50%);
+    animation: infinite loading 2s ease-in;
+  }
+
+  @keyframes loading {
+    0% {
+      width: 25%;
+      height: 25%;
+      background: rgba(0,0,0,0.25);
+    }
+    100% {
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0);
+    }
+  }
 </style>
 <div
   class="raw-viewer-scroller"
@@ -137,6 +172,7 @@ grid cells that are currently in view.
 >
   <div
     class="raw-viewer-tile"
+    data-bind="class(loading)=.generating_preview"
     data-list="_component_.slice(_component_.rawfiles):_auto_"
     data-event="mouseup,keydown(Space):_component_.pick"
     tabindex="0"
@@ -150,7 +186,10 @@ grid cells that are currently in view.
 </div>
 <div
   class="raw-viewer-detail"
-  data-bind="show_if=_component_.rawfile"
+  data-bind="
+    class(loading)=_component_.rawfile.generating_fullsize;
+    show_if=_component_.rawfile;
+  "
 >
   <img data-bind="img=_component_.rawfile.fullsize">
   <div
@@ -230,10 +269,12 @@ grid cells that are currently in view.
     const {_auto_, filepath} = rawfile;
     const preview = '/tmp/' + rawfile.basename + `-${PREVIEW_SIZE}.jpg`;
     //console.log('generating', preview, {processing, waiting: waiting.length});
+    set(`rawfiles[_auto_=${_auto_}].generating_preview`, true);
 
     const done = () => {
       // if the component has been removed, allows processing to stop cleanly
       if(document.body.contains(component)) {
+        set(`rawfiles[_auto_=${_auto_}].generating_preview`, false);
         set(`rawfiles[_auto_=${_auto_}].preview`, 'file://' + preview);
         processing -= 1;
         dequeue();
@@ -331,12 +372,16 @@ grid cells that are currently in view.
       const {filepath} = rawfile;
       rawfile.fullsize = rawfile.preview;
       const fullsize = '/tmp/' + rawfile.basename + '.jpg';
+      set('rawfile.generating_fullsize', true);
       exec(`sips -s format jpeg -s formatOptions 90 "${filepath}" --out "${fullsize}"`, err => {
         if (err) {
           console.error(`${filepath} RAW conversion failed`, err);
         } else {
           imagePromise('file://' + fullsize).
-          then(() => set('rawfile.fullsize', 'file://' + fullsize));
+          then(() => {
+            set('rawfile.generating_fullsize', false);
+            set('rawfile.fullsize', 'file://' + fullsize);
+          });
         }
       });
     }
