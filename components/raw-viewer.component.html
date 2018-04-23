@@ -158,6 +158,9 @@ grid cells that are currently in view.
     0% {
       width: 25%;
       height: 25%;
+      background: rgba(0,0,0,0);
+    }
+    50% {
       background: rgba(0,0,0,0.25);
     }
     100% {
@@ -166,10 +169,36 @@ grid cells that are currently in view.
       background: rgba(0,0,0,0);
     }
   }
+
+  .raw-viewer-toolbar > * {
+    border: 0 !important;
+    background: none !important;
+    line-height: 28px;
+    font-size: 14px;
+    padding: 0 8px;
+    color: white;
+    opacity: 0.8;
+    border-radius: 4px;
+  }
+
+  .raw-viewer-toolbar input {
+    display: none;
+  }
+
+  .raw-viewer-toolbar input+* {
+    filter: brightness(2) grayscale(100%);
+    transition: 0.25s ease-out;
+  }
+
+  .raw-viewer-toolbar input:checked+* {
+    opacity: 1.0;
+    filter: none;
+  }
 </style>
 <div
   class="raw-viewer-scroller"
   data-bind="class(one-column)=_component_.rawfile"
+  data-biggrid-padding="16,16"
 >
   <div
     class="raw-viewer-tile"
@@ -200,17 +229,17 @@ grid cells that are currently in view.
   <table
     class="metadata"
   >
-    <tr data-bind="show_if=_component_.rawfile.metadata.DisplayName">
+    <tr data-bind="show_if=_component_.rawfile.metadata.Name">
       <th>Display Name</th>
-      <td data-bind="text=_component_.rawfile.metadata.DisplayName"></td>
+      <td data-bind="text=_component_.rawfile.metadata.Name"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.ContentCreationDate">
+    <tr data-bind="show_if=_component_.rawfile.metadata.CreationDate">
       <th>Creation Data</th>
-      <td data-bind="timestamp()=_component_.rawfile.metadata.ContentCreationDate"></td>
+      <td data-bind="timestamp()=_component_.rawfile.metadata.CreationDate"></td>
     </tr>
-    <tr data-bind="show_if=_component_.rawfile.metadata.AcquisitionModel">
+    <tr data-bind="show_if=_component_.rawfile.metadata.Model">
       <th>Camera</th>
-      <td data-bind="text=_component_.rawfile.metadata.AcquisitionModel"></td>
+      <td data-bind="text=_component_.rawfile.metadata.Model"></td>
     </tr>
     <tr data-bind="show_if=_component_.rawfile.metadata.LensModel">
       <th>Lens</th>
@@ -240,6 +269,36 @@ grid cells that are currently in view.
       <th>Resolution</th>
       <td data-bind="text=${_component_.rawfile.metadata.PixelWidth} ⨉ ${_component_.rawfile.metadata.PixelHeight}"></td>
     </tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.Size">
+      <th>File Size</th>
+      <td data-bind="bytes=${_component_.rawfile.metadata.Size}"></td>
+    </tr>
+    <tr>
+      <td class="raw-viewer-toolbar" colspan="2">
+        <button data-event="click:_component_.edit">Edit</button>
+        <button data-event="click:_component_.reveal">Reveal</button>
+        <button data-event="click:_component_.preview">Preview</button>
+        <label>
+          <input 
+            type="checkbox" 
+            data-bind="checked=_component_.rawfile.tags.favorite"
+            data-event="change:_component_.tag"
+          ><span>❤️</span></label>
+        <label>
+          <input 
+            type="checkbox" 
+            data-bind="checked=_component_.rawfile.tags.star"
+            data-event="change:_component_.tag"
+          ><span>⭐️</span></label>
+        <label>
+          <input 
+            type="checkbox" 
+            data-bind="checked=_component_.rawfile.tags.flag"
+            data-event="change:_component_.tag"
+          ><span>🚩</span></label>
+        <button data-event="click:_component_.trash" style="float: right">Trash</button>
+      </td>
+    </tr>
   </table>
 </div>
 <script>
@@ -266,8 +325,10 @@ grid cells that are currently in view.
   let rawfiles_visible = [];
   let processing = 0;
 
+  const reportError = err => { if (err) console.error(err); };
+
   const process = rawfile => {
-    const {_auto_, filepath} = rawfile;
+    const {_auto_, filepath, tags} = rawfile;
     const preview = '/tmp/' + rawfile.basename + `-${PREVIEW_SIZE}.jpg`;
     //console.log('generating', preview, {processing, waiting: waiting.length});
     set(`rawfiles[_auto_=${_auto_}].generating_preview`, true);
@@ -288,13 +349,20 @@ grid cells that are currently in view.
         if (err) {
           console.error(`${filepath} metadata extraction failed`, err);
         } else {
-          const metadata = {orig: {}};
-          stdout.split(/\nkMDItem|\nkMDFS/).forEach(item => {
-            const [key, value] = item.split('=').map(s => s.trim());
+          const metadata = {};
+          stdout.split('\nkMD').forEach(item => {
+            let [key, value] = item.split('=').map(s => s.trim());
+            key = key.replace(/^(FS)?(Item)?(FS)?(Content)?(Acquisition)?(Display)?/, '');
             if (key && !value.match(/^(\s+|\(null\))$/)) {
-              metadata[key] = value.match(/^"*(.*?)"*$/m)[1]; // strip outer quotation marks
+              metadata[key] = value.indexOf('(') === -1 
+                              ? value.match(/^"*(.*?)"*$/m)[1] // strip outer quotation marks
+                              : value.match(/\w[^,)"]*/g).map(s => s.trim());
             }
           });
+          if (metadata.UserTags) {
+            metadata.UserTags.forEach(t => tags[t] = true);
+            touch(`rawfiles[_auto_=${_auto_}].tags`);
+          }
           if (metadata.ExposureTimeSeconds < 1) {
             metadata.ExposureTimeSeconds = '1/' + Math.round(1/metadata.ExposureTimeSeconds);
           }
@@ -358,6 +426,7 @@ grid cells that are currently in view.
                 filename,
                 basename: filename.split('.').slice(0,-1).join('.'),
                 filepath,
+                tags: {},
               });
             }
           );
@@ -405,7 +474,32 @@ grid cells that are currently in view.
     return rawfiles_visible;
   };
 
-  set({slice, pick, closeDetail, rawfiles: []});
+  const edit = () => {
+    exec(`open "${get('rawfile.filepath')}"`, reportError);
+  };
+  const reveal = () => {
+    exec(`open -R "${get('rawfile.filepath')}"`, reportError);
+  };
+  const preview = () => {
+    exec(`qlmanage -p "${get('rawfile.filepath')}"`, reportError);
+  };
+  const tag = () => {
+    const {tags, filepath} = get('rawfile');
+    const xml = b8r.filterKeys(tags, v => v).map(t => `<string>${t}</string>`).join('');
+    console.log(xml);
+    exec(`xattr -w com.apple.metadata:_kMDItemUserTags '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><array>${xml}</array></plist>' "${filepath}"`, reportError);
+  };
+  const trash = () => {
+    const rawfile = get('rawfile');
+    const rawfiles = get('rawfiles');
+    rawfiles.splice(rawfiles.indexOf(rawfile), 1);
+    exec(`mv "${rawfile.filepath}" ~/.Trash`);
+    closeDetail();
+    set('rawfile', null);
+    touch('rawfiles');
+  };
+
+  set({slice, pick, closeDetail, rawfiles: [], edit, reveal, preview, tag, trash});
 
   findFiles('NEF');
   findFiles('DNG');
