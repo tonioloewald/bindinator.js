@@ -234,8 +234,12 @@ grid cells that are currently in view.
       <td data-bind="text=_component_.rawfile.metadata.Name"></td>
     </tr>
     <tr data-bind="show_if=_component_.rawfile.metadata.CreationDate">
-      <th>Creation Data</th>
+      <th>Creation Date</th>
       <td data-bind="timestamp()=_component_.rawfile.metadata.CreationDate"></td>
+    </tr>
+    <tr data-bind="show_if=_component_.rawfile.metadata.Size">
+      <th>Finder Comment</th>
+      <td data-bind="text=${_component_.rawfile.metadata.FinderComment}"></td>
     </tr>
     <tr data-bind="show_if=_component_.rawfile.metadata.Model">
       <th>Camera</th>
@@ -279,20 +283,20 @@ grid cells that are currently in view.
         <button data-event="click:_component_.reveal">Reveal</button>
         <button data-event="click:_component_.preview">Preview</button>
         <label>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             data-bind="checked=_component_.rawfile.tags.favorite"
             data-event="change:_component_.tag"
           ><span>❤️</span></label>
         <label>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             data-bind="checked=_component_.rawfile.tags.star"
             data-event="change:_component_.tag"
           ><span>⭐️</span></label>
         <label>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             data-bind="checked=_component_.rawfile.tags.flag"
             data-event="change:_component_.tag"
           ><span>🚩</span></label>
@@ -354,7 +358,7 @@ grid cells that are currently in view.
             let [key, value] = item.split('=').map(s => s.trim());
             key = key.replace(/^(FS)?(Item)?(FS)?(Content)?(Acquisition)?(Display)?/, '');
             if (key && !value.match(/^(\s+|\(null\))$/)) {
-              metadata[key] = value.indexOf('(') === -1 
+              metadata[key] = value.indexOf('(') === -1
                               ? value.match(/^"*(.*?)"*$/m)[1] // strip outer quotation marks
                               : value.match(/\w[^,)"]*/g).map(s => s.trim());
             }
@@ -411,8 +415,8 @@ grid cells that are currently in view.
   const findFiles = extension => {
     const rawfiles = get('rawfiles');
     exec(
-      `mdfind "kMDItemDisplayName == '*.${extension}'"`, 
-      {maxBuffer: 1024 * 10000}, // 10MB buffer because 
+      `mdfind "kMDItemDisplayName == '*.${extension}'"`,
+      {maxBuffer: 1024 * 10000}, // 10MB buffer because
       (err, stdout) => {
         if (err) {
           console.error('spotlight search failed', err);
