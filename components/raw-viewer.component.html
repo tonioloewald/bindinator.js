@@ -4,9 +4,14 @@
 Sorry, this demo is macOS and electron only.
 
 1. It finds all the `NEF`, `CR2`, and `DNG` files using spotlight `mdfind`
-2. It extracts all EXIF metadata using `mdls`
+2. It extracts metadata using `mdls` (sadly not EXIF data directly yet so, in particular,
+   Orientation data is not wholly accurate and some portrait photos will be upside-down)
 3. It generates previews in `/tmp/` using `sips`
 4. It shows you the previews using `biggrid`
+5. It gets Finder tags using `xattr` and displays
+   `star`, `favorite`, and `flag` comments (but doesn't show color tags yet nor allow you to
+   create/edit custom tags)
+6. It gets Finder comments using `xattr` (but you can't edit the comments yet)
 
 The previews are generated asynchronously up to three at a time. (I picked three
 because chances are you have at least four virtual cores, but it looks like sips
@@ -15,6 +20,21 @@ one file at a time has some benefit.)
 
 Previews are generated in random order, but priority is given to previews for
 grid cells that are currently in view.
+
+## To Do
+
+* Restrict to a directory / volume etc. (especially for importing from cards)
+* List filtering based on file tags, dates, etc.
+* It would be great if we could somehow leverage the insanely fast (and, I assume, cached)
+  image previews that Finder uses
+* It would be nice to get actual EXIF data so all images could be rendered with correct orientation
+* xmp support
+* Some kind of quick-and-dirty scheme to detect over- and under- exposed images
+* Some kind of quick—and-dirty scheme to detect out-of-focus images
+* Automatic generation of "virtual tags" for lens, focal length (wide, normal, telephoto, ultrawide,
+  long), aperture (wide open, normal, small), shutter speed, camera, year, year+month, location
+  (if data available)
+* Edit Finder comments directly (and possibly allow file renaming)
 -->
 <style>
   .raw-viewer-component {
