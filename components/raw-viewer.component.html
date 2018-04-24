@@ -13,11 +13,13 @@ Sorry, this demo is macOS and electron only.
    `star`, `favorite`, and `flag` comments (but doesn't show color tags yet nor allow you to
    create/edit custom tags)
 6. It gets Finder comments using `xattr` (but you can't edit the comments yet)
-7. It uses `jsfeat` to try to detect blurred or otherwise bad photos by
+7. It uses [jsfeat](https://inspirit.github.io/jsfeat/) to try to detect blurred or otherwise
+  bad photos by
   1. converting the image to grayscale using `jsfeat.imgproc.grayscale`
   2. using `jsfeat.imgproc.equalize_histogram` to compensate for photos with close tones or
      poor exposure
   3. `jsfeat.yape` to try to find detail in the image
+
   Photos suspected of being poor are marked with the "yape score".
 
 The previews are generated asynchronously up to three at a time. (I picked three
