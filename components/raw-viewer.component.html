@@ -24,8 +24,11 @@ grid cells that are currently in view.
 
 ## To Do
 
-* Restrict to a directory / volume etc. (especially for importing from cards)
+* UI Refinements (toolbar, explicit toggle for metadata)
 * List filtering based on file tags, dates, etc.
+* Option to show all metadata
+* Show color tags
+* Restrict to a directory / volume etc. (especially for importing from cards)
 * It would be nice to get actual EXIF data so all images could be rendered with correct orientation
 * xmp support
 * Some kind of quick-and-dirty scheme to detect over- and under- exposed images
@@ -340,7 +343,8 @@ grid cells that are currently in view.
   const MAX_PROCESSING = 4;
   const PREVIEW_SIZE = 256;
   const PREGENERATE_PREVIEWS = false;
-  const PREVIEW_PATH = '/tmp';
+  const PREVIEW_PATH = `/tmp/thumbs-${PREVIEW_SIZE}`;
+  const FULLSIZE_PATH = `/tmp/fullsize`;
   let rawfiles_visible = [];
   let processing = 0;
 
@@ -367,6 +371,7 @@ grid cells that are currently in view.
         if (err) {
           // const rot = rawfile.metadata.Orientation === '1' ? -90 : 0;
           exec(
+            `mkdir -p ${PREVIEW_PATH} && ` +
             `qlmanage -t -s=${PREVIEW_SIZE} -o ${PREVIEW_PATH} "${filepath}"`,
             // `sips -s format jpeg -r ${rot} -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`,
             err => {
@@ -465,15 +470,11 @@ grid cells that are currently in view.
     if (!rawfile.fullsize) {
       const {filepath} = rawfile;
       rawfile.fullsize = rawfile.preview;
-      const fullsize = `${PREVIEW_PATH}/${rawfile.basename}.jpg`;
-      // const fullsize = `${PREVIEW_PATH}/fullsize/${rawfile.filename}.png`;
+      const fullsize = `${FULLSIZE_PATH}/${rawfile.basename}.jpg`;
       rawfile.generating_fullsize = true;
       const rot = rawfile.metadata.Orientation === '1' ? -90 : 0;
       exec(
-        /*
-        `mkdir -p ${PREVIEW_PATH}/fullsize &&` +
-        `qlmanage -t -o ${PREVIEW_PATH}/fullsize "${filepath}"`,
-        */
+        `mkdir -p ${FULLSIZE_PATH} && ` +
         `sips -s format jpeg -r ${rot} -s formatOptions 90 "${filepath}" --out "${fullsize}"`,
         err => {
           if (err) {
