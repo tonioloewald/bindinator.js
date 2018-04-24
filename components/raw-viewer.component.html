@@ -6,7 +6,8 @@ Sorry, this demo is macOS and electron only.
 1. It finds all the `NEF`, `CR2`, and `DNG` files using spotlight `mdfind`
 2. It extracts metadata using `mdls` (sadly not EXIF data directly yet so, in particular,
    Orientation data is not wholly accurate and some portrait photos will be upside-down)
-3. It generates previews in `/tmp/` using `sips`
+3. It generates thumbnails using `qlmanage -t -o /tmp/...` (it would be even faster if we
+   could bypass the file system entirely, but that would entail writing a native plugin)
 4. It shows you the previews using `biggrid`
 5. It gets Finder tags using `xattr` and displays
    `star`, `favorite`, and `flag` comments (but doesn't show color tags yet nor allow you to
@@ -25,8 +26,6 @@ grid cells that are currently in view.
 
 * Restrict to a directory / volume etc. (especially for importing from cards)
 * List filtering based on file tags, dates, etc.
-* It would be great if we could somehow leverage the insanely fast (and, I assume, cached)
-  image previews that Finder uses
 * It would be nice to get actual EXIF data so all images could be rendered with correct orientation
 * xmp support
 * Some kind of quick-and-dirty scheme to detect over- and under- exposed images
@@ -338,9 +337,10 @@ grid cells that are currently in view.
   const fs = require.globalRequire('fs');
   const {exec} = require.globalRequire('child_process');
 
-  const MAX_PROCESSING = 3;
+  const MAX_PROCESSING = 4;
   const PREVIEW_SIZE = 256;
   const PREGENERATE_PREVIEWS = false;
+  const PREVIEW_PATH = '/tmp';
   let rawfiles_visible = [];
   let processing = 0;
 
@@ -348,7 +348,7 @@ grid cells that are currently in view.
 
   const process = rawfile => {
     const {_auto_, filepath, tags} = rawfile;
-    const preview = '/tmp/' + rawfile.basename + `-${PREVIEW_SIZE}.jpg`;
+    const preview = `${PREVIEW_PATH}/${rawfile.filename}.png`;
     //console.log('generating', preview, {processing, waiting: waiting.length});
     set(`rawfiles[_auto_=${_auto_}].generating_preview`, true);
 
@@ -365,9 +365,10 @@ grid cells that are currently in view.
     const get_preview = () => {
       fs.access(preview, fs.constants.R_OK, err => {
         if (err) {
-          const rot = rawfile.metadata.Orientation === '1' ? -90 : 0;
+          // const rot = rawfile.metadata.Orientation === '1' ? -90 : 0;
           exec(
-            `sips -s format jpeg -r ${rot} -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`,
+            `qlmanage -t -s=${PREVIEW_SIZE} -o ${PREVIEW_PATH} "${filepath}"`,
+            // `sips -s format jpeg -r ${rot} -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`,
             err => {
               if (err) {
                 console.error(`${filepath} RAW conversion failed`, err);
@@ -464,21 +465,29 @@ grid cells that are currently in view.
     if (!rawfile.fullsize) {
       const {filepath} = rawfile;
       rawfile.fullsize = rawfile.preview;
-      const fullsize = '/tmp/' + rawfile.basename + '.jpg';
+      const fullsize = `${PREVIEW_PATH}/${rawfile.basename}.jpg`;
+      // const fullsize = `${PREVIEW_PATH}/fullsize/${rawfile.filename}.png`;
       rawfile.generating_fullsize = true;
       const rot = rawfile.metadata.Orientation === '1' ? -90 : 0;
-      exec(`sips -s format jpeg -r ${rot} -s formatOptions 90 "${filepath}" --out "${fullsize}"`, err => {
-        if (err) {
-          console.error(`${filepath} RAW conversion failed`, err);
-        } else {
-          imagePromise('file://' + fullsize).
-          then(() => {
-            rawfile.generating_fullsize = false;
-            rawfile.fullsize = 'file://' + fullsize;
-            touch('rawfile');
-          });
+      exec(
+        /*
+        `mkdir -p ${PREVIEW_PATH}/fullsize &&` +
+        `qlmanage -t -o ${PREVIEW_PATH}/fullsize "${filepath}"`,
+        */
+        `sips -s format jpeg -r ${rot} -s formatOptions 90 "${filepath}" --out "${fullsize}"`,
+        err => {
+          if (err) {
+            console.error(`${filepath} RAW conversion failed`, err);
+          } else {
+            imagePromise('file://' + fullsize).
+            then(() => {
+              rawfile.generating_fullsize = false;
+              rawfile.fullsize = 'file://' + fullsize;
+              touch('rawfile');
+            });
+          }
         }
-      });
+      );
     } else {
       rawfile.generating_fullsize = false;
     }
