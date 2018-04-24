@@ -13,6 +13,12 @@ Sorry, this demo is macOS and electron only.
    `star`, `favorite`, and `flag` comments (but doesn't show color tags yet nor allow you to
    create/edit custom tags)
 6. It gets Finder comments using `xattr` (but you can't edit the comments yet)
+7. It uses `jsfeat` to try to detect blurred or otherwise bad photos by
+  1. converting the image to grayscale using `jsfeat.imgproc.grayscale`
+  2. using `jsfeat.imgproc.equalize_histogram` to compensate for photos with close tones or
+     poor exposure
+  3. `jsfeat.yape` to try to find detail in the image
+  Photos suspected of being poor are marked with the "yape score".
 
 The previews are generated asynchronously up to three at a time. (I picked three
 because chances are you have at least four virtual cores, but it looks like sips
@@ -212,6 +218,17 @@ grid cells that are currently in view.
     opacity: 1.0;
     filter: none;
   }
+
+  .blurred:after {
+    content: attr(data-yape);
+    background: rgba(255,0,0,0.5);
+    color: white;
+    position: absolute;
+    line-height: 14px;
+    padding: 2px 4px;
+    top: 0;
+    right: 0;
+  }
 </style>
 <div
   class="raw-viewer-scroller"
@@ -220,7 +237,11 @@ grid cells that are currently in view.
 >
   <div
     class="raw-viewer-tile"
-    data-bind="class(loading)=.generating_preview"
+    data-bind="
+      class(loading)=.generating_preview;
+      class(blurred)=.blurred;
+      data(yape)=.yape;
+    "
     data-list="_component_.slice(_component_.rawfiles):_auto_"
     data-event="mouseup,keydown(Space):_component_.pick"
     tabindex="0"
@@ -328,6 +349,7 @@ grid cells that are currently in view.
 
   const biggrid = require('../lib/biggrid.js');
   const {imagePromise} = require('../source/b8r.imgSrc.js');
+  const jsfeat = require('../third-party/jsfeat-min.js');
 
   if (! require.electron || window.process.platform !== 'darwin') {
     return;
@@ -348,6 +370,11 @@ grid cells that are currently in view.
   let rawfiles_visible = [];
   let processing = 0;
 
+  const canvas = b8r.create('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const context2d = canvas.getContext('2d');
+
   const reportError = err => { if (err) console.error(err); };
 
   const process = rawfile => {
@@ -361,6 +388,35 @@ grid cells that are currently in view.
       if(document.body.contains(component)) {
         set(`rawfiles[_auto_=${_auto_}].generating_preview`, false);
         set(`rawfiles[_auto_=${_auto_}].preview`, 'file://' + preview);
+        imagePromise('file://' + preview).then(img => {
+          /*
+          // FAST
+          jsfeat.fast_corners.set_threshold(50);
+          // YAPE06
+          jsfeat.yape06.laplacian_threshold = 25;
+          jsfeat.yape06.min_eigen_value_threshold = 75;
+          */
+          // YAPE
+          jsfeat.yape.init(256, 256, 3, 1);
+
+          const corners = [], border=2;
+          // you should use preallocated keypoint_t array
+          for(let i = 0; i < 256 * 256; ++i) {
+            corners[i] = new jsfeat.keypoint_t(0,0,0,0);
+          }
+          const img_u8 = new jsfeat.matrix_t(256, 256, jsfeat.U8_t | jsfeat.C1_t);
+          context2d.drawImage(img, 0, 0, 256, 256);
+          const imageData = context2d.getImageData(0, 0, 256, 256);
+          jsfeat.imgproc.grayscale(imageData.data, 256, 256, img_u8);
+          jsfeat.imgproc.equalize_histogram(img_u8, img_u8);
+          // const fast = jsfeat.fast_corners.detect(img_u8, corners, border);
+          // const yape06 = jsfeat.yape06.detect(img_u8, corners, border);
+          const yape = jsfeat.yape.detect(img_u8, corners, border);
+          set(`rawfiles[_auto_=${_auto_}].yape`, yape);
+          if (yape < 100) {
+            set(`rawfiles[_auto_=${_auto_}].blurred`, true);
+          }
+        });
         processing -= 1;
         dequeue();
       }
@@ -467,6 +523,7 @@ grid cells that are currently in view.
 
   const pick = evt => {
     const rawfile = b8r.getListInstance(evt.target);
+
     if (!rawfile.fullsize) {
       const {filepath} = rawfile;
       rawfile.fullsize = rawfile.preview;
