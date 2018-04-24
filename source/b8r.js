@@ -631,7 +631,7 @@ const inheritData = element => {
     const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source));
     return b8r.filterObject(
       data || {},
-      (v, k) => reserved.indexOf(k) === - 1 || typeof v !== 'function'
+      (v, k) => (! reserved.includes(k)) || typeof v !== 'function'
     );
   }
 };
