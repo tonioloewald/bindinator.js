@@ -92,6 +92,10 @@ Test(() => {
   const obj = {a: 10, b: 12, c: 5};
   return JSON.stringify(b8r.filterObject(obj, val => val % 5 === 0));
 }).shouldBe('{"a":10,"c":5}');
+Test(() => {
+  const obj = {a: 10, b: 12, c: 5};
+  return JSON.stringify(b8r.filterObject(obj, (val, key) => ['b', 'c'].includes(key)));
+}).shouldBe('{"b":12,"c":5}');
 ~~~~
 */
 /* global module */
@@ -169,7 +173,7 @@ const filterKeys = (object, test) => {
 const filterObject = (object, test) => {
   var filtered = {};
   forEachKey(object, (val, key) => {
-    if (test(val)) {
+    if (test(val, key)) {
       filtered[key] = val;
     }
   });
