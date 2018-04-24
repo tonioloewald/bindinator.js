@@ -83,10 +83,6 @@ grid cells that are currently in view.
     object-fit: cover;
   }
 
-  .raw-viewer-component img[data-orientation="1"] {
-    transform: rotateZ(-90deg);
-  }
-
   .raw-viewer-detail {
     flex: 1 1 auto;
     position: relative;
@@ -209,7 +205,6 @@ grid cells that are currently in view.
   >
     <img data-bind="
       img=${.preview};
-      data(orientation)=.metadata.Orientation;
     ">
     <span data-bind="text=.filename"></span>
   </div>
@@ -347,6 +342,26 @@ grid cells that are currently in view.
       }
     };
 
+    const get_preview = () => {
+      fs.access(preview, fs.constants.R_OK, err => {
+        if (err) {
+          const rot = rawfile.metadata.Orientation === '1' ? -90 : 0;
+          exec(
+            `sips -s format jpeg -r ${rot} -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`,
+            err => {
+              if (err) {
+                console.error(`${filepath} RAW conversion failed`, err);
+              } else {
+                done();
+              }
+            }
+          );
+        } else {
+          done();
+        }
+      });
+    };
+
     exec(
       `mdls "${filepath}"`,
       (err, stdout) => {
@@ -371,26 +386,10 @@ grid cells that are currently in view.
             metadata.ExposureTimeSeconds = '1/' + Math.round(1/metadata.ExposureTimeSeconds);
           }
           set(`rawfiles[_auto_=${_auto_}].metadata`, metadata);
+          get_preview();
         }
       }
     );
-
-    fs.access(preview, fs.constants.R_OK, err => {
-      if (err) {
-        exec(
-          `sips -s format jpeg -s formatOptions 75 -Z ${PREVIEW_SIZE} "${filepath}" --out "${preview}"`,
-          err => {
-            if (err) {
-              console.error(`${filepath} RAW conversion failed`, err);
-            } else {
-              done();
-            }
-          }
-        );
-      } else {
-        done();
-      }
-    });
   };
 
   const dequeue = () => {
@@ -447,7 +446,8 @@ grid cells that are currently in view.
       rawfile.fullsize = rawfile.preview;
       const fullsize = '/tmp/' + rawfile.basename + '.jpg';
       rawfile.generating_fullsize = true;
-      exec(`sips -s format jpeg -s formatOptions 90 "${filepath}" --out "${fullsize}"`, err => {
+      const rot = rawfile.metadata.Orientation === '1' ? -90 : 0;
+      exec(`sips -s format jpeg -r ${rot} -s formatOptions 90 "${filepath}" --out "${fullsize}"`, err => {
         if (err) {
           console.error(`${filepath} RAW conversion failed`, err);
         } else {
