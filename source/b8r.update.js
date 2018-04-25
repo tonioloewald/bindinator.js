@@ -6,7 +6,7 @@ make appropriate changes to the DOM.
 
     touchByPath('path.to.data'); // tells b8r to update anything bound to that path
     touchByPath('path.to.data', source_element); // as above, but exclude source_element
-    =touchElement(element); // tell b8r the element in question needs updating
+    touchElement(element); // tell b8r the element in question needs updating
 
 All of these updates are asynchronous, so the DOM won't actually change immediately. If you do
 want the DOM to change immediately:
