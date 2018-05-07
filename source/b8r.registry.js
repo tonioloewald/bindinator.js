@@ -8,7 +8,7 @@ b8r's registry is an observable object that b8r uses to keep track of objects.
 Once an object is registered, its properties will automatically be bound
 to events and DOM properties by path.
 
-Both of these lines register an object under the name `root`:
+Both of these lines register an object under the name 'root'
 
     register('root', object_value);
     set('root', object_value);
@@ -17,8 +17,8 @@ You can set values deep inside objects using `paths`:
 
     set('root.path.to.value', new_value); // sets the value
 
-You can set properties by path. Root level properties must
-themselves be objects or arrays.
+You can set the registry's properties by path. Root level properties must
+themselves be objects.
 
     get('root.path.to.value'); // gets the value
 
@@ -127,7 +127,7 @@ lists).
 > b8r.set('path.to.value', new_value);
 > </pre>
 > The older APIs (setByPath, etc.) will ultimately be deprecated. Even now they
-> are little more than wrappers for set/get.
+> are little more than wrappers for set/get. See the *Registry* docs.
 
 */
 /* jshint latedef:false */
@@ -718,7 +718,7 @@ const sort = (path, comparison) => {
 /**
     call('path.to.method', ...args);
 
-Call a method by path with the arguments provided.
+Call a method by path with the arguments provided (and return result).
 */
 
 call = (path, ...args) => {
@@ -728,6 +728,17 @@ call = (path, ...args) => {
   } else {
     console.error(`cannot call ${path}; not a method`);
   }
+};
+
+/**
+    call_if('path.to.method', ...args);
+
+If a method is found at path, call it and return result, otherwise return null.
+*/
+
+const call_if = (path, ...args) => {
+  const f = get(path);
+  return f instanceof Function ? f(...args) : null;
 };
 
 /**
@@ -895,7 +906,7 @@ module.exports = {
   setJSON,
   increment, decrement, zero,
   push, unshift, sort,
-  call,
+  call, call_if,
   touch,
   observe,
   unobserve,
