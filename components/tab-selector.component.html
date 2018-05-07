@@ -20,6 +20,7 @@ The component's active_tab indicates the currently visible tab.
   }
 
   .tab-selector-tabs {
+    display: flex;
     padding-top: 2px;
     z-index: 1;
   }
@@ -33,11 +34,15 @@ The component's active_tab indicates the currently visible tab.
     border: 1px solid #ddd;
     border-bottom: 0;
     cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
   .dark .tab-selector-tabs > .tab-selector-tab {
     background-color: #222;
     border: 1px solid #222;
+    flex-shrink: 1;
   }
 
   .tab-selector-tabs > .tab-selector-tab:hover {
@@ -49,6 +54,7 @@ The component's active_tab indicates the currently visible tab.
   }
 
   .tab-selector-tabs > .tab-selector-tab.tab-selector-current {
+    flex-shrink: 0;
     background-color: white;
     border: 1px solid #ddd;
     border-bottom: 1px solid white;
@@ -63,7 +69,7 @@ The component's active_tab indicates the currently visible tab.
 <div class="tab-selector-tabs">
   <h4
     data-list="_component_.tabs"
-    data-bind="text=.name;class(tab-selector-current)=.active"
+    data-bind="text,attr(title)=.name;class(tab-selector-current)=.active"
     class="tab-selector-tab"
     data-event="
       mouseup,keydown(Space):_component_.select_tab;
