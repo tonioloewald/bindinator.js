@@ -88,8 +88,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
   });
   b8r.models().forEach(model => {
     if (model.substr(0, 2) === 'c#' && !_component_instances[model]) {
-      const obj = b8r.get(model);
-      if (obj && obj.destroy && typeof obj.destroy === 'function') obj.destroy();
+      b8r.call_if(`${model}.destroy`);
       b8r.remove(model);
     }
   });
@@ -423,6 +422,7 @@ const forEachItemIn = (obj, id_path, func) => {
 
 let id_count = 0; // used to assign unique ids as required
 function bindList(list_template, data_path) {
+  list_template.classList.add('-b8r-empty-list');
   if (!list_template.parentElement || list_template.parentElement.closest('[data-component]')) {
     return;
   }
@@ -511,11 +511,11 @@ function bindList(list_template, data_path) {
     });
   }
 
-  /* Safari refuses to hide hidden options */
   const template = list_template.cloneNode(true);
-  if (template.dataset.list) {
-    delete template.dataset.list;
-  }
+  template.classList.remove('-b8r-empty-list');
+  delete template.dataset.list;
+
+  /* Safari refuses to hide hidden options */
   if (list_template.tagName === 'OPTION') {
     list_template.setAttribute('disabled', '');
     list_template.textContent = '';
@@ -526,6 +526,7 @@ function bindList(list_template, data_path) {
   let instance;
 
   const ids = {};
+  list_template.classList.toggle('-b8r-empty-list', ! list.length);
   forEachItemIn(list, id_path, (item, id) => {
     if (ids[id]) {
       console.warn(`${id} not unique ${id_path} in ${list_template.dataset.list}`);
