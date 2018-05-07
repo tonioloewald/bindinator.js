@@ -102,7 +102,7 @@ Use the class "floater-title" for the first child to get nice styling.
       }, 250));
     },
     start_motion: (evt) => {
-      if (evt.target.closest('input,select,textarea,button,a')) {
+      if (evt.target.closest('input,select,textarea,button,a,label')) {
         return true;
       }
       const target = evt.target.closest('[data-event]');
