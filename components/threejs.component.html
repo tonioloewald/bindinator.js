@@ -5,81 +5,130 @@
 
 It loads via require() but sets a global rather than passing back to module.exports.
 -->
-<style>
-  .threejs {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 768px;
-    height: 512px;
-    transform: translateX(-50%) translateY(-50%);
-    pointer-events: none;
-    opacity: 0.8;
-  }
-</style>
+<canvas width="768" height="512" style="background: #888"></canvas>
 <script>
-/* global require, THREE, component, b8r */
+/* global require, component, b8r, findOne */
 'use strict';
 
-  require.lazy('https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js').
-  then(() => {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera( 60, 1.5, 0.1, 1000 );
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
+const canvas = findOne('canvas');
 
-    renderer.setSize( 768, 512 );
-    const canvas = renderer.domElement;
-    canvas.classList.add('threejs');
-    component.appendChild(canvas);
+const walktree = (node, f) => {
+  f(node);
+  if (node.children.length) {
+    node.children.forEach(child => walktree(child, f));
+  }
+};
 
+const load = async () => {
+  await require.lazy('../third-party/threejs/three.min.js');
+  await require.lazy('../third-party/threejs/GLTFLoader.js');
 
-    const sunlight = new THREE.DirectionalLight(0xffffcc, 1);
-    sunlight.position.set(100, 50, 50);
-    scene.add(sunlight);
-    const backlight = new THREE.DirectionalLight(0x8888ff, 0.25);
-    backlight.position.set(-100, 50, 50);
-    scene.add(backlight);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera( 20, 1.5, 0.1, 1000 );
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
 
-    const geometry = new THREE.SphereGeometry( 0.5, 24, 12 );
-    const material = new THREE.MeshPhysicalMaterial( { color: 0x444444, reflectivity: 0.9, emissive: 0x202040 } );
-    material.shading = THREE.FlatShading;
-    const cube = new THREE.Mesh( geometry, material );
-    scene.add( cube );
+  camera.position.z = 4;
 
-    camera.position.z = 2;
-    cube.rotation.x = -0.2;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setSize( canvas.width, canvas.height );;
 
-    const update = () => {
-      const mouse = b8r.get('threejs-demo.mouse');
-      if (mouse) {
-        sunlight.position.x = mouse.x * 200;
-        sunlight.position.y = mouse.y * -200;
-      }
-      cube.rotation.y -= 0.01;
-    };
+  const sunlight = new THREE.DirectionalLight(0xddeeff, 1.25);
+  sunlight.castShadow = true;
+  sunlight.position.set(10, 10, 10);
+  scene.add(sunlight);
+  sunlight.shadow.mapSize.width = 2048;
+  sunlight.shadow.mapSize.height = 2048;
+  sunlight.shadow.camera.near = 0.01;
+  sunlight.shadow.camera.far = 500;
 
-    b8r.onAny('mousemove', 'threejs-demo.mousemove');
-    b8r.register('threejs-demo', {
-      mousemove: evt => {
-        if (b8r.isInBody(component)) {
-          const x = (evt.clientX / window.innerWidth - 0.5) * 2;
-          const y = (evt.clientY / window.innerHeight - 0.5) * 2;
-          b8r.set('threejs-demo.mouse', {x, y});
-        } else {
-          b8r.remove('threejs-demo');
-          b8r.offAny('mousemove', 'threejs-demo.mousemove');
-        }
-        return true;
-      }
-    });
+/*
+  const helper = new THREE.CameraHelper( sunlight.shadow.camera );
+  scene.add( helper );
+*/
 
-    function render() {
-      if(b8r.isInBody(canvas)) {
-        update();
-        requestAnimationFrame( render );
-        renderer.render( scene, camera );
+  const ambient = new THREE.AmbientLight(0x603000);
+  scene.add(ambient);
+
+  const plane_geometry = new THREE.PlaneGeometry( 1.5, 1.5, 2 );
+  const plane_mat = new THREE.MeshStandardMaterial( {color: 0x707070 });
+  const plane = new THREE.Mesh( plane_geometry, plane_mat );
+  plane.receiveShadow = true;
+  plane.position.y = -0.5;
+  plane.rotation.x = Math.PI * -0.5;
+  scene.add(plane);
+
+  const loader = new THREE.GLTFLoader();
+  const load = async path => {
+    return await new Promise(resolve => loader.load(path, gltf => resolve(gltf)));
+  };
+
+  const scout = (await load('test/scoutship.gltf')).scene.children[0];
+  // pirate.children[0].material.roughness = 1;
+
+  const materials = {};
+  const meshes = {};
+
+  // tweak materials and meshes
+  walktree(scout, n => {
+    if (n.material) {
+      if (n.material.name === 'Cockpit') {
+        n.material.transparent = true;
+        n.material.roughness = 0.1;
+        n.material.metalness = 0.5;
+        n.material.opacity = 0.4;
+      } else {
+        n.material.roughness = 0.25;
       }
     }
-    render();
+    if (n.type === 'Mesh') {
+      meshes[n.name] = n;
+    }
+    if (n.material) {
+      materials[n.material.name] = n.material;
+    }
+    n.castShadow = true;
+    n.receiveShadow = true;
   });
+  scout.position.y = -0.5;
+  scene.add(scout);
+
+  // shove this stuff in globals so you can play with it
+  window.threejs_stuff = {scene, camera, renderer, sunlight, scout, plane, materials, meshes};
+
+  const update = () => {
+    const mouse = b8r.get('threejs-demo.mouse');
+    if (mouse) {
+      sunlight.position.x = mouse.x * 20;
+      sunlight.position.y = Math.max(-0.4, (mouse.y - 0.5) * -20);
+    }
+    scout.rotation.y -= 0.001;
+  };
+
+  b8r.onAny('mousemove', 'threejs-demo.mousemove');
+  b8r.register('threejs-demo', {
+    mousemove: evt => {
+      if (b8r.isInBody(component)) {
+        const x = (evt.clientX / window.innerWidth - 0.5) * 2;
+        const y = (evt.clientY / window.innerHeight - 0.5) * 2;
+        b8r.set('threejs-demo.mouse', {x, y});
+      } else {
+        b8r.remove('threejs-demo');
+        b8r.offAny('mousemove', 'threejs-demo.mousemove');
+      }
+      return true;
+    }
+  });
+
+  function render() {
+    if(b8r.isInBody(canvas)) {
+      update();
+      requestAnimationFrame( render );
+      renderer.render( scene, camera );
+    }
+  }
+  render();
+}
+
+load();
 </script>
