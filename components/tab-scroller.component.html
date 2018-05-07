@@ -76,6 +76,7 @@ so making similar components with different attributes should be pretty straight
     data-list="_component_.tabs:_auto_"
     data-bind="
       text=.name;
+      attr(class)=.class;
       class(tab-scroller-active)=.active;
     "
     tabindex="0"
@@ -119,11 +120,14 @@ so making similar components with different attributes should be pretty straight
     const tabs = get('tabs');
     if (!tabs.length) return;
 
-    let active_index = 0;
-    tabs.forEach((tab, idx) => {
-      if (tab.elt.offsetTop - tab.elt.offsetHeight <= scroller.scrollTop) active_index = idx;
+    let active_index = tabs.length - 1;
+    for(let idx = tabs.length - 1; idx >= 0; idx--) {
+      const tab = tabs[idx];
+      if (tab.elt.offsetTop > scroller.scrollTop + 5){
+        active_index = idx - 1;
+      }
       tab.active = false;
-    });
+    }
     tabs[active_index].active = true;
     set({tabs});
     b8r.after_update(() => {
@@ -134,9 +138,10 @@ so making similar components with different attributes should be pretty straight
   };
 
   const update_tabs = () => {
-    const tabs = find('.tab-scroller > [data-tab-name]').map(elt => {
+    const tabs = find('.tab-scroller [data-tab-name]').map(elt => {
       return {
         name: elt.dataset.tabName,
+        class: elt.dataset.tabClass,
         elt,
         active: false,
       };
