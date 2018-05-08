@@ -1,0 +1,85 @@
+<!--
+# Speech Component
+
+Simple demonstration of SpeechSynthesis support in modern browsers.
+-->
+<style>
+  .speech-component {
+    width: 400px;
+  }
+  .speech-component > * {
+    display: block;
+    margin: 5px 0;
+  }
+
+  .speech-component > label > span {
+    min-width: 100px;
+  }
+  .speech-component > label > * {
+    margin-right: 10px;
+  }
+
+  .speech-component textarea {
+    width: 100%;
+  }
+
+  .speech-component input[type="range"] {
+    width: 200px;
+  }
+</style>
+<label>
+  <span>Voice</span>
+  <select
+    data-bind="value=_component_.voice"
+  >
+    <option
+      data-list="_component_.voices:name"
+      data-bind="
+        format=${.name} (${.lang});
+        attr(value)=.name;
+      "
+    ></option>
+  </select>
+</label>
+<label>
+  <span>Pitch</span>
+  <input type="range" min=0 max=2 step=0.125 data-bind="value=_component_.pitch">
+  <input type="number" min=0 max=2 step=0.125 data-bind="value=_component_.pitch">
+</label>
+<label>
+  <span>Rate</span>
+  <input type="range" min=0.25 max=2 step=0.125 data-bind="value=_component_.rate">
+  <input type="number" min=0.25 max=2 step=0.125 data-bind="value=_component_.rate">
+</label>
+<textarea
+  placeholder="enter text"
+  data-event="keydown(Enter):_component_.speak"
+  data-bind="value=_component_.text"
+></textarea>
+<div style="text-align: center">
+  <button data-event="click:_component_.speak">Speak</button>
+</div>
+<script>
+  const synth = window.speechSynthesis;
+  const getVoices = () => {
+    const voices = synth.getVoices();
+    // find an Aussie!
+    const voice = voices.find(v => v.lang === 'en-AU').name;
+    set({voices, voice});
+  }
+
+  if (synth.onvoiceschanged !== undefined) {
+    synth.onvoiceschanged = getVoices;
+  } else {
+    getVoices();
+  }
+
+  const speak = () => {
+    const utterance = new SpeechSynthesisUtterance(get('text'));
+    utterance.voice = get('voices').find(v => v.name === get('voice'));
+    utterance.pitch = parseFloat(get('pitch'));
+    utterance.rate = parseFloat(get('rate'));
+    synth.speak(utterance);
+  }
+  set({speak, pitch: 1, rate: 1, text: 'this is a test'});
+</script>

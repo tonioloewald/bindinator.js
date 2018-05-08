@@ -415,6 +415,10 @@
       {
         "name": "RAW Viewer",
         "path": "raw-viewer.component.html"
+      },
+      {
+        "name": "Speech",
+        "path": "speech.component.html"
       }
     ]
   }
