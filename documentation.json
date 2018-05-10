@@ -310,6 +310,10 @@
       {
         "name": "Tab Scroller",
         "path": "tab-scroller.component.html"
+      },
+      {
+        "name": "Image Editor",
+        "path": "image-editor.component.html"
       }
     ]
   },
