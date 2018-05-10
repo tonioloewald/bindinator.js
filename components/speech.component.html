@@ -21,6 +21,7 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
 
   .speech-component textarea {
     width: 100%;
+    height: 200px;
   }
 
   .speech-component input[type="range"] {
@@ -57,6 +58,7 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
   data-bind="value=_component_.text"
 ></textarea>
 <div style="text-align: center">
+  <button data-event="click:_component_.stop">Stop</button>
   <button data-event="click:_component_.speak">Speak</button>
 </div>
 <script>
@@ -79,7 +81,24 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
     utterance.voice = get('voices').find(v => v.name === get('voice'));
     utterance.pitch = parseFloat(get('pitch'));
     utterance.rate = parseFloat(get('rate'));
+    synth.cancel();
     synth.speak(utterance);
   }
-  set({speak, pitch: 1, rate: 1, text: 'this is a test'});
+
+  const stop = () => synth.cancel();
+
+  const text =
+`The rain in Spain stays mainly in the plain.
+
+How do I get to St. James square from High St.?
+
+I'm not a pheasant plucker, I'm a pheasant plucker's son.
+And I'm only plucking pheasants 'til the pheasant plucking's done.
+
+'Twas brillig, and the slithy toves
+Did gyre and gimble in the wabe;
+All mimsy were the borogoves,
+And the mome raths outgrabe.`;
+
+  set({speak, stop, pitch: 1, rate: 1, text});
 </script>
