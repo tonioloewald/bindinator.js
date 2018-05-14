@@ -75,7 +75,7 @@ return {
       }
     }
   },
-  checked: element => element.checked,
+  checked: element => element.indeterminate ? null : element.checked,
   selected: element => element.selected,
   text: function(element){
     return element.textContent;

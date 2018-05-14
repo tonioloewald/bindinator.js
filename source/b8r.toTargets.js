@@ -85,15 +85,32 @@ no formatting is applied and the `textContent` of the element is set instead.
     data-bind="checked=message.private"
 
 This is the `checked` property on `<input type="checked">` and `<input
-type="radio">` elements.
+type="radio">` elements. The `checked` to and from targets support the
+[indeterminate state on checkboxes](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox)
+via `null` (not `undefined`).
 
 ```
+<style>
+  label { display: block; }
+</style>
 <label>
-  <input type="checkbox" data-bind="checked=_component_.checked">
-  <span data-bind="text=_component_.checked"></span>
+  <input type="checkbox" data-bind="checked=_component_.first">
+  <span data-bind="json=_component_.first"></span>
+</label>
+<label>
+  <input type="checkbox" data-bind="checked=_component_.second">
+  <span data-bind="json=_component_.second"></span>
+</label>
+<label>
+  <input type="checkbox" data-bind="checked=_component_.third">
+  <span data-bind="json=_component_.third"></span>
 </label>
 <script>
-  set('checked', true);
+  set({
+    first: true,
+    second: false,
+    third: null,
+  })
 </script>
 ```
 
@@ -402,7 +419,14 @@ module.exports = function(b8r) {
           }
       }
     },
-    checked: (element, value) => element.checked = !!value,
+    checked: (element, value) => {
+      if (value === null) {
+        element.checked = false;
+        element.indeterminate = true;
+      } else {
+        element.checked = !!value
+      }
+    },
     selected: (element, value) => {
       element.selected = !!value;
     },
