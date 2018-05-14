@@ -1,0 +1,76 @@
+<!--
+# Timeline
+
+A simple example which shows how you can turn an SVG into a dynamic visualization component with a few bindings.
+-->
+<svg width="1100px" height="512px" viewBox="0 0 1100 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="timeline" transform="translate(10.000000, 244.000000)" fill="#4A90E2">
+      <rect id="Rectangle" x="24" y="8" width="1024" height="8"></rect>
+      <polygon id="Triangle" points="0 12 24 0 24 24"></polygon>
+      <polygon id="Triangle-Copy" transform="translate(1058.000000, 12.000000) rotate(-180.000000) translate(-1058.000000, -12.000000) " points="1046 12 1070 0 1070 24"></polygon>
+    </g>
+    <g id="item"
+      data-list="_component_.timeline_data:_auto_"
+      data-bind="attr(transform)=translate(${.x}, 72.0)"
+    >
+      <g id="below" transform="translate(108.398755, 280.398755) rotate(-315.000000) translate(-108.398755, -280.398755) translate(-4.101245, 259.398755)" data-bind="show_if=.odd">
+        <rect id="Rectangle-2" fill="#4A90E2" transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
+        <rect id="Rectangle-3" fill="#4A90E2" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
+        <text id="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="#000000">
+          <tspan x="132" y="24" data-bind="text=.title">Heading</tspan>
+        </text>
+        <text id="2004" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="#FFFFFF">
+          <tspan x="62.312" y="24" data-bind="text=.time">2004</tspan>
+        </text>
+        <text id="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="#000000">
+          <tspan x="133" y="39" data-bind="text=.info">Info</tspan>
+        </text>
+      </g>
+      <g id="above" transform="translate(114.398755, 94.398755) rotate(-45.000000) translate(-114.398755, -94.398755) translate(1.898755, 73.398755)" data-bind="hide_if=.odd">
+        <rect id="Rectangle-2" fill="#4A90E2" transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
+        <rect id="Rectangle-3" fill="#4A90E2" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
+        <text id="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="#000000">
+          <tspan x="132" y="24" data-bind="text=.title">Heading</tspan>
+        </text>
+        <text id="2004" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="#FFFFFF">
+          <tspan x="62.312" y="24" data-bind="text=.time">2004</tspan>
+        </text>
+        <text id="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="#000000">
+          <tspan x="133" y="39" data-bind="text=.info">Info</tspan>
+        </text>
+      </g>
+      <g id="time" transform="translate(0.000000, 164.000000)">
+        <circle id="Oval" fill="#4A90E2" cx="20" cy="20" r="20"></circle>
+        <circle id="Oval-Copy" fill="#FFFFFF" cx="20" cy="20" r="12"></circle>
+      </g>
+    </g>
+  </g>
+</svg>
+<script>
+  if (! data.timeline_data) {
+    set('timeline_data', [
+      {time: 1991, title: 'WWW Invented'},
+      {time: 1993, title: 'Mosaic'},
+      {time: 1995, title: 'Netscape'},
+      {time: 1998, title: 'Google'},
+      {time: 1999, title: 'dot com boom'},
+      {time: 2002, title: 'Web 2.0'},
+      {time: 2004, title: 'Facebook'},
+      {time: 2007, title: 'iPhone'},
+      {time: 2016, title: 'b8r'}
+    ]);
+  }
+  const timeline_data = get('timeline_data');
+  timeline_data.sort((a, b) => a.time - b.time);
+  const start = timeline_data[0].time;
+  const finish = timeline_data[timeline_data.length - 1].time;
+  const scale = finish - start;
+  timeline_data.forEach((item, idx) => {
+    // spread out overlapping items
+    const t = (item.time - start) / scale;
+    const l = idx / timeline_data.length;
+    item.x = (63 + (l + t) * 0.5 * 800).toFixed(1);
+    item.odd = !! (idx % 2);
+  });
+</script>

@@ -314,6 +314,10 @@
       {
         "name": "Image Editor",
         "path": "image-editor.component.html"
+      },
+      {
+        "name": "Timeline",
+        "path": "timeline.component.html"
       }
     ]
   },
