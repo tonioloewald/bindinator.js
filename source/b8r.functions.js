@@ -1,7 +1,7 @@
 /**
 # functions
 
-Utility functios for preventing a method from being called too frequently.
+Utility functions for preventing a method from being called too frequently.
 Not recommended for use on methods which take arguments!
 
     b8r.debounce(method, min_interval_ms) => debounced method
