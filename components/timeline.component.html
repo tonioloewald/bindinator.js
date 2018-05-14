@@ -6,6 +6,9 @@ a few bindings.
 
 In this case a [Sketch](https://www.sketchapp.com/) document was exported as SVG and a few
 attributes added to groups in the exported document. (A few unnecessary tags were removed as well.)
+
+You can extract SVGs from web pages in Chrome using the
+[SVG Crowbar](http://nytimes.github.io/svg-crowbar/) bookmarklet (use the v2).
 -->
 <svg width="100%" viewBox="0 0 1100 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -15,7 +18,7 @@ attributes added to groups in the exported document. (A few unnecessary tags wer
       <polygon id="Triangle-Copy" transform="translate(1058.000000, 12.000000) rotate(-180.000000) translate(-1058.000000, -12.000000) " points="1046 12 1070 0 1070 24"></polygon>
     </g>
     <g id="item"
-      data-list="_component_.timeline_data:_auto_"
+      data-list="_component_.history:_auto_"
       data-bind="attr(transform)=translate(${.x}, 72.0)"
     >
       <g id="below" transform="translate(108.398755, 280.398755) rotate(-315.000000) translate(-108.398755, -280.398755) translate(-4.101245, 259.398755)" data-bind="show_if=.odd">
@@ -52,8 +55,8 @@ attributes added to groups in the exported document. (A few unnecessary tags wer
   </g>
 </svg>
 <script>
-  if (! data.timeline_data) {
-    set('timeline_data', [
+  if (! data.history) {
+    set('history', [
       {time: 1991, title: 'WWW Invented'},
       {time: 1993, title: 'Mosaic'},
       {time: 1995, title: 'Netscape'},
@@ -65,15 +68,15 @@ attributes added to groups in the exported document. (A few unnecessary tags wer
       {time: 2016, title: 'b8r'}
     ]);
   }
-  const timeline_data = get('timeline_data');
-  timeline_data.sort((a, b) => a.time - b.time);
-  const start = timeline_data[0].time;
-  const finish = timeline_data[timeline_data.length - 1].time;
+  const history = get('history');
+  history.sort((a, b) => a.time - b.time);
+  const start = history[0].time;
+  const finish = history[history.length - 1].time;
   const scale = finish - start;
-  timeline_data.forEach((item, idx) => {
+  history.forEach((item, idx) => {
     // spread out overlapping items
-    const t = (item.time - start) / scale;
-    const l = idx / timeline_data.length;
+    const t = (item.time - start) / scale; // time relative to scale
+    const l = idx / history.length; // position in sequence
     item.x = (63 + (l + t) * 0.5 * 800).toFixed(1);
     item.odd = !! (idx % 2);
   });
