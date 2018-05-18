@@ -9,6 +9,16 @@ attributes added to groups in the exported document. (A few unnecessary tags wer
 
 You can extract SVGs from web pages in Chrome using the
 [SVG Crowbar](http://nytimes.github.io/svg-crowbar/) bookmarklet (use the v2).
+
+The component is driven by properties:
+
+- `defaultColor` colors the timeline itself and each item not otherwise colored
+- `heading` (optional) is the heading
+- `history` is a list of items with properties:
+  - `title` and `info` (optional) text
+  - `time` assumed to be a year (AD)
+  - `below` (optional) if you want to force the item above or below, otherwise they alternate
+  - `color` (optional) if you want to color the item
 -->
 <style>
   .timeline-component .item { transition: 0.25s ease-out; }
@@ -23,6 +33,10 @@ You can extract SVGs from web pages in Chrome using the
 </style>
 <svg width="100%" viewBox="0 -128 1300 768" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <g class="timeline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+
+    <text id="Heading" text-anchor="middle" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="48" font-weight="bold" fill="#000000">
+        <tspan x="600" y="-64" data-bind="text=_component_.heading"></tspan>
+    </text>
     <g transform="translate(10.000000, 244.000000)" data-bind="attr(fill)=_component_.defaultColor">
       <rect id="Rectangle" x="24" y="8" width="1024" height="8"></rect>
       <polygon id="Triangle" points="0 12 24 0 24 24"></polygon>
@@ -68,6 +82,7 @@ You can extract SVGs from web pages in Chrome using the
 </svg>
 <script>
   if (! data.history) {
+    set('heading', 'Quantum Computing vs HTML Centering');
     set('history', [
       {time: 1980, below: false, color: 'orange', title: 'Proposal', info: 'Yuri Manin Proposes Quantum Computing'},
       {time: 1993, below: false, color: 'orange', title: 'Theory', info: 'Theory that true teleportation is possible'},
