@@ -427,6 +427,14 @@
       {
         "name": "Speech",
         "path": "speech.component.html"
+      },
+      {
+        "name": "Netflix Webview",
+        "path": "netflix.component.html"
+      },
+      {
+        "name": "Web Components",
+        "path": "web-components.component.html"
       }
     ]
   }

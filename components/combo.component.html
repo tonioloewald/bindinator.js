@@ -216,13 +216,14 @@ the string.
 
     const update = (evt, element) => {
       const {combo} = get_combo(element);
+      console.log(combo);
       const current = combo.querySelector('.selected');
       switch(evt.type) {
         case 'keydown':
           switch(evt.code) {
             case 'ArrowUp':
             case 'ArrowDown':
-              return false;
+              if (current) return false;
             case 'Space':
             case 'NumpadEnter':
             case 'Enter':
