@@ -344,6 +344,30 @@ pre > code {
   background: var(--selection-color);
 }
 
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+  background: transparent;
+}
+
+:hover::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+}
+:hover::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.1);
+}
+:hover::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(0,0,0,0.05);
+}
 
 progress {
   /* Reset the default appearance */
