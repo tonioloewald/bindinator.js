@@ -148,7 +148,7 @@ are in binary "k" (so 1 kB === 1024 B, and so on). Annotation stops at `EB` (exa
 
 Sets the `textContent` of the element to a human readable timestamp, using
 `new Date(...).localString()` by default, but supporting
-[date.format](http://blog.stevenlevithan.com/archives/date-time-format)
+[data.format](http://blog.stevenlevithan.com/archives/date-time-format)
 options if supplied.
 
 ```
@@ -170,7 +170,7 @@ properties like id, class, and style.
 
     data-bind="prop(currentTime)=_component_.video.position"
     ...
-    b8r.implicityHandleEventsOfType('timeupdate'); // ask b8r to intercept timeupdate events
+    b8r.implicitlyHandleEventsOfType('timeupdate'); // ask b8r to intercept timeupdate events
     b8r.onAny('timeupdate', '_b8r_._update_'); // ask b8r to trigger updates on timeupdate
 
 This is the specified element property.

@@ -26,7 +26,7 @@ time value.
 
 ## Methods
 
-    log(log-name, entry-name);
+    log (log-name, entry-name);
     ...
     logEnd(log-name, entry-name);
 

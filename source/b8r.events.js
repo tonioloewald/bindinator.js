@@ -409,11 +409,11 @@ const handle_event = evt => {
 /**
 ## Handling Other Event Types
 
-    b8r.implicityHandleEventsOfType(type_string)
+  b8r.implicitlyHandleEventsOfType(type_string)
 
 Adds implicit event handling for a new event type. E.g. you might want
 to use `data-event` bindings for the seeking `media` event, which you
-could do with `b8r.implicityHandleEventsOfType('seeking')`.
+could do with `b8r.implicitlyHandleEventsOfType('seeking')`.
 */
 
 module.exports = {
