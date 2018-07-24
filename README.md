@@ -13,9 +13,13 @@
 
 The lazy JavaScript framework.
 
+*Laziness drives every design decision in b8r*. Don't learn new mini-languages. Don't learn a templating language. Don't do things for the browser that the browser knows how to do (like parse HTML). Don't install special debugging tools. Don't add zillions of runtime dependencies. Don't tell the left hand what the right hand is doing.
+
+### Simple Bindings
+
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
-With `b8r`, you can **bind data to the DOM** as simply as this:
+With `b8r`, you can **bind data to the DOM** using the `data-bind` attribute:
 
 <div data-component="fiddle" data-path="drumpf"></div>
 
@@ -32,10 +36,16 @@ You can update data using `b8r.set`, e.g.
 b8r.set('example.name', 'Trump')
 ```
 
-Try it in the **console**! (Unlike typical "fiddles" the inline b8r's inline examples are not
-isolated in their own iframes -- it's all happily running in the same scope.)
+Try it in the **console**! 
 
-Binding **lists** is just as simple:
+> Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own 
+> `<iframe>`s -- it's all happily running in the same `body`. Normally, the only
+> global you see is `b8r`'s `require` but I've exposed `b8r` to let you play around. If it
+> weren't exposed you could simply write `b8r = require('path/to/b8r.s')` in the console.
+
+### Simple List Bindings
+
+Binding **arrays** is just as simple, using the `data-list` attribute:
 
 <div data-component="fiddle" data-path="list"></div>
 
@@ -48,6 +58,8 @@ b8r.set('example2.list[id=2].name', 'Veejer')
 b8r.push('example2.list', {id: 4, name: 'Clear Air Turbulence'})
 b8r.remove('example2.list[id=3]')
 ```
+
+### Automatic Updates
 
 Most **updates** are handled automatically:
 
@@ -73,6 +85,8 @@ You can load a component using `b8r.component('path/to/example')`. Once
 loaded, it will automatically be inserted where-ever you use `data-component="example"`.
 Components can be nested exactly as you would expect.
 
+### Simple, Powerful Components
+
 A **stateful component** looks like this:
 
 <div data-component="fiddle" data-path="clock"></div>
@@ -81,10 +95,23 @@ You can build a **To Do List** app like this:
 
 <div data-component="fiddle" data-path="todo"></div>
 
+And you can _compose_ components (including nesting them) using `data-component`:
+
+<div data-component="fiddle" data-path="compose-example"></div>
+
+### Easy Integration
+
 And you can use third-party libraries easily as well (this example uses `showdown.js` via
 the [text-render.js](#source=lib/text-render.js) library to render markdown.)
 
 <div data-component="fiddle" data-path="markdown-editor"></div>
+
+### Dog Food!
+
+This site is built using b8r (along with numerous third-party libraries, none of which are
+global dependencies). The inline [fiddle component](#source=fiddle.component.html) used 
+to display interactive examples is 272 lines including comments, styles, markup, and code.
+It's so cleanly isolated from the rest of the page that it doesn't use an iframe.
 
 ## In a Nut
 
