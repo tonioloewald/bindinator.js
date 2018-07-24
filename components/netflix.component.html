@@ -10,6 +10,7 @@
     height: 100%;
   }
 </style>
+<p>This component is experimental and under development and requires nwjs.</p>
 <webview
   partition="persist:netflix"
   src="https://www.netflix.com/watch/70058031?trackId=141…02198%2C8b989470-c6d8-46b9-a0aa-634beb70b58d_ROOT"
@@ -17,6 +18,9 @@
 </webview>
 <script>
   /* global findOne */
+
+  if (window.nw) findOne('.netflix-component > p').remove();
+
   const webview = findOne('webview');
   webview.addEventListener('contentload', () => {
     webview.addEventListener('consolemessage', evt => {
