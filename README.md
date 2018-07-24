@@ -11,7 +11,7 @@
 [Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
-The lazy JavaScript framework.
+## The lazy JavaScript framework.
 
 *Laziness drives every design decision in b8r*. Don't learn new mini-languages. Don't learn a templating language. Don't do things for the browser that the browser knows how to do (like parse HTML). Don't install special debugging tools. Don't add zillions of runtime dependencies. Don't tell the left hand what the right hand is doing.
 
