@@ -11,6 +11,8 @@
 [Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
+The lazy JavaScript framework.
+
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
 With `b8r`, you can **bind data to the DOM** as simply as this:
