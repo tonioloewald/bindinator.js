@@ -11,6 +11,10 @@
           "path": "docs/overview.md"
         },
         {
+          "name": "CSS",
+          "path": "docs/css.md"
+        },
+        {
           "name": "License",
           "path": "LICENSE.md"
         }
