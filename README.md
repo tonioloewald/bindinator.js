@@ -13,11 +13,15 @@
 
 ## The lazy JavaScript framework.
 
-*Laziness drives every design decision in b8r*. Don't learn new mini-languages. Don't learn a templating language. Don't do things for the browser that the browser knows how to do (like parse HTML). Don't install special debugging tools. Don't add zillions of runtime dependencies. Don't tell the left hand what the right hand is doing.
+*Laziness drives every design decision in b8r*. Don't learn new mini-languages. Don't learn a 
+templating language. Don't do things for the browser that the browser knows how to do (like 
+parse HTML). Don't install special debugging tools. Don't add zillions of runtime dependencies. 
+Don't tell the left hand what the right hand is doing.
 
 ### Simple Bindings
 
-A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
+A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* 
+implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
 With `b8r`, you can **bind data to the DOM** using the `data-bind` attribute:
 
@@ -95,23 +99,24 @@ You can build a **To Do List** app like this:
 
 <div data-component="fiddle" data-path="todo"></div>
 
-And you can _compose_ components (including nesting them) using `data-component`:
+You can _compose_ components (including nesting them) using `data-component`:
 
 <div data-component="fiddle" data-path="compose-example"></div>
 
 ### Easy Integration
 
-And you can use third-party libraries easily as well (this example uses `showdown.js` via
+You can use third-party libraries easily as well (this example uses `showdown.js` via
 the [text-render.js](#source=lib/text-render.js) library to render markdown.)
 
 <div data-component="fiddle" data-path="markdown-editor"></div>
 
 ### Dog Food!
 
-This site is built using b8r (along with numerous third-party libraries, none of which are
+This site is built using `b8r` (along with numerous third-party libraries, none of which are
 global dependencies). The inline [fiddle component](#source=fiddle.component.html) used 
 to display interactive examples is 272 lines including comments, styles, markup, and code.
-It's so cleanly isolated from the rest of the page that it doesn't use an iframe.
+`b8r` isolates component internals so cleanly isolated from the rest of the page that 
+the fiddle doesn't need to use an iframe.
 
 ## In a Nut
 
