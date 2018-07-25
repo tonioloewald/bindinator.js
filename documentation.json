@@ -11,6 +11,10 @@
           "path": "docs/overview.md"
         },
         {
+          "name": "Components",
+          "path": "docs/components.md"
+        },
+        {
           "name": "CSS",
           "path": "docs/css.md"
         },
