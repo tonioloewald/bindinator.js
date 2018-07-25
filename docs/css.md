@@ -7,19 +7,21 @@ Managing CSS is a serious problem with most complex web applications.
 The `b8r` approach to CSS is intended to be conceptually simple and robust.  In essence, you should have 
 global rules and component-level rules.
 
-### Automatic Classes
+### Automatic Classes & Scope
 
 If you create a component named `foo` it will automatically have the class `foo-component`. You can
 write CSS rules inside the component accordingly.
 
+If you're rigorous about using the component's automatic class in every css rule that is intended to be
+scoped to a component, there should be no leakage. In practice, this is overkill.
+
 ### `_component_`
 
-`b8r` also supports the use of `_component_` inside css rules and HTML classes which will automatically be 
-replaced with `<component-name>-component` when the component is loaded. This allows for changing the component's
+`b8r` also supports the use of `_component_` inside css rules and HTML (e.g. `<div class="_component_">`
+or `<h2 class="_component_-heading">`) which will automatically be  replaced with 
+`<component-name>-component` when the component is loaded. This allows for changing the component's
 name after initially writing it _and_ loading a component with a name other than the default (e.g. if
 you're using components from two different libraries that happen to have the same name).
-
-### Managing Scope
 
 This isn't perfect, of course! (No CSS management strategy seems to be.) In particular, when you
 nest components, it follows that if `foo` contains `bar` that `.foo-component` rules may leak into
