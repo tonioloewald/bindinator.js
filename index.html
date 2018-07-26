@@ -3,7 +3,7 @@
 <head>
   <!-- bindinator.js Copyright ©2016-2018 Tonio Loewald -->
   <meta charset="utf-8">
-  <title>bindinator</title>
+  <title>b8r | the lazy JavaScript framework</title>
   <link rel="stylesheet" type="text/css" href="css/b8r.css">
   <link rel="stylesheet" type="text/css" href="icomoon/style.css">
   <script src="lib/require.js"></script>
@@ -37,7 +37,7 @@
         document.body.appendChild(div);
         b8r.component(component_path).
             then(c => {
-              document.title = c.name;
+              if (c.name !== 'documentation') document.title = c.name;
               b8r.insertComponent(c, div);
             });
       });
