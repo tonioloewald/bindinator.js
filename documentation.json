@@ -11,11 +11,19 @@
           "path": "docs/overview.md"
         },
         {
+          "name": "Binding Data",
+          "path": "docs/binding-data.md"
+        },
+        {
+          "name": "Events",
+          "path": "docs/events.md"
+        },
+        {
           "name": "Components",
           "path": "docs/components.md"
         },
         {
-          "name": "CSS",
+          "name": "Styling",
           "path": "docs/css.md"
         },
         {
