@@ -579,7 +579,8 @@ grid cells that are currently in view.
   const tag = () => {
     const {tags, filepath} = get('rawfile');
     const xml = b8r.filterKeys(tags, v => v).map(t => `<string>${t}</string>`).join('');
-    exec(`xattr -w com.apple.metadata:_kMDItemUserTags '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><array>${xml}</array></plist>' "${filepath}"`, reportError);
+    const command = `xattr -w com.apple.metadata:_kMDItemUserTags '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><array>${xml}</array></plist>' "${filepath}"`;
+    exec(command, reportError);
   };
   const trash = () => {
     const rawfile = get('rawfile');

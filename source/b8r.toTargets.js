@@ -421,10 +421,11 @@ module.exports = function(b8r) {
     },
     checked: (element, value) => {
       if (value === null) {
-        element.checked = false;
         element.indeterminate = true;
+        element.checked = false;
       } else {
-        element.checked = !!value
+        element.indeterminate = false;
+        element.checked = !!value;
       }
     },
     selected: (element, value) => {
