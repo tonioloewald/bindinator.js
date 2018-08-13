@@ -61,7 +61,7 @@ grid cells that are currently in view.
     overflow-y: scroll;
     overflow-y: overlay;
     text-align: center;
-    padding: 8px;
+    padding: 56px 8px 8px;
   }
 
   .raw-viewer-scroller.one-column {
@@ -231,6 +231,23 @@ grid cells that are currently in view.
     top: 0;
     right: 0;
   }
+
+  .filters {
+    color: white;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    padding: 0 10px;
+    background: rgba(0,0,0,0.5);
+  }
+
+  .filters > *+* {
+    margin-left: 10px;
+  }
 </style>
 <div
   class="raw-viewer-scroller"
@@ -253,6 +270,27 @@ grid cells that are currently in view.
     ">
     <span data-bind="text=.filename"></span>
   </div>
+</div>
+<div
+  class="filters"
+  data-bind="hide_if=_component_.rawfile"
+  data-event="input,change:_component_.update_filter"
+>
+  <b style="color: white">Filters</b>
+  <label>
+    File Name
+    <input data-bind="value=_component_.filter.filename">
+  </label>
+  <label>
+    Date Range
+    <input type="date" data-bind="value=_component_.filter.min_date">
+    to
+    <input type="date" data-bind="value=_component_.filter.max_date">
+  </label>
+  <label>
+    Tags
+    <input data-bind="value=_component_.filter.tags">
+  </label>
 </div>
 <div
   class="raw-viewer-detail"
@@ -379,6 +417,11 @@ grid cells that are currently in view.
 
   const reportError = err => { if (err) console.error(err); };
 
+  const extract_date = datestring => datestring.match(/[0-9]{4,4}-[0-9]{2,2}-[0-9]{2,2}/)[0];
+  const filter = {filename: '', tags: ''};
+  filter.min_date = filter.max_date = extract_date(new Date().toISOString());
+  set({filter});
+
   const process = rawfile => {
     const {_auto_, filepath, tags} = rawfile;
     const preview = `${PREVIEW_PATH}/${rawfile.filename}.png`;
@@ -462,6 +505,11 @@ grid cells that are currently in view.
                               : value.match(/\w[^,)"]*/g).map(s => s.trim());
             }
           });
+          const creation_date = extract_date(metadata.CreationDate);
+          if (creation_date && creation_date < filter.min_date) {
+            filter.min_date = creation_date;
+            touch('filter.min_date');
+          }
           if (metadata.UserTags) {
             metadata.UserTags.forEach(t => tags[t] = true);
             touch(`rawfiles[_auto_=${_auto_}].tags`);
@@ -562,7 +610,19 @@ grid cells that are currently in view.
   };
 
   const slice = (list, container) => {
-    rawfiles_visible = biggrid.slice(list, container);
+    const filter = get('filter');
+    const required_tags = (filter.tags || '').split(',').map(s => s.trim()).filter(s => !!s);
+    const filtered = list.filter(rawfile => {
+      const {CreationDate} = rawfile.metadata || {};
+      return (!filter.filename || rawfile.filename.includes(filter.filename)) &&
+             (
+               !rawfile.tags ||
+               required_tags.filter(t => rawfile.tags[t]).length === required_tags.length
+             ) &&
+             (!CreationDate || CreationDate >= filter.min_date && CreationDate <= filter.max_date);
+
+    });
+    rawfiles_visible = biggrid.slice(filtered, container);
     dequeue();
     return rawfiles_visible;
   };
@@ -582,6 +642,7 @@ grid cells that are currently in view.
     const command = `xattr -w com.apple.metadata:_kMDItemUserTags '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><array>${xml}</array></plist>' "${filepath}"`;
     exec(command, reportError);
   };
+  const update_filter = b8r.debounce(() => touch('rawfiles'), 500);
   const trash = () => {
     const rawfile = get('rawfile');
     const rawfiles = get('rawfiles');
@@ -592,7 +653,7 @@ grid cells that are currently in view.
     touch('rawfiles');
   };
 
-  set({slice, pick, closeDetail, rawfiles: [], edit, reveal, preview, tag, trash});
+  set({slice, pick, closeDetail, rawfiles: [], edit, reveal, preview, tag, update_filter, trash});
 
   findFiles('NEF');
   findFiles('DNG');
