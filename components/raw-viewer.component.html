@@ -287,6 +287,13 @@ grid cells that are currently in view.
   data-bind="hide_if=_component_.rawfile"
   data-event="input,change:_component_.update_filter"
 >
+  <label>
+    Sort by
+    <select data-bind="value=_component_.sort_by">
+      <option value="date">Date</option>
+      <option value="filename">File Name</option>
+    </select>
+  </label>
   <b style="color: white">Filters</b>
   <label>
     File Name
@@ -415,7 +422,7 @@ grid cells that are currently in view.
 
   const MAX_PROCESSING = 4;
   const PREVIEW_SIZE = 256;
-  const PREGENERATE_PREVIEWS = false;
+  const PREGENERATE_PREVIEWS = true;
   const PREVIEW_PATH = `/tmp/thumbs-${PREVIEW_SIZE}`;
   const FULLSIZE_PATH = `/tmp/fullsize`;
   let rawfiles_visible = [];
@@ -432,6 +439,7 @@ grid cells that are currently in view.
   const filter = {filename: '', tags: ''};
   filter.min_date = filter.max_date = extract_date(new Date().toISOString());
   set({filter});
+  set({sort_by: 'date'});
 
   const process = rawfile => {
     const {_auto_, filepath, tags} = rawfile;
@@ -611,6 +619,7 @@ grid cells that are currently in view.
       rawfile.generating_fullsize = false;
     }
     set({rawfile});
+    console.log(rawfile);
     // force grid to resize
     touch('rawfiles');
   };
@@ -620,20 +629,27 @@ grid cells that are currently in view.
     touch('rawfiles');
   };
 
+  const sort_methods = {
+    date: (a, b) => !a.metdata || !b.metadata ? 0 :
+                    a.metadata.CreationDate < b.metadata.CreationDate ? -1 : 1,
+    filename: (a, b) => a.filename < b.filename ? -1 : 1,
+  }
+
   const slice = (list, container) => {
     const filter = get('filter');
     const required_tags = (filter.tags || '').split(',').map(s => s.trim()).filter(s => !!s);
     const filtered = list.filter(rawfile => {
       const {CreationDate} = rawfile.metadata || {};
+      const created = CreationDate ? extract_date(CreationDate) : false;
+      if (!created) console.log(rawfile);
       return (!filter.filename || rawfile.filename.includes(filter.filename)) &&
              (
                !rawfile.tags ||
                required_tags.filter(t => rawfile.tags[t]).length === required_tags.length
              ) &&
-             (!CreationDate || CreationDate >= filter.min_date && CreationDate <= filter.max_date);
-
+             (!created || (created >= filter.min_date && created <= filter.max_date));
     });
-    rawfiles_visible = biggrid.slice(filtered, container);
+    rawfiles_visible = biggrid.slice(filtered.sort(sort_methods[get('sort_by')]), container);
     dequeue();
     return rawfiles_visible;
   };
