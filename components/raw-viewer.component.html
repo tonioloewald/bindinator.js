@@ -410,6 +410,7 @@ grid cells that are currently in view.
   const jsfeat = require('../third-party/jsfeat-min.js');
 
   if (! require.electron || window.process.platform !== 'darwin') {
+    b8r.hide(component);
     return;
   }
 
@@ -641,7 +642,6 @@ grid cells that are currently in view.
     const filtered = list.filter(rawfile => {
       const {CreationDate} = rawfile.metadata || {};
       const created = CreationDate ? extract_date(CreationDate) : false;
-      if (!created) console.log(rawfile);
       return (!filter.filename || rawfile.filename.includes(filter.filename)) &&
              (
                !rawfile.tags ||
