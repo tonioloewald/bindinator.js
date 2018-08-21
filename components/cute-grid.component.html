@@ -1,0 +1,88 @@
+<!--
+# Cute Grid
+
+A quick CSS experiment to produce a "funky" looking but tidy grid with arbitrary numbers of
+elements that never quite line up.
+-->
+<style>
+  .cute-grid-component {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 500px;
+    overflow-y: overlay;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    padding-top: 20px;
+    margin-top: -20px;
+  }
+
+  .cute-grid-item {
+    display: inline-block;
+    font-size: 60px;
+    height: 150px;
+    line-height: 150px;
+    min-width: 250px;
+    max-width: 400px;
+    text-align: center;
+    flex-grow: 1;
+    margin: 4px;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 4px;
+
+    transition: 0.25s ease-out;
+    text-shadow: 0 0 10px white;
+  }
+
+  .cute-grid-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 32px rgba(0,0,0,0.25);
+    z-index: 2;
+  }
+
+  .cute-grid-item:nth-child(2n) {
+    color: red;
+    min-width: 225px;
+  }
+
+  .cute-grid-item:nth-child(3n) {
+    color: blue;
+    min-width: 275px;
+  }
+
+  .cute-grid-item:nth-child(7n) {
+    color: green;
+    min-width: 300px;
+  }
+
+  .cute-grid-item:nth-child(19n+1) {
+    color: purple;
+    min-width: 200px;
+  }
+</style>
+<div
+  class="cute-grid-item fade-in"
+  data-list="_component_.items:id"
+  data-bind="text=.id;style(backgroundColor)=.backgroundColor"
+>
+</div>
+<script>
+  const color = require('../lib/color.js');
+  const scroll = require('../lib/animated-scroll.js');
+  let id = 0;
+  set('items', []);
+
+  setInterval(() => {
+    if (id >= 30) {
+      id = 0;
+      set('items', []);
+    }
+
+    const colors = color.cssColorNames();
+    const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    get('items').push({id: ++id, backgroundColor});
+    touch('items');
+    b8r.after_update(() => scroll.into_view(findOne('.cute-grid-item:nth-last-child(2)')));
+  }, 500);
+</script>

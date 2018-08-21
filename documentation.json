@@ -451,6 +451,10 @@
       {
         "name": "Web Components",
         "path": "web-components.component.html"
+      },
+      {
+        "name": "Cute Grid",
+        "path": "cute-grid.component.html"
       }
     ]
   }
