@@ -5,11 +5,17 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
  arbitrary numbers of elements to be packed into an arbitrary width and never gets ragged.
 -->
 <style>
+  .example._component_ {
+    width: 100%;
+    height: 512px;
+    position: relative;
+  }
+
   ._component_ > [data-children] {
     position: relative;
     display: flex;
     width: 100%;
-    height: 512px;
+    height: 100%;
     overflow-y: overlay;
     flex-wrap: wrap;
     align-content: flex-start;
