@@ -23,42 +23,28 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
     font-size: 60px;
     height: 150px;
     line-height: 150px;
-    min-width: 250px;
-    max-width: 400px;
     text-align: center;
-    flex-grow: 1;
     margin: 4px;
     border: 1px solid rgba(0,0,0,0.05);
     border-radius: 4px;
+    flex: 1 0 150px;
 
+    color: white;
     transition: 0.25s ease-out;
-    text-shadow: 0 0 10px white;
-  }
-
-  .unaligned-grid-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 32px rgba(0,0,0,0.25);
-    z-index: 2;
+    text-shadow: 0 1px 1px black;
+    max-width: 400px;
   }
 
   .unaligned-grid-item:nth-child(2n) {
-    color: red;
-    min-width: 225px;
+    flex-basis: 250px;
   }
 
   .unaligned-grid-item:nth-child(3n) {
-    color: blue;
-    min-width: 275px;
+    flex-basis: 250px;
   }
 
-  .unaligned-grid-item:nth-child(7n) {
-    color: green;
-    min-width: 300px;
-  }
-
-  .unaligned-grid-item:nth-child(19n+1) {
-    color: purple;
-    min-width: 200px;
+  .unaligned-grid-item:nth-child(5n) {
+    flex-basis: 150px;
   }
 </style>
 <div
