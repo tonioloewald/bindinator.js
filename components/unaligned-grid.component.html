@@ -1,15 +1,15 @@
 <!--
-# Cute Grid
+# Unaligned Grid
 
-A quick CSS experiment to produce a "funky" looking but tidy grid with arbitrary numbers of
-elements that never quite line up.
+A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid which allows
+ arbitrary numbers of elements to be packed into an arbitrary width and never gets ragged.
 -->
 <style>
-  .cute-grid-component {
+  .unaligned-grid-component {
     position: relative;
     display: flex;
     width: 100%;
-    height: 500px;
+    height: 512px;
     overflow-y: overlay;
     flex-wrap: wrap;
     align-content: flex-start;
@@ -18,7 +18,7 @@ elements that never quite line up.
     margin-top: -20px;
   }
 
-  .cute-grid-item {
+  .unaligned-grid-item {
     display: inline-block;
     font-size: 60px;
     height: 150px;
@@ -35,34 +35,34 @@ elements that never quite line up.
     text-shadow: 0 0 10px white;
   }
 
-  .cute-grid-item:hover {
+  .unaligned-grid-item:hover {
     transform: translateY(-10px);
     box-shadow: 0 10px 32px rgba(0,0,0,0.25);
     z-index: 2;
   }
 
-  .cute-grid-item:nth-child(2n) {
+  .unaligned-grid-item:nth-child(2n) {
     color: red;
     min-width: 225px;
   }
 
-  .cute-grid-item:nth-child(3n) {
+  .unaligned-grid-item:nth-child(3n) {
     color: blue;
     min-width: 275px;
   }
 
-  .cute-grid-item:nth-child(7n) {
+  .unaligned-grid-item:nth-child(7n) {
     color: green;
     min-width: 300px;
   }
 
-  .cute-grid-item:nth-child(19n+1) {
+  .unaligned-grid-item:nth-child(19n+1) {
     color: purple;
     min-width: 200px;
   }
 </style>
 <div
-  class="cute-grid-item fade-in"
+  class="unaligned-grid-item fade-in"
   data-list="_component_.items:id"
   data-bind="text=.id;style(backgroundColor)=.backgroundColor"
 >
@@ -83,6 +83,6 @@ elements that never quite line up.
     const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
     get('items').push({id: ++id, backgroundColor});
     touch('items');
-    b8r.after_update(() => scroll.into_view(findOne('.cute-grid-item:nth-last-child(2)')));
+    b8r.after_update(() => scroll.into_view(findOne('.unaligned-grid-item:nth-last-child(2)')));
   }, 500);
 </script>

@@ -453,8 +453,8 @@
         "path": "web-components.component.html"
       },
       {
-        "name": "Cute Grid",
-        "path": "cute-grid.component.html"
+        "name": "Unaligned Grid",
+        "path": "unaligned-grid.component.html"
       }
     ]
   }
