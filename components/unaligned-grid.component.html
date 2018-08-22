@@ -5,7 +5,7 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
  arbitrary numbers of elements to be packed into an arbitrary width and never gets ragged.
 -->
 <style>
-  .unaligned-grid-component {
+  ._component_ > [data-children] {
     position: relative;
     display: flex;
     width: 100%;
@@ -18,15 +18,13 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
     margin-top: -20px;
   }
 
-  .unaligned-grid-item {
+  ._component_-item {
     display: inline-block;
     font-size: 60px;
     height: 150px;
     line-height: 150px;
     text-align: center;
-    margin: 4px;
     border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 4px;
     flex: 1 0 150px;
 
     color: white;
@@ -35,40 +33,36 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
     max-width: 400px;
   }
 
-  .unaligned-grid-item:nth-child(2n) {
+  ._component_-item:nth-child(2n) {
     flex-basis: 250px;
   }
 
-  .unaligned-grid-item:nth-child(3n) {
-    flex-basis: 250px;
+  ._component_-item:nth-child(3n) {
+    flex-basis: 225px;
   }
 
-  .unaligned-grid-item:nth-child(5n) {
-    flex-basis: 150px;
+  ._component_-item:nth-child(5n) {
+    flex-basis: 200px;
   }
 </style>
-<div
-  class="unaligned-grid-item fade-in"
-  data-list="_component_.items:id"
-  data-bind="text=.id;style(backgroundColor)=.backgroundColor"
->
+<div data-children>
+  <div
+    class="_component_-item fade-in"
+    data-list="_component_.items:id"
+    data-bind="text=.id;style(backgroundColor)=.backgroundColor"
+  >
+  </div>
 </div>
 <script>
-  const color = require('../lib/color.js');
-  const scroll = require('../lib/animated-scroll.js');
-  let id = 0;
-  set('items', []);
-
-  setInterval(() => {
-    if (id >= 30) {
-      id = 0;
-      set('items', []);
-    }
-
+  if(component.closest('.example')) {
+    const color = require('../lib/color.js');
     const colors = color.cssColorNames();
-    const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    get('items').push({id: ++id, backgroundColor});
-    touch('items');
-    b8r.after_update(() => scroll.into_view(findOne('.unaligned-grid-item:nth-last-child(2)')));
-  }, 500);
+    const items = [];
+    const num_items = Math.random() * 20 + 10;
+    for(let id = 0; id < num_items; id++) {
+      const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      items.push({id, backgroundColor})
+    }
+    set({items});
+  }
 </script>
