@@ -5,14 +5,15 @@
 
 Loads component from url registers it as "name". (Components are registered
 separately from other objects.)
+
 Returns a promise of the component once loaded.
 
     component('path/to/name');
 
-If just a url parameter is provided, the name of the component will be
+If just a path is provided, the name of the component will be
 inferred.
 
-**Note**: the extension .component.html is appended to url
+**Note**: the extension `.component.html` is appended to urls.
 
 Instances of the component will automatically be inserted as expected once
 loaded.
@@ -29,7 +30,7 @@ course.
 insert a component by name or by passing a component record (e.g. promised by
 component() or produced by makeComponent)
 
-If no element is provided, the component will be appended to document.body
+If no element is provided, the component will be appended to `document.body`.
 
 Data will be passed to the component's load method and registered as the
 component's private instance data. (Usually data is passed automatically

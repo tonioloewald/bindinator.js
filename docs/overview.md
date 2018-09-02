@@ -52,7 +52,9 @@ You bind data to the DOM by:
 
 The general form is `data-bind="target=path.to.data"`.
 
-Note that the order is not important! (We live in an async world.)
+Note that it doesn't matter whether you insert DOM elements (presumably within
+components) before you bind the data to the path or vice versa! 
+b8r is designed for an async world!
 
 ```
 <input data-bind="value=root.title">
@@ -71,6 +73,8 @@ You bind an event to a method by:
 
 The general form is `data-event="event_type:path.to.method`.
 
+When the event occurs the method is called and passed the event and the element.
+
 ```
 <button data-event="click:root.action">Click Me!</button>
 ...
@@ -79,7 +83,7 @@ The general form is `data-event="event_type:path.to.method`.
 </script>
 ```
 
-Again, the order is not important. You can bind a path to an event and then bind the method later (e.g. when the code for it becomes available). In fact, if the user clicks the button before the method has been bound to the path, it will call the method when it becomes available.
+Again, it's not important if the event is triggered (slightly) before the handler has been bound to the path. You can bind a path to an event and then bind the method later (e.g. when the code for it becomes available). In fact, if the user clicks the button before the method has been bound to the path, it will call the method when it becomes available.
 
 ## binding lists with data-list
 

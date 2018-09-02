@@ -193,7 +193,7 @@ backgroundColor).
 
 The optional second parameter lets you specify *units* (such as px, %, etc.).
 
-### class(), class_unless(), class_map()
+### class(), class\_unless(), class\_map()
 
     data-bind="class(name)=message.truthyValue"
     data-bind="class_unless(name)=message.truthyValue"
@@ -257,12 +257,12 @@ and the second otherwise.
 
 This lets you pick between two classes.
 
-### `show_if`, `show_if()`, `hide_if`, `hide_if()`
+### show\_if, show\_if(), hide\_if, hide\_if()
 
     data-bind="hide_if(_undefined_)=message.priority"
 
 
-### `enabled_if`, `enabled_if()`, `disabled_if`, `disabled_if()`
+### enabled\_if, enabled\_if(), disabled\_if, disabled\_if()
 
     data-bind="enabled_if=_data_.editable"
 
@@ -310,7 +310,7 @@ You can pass an array of values to a bound method by comma-delimiting the paths,
 
     data-bind="nethod(path.to.method=path.to.value,path.to.other,another.path"
 
-### `component_map()`
+### component\_map()
 
     data-bind="component-map(
         value:component_name|
@@ -328,7 +328,7 @@ will be assigned to the component's private data.)
 Dumps a nicely formatted stringified object in an element (for debugging
 purposes);
 
-### `pointer_events_if`, `pointer_events_off_if`
+### pointer\_events\_if, pointer\_events\_off\_if
 
     data-bind="pointer_events_if=path.to.enabled"
 

@@ -45,8 +45,7 @@ In `b8r` all events 'bubble' unless you tell them not to. Also all events stop (
 when handled unless the event handler returns an explicit `true`.
 
 I hope you find this tradeoff to be worthwhile. It is borrowed from the way events behaved in
-*HyperCard* which I continue to regard as the most producting development and robust development
-environment I have ever used.
+*HyperCard* which I continue to regard as the most productive and robust development environment I have ever used.
 
 Also see [b8r.events.js](#source=source/b8r.anyEvent.js).
 
