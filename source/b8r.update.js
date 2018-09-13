@@ -135,7 +135,6 @@ const touchByPath = (...args) => {
     full_path = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path;
   }
 
-  // remove properties inside a list item
   full_path = full_path.replace(/\[[^\[]+$/, '');
 
   logStart('touchByPath', full_path);
