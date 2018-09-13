@@ -45,7 +45,7 @@ Similarly, you can add a `destroy()` method that will be executed when the compo
 ## Component base class
 
 ### Class Methods
-    
+
     load(url[, name])               // load a component, returns promise of the class
     types()                         // all component types, map of names to classes
     insert(element, data)           // insert instance of component within element
@@ -57,7 +57,7 @@ Similarly, you can add a `destroy()` method that will be executed when the compo
     this.id                         // component id
     this.element                    // the element into which the component was loaded
 
-### Methods 
+### Methods
 
     closest()                       // nearest containing component
     closest(component_name)         // nearest containing component of type
@@ -77,7 +77,7 @@ Similarly, you can add a `destroy()` method that will be executed when the compo
 
 ## Why V2?
 
-V2 components are more efficient and convenient than the original version, and also don't pass 
+V2 components are more efficient and convenient than the original version, and also don't pass
 their data onto their children.
 
 - the old component `data` object is replaced with an instance of the component's class, in effect every component has a controller that's defined before it loads
@@ -91,6 +91,7 @@ their data onto their children.
 'use strict';
 
 class Component {
+  /*
   static create(url, name) {
 
   }
@@ -98,9 +99,9 @@ class Component {
   static create_v1(url, name) {
     return class extends Component {
       load () {
-        f(require, component, b8r, find, findOne, data, register, get, set, on, touch);
+        // f(require, component, b8r, find, findOne, data, register, get, set, on, touch);
       }
-    }
+    };
   }
 
   insert (element, data) {
@@ -114,6 +115,7 @@ class Component {
   destroy () {
 
   }
+  */
 }
 
 module.exports = Component;
