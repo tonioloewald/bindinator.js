@@ -16,13 +16,10 @@
       // for convenience when debugging
       window.b8r = b8r;
 
-      const {touch} = require('lib/windows.js');
-
       // if the # contains 'body=path/to/component' load that
       // othersize load 'components/documentation'
       const component_path = (window.location.hash.match(/\bbody=([^=&]+)/) || [])[1]
                              || 'components/documentation';
-      const data_path = (window.location.hash.match(/\bdata=([^=&]+)/) || [])[1] || null;
       const div = b8r.create('div');
       b8r.styles(div, {
         position: 'absolute',
