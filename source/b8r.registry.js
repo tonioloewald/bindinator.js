@@ -143,7 +143,6 @@ const debug_paths = true;
 const valid_path = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*\=[^[\]()]+\])*$/;
 
 const isValidPath = path => valid_path.test(path);
-let call, get; // defined later
 
 class Listener {
   constructor(test, callback) {
@@ -205,6 +204,9 @@ const _compute = (expression_path, element) => {
 const _get = (path, element) => {
   if (path.substr(-1) === ')') {
     return _compute(path, element);
+  } else if (path.startsWith('.')) {
+    const elt = element.closest('[data-list-instance]');
+    return elt ? getByPath(elt._b8r_listInstance, path.substr(1)) : undefined;
   } else {
     path = resolvePath(path, element);
     if (debug_paths && ! isValidPath(path)) {
@@ -530,7 +532,7 @@ Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[2].on
 ~~~~
 */
 
-get = (path, element) => {
+const get = (path, element) => {
   const paths = splitPaths(path);
   return paths.length === 1 ?
          _get(paths[0], element) :
@@ -721,7 +723,7 @@ const sort = (path, comparison) => {
 Call a method by path with the arguments provided (and return result).
 */
 
-call = (path, ...args) => {
+const call = (path, ...args) => {
   const method = get(path);
   if (method instanceof Function) {
     return method(...args);
@@ -838,11 +840,10 @@ const models = () => Object.keys(registry);
 const registered = path => !!registry[path.split('.')[0]];
 
 /**
-    remove('root');
-    remove('path.to.property')
+    remove('path.to.property', update=true);
 
 Will remove the specified property from the registry (including root-level objects). If the object
-does not exist, has no effect. So:
+does not exist, has no effect. By default, will update objects bound to the path. So:
 
 ~~~~
 const {register, remove, get} = b8r;
@@ -852,12 +853,14 @@ Test(() => {remove('foo.boris.yeltsin'); return get('foo.boris')}).shouldBe(null
 Test(() => {remove('foo.baz.lurman'); return Object.keys(get('foo.baz')).length}).shouldBe(0);
 ~~~~
 */
-const remove = path => {
+const remove = (path, update=true) => {
   deleteByPath(registry, path);
-  touch(path);
-  /* touch array containing the element if appropriate */
-  [,path] = (path.match(/^(.+)\[[^\]]+\]$/) || []);
-  if (path) { touch(path); }
+  if (update) {
+    touch(path);
+    /* touch array containing the element if appropriate */
+    [,path] = (path.match(/^(.+)\[[^\]]+\]$/) || []);
+    if (path) { touch(path); }
+  }
 };
 
 /**

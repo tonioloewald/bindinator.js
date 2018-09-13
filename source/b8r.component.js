@@ -120,7 +120,7 @@ be called just before the instance is removed from the registry.
 const components = {};
 const component_timeouts = [];
 const component_promises = {};
-const component_preload_list = [];
+const component_preload_map = {};
 const {async_update} = require('./b8r.update.js');
 const {create, find, findWithin} = require('./b8r.dom.js');
 const {ajax} = require('./b8r.ajax.js');
@@ -128,6 +128,8 @@ const makeStylesheet = require('./b8r.makeStylesheet.js');
 
 const makeComponent = function(name, source, url, preserve_source) {
   let css = false, content, script = false, parts, remains;
+
+  if (url) component_preload_map[name] = url;
 
   // nothing <style> css </style> rest-of-component
   parts = source.split(/<style>|<\/style>/);
@@ -183,7 +185,7 @@ const makeComponent = function(name, source, url, preserve_source) {
     path : url.split('/').slice(0,-1).join('/'),
   };
   if (component.path === 'undefined') {
-    debugger; // jshint ignore:line
+    debugger; // eslint-disable-line no-debugger
   }
   if (preserve_source) {
     component._source = source;
@@ -230,9 +232,7 @@ const component = (name, url, preserve_source) => {
       if (components[name] && !preserve_source) {
         resolve(components[name]);
       } else {
-        if (component_preload_list.indexOf(url) === -1) {
-          component_preload_list.push(url);
-        }
+        component_preload_map[name] = url;
         ajax(`${url}.component.html`)
         .then(source => resolve(makeComponent(name, source, url, preserve_source)))
         .catch(err => {
@@ -250,6 +250,6 @@ module.exports = {
   component,
   components,
   component_timeouts,
-  component_preload_list,
+  component_preload_map,
   makeComponent,
 };

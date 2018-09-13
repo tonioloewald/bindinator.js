@@ -182,11 +182,8 @@ const _delete_ = {};
 const _new_object_ = {};
 
 function pathSplit(full_path) {
-  let [, model,, start, path] = full_path.match(/^(.*?)(([\.\[])(.*))?$/);
-  if (start === '[') {
-    path = '[' + path;
-  }
-  return [model, path];
+  const [, model,, start, path] = full_path.match(/^(.*?)(([\.\[])(.*))?$/);
+  return [model, start === '[' ? '[' + path : path];
 }
 
 function pathParts(path) {
@@ -222,28 +219,34 @@ function pathParts(path) {
   }
 }
 
-let _keypath_maps = []; // {array, key_path, value_map{}, key_filter}
-
-function getKeypathMap (array, key_path) {
-  return _keypath_maps.find(item => item.array === array && item.key_path === key_path) || buildKeypathMap(array, key_path);
-}
-
 function buildKeypathValueMap(array, key_path) {
+  if (! array._b8r_value_maps) {
+    // hide the map of maps in a closure that is returned by a computed property so that
+    // the source objects are not "polluted" upon serialization
+    const maps = {};
+    Object.defineProperty(array, '_b8r_value_maps', {get: () => maps});
+  }
   const map = {};
   array.forEach((item, idx) => map[getByPath(item, key_path) + ''] = idx);
+  array._b8r_value_maps[key_path] = map;
+
   return map;
 }
 
-function buildKeypathMap(array, key_path) {
-  const value_map = buildKeypathValueMap(array, key_path);
-  const record = {
-    array,
-    key_path,
-    key_filter: item => getByPath(item, key_path),
-    value_map,
-  };
-  _keypath_maps.push(record);
-  return record;
+function getKeypathMap (array, key_path) {
+  if (! array._b8r_value_maps || ! array._b8r_value_maps[key_path]) {
+    return buildKeypathValueMap(array, key_path);
+  } else {
+    return array._b8r_value_maps[key_path];
+  }
+}
+
+function keyToIndex (array, key_path, key_value) {
+  let idx = getKeypathMap(array, key_path)[key_value];
+  if (idx === undefined || getByPath(array[idx], key_path) + '' !== key_value + '') {
+    idx = buildKeypathValueMap(array, key_path)[key_value];
+  }
+  return idx;
 }
 
 function byKey(obj, key, value_to_insert) {
@@ -254,17 +257,7 @@ function byKey(obj, key, value_to_insert) {
 }
 
 function byKeyPath(array, key_path, key_value, value_to_insert) {
-  let idx;
-  if (!key_path) {
-    idx = key_value;
-  } else {
-    const _keypath_map = getKeypathMap(array, key_path);
-    idx = _keypath_map.value_map[key_value];
-    if (idx === undefined || getByPath(array[idx], key_path) + '' !== key_value + '') {
-      _keypath_map.value_map = buildKeypathValueMap(array, key_path);
-      idx = _keypath_map.value_map[key_value];
-    }
-  }
+  let idx = key_path ? keyToIndex(array, key_path, key_value) : key_value;
   if (value_to_insert === _delete_) {
     if (!key_path) {
       delete array[idx];

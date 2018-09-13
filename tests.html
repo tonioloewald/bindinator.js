@@ -89,10 +89,10 @@
       <p>First Child</p>
       <p>Second Child</p>
       <ul>
-      	<li class="bad-list" data-list="test1.id_list:id" data-bind="text=.label"></li>
+        <li class="bad-list" data-list="test1.id_list:id" data-bind="text=.label"></li>
       </ul>
       <ul>
-      	<li class="obj-list" data-list="test1.obj_list" data-bind="text=.label"></li>
+        <li class="obj-list" data-list="test1.obj_list" data-bind="text=.label"></li>
       </ul>
     </div>
     <div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
@@ -100,6 +100,7 @@
   <div class="report"></div>
   <script src="lib/require.js"></script>
   <script>
+    /* global require */
     'use strict';
     const b8r = require('source/b8r.js');
     const Test = require('lib/test.js');
@@ -133,9 +134,9 @@
       ],
       id_list: [{id: 'A', label: 'A'}, {id: 'B', label: 'B'}, {id: 'C', label: 'C'}, {id: 'A', label: 'bogus A'}],
       obj_list: {
-      	a: {label: 'object.a'},
-      	b: {label: 'object.b'},
-      	c: {label: 'object.c'},
+        a: {label: 'object.a'},
+        b: {label: 'object.b'},
+        c: {label: 'object.c'},
       },
       option: '3',
       checkbox: true,
@@ -248,7 +249,7 @@
       },
       val: 'A,B',
     });
-    let elt = b8r.id('method_binding');
+    const elt = b8r.id('method_binding');
     b8r.force_update();
     Test(() => elt.getAttribute('first')).shouldBe('A');
     b8r.setByPath('method_binding', 'val', 'C,D');

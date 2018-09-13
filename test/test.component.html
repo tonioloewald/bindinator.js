@@ -9,5 +9,6 @@ Bare text!
 <div data-children></div>
 <input data-bind="value=test1.sub.list[2]">
 <script>
+  /* global b8r, component */
   b8r.findOneWithin(component, 'h2').textContent = 'Set on load';
 </script>

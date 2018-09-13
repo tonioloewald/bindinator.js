@@ -13,7 +13,7 @@
                 <div class="col-md-6">
                     <h1>b8r</h1>
                     <p>
-                        <a href="benchmark.html">b8r</a> | 
+                        <a href="benchmark.html">b8r</a> |
                         <a href="benchmark-vanillajs.html">vanillajs</a>
                     </p>
                 </div>
@@ -65,22 +65,7 @@ const b8r = require('../source/b8r.js');
 window.b8r = b8r;
 var startTime;
 var lastMeasure;
-var startMeasure = function(name) {
-    startTime = performance.now();
-    lastMeasure = name;
-};
 
-var stopMeasure = function() {
-    var last = lastMeasure;
-    if (lastMeasure) {
-        window.setTimeout(function () {
-            lastMeasure = null;
-            var stop = performance.now();
-            var duration = 0;
-            console.log(last+" took "+(stop-startTime));
-        }, 0);
-    }
-};
 
 function _random(max) {
     return Math.round(Math.random()*1000)%max;
@@ -194,7 +179,7 @@ b8r.register('benchmark', {
             let row = data[4];
             data[4] = data[7];
             data[7] = row;
-            b8r.touch('benchmark.data');
+            b8r.touch(`benchmark.data`);
         }
         b8r.after_update(() => console.timeEnd('swap'));
     },

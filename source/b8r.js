@@ -30,7 +30,6 @@ implement some kind of virtual machine to replace it.
 /* global console, require, module */
 
 'use strict';
-
 const { getByPath, pathSplit } = require('./b8r.byPath.js');
 
 function b8r() {}
@@ -70,9 +69,7 @@ const {onAny, offAny, anyListeners} =
     require('./b8r.anyEvent.js');
 Object.assign(b8r, { onAny, offAny, anyListeners });
 Object.assign(b8r, require('./b8r.registry.js'));
-b8r.observe(
-    () => true,
-            (path, source_element) => b8r.touchByPath(path, source_element));
+b8r.observe(() => true, (path, source_element) => b8r.touchByPath(path, source_element));
 const { keystroke, modifierKeys } = require('./b8r.keystroke.js');
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
@@ -89,7 +86,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
   b8r.models().forEach(model => {
     if (model.substr(0, 2) === 'c#' && !_component_instances[model]) {
       b8r.call_if(`${model}.destroy`);
-      b8r.remove(model);
+      b8r.remove(model, false);
     }
   });
 }, 100);
@@ -98,6 +95,7 @@ const {
   async_update,
   get_update_list,
   after_update,
+  force_update,
   touchElement,
   touchByPath,
   _trigger_change,
@@ -111,26 +109,26 @@ b8r.force_update = () => {
 
   let update_list;
 
-  while(!! (update_list = get_update_list())) {
+  while(update_list = get_update_list()) { // eslint-disable-line no-cond-assign
     const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
     const lists = b8r.find('[data-list]').map(elt => { return {elt, list_binding: elt.dataset.list}; });
 
-    while(update_list.length) {
+    while(update_list.length) { // eslint: ignore:
       const {path, source} = update_list.shift();
       try {
         if (path) {
           lists.
-          filter(bound => bound.elt !== source && bound.list_binding.indexOf(path) > -1).
+          filter(bound => bound.elt !== source && bound.list_binding.includes(path)).
           forEach(({elt}) => bindList(elt));
 
           binds.
-          filter(bound => bound.elt !== source && bound.data_binding.indexOf(path) > -1).
+          filter(bound => bound.elt !== source && bound.data_binding.includes(path)).
           forEach(({elt}) => bind(elt));
         } else {
           b8r.bindAll(source);
         }
       } catch (e) {
-        console.error('update error', e, path, source);
+        console.error('update error', e, {path, source});
       }
     }
   }
@@ -304,7 +302,7 @@ b8r.implicitlyHandleEventsOfType = type => {
 
 const toTargets = require('./b8r.toTargets.js')(b8r);
 
-b8r.onAny([ 'change', 'input' ], '_b8r_._update_');
+b8r.onAny(['change', 'input'], '_b8r_._update_');
 
 b8r.interpolate = (template, elt) => {
   let formatted = '';
@@ -334,9 +332,9 @@ function bind(element) {
     return;
   }
   const bindings = getBindings(element);
-  const logArgs = [ 'bind', b8r.elementSignature(element) ];
+  const logArgs = ['bind', b8r.elementSignature(element)];
   b8r.logStart(...logArgs);
-  const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
+  const boundValues = element._b8r_boundValues || (element._b8r_boundValues = {});
   const newValues = {};
   for (let i = 0; i < bindings.length; i++) {
     const { targets, path } = bindings[i];
@@ -384,22 +382,6 @@ b8r.listInstances = list_template => {
   return instances.reverse();
 };
 
-const resolveListInstanceBindings = (instance_elt, instance_path) => {
-  const elements = b8r.findWithin(instance_elt, '[data-bind]', true)
-                      .filter(elt => !elt.closest('[data-list]'));
-  elements.forEach(elt => {
-    const binding_source = elt.dataset.bind;
-    if (binding_source.indexOf('=.') > -1) {
-      const path_prefix = `=${instance_path}.`;
-      elt.dataset.bind = binding_source.replace(/\=\./g, path_prefix);
-    }
-    if (binding_source.indexOf('${.') > -1) {
-      elt.dataset.bind = binding_source.
-                         replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
-    }
-  });
-};
-
 const forEachItemIn = (obj, id_path, func) => {
   if (Array.isArray(obj)) {
     for (let i = obj.length - 1; i >= 0; i--) {
@@ -423,7 +405,11 @@ const forEachItemIn = (obj, id_path, func) => {
 let id_count = 0; // used to assign unique ids as required
 function bindList(list_template, data_path) {
   list_template.classList.add('-b8r-empty-list');
-  if (!list_template.parentElement || list_template.parentElement.closest('[data-component]')) {
+  if (
+    ! list_template.parentElement ||                            // skip if disembodied
+    list_template.parentElement.closest('[data-component]') ||  // or it's in an unloaded component
+    list_template.parentElement.closest('[data-list]')          // or it's in a list template
+  ) {
     return;
   }
   const [source_path, id_path] = list_template.dataset.list.split(':');
@@ -501,10 +487,10 @@ function bindList(list_template, data_path) {
   if (existing_list_instances.length) {
     existing_list_instances.
     forEach(instance => {
-      const instance_path = instance.dataset.listInstance;
-      const item = b8r.get(instance_path);
+      const path = instance.dataset.listInstance;
+      const item = instance._b8r_listInstance;
       if (item && list.includes(item)) {
-        path_to_instance_map[instance_path] = instance;
+        path_to_instance_map[path] = instance;
       } else {
         instance.remove();
       }
@@ -538,7 +524,7 @@ function bindList(list_template, data_path) {
     if (instance === undefined) {
       instance = template.cloneNode(true);
       instance.dataset.listInstance = itemPath;
-      resolveListInstanceBindings(instance, itemPath);
+      instance._b8r_listInstance = item;
       async_update(null, instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
@@ -568,23 +554,52 @@ b8r.bindAll = (element, data_path) => {
 require('./b8r._b8r_.js')(b8r);
 Object.assign(b8r, require('./b8r.ajax.js'));
 
-b8r.preloadData = () => JSON.stringify(component_preload_list, false, 2);
-b8r.preload = component_list => {
-  if (!component_list || !component_list.length) {
-    return;
-  } else if (window.requestIdleCallback) {
-    window.requestIdleCallback(deadline => {
-      if (!deadline.didTimeout) {
-        component_list.splice(0,5).forEach(c => b8r.component(c));
-      } else {
-        console.warn('b8r.preload timed out');
-      }
-      b8r.preload(component_list);
-    }, {timeout: 1000});
-  } else {
-    console.warn('b8r.preload works better with requestIdleCallback');
+b8r.sortAscending = (a, b) => a > b ? 1 : b > a ? -1 : 0;
+b8r.sortDescending = (a, b) => a > b ? -1 : b > a ? 1 : 0;
+
+b8r.preloadData = () => {
+  if (! b8r.findOne('script[src*="preload.js"]')) return;
+  const modules = require.preloadData(true).reduce((a, b) => a.concat(b), []);
+  const components = [];
+  Object.keys(component_preload_map).forEach(name => {
+    const path = component_preload_map[name];
+    components.push ({name, path});
+  });
+  const data = {
+    modules,
+    components: components.sort((a, b) => b8r.sortAscending(a.name, b.name)) };
+
+  if (window.__b8r_server_debug) {
+    console.log('%c%s', 'color: white; background: #0a0', 'sending preload data');
+    b8r.json('/__preload', 'POST', data);
+  } else if (
+    require.electron &&
+    require.electron.remote.process.defaultApp
+  ) {
+    console.log('%c%s', 'color: white; background: #0a0', 'writing preload data');
+    // using lazy to avoid changing dependency tree
+    require.lazy('../lib/fs-promises.js').then(({save}) => {
+      save('preload-electron.json', JSON.stringify(data, false, 2));
+    });
   }
+
+  return JSON.stringify(data, false, 2);
 };
+
+if (require.onSyncLoad) require.onSyncLoad(b8r.debounce(b8r.preloadData, 2000));
+
+b8r.preload = (path='preload.components.json') => new Promise((resolve) => {
+  b8r.json(path).then(components => {
+    components.forEach(({name, path, source}) => {
+      try {
+        b8r.makeComponent(name, source, path);
+      } catch(e) {
+        console.error(`${path} failed to preload`, e);
+      }
+    });
+    resolve();
+  }).catch(resolve);
+});
 
 const _path_relative_b8r = _path => {
   return !_path ? b8r : Object.assign({}, b8r, {
@@ -605,7 +620,7 @@ const {
   component,
   components,
   component_timeouts,
-  component_preload_list,
+  component_preload_map,
   makeComponent
 } = require('./b8r.component.js');
 Object.assign(b8r, {component, makeComponent});
@@ -737,14 +752,11 @@ b8r.insertComponent = function(component, element, data) {
         get, set, on, touch, component
       );
     } catch(e) {
-      debugger; // jshint ignore:line
+      debugger; // eslint-disable-line no-debugger
       console.error('component', component.name, 'failed to load', e);
     }
   } else {
     b8r.register(component_id, data, true);
-  }
-  if (data_path) {
-    resolveListInstanceBindings(element, data_path);
   }
   async_update(false, element);
 

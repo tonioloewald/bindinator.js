@@ -7,6 +7,8 @@ make appropriate changes to the DOM.
     touchByPath('path.to.data'); // tells b8r to update anything bound to that path
     touchByPath('path.to.data', source_element); // as above, but exclude source_element
     touchElement(element); // tell b8r the element in question needs updating
+    touchByPath('path.to.list[id=abcd]'); // updates the specified list
+    touchByPath('path.to.list[id=abcd].bar.baz'); // updates the underlying list
 
 All of these updates are asynchronous, so the DOM won't actually change immediately. If you do
 want the DOM to change immediately:
@@ -21,6 +23,7 @@ pass a callback to `after_update`:
 
 after_update fires immediately (and synchronously) if there are no pending updates.
 */
+/* global require, module */
 'use strict';
 
 const _change_list = [];
@@ -31,9 +34,20 @@ const {trigger} = require('./b8r.events.js');
 const {logStart, logEnd} = require('./b8r.perf.js');
 let _force_update = () => {};
 
+const requestAnimationFrameWithTimeout = callback => {
+  let done = false;
+  const finishIt = () => {
+    done || callback();
+    done = true;
+  };
+  requestAnimationFrame(finishIt);
+  setTimeout(finishIt, 20);
+  return {cancel: () => done=true};
+};
+
 const get_update_list = () => {
-  cancelAnimationFrame(_update_frame);
   if (_update_frame) {
+    _update_frame.cancel();
     _update_frame = null;
     return _update_list.splice(0);
   } else {
@@ -79,18 +93,12 @@ const _trigger_change = element => {
 
 const async_update = (path, source) => {
   logStart('async_update', 'queue');
-  // TODO
-  // optimizations
-  // - if path startsWith existing path or vice versa, throw away longer path
-  // - filter source-only items inside newly added source
   const item = path ?
-               _update_list.find(item => item.path === path) :
-               _update_list.find(item => (! item.path) &&
-                                         item.source &&
-                                         (item.source === source || item.source.contains(source)));
+               _update_list.find(item => path.startsWith(item.path)) :
+               _update_list.find(item => (! item.path) && item.source && item.source === source);
   if (! item) {
     if (!_update_frame) {
-      _update_frame = requestAnimationFrame(_force_update);
+      _update_frame = requestAnimationFrameWithTimeout(_force_update);
     }
     _update_list.push({ path, source });
   } else if (path) {
@@ -121,6 +129,9 @@ const touchByPath = (...args) => {
     [name, path, source_element] = args;
     full_path = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path;
   }
+
+  // remove properties inside a list item
+  full_path = full_path.replace(/\[[^\[]+$/, '');
 
   logStart('touchByPath', full_path);
 
