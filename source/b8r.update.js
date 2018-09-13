@@ -10,6 +10,11 @@ make appropriate changes to the DOM.
     touchByPath('path.to.list[id=abcd]'); // updates the specified list
     touchByPath('path.to.list[id=abcd].bar.baz'); // updates the underlying list
 
+If you want to precisely update a list item without updating the list it belongs to,
+the simplest option is to `b8r.bindAll` the list element or `touchElement` the list element.
+This is a tradeoff of worst-case performance (lots of updates to a list) against best-case
+performance (a simple update to one item of a list).
+
 All of these updates are asynchronous, so the DOM won't actually change immediately. If you do
 want the DOM to change immediately:
 
