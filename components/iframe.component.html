@@ -18,7 +18,7 @@ as `src` property in the data passed when inserting it.
 </style>
 <iframe></iframe>
 <script>
-/* global data, findOne */
+/* global data, findOne, component */
 'use strict';
   const url = data.src || component.dataset.src || 'tests.html';
   findOne('iframe').setAttribute('src', url);

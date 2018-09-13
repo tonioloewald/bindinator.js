@@ -37,7 +37,6 @@ The component's active_tab indicates the currently visible tab.
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    font-size: 14px;
   }
 
   .dark .tab-selector-tabs > .tab-selector-tab {
@@ -68,7 +67,7 @@ The component's active_tab indicates the currently visible tab.
   }
 </style>
 <div class="tab-selector-tabs">
-  <h2
+  <h4
     data-list="_component_.tabs"
     data-bind="text,attr(title)=.name;class(tab-selector-current)=.active"
     class="tab-selector-tab"
@@ -78,7 +77,7 @@ The component's active_tab indicates the currently visible tab.
       keydown(ArrowRight):_component_.next_tab
     "
     tabindex="0"
-  >Tab Name</h2>
+  >Tab Name</h4>
 </div>
 <div class="tab-selector-bodies" data-children>
   <div name="Tab A" style="text-align: center;">
@@ -106,7 +105,6 @@ The component's active_tab indicates the currently visible tab.
     set({active_tab});
     get('tabs').forEach((tab, idx) => tab.active = active_tab === idx);
     touch('tabs');
-    const tabs = b8r.listItems(findOne('.tab-selector-tabs'));
 
     bodies().forEach((body, idx) => {
       if (active_tab === idx) {

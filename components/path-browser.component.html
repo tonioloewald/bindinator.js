@@ -37,7 +37,7 @@ A tool for browsing objects.
   </li>
 </ul>
 <script>
-/* global b8r, get, set, data, touch */
+/* global require, component, b8r, get, set, data, touch */
 'use strict';
 
   const reset = path => {
@@ -69,7 +69,7 @@ A tool for browsing objects.
       empty_list: [],
       null_value: null,
       nan_value: NaN,
-      func_value: (a, b, c, d) => {},
+      func_value: (a, b, c, d) => a + b + c + d,
     });
     set({value: 'object-browser-test'});
   }

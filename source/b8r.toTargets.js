@@ -421,15 +421,14 @@ module.exports = function(b8r) {
     },
     checked: (element, value) => {
       if (value === null) {
-        element.indeterminate = true;
         element.checked = false;
+        element.indeterminate = true;
       } else {
-        element.indeterminate = false;
-        element.checked = !!value;
+        element.checked = !! value;
       }
     },
     selected: (element, value) => {
-      element.selected = !!value;
+      element.selected = !! value;
     },
     text: (element, value) => element.textContent = value,
     format: (element, value) => {

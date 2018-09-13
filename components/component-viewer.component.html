@@ -29,7 +29,7 @@
 
     require.lazy('https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js').
     then(Prism => {
-      Prism.highlightElement(code); // jshint ignore:line
+      Prism.highlightElement(code);
       b8r.show(code.closest('div'));
     });
   });

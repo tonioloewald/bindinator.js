@@ -12,6 +12,7 @@ A simple example of binding. The range and number inputs are both bound to the s
 <input class="slider-range" type="range" data-bind="value=_component_.value">
 <input class="slider-number" type="number" data-bind="value=_component_.value">
 <script>
+  /* global component, get, set, data, findOne */
   const slider = findOne('[type="range"]');
   slider.setAttribute('min', component.getAttribute('min') || get('min') || 0);
   slider.setAttribute('max', component.getAttribute('max') || get('max') || 42);

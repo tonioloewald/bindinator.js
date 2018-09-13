@@ -62,13 +62,15 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
   <button data-event="click:_component_.speak">Speak</button>
 </div>
 <script>
+  /* global set, get */
   const synth = window.speechSynthesis;
+
   const getVoices = () => {
     const voices = synth.getVoices();
     // find an Aussie!
     const voice = voices.find(v => v.lang === 'en-AU').name;
     set({voices, voice});
-  }
+  };
 
   if (synth.onvoiceschanged !== undefined) {
     synth.onvoiceschanged = getVoices;
@@ -83,7 +85,7 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
     utterance.rate = parseFloat(get('rate'));
     synth.cancel();
     synth.speak(utterance);
-  }
+  };
 
   const stop = () => synth.cancel();
 

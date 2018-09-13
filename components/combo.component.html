@@ -54,7 +54,6 @@ the string.
 
 -->
 <script>
-/* jshint latedef:false */
 /* global component, b8r, require */
 'use strict';
 
@@ -163,7 +162,7 @@ the string.
     };
 
     const partial_match = (element, filter_split, filter_start) => {
-      let {text, selEnd} = getSelection(element);
+      const {text, selEnd} = getSelection(element);
       let match = text.toLowerCase();
 
       let start = 0;
@@ -223,6 +222,7 @@ the string.
             case 'ArrowUp':
             case 'ArrowDown':
               if (current) return false;
+              break;
             case 'Space':
             case 'NumpadEnter':
             case 'Enter':

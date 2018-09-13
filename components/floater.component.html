@@ -45,7 +45,7 @@ Use the class "floater-title" for the first child to get nice styling.
   <p style="padding: 4px 16px">This is some test content</p>
 </div>
 <script>
-/* global component, on, b8r, console */
+/* global component, on, b8r, console, findOne, require */
 'use strict';
 
   on('mousedown', 'floater-controller.start_motion');
@@ -68,7 +68,7 @@ Use the class "floater-title" for the first child to get nice styling.
   const remove_menu_arrow = () => {
     for (const c of component.classList)
       if (/^menu-balloon/.test(c))
-        component.classList.remove(c)
+        component.classList.remove(c);
   };
 
   b8r.set('floater-controller', {

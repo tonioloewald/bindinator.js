@@ -14,6 +14,7 @@ This shows b8r working with a simple [web component](https://www.webcomponents.o
     data-bind="value=web-component-demo.other_toggle"></b8r-switch>
 </label>
 <script>
+  /* global require, b8r */
   require('../web-components/switch.js');
 
   if (! b8r.get('web-component-demo')) {

@@ -176,7 +176,7 @@ module.exports = {
   find: selector => makeArray(document.querySelectorAll(selector)),
   findOne: document.querySelector.bind(document),
   findWithin: (element, selector, include_self) => {
-    let list = makeArray(element.querySelectorAll(selector));
+    const list = makeArray(element.querySelectorAll(selector));
     if (include_self && element.matches(selector)) {
       list.unshift(element);
     }
@@ -199,7 +199,7 @@ module.exports = {
   },
   findAbove: (elt, selector, until_elt, include_self) => {
     let current_elt = include_self ? elt : elt.parentElement;
-    let found = [];
+    const found = [];
     while(current_elt) {
       if (current_elt === document.body) {
         break;

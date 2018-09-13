@@ -1,3 +1,5 @@
+/* global netflix */
+
 let netflix_player = false;
 
 {
@@ -16,7 +18,7 @@ setInterval(() => {
   const currentTime = netflix_player.getCurrentTime();
   const playing = ! netflix_player.getPaused();
   const duration = netflix_player.getDuration();
-  console.log(JSON.stringify({'netflix', currentTime, playing, duration}));
+  console.log('netflix', JSON.stringify({currentTime, playing, duration}));
 }, 500);
 
 window.addEventListener('message', evt => {

@@ -137,7 +137,7 @@ Copyright ©2016-2017 Tonio Loewald
       data.cancel();
     }
     return true;
-  }
+  };
 
   const startTime = new Date().getTime();
   // Unless we create a component.ready() then we need the
@@ -147,7 +147,7 @@ Copyright ©2016-2017 Tonio Loewald
     if (typeof data.text === 'string') {
       defaultWidget = findOne('input');
     } else {
-      defaultWidget = b8r.findOne('.default');
+      defaultWidget = findOne('.default');
      }
     if (defaultWidget) {
       defaultWidget.focus();
@@ -156,5 +156,5 @@ Copyright ©2016-2017 Tonio Loewald
     }
   };
 
-    requestAnimationFrame(() => setFocus());
+  requestAnimationFrame(setFocus);
 </script>

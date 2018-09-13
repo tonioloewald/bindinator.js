@@ -15,6 +15,7 @@
   </div>
 </div>
 <script>
+  /* global findOne, b8r, register */
   var keycodes = findOne('.keycodes');
   findOne('input').focus();
   b8r.hide(keycodes);
@@ -22,7 +23,7 @@
   register({
     showCode: evt => {
       var div = b8r.create('div');
-      div.textContent = b8r.keystroke(evt); 
+      div.textContent = b8r.keystroke(evt);
       b8r.findOneWithin(keycodes, 'div').appendChild(div);
       b8r.show(keycodes);
       evt.preventDefault();

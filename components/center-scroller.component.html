@@ -38,7 +38,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 </div>
 <script>
 /* global require, findOne, data, component, set, get, b8r */
-/* jshint latedef:false */
 'use strict';
 
   const resize = require('../lib/resize.js');
@@ -77,7 +76,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       position = clamp(position, -0.25, item_count + 0.25);
     }
     const center_index = Math.max(0, Math.floor(position + 0.5));
-    let dx = (position - center_index);
+    const dx = (position - center_index);
     let offset = (center_gap + item_spacing) * -0.5 - dx * min_item_width;
     if (center_index > 0) {
       offset += item_spacing;

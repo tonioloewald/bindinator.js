@@ -43,4 +43,4 @@ module.exports.viaLink = href => {
     link.href = href;
     document.head.append(link);
   }
-}
+};

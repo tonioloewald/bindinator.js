@@ -14,6 +14,7 @@ You can use them the obvious way:
     _b8r_.stopEvent // use this to simply catch an event silently
     _b8r_._update_ // this is used by b8r to update models automatically
 */
+/* global module, require */
 'use strict';
 
 module.exports = b8r => {

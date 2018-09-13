@@ -208,7 +208,7 @@ Note the *relative* data binding.
 
     <img
       data-list="path.to.image_list"
-      data-bind="imgSrc=.url"
+      data-bind="img=.url"
     >
 
 Here's a more complex example, showing that the element and its children
@@ -221,7 +221,7 @@ will be instanced for each element of the list.
       >
         <img
           data-bind="
-            imgSrc=.image_url;
+            img=.image_url;
             attr(alt)=.image_name;
           "
         >
@@ -315,9 +315,9 @@ const parseBinding = binding => {
   if (binding.indexOf('=') === -1) {
     throw 'binding is missing = sign; probably need a source or target';
   }
-  let [, targets, path] =
+  const [, targets_raw, path] =
       binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim());
-  targets = targets.split(',').map(function(target) {
+  const targets = targets_raw.split(',').map(target => {
     var parts = target.match(/(\w+)(\(([^)]+)\))?/);
     if (!parts) {
       console.error('bad target', target, 'in binding', binding);
@@ -410,23 +410,6 @@ const replaceInBindings = (element, needle, replacement) => {
   });
 };
 
-const resolveListInstanceBindings = (instance_elt, instance_path) => {
-  findWithin(instance_elt, '[data-bind]', true).
-  filter(elt => !elt.closest('[data-list]')).
-  forEach(elt => {
-    const binding_source = elt.dataset.bind;
-    if (binding_source.indexOf('=.') > -1) {
-      elt.dataset.bind = binding_source.
-                         replace(/\=\.([^;\s]+)/g, `=${instance_path}.$1`).
-                         replace(/\=\./g, `=${instance_path}`);
-    }
-    if (binding_source.indexOf('${.') > -1) {
-      elt.dataset.bind = binding_source.
-                         replace(/\$\{(\.[^\}]+)\}/g, '${' + instance_path + '$1}');
-    }
-  });
-};
-
 module.exports = {
   addDataBinding,
   removeDataBinding,
@@ -438,6 +421,5 @@ module.exports = {
   findBindables,
   getBindings,
   replaceInBindings,
-  resolveListInstanceBindings,
   splitPaths,
 };

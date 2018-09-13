@@ -21,6 +21,7 @@ A simple image editor using [glfx.js](http://evanw.github.io/glfx.js/) for image
   }
 </style>
 <script>
+  /* global require, component */
   const fx = require('../third-party/glfx.js');
   const canvas = fx.canvas();
 
@@ -29,7 +30,6 @@ A simple image editor using [glfx.js](http://evanw.github.io/glfx.js/) for image
   img.onload = () => {
     component.appendChild(canvas);
     console.time('glfs');
-    const [cx, cy] = [img.width * 0.5, img.height * 0.5];
     const texture = canvas.texture(img);
 
     canvas.draw(texture).noise(0.5).sepia(0.75).update();

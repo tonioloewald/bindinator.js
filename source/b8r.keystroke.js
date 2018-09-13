@@ -51,7 +51,7 @@ const keycode = evt => {
 };
 
 const keystroke = evt => {
-  let code = [];
+  const code = [];
   if (evt.altKey) {
     code.push('alt');
   }

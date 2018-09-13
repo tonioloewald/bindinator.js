@@ -7,7 +7,7 @@ It loads via require() but sets a global rather than passing back to module.expo
 -->
 <canvas width="768" height="512" style="background: #888"></canvas>
 <script>
-/* global require, component, b8r, findOne */
+/* global require, component, b8r, findOne, THREE */
 'use strict';
 
 const canvas = findOne('canvas');
@@ -31,7 +31,7 @@ const load = async () => {
 
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.setSize( canvas.width, canvas.height );;
+  renderer.setSize( canvas.width, canvas.height );
 
   const sunlight = new THREE.DirectionalLight(0xddeeff, 1.25);
   sunlight.castShadow = true;
@@ -128,7 +128,7 @@ const load = async () => {
     }
   }
   render();
-}
+};
 
 load();
 </script>

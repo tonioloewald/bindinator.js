@@ -172,15 +172,33 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   .content ul,
   .content ol {
     max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+  }
+
+  .content pre,
+  .content pre code {
+    background: #272822;
+    color: #eee;
+  }
+
+  .content h1,
+  .content h2,
+  .content h3 {
+    margin-top: 16px;
+  }
+
+  .content h4,
+  .content h5,
+  .content h6 {
+    margin-top: 8px;
   }
 
   .content blockquote {
-    margin: 8px auto;
+    margin: 8px 0;
     padding: 5px 10px 10px 10px;
+    border-radius: 2px;
     background: var(--pullquote-bg-color);
-    border-right: 3px solid var(--accent-color);
+    border-radius: 6px;
+    border: 3px solid var(--accent-color);
   }
 
   .content blockquote h2,
@@ -223,7 +241,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 </div>
 <script>
 /* jshint latedef:false */
-/* global on, b8r, alert, component, set, findOne */
+/* global b8r, alert, component, set, findOne */
   'use strict';
 
   b8r.on(document.body, 'keydown(alt-Space)', 'documentation-controller.fullwindow');

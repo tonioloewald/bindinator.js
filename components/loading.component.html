@@ -23,21 +23,23 @@ Copyright ©2016-2017 Tonio Loewald
   </svg>
 </div>
 <script>
-/* global component, findOne, find, b8r */
+/* global component, findOne, find, b8r, set */
 'use strict';
 
-  let interval_ms = parseInt(component.getAttribute('interval') || '250', 10);
-  let fill = component.getAttribute('fill') || 'white';
-  let div = findOne('div');
+  const interval_ms = parseInt(component.getAttribute('interval') || '250', 10);
+  const fill = component.getAttribute('fill') || 'white';
+  const div = findOne('div');
   div.style.background = component.getAttribute('background') || 'rgba(0,0,0,0.25)';
   find('path').forEach(elt => elt.style.fill = fill);
   let rot = 0;
-  let interval_id = setInterval(() => {
+
+
+  const interval_id = setInterval(() => {
     if (div && b8r.isInBody(div)) {
       rot = (rot + 30) % 360;
       findOne('svg').style.transform = 'rotateZ(' + rot + 'deg)';
-    } else {
-      clearInterval(interval_id);
     }
   }, interval_ms);
+
+  set ('destroy', () => clearInterval(interval_id));
 </script>

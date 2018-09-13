@@ -5,47 +5,47 @@
   ._component_ {
     min-height: 50vh;
     position: relative;
-		display: flex;
-	}
+    display: flex;
+  }
 
   .documentation-component ._component_ {
     border: 1px solid rgba(0,0,0,0.1);
   }
 
-	._component_ .editor {
-		padding: 10px;
-		font-size: 14px;
-		background: #222;
-		color: white;
-		font-family: Menlo, Monaco, monospace;
-	}
+  ._component_ .editor {
+    padding: 10px;
+    font-size: 14px;
+    background: #222;
+    color: white;
+    font-family: Menlo, Monaco, monospace;
+  }
 
-	._component_ .preview {
-		padding: 10px;
+  ._component_ .preview {
+    padding: 10px;
     font-family: Helvetica Neue, Helvetica, Arial, Sans-serif;
-	}
+  }
 
-	._component_ .sizable {
+  ._component_ .sizable {
     flex: 1 1 auto;
     width: 50%;
     min-width: 100px;
-	}
+  }
 </style>
 <textarea
-	class="editor sizable"
-	data-bind="value=_component_.source"
-	data-event="input:_component_.update"
+  class="editor sizable"
+  data-bind="value=_component_.source"
+  data-event="input:_component_.update"
 ></textarea>
 <div data-component="sizer"></div>
 <div class="preview sizable"></div>
 <script>
-	/*global require, b8r, get, set, findOne */
+  /*global require, b8r, get, set, findOne */
   'use strict';
 
   b8r.component('sizer');
   const {md} = require('../lib/text-render.js');
 
-  let source = `# Heading
+  const source = `# Heading
 
 ![b8r logo](images/bindinator-logo-notext.svg)
 
@@ -62,7 +62,7 @@ Here is some text
   update();
 
   set ({
-  	update,
-  	source
- 	});
+    update,
+    source
+  });
 </script>

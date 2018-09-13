@@ -18,8 +18,12 @@ so making similar components with different attributes should be pretty straight
 
 .tab-scroller-tabs {
   flex: 0 0 auto;
-  cursor: default;
   position: relative;
+
+}
+
+.tab-scroller-tabs > * {
+  cursor: pointer;
 }
 
 .tab-scroller {
@@ -98,8 +102,7 @@ so making similar components with different attributes should be pretty straight
   </div>
 </div>
 <script>
-/* jshint curly:false */
-/* global component, set, get, find, findOne, b8r */
+/* global require, component, set, get, find, findOne, b8r */
   'use strict';
 
   const animated_scroll = require('../lib/animated-scroll.js');

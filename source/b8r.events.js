@@ -309,7 +309,7 @@ const callMethod = (...args) => {
       [model, method, ...args] = args;
     }
   } catch (e) {
-    debugger;  // jshint ignore:line
+    debugger;  // eslint-disable-line no-debugger
   }
   var result = null;
   if (registered(model)) {

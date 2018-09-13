@@ -22,6 +22,7 @@ been called in the last interval.
 
 If you call f several times within the interval, *only the first call will fire*.
 */
+/* global module */
 'use strict';
 
 const debounce = (orig_fn, min_interval) => {

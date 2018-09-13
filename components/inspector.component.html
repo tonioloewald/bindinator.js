@@ -292,7 +292,8 @@ Copyright ©2016-2017 Tonio Loewald
             };
           }),
         });
-      } while (target = target.parentElement.closest('[data-event]')); // jshint ignore:line
+      // eslint-disable-next-line no-cond-assign
+      } while (target = target.parentElement.closest('[data-event]'));
       console.log(JSON.stringify(event_info, false, 2));
       set({event_info});
     }
@@ -312,13 +313,13 @@ Copyright ©2016-2017 Tonio Loewald
     show_registry: () => {
       const registry = b8r.models()
                           .filter(name => name.substr(0,2) !== 'c#')
-                          .map(name => {return {name};})
+                          .map(name => {return {name};}) // eslint-disable-line block-spacing
                           .sort();
       set({registry});
     },
     show_components: () => {
       const components = b8r.components()
-                          .map(name => {return {name, value: name};});
+                          .map(name => {return {name, value: name};}); // eslint-disable-line block-spacing
       components.unshift({name: 'All', value: '', selected: true});
       set({components});
     },
@@ -327,7 +328,7 @@ Copyright ©2016-2017 Tonio Loewald
       const partial_id = component ? `c#${component}#` : 'c#';
       const instances = b8r.models()
                             .filter(name => name.substr(0,partial_id.length) === partial_id)
-                            .map(name => {return {name};})
+                            .map(name => {return {name};}) // eslint-disable-line block-spacing
                             .sort();
       set({instances});
     },

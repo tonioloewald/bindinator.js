@@ -413,6 +413,8 @@ grid cells that are currently in view.
   const biggrid = require('../lib/biggrid.js');
   const {imagePromise} = require('../source/b8r.imgSrc.js');
   const jsfeat = require('../third-party/jsfeat-min.js');
+  const resize = require('../lib/resize.js');
+  const scroller = findOne('.raw-viewer-scroller');
 
   if (! require.electron || window.process.platform !== 'darwin') {
     b8r.hide(component);
@@ -422,6 +424,8 @@ grid cells that are currently in view.
   if (! component.matches('.example')) {
     document.body.style.overflow = 'hidden';
   }
+
+  resize.relayTo(scroller);
 
   const fs = require.globalRequire('fs');
   const {exec} = require.globalRequire('child_process');
@@ -626,13 +630,12 @@ grid cells that are currently in view.
     }
     set({rawfile});
     console.log(rawfile);
-    // force grid to resize
-    touch('rawfiles');
+    b8r.trigger('resize', scroller);
   };
 
   const closeDetail = () => {
     set('rawfile', null);
-    touch('rawfiles');
+    b8r.after_update(() => b8r.trigger('resize', scroller));
   };
 
   const sort_methods = {

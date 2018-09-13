@@ -138,7 +138,7 @@ Uses game-controller.js which relies on presence of a connected gamepad.
           }
         }
         if (buttons.ArrowUp || buttons.W) {
-          let a = player.r * Math.PI / 180;
+          const a = player.r * Math.PI / 180;
           player.dy -= Math.cos(a) * 10;
           player.dx += Math.sin(a) * 10;
         }

@@ -18,6 +18,7 @@ component's "tags" attribute.
 </style>
 <img data-list="_component_.photos.items" data-bind="img=.media.m;attr(label)=.title">
 <script>
+  /* global findOne, component, set */
   var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
   findOne('img').classList.add(component.getAttribute('img-class') || 'flickr-image');
 

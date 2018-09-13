@@ -28,10 +28,9 @@ Ideally it should be loaded as a singleton (e.g. using componentOnce).
 const offline = () => {
   document.body.appendChild(component);
   b8r.show(component);
-}
-const online = () => {
-  b8r.hide(component);
-}
+};
+
+const online = () => b8r.hide(component);
 
 if(navigator.onLine) {
   online();
