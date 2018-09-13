@@ -95,7 +95,6 @@ const {
   async_update,
   get_update_list,
   after_update,
-  force_update,
   touchElement,
   touchByPath,
   _trigger_change,
