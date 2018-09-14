@@ -225,9 +225,8 @@ of awesome that this works at all.
 
   let last_code = '';
   function run() {
-    const source = editor ? editor.getValue() : code_elt.textContent;
-
-    if (last_code === source.trim()) {
+    const source = (editor ? editor.getValue() : code_elt.textContent).trim();
+    if (last_code === source) {
       return;
     }
     b8r.empty(container);
