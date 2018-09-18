@@ -112,7 +112,7 @@ b8r.force_update = () => {
     const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
     const lists = b8r.find('[data-list]').map(elt => { return {elt, list_binding: elt.dataset.list}; });
 
-    while(update_list.length) { // eslint: ignore:
+    while(update_list.length) {
       const {path, source} = update_list.shift();
       try {
         if (path) {
@@ -524,15 +524,14 @@ function bindList(list_template, data_path) {
       instance = template.cloneNode(true);
       instance.dataset.listInstance = itemPath;
       instance._b8r_listInstance = item;
-      async_update(null, instance);
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
       delete path_to_instance_map[itemPath];
-      async_update(null, instance);
       if (instance.nextSibling !== previous_instance) {
         list_template.parentElement.insertBefore(instance, previous_instance);
       }
     }
+    b8r.bindAll(instance);
     previous_instance = instance;
   });
   b8r.hide(list_template);
@@ -757,7 +756,7 @@ b8r.insertComponent = function(component, element, data) {
   } else {
     b8r.register(component_id, data, true);
   }
-  async_update(false, element);
+  b8r.bindAll(element);
 
   b8r.logEnd('insertComponent', component.name);
 };
