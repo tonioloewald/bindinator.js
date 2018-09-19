@@ -238,7 +238,12 @@ const dispatch = (type, target, ...args) => {
   const event = new Event(type);
   event.args = args;
   target.dispatchEvent(event);
-  return event;
+  if (event.target !== target) {
+    // in some cases dispatchEvent will fail to set an event's target property (!)
+    return {type, target, args};
+  } else {
+    return event;
+  }
 };
 
 // add touch events if needed
@@ -358,8 +363,7 @@ const trigger = (type, target, ...args) => {
   }
   if (target) {
     const event = dispatch(type, target, ...args);
-    if (target instanceof Element &&
-        implicit_event_types.indexOf(type) === -1) {
+    if (target instanceof Element && implicit_event_types.indexOf(type) === -1) {
       handle_event(event);
     }
   } else {
