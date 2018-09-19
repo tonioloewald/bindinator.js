@@ -13,14 +13,14 @@
 
 ## The lazy JavaScript framework.
 
-*Laziness drives every design decision in b8r*. Don't learn new mini-languages. Don't learn a 
-templating language. Don't do things for the browser that the browser knows how to do (like 
-parse HTML). Don't install special debugging tools. Don't add zillions of runtime dependencies. 
+*Laziness drives every design decision in b8r*. Don't learn new mini-languages. Don't learn a
+templating language. Don't do things for the browser that the browser knows how to do (like
+parse HTML). Don't install special debugging tools. Don't add zillions of runtime dependencies.
 Don't tell the left hand what the right hand is doing.
 
 ### Simple Bindings
 
-A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors* 
+A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors*
 implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
 With `b8r`, you can **bind data to the DOM** using the `data-bind` attribute:
@@ -40,9 +40,9 @@ You can update data using `b8r.set`, e.g.
 b8r.set('example.name', 'Trump')
 ```
 
-Try it in the **console**! 
+Try it in the **console**!
 
-> Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own 
+> Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own
 > `<iframe>`s -- it's all happily running in the same `body`. Normally, the only
 > global you see is `b8r`'s `require` but I've exposed `b8r` to let you play around. If it
 > weren't exposed you could simply write `b8r = require('path/to/b8r.s')` in the console.
@@ -113,9 +113,9 @@ the [text-render.js](#source=lib/text-render.js) library to render markdown.)
 ### Dog Food!
 
 This site is built using `b8r` (along with numerous third-party libraries, none of which are
-global dependencies). The inline [fiddle component](#source=fiddle.component.html) used 
+global dependencies). The inline [fiddle component](#source=fiddle.component.html) used
 to display interactive examples is 272 lines including comments, styles, markup, and code.
-`b8r` isolates component internals so cleanly isolated from the rest of the page that 
+`b8r` isolates component internals so cleanly isolated from the rest of the page that
 the fiddle doesn't need to use an iframe.
 
 ## In a Nut

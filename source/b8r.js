@@ -60,6 +60,7 @@ const {
   findBindables,
   getBindings,
   replaceInBindings,
+  resolveListInstanceBindings,
   splitPaths,
 } = require('./b8r.bindings.js');
 Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getComponentId, getListInstancePath});
@@ -109,20 +110,24 @@ b8r.force_update = () => {
   let update_list;
 
   while(update_list = get_update_list()) { // eslint-disable-line no-cond-assign
-    const binds = b8r.find('[data-bind]').map(elt => { return {elt, data_binding: elt.dataset.bind}; });
-    const lists = b8r.find('[data-list]').map(elt => { return {elt, list_binding: elt.dataset.list}; });
+    const lists = b8r.find('[data-list]').
+                      map(elt => { return {elt, list_binding: elt.dataset.list}; });
+    let binds = false; // avoid collecting elements before big list updates
 
     while(update_list.length) {
       const {path, source} = update_list.shift();
       try {
         if (path) {
           lists.
-          filter(bound => bound.elt !== source && bound.list_binding.includes(path)).
-          forEach(({elt}) => bindList(elt));
+            filter(bound => bound.elt !== source && bound.list_binding.includes(path)).
+            forEach(({elt}) => bindList(elt));
+
+          if (! binds) binds = b8r.find('[data-bind]').
+                                   map(elt => { return {elt, data_binding: elt.dataset.bind}; });
 
           binds.
-          filter(bound => bound.elt !== source && bound.data_binding.includes(path)).
-          forEach(({elt}) => bind(elt));
+            filter(bound => bound.elt !== source && bound.data_binding.includes(path)).
+            forEach(rec => rec.dirty = true);
         } else {
           b8r.bindAll(source);
         }
@@ -130,6 +135,7 @@ b8r.force_update = () => {
         console.error('update error', e, {path, source});
       }
     }
+    if (binds) binds.forEach(({elt, dirty}) => dirty && bind(elt));
   }
 
   b8r.logEnd('async_update', 'update');
@@ -520,10 +526,12 @@ function bindList(list_template, data_path) {
     ids[id] = true;
     const itemPath = `${list_path}[${id}]`;
     instance = path_to_instance_map[itemPath];
+    let resolve_bindings = false;
     if (instance === undefined) {
       instance = template.cloneNode(true);
       instance.dataset.listInstance = itemPath;
       instance._b8r_listInstance = item;
+      resolve_bindings = true;
       list_template.parentElement.insertBefore(instance, previous_instance);
     } else {
       delete path_to_instance_map[itemPath];
@@ -532,6 +540,7 @@ function bindList(list_template, data_path) {
       }
     }
     b8r.bindAll(instance);
+    if (resolve_bindings) resolveListInstanceBindings(instance, itemPath);
     previous_instance = instance;
   });
   b8r.hide(list_template);
