@@ -407,7 +407,7 @@ grid cells that are currently in view.
   </table>
 </div>
 <script>
-  /* global require, console, get, set, component, b8r, touch */
+  /* global require, console, get, set, component, b8r, touch, findOne */
   'use strict';
 
   const biggrid = require('../lib/biggrid.js');
@@ -526,8 +526,8 @@ grid cells that are currently in view.
         } else {
           const metadata = {};
           stdout.split('\nkMD').forEach(item => {
-            let [key, value] = item.split('=').map(s => s.trim());
-            key = key.replace(/^(FS)?(Item)?(FS)?(Content)?(Acquisition)?(Display)?/, '');
+            const [_key, value] = item.split('=').map(s => s.trim());
+            const key = _key.replace(/^(FS)?(Item)?(FS)?(Content)?(Acquisition)?(Display)?/, '');
             if (key && !value.match(/^(\s+|\(null\))$/)) {
               metadata[key] = value.indexOf('(') === -1
                               ? value.match(/^"*(.*?)"*$/m)[1] // strip outer quotation marks
@@ -642,7 +642,7 @@ grid cells that are currently in view.
     date: (a, b) => !a.metdata || !b.metadata ? 0 :
                     a.metadata.CreationDate < b.metadata.CreationDate ? -1 : 1,
     filename: (a, b) => a.filename < b.filename ? -1 : 1,
-  }
+  };
 
   const slice = (list, container) => {
     const filter = get('filter');

@@ -60,6 +60,7 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
   </div>
 </div>
 <script>
+  /* global component, require, set */
   if(component.closest('.example')) {
     const color = require('../lib/color.js');
     const colors = color.cssColorNames();
@@ -67,7 +68,7 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
     const num_items = Math.random() * 20 + 10;
     for(let id = 0; id < num_items; id++) {
       const backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      items.push({id, backgroundColor})
+      items.push({id, backgroundColor});
     }
     set({items});
   }
