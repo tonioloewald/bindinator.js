@@ -560,9 +560,7 @@ b8r.bindAll = (element, data_path) => {
 
 require('./b8r._b8r_.js')(b8r);
 Object.assign(b8r, require('./b8r.ajax.js'));
-
-b8r.sortAscending = (a, b) => a > b ? 1 : b > a ? -1 : 0;
-b8r.sortDescending = (a, b) => a > b ? -1 : b > a ? 1 : 0;
+Object.assign(b8r, require('./b8r.sort.js'));
 
 b8r.preloadData = () => {
   if (! b8r.findOne('script[src*="preload.js"]')) return;
