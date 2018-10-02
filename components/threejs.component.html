@@ -4,6 +4,8 @@
 [threejs](https://threejs.org//) is a 3D engine created by Ricardo Cabello.
 
 It loads via require() but sets a global rather than passing back to module.exports.
+
+The test model was created using [Cheetah 3D](http://cheetah3d.com), and animated using [Mixamo](http://mixamo.com).
 -->
 <canvas width="768" height="512" style="background: #888"></canvas>
 <script>
@@ -63,38 +65,28 @@ const load = async () => {
     return await new Promise(resolve => loader.load(path, gltf => resolve(gltf)));
   };
 
-  const scout = (await load('test/scoutship.gltf')).scene.children[0];
+  const gltf = await load('test/omnidude.glb');
+  const model = gltf.scene;
   // pirate.children[0].material.roughness = 1;
 
   const materials = {};
   const meshes = {};
 
   // tweak materials and meshes
-  walktree(scout, n => {
-    if (n.material) {
-      if (n.material.name === 'Cockpit') {
-        n.material.transparent = true;
-        n.material.roughness = 0.1;
-        n.material.metalness = 0.5;
-        n.material.opacity = 0.4;
-      } else {
-        n.material.roughness = 0.25;
-      }
+  walktree(model, n => {
+    if (! n.material || n.material.name !== 'glass') {
+      n.castShadow = true;
+      n.receiveShadow = true; 
     }
-    if (n.type === 'Mesh') {
-      meshes[n.name] = n;
-    }
-    if (n.material) {
-      materials[n.material.name] = n.material;
-    }
-    n.castShadow = true;
-    n.receiveShadow = true;
   });
-  scout.position.y = -0.5;
-  scene.add(scout);
+  model.position.y = -0.5;
+  scene.add(model);
+  const mixer = new THREE.AnimationMixer(model);
+  mixer.clipAction(gltf.animations[0]).play();
+  let time = Date.now();
 
   // shove this stuff in globals so you can play with it
-  window.threejs_stuff = {scene, camera, renderer, sunlight, scout, plane, materials, meshes};
+  window.threejs_stuff = {scene, camera, renderer, sunlight, model, plane, materials, meshes};
 
   const update = () => {
     const mouse = b8r.get('threejs-demo.mouse');
@@ -102,7 +94,10 @@ const load = async () => {
       sunlight.position.x = mouse.x * 20;
       sunlight.position.y = Math.max(-0.4, (mouse.y - 0.5) * -20);
     }
-    scout.rotation.y -= 0.001;
+    model.rotation.y -= 0.01;
+    const elapsed = (Date.now() - time) * 0.001;
+    time = Date.now();
+    mixer.update(elapsed);
   };
 
   b8r.onAny('mousemove', 'threejs-demo.mousemove');
