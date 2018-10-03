@@ -351,26 +351,9 @@ Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.v
 */
 const splitPaths = paths => paths.match(/(([^,(]+\([^)]+\))|([^,()]+))/g);
 
-const findBindables = element => {
-  return findWithin(element, '[data-bind]', true).filter(elt => {
-    if (
-      elt.hasAttribute('data-component') &&
-      !elt.hasAttribute('data-component-id')
-    ) {
-      return false;
-    } else {
-      const list = elt.closest('[data-list],[data-list-instance]');
-      return !list || list === element || !element.contains(list);
-    }
-  });
-};
+const findBindables = element => findWithin(element, '[data-bind]', true);
 
-const findLists = element => {
-  return findWithin(element, '[data-list]', true).filter(elt => {
-    var list = elt.parentElement.closest('[data-list]');
-    return !list || !element.contains(list);
-  });
-};
+const findLists = element => findWithin(element, '[data-list]', true);
 
 const getBindings = element => {
   return element.dataset.bind.split(';')

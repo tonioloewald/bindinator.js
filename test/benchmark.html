@@ -162,8 +162,9 @@ b8r.register('benchmark', {
         console.time('update');
         const data = b8r.get(`benchmark.data`);
         for (var i = 0; i < data.length; i += 10) {
-            b8r.set(`benchmark.data[id=${data[i].id}].label`, data[i].label + ' !!!');
+            data[i].label += ' !!!';
         }
+        b8r.set('benchmark.data', data);
         b8r.after_update(() => console.timeEnd('update'));
     },
     clear: () => {
