@@ -98,7 +98,6 @@ const {
   after_update,
   touchElement,
   touchByPath,
-  _trigger_change,
   _after_update,
   _set_force_update,
 } = require('./b8r.update.js');
@@ -553,7 +552,6 @@ function bindList(list_template, data_path) {
     previous_instance = instance;
   });
   b8r.hide(list_template);
-  _trigger_change(list_template.parentElement);
   b8r.logEnd('bindList', elt_signature);
 }
 
