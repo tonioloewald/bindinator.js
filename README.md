@@ -23,11 +23,11 @@ Don't tell the left hand what the right hand is doing.
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors*
 implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
-With `b8r`, you can **bind data to the DOM** using the `data-bind` attribute:
+With `b8r`, you can **bind data-paths to the DOM** using the `data-bind` attribute:
 
 <div data-component="fiddle" data-path="drumpf"></div>
 
-In this example `text` is the **target**, `example.name` is the `data-path`. The root **name**
+In this example `text` is the **target**, `example.name` is the **data-path**. The root **name**
 (`example`) is bound to the path via `b8r.register`.
 
 Note the use of an ES6-*like* interpolated string (it doesn't do `eval`, it just looks up paths).
@@ -45,7 +45,7 @@ Try it in the **console**!
 > Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own
 > `<iframe>`s -- it's all happily running in the same `body`. Normally, the only
 > global you see is `b8r`'s `require` but I've exposed `b8r` to let you play around. If it
-> weren't exposed you could simply write `b8r = require('path/to/b8r.s')` in the console.
+> weren't exposed you could simply write `b8r = require('path/to/b8r.js')` in the console.
 
 ### Simple List Bindings
 
@@ -53,7 +53,8 @@ Binding **arrays** is just as simple, using the `data-list` attribute:
 
 <div data-component="fiddle" data-path="list"></div>
 
-Within a list binding, paths beginning with a period are relative to the list instance.
+Within a list binding, paths beginning with a period are relative to the list instance. (Look at
+the `<li>` tags in the preceding example.)
 
 A few of things to try in the console:
 
@@ -63,13 +64,16 @@ b8r.push('example2.list', {id: 4, name: 'Clear Air Turbulence'})
 b8r.remove('example2.list[id=3]')
 ```
 
+Finally note that a path comprising just a period binds to the entire list item, so if you
+bind to a list of bare strings then `data-bind="text=."` will get the string,
+
 ### Automatic Updates
 
 Most **updates** are handled automatically:
 
 <div data-component="fiddle" data-path="update"></div>
 
-And binding **events**:
+### Binding Events
 
 <div data-component="fiddle" data-path="events"></div>
 
@@ -101,6 +105,10 @@ You can build a **To Do List** app like this:
 
 You can _compose_ components (including nesting them) using `data-component`:
 
+> **Note**: the to-do list component in the preceding example is bound to a global path,
+> as is the on below. So the two share data automatically. This is *not* an accident.
+> If you want a component to have its own unique data, you can bind to `_component_`.
+
 <div data-component="fiddle" data-path="compose-example"></div>
 
 ### Easy Integration
@@ -115,8 +123,8 @@ the [text-render.js](#source=lib/text-render.js) library to render markdown.)
 This site is built using `b8r` (along with numerous third-party libraries, none of which are
 global dependencies). The inline [fiddle component](#source=fiddle.component.html) used
 to display interactive examples is 272 lines including comments, styles, markup, and code.
-`b8r` isolates component internals so cleanly isolated from the rest of the page that
-the fiddle doesn't need to use an iframe.
+`b8r` isolates component internals so cleanly from the rest of the page that the fiddle doesn't
+need to use an iframe.
 
 ## In a Nut
 
