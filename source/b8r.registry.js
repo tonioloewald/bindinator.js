@@ -136,7 +136,6 @@ lists).
 
 const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
 const {getDataPath, getComponentId, splitPaths} = require('./b8r.bindings.js');
-const {logStart, logEnd} = require('./b8r.perf.js');
 const registry = {};
 const listeners = [];  // { path_string_or_test, callback }
 const debug_paths = true;
@@ -560,10 +559,8 @@ const getJSON = (path, element, pretty) => {
 };
 
 const touch = (path, source_element) => {
-  logStart('touch', path);
   listeners.filter(listener => listener.test(path))
            .forEach(listener => listener.callback(path, source_element));
-  logEnd('touch', path);
 };
 
 const set = (path, value, source_element) => {

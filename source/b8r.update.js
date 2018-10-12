@@ -135,11 +135,7 @@ const touchByPath = (...args) => {
     full_path = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path;
   }
 
-  logStart('touchByPath', full_path);
-
   async_update(full_path, source_element);
-
-  logEnd('touchByPath', full_path);
 };
 
 module.exports = {

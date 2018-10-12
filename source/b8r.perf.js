@@ -61,7 +61,7 @@ or (in case the intervening code changes the element signature):
 /* global module, console */
 'use strict';
 
-const logs = []; // {name, total_time, entries: {name, count, times, total_time}}
+const logs = []; // {name, total_time, entries: [{name,count, times, total_time}]}
 
 const medianOfSortedArray = values =>
     (values[Math.floor(values.length / 2)] +
@@ -69,7 +69,7 @@ const medianOfSortedArray = values =>
     2;
 
 const perf = {
-  log: (log_name, entry_name) => {
+  log: (log_name, entry_name, truncate_logs=false) => {
     let log = logs.find(log => log.name === log_name);
     if (!log) {
       log = {name: log_name, total_time: 0, entries: []};
@@ -79,6 +79,11 @@ const perf = {
     if (!entry) {
       entry = {name: entry_name, count: 0, times: [], total_time: 0, starts: []};
       log.entries.push(entry);
+    }
+
+    if (truncate_logs && log.entries.length > 200) {
+      console.log('truncating log entries for', log_name);
+      log.entries.splice(log.entries.length - 100);
     }
     return entry;
   },
@@ -90,7 +95,7 @@ const perf = {
   },
 
   logEnd: (log_name, entry_name) => {
-    const entry = perf.log(log_name, entry_name);
+    const entry = perf.log(log_name, entry_name, true);
     const start = entry.starts.pop();
     const log = logs.find(log => log.name === log_name);
     if (start === undefined) {
