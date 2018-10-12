@@ -433,7 +433,6 @@ function bindList(list_template, data_path) {
   const resolved_path = b8r.resolvePath(list_path, list_template);
   // rewrite the binding if necessary (otherwise nested list updates fail)
   if (resolved_path !== list_path) {
-    console.log({resolved_path, list_path});
     let list_binding = list_path = resolved_path;
     if (method_path) {
       arg_paths[0] = list_path;
