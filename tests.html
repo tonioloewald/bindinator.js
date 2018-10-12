@@ -46,6 +46,14 @@
       <span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
       <input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
       <input id="f" data-bind="value=test1.sub.list[2]">
+
+      <h3>Complex Lists</h3>
+      <div id="complex-lists">
+        <div data-list="test1.sort(nested_list):id">
+          <h3 data-bind="text=.name"></h3>
+          <div class="child" data-list="test1.sort(.children):name" data-bind="text=.name"></div>
+        </div>
+      </div>
     </div>
     <div>
       <select data-bind="value=test1.option">
@@ -301,5 +309,56 @@
           .shouldBe(2);
         Test(() => b8r.find('.bad-list[data-list-instance]').length).shouldBe(3);
       });
+
+    // complex lists
+    b8r.set('test1.sort', list => {
+      console.log(list);
+      return list.sort((a, b) => b8r.sortAscending(a.name, b.name))
+    });
+    b8r.register('nested_list', [
+      {
+        id: 1,
+        name: 'Tolkien',
+        children: [
+          {name: 'Gollum'},
+          {name: 'Frodo'},
+          {name: 'Aragorn'},
+        ],
+      },
+      {
+        id: 2,
+        name: 'Bradley',
+        children: [
+          {name: 'Melora'},
+          {name: 'Romilly'},
+          {name: 'Jaelle'},
+        ],
+      },
+      {
+        id: 3,
+        name: 'Vance',
+        children: [
+          {name: 'Murgen'},
+          {name: 'Tamurello'},
+          {name: 'Desmei'},
+        ],
+      },
+    ]);
+    b8r.force_update();
+    Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list binding').
+      shouldBe('Vance');
+    Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list binding')[4].textContent).
+      shouldBe('Frodo');
+    b8r.force_update();
+    b8r.set('nested_list[id=1].name', 'John Ronald Reuel Tolkien');
+    b8r.push('nested_list[id=1].children', {name: 'Elrond'});
+    b8r.set('nested_list[id=2].name', 'Marion Zimmer Bradley');
+    b8r.set('nested_list[id=3].name', 'Jack Vance');
+    b8r.touch('nested_list');
+    b8r.force_update();
+    Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list update').
+      shouldBe('Marion Zimmer Bradley');
+    Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list update')[4].textContent).
+      shouldBe('Elrond');
   </script>
 </body>

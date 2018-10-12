@@ -431,9 +431,17 @@ function bindList(list_template, data_path) {
   if (data_path) {
     list_path = data_path + list_path;
   }
-  // without this step, nested lists will not have fully-resolved paths
-  list_path = b8r.resolvePath(list_path, list_template);
-  list_template.dataset.list = id_path ? `${list_path}:${id_path}` : list_path;
+  const resolved_path = b8r.resolvePath(list_path, list_template);
+  // rewrite the binding if necessary (otherwise nested list updates fail)
+  if (resolved_path !== list_path) {
+    console.log({resolved_path, list_path});
+    let list_binding = list_path = resolved_path;
+    if (method_path) {
+      arg_paths[0] = list_path;
+      list_binding = `${method_path}(${arg_paths.join(',')})`;
+    }
+    list_template.dataset.list = id_path ? `${list_binding}:${id_path}` : list_binding;
+  }
   let list = b8r.get(list_path);
   if (!list) {
     return;
