@@ -104,8 +104,6 @@ const {
 Object.assign(b8r, {async_update, after_update, touchElement, touchByPath});
 
 b8r.force_update = () => {
-  b8r.logStart('async_update', 'update');
-
   let update_list;
 
   while(update_list = get_update_list()) { // eslint-disable-line no-cond-assign
@@ -136,8 +134,6 @@ b8r.force_update = () => {
     }
     if (binds) binds.forEach(({elt, dirty}) => dirty && bind(elt));
   }
-
-  b8r.logEnd('async_update', 'update');
 
   _after_update();
 };
@@ -336,8 +332,6 @@ function bind(element) {
     return;
   }
   const bindings = getBindings(element);
-  const logArgs = ['bind', b8r.elementSignature(element)];
-  b8r.logStart(...logArgs);
   const boundValues = element._b8r_boundValues || (element._b8r_boundValues = {});
   const newValues = {};
   for (let i = 0; i < bindings.length; i++) {
@@ -345,8 +339,6 @@ function bind(element) {
     const value = b8r.interpolate(path, element);
     const existing = boundValues[path];
     if (_unequal(existing, value)) {
-      const signature = b8r.elementSignature(element);
-      b8r.logStart('toTargets', signature);
       newValues[path] = value;
       const _toTargets = targets.filter(t => toTargets[t.target]);
       if (_toTargets.length) {
@@ -356,11 +348,9 @@ function bind(element) {
       } else {
         console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
       }
-      b8r.logEnd('toTargets', signature);
     }
   }
   Object.assign(boundValues, newValues);
-  b8r.logEnd(...logArgs);
 }
 
 const { show, hide } = require('./b8r.show.js');
@@ -453,8 +443,6 @@ function bindList(list_template, data_path) {
       }
     }
   }
-  const elt_signature =  b8r.elementSignature(list_template);
-  b8r.logStart('bindList', elt_signature);
   // compute list
   if (method_path) {
     if (!b8r.get(method_path)) {
@@ -551,16 +539,12 @@ function bindList(list_template, data_path) {
     previous_instance = instance;
   });
   b8r.hide(list_template);
-  b8r.logEnd('bindList', elt_signature);
 }
 
 b8r.bindAll = (element, data_path) => {
-  const signature = b8r.elementSignature(element);
-  b8r.logStart('bindAll', signature);
   loadAvailableComponents(element, data_path);
   findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, data_path));
-  b8r.logEnd('bindAll', signature);
   b8r.cleanupComponentInstances();
 };
 
@@ -687,7 +671,6 @@ b8r.insertComponent = function(component, element, data) {
     }
     component = components[component];
   }
-  b8r.logStart('insertComponent', component.name);
   if (element.dataset.component) {
     delete element.dataset.component;
   }
@@ -770,8 +753,6 @@ b8r.insertComponent = function(component, element, data) {
     b8r.register(component_id, data, true);
   }
   b8r.bindAll(element);
-
-  b8r.logEnd('insertComponent', component.name);
 };
 
 b8r.wrapWithComponent = (component, element, data, attributes) => {

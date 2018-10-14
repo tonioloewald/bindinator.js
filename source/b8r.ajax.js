@@ -20,8 +20,6 @@ b8r.ajax, etc.
 
 'use strict';
 
-const {logStart, logEnd} = require('./b8r.perf.js');
-
 const _requests_in_flight = [];
 
 const _remove_in_flight_request = request => {
@@ -39,7 +37,6 @@ const ajax = (url, method, request_data, config) => {
     }
     var request = new XMLHttpRequest();
     _requests_in_flight.push(request);
-    logStart('ajax (request)', url);
     request.open(method || 'GET', url, true);
     request.onreadystatechange = () => {
       if (request.readyState === XMLHttpRequest.DONE) {
@@ -48,7 +45,6 @@ const ajax = (url, method, request_data, config) => {
           case 5:
           case 4:
             _remove_in_flight_request(request);
-            logEnd('ajax (request)', url);
             reject(request);
             break;
           case 3:
@@ -56,10 +52,7 @@ const ajax = (url, method, request_data, config) => {
             break;
           case 2:
             _remove_in_flight_request(request);
-            logEnd('ajax (request)', url);
-            logStart('ajax (callback)', url);
             resolve(request.responseText);
-            logEnd('ajax (callback)', url);
             break;
         }
       }

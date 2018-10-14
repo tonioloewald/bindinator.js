@@ -114,8 +114,6 @@ A component for messing around with the `mondrian.js` layout library.
   const resize = require('lib/resize.js');
 
   const update = () => requestAnimationFrame(() => {
-    const signature = b8r.elementSignature(findOne('.mondrian'));
-    b8r.logStart('mondrian', signature);
     mondrian.arrange_with_focus(
       visible(),
       {
@@ -123,7 +121,6 @@ A component for messing around with the `mondrian.js` layout library.
         letterbox: get('letterbox_enabled') && get('letterbox')
       }
     );
-    b8r.logEnd('mondrian', signature);
   });
 
   const container = findOne('.mondrian');

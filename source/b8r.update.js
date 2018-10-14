@@ -36,7 +36,6 @@ let _update_frame = null;
 const _update_list = [];
 const _after_update_callbacks = [];
 const {trigger} = require('./b8r.events.js');
-const {logStart, logEnd} = require('./b8r.perf.js');
 let _force_update = () => {};
 
 const requestAnimationFrameWithTimeout = callback => {
@@ -64,7 +63,6 @@ const get_update_list = () => {
 };
 
 const _after_update = () => {
-  logStart('async_update', '_after_update_callbacks');
   while(_after_update_callbacks.length) {
     let fn;
     try {
@@ -74,15 +72,12 @@ const _after_update = () => {
       console.error('_after_update_callback error', e, fn);
     }
   }
-  logEnd('async_update', '_after_update_callbacks');
 };
 
 const _trigger_changes = () => {
-  logStart('async_update', 'changes');
   while (_change_list.length) {
     trigger('change', _change_list.shift());
   }
-  logEnd('async_update', 'changes');
 };
 
 const _trigger_change = element => {
@@ -97,7 +92,6 @@ const _trigger_change = element => {
 };
 
 const async_update = (path, source) => {
-  logStart('async_update', 'queue');
   const item = path ?
                _update_list.find(item => path.startsWith(item.path)) :
                _update_list.find(item => (! item.path) && item.source && item.source === source);
@@ -110,7 +104,6 @@ const async_update = (path, source) => {
     // if the path was already marked for update, then the new source element is (now) correct
     item.source = source;
   }
-  logEnd('async_update', 'queue');
 };
 
 const after_update = callback => {
