@@ -2,22 +2,22 @@
 
 :root {
   --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
-  --bg-color: #cff2a6;
+  --bg-color: #CCDFCB;
   --content-bg-color: white;
   --text-color: #222;
   --dark-text-color: #ddd;
   --code-text-color: #444;
   --faded-text-color: #666;
   --hint-text-color: #aaa;
-  --accent-color: #57A700;
-  --dark-accent-color: #2B5300;
-  --light-accent-color: #BCED85;
-  --bright-accent-color: #7ED321;
+  --accent-color: royalblue;
+  --dark-accent-color: #444;
+  --light-accent-color: aliceblue;
+  --bright-accent-color: lightskyblue;
   --default-bg-color: #cfb;
   --cancel-bg-color: #ffb;
-  --selection-color: rgba(128,255,0,0.75);
-  --focus-color: rgba(64,255,0,0.5);
-  --pullquote-bg-color: #efe;
+  --selection-color: rgba(255,0,128,0.5);
+  --focus-color: #FF6A5C;
+  --pullquote-bg-color: aliceblue;
   --black-10: rgba(0,0,0,0.1);
   --black-20: rgba(0,0,0,0.2);
   --black-40: rgba(0,0,0,0.4);
@@ -76,7 +76,10 @@ h4 { margin-top: 16px; font-size: 24px; }
 h5 { margin-top: 8px; font-size: 18px; }
 h6 { font-size: 14px; }
 
-h1, h2, h3, h4, h5, h6, b, strong, .b8r-color, summary {
+h1, .b8r-color {
+  color: var(--bright-accent-color);
+}
+h2, h3, h4, h5, h6, b, strong, summary {
   color: var(--accent-color);
 }
 
@@ -291,7 +294,6 @@ fieldset {
 }
 
 :focus, :focus+.focus-follower {
-  box-shadow: 0 0 0 4px var(--focus-color);
   outline: none;
 }
 
@@ -347,7 +349,6 @@ pre > code {
 }
 
 ::selection {
-  color: black;
   background: var(--selection-color);
 }
 
