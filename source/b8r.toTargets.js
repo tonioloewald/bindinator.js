@@ -404,7 +404,7 @@ module.exports = function(b8r) {
           if (element.value !== undefined) {
             element.value = value;
             // <select> element will not take value if no matching option exists
-            if (value && !element.value) {
+            if (value && ! element.value) {
               element.dataset.pendingValue = JSON.stringify(value);
               // console.warn('set value deferred', element, value);
             } else if (element.dataset.pendingValue) {

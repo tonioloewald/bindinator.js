@@ -538,6 +538,9 @@ function bindList(list_template, data_path) {
     if (resolve_bindings) resolveListInstanceBindings(instance, itemPath);
     previous_instance = instance;
   });
+  // for <select> elements and components whose possible values may be dictated by their children
+  // we trigger a 'change' event in the parent element.
+  b8r.trigger('change', list_template.parentElement);
   b8r.hide(list_template);
 }
 
