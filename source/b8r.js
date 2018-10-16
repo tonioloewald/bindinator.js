@@ -357,25 +357,6 @@ const { show, hide } = require('./b8r.show.js');
 b8r.show = show;
 b8r.hide = hide;
 
-function removeListInstances(element) {
-  while (element.previousSibling &&
-         (!element.previousSibling.matches ||
-          element.previousSibling.matches('[data-list-instance]'))) {
-    element.parentElement.removeChild(element.previousSibling);
-  }
-}
-
-b8r.listInstances = list_template => {
-  const instances = [];
-  let instance = list_template.previousSibling;
-  while (instance && instance instanceof Element &&
-         instance.matches('[data-list-instance]')) {
-    instances.push(instance);
-    instance = instance.previousSibling;
-  }
-  return instances.reverse();
-};
-
 const forEachItemIn = (obj, id_path, func) => {
   if (Array.isArray(obj)) {
     for (let i = obj.length - 1; i >= 0; i--) {
@@ -476,26 +457,11 @@ function bindList(list_template, data_path) {
   }
 
   b8r.show(list_template);
-  if (!id_path) {
-    removeListInstances(list_template);
-  }
   // efficient list update:
   // if we have an id_path we grab existing instances, and re-use those with
   // matching ids
-  const existing_list_instances = id_path ? b8r.listInstances(list_template) : [];
-  const path_to_instance_map = {};
-  if (existing_list_instances.length) {
-    existing_list_instances.
-    forEach(instance => {
-      const path = instance.dataset.listInstance;
-      const item = instance._b8r_listInstance;
-      if (item && list.includes(item)) {
-        path_to_instance_map[path] = instance;
-      } else {
-        instance.remove();
-      }
-    });
-  }
+  const existing_list_instances = list_template._b8r_listInstances || {};
+  const list_instances = list_template._b8r_listInstances = {};
 
   const template = list_template.cloneNode(true);
   template.classList.remove('-b8r-empty-list');
@@ -520,24 +486,25 @@ function bindList(list_template, data_path) {
     }
     ids[id] = true;
     const itemPath = `${list_path}[${id}]`;
-    instance = path_to_instance_map[itemPath];
+    instance = existing_list_instances[itemPath];
     let resolve_bindings = false;
     if (instance === undefined) {
       instance = template.cloneNode(true);
       instance.dataset.listInstance = itemPath;
       instance._b8r_listInstance = item;
-      resolve_bindings = true;
       list_template.parentElement.insertBefore(instance, previous_instance);
+      b8r.bindAll(instance);
+      resolveListInstanceBindings(instance, itemPath);
     } else {
-      delete path_to_instance_map[itemPath];
+      delete existing_list_instances[itemPath];
       if (instance.nextSibling !== previous_instance) {
         list_template.parentElement.insertBefore(instance, previous_instance);
       }
     }
-    b8r.bindAll(instance);
-    if (resolve_bindings) resolveListInstanceBindings(instance, itemPath);
+    list_instances[itemPath] = instance;
     previous_instance = instance;
   });
+  b8r.forEachKey(existing_list_instances, elt => elt.remove());
   // for <select> elements and components whose possible values may be dictated by their children
   // we trigger a 'change' event in the parent element.
   b8r.trigger('change', list_template.parentElement);
