@@ -41,6 +41,10 @@ Just like filter except it modifies the array in place (using splice).
 
 Returns a list of keys whose corresponding values pass the test.
 
+    filterObject(object, (value, key) => {});
+
+Filters an object in place (deletes keys that don't pass a the lest).
+
     findValue(object, predicateMethod) // => returns first value that passes
 predicateMethod
 
@@ -105,7 +109,7 @@ Test(() => {
 const makeArray = arrayish => [...arrayish];
 
 const forEach = (array, method) => {
-  for (var i = 0; i < array.length; i++) {
+  for (let i = 0; i < array.length; i++) {
     if (method(array[i]) === false) {
       break;
     }
@@ -115,36 +119,28 @@ const forEach = (array, method) => {
 const last = array => array.length ? array[array.length - 1] : null;
 
 const forEachKey = (object, method) => {
-  var key;
-  for (var i = 0, keys = Object.keys(object); i < keys.length; i++) {
-    key = keys[i];
-    if (method(object[key], key) === false) {
-      break;
-    }
-  }
+  const keys = Object.keys(object);
+  for (const key of keys) if (method(object[key], key) === false) break;
 };
 
 const mapKeys = (object, method) => {
+  const keys = Object.keys(object);
   const map = [];
-  forEachKey(object, (val, key) => map.push(method(val, key)));
+  for (const key of keys) map.push(method(object[key], key));
   return map;
 };
 
 const mapEachKey = (object, method) => {
+  const keys = Object.keys(object);
   const map = {};
-  forEachKey(object, (val, key) => map[key] = method(val, key));
+  for (const key of keys) map[key] = method(object[key], key);
   return map;
 };
 
 const findKey = (object, test) => {
-  var foundKey = null;
-  forEachKey(object, (val, key) => {
-    if (test(val)) {
-      foundKey = key;
-      return false;
-    }
-  });
-  return foundKey;
+  const keys = Object.keys(object);
+  for(const key of keys) if (test(object[key], key)) return key;
+  return null;
 };
 
 const findValue = (object, test) => {
@@ -153,31 +149,21 @@ const findValue = (object, test) => {
 };
 
 const filter = (list, test) => {
-  for(let i = list.length - 1; i >= 0; i--) {
-    if (! test(list[i])) {
-      list.splice(i, 1);
-    }
-  }
+  for(let i = list.length - 1; i >= 0; i--) if (! test(list[i])) list.splice(i, 1);
+  return list;
 };
 
 const filterKeys = (object, test) => {
-  var filtered = [];
-  forEachKey(object, (val, key) => {
-    if (test(val)) {
-      filtered.push(key);
-    }
-  });
+  const keys = Object.keys(object);
+  let filtered = [];
+  for(const key of keys) if (test(object[key], key)) filtered.push(key);
   return filtered;
 };
 
 const filterObject = (object, test) => {
-  var filtered = {};
-  forEachKey(object, (val, key) => {
-    if (test(val, key)) {
-      filtered[key] = val;
-    }
-  });
-  return filtered;
+  const keys = Object.keys(object);
+  for(const key of keys) if (! test(object[key], key)) delete object[key];
+  return object;
 };
 
 const assignValues = (object, ancestor) => {
