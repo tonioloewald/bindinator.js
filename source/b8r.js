@@ -476,6 +476,7 @@ function bindList(list_template, data_path) {
 
   let previous_instance = list_template;
   let instance;
+  let list_content_changed = false;
 
   const ids = {};
   list_template.classList.toggle('-b8r-empty-list', ! list.length);
@@ -487,8 +488,8 @@ function bindList(list_template, data_path) {
     ids[id] = true;
     const itemPath = `${list_path}[${id}]`;
     instance = existing_list_instances[itemPath];
-    let resolve_bindings = false;
     if (instance === undefined) {
+      list_content_changed = true;
       instance = template.cloneNode(true);
       instance.dataset.listInstance = itemPath;
       instance._b8r_listInstance = item;
@@ -504,10 +505,13 @@ function bindList(list_template, data_path) {
     list_instances[itemPath] = instance;
     previous_instance = instance;
   });
-  b8r.forEachKey(existing_list_instances, elt => elt.remove());
+  b8r.forEachKey(existing_list_instances, elt => {
+    list_content_changed = true;
+    elt.remove();
+  });
   // for <select> elements and components whose possible values may be dictated by their children
   // we trigger a 'change' event in the parent element.
-  b8r.trigger('change', list_template.parentElement);
+  if (list_content_changed) b8r.trigger('change', list_template.parentElement);
   b8r.hide(list_template);
 }
 
