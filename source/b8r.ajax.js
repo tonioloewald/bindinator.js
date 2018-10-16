@@ -16,7 +16,7 @@ These methods generate promises of the specified response. Usage:
 Also note that these methods are folded into b8r by default, so available as
 b8r.ajax, etc.
 */
-/* global require, module, console */
+/* global module, console */
 
 'use strict';
 
