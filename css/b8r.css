@@ -345,7 +345,7 @@ pre > code {
 
 [data-component] {
   opacity: 0;
-  display: none !important;
+  visibility: hidden !important;
 }
 
 ::selection {

@@ -1,6 +1,6 @@
 <div class="info"></div>
 <div class="example"></div>
-<div>
+<div class="hidden">
   <pre>
     <code style="font-size: 12px; white-space: pre-wrap;" class="language-markup"></code>
   </pre>
@@ -26,6 +26,7 @@
       md(info, docs_md);
     }
     code.textContent = source.replace(/\t/g, '  ');
+    code.closest('.hidden').classList.remove('hidden');
 
     require.lazy('https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js').
     then(Prism => {
