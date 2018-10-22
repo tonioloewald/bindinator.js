@@ -135,6 +135,8 @@ b8r.force_update = () => {
     if (binds) binds.forEach(({elt, dirty}) => dirty && bind(elt));
   }
 
+  b8r.cleanupComponentInstances();
+
   _after_update();
 };
 
@@ -519,7 +521,6 @@ b8r.bindAll = (element, data_path) => {
   loadAvailableComponents(element, data_path);
   findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, data_path));
-  b8r.cleanupComponentInstances();
 };
 
 require('./b8r._b8r_.js')(b8r);
