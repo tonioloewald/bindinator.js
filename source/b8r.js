@@ -496,8 +496,8 @@ function bindList(list_template, data_path) {
       instance.dataset.listInstance = itemPath;
       instance._b8r_listInstance = item;
       list_template.parentElement.insertBefore(instance, previous_instance);
-      b8r.bindAll(instance);
       resolveListInstanceBindings(instance, itemPath);
+      b8r.bindAll(instance);
     } else {
       delete existing_list_instances[itemPath];
       if (instance.nextSibling !== previous_instance) {
