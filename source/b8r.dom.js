@@ -27,6 +27,43 @@ returns true if the element is in the document (versus "virtual")
 
 returns true if the element is not hidden by virtue of having its `display` set to 'none'
 
+    isInView(element [, view]);
+
+returns true if the element is within the bounds of a specified view (or the window)
+
+    rectsOverlap(r, s);
+
+returns true if two rectangles (per `element.getBoundingClientRect()`) overlap. This is used
+by isInView, but is also useful if you need to check a lot of rect intersections and
+minimize calls to `getBoundingClientRect` (which isn't cheap). Note that it uses `width` and
+`height` versus `right` and `bottom` because for some clipped elements (such as document.body in
+many cases) these will not agree.
+
+~~~~
+div = b8r.create('div');
+div.style.position = 'absolute';
+div.style.top = '-200px';
+div.style.left = 0;
+div.style.width = '100px';
+div.style.height = '100px';
+document.body.appendChild(div);
+Test(() => b8r.isInView(div), 'div is above clipping region').shouldBe(false);
+div.style.top = 0;
+Test(() => b8r.isInView(div), 'div is top-left of clipping region').shouldBe(true);
+div.style.top = '99999px';
+Test(() => b8r.isInView(div), 'div is waaaay below clipping region').shouldBe(false);
+div.remove();
+const r = {left: 0, top: 0, width: 100, height: 100};
+const s = {left: 0, top: 0, width: 100, height: 100};
+Test(() => b8r.rectsOverlap(r,s), 'identical').shouldBe(true);
+r.left = 90;
+Test(() => b8r.rectsOverlap(r,s), 'offset but overlapping').shouldBe(true);
+s.top = 101;
+Test(() => b8r.rectsOverlap(r,s), 'second is below').shouldBe(false);
+s.top = 0;
+s.left = -101;
+Test(() => b8r.rectsOverlap(r,s), 'second is above').shouldBe(false);
+~~~~
     id(id_string)
 
 document.getElementById(id_string)
@@ -49,18 +86,20 @@ takes a map of class names to booleans and adds / removes those classes accordin
 
     styles(element, map);
 
-takes a map of style settings to values and sets those styles accordingly.
+takes a map of style settings to values and sets those styles accordingly. Note that you'll
+need to camelcase hypenated settings, so 'font-family' becomes `fontFamily`.
 
     cssVar(name); // obtains the value of a :root css-variable.
     cssVar(name, value); // sets the value of a :root css-variable.
 
-`cssVar` allows you to manipulate css-variables.
+`cssVar` allows you to access and modify css-variables -- really nice for creating themes or
+pushing computed dimensions (e.g. based on window size) through your CSS.
 
     create(tagName)
 
 document.createElement(tagName)
 
-     succeeding(element, selector);
+    succeeding(element, selector);
 
 next sibling matching selector
 
@@ -171,6 +210,23 @@ const {makeArray, forEachKey} = require('./b8r.iterators.js');
 const isVisible = (element, include_parents) => element &&
   getComputedStyle(element).display !== 'none' &&
   ((! include_parents) || element === document.body || isVisible(element.parentElement, true));
+
+const isInView = (element, view) => {
+  if (! element || ! isVisible(element, true)) {
+    return false;
+  }
+  const r = element.getBoundingClientRect();
+  const s = view ? view.getBoundingClientRect()
+                 : {left: 0, top: 0, width: window.innerWidth, height: window.innerHeight};
+  return rectsOverlap(r, s);
+};
+
+const rectsOverlap = (r, s) => ! (
+                                 r.top > s.top + s.height ||
+                                 r.top + r.height < s.top ||
+                                 r.left > s.left + s.width ||
+                                 r.left + r.width < s.left
+                               );
 
 module.exports = {
   find: selector => makeArray(document.querySelectorAll(selector)),
@@ -286,6 +342,8 @@ module.exports = {
     );
   },
   isVisible,
+  isInView,
+  rectsOverlap,
   isInBody: element => element && document.body.contains(element),
   cssVar: (name, value) => {
     if (value === undefined) {
