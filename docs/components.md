@@ -28,7 +28,7 @@ A component is saved as a single text file using the naming convention `componen
 ## Life Cycle
 
 You load a component *asynchronously* using `b8r.component('path/to/name-of-component')`. This returns a
-*promise* which of the component. Once the component is loaded, `b8r` will automatically
+*promise* of the component. Once the component is loaded, `b8r` will automatically
 insert an instance of the component into every element that has been given the attribute
 `data-component="name-of-component"`.
 
