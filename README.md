@@ -22,7 +22,7 @@ Don't tell the left hand what the right hand is doing.
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors*
 implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
-With `b8r`, you can **bind data-paths to the DOM** using the `data-bind` attribute:
+With `b8r`, you can **bind javascript objects to the DOM** using the `data-bind` attribute:
 
 <div data-component="fiddle" data-path="drumpf"></div>
 
