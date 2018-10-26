@@ -56,6 +56,23 @@ right-hand-side of data-bind bindings. E.g.
 
     data-bind="text=${message.sender.lastname}, ${message.sender.firstname}"
 
+These aren't true ES6 interpolated strings (you can't just stick code in them)
+because one of b8r's design goals is not to create new places to hide complex
+code. If you want complexity, put it in your code.
+
+**But** there is one thing you can do with b8r's interpolated strings you can't
+do in regular javascript, which is nest references, e.g.
+
+    data-bind="text=hello ${path.to.list[id=${path.to.user.id}].name}"
+
+`b8r.interplate` will perform substitutions from the inside out (so inner
+references are resolved first).
+
+Note that once you have any interpolated value in the right-hand-side of a data-bind
+then the whole thing is interpolated, so **this will not work**:
+
+    data-bind="text=path.to.list[id=${path.to.user.id}].name" // will render "path.to.list[id=17]"
+
 ```
 <h2 data-bind="text=_component_.message"></h2>
 <script>

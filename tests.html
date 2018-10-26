@@ -54,6 +54,10 @@
           <div class="child" data-list="test1.sort(.children):name" data-bind="text=.name"></div>
         </div>
       </div>
+
+      <h3>Interpolated Strings</h3>
+      <div id="intepolated-1" data-bind="text=hello ${test1.complex_list[id=-3].foo.bar}!"></div>
+      <div id="intepolated-2" data-bind="text=hello ${test1.complex_list[id=${test1.buried.id}].foo.bar}!"></div>
     </div>
     <div>
       <select data-bind="value=test1.option">
@@ -121,6 +125,7 @@
   */
     var obj = {
       base: 17,
+      buried: { id: -3 },
       sub: {
         list: [1,2,3],
         prop: 'hello'
@@ -185,6 +190,12 @@
     Test(() => b8r.id('complex-list').querySelectorAll('li')[1].textContent, 'explicitly setting data-path for component').shouldBe('lurman');
     Test(() => b8r.id('indirect-bind').textContent, 'indirect binding via data_path toTarget').shouldBe('baz');
 
+    // interpolated strings
+    Test(() => b8r.id('intepolated-1').textContent, 'interpolated RHS value').shouldBe('hello baz!');
+    Test(() => b8r.id('intepolated-2').textContent, 'nested interpolated RHS value').shouldBe('hello baz!');
+    b8r.set('test1.buried.id', 42);
+    b8r.force_update();
+    Test(() => b8r.id('intepolated-2').textContent, 'dynamically updated nested interpolated RHS value').shouldBe('hello lurman!');
 
     b8r.register('test2', {color: 'green'});
     b8r.force_update();

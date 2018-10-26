@@ -307,12 +307,15 @@ const toTargets = require('./b8r.toTargets.js')(b8r);
 b8r.onAny(['change', 'input'], '_b8r_._update_');
 
 b8r.interpolate = (template, elt) => {
-  let formatted = '';
-  if (template.match(/\$\{.*?\}/)) {
-    formatted = template.replace(/\$\{(.*?)\}/g, (_, path) => {
-      const value = b8r.get(path, elt);
-      return value !== null ? value : '';
-    });
+  let formatted;
+  if (template.match(/\$\{[^{]*?\}/)) {
+    formatted = template;
+    do {
+      formatted = formatted.replace(/\$\{([^{]*?)\}/g, (_, path) => {
+        const value = b8r.get(path, elt);
+        return value !== null ? value : '';
+      });
+    } while (formatted.match(/\$\{[^{]*?\}/));
   } else {
     const paths = splitPaths(template);
     if (paths.indexOf('') > -1) {
@@ -327,7 +330,6 @@ b8r.interpolate = (template, elt) => {
 };
 
 const _unequal = (a, b) => (a !== b) || (a && typeof a === 'object');
-
 
 function bind(element) {
   if (element.closest('[data-component],[data-list]')) {
