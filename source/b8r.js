@@ -14,8 +14,8 @@ implement some kind of virtual machine to replace it.
 - [Binding Data](#source=source/b8r.bindings.js)
   - [toTargets](#source=source/b8r.toTargets.js)
   - [fromTargets](#source=source/b8r.fromTargets.js)
-  - [keystroke](#source=source/b8r.keystroke.js)
 - [Events](#source=source/b8r.events.js)
+  - [keystroke](#source=source/b8r.keystroke.js)
 - [Components](#source=source/b8r.component.js)
 
 ## Utilities
