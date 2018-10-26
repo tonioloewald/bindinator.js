@@ -2,7 +2,7 @@
 
 :root {
   --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
-  --bg-color: #CCDFCB;
+  --bg-color: aliceblue;
   --content-bg-color: white;
   --text-color: #222;
   --dark-text-color: #ddd;
