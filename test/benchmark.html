@@ -1,63 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>Benchmark</title>
-  <script src="../lib/require.js"></script>
+    <meta charset="utf-8"/>
+    <title>Benchmark</title>
+    <script src="../lib/require.js"></script>
 </head>
 <body>
 <div id='main'>
-  <div class="container">
-    <div class="jumbotron">
-      <div class="row">
-        <div class="col-md-6">
-          <h1>b8r</h1>
-          <p>
-            <a href="benchmark.html">b8r</a> |
-            <a href="benchmark-vanillajs.html">vanillajs</a>
-          </p>
+    <div class="container">
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>b8r</h1>
+                    <p>
+                        <a href="benchmark.html">b8r</a> |
+                        <a href="benchmark-vanillajs.html">vanillajs</a>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-sm-6 smallpad">
+                            <button data-event="click:benchmark.create">Create 1,000 rows</button>
+                        </div>
+                        <div class="col-sm-6 smallpad">
+                            <button data-event="click:benchmark.create10k">Create 10,000 rows</button>
+                        </div>
+                        <div class="col-sm-6 smallpad">
+                            <button data-event="click:benchmark.append">Append 1,000 rows</button>
+                        </div>
+                        <div class="col-sm-6 smallpad">
+                            <button data-event="click:benchmark.update">Update every 10th row</button>
+                        </div>
+                        <div class="col-sm-6 smallpad">
+                            <button data-event="click:benchmark.clear">Clear</button>
+                        </div>
+                        <div class="col-sm-6 smallpad">
+                            <button data-event="click:benchmark.swap">Swap Rows 4 and 7</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-          <div class="row">
-            <div class="col-sm-6 smallpad">
-              <button data-event="click:benchmark.create">Create 1,000 rows</button>
-            </div>
-            <div class="col-sm-6 smallpad">
-              <button data-event="click:benchmark.create10k">Create 10,000 rows</button>
-            </div>
-            <div class="col-sm-6 smallpad">
-              <button data-event="click:benchmark.append">Append 1,000 rows</button>
-            </div>
-            <div class="col-sm-6 smallpad">
-              <button data-event="click:benchmark.update">Update every 10th row</button>
-            </div>
-            <div class="col-sm-6 smallpad">
-              <button data-event="click:benchmark.clear">Clear</button>
-            </div>
-            <div class="col-sm-6 smallpad">
-              <button data-event="click:benchmark.swap">Swap Rows 4 and 7</button>
-            </div>
-          </div>
-        </div>
-      </div>
+        <table class="table table-hover table-striped test-data">
+            <tbody id="tbody">
+                <tr data-list="benchmark.data:id">
+                    <td class="col-md-1" data-bind="text=.id">1</td>
+                    <td class="col-md-4">
+                    <a class="lbl" data-bind="text=.label">clean blue chair</a></td>
+                    <td class="col-md-1"><a class="remove"><span class="glyphicon glyphicon-remove remove" aria-hidden="true"></span></a></td>
+                    <td class="col-md-6"></td>
+                </tr>
+            </tbody>
+        </table>
+        <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
     </div>
-    <table class="table table-hover table-striped test-data">
-      <tbody id="tbody">
-        <tr class="-b8r-update-if-on-screen" data-list="benchmark.data:id">
-          <td class="col-md-1" data-bind="text=.id">1</td>
-          <td class="col-md-4">
-          <a class="lbl" data-bind="text=.label">clean blue chair</a></td>
-          <td class="col-md-1">
-            <a class="remove">
-              <span class="glyphicon glyphicon-remove remove" aria-hidden="true"></span>
-            </a>
-          </td>
-          <td class="col-md-6"></td>
-        </tr>
-      </tbody>
-    </table>
-    <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
-  </div>
 </div>
 <script>
 /* global require */
@@ -72,122 +68,122 @@ var lastMeasure;
 
 
 function _random(max) {
-  return Math.round(Math.random()*1000)%max;
+    return Math.round(Math.random()*1000)%max;
 }
 
 class Store {
-  constructor() {
-    this.data = [];
-    this.backup = null;
-    this.selected = null;
-    this.id = 1;
-  }
-  buildData(count = 1000) {
-    var adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"];
-    var colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"];
-    var nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
-    var data = [];
-    for (var i = 0; i < count; i++)
-      data.push({id: this.id++, label: adjectives[_random(adjectives.length)] + " " + colours[_random(colours.length)] + " " + nouns[_random(nouns.length)] });
-    return data;
-  }
-  updateData(mod = 10) {
-    for (let i=0;i<this.data.length;i+=10) {
-      this.data[i].label += ' !!!';
-      // this.data[i] = Object.assign({}, this.data[i], {label: this.data[i].label +' !!!'});
+    constructor() {
+        this.data = [];
+        this.backup = null;
+        this.selected = null;
+        this.id = 1;
     }
-  }
-  delete(id) {
-    const idx = this.data.findIndex(d => d.id==id);
-    this.data = this.data.filter((e,i) => i!=idx);
-    return this;
-  }
-  run() {
-    this.data = this.buildData();
-    this.selected = null;
-  }
-  add() {
-    this.data = this.data.concat(this.buildData(1000));
-    this.selected = null;
-  }
-  update() {
-    this.updateData();
-    this.selected = null;
-  }
-  select(id) {
-    this.selected = id;
-  }
-  hideAll() {
-    this.backup = this.data;
-    this.data = [];
-    this.selected = null;
-  }
-  showAll() {
-    this.data = this.backup;
-    this.backup = null;
-    this.selected = null;
-  }
-  runLots() {
-    this.data = this.buildData(10000);
-    this.selected = null;
-  }
-  clear() {
-    this.data = [];
-    this.selected = null;
-  }
-  swapRows() {
-    if(this.data.length > 10) {
-      var a = this.data[4];
-      this.data[4] = this.data[7];
-      this.data[7] = a;
+    buildData(count = 1000) {
+        var adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"];
+        var colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"];
+        var nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
+        var data = [];
+        for (var i = 0; i < count; i++)
+            data.push({id: this.id++, label: adjectives[_random(adjectives.length)] + " " + colours[_random(colours.length)] + " " + nouns[_random(nouns.length)] });
+        return data;
     }
-  }
+    updateData(mod = 10) {
+        for (let i=0;i<this.data.length;i+=10) {
+            this.data[i].label += ' !!!';
+            // this.data[i] = Object.assign({}, this.data[i], {label: this.data[i].label +' !!!'});
+        }
+    }
+    delete(id) {
+        const idx = this.data.findIndex(d => d.id==id);
+        this.data = this.data.filter((e,i) => i!=idx);
+        return this;
+    }
+    run() {
+        this.data = this.buildData();
+        this.selected = null;
+    }
+    add() {
+        this.data = this.data.concat(this.buildData(1000));
+        this.selected = null;
+    }
+    update() {
+        this.updateData();
+        this.selected = null;
+    }
+    select(id) {
+        this.selected = id;
+    }
+    hideAll() {
+        this.backup = this.data;
+        this.data = [];
+        this.selected = null;
+    }
+    showAll() {
+        this.data = this.backup;
+        this.backup = null;
+        this.selected = null;
+    }
+    runLots() {
+        this.data = this.buildData(10000);
+        this.selected = null;
+    }
+    clear() {
+        this.data = [];
+        this.selected = null;
+    }
+    swapRows() {
+        if(this.data.length > 10) {
+            var a = this.data[4];
+            this.data[4] = this.data[7];
+            this.data[7] = a;
+        }
+    }
 }
 
 const store = new Store();
 b8r.register('benchmark', {
-  data: [],
-  create: () => {
-    console.time('create');
-    b8r.set('benchmark.data', store.buildData(1000));
-    b8r.after_update(() => console.timeEnd('create'));
-  },
-  create10k:  () => {
-    console.time('create 10k');
-    b8r.set('benchmark.data', store.buildData(10000));
-    b8r.after_update(() => console.timeEnd('create 10k'));
-  },
-  append: () => {
-    console.time('append');
-    b8r.set('benchmark.data', b8r.get('benchmark.data').concat(store.buildData(1000)));
-    b8r.after_update(() => console.timeEnd('append'));
-  },
-  update:  () => {
-    console.time('update');
-    const data = b8r.get(`benchmark.data`);
-    for (var i = 0; i < data.length; i += 10) {
-      data[i].label += ' !!!';
-    }
-    b8r.set('benchmark.data', data);
-    b8r.after_update(() => console.timeEnd('update'));
-  },
-  clear: () => {
-    console.time('clear');
-    store.clear();
-    b8r.set('benchmark.data', store.data);
-    b8r.after_update(() => console.timeEnd('clear'));
-  },
-  swap: () => {
-    console.time('swap');
-    if (b8r.get('benchmark.data.length') > 10) {
-      const data = b8r.get('benchmark.data');
-      let row = data[4];
-      data[4] = data[7];
-      data[7] = row;
-      b8r.touch(`benchmark.data`);
-    }
-    b8r.after_update(() => console.timeEnd('swap'));
-  },
+    data: [],
+    create: () => {
+        console.time('create');
+        b8r.set('benchmark.data', store.buildData(1000));
+        b8r.after_update(() => console.timeEnd('create'));
+    },
+    create10k:  () => {
+        console.time('create 10k');
+        b8r.set('benchmark.data', store.buildData(10000));
+        b8r.after_update(() => console.timeEnd('create 10k'));
+    },
+    append: () => {
+        console.time('append');
+        b8r.set('benchmark.data', b8r.get('benchmark.data').concat(store.buildData(1000)));
+        b8r.after_update(() => console.timeEnd('append'));
+    },
+    update:  () => {
+        console.time('update');
+        const data = b8r.get(`benchmark.data`);
+        for (var i = 0; i < data.length; i += 10) {
+            data[i].label += ' !!!';
+        }
+        b8r.set('benchmark.data', data);
+        b8r.after_update(() => console.timeEnd('update'));
+    },
+    clear: () => {
+        console.time('clear');
+        store.clear();
+        b8r.set('benchmark.data', store.data);
+        b8r.after_update(() => console.timeEnd('clear'));
+    },
+    swap: () => {
+        console.time('swap');
+        if (b8r.get('benchmark.data.length') > 10) {
+            const data = b8r.get('benchmark.data');
+            let row = data[4];
+            data[4] = data[7];
+            data[7] = row;
+            b8r.touch(`benchmark.data`);
+        }
+        b8r.after_update(() => console.timeEnd('swap'));
+    },
 });
 
 });

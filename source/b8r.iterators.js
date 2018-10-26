@@ -32,7 +32,7 @@ from an array.
 
 Like findIndex for arrays, but returns key instead.
 
-    filter(array, value => ... test conditions ...); // filters array in place
+    filterInPlace(array, value => ... test conditions ...); // filters array in place
 
 Just like filter except it modifies the array in place (using splice).
 
@@ -43,7 +43,11 @@ Returns a list of keys whose corresponding values pass the test.
 
     filterObject(object, (value, key) => {});
 
-Filters an object in place (deletes keys that don't pass a the lest).
+Returns an filtered version of object whose key:value pairs passed the test.
+
+    filterObjectInPlace(object, (value, key) => {});
+
+Removes keys from object if they do not pass a test.
 
     findValue(object, predicateMethod) // => returns first value that passes
 predicateMethod
@@ -81,7 +85,7 @@ Test(() => {
 }).shouldBe('b');
 Test(() => {
   const a = [1,2,3,4,5,6,7,8,9];
-  b8r.filter(a, x => x % 2 && x % 3);
+  b8r.filterInPlace(a, x => x % 2 && x % 3);
   return a;
 }).shouldBeJSON([1,5,7]);
 Test(() => {
@@ -100,6 +104,16 @@ Test(() => {
   const obj = {a: 10, b: 12, c: 5};
   return JSON.stringify(b8r.filterObject(obj, (val, key) => ['b', 'c'].includes(key)));
 }).shouldBe('{"b":12,"c":5}');
+Test(() => {
+  const obj = {a: 10, b: 12, c: 5};
+  b8r.filterObjectInPlace(obj, val => val % 5 === 0);
+  return JSON.stringify(obj);
+}).shouldBe('{"a":10,"c":5}');
+Test(() => {
+  const obj = {a: 10, b: 12, c: 5};
+  b8r.filterObjectInPlace(obj, (val, key) => ['b', 'c'].includes(key));
+  return JSON.stringify(obj);
+}).shouldBe('{"b":12,"c":5}');
 ~~~~
 */
 /* global module */
@@ -110,7 +124,7 @@ const makeArray = arrayish => [...arrayish];
 
 const forEach = (array, method) => {
   for (let i = 0; i < array.length; i++) {
-    if (method(array[i]) === false) {
+    if (method(array[i], i) === false) {
       break;
     }
   }
@@ -148,22 +162,29 @@ const findValue = (object, test) => {
   return key ? object[key] : null;
 };
 
-const filter = (list, test) => {
-  for(let i = list.length - 1; i >= 0; i--) if (! test(list[i])) list.splice(i, 1);
-  return list;
+const filterInPlace = (list, test) => {
+  for(let i = list.length - 1; i >= 0; i--) {
+    if (! test(list[i], i)) list.splice(i, 1);
+  }
 };
 
 const filterKeys = (object, test) => {
   const keys = Object.keys(object);
-  let filtered = [];
+  const filtered = [];
   for(const key of keys) if (test(object[key], key)) filtered.push(key);
   return filtered;
 };
 
 const filterObject = (object, test) => {
   const keys = Object.keys(object);
+  const filtered = {};
+  for(const key of keys) if (test(object[key], key)) filtered[key] = object[key];
+  return filtered;
+};
+
+const filterObjectInPlace = (object, test) => {
+  const keys = Object.keys(object);
   for(const key of keys) if (! test(object[key], key)) delete object[key];
-  return object;
 };
 
 const assignValues = (object, ancestor) => {
@@ -188,8 +209,9 @@ module.exports = {
   mapEachKey,
   findKey,
   findValue,
-  filter,
+  filterInPlace,
   filterKeys,
   filterObject,
+  filterObjectInPlace,
   assignValues,
 };
