@@ -8,7 +8,6 @@
 
 [bindinator.com](http://bindinator.com/) |
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
-[Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
 ## The lazy JavaScript framework.
