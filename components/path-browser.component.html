@@ -28,7 +28,7 @@ A tool for browsing objects.
 -->
 <ul>
   <li
-    data-list="_component_.description(_component_.list,_component_.value)"
+    data-list="_component_.description(_component_.list,_component_.value):id"
     data-event="click:_component_.drill"
     data-bind="attr(path)=.path"
   >
@@ -40,11 +40,12 @@ A tool for browsing objects.
 /* global require, component, b8r, get, set, data, touch */
 'use strict';
 
+  const uuid = require('../lib/uuid.js');
   const reset = path => {
     set({
       value: path,
       history: [], // {path}
-      list: []
+      list: [],
     });
   };
 
@@ -78,14 +79,13 @@ A tool for browsing objects.
     reset,
 
     description: (list, path) => {
+      list.splice(0);
       if (!path) { // jshint ignore:line
         return [];
       }
       const obj = b8r.get(path);
 
-      console.log(path, obj);
-
-      if (! get(`history[path=${path}]`)) {
+      if (! get('history').find(item => item.path === path)) {
         get('history').push({path});
         touch('history');
       }
@@ -94,28 +94,25 @@ A tool for browsing objects.
         return [];
       }
 
-      list.splice(0);
       if (Array.isArray(obj)) {
         for (let i = 0; i < obj.length; i++) {
-          list.push({key: `[${i}]`, val: describe(obj[i]), path: `${path}[${i}]`});
+          list.push({id: uuid(), key: `[${i}]`, val: describe(obj[i]), path: `${path}[${i}]`});
         }
       } else if (obj && typeof obj === 'object') {
         for(let i = 0, keys = Object.keys(obj); i < keys.length; i++) {
           const key = keys[i];
-          list.push({key, val: describe(obj[key]), path: path && path !== '/' ? `${path}.${key}` : key});
+          list.push({id: uuid(), key, val: describe(obj[key]), path: path && path !== '/' ? `${path}.${key}` : key});
         }
       } else {
-        list.push({key: typeof obj, val: describe(obj)});
+        list.push({id: uuid(), key: typeof obj, val: describe(obj)});
       }
+
       return list;
     },
 
     drill: evt => {
       const obj = b8r.getListInstance(evt.target);
-      if (obj.path) {
-        set('value', obj.path);
-      }
+      if (obj.path) set('value', obj.path);
     }
   });
-
 </script>
