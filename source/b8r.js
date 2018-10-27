@@ -419,12 +419,12 @@ function bindList(list_template, data_path) {
   if (!list) {
     return;
   }
-  // assign unique ids if no id-path is specified
+  // assign unique ids if _auto_ id-path is specified
   if (id_path === '_auto_') {
     for(let i = 0; i < list.length; i++) {
       if (!list[i]._auto_) {
-        id_count += 1;
-        list[i]._auto_ = id_count;
+        list[i]._auto_ = ++id_count;
+        console.log(id_count, list[i]);
       }
     }
   }
