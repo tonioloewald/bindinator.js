@@ -142,6 +142,24 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     margin-left: 10px;
     padding: 0;
   }
+
+  .loadable {
+    padding: 2px 8px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    margin: 0 -12px;
+    transition: background-color ease-out 0.1s;
+  }
+
+  .loadable:hover {
+    background-color: rgba(255,255,255,0.5);
+  }
+
+  .loadable.current {
+    padding: 3px 8px 3px 4px;
+    margin: -1px -12px -1px -8px;
+    background-color: white;
+  }
 </style>
 <div class="content"></div>
 <div class="nav" data-event="click:details-accordion-controller.click">

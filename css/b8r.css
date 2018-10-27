@@ -123,23 +123,6 @@ h2, h3, h4, h5, h6, b, strong, summary {
   }
 }
 
-.loadable {
-  padding: 2px 8px;
-  margin-bottom: 4px;
-  cursor: pointer;
-  margin: 0 -12px;
-}
-
-.loadable:hover {
-  background-color: var(--bright-accent-color);
-}
-
-.loadable.current {
-  padding: 3px 8px 3px 4px;
-  margin: -1px -12px -1px -8px;
-  background-color: white;
-}
-
 label {
   vertical-align: baseline;
 }
