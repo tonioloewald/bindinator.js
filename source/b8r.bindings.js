@@ -287,6 +287,7 @@ const addDataBinding = (element, toTarget, path) => {
     existing.push(binding);
     element.dataset.bind = existing.join(';');
     require.lazy('./b8r.js').then(b8r => {
+      delete element._b8r_boundValues;
       b8r.bindAll(element);
     });
   }
@@ -305,6 +306,7 @@ const removeDataBinding = (element, toTarget, path) => {
         delete element.dataset.bind;
       }
     }
+    delete element._b8r_boundValues;
   }
 };
 
