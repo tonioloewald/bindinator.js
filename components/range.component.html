@@ -1,0 +1,103 @@
+<!--
+# range
+
+> work in progress
+
+This is a control that lets you pick a range within a range
+-->
+<style>
+  .range-component,
+  .range-extent,
+  .range-start,
+  .range-end {
+    border-radius: 99px;
+  }
+
+  .range-component {
+    width: 256px;
+    background: #ddd;
+    position: relative;
+    height: 24px;
+  }
+
+  .range-extent,
+  .range-start,
+  .range-end {
+    position: absolute;
+    top: 0;
+    cursor: ew-resize;
+    height: 100%;
+  }
+
+
+  .range-extent {
+    background: var(--bright-accent-color);
+    left: 25%;
+    width: 50%;
+  }
+
+  .range-start,
+  .range-end {
+    position: absolute;
+    width: 24px;
+  }
+
+  .range-start:hover,
+  .range-end:hover {
+    background: rgba(0,0,0,0.1);
+  }
+
+  .range-start {
+    left: 0;
+  }
+
+  .range-end {
+    right: 0;
+  }
+</style>
+<span 
+  class="range-extent" 
+  data-bind="
+    style(left)=${_component_.start}%;
+    style(width)=${_component_.extent}%;
+  "
+  data-event="mousedown:_component_.startAdjust"
+>
+  <span class="range-start" data-event="mousedown:_component_.startAdjust"></span>
+  <span class="range-end" data-event="mousedown:_component_.startAdjust"></span>
+</span>
+<script>
+  let adjustment_type, adjustment_min, adjustment_max, initial_mouse_x;
+
+  set({
+    start: 25,
+    extent: 50,
+    startAdjust: (evt, elt) => {
+      initial_mouse_x = evt.pageX;
+      adjustment_type = elt.getAttribute('class').split('-').pop();
+      switch(adjustment_type) {
+        case 'start':
+          adjustment_min = 0;
+          adjustment_max = get('start') + get('extent');
+          break;
+        case 'extent':
+          adjustment_min = 0;
+          adjustment_max = 100 - get('extent');
+          break;
+        case 'end':
+          adjustment_min = 0;
+          adjustment_max = 100 - get('start');
+          break;
+      }
+      b8r.onAny('mousemove', data.component_id + '.adjust');
+      b8r.onAny('mousemove', data.component_id + '.endAdjust');
+    },
+    adjust: evt => {
+      console.log((evt.pageX - initial_mouse_x)/component.offsetWidth);
+    },
+    endAdjust: evt => {
+      b8r.offAny('mousemove', data.component_id + '.adjust');
+      b8r.offAny('mousemove', data.component_id + '.endAdjust');
+    },
+  })
+</script>

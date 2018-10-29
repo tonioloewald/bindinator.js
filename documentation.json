@@ -240,10 +240,6 @@
         "path": "fiddle.component.html"
       },
       {
-        "name": "Kitchen Sink",
-        "path": "kitchen-sink.component.html"
-      },
-      {
         "name": "Big Grid",
         "path": "biggrid-test.component.html"
       },
@@ -296,10 +292,6 @@
         "path": "path-browser.component.html"
       },
       {
-        "name": "Electron File Browser",
-        "path": "electron-file-browser.component.html"
-      },
-      {
         "name": "Grid",
         "path": "grid.component.html"
       },
@@ -338,6 +330,10 @@
       {
         "name": "Timeline",
         "path": "timeline.component.html"
+      },
+      {
+        "name": "Range",
+        "path": "range.component.html"
       }
     ]
   },
@@ -355,10 +351,6 @@
       {
         "name": "Tutorial 3. Complex Component",
         "path": "docs/tutorial-3.js"
-      },
-      {
-        "name": "Components",
-        "path": "docs/components.js"
       }
     ]
   },
@@ -385,6 +377,10 @@
       {
         "name": "Icons",
         "path": "icomoon/demo.html"
+      },
+      {
+        "name": "Kitchen Sink",
+        "path": "kitchen-sink.component.html"
       }
     ]
   },
@@ -441,6 +437,10 @@
         "path": "analog-clock.component.html"
       },
       {
+        "name": "Electron File Browser",
+        "path": "electron-file-browser.component.html"
+      },
+      {
         "name": "RAW Viewer",
         "path": "raw-viewer.component.html"
       },
@@ -459,6 +459,10 @@
       {
         "name": "Unaligned Grid",
         "path": "unaligned-grid.component.html"
+      },
+      {
+        "name": "Peerjs",
+        "path": "peerjs.component.html"
       }
     ]
   }

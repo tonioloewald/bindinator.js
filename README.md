@@ -8,22 +8,36 @@
 
 [bindinator.com](http://bindinator.com/) |
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
-[Demo (rawgit)](https://rawgit.com/tonioloewald/bindinator.js/master/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
 ## The lazy JavaScript framework.
 
-*Laziness drives every design decision in b8r*. Don't learn new mini-languages. Don't learn a
-templating language. Don't do things for the browser that the browser knows how to do (like
-parse HTML). Don't install special debugging tools. Don't add zillions of runtime dependencies.
-Don't tell the left hand what the right hand is doing.
+*Laziness drives every design decision in b8r*. 
 
-### Simple Bindings
+- Get more done with less code.
+- Don't wait for "compiles"
+- Don't learn new mini-languages.
+- Don't learn a templating language.
+- Don't use a special debugger. 
+- Don't tell the left hand what the right hand is doing.
+
+And `b8r` is lazy too.
+
+- Don't do things for the browser that the browser knows how to do (like
+parse HTML).
+- Don't implement a new templating language.
+- Don't implement special debugging tools. 
+- Don't add zillions of runtime dependencies.
+
+### Bind Data to the DOM with `data-bind`
 
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors*
 implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
-With `b8r`, you can **bind data-paths to the DOM** using the `data-bind` attribute:
+With `b8r`, you **bind paths to DOM elements** using the `data-bind` attribute, and 
+you bind **javascript objects to paths** using `b8r.set`, and `b8r` does the rest.
+
+This is all asynchronous. Do it in whatever order makes sense.
 
 <div data-component="fiddle" data-path="drumpf"></div>
 
@@ -47,7 +61,7 @@ Try it in the **console**!
 > global you see is `b8r`'s `require` but I've exposed `b8r` to let you play around. If it
 > weren't exposed you could simply write `b8r = require('path/to/b8r.js')` in the console.
 
-### Simple List Bindings
+### Bind arrays to the DOM with `data-list`
 
 Binding **arrays** is just as simple, using the `data-list` attribute:
 
@@ -67,13 +81,13 @@ b8r.remove('example2.list[id=3]')
 Finally note that a path comprising just a period binds to the entire list item, so if you
 bind to a list of bare strings then `data-bind="text=."` will get the string,
 
-### Automatic Updates
+### Bindings work both ways
 
 Most **updates** are handled automatically:
 
 <div data-component="fiddle" data-path="update"></div>
 
-### Binding Events
+### Bind events to methods with `data-event`
 
 <div data-component="fiddle" data-path="events"></div>
 
@@ -93,25 +107,49 @@ You can load a component using `b8r.component('path/to/example')`. Once
 loaded, it will automatically be inserted where-ever you use `data-component="example"`.
 Components can be nested exactly as you would expect.
 
-### Simple, Powerful Components
+### Add components with `data-component`
 
 A **stateful component** looks like this:
 
 <div data-component="fiddle" data-path="clock"></div>
 
+And to use the preceding component, you'd write something like this:
+
+```
+<div data-component="time"></div>
+...
+b8r.component('path/to/time');
+```
+
 You can build a **To Do List** app like this:
 
 <div data-component="fiddle" data-path="todo"></div>
 
-You can _compose_ components (including nesting them) using `data-component`:
-
 > **Note**: the to-do list component in the preceding example is bound to a global path,
-> as is the on below. So the two share data automatically. This is *not* an accident.
+> as is the one below. So the two share data automatically. This is *not* an accident.
 > If you want a component to have its own unique data, you can bind to `_component_`.
+
+### Composing Components
+
+You can create _composable_ components by using `data-children` inside a component. The element
+inside a component with the `data-children` attribute (if any) will receive the children
+of the element bound to the component.
+
+E.g. in the snippet below:
+
+```
+<div data-component="parent">
+  <div data-component="child"></div>
+</div>
+```
+
+If the `parent` component has an element with the `data-children` attribute, when it loads, the 
+child will be moved into it. In the example below, the `tab-selector` component creates one
+tab for each child.
 
 <div data-component="fiddle" data-path="compose-example"></div>
 
-### Easy Integration
+### `require` just works
 
 You can use third-party libraries easily as well (this example uses `showdown.js` via
 the [text-render.js](#source=lib/text-render.js) library to render markdown.)
@@ -128,11 +166,12 @@ need to use an iframe.
 
 ## In a Nut
 
-- bind data to (and from) the DOM using `data-bind`.
-- bind lists to the DOM using `data-list`.
+- bind paths to DOM elements using `data-bind`.
+- bind paths to objects using `b8r.set()` (or `b8r.register`).
+- access and modify values bound to paths using `b8r.get()` and `b8r.set()`.
+- bind arrays to the DOM using `data-list`.
 - bind events to event handlers using `data-event`.
 - bind components to the DOM using `data-component`.
-- bind data to paths using `b8r.register`, `b8r.set`, and `b8r.get`.
 
 We can register data (*models* and *controllers*) and load components (*views*) asynchronously.
 If the user clicks the button before the controller is registered, the controller method will be
