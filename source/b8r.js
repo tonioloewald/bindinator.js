@@ -424,7 +424,6 @@ function bindList(list_template, data_path) {
     for(let i = 0; i < list.length; i++) {
       if (!list[i]._auto_) {
         list[i]._auto_ = ++id_count;
-        console.log(id_count, list[i]);
       }
     }
   }
