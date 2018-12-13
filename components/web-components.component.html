@@ -1,23 +1,56 @@
 <!--
 # Web Components
 
-This shows b8r working with a simple [web component](https://www.webcomponents.org/).
+This shows b8r working with simple [web components](https://www.webcomponents.org/).
 -->
-<label>
-  <span>Toggle Me</span>
-  <b8r-switch
-    data-bind="value=web-component-demo.toggle"></b8r-switch>
-</label>
-<label>
-  <span>Toggle Me</span>
-  <b8r-switch
-    data-bind="value=web-component-demo.other_toggle"></b8r-switch>
-</label>
+<div>
+  <h2>Bound to Different Paths</h2>
+  <label>
+    <span>Toggle Me</span>
+    <checkbox-switch
+      height="12px"
+      data-bind="
+        value=web-component-demo.toggle;
+        attr(onColor)=web-component-demo.onColor;
+        attr(color)=web-component-demo.offColor;
+      " 
+    />
+  </label>
+  <label>
+    <span>Toggle Me</span>
+    <checkbox-switch data-bind="value=web-component-demo.other_toggle" thumbsize="20px" height="24px" />
+  </label>
+</div>
+<div>
+  <h2>Bound to Same Path</h2>
+  <select-bar data-bind="value=web-component-demo.select">
+    <select-option value="1">This</select-option>
+    <select-option value="2">That</select-option>
+    <select-option value="3">The Other</select-option>
+  </select-bar>
+  <select-bar style="font-size: 24px; border-width: 4px" background="#aaa" data-bind="value=web-component-demo.select">
+    <select-option value="1">This</select-option>
+    <select-option value="2">That</select-option>
+    <select-option value="3">The Other</select-option>
+  </select-bar>
+  <select-pop data-bind="value=web-component-demo.select">
+    <select-option value="1">This</select-option>
+    <select-option value="2">That</select-option>
+    <select-option value="3">The Other</select-option>
+  </select-pop>
+</div>
 <script>
   /* global require, b8r */
   require('../web-components/switch.js');
+  require('../web-components/select.js');
 
   if (! b8r.get('web-component-demo')) {
-    b8r.register('web-component-demo', {toggle: false, other_toggle: true});
+    b8r.register('web-component-demo', {
+      toggle: false, 
+      other_toggle: true,
+      onColor: 'red',
+      offColor: 'pink',
+      select: 2,
+    });
   }
 </script>

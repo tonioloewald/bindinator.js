@@ -36,91 +36,91 @@
     "title": "b8r core",
     "parts": [
       {
-        "name": "(b8r) Bindinator Core",
+        "name": "Bindinator Core",
         "path": "source/b8r.js"
       },
       {
-        "name": "(b8r) ajax",
+        "name": "ajax",
         "path": "source/b8r.ajax.js"
       },
       {
-        "name": "(b8r) bindings",
+        "name": "bindings",
         "path": "source/b8r.bindings.js"
       },
       {
-        "name": "(b8r) binding to dom",
+        "name": "binding to dom",
         "path": "source/b8r.toTargets.js"
       },
       {
-        "name": "(b8r) binding from dom",
+        "name": "binding from dom",
         "path": "source/b8r.fromTargets.js"
       },
       {
-        "name": "(b8r) byPath",
+        "name": "byPath",
         "path": "source/b8r.byPath.js"
       },
       {
-        "name": "(b8r) component",
+        "name": "component",
         "path": "source/b8r.component.js"
       },
       {
-        "name": "(b8r) component v2",
+        "name": "component v2",
         "path": "source/b8r.component_v2.js"
       },
       {
-        "name": "(b8r) dom",
+        "name": "dom",
         "path": "source/b8r.dom.js"
       },
       {
-        "name": "(b8r) events",
+        "name": "events",
         "path": "source/b8r.events.js"
       },
       {
-        "name": "(b8r) _b8r_",
+        "name": "_b8r_",
         "path": "source/b8r._b8r_.js"
       },
       {
-        "name": "(b8r) functions",
+        "name": "functions",
         "path": "source/b8r.functions.js"
       },
       {
-        "name": "(b8r) anyEvent",
+        "name": "anyEvent",
         "path": "source/b8r.anyEvent.js"
       },
       {
-        "name": "(b8r) imgSrc",
+        "name": "imgSrc",
         "path": "source/b8r.imgSrc.js"
       },
       {
-        "name": "(b8r) iterators",
+        "name": "iterators",
         "path": "source/b8r.iterators.js"
       },
       {
-        "name": "(b8r) keystroke",
+        "name": "keystroke",
         "path": "source/b8r.keystroke.js"
       },
       {
-        "name": "(b8r) makeStylesheet",
+        "name": "makeStylesheet",
         "path": "source/b8r.makeStylesheet.js"
       },
       {
-        "name": "(b8r) perf",
+        "name": "perf",
         "path": "source/b8r.perf.js"
       },
       {
-        "name": "(b8r) sort",
+        "name": "sort",
         "path": "source/b8r.sort.js"
       },
       {
-        "name": "(b8r) registry",
+        "name": "registry",
         "path": "source/b8r.registry.js"
       },
       {
-        "name": "(b8r) show",
+        "name": "show",
         "path": "source/b8r.show.js"
       },
       {
-        "name": "(b8r) update",
+        "name": "update",
         "path": "source/b8r.update.js"
       },
       {
@@ -140,6 +140,10 @@
       {
         "name": "UUID",
         "path": "lib/uuid.js"
+      },
+      {
+        "name": "Web Components",
+        "path": "lib/web-components.js"
       },
       {
         "name": "catPath",
@@ -460,10 +464,6 @@
         "name": "Unaligned Grid",
         "path": "unaligned-grid.component.html"
       },
-      {
-        "name": "Peerjs",
-        "path": "peerjs.component.html"
-      }
     ]
   }
 ]
