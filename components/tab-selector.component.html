@@ -2,7 +2,7 @@
 # tab-selector
 Copyright ©2016-2017 Tonio Loewald
 
-The component's active_tab indicates the currently visible tab.
+The component's `value` indicates the currently visible tab.
 -->
 <style>
   .tab-selector-bodies {
@@ -100,17 +100,17 @@ The component's active_tab indicates the currently visible tab.
       which = b8r.listIndex(which.target);
     }
 
-    const active_tab = which || 0;
+    const value = which || 0;
 
-    set({active_tab});
-    get('tabs').forEach((tab, idx) => tab.active = active_tab === idx);
+    set({value});
+    get('tabs').forEach((tab, idx) => tab.active = value === idx);
     touch('tabs');
 
     bodies().forEach((body, idx) => {
-      if (active_tab === idx) {
+      if (value === idx) {
         body.classList.add('tab-selector-current');
         b8r.trigger('show', body);
-      } else if (active_tab !== idx && body.classList.contains('tab-selector-current')) {
+      } else if (value !== idx && body.classList.contains('tab-selector-current')) {
         body.classList.remove('tab-selector-current');
         b8r.trigger('hide', body);
       }
@@ -120,9 +120,9 @@ The component's active_tab indicates the currently visible tab.
   set({
     tabs: bodies().map(element => { return { name: element.getAttribute('name') || element.getAttribute('title') || 'Untitled' }; }),
     select_tab,
-    next_tab: () => select_tab((get('active_tab') + 1) % get('tabs').length),
-    previous_tab: () => select_tab((get('active_tab') + get('tabs').length - 1) % get('tabs').length),
+    next_tab: () => select_tab((get('value') + 1) % get('tabs').length),
+    previous_tab: () => select_tab((get('value') + get('tabs').length - 1) % get('tabs').length),
   });
 
-  select_tab();
+  select_tab(get('value'));
 </script>

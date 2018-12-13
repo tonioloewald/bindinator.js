@@ -34,7 +34,7 @@ This is a simple replacement for `<select>` elements.
   <span style="font-size: 24px;">🕓</span>
 </span>
 <script>
-/* global find, findOne, b8r, component, get, set, data */
+/* global find, findOne, b8r, component, get, set */
 'use strict';
   const _value = element => element.value !== undefined ? element.value :
                             element.dataset.value !== undefined ? element.dataset.value :
@@ -48,6 +48,7 @@ This is a simple replacement for `<select>` elements.
       if (child === evt.target.closest('[data-children] > *')) {
         child.dataset.selected = '';
         set('value', _value(child));
+        b8r.trigger('change', component);
       } else {
         if (child.dataset.selected !== undefined) {
           delete child.dataset.selected;
@@ -74,9 +75,7 @@ This is a simple replacement for `<select>` elements.
   };
 
   const selected = findOne('[data-selected]');
-  if(!data.value && selected) {
-    set('value', _value(selected));
-  }
+  if(selected && get('value') !== _value(selected)) set('value', _value(selected));
 
   set({select, pick});
 </script>
