@@ -1,7 +1,12 @@
 <!--
 # Web Components
 
-This shows b8r working with simple [web components](https://www.webcomponents.org/).
+This shows b8r working with custom elements (see [web components](https://www.webcomponents.org/)).
+
+The custom elements used on this page are `checkbox-switch`, `select-bar`, `select-pop`, and
+`select-option`, all created using the helper functions from [web-components.js](#source=lib/web-components.js).
+
+Note that none of this has any dependency on `b8r`.
 -->
 <div>
   <h2>Bound to Different Paths</h2>
@@ -24,19 +29,22 @@ This shows b8r working with simple [web components](https://www.webcomponents.or
 <div>
   <h2>Bound to Same Path</h2>
   <select-bar data-bind="value=web-component-demo.select">
-    <select-option value="1">This</select-option>
-    <select-option value="2">That</select-option>
-    <select-option value="3">The Other</select-option>
+    <select-option 
+      data-list="web-component-demo.options:value"
+      data-bind="value=.value"
+    ><span data-bind="text=.label">…</span></select-option>
   </select-bar>
   <select-bar style="font-size: 24px; border-width: 4px" background="#aaa" data-bind="value=web-component-demo.select">
-    <select-option value="1">This</select-option>
-    <select-option value="2">That</select-option>
-    <select-option value="3">The Other</select-option>
+    <select-option 
+      data-list="web-component-demo.options:value"
+      data-bind="value=.value"
+    ><span data-bind="text=.label">label</span></select-option>
   </select-bar>
   <select-pop data-bind="value=web-component-demo.select">
-    <select-option value="1">This</select-option>
-    <select-option value="2">That</select-option>
-    <select-option value="3">The Other</select-option>
+    <select-option 
+      data-list="web-component-demo.options:value"
+      data-bind="value=.value"
+    ><span data-bind="text=.label">label</span></select-option>
   </select-pop>
 </div>
 <script>
@@ -51,6 +59,12 @@ This shows b8r working with simple [web components](https://www.webcomponents.or
       onColor: 'red',
       offColor: 'pink',
       select: 2,
+      options: [
+        {value: 1, label: 'One'},
+        {value: 2, label: 'Two'},
+        {value: 3, label: 'Three'},
+        {value: 4, label: 'Four'},
+      ],
     });
   }
 </script>

@@ -9,7 +9,7 @@ makeWebComponent('select-option', {
   style: {
     ':host': {
       display: 'inline-block',
-      padding: '3px 5px',
+      padding: '3px 8px',
       height: '100%',
       margin: 0,
       borderRadius: '2px',
@@ -57,8 +57,6 @@ makeWebComponent('select-bar', {
         option.style.transition = this.transition;
         option.style.color = option.value == this.value ? this.selectedColor : this.color;
         option.style.background = option.value == this.value ? this.selectedBackground : '';
-        option.style.paddingLeft = idx === 0 ? '8px' : '';
-        option.style.paddingRight = idx === options.length - 1 ? '8px' : '';
       });
     },
   },
@@ -80,7 +78,7 @@ makeWebComponent('select-pop', {
   },
   style: {
     ':host': {
-      display: 'inline-block',
+      display: 'inline-flex',
       position: 'relative',
       cursor: 'default',
       borderRadius: '3px',
@@ -88,9 +86,15 @@ makeWebComponent('select-pop', {
     },
     '.selection': {
       display: 'inline-flex',
+      position: 'relative',
+      flexGrow: '1',
+      overflow: 'hidden',
     },
     '.selection > *': {
       flexGrow: '1',
+    },
+    '.indicator': {
+      padding: '0 4px',
     },
     '.menu': {
       position: 'absolute',
@@ -105,7 +109,7 @@ makeWebComponent('select-pop', {
       overflow: 'hidden',
       userSelect: 'none',
       border: '1px solid transparent',
-    }
+    },
   },
   eventHandlers: {
     mouseenter(evt) {
@@ -141,7 +145,8 @@ makeWebComponent('select-pop', {
     },
   },
   content: fragment(
-    makeElement('div', {classes: ['selection']}), 
+    makeElement('div', {classes: ['selection']}),
+    makeElement('div', {content: '▾', classes: ['indicator']}), 
     makeElement('div', {classes: ['menu'], content: makeElement('slot', {})}),
   ),
   ariaRole: 'select',
