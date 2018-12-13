@@ -131,7 +131,6 @@ makeWebComponent('select-pop', {
       menu.style.display = this.open ? '' : 'none';
       menu.style.background = this.background;
       menu.style.width = this.width;
-      console.log(this.open, menu);
       options.forEach((option, idx) => {
         const selected = option.value == this.value;
         option.style.transition = this.transition;

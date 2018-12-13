@@ -463,7 +463,7 @@
       {
         "name": "Unaligned Grid",
         "path": "unaligned-grid.component.html"
-      },
+      }
     ]
   }
 ]
