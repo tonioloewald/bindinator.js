@@ -12,7 +12,7 @@ Set the component's `data-src` to specify an animation
 'use strict';
 
   require.
-  lazy('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/4.11.1/bodymovin.min.js').
+  lazy('../third-party/bodymovin.min.js').
   then(bodymovin => {
     const animation = bodymovin.loadAnimation({
         container: component,

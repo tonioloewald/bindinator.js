@@ -24,7 +24,7 @@ This is an example of implementing an animated control using bodymovin.
 'use strict';
 
   require.
-  lazy('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/4.11.1/bodymovin.min.js').
+  lazy('../third-party/bodymovin.min.js').
   then(bodymovin => {
     data.animation = bodymovin.loadAnimation({
       container: component,
