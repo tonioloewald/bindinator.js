@@ -68,7 +68,8 @@ const SelectBar = makeWebComponent('select-bar', {
     render(){
       this.style.background = this.background;
       this.style.borderColor = this.background;
-      const options = [...this.children].filter(x => x.tagName === 'SELECT-OPTION');
+      // x.dataset.list is for b8r list binding support
+      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'SELECT-OPTION');
       options.forEach((option, idx) => {
         option.style.transition = this.transition;
         option.style.color = option.value == this.value ? this.selectedColor : this.color;
@@ -145,7 +146,8 @@ const SelectPop = makeWebComponent('select-pop', {
       selection.style.width = this.width;
       this.style.background = this.background;
       this.style.borderColor = this.background;
-      const options = [...this.children].filter(x => x.tagName === 'SELECT-OPTION');
+      // x.dataset.list is for b8r list binding support
+      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'SELECT-OPTION');
       const menu = this.shadowRoot.querySelector('.menu');
       menu.style.display = this.open ? '' : 'none';
       menu.style.background = this.background;

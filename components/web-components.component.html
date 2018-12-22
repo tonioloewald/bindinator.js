@@ -57,10 +57,11 @@ Hello, this is some [markdown](https://daringfireball.net/projects/markdown/synt
 </div>
 <div>
   <h2>Tab Selector</h2>
-  <tab-selector>
-    <div name="A">A</div>
-    <div name="B">B</div>
-    <div name="C">C</div>
+  <tab-selector data-bind="value=web-component-demo.select">
+    <div 
+      data-list="web-component-demo.options"
+      data-bind="text=.body;attr(name)=.label"
+    ></div>
   </tab-selector>
 </div>
 <script>
@@ -78,10 +79,10 @@ Hello, this is some [markdown](https://daringfireball.net/projects/markdown/synt
       offColor: 'pink',
       select: 2,
       options: [
-        {value: 1, label: 'One'},
-        {value: 2, label: 'Two'},
-        {value: 3, label: 'Three'},
-        {value: 4, label: 'The Fourth Item'},
+        {value: 0, label: 'One', body: 'I am the first body'},
+        {value: 1, label: 'Two', body: 'I am the second body'},
+        {value: 2, label: 'Three', body: 'I am the third body'},
+        {value: 3, label: 'The Fourth Item', body: 'I am the fourth body'},
       ],
     });
   }

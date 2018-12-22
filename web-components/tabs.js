@@ -23,13 +23,12 @@ const TabSelector = makeWebComponent('tab-selector', {
       display: 'block',
       padding: '10px',
       background: 'white',
-      border: '5px solid #ccc',
-      borderTop: 0,
+      border: '1px solid #ccc',
+      borderRadius: '2px',
     },
     '.tabs': {
       borderColor: '#ccc',
       padding: '5px 5px 0 5px',
-      background: '#ccc',
       display: 'flex',
     },
     '.tabs > span': {
@@ -37,24 +36,35 @@ const TabSelector = makeWebComponent('tab-selector', {
       whitespace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      background: '#eee',
+      background: '#ddd',
       padding: '5px 10px',
-      borderRadius: '10px 10px 0 0',
+      borderRadius: '5px 5px 0 0',
+      border: '1px solid #ccc',
+      borderBottom: '1px solid transparent',
       cursor: 'default',
+      margin: '-1px',
     },
     '.tabs > .selected': {
       background: 'white',
       zIndex: '2',
+      border: '1px solid #ccc',
+      borderBottom: '1px solid white',
     },
+  },
+  eventHandlers: {
+    change() {
+      this.render();
+    }
   },
   methods: {
     render() {
       const value = this.value || 0;
       const tabs = this.shadowRoot.querySelector('.tabs');
-      const bodies = [...this.children];
+      // note that this is explicitly supporting b8r list bindings, but should cause no problems
+      // for vanilla js
+      const bodies = [...this.children].filter(body => !body.dataset.list);
       [...tabs.children].forEach(tab => bodies.find(body => body._tab === tab) || tab.remove());
       bodies.forEach((body, idx) => {
-              body.style.display = idx === value ? 'block' : 'none';
               if (! body._tab) {
                 const tab = makeElement('span', {
                   attributes: {tabIndex: 0},
@@ -67,6 +77,7 @@ const TabSelector = makeWebComponent('tab-selector', {
                 tab._body = body;
                 body._tab = tab;
               }
+              body.style.display = idx === value ? '' : 'none';
               body._tab.classList.toggle('selected', idx === value);
               tabs.appendChild(body._tab);
             });
