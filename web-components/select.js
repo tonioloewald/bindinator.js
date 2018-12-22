@@ -1,11 +1,22 @@
+/**
+# select
+
+Provides `<select-bar>` and `<select-pop>` selection widgets, which let the
+user pick from among a set of `<select-option>` children.
+
+The goal is to provide a control that works like a `<select>` but behaves
+better (e.g. does not lose its value if the underlying `<option>` is not
+available).
+*/
+
 const {
   fragment,
   makeElement,
   makeWebComponent,
 } = require('../lib/web-components.js');
 
-makeWebComponent('select-option', {
-  value: {writeable: false},
+const SelectOption = makeWebComponent('select-option', {
+  value: true,
   style: {
     ':host': {
       display: 'inline-block',
@@ -13,6 +24,9 @@ makeWebComponent('select-option', {
       height: '100%',
       margin: 0,
       borderRadius: '2px',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     },
   },
   eventHandlers: {
@@ -20,13 +34,16 @@ makeWebComponent('select-option', {
       this.parentElement.value = this.value;
     },
   },
+  methods: {
+    render() {
+      this.tabIndex = 0;
+    }
+  },
   ariaRole: 'select',
 });
 
-makeWebComponent('select-bar', {
-  value: {
-    writeable: true
-  },
+const SelectBar = makeWebComponent('select-bar', {
+  value: true,
   attributes: {
     background: '#ddd',
     color: 'black',
@@ -49,7 +66,6 @@ makeWebComponent('select-bar', {
   },
   methods: {
     render(){
-      thistabIndex = 0;
       this.style.background = this.background;
       this.style.borderColor = this.background;
       const options = [...this.children].filter(x => x.tagName === 'SELECT-OPTION');
@@ -63,7 +79,7 @@ makeWebComponent('select-bar', {
   ariaRole: 'select',
 });
 
-makeWebComponent('select-pop', {
+const SelectPop = makeWebComponent('select-pop', {
   value: {
     writeable: true
   },
@@ -124,7 +140,6 @@ makeWebComponent('select-pop', {
   },
   methods: {
     render(){
-      thistabIndex = 0;
       const selection = this.shadowRoot.querySelector('.selection');
       selection.innerHTML = [];
       selection.style.width = this.width;
@@ -151,3 +166,9 @@ makeWebComponent('select-pop', {
   ),
   ariaRole: 'select',
 });
+
+module.exports = {
+  SelectOption,
+  SelectBar,
+  SelectPop,
+}

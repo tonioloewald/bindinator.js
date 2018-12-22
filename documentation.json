@@ -64,10 +64,6 @@
         "path": "source/b8r.component.js"
       },
       {
-        "name": "component v2",
-        "path": "source/b8r.component_v2.js"
-      },
-      {
         "name": "dom",
         "path": "source/b8r.dom.js"
       },

@@ -325,11 +325,11 @@ instead of an event)
 
 You can pass an array of values to a bound method by comma-delimiting the paths, e.g.
 
-    data-bind="nethod(path.to.method=path.to.value,path.to.other,another.path"
+    data-bind="method(path.to.method)=path.to.value,path.to.other,another.path"
 
 ### component\_map()
 
-    data-bind="component-map(
+    data-bind="component_map(
         value:component_name|
         other_value:other_name|
         default_component

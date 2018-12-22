@@ -1,9 +1,15 @@
+/**
+# switch
+
+Provides `<checkbox-switch>` a configurable switch control.
+*/
+
 const {
   makeElement,
   makeWebComponent,
 } = require('../lib/web-components.js');
 
-makeWebComponent('checkbox-switch', {
+const CheckboxSwitch = makeWebComponent('checkbox-switch', {
   value: {
     writeable: true
   },
@@ -63,3 +69,7 @@ makeWebComponent('checkbox-switch', {
     },
   },
 });
+
+module.exports = {
+  CheckboxSwitch,
+};

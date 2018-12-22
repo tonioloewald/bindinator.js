@@ -47,10 +47,28 @@ Note that none of this has any dependency on `b8r`.
     ><span data-bind="text=.label">label</span></select-option>
   </select-pop>
 </div>
+<div>
+  <h2>Markdown</h2>
+  <markdown-area style="border: 1px solid #ccc; padding: 10px;" value="
+#### Heading
+
+Hello, this is some [markdown](https://daringfireball.net/projects/markdown/syntax) text.
+  "/>
+</div>
+<div>
+  <h2>Tab Selector</h2>
+  <tab-selector>
+    <div name="A">A</div>
+    <div name="B">B</div>
+    <div name="C">C</div>
+  </tab-selector>
+</div>
 <script>
   /* global require, b8r */
   require('../web-components/switch.js');
   require('../web-components/select.js');
+  require('../web-components/markdown.js');
+  require('../web-components/tabs.js');
 
   if (! b8r.get('web-component-demo')) {
     b8r.register('web-component-demo', {
@@ -63,7 +81,7 @@ Note that none of this has any dependency on `b8r`.
         {value: 1, label: 'One'},
         {value: 2, label: 'Two'},
         {value: 3, label: 'Three'},
-        {value: 4, label: 'Four'},
+        {value: 4, label: 'The Fourth Item'},
       ],
     });
   }

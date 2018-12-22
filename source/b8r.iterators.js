@@ -3,8 +3,9 @@
 
     makeArray(arrayish) // => [array]
 
-Creates a proper array from annoying array-like objects,
-like *NodeLists* and *arguments* (although *don't use arguments, use ...args**).
+(**Deprecated**, just use `[...arrayish]`.) Creates a proper array from annoying 
+array-like objects, like *NodeLists* and *arguments* (although *don't use 
+arguments, use ...args**).
 
     last(array) // => last element of array or null
 
