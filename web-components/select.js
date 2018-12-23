@@ -26,7 +26,8 @@ These select components work like a `<select>` but behave more like an input.
 
 const {
   fragment,
-  makeElement,
+  div,
+  slot,
   makeWebComponent,
 } = require('../lib/web-components.js');
 
@@ -177,9 +178,9 @@ const SelectPop = makeWebComponent('select-pop', {
     },
   },
   content: fragment(
-    makeElement('div', {classes: ['selection']}),
-    makeElement('div', {content: '▾', classes: ['indicator']}), 
-    makeElement('div', {classes: ['menu'], content: makeElement('slot', {})}),
+    div({classes: ['selection']}),
+    div({content: '▾', classes: ['indicator']}), 
+    div({classes: ['menu'], content: slot()}),
   ),
   ariaRole: 'select',
 });

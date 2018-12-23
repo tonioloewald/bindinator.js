@@ -25,7 +25,9 @@ and rich content in tabs, and assignment of specific values to tabs
 */
 const {
   fragment,
-  makeElement,
+  div,
+  span,
+  slot,
   makeWebComponent,
 } = require('../lib/web-components.js');
 
@@ -82,7 +84,7 @@ const TabSelector = makeWebComponent('tab-selector', {
       [...tabs.children].forEach(tab => bodies.find(body => body._tab === tab) || tab.remove());
       bodies.forEach((body, idx) => {
               if (! body._tab) {
-                const tab = makeElement('span', {
+                const tab = span({
                   attributes: {tabIndex: 0},
                   content: body.getAttribute('name') || 'untitled',
                 });
@@ -100,8 +102,8 @@ const TabSelector = makeWebComponent('tab-selector', {
     },
   },
   content: fragment(
-    makeElement('div', {classes: ['tabs']}),
-    makeElement('slot', {}),
+    div({classes: ['tabs']}),
+    slot(),
   ),
   ariaRole: 'rich text',
 });

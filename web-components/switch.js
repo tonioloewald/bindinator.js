@@ -15,7 +15,7 @@ It provides a straightforward value (instead of having to worry about `checked`)
 */
 
 const {
-  makeElement,
+  span,
   makeWebComponent,
 } = require('../lib/web-components.js');
 
@@ -43,10 +43,10 @@ const CheckboxSwitch = makeWebComponent('checkbox-switch', {
       position: 'absolute',
       display: 'block',
       borderRadius: '99px',
-      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.25)',
+      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)',
     },
   },
-  content: makeElement('span', {classes: ['thumb']}),
+  content: span({classes: ['thumb']}),
   eventHandlers: {
     mouseup(evt) {
       this.value = !this.value;

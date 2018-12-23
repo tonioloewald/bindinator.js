@@ -196,10 +196,6 @@
       {
         "name": "windows",
         "path": "lib/windows.js"
-      },
-      {
-        "name": "web-components",
-        "path": "lib/web-components.js"
       }
     ]
   },
