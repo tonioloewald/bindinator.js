@@ -1,8 +1,16 @@
 /**
 # Markdown Components
 
-Provides a simple `<mardown-area>` control that displays rendered
-markdown passed as its value.
+Provides a simple `<markdown-area>` control that displays rendered
+markdown passed as its `value`.
+
+```
+    <markdown-area data-bind="value=_component_.markdown"></markdown-area>
+    <script>
+      set('markdown', '###markdown\n**bold** and _italic');
+      require('web-components/markdown.js');
+    </script>
+```
 */
 
 const {md} = require('../lib/text-render.js');

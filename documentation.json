@@ -2,35 +2,39 @@
   {
     "title": "documentation",
     "parts": [
-        {
-          "name": "Read Me First",
-          "path": "README.md"
-        },
-        {
-          "name": "Overview",
-          "path": "docs/overview.md"
-        },
-        {
-          "name": "Binding Data",
-          "path": "docs/binding-data.md"
-        },
-        {
-          "name": "Events",
-          "path": "docs/events.md"
-        },
-        {
-          "name": "Components",
-          "path": "docs/components.md"
-        },
-        {
-          "name": "Styling",
-          "path": "docs/css.md"
-        },
-        {
-          "name": "License",
-          "path": "LICENSE.md"
-        }
-      ]
+      {
+        "name": "Read Me First",
+        "path": "README.md"
+      },
+      {
+        "name": "Overview",
+        "path": "docs/overview.md"
+      },
+      {
+        "name": "Binding Data",
+        "path": "docs/binding-data.md"
+      },
+      {
+        "name": "Events",
+        "path": "docs/events.md"
+      },
+      {
+        "name": "Components",
+        "path": "docs/components.md"
+      },
+      {
+        "name": "Web Components",
+        "path": "web-components.component.html"
+      },
+      {
+        "name": "Styling",
+        "path": "docs/css.md"
+      },
+      {
+        "name": "License",
+        "path": "LICENSE.md"
+      }
+    ]
   },
   {
     "title": "b8r core",
@@ -192,6 +196,10 @@
       {
         "name": "windows",
         "path": "lib/windows.js"
+      },
+      {
+        "name": "web-components",
+        "path": "lib/web-components.js"
       }
     ]
   },
@@ -338,6 +346,28 @@
     ]
   },
   {
+    "title": "web components",
+    "sort": true,
+    "parts": [
+      {
+        "name": "Markdown",
+        "path": "web-components/markdown.js"
+      },
+      {
+        "name": "Select",
+        "path": "web-components/select.js"
+      },
+      {
+        "name": "Tabs",
+        "path": "web-components/tabs.js"
+      },
+      {
+        "name": "Switch",
+        "path": "web-components/switch.js"
+      }
+    ]
+  },
+  {
     "title": "tutorials",
     "parts": [
       {
@@ -447,14 +477,6 @@
       {
         "name": "Speech",
         "path": "speech.component.html"
-      },
-      {
-        "name": "Netflix Webview",
-        "path": "netflix.component.html"
-      },
-      {
-        "name": "Web Components",
-        "path": "web-components.component.html"
       },
       {
         "name": "Unaligned Grid",

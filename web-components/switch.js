@@ -1,7 +1,17 @@
 /**
 # switch
 
-Provides `<checkbox-switch>` a configurable switch control.
+Provides `<checkbox-switch>`, a configurable switch control.
+
+It provides a straightforward value (instead of having to worry about `checked`).
+
+```
+    <checkbox-switch data-bind="value=_component_.switch"></checkbox-switch>
+    <span data-bind="text=_component_.switch"></span>
+    <script>
+      require('web-components/switch.js');
+    </script>
+```
 */
 
 const {
@@ -33,6 +43,7 @@ const CheckboxSwitch = makeWebComponent('checkbox-switch', {
       position: 'absolute',
       display: 'block',
       borderRadius: '99px',
+      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.25)',
     },
   },
   content: makeElement('span', {classes: ['thumb']}),

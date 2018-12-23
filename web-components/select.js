@@ -4,9 +4,24 @@
 Provides `<select-bar>` and `<select-pop>` selection widgets, which let the
 user pick from among a set of `<select-option>` children.
 
-The goal is to provide a control that works like a `<select>` but behaves
-better (e.g. does not lose its value if the underlying `<option>` is not
-available).
+These select components work like a `<select>` but behave more like an input.
+
+```
+    <select-bar data-bind="value=_component_.option">
+      <select-option value="a">A</select-option>
+      <select-option value="b">B</select-option>
+      <select-option value="c">C</select-option>
+    </select-bar>
+    <select-pop data-bind="value=_component_.option">
+      <select-option value="a">A</select-option>
+      <select-option value="b">B</select-option>
+      <select-option value="c">C</select-option>
+    </select-pop>
+    <script>
+      set('option', 'b');
+      require('web-components/select.js');
+    </script>
+```
 */
 
 const {

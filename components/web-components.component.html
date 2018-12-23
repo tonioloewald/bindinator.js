@@ -3,10 +3,23 @@
 
 This shows b8r working with custom elements (see [web components](https://www.webcomponents.org/)).
 
+`b8r` provides a [simple convenience library](#source=lib/web-components.js) for creating web components.
+
 The custom elements used on this page are `checkbox-switch`, `select-bar`, `select-pop`, and
 `select-option`, all created using the helper functions from [web-components.js](#source=lib/web-components.js).
 
-Note that none of this has any dependency on `b8r`.
+Note that none of these examples have any dependency on `b8r`. The only provision any of them makes for b8r is that some filter out `data-list` templates (so that if you dynamically generate options in a `<select>`-like component, it doesn't display the template as an option -- the way Safari, for example, does.)
+
+> **Note**: it's my current intention to move `b8r` towards `web-components` and away from the original HTML components. Even though I think the idea of HTML components is sound, there are advantages to a "pure javascript" architecture:
+> 
+> - Static analysis of code and dependencies (also autocomplete, etc.)
+> - Doubling down on standards:
+>   - Eventually abandon b8r's custom `require` in favor of `import`
+>   - Web-components have no dependency on `b8r` at all
+> - It will be possible to build a `<b8r-context>` component that neatly encapsulates all (almost! -- see below) of b8r's virtues in a web-component, allowing `b8r` to "live" anywhere -- inside, outside, or without other frameworks.
+> - It should be possible to provide a neat way to migrate old HTML components to the new model (wrap them in web-components).
+>
+> The one thing a `<b8r-context>` component wouldn't be able to do is `any` event stuff, but pretty close.
 -->
 <div>
   <h2>Bound to Different Paths</h2>
@@ -19,11 +32,12 @@ Note that none of this has any dependency on `b8r`.
         attr(onColor)=web-component-demo.onColor;
         attr(color)=web-component-demo.offColor;
       " 
-    />
+    ></checkbox-switch>
   </label>
   <label>
     <span>Toggle Me</span>
-    <checkbox-switch data-bind="value=web-component-demo.other_toggle" thumbsize="20px" height="24px" />
+    <checkbox-switch data-bind="value=web-component-demo.other_toggle" thumbsize="20px" height="24px"
+    ></checkbox-switch>
   </label>
 </div>
 <div>
@@ -49,20 +63,33 @@ Note that none of this has any dependency on `b8r`.
 </div>
 <div>
   <h2>Markdown</h2>
-  <markdown-area style="border: 1px solid #ccc; padding: 10px;" value="
-#### Heading
-
-Hello, this is some [markdown](https://daringfireball.net/projects/markdown/syntax) text.
-  "/>
+  <markdown-area style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll;" data-bind="value=web-component-demo.markdown">
+  </markdown-area>
+  </tab-selector>
 </div>
 <div>
   <h2>Tab Selector</h2>
   <tab-selector data-bind="value=web-component-demo.select">
     <div 
+      style="margin: 10px;"
       data-list="web-component-demo.options"
       data-bind="text=.body;attr(name)=.label"
     ></div>
   </tab-selector>
+</div>
+<div>
+  <h2>Super Simple Markdown Editor</h2>
+  <tab-selector>
+    <textarea 
+      name="Source"
+      style="padding: 10px; border: 0; height: 200px; width: 100%; overflow-y: scroll;" 
+      data-bind="value=web-component-demo.markdown"
+    ></textarea>
+    <markdown-area
+      style="padding: 10px; height: 200px; overflow-y: scroll;" 
+      name="Rendered" 
+      data-bind="value=web-component-demo.markdown"
+    ></markdown-area>
 </div>
 <script>
   /* global require, b8r */
@@ -84,6 +111,7 @@ Hello, this is some [markdown](https://daringfireball.net/projects/markdown/synt
         {value: 2, label: 'Three', body: 'I am the third body'},
         {value: 3, label: 'The Fourth Item', body: 'I am the fourth body'},
       ],
+      markdown: "#### Markdown Support\n> Here's some simple [markdown](https://daringfireball.net/projects/markdown/syntax).",
     });
   }
 </script>

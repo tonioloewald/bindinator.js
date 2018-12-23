@@ -6,6 +6,22 @@ makes one tab based on the `name` attribute of each child.
 
 The value of the tab component is the index of the currently visible
 body.
+
+## TODO
+
+Implement <tab-body> and <tab-button> to allow fine-grained styling 
+and rich content in tabs, and assignment of specific values to tabs
+(versus indices).
+
+```
+    <tab-selector>
+      <div name="first" style="padding: 20px">first tab content</div>
+      <div name="second" style="padding: 20px">second tab content</div>
+    </tab-selector>
+    <script>
+      require('web-components/tabs.js');
+    </script>
+```
 */
 const {
   fragment,
@@ -20,8 +36,8 @@ const TabSelector = makeWebComponent('tab-selector', {
       display: 'block',
     },
     slot: {
+      position: 'relative',
       display: 'block',
-      padding: '10px',
       background: 'white',
       border: '1px solid #ccc',
       borderRadius: '2px',
@@ -32,7 +48,7 @@ const TabSelector = makeWebComponent('tab-selector', {
       display: 'flex',
     },
     '.tabs > span': {
-      flex: '1 1',
+      flex: '1 1 auto',
       whitespace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
@@ -52,7 +68,7 @@ const TabSelector = makeWebComponent('tab-selector', {
     },
   },
   eventHandlers: {
-    change() {
+    childListChange() {
       this.render();
     }
   },
