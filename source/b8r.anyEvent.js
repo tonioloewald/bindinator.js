@@ -1,8 +1,8 @@
 /**
 # Any Event
 
-Utility methods for intercepting ANY event before anything else sees it. Note
-that if you don't return true from the handler the event will be stopped.
+Utility methods for intercepting __ANY__ event before anything else sees it. Note
+that if you don't return `true` from the handler the event will be stopped.
 
     b8r.onAny(event_type, object, method) => handlerRef
 
