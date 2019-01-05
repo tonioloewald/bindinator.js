@@ -346,6 +346,14 @@
     "sort": true,
     "parts": [
       {
+        "name": "Bindery",
+        "path": "web-components/bindery.js"
+      },
+      {
+        "name": "Dialog",
+        "path": "web-components/dialog.js"
+      },
+      {
         "name": "Markdown",
         "path": "web-components/markdown.js"
       },
