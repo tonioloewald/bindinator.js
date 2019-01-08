@@ -368,6 +368,10 @@
       {
         "name": "Switch",
         "path": "web-components/switch.js"
+      },
+      {
+        "name": "Draggable & Droppable",
+        "path": "web-components/drag-drop.js"
       }
     ]
   },
