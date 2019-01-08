@@ -1,19 +1,33 @@
 /* global require, __dirname */
 'use strict';
 
-const SOCKET = 8017;
-const CERT_PATH = 'localhost-ssl/public.pem';
-const KEY_PATH = 'localhost-ssl/private.pem';
-const WEB_ROOT = __dirname;
-
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const url = require('url');
 
-const options = {
-  key: fs.readFileSync(KEY_PATH),
-  cert: fs.readFileSync(CERT_PATH)
+const settings = {
+  socket: 8017,
+  web_root: __dirname,
+  cert_path: 'localhost-ssl/public.pem',
+  key_path: 'localhost-ssl/private.pem',
 };
+
+process.argv.slice(2).forEach(arg => {
+  const parts = arg.split(':').map(s => s.trim());
+  if (parts[0]) {
+    settings[parts[0]] = parts.length === 2 ? parts[1] : true;
+  }
+});
+
+console.log(settings);
+
+const options = settings.https ? 
+  {
+    key: fs.readFileSync(settings.key_path),
+    cert: fs.readFileSync(settings.cert_path),
+  } : 
+  {};
 
 const handler_map = []; // { handler },
   // handler is a function;
@@ -46,7 +60,7 @@ const mime_types = {
 
 const handle_static_request = (req, res) => {
   const url_obj = url.parse(req.url);
-  fs.readFile(WEB_ROOT + url_obj.pathname, (err, data) => {
+  fs.readFile(settings.web_root + url_obj.pathname, (err, data) => {
     if (err) {
       res.writeHead(404);
       res.end('not found');
@@ -84,4 +98,8 @@ const request_handler = (req, res) => {
   handler(req, res);
 };
 
-https.createServer(options, request_handler).listen(SOCKET);
+if (settings.https) {
+  https.createServer(options, request_handler).listen(settings.socket);
+} else {
+  http.createServer({}, request_handler).listen(settings.socket);
+}
