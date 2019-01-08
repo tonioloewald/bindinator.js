@@ -15,6 +15,32 @@ The element has several methods:
 
 Note that the contents of the dialog are simply whatever you put in them. There's no magic.
 
+> ### Button Shortcuts
+> 
+> Any `button.dialog-modal-button` that is provided with a `data-shortcut` attribute
+> will automatically be "clicked" if the specified key (i.e. `Event.key`) is pressed
+> while the dialog is in focus.
+
+## dialogAlert, dialogConfirm, and dialogPrompt
+
+These are utility functions that return promises of the user response. They are
+simple examples of dialog-modal.
+
+    dialogAlert(message, title=window.location.host)
+    dialogConfirm(message, title=window.location.host, buttons=_confirm_buttons)
+    dialogPrompt(message='Enter some text', text='', title=window.location.host)
+
+The default buttons are specified thus:
+
+    const _ok_button = {name: 'OK', shortcut: 'Enter'};
+
+    const _confirm_buttons = [
+      _ok_button,
+      {name: 'Cancel', shortcut: 'Escape'},
+    ];
+
+Note that the shortcuts leverage the behavior described above under **button shortcuts**.
+
 ```
     <style>
       .dialog-modal-frame {
@@ -69,6 +95,7 @@ Note that the contents of the dialog are simply whatever you put in them. There'
     <button data-event="click:dialog-demo.showConfirm">dialogConfirm</button>
     <button data-event="click:dialog-demo.showPrompt">dialogPrompt</button>
     <script>
+      require('web-components/dialog.js');
       const {
         dialogAlert,
         dialogConfirm,
@@ -190,20 +217,20 @@ const DialogModal = makeWebComponent('dialog-modal', {
   },
 });
 
-const _ok_button = {name: 'OK', keystroke: 'Enter'};
+const _ok_button = {name: 'OK', shortcut: 'Enter'};
 
 const _confirm_buttons = [
   _ok_button,
-  {name: 'Cancel', keystroke: 'Escape'},
+  {name: 'Cancel', shortcut: 'Escape'},
 ];
 
 const _makeButtons = (buttons) => 
-  buttons.map(({name, keystroke}) => button({
+  buttons.map(({name, shortcut}) => button({
     content: name,
     classes: ['dialog-modal-button'],
     attributes: {
-      title: `[${keystroke}] ${name}`,
-      'data-shortcut': keystroke,
+      title: `[${shortcut}] ${name}`,
+      'data-shortcut': shortcut,
     }
   }));
 
@@ -254,7 +281,6 @@ const dialogPrompt = (message='Enter some text', text='', title=window.location.
 
 module.exports = {
   DialogModal,
-  dialog,
   dialogAlert,
   dialogConfirm,
   dialogPrompt,
