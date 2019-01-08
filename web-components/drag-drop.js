@@ -1,21 +1,38 @@
 /**
 # drag and drop
 
-This library provides two custom elements:
-- `<drag-item>`
-- `<drop-zone>`
+This library provides three custom elements:
+- `<drag-item>` — a draggable object
+- `<drop-zone>` — a drop-zone
+- `<drag-sortable>` — a container for <drag-items> that supports 
+  reordering and insertion via drag-and-drop
 
-Both items support a `type` attribute, which is a semicolon-delimited set of "mime-types".
+This is HTML5 drag-and-drop, so it transparently supports built-in browser and OS
+support for drag-and-drop, allowing things like files to be dragged into a DOM
+element or DOM elements to be dragged to other applications and so forth. (Or at
+least it should...)
+
+These elements support a `type` attribute, which is a semicolon-delimited set of "mime-types".
 
 The `<drag-item>` element supports a `content` attribute which replaces the default content
 of the element when dropped.
 
 The `<drop-zone>` element supports an `effect` attribute, which can be 'copy' (the default) or 'move'.
 
-And a two methods:
-- `dragEnd()` // cleans up drag operation
-- `dragged()` // returns the `<drag-item>` being dragged or `true` for something dragged from outside
+The `<drag-sortable>` element supports an `outsideEffect` attribute, which is 'copy'
+by default. This determines what it does if it receives a dragged element from outside.
+To handle data dragged from outside your app, you'll need to override the element's
+`handleDrop` method.
 
+And a two methods:
+- `dragEnd()` — cleans up drag operation
+- `dragged()` — returns the `<drag-item>` being dragged or `true` for something dragged from outside
+
+### Simple Examples
+
+Note that one of the `<drop-zone>`s only accepts `text/html`. Also note that
+you can drag any of the `<drag-item>`s into the `<drag-sortable>` container
+in the second example.
 
 ```
 <style>
@@ -24,26 +41,32 @@ And a two methods:
     display: block;
     padding: 10px 20px;
     margin: 5px;
-    background: #ddd;
     border-radius: 5px;
     transition: 0.25s ease-out;
   }
+  drag-item {
+    box-shadow: inset 0 0 0 2px rgba(255,255,0,0.25);
+    cursor: grab;
+    background: #ddd;
+  }
   .drag-source {
-    box-shadow: inset 0 0 0 2px yellow;
+    box-shadow: inset 0 0 0 2px rgba(255,255,0,0.5);
     opacity: 0.5;
   }
   .drag-target {
-    box-shadow: inset 0 0 0 2px blue;
+    background: #def;
+    box-shadow: inset 0 0 0 2px rgba(0,0,255,0.5);
   }
   .drag-over {
     background: rgba(0,0,255,0.25);
   }
 </style>
-<drag-item><b>Drag</b> Me A</drag-item>
-<drag-item>Drag Me <b>B</b></drag-item>
+<drag-item>Drag Me <b>default</b></drag-item>
+<drag-item type="text/html">Drag Me <b>HTML</b></drag-item>
+<drag-item type="text/plain">Drag Me <b>Text</b></drag-item>
 <drag-item content="custom content">Drag Me <b>Custom Content</b></drag-item>
 <drop-zone>Copy to Me</drop-zone>
-<drop-zone effect="move">Move to Me</drop-zone>
+<drop-zone type="text/html" effect="move">Move HTML to Me</drop-zone>
 <drop-zone effect="move" data-event="drop:_component_.drop">Move to Me</drop-zone>
 <script>
   const {dragEnd} = require('web-components/drag-drop.js');
@@ -53,6 +76,35 @@ And a two methods:
       dragEnd();
     },
   })
+</script>
+```
+
+### `<drag-sortable>` container
+
+By default a `<drag-sortable>` container will copy items dragged from outside
+but this example has been configured to move them instead.
+
+The simplest way to make this work is to choose a very specific `type` for a
+given sortable so that it will only accept items of that exact type. (You could
+even use a uuid.)
+
+For complex cases, you'll almost always want to override the container's default 
+`handleDrop` method and explicitly look at the event's dataTransfer property
+(since this will allow you to drag data between apps, pages, etc).
+
+```
+<style>
+  drag-sortable > drop-zone {
+    margin: 0;
+  }
+</style>
+<drag-sortable outsideEffect="move">
+  <drag-item>Order</drag-item>
+  <drag-item>Out</drag-item>
+  <drag-item>of</drag-item>
+</drag-sortable>
+<script>
+  require('web-components/drag-drop.js');
 </script>
 ```
 */
@@ -102,22 +154,26 @@ const mark_droppable = (types, draggable) => {
   });
 };
 
+const dragstart = (evt) => {
+  const types = evt.target.type.split(';');
+  types.forEach(type => {
+    const content = evt.target.content !== 'auto' ?
+                    evt.target.content :
+                    (type === 'text/html' ? evt.target.innerHTML : evt.target.textContent);
+    evt.dataTransfer.setData(type, content);
+  });
+  mark_droppable(evt.dataTransfer.types, evt.target);
+}
+
 const DragItem = makeWebComponent('drag-item', {
   attributes: {
     type: 'text/plain;text/html',
     content: 'auto',
   },
   eventHandlers: {
-    dragstart (evt) {
+    dragstart(evt) {
       this.classList.add('drag-source');
-      const types = evt.target.type.split(';');
-      types.forEach(type => {
-        const content = evt.target.content !== 'auto' ?
-                        evt.target.content :
-                        (type === 'text/html' ? evt.target.innerHTML : evt.target.textContent);
-        evt.dataTransfer.setData(type, content);
-      });
-      mark_droppable(evt.dataTransfer.types, evt.target);
+      dragstart(evt);
     },
   },
   methods: {
@@ -141,20 +197,22 @@ const drag = (evt) => {
 };
 
 const end = () => {
-  if (element_being_dragged && element_being_dragged.classList) {
-    element_being_dragged.classList.remove('drag-source'); 
-    element_being_dragged = null;
-  }
+  element_being_dragged = null;
+  [...document.querySelectorAll('.drag-source')].forEach(elt => elt.classList.remove('drag-source'));
   [...document.querySelectorAll('.drag-over')].forEach(elt => elt.classList.remove('drag-over'));
   [...document.querySelectorAll('.drag-target')].forEach(elt => elt.classList.remove('drag-target'));
 };
 
 document.body.addEventListener('dragend', end);
+document.body.addEventListener('dragstart', dragstart);
 
 const DropZone = makeWebComponent('drop-zone', {
   attributes: {
     type: 'text/plain;text/html',
     effect: 'copy',
+  },
+  methods: {
+    handleDrop: evt => false, // return explicit `true` to prevent defaults
   },
   eventHandlers: {
     dragenter: drag,
@@ -163,6 +221,7 @@ const DropZone = makeWebComponent('drop-zone', {
       this.classList.remove('drag-over');
     },
     drop (evt) {
+      if (this.handleDrop(evt) === true) return;
       const drop_types = evt.target.type.split(';');
       drop_types.forEach(type => {
         if (is_type_allowed(drop_types, type)) {
@@ -178,9 +237,51 @@ const DropZone = makeWebComponent('drop-zone', {
   },
 });
 
+const DragSortable = makeWebComponent('drag-sortable', {
+  attributes: {
+    type: 'text/plain;text/html',
+    outsideEffect: 'copy',
+  },
+  methods: {
+    handleDrop(evt) {
+      const target = evt.target.closest('drop-zone');
+      const container = this;
+      if (element_being_dragged.parentElement === container) {
+        container.insertBefore(element_being_dragged, target);
+      } else {
+        if (container.outsideEffect === 'copy') {
+          container.insertBefore(element_being_dragged.cloneNode(true), target); 
+        } else {
+          container.insertBefore(element_being_dragged, target);
+        }
+      }
+      container.render();
+      end();
+      return true;
+    },
+    render() {
+      const dz = new DropZone();
+      const container = this;
+      const handleDrop = this.handleDrop.bind(this);
+      dz.type = container.type;
+      dz.effect = 'move';
+      [...this.querySelectorAll('drop-zone')].forEach(elt => elt.remove());
+      [...this.querySelectorAll('drag-item')].forEach(elt => {
+        const dzClone = dz.cloneNode(true);
+        dzClone.handleDrop = handleDrop;
+        container.insertBefore(dzClone, elt);
+      });
+      const _dz = dz.cloneNode(true);
+      _dz.handleDrop = handleDrop;
+      container.appendChild(_dz);
+    },
+  },
+});
+
 module.exports = {
   DragItem,
   DropZone,
+  DragSortable,
   dragged: () => element_being_dragged,
   dragEnd: end,
 }
