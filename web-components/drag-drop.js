@@ -18,6 +18,8 @@ The `<drag-item>` element supports a `content` attribute which replaces the defa
 of the element when dropped.
 
 The `<drop-zone>` element supports an `effect` attribute, which can be 'copy' (the default) or 'move'.
+It also has a `handleDrop(evt)` method which gets first look at any drop events. You
+can override it to do custom handling and `return true` to block default handling.
 
 The `<drag-sortable>` element supports an `outsideEffect` attribute, which is 'copy'
 by default. This determines what it does if it receives a dragged element from outside.
@@ -64,18 +66,21 @@ in the second example.
 <drag-item>Drag Me <b>default</b></drag-item>
 <drag-item type="text/html">Drag Me <b>HTML</b></drag-item>
 <drag-item type="text/plain">Drag Me <b>Text</b></drag-item>
-<drag-item content="custom content">Drag Me <b>Custom Content</b></drag-item>
+<drag-item content="the rain in spain stays mainly in the drop-zone">
+  Drag Me <b>Custom Content</b>
+</drag-item>
 <drop-zone>Copy to Me</drop-zone>
 <drop-zone type="text/html" effect="move">Move HTML to Me</drop-zone>
-<drop-zone effect="move" data-event="drop:_component_.drop">Move to Me</drop-zone>
+<drop-zone class="custom-drop-handler" effect="move">Custom drop handler</drop-zone>
 <script>
-  const {dragEnd} = require('web-components/drag-drop.js');
-  set({
-    drop(evt){
-      console.log(evt.target.textContent = `Custom drop handler: ${evt.dataTransfer.getData('text/plain')}`);
-      dragEnd();
-    },
-  })
+  const customDropZone = findOne('.custom-drop-handler');
+  customDropZone.handleDrop = (evt) => {
+    target = evt.target.closest('drop-zone');
+    const html = evt.dataTransfer.getData('text/html') || 
+                 evt.dataTransfer.getData('text/plain');
+    target.innerHTML = `Custom drop handler: <blockquote>${html}</blockquote>`;
+    return true;
+  };
 </script>
 ```
 
@@ -188,11 +193,12 @@ const drag = (evt) => {
     element_being_dragged = true;
     mark_droppable(evt.dataTransfer.types);
   }
-  if (evt.target.classList.contains('drag-target')) {
+  const target = evt.target.closest('drop-zone.drag-target');
+  if (target) {
     evt.preventDefault();
     evt.stopPropagation();
-    evt.target.classList.add('drag-over');
-    evt.dataTransfer.dropEffect = evt.target.effect; 
+    target.classList.add('drag-over');
+    evt.dataTransfer.dropEffect = target.effect; 
   }
 };
 
@@ -221,7 +227,10 @@ const DropZone = makeWebComponent('drop-zone', {
       this.classList.remove('drag-over');
     },
     drop (evt) {
-      if (this.handleDrop(evt) === true) return;
+      if (this.handleDrop(evt) === true) {
+        end();
+        return;
+      }
       const drop_types = evt.target.type.split(';');
       drop_types.forEach(type => {
         if (is_type_allowed(drop_types, type)) {
@@ -256,7 +265,6 @@ const DragSortable = makeWebComponent('drag-sortable', {
         }
       }
       container.render();
-      end();
       return true;
     },
     render() {
