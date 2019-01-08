@@ -1,5 +1,5 @@
 /**
-# draggable and droppable elements
+# drag and drop
 
 This library provides two custom elements:
 - `<drag-item>`
@@ -101,7 +101,7 @@ const mark_droppable = (types, draggable) => {
   });
 };
 
-const DraggableElement = makeWebComponent('drag-item', {
+const DragItem = makeWebComponent('drag-item', {
   attributes: {
     type: 'text/plain;text/html',
     content: 'auto',
@@ -150,7 +150,7 @@ const end = () => {
 
 document.body.addEventListener('dragend', end);
 
-const DroppableElement = makeWebComponent('drop-zone', {
+const DropZone = makeWebComponent('drop-zone', {
   attributes: {
     type: 'text/plain;text/html',
     effect: 'copy',
@@ -178,8 +178,8 @@ const DroppableElement = makeWebComponent('drop-zone', {
 });
 
 module.exports = {
-  DraggableElement,
-  DroppableElement,
+  DragItem,
+  DropZone,
   dragged: () => element_being_dragged,
   dragEnd: end,
 }
