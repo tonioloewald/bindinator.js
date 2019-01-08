@@ -67,6 +67,7 @@ const TabSelector = makeWebComponent('tab-selector', {
       zIndex: '2',
       border: '1px solid #ccc',
       borderBottom: '1px solid white',
+      transform: 'translateY(1px)'
     },
   },
   eventHandlers: {

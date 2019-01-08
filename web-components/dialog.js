@@ -48,6 +48,11 @@ Note that the shortcuts leverage the behavior described above under **button sho
         flex-direction: column;
       }
 
+      button[data-shortcut="Enter"],
+      button.default {
+        background: #ddf;
+      }
+
       .dialog-modal-title {
         padding: 5px 10px;
         font-weight: bold;
@@ -85,7 +90,7 @@ Note that the shortcuts leverage the behavior described above under **button sho
         </label>
         <div class="dialog-modal-button-set">
           <button data-event="click:dialog-demo.cancel">Cancel</button>
-          <button data-event="click:dialog-demo.ok">OK</button>
+          <button class="default" data-event="click:dialog-demo.ok">OK</button>
         </div>
       </div>
     </dialog-modal>

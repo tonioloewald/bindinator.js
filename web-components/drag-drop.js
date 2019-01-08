@@ -26,6 +26,7 @@ And a two methods:
     margin: 5px;
     background: #ddd;
     border-radius: 5px;
+    transition: 0.25s ease-out;
   }
   .drag-source {
     box-shadow: inset 0 0 0 2px yellow;

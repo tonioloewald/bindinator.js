@@ -372,6 +372,10 @@
       {
         "name": "Drag & Drop",
         "path": "web-components/drag-drop.js"
+      },
+      {
+        "name": "Float",
+        "path": "web-components/float.js"
       }
     ]
   },
