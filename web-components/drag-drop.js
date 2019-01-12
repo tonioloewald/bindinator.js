@@ -38,6 +38,7 @@ in the second example.
 
 ```
 <style>
+  a[href],
   drag-item,
   drop-zone {
     display: block;
@@ -45,7 +46,9 @@ in the second example.
     margin: 5px;
     border-radius: 5px;
     transition: 0.25s ease-out;
+    border: 0;
   }
+  a[href],
   drag-item {
     box-shadow: inset 0 0 0 2px rgba(255,255,0,0.25);
     cursor: grab;
@@ -56,13 +59,14 @@ in the second example.
     opacity: 0.5;
   }
   .drag-target {
-    background: #def;
+    background: rgba(0,0,255,0.1);
     box-shadow: inset 0 0 0 2px rgba(0,0,255,0.5);
   }
   .drag-over {
     background: rgba(0,0,255,0.25);
   }
 </style>
+<a href="https://bindinator.com">urls are draggable by default</a>
 <drag-item>Drag Me <b>default</b></drag-item>
 <drag-item type="text/html">Drag Me <b>HTML</b></drag-item>
 <drag-item type="text/plain">Drag Me <b>Text</b></drag-item>
@@ -78,7 +82,8 @@ in the second example.
     target = evt.target.closest('drop-zone');
     const html = evt.dataTransfer.getData('text/html') || 
                  evt.dataTransfer.getData('text/plain');
-    target.innerHTML = `Custom drop handler: <blockquote>${html}</blockquote>`;
+    const types = [...evt.dataTransfer.items].map(item => item.type).join();
+    target.innerHTML = `Custom drop handler received: <blockquote>${types}</blockquote>`;
     return true;
   };
 </script>
@@ -99,8 +104,20 @@ For complex cases, you'll almost always want to override the container's default
 
 ```
 <style>
+  drag-sortable {
+    padding-top: 5px;  
+  }
   drag-sortable > drop-zone {
-    margin: 0;
+    margin: -5px 0 -20px;
+    padding: 10px 0;
+    box-shadow: none;
+    position: relative;
+    z-index: 1;
+    visibility: hidden;
+  }
+  drag-sortable > .drag-target {
+    visibility: visible;
+    box-shadow: none;
   }
 </style>
 <drag-sortable outsideEffect="move">
@@ -231,13 +248,14 @@ const DropZone = makeWebComponent('drop-zone', {
         end();
         return;
       }
-      const drop_types = evt.target.type.split(';');
+      const target = evt.target.closest('drop-zone');
+      const drop_types = target.type.split(';');
       drop_types.forEach(type => {
         if (is_type_allowed(drop_types, type)) {
           if (type === 'text/html') {
-            evt.target.innerHTML = evt.dataTransfer.getData(type);
+            target.innerHTML = evt.dataTransfer.getData(type);
           } else {
-            evt.target.textContent = evt.dataTransfer.getData(type);
+            target.textContent = evt.dataTransfer.getData(type);
           }
         }
       });
@@ -247,6 +265,11 @@ const DropZone = makeWebComponent('drop-zone', {
 });
 
 const DragSortable = makeWebComponent('drag-sortable', {
+  style: {
+    ':host': {
+      display: 'block',
+    }
+  },
   attributes: {
     type: 'text/plain;text/html',
     outsideEffect: 'copy',
