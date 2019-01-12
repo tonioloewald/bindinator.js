@@ -11,19 +11,7 @@ const {get, registered, call} = require('./b8r.registry.js');
 const anyElement = require('./b8r.anyElement.js');
 const keys = require('./b8r.keystroke.js');
 const {pathSplit} = require('./b8r.byPath.js');
-
-const implicit_event_types = [
-  'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click', 'dblclick',
-  'mouseleave', 'mouseenter',
-  'mousewheel', 'scroll', // FIXEME passive?!
-  'contextmenu',
-  'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
-  'transitionend', 'animationend',
-  'input', 'change',
-  'keydown', 'keyup',
-  'cut', 'copy', 'paste',
-  'focus', 'blur' // more to follow
-];
+const implicit_event_types = require('./b8r.implicit-event-types.js');
 
 const onOffArgs = args => {
   var element, event_type, object, method, prepend = false;
