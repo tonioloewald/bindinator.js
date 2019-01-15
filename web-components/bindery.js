@@ -43,8 +43,15 @@ Bindery uses `data-on`, `data-to`, and `data-from` attributes to drive its bindi
 - `data-to` sends data to the DOM by name (one-way binding)
 - `data-from` syncs data to the DOM by name (two-way binding)
 
+### Ideas
+
+- implement multiple bindings
+- implement `toTargets` (and possibly `fromTargets`)
+- implement list bindings -- `<bindery-list>`? Contents become template, slot is hidden.
+- consider whether to add `byPath` support or keep paths simple (one level deep)
+
 As of now, this is really just a toy. It only allows for one event and one data
-binding per element, and it doesn't use b8r's `byPath` library or its `toTargets`
+binding per element, and it doesn't use `b8r`'s `byPath` library or its `toTargets`
 and `fromTargets`. But it's fairly easy to see that if this functionality were
 integrated, then a `<bindery-model>` element would function as a standalone 
 `b8r`-like context.
