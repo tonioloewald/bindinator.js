@@ -56,6 +56,7 @@ const mime_types = {
   jpg: 'image/jpeg',
   png: 'image/png',
   json: 'application/json',
+  js: 'text/javascript',
 };
 
 const handle_static_request = (req, res) => {
