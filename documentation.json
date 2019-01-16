@@ -138,6 +138,10 @@
         "path": "lib/exemplar.js"
       },
       {
+        "name": "Deep Freeze",
+        "path": "lib/deep-freeze.js"
+      },
+      {
         "name": "UUID",
         "path": "lib/uuid.js"
       },
