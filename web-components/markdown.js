@@ -1,11 +1,11 @@
 /**
 # Markdown Components
 
-Provides a simple `<markdown-area>` control that displays rendered
+Provides a simple `<b8r-markdown>` control that displays rendered
 markdown passed as its `value`.
 
 ```
-    <markdown-area data-bind="value=_component_.markdown"></markdown-area>
+    <b8r-markdown data-bind="value=_component_.markdown"></b8r-markdown>
     <script>
       set('markdown', '###markdown\n**bold** and _italic');
       require('web-components/markdown.js');
@@ -20,7 +20,7 @@ const {
   makeWebComponent,
 } = require('../lib/web-components.js');
 
-const MarkdownArea = makeWebComponent('markdown-area', {
+const MarkdownArea = makeWebComponent('b8r-markdown', {
   value: true,
   style: {
     ':host': {

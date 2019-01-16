@@ -1,12 +1,12 @@
 /**
 # switch
 
-Provides `<checkbox-switch>`, a configurable switch control.
+Provides `<b8r-switch>`, a configurable switch control.
 
 It provides a straightforward value (instead of having to worry about `checked`).
 
 ```
-    <checkbox-switch data-bind="value=_component_.switch"></checkbox-switch>
+    <b8r-switch data-bind="value=_component_.switch"></b8r-switch>
     <span data-bind="text=_component_.switch"></span>
     <script>
       require('web-components/switch.js');
@@ -19,7 +19,7 @@ const {
   makeWebComponent,
 } = require('../lib/web-components.js');
 
-const CheckboxSwitch = makeWebComponent('checkbox-switch', {
+const CheckboxSwitch = makeWebComponent('b8r-switch', {
   value: {
     writeable: true
   },

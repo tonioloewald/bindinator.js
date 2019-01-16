@@ -5,8 +5,8 @@ This shows b8r working with custom elements (see [web components](https://www.we
 
 `b8r` provides a [simple convenience library](#source=lib/web-components.js) for creating web components.
 
-The custom elements used on this page are `checkbox-switch`, `select-bar`, `select-pop`, and
-`select-option`, all created using the helper functions from [web-components.js](#source=lib/web-components.js).
+The custom elements used on this page are `b8r-switch`, `b8r-select-bar`, `b8r-select`, and
+`b8r-option`, all created using the helper functions from [web-components.js](#source=lib/web-components.js).
 
 Note that none of these examples have any dependency on `b8r`. The only provision any of them makes for b8r is that some filter out `data-list` templates (so that if you dynamically generate options in a `<select>`-like component, it doesn't display the template as an option -- the way Safari, for example, does.)
 
@@ -25,71 +25,71 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
   <h2>Bound to Different Paths</h2>
   <label>
     <span>Toggle Me</span>
-    <checkbox-switch
+    <b8r-switch
       height="12px"
       data-bind="
         value=web-component-demo.toggle;
         attr(onColor)=web-component-demo.onColor;
         attr(color)=web-component-demo.offColor;
       " 
-    ></checkbox-switch>
+    ></b8r-switch>
   </label>
   <label>
     <span>Toggle Me</span>
-    <checkbox-switch data-bind="value=web-component-demo.other_toggle" thumbsize="20px" height="24px"
-    ></checkbox-switch>
+    <b8r-switch data-bind="value=web-component-demo.other_toggle" thumbsize="20px" height="24px"
+    ></b8r-switch>
   </label>
 </div>
 <div>
   <h2>Bound to Same Path</h2>
-  <select-bar data-bind="value=web-component-demo.select">
-    <select-option 
+  <b8r-select-bar data-bind="value=web-component-demo.select">
+    <b8r-option 
       data-list="web-component-demo.options:value"
       data-bind="value=.value"
-    ><span data-bind="text=.label">…</span></select-option>
-  </select-bar>
-  <select-bar style="font-size: 24px; border-width: 4px" background="#aaa" data-bind="value=web-component-demo.select">
-    <select-option 
+    ><span data-bind="text=.label">…</span></b8r-option>
+  </b8r-select-bar>
+  <b8r-select-bar style="font-size: 24px; border-width: 4px" background="#aaa" data-bind="value=web-component-demo.select">
+    <b8r-option 
       data-list="web-component-demo.options:value"
       data-bind="value=.value"
-    ><span data-bind="text=.label">label</span></select-option>
-  </select-bar>
-  <select-pop data-bind="value=web-component-demo.select">
-    <select-option 
+    ><span data-bind="text=.label">label</span></b8r-option>
+  </b8r-select-bar>
+  <b8r-select data-bind="value=web-component-demo.select">
+    <b8r-option 
       data-list="web-component-demo.options:value"
       data-bind="value=.value"
-    ><span data-bind="text=.label">label</span></select-option>
-  </select-pop>
+    ><span data-bind="text=.label">label</span></b8r-option>
+  </b8r-select>
 </div>
 <div>
   <h2>Markdown</h2>
-  <markdown-area style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll;" data-bind="value=web-component-demo.markdown">
-  </markdown-area>
-  </tab-selector>
+  <b8r-markdown style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll;" data-bind="value=web-component-demo.markdown">
+  </b8r-markdown>
+  </b8r-tab-selector>
 </div>
 <div>
   <h2>Tab Selector</h2>
-  <tab-selector data-bind="value=web-component-demo.select">
+  <b8r-tab-selector data-bind="value=web-component-demo.select">
     <div 
       style="margin: 10px;"
       data-list="web-component-demo.options"
       data-bind="text=.body;attr(name)=.label"
     ></div>
-  </tab-selector>
+  </b8r-tab-selector>
 </div>
 <div>
   <h2>Super Simple Markdown Editor</h2>
-  <tab-selector>
+  <b8r-tab-selector>
     <textarea 
       name="Source"
       style="padding: 10px; border: 0; height: 200px; width: 100%; overflow-y: scroll;" 
       data-bind="value=web-component-demo.markdown"
     ></textarea>
-    <markdown-area
+    <b8r-markdown
       style="padding: 10px; height: 200px; overflow-y: scroll;" 
       name="Rendered" 
       data-bind="value=web-component-demo.markdown"
-    ></markdown-area>
+    ></b8r-markdown>
 </div>
 <script>
   /* global require, b8r */

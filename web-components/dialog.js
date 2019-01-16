@@ -1,7 +1,7 @@
 /**
 # Dialog
 
-`<dialog-modal>` simply places its content in a centered box with a translucent dark
+`<b8r-modal>` simply places its content in a centered box with a translucent dark
 overlay covering the rest of the window.
 
 By default, the dialog will initially be hidden. To show it, set its `active` attribute
@@ -17,14 +17,14 @@ Note that the contents of the dialog are simply whatever you put in them. There'
 
 > ### Button Shortcuts
 > 
-> Any `button.dialog-modal-button` that is provided with a `data-shortcut` attribute
+> Any `button.b8r-modal-button` that is provided with a `data-shortcut` attribute
 > will automatically be "clicked" if the specified key (i.e. `Event.key`) is pressed
 > while the dialog is in focus.
 
 ## dialogAlert, dialogConfirm, and dialogPrompt
 
 These are utility functions that return promises of the user response. They are
-simple examples of dialog-modal.
+simple examples of b8r-modal.
 
     dialogAlert(message, title=window.location.host)
     dialogConfirm(message, title=window.location.host, buttons=_confirm_buttons)
@@ -43,7 +43,7 @@ Note that the shortcuts leverage the behavior described above under **button sho
 
 ```
     <style>
-      .dialog-modal-frame {
+      .b8r-modal-frame {
         display: flex;
         flex-direction: column;
       }
@@ -53,47 +53,47 @@ Note that the shortcuts leverage the behavior described above under **button sho
         background: #ddf;
       }
 
-      .dialog-modal-title {
+      .b8r-modal-title {
         padding: 5px 10px;
         font-weight: bold;
         background: #eee;
       }
 
-      .dialog-modal-input {
+      .b8r-modal-input {
         padding: 2px 4px;
         margin: 5px 10px;
       }
 
-      .dialog-modal-message {
+      .b8r-modal-message {
         margin: 5px 10px;
       }
 
-      .dialog-modal-button-set {
+      .b8r-modal-button-set {
         text-align: right;
         margin: 0 10px 10px;
       }
 
-      .dialog-modal-button + .dialog-modal-button {
+      .b8r-modal-button + .b8r-modal-button {
         margin-left: 5px;
       }
     </style>
-    <dialog-modal>
-      <div class="dialog-modal-frame">
-        <div class="dialog-modal-title">Modal</div>
-        <div class="dialog-modal-message">Here is some text</div>
-        <label class="dialog-modal-message">
+    <b8r-modal>
+      <div class="b8r-modal-frame">
+        <div class="b8r-modal-title">Modal</div>
+        <div class="b8r-modal-message">Here is some text</div>
+        <label class="b8r-modal-message">
           Text field
           <input placeholder="type something" data-event="
             keydown(Escape):dialog-demo.cancel;
             keydown(Enter):dialog-demo.ok;
           ">
         </label>
-        <div class="dialog-modal-button-set">
+        <div class="b8r-modal-button-set">
           <button data-event="click:dialog-demo.cancel">Cancel</button>
           <button class="default" data-event="click:dialog-demo.ok">OK</button>
         </div>
       </div>
-    </dialog-modal>
+    </b8r-modal>
     <p data-bind="json=dialog-demo.result"></p>
     <button data-event="click:dialog-demo.showDialog">Show Dialog</button>
     <button data-event="click:dialog-demo.showAlert">dialogAlert</button>
@@ -106,7 +106,7 @@ Note that the shortcuts leverage the behavior described above under **button sho
         dialogConfirm,
         dialogPrompt,
       } = require('web-components/dialog.js');
-      const dialog = findOne('dialog-modal');
+      const dialog = findOne('b8r-modal');
       const input = dialog.querySelector('input');
       dialog.addCallback(value => b8r.set('dialog-demo.result', value));
       b8r.register('dialog-demo', {
@@ -149,7 +149,7 @@ const {
   button,
 } = require('../lib/web-components.js');
 
-const DialogModal = makeWebComponent('dialog-modal', {
+const DialogModal = makeWebComponent('b8r-modal', {
   value: true,
   attributes: {
     active: false,
@@ -174,7 +174,7 @@ const DialogModal = makeWebComponent('dialog-modal', {
     },
     handleShortcut(evt) {
       const {key} = evt;
-      const button = this.querySelector(`.dialog-modal-button[data-shortcut="${key}"]`);
+      const button = this.querySelector(`.b8r-modal-button[data-shortcut="${key}"]`);
       if (button) {
         button.click();
         evt.stopPropagation();
@@ -232,7 +232,7 @@ const _confirm_buttons = [
 const _makeButtons = (buttons) => 
   buttons.map(({name, shortcut}) => button({
     content: name,
-    classes: ['dialog-modal-button'],
+    classes: ['b8r-modal-button'],
     attributes: {
       title: `[${shortcut}] ${name}`,
       'data-shortcut': shortcut,
@@ -244,19 +244,19 @@ const dialogAlert = (message, title=window.location.host) => dialogConfirm(messa
 const dialogConfirm = (message, title=window.location.host, buttons=_confirm_buttons) => 
   new Promise((resolve, reject) => {
     const dialog = new DialogModal();
-    const _title = div({content: title, classes: ['dialog-modal-title']});
-    const _message = div({content: message, classes: ['dialog-modal-message']});
-    const _buttonSet = div({content: _makeButtons(buttons), classes: ['dialog-modal-button-set']});
+    const _title = div({content: title, classes: ['b8r-modal-title']});
+    const _message = div({content: message, classes: ['b8r-modal-message']});
+    const _buttonSet = div({content: _makeButtons(buttons), classes: ['b8r-modal-button-set']});
     const _frame = div({
       content: [_title, _message, _buttonSet],
-      classes: ['dialog-modal-frame'],
+      classes: ['b8r-modal-frame'],
     });
     const _action = (evt) => {
       dialog.remove();
       resolve(evt.target.textContent);
     };
     dialog.appendChild(_frame);
-    [...dialog.querySelectorAll('.dialog-modal-button')].forEach(_button => _button.addEventListener('click', _action));
+    [...dialog.querySelectorAll('.b8r-modal-button')].forEach(_button => _button.addEventListener('click', _action));
     document.body.appendChild(dialog);
     dialog.show();
   });
@@ -264,14 +264,14 @@ const dialogConfirm = (message, title=window.location.host, buttons=_confirm_but
 const dialogPrompt = (message='Enter some text', text='', title=window.location.host) => 
   new Promise((resolve, reject) => {
     const dialog = new DialogModal();
-    const _title = div({content: title, classes: ['dialog-modal-title']});
-    const _message = div({content: message, classes: ['dialog-modal-message']});
-    const _input = input({classes: ['dialog-modal-input']});
+    const _title = div({content: title, classes: ['b8r-modal-title']});
+    const _message = div({content: message, classes: ['b8r-modal-message']});
+    const _input = input({classes: ['b8r-modal-input']});
     _input.value = text;
-    const _buttonSet = div({content: _makeButtons(_confirm_buttons), classes: ['dialog-modal-button-set']});
+    const _buttonSet = div({content: _makeButtons(_confirm_buttons), classes: ['b8r-modal-button-set']});
     const _frame = div({
       content: [_title, _message, _input, _buttonSet],
-      classes: ['dialog-modal-frame'],
+      classes: ['b8r-modal-frame'],
     });
     dialog.appendChild(_frame);
     const _action = (evt) => {

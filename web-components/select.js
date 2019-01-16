@@ -1,22 +1,22 @@
 /**
 # select
 
-Provides `<select-bar>` and `<select-pop>` selection widgets, which let the
-user pick from among a set of `<select-option>` children.
+Provides `<b8r-select-bar>` and `<b8r-select>` selection widgets, which let the
+user pick from among a set of `<b8r-option>` children.
 
 These select components work like a `<select>` but behave more like an input.
 
 ```
-    <select-bar data-bind="value=_component_.option">
-      <select-option value="a">A</select-option>
-      <select-option value="b">B</select-option>
-      <select-option value="c">C</select-option>
-    </select-bar>
-    <select-pop data-bind="value=_component_.option">
-      <select-option value="a">A</select-option>
-      <select-option value="b">B</select-option>
-      <select-option value="c">C</select-option>
-    </select-pop>
+    <b8r-select-bar data-bind="value=_component_.option">
+      <b8r-option value="a">A</b8r-option>
+      <b8r-option value="b">B</b8r-option>
+      <b8r-option value="c">C</b8r-option>
+    </b8r-select-bar>
+    <b8r-select data-bind="value=_component_.option">
+      <b8r-option value="a">A</b8r-option>
+      <b8r-option value="b">B</b8r-option>
+      <b8r-option value="c">C</b8r-option>
+    </b8r-select>
     <script>
       set('option', 'b');
       require('web-components/select.js');
@@ -31,7 +31,7 @@ const {
   makeWebComponent,
 } = require('../lib/web-components.js');
 
-const SelectOption = makeWebComponent('select-option', {
+const SelectOption = makeWebComponent('b8r-option', {
   value: true,
   style: {
     ':host': {
@@ -58,7 +58,7 @@ const SelectOption = makeWebComponent('select-option', {
   ariaRole: 'select',
 });
 
-const SelectBar = makeWebComponent('select-bar', {
+const SelectBar = makeWebComponent('b8r-select-bar', {
   value: true,
   attributes: {
     background: '#ddd',
@@ -85,7 +85,7 @@ const SelectBar = makeWebComponent('select-bar', {
       this.style.background = this.background;
       this.style.borderColor = this.background;
       // x.dataset.list is for b8r list binding support
-      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'SELECT-OPTION');
+      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION');
       options.forEach((option, idx) => {
         option.style.transition = this.transition;
         option.style.color = option.value == this.value ? this.selectedColor : this.color;
@@ -96,7 +96,7 @@ const SelectBar = makeWebComponent('select-bar', {
   ariaRole: 'select',
 });
 
-const SelectPop = makeWebComponent('select-pop', {
+const SelectPop = makeWebComponent('b8r-select', {
   value: {
     writeable: true
   },
@@ -163,7 +163,7 @@ const SelectPop = makeWebComponent('select-pop', {
       this.style.background = this.background;
       this.style.borderColor = this.background;
       // x.dataset.list is for b8r list binding support
-      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'SELECT-OPTION');
+      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION');
       const menu = this.shadowRoot.querySelector('.menu');
       menu.style.display = this.open ? '' : 'none';
       menu.style.background = this.background;

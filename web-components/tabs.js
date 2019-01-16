@@ -14,10 +14,10 @@ and rich content in tabs, and assignment of specific values to tabs
 (versus indices).
 
 ```
-    <tab-selector>
+    <b8r-tab-selector>
       <div name="first" style="padding: 20px">first tab content</div>
       <div name="second" style="padding: 20px">second tab content</div>
-    </tab-selector>
+    </b8r-tab-selector>
     <script>
       require('web-components/tabs.js');
     </script>
@@ -31,7 +31,7 @@ const {
   makeWebComponent,
 } = require('../lib/web-components.js');
 
-const TabSelector = makeWebComponent('tab-selector', {
+const TabSelector = makeWebComponent('b8r-tab-selector', {
   value: true,
   style: {
     ':host': {
