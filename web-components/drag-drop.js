@@ -47,6 +47,7 @@ in the second example.
     border-radius: 5px;
     transition: 0.25s ease-out;
     border: 0;
+    box-shadow: inset 0 0 0 2px rgba(0,0,255,0.1);
   }
   a[href],
   b8r-draggable {
@@ -65,6 +66,12 @@ in the second example.
   .drag-over {
     background: rgba(0,0,255,0.25);
   }
+  .file-dropzone > img {
+    max-width: 64px;
+    max-height: 64px;
+    display: block;
+    margin: 5px 0;
+  }
 </style>
 <a href="https://bindinator.com">urls are draggable by default</a>
 <b8r-draggable>Drag Me <b>default</b></b8r-draggable>
@@ -73,10 +80,17 @@ in the second example.
 <b8r-draggable content="the rain in spain stays mainly in the b8r-dropzone">
   Drag Me <b>Custom Content</b>
 </b8r-draggable>
+<b8r-draggable class="dynamic-content">
+  Drag Me <b>Dynamic Content</b>
+</b8r-draggable>
 <b8r-dropzone>Copy to Me</b8r-dropzone>
 <b8r-dropzone type="text/html" effect="move">Move HTML to Me</b8r-dropzone>
 <b8r-dropzone class="custom-drop-handler" effect="move">Custom drop handler</b8r-dropzone>
+<b8r-dropzone class="file-dropzone" type="Files">I accept PNG files</b8r-dropzone>
 <script>
+  require('web-components/drag-drop.js');
+  const dynamicContent = findOne('.dynamic-content');
+  dynamicContent.content = Math.random();
   const customDropZone = findOne('.custom-drop-handler');
   customDropZone.handleDrop = (evt) => {
     target = evt.target.closest('b8r-dropzone');
@@ -84,6 +98,22 @@ in the second example.
                  evt.dataTransfer.getData('text/plain');
     const types = [...evt.dataTransfer.items].map(item => item.type).join();
     target.innerHTML = `Custom drop handler received: <blockquote>${types}</blockquote>`;
+    return true;
+  };
+
+  const fileDropZone = findOne('.file-dropzone');
+  fileDropZone.handleDrop = (evt) => {
+    console.log(evt.dataTransfer.files);
+    const files = [];
+    for(let i = 0; i < evt.dataTransfer.files.length; i++) {
+      const file = evt.dataTransfer.files[i];
+      if (file.type === 'image/png') {
+        const image = new Image();
+        image.src = URL.createObjectURL(file);
+        evt.target.appendChild(image)
+      }
+    }
+    console.log(files);
     return true;
   };
 </script>
@@ -162,9 +192,8 @@ const is_type_allowed = (allowed_types, type) => {
   return is_allowed;
 };
 
-const mark_droppable = (types, draggable) => {
-  element_being_dragged = draggable || true;
-  if (draggable) draggable.classList.add('drag-source');
+const mark_droppable = (evt) => {
+  const {types} = evt.dataTransfer;
   const elements = [...document.querySelectorAll('b8r-dropzone')];
   elements.forEach(element => {
     const drop_types = element.type.split(';');
@@ -176,15 +205,21 @@ const mark_droppable = (types, draggable) => {
   });
 };
 
-const dragstart = (evt) => {
-  const types = evt.target.type.split(';');
-  types.forEach(type => {
-    const content = evt.target.content !== 'auto' ?
-                    evt.target.content :
-                    (type === 'text/html' ? evt.target.innerHTML : evt.target.textContent);
-    evt.dataTransfer.setData(type, content);
-  });
-  mark_droppable(evt.dataTransfer.types, evt.target);
+const dragstart = (evt, draggable) => {
+  if (draggable) {
+    const types = draggable.type.split(';');
+    types.forEach(type => {
+      const content = draggable.content !== 'auto' ?
+                      draggable.content :
+                      (type === 'text/html' ? draggable.innerHTML : draggable.textContent);
+      evt.dataTransfer.setData(type, content);
+    });
+    draggable.classList.add('drag-source');
+    element_being_dragged = draggable;
+  } else {
+    if (!element_being_dragged) element_being_dragged = true;
+  }
+  mark_droppable(evt);
 }
 
 const DragItem = makeWebComponent('b8r-draggable', {
@@ -195,7 +230,7 @@ const DragItem = makeWebComponent('b8r-draggable', {
   eventHandlers: {
     dragstart(evt) {
       this.classList.add('drag-source');
-      dragstart(evt);
+      dragstart(evt, this);
     },
   },
   methods: {
@@ -206,10 +241,6 @@ const DragItem = makeWebComponent('b8r-draggable', {
 });
 
 const drag = (evt) => {
-  if (!element_being_dragged && evt.dataTransfer) {
-    element_being_dragged = true;
-    mark_droppable(evt.dataTransfer.types);
-  }
   const target = evt.target.closest('b8r-dropzone.drag-target');
   if (target) {
     evt.preventDefault();
@@ -227,7 +258,10 @@ const end = () => {
 };
 
 document.body.addEventListener('dragend', end);
+
+// handle things dragged from outside the app's window
 document.body.addEventListener('dragstart', dragstart);
+document.body.addEventListener('dragenter', dragstart);
 
 const DropZone = makeWebComponent('b8r-dropzone', {
   attributes: {
@@ -244,6 +278,8 @@ const DropZone = makeWebComponent('b8r-dropzone', {
       this.classList.remove('drag-over');
     },
     drop (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
       if (this.handleDrop(evt) === true) {
         end();
         return;

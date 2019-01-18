@@ -31,6 +31,7 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
     width: '36px',
     height: '16px',
     thumbSize: '24px',
+    disabled: false,
   },
   style: {
     ':host': {
@@ -49,13 +50,15 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
   content: span({classes: ['thumb']}),
   eventHandlers: {
     mouseup(evt) {
-      this.value = !this.value;
+      if (! this.disabled) {
+        this.value = !this.value; 
+      }
     },
     keydown(evt) {
       evt.preventDefault();
     },
     keyup(evt) {
-      if (evt.code === 'Space') this.value = !this.value;
+      if (! this.disabled && evt.code === 'Space') this.value = !this.value;
       evt.preventDefault();
     }
   },
@@ -67,6 +70,7 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
       thumb.style.background = this.thumbColor;
       thumb.style.width = this.thumbSize;
       thumb.style.height = this.thumbSize;
+      this.style.filter = this.disabled ? 'grayscale(1) opacity(0.8)' : '';
       const height = parseFloat(this.height);
       const thumbSize = parseFloat(this.thumbSize);
       const inset = (height - thumbSize) * 0.5;

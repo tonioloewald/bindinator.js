@@ -113,6 +113,14 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
   attributes: {
     events: '',
   },
+  eventHandlers: {
+    change (evt) {
+      this.handleChange(evt)
+    },
+    input (evt) {
+      this.handleChange(evt)
+    },
+  },
   methods: {
     get(path) {
       return this.value[path];
@@ -138,9 +146,9 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
     },
     render() {
       const slot = this.shadowRoot.querySelector('slot');
+      // TODO remove and re-add if list of events has changed
       if (! this._eventsBound) {
         implicit_event_types.forEach(type => slot.addEventListener(type, this.handleEvent, {capture:true}));
-        ['change', 'input'].forEach(type => slot.addEventListener(type, this.handleChange, {capture:true}));
       }
       this.events.split(',')
         .filter(type => type && ! implicit_event_types.includes(type))
