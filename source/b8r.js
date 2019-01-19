@@ -625,7 +625,7 @@ const inheritData = element => {
 
 let component_count = 0;
 const _component_instances = {};
-b8r.insertComponent = function(component, element, data) {
+b8r.insertComponent = async function(component, element, data) {
   const data_path = typeof data === 'string' ? data : b8r.getDataPath(element);
   if (!element) {
     element = b8r.create('div');
@@ -715,7 +715,7 @@ b8r.insertComponent = function(component, element, data) {
     const touch = path => b8r.touchByPath(component_id, path);
     b8r.register(component_id, data, true);
     try {
-      component.load(
+      await component.load(
         require.relative(component.path),
         element, _path_relative_b8r(component.path), selector => b8r.findWithin(element, selector),
         selector => b8r.findOneWithin(element, selector), data, register,

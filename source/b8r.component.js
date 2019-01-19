@@ -125,6 +125,7 @@ const {async_update} = require('./b8r.update.js');
 const {create, find, findWithin} = require('./b8r.dom.js');
 const {ajax} = require('./b8r.ajax.js');
 const makeStylesheet = require('./b8r.makeStylesheet.js');
+const AsyncFunction = (async function(){}).constructor;
 
 const makeComponent = function(name, source, url, preserve_source) {
   let css = false, content, script = false, parts, remains;
@@ -153,7 +154,7 @@ const makeComponent = function(name, source, url, preserve_source) {
   let load = () => console.error('component', name, 'cannot load properly');
   try {
     load = script ?
-             new Function(
+             new AsyncFunction(
                 'require',
                 'component',
                 'b8r',
