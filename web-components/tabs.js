@@ -32,7 +32,9 @@ const {
 } = require('../lib/web-components.js');
 
 const TabSelector = makeWebComponent('b8r-tab-selector', {
-  value: true,
+  attributes: {
+    value: 0,
+  },
   style: {
     ':host': {
       display: 'block',
@@ -73,7 +75,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
   eventHandlers: {
     childListChange() {
       this.render();
-    }
+    },
   },
   methods: {
     render() {
@@ -89,15 +91,15 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
                   attributes: {tabIndex: 0},
                   content: body.getAttribute('name') || 'untitled',
                 });
-                tab.addEventListener('mouseup', () => {
+                tab.addEventListener('click', () => {
                   this.value = idx;
-                  tab.focus();
+                  requestAnimationFrame(() => tab.focus());
                 });
                 tab._body = body;
                 body._tab = tab;
               }
-              body.style.display = idx === value ? '' : 'none';
-              body._tab.classList.toggle('selected', idx === value);
+              body.style.display = idx == value ? '' : 'none';
+              body._tab.classList.toggle('selected', idx == value);
               tabs.appendChild(body._tab);
             });
     },

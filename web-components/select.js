@@ -32,7 +32,9 @@ const {
 } = require('../lib/web-components.js');
 
 const SelectOption = makeWebComponent('b8r-option', {
-  value: true,
+  attributes: {
+    value: '',
+  },
   style: {
     ':host': {
       display: 'inline-block',
@@ -59,13 +61,13 @@ const SelectOption = makeWebComponent('b8r-option', {
 });
 
 const SelectBar = makeWebComponent('b8r-select-bar', {
-  value: true,
   attributes: {
     background: '#ddd',
     color: 'black',
     selectedBackground: 'white',
     selectedColor: 'blue',
     transition: '0.125s ease-out',
+    value: '',
   },
   style: {
     ':host': {
@@ -97,9 +99,6 @@ const SelectBar = makeWebComponent('b8r-select-bar', {
 });
 
 const SelectPop = makeWebComponent('b8r-select', {
-  value: {
-    writeable: true
-  },
   attributes: {
     background: '#ddd',
     color: 'black',
@@ -108,6 +107,7 @@ const SelectPop = makeWebComponent('b8r-select', {
     transition: '0.125s ease-out',
     open: false,
     width: '100px',
+    value: '',
   },
   style: {
     ':host': {

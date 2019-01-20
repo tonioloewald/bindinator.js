@@ -21,7 +21,9 @@ const {
 } = require('../lib/web-components.js');
 
 const MarkdownArea = makeWebComponent('b8r-markdown', {
-  value: true,
+  attributes: {
+    value: '',
+  },
   style: {
     ':host': {
       display: 'block',

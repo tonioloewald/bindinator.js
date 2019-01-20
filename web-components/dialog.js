@@ -150,8 +150,8 @@ const {
 } = require('../lib/web-components.js');
 
 const DialogModal = makeWebComponent('b8r-modal', {
-  value: true,
   attributes: {
+    value: null,
     active: false,
   },
   props: {

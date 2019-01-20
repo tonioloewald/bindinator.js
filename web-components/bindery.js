@@ -31,7 +31,7 @@ For example:
     },
     save (evt) {
       const caption = evt.target.previousElementSibling.value;
-      this.value = Object.assign(this.value, {caption});
+      this.update({...this.value, caption});
     },
   };
 </script>
@@ -60,6 +60,7 @@ Similarly, it would be easy enough to make the `data-from` bindings inactive by
 default (essentially giving you a redux-like data-flow) or simply not support them
 at all.
 */
+/* global require, module */
 
 const implicit_event_types = require('../source/b8r.implicit-event-types.js');
 const {
@@ -84,7 +85,7 @@ const toTargets = {
   },
   attr(element, value, attributeName) {
     if (value !== false) {
-      element.setAttribute(attribueName) = value;
+      element.setAttribute(attributeName, value);
     } else {
       element.removeAttribute(attributeName);
     }
@@ -109,8 +110,8 @@ const toBindings = (elt) => {
 }
 
 const BinderyModel = makeWebComponent('b8r-bindery', {
-  value: true,
   attributes: {
+    value: null,
     events: '',
   },
   eventHandlers: {
@@ -122,6 +123,19 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
     },
   },
   methods: {
+    onMount() {
+      const slot = this.shadowRoot.querySelector('slot');
+      implicit_event_types.forEach(type => slot.addEventListener(type, this.handleEvent, {capture:true}));
+
+      // automatic binding of elements added or modified dynamically
+      // but it may be a performance issue
+      const observer = new MutationObserver(mutationsList => {
+        if(mutationsList.reduce((a, b) => a || !b.attributeName || b.attributeName.match(/^data-to|data-from$/), false)){
+          this.updateBindings();
+        }
+      });
+      observer.observe(this, {subtree: true, attributes: true, childList: true});
+    },
     get(path) {
       return this.value[path];
     },
@@ -136,20 +150,45 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
       }
     },
     handleChange(evt) {
-      const bindery = evt.target.closest('b8r-bindery');
       const {type, target} = evt;
       const changeTarget = target.closest(`[data-from]`);
       if (changeTarget) {
         const [target, path] = changeTarget.dataset.from.split('=');
-        bindery.value = Object.assign(bindery.value, {[path]: changeTarget[target]})
+        this.update({
+          ...this.value,
+          [path]: changeTarget[target],
+        });
+      } else if (target === this) {
+        this.update(this.value);
       }
+    },
+    updateBindings() {
+      console.log('updating bindings');
+      this.subscribers = [...this.querySelectorAll('[data-to],[data-from]')]
+        .map(elt => {
+          const [prop, path] = (elt.dataset.to || elt.dataset.from).split('=');
+          return {prop, path, elt};
+        });
+      this.update(this.value);
+    },
+    update(newValue) {
+      if (! this.subscribers) this.updateBindings();
+      const {subscribers, value} = this;
+      let dirty = false;
+      Object.keys(newValue).forEach(path => {
+        if (newValue[path] !== value[path]) dirty = true;
+        subscribers
+          .forEach((subscriber) => {
+            if (subscriber.path === path && subscriber.elt[subscriber.prop] !== newValue[subscriber.path]) {
+              dirty = true;
+              subscriber.elt[subscriber.prop] = newValue[subscriber.path];
+            }
+          });
+      });
+      if(dirty) this.value = newValue;
     },
     render() {
       const slot = this.shadowRoot.querySelector('slot');
-      // TODO remove and re-add if list of events has changed
-      if (! this._eventsBound) {
-        implicit_event_types.forEach(type => slot.addEventListener(type, this.handleEvent, {capture:true}));
-      }
       this.events.split(',')
         .filter(type => type && ! implicit_event_types.includes(type))
         .forEach(type => {
@@ -157,14 +196,7 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
           slot.addEventListener(type, this.handleEvent, {capture:true});
         });
 
-      const model = this.value;
-      if (model) {
-        const subscribers = this.querySelectorAll('[data-to],[data-from]');
-        subscribers.forEach(elt => {
-          const [prop, path] = (elt.dataset.to || elt.dataset.from).split('=');
-          elt[prop] = model[path];
-        });
-      }
+      this.update(this.value);
     }
   },
 });

@@ -10,6 +10,7 @@ It provides a straightforward value (instead of having to worry about `checked`)
     <span data-bind="text=_component_.switch"></span>
     <script>
       require('web-components/switch.js');
+      set({switch: true});
     </script>
 ```
 */
@@ -20,9 +21,6 @@ const {
 } = require('../lib/web-components.js');
 
 const CheckboxSwitch = makeWebComponent('b8r-switch', {
-  value: {
-    writeable: true
-  },
   attributes: {
     color: '#ccc',
     onColor: '#0f0',
@@ -32,6 +30,7 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
     height: '16px',
     thumbSize: '24px',
     disabled: false,
+    value: false,
   },
   style: {
     ':host': {
@@ -75,12 +74,14 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
       const thumbSize = parseFloat(this.thumbSize);
       const inset = (height - thumbSize) * 0.5;
       thumb.style.top = `${inset}px`;
-      thumb.style.left = this.value ? `${this.offsetWidth - inset - thumbSize}px` : `${inset}px`;
       this.style.margin = `${-inset}px`;
       this.style.background = this.value ? this.onColor : this.color,
       this.style.width = this.width;
       this.style.height = this.height;
       this.style.transition = this.transition;
+      requestAnimationFrame(() => {
+        thumb.style.left = this.value ? `${this.offsetWidth - inset - thumbSize}px` : `${inset}px`;
+      });
     },
   },
 });
