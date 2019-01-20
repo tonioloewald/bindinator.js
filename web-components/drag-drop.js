@@ -38,7 +38,7 @@ in the second example.
 
 ```
 <style>
-  a[href],
+  ._component_ a[href],
   b8r-draggable,
   b8r-dropzone {
     display: block;
@@ -49,7 +49,7 @@ in the second example.
     border: 0;
     box-shadow: inset 0 0 0 2px rgba(0,0,255,0.1);
   }
-  a[href],
+  ._component_ a[href],
   b8r-draggable {
     box-shadow: inset 0 0 0 2px rgba(255,255,0,0.25);
     cursor: grab;
