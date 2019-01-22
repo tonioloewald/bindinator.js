@@ -64,33 +64,38 @@ is returned as
 
 const getParsedEventHandlers = element => {
   const handlers = getEventHandlers(element);
-  return handlers.map(function(instruction){
-    const [type, handler] = instruction.split(':');
-    if (!handler) {
-      if(instruction.indexOf('.')) {
-        console.error('bad event handler (missing event type)', instruction, 'in', element);
-      } else {
-        console.error('bad event handler (missing handler)', instruction, 'in', element);
-      }
-      return { types: [] };
-    }
-    const [, model, method] = handler.trim().match(/^([^\.]+)\.(.+)$/);
-    const types = type.split(',').sort();
-    return {
-      types: types.map(s => s.split('(')[0].trim()),
-      type_args: types.map(s => {
-        if (s.substr(0,3) === 'key') {
-          s = s.replace(/Key|Digit/g, '');
-          // Allows for a key to be CMD in Mac and Ctrl in Windows
-          s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl');
+  try {
+    return handlers.map(function(instruction){
+      const [type, handler] = instruction.split(':');
+      if (!handler) {
+        if(instruction.indexOf('.')) {
+          console.error('bad event handler (missing event type)', instruction, 'in', element);
+        } else {
+          console.error('bad event handler (missing handler)', instruction, 'in', element);
         }
-        var args = s.match(/\(([^)]+)\)/);
-        return args && args[1] ? args[1].split(',') : false;
-      }),
-      model,
-      method,
-    };
-  });
+        return { types: [] };
+      }
+      const [, model, method] = handler.trim().match(/^([^\.]+)\.(.+)$/);
+      const types = type.split(',').sort();
+      return {
+        types: types.map(s => s.split('(')[0].trim()),
+        type_args: types.map(s => {
+          if (s.substr(0,3) === 'key') {
+            s = s.replace(/Key|Digit/g, '');
+            // Allows for a key to be CMD in Mac and Ctrl in Windows
+            s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl');
+          }
+          var args = s.match(/\(([^)]+)\)/);
+          return args && args[1] ? args[1].split(',') : false;
+        }),
+        model,
+        method,
+      };
+    });
+  } catch(e) {
+    console.error('fatal error in event handler', e);
+    return [];
+  }
 };
 
 const makeHandler = (event_type, method) => {
