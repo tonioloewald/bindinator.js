@@ -61,6 +61,9 @@ const mime_types = {
 
 const handle_static_request = (req, res) => {
   const url_obj = url.parse(req.url);
+  if (req.headers.origin) {
+    res.setHeader('Access-Control-Allow-Headers', req.headers.origin); 
+  }
   fs.readFile(settings.web_root + url_obj.pathname, (err, data) => {
     if (err) {
       res.writeHead(404);
