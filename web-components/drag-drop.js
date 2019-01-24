@@ -170,26 +170,23 @@ const {
 let element_being_dragged = null;
 
 const is_type_allowed = (allowed_types, type) => {
-  let is_allowed = false;
-  allowed_types.forEach(allowed_type => {
+  for(let i = 0; i < allowed_types.length; i++) {
+    const allowed_type = allowed_types[i];
     if (allowed_type === 'special/any') {
-      is_allowed = true;
-      return false;
+      return true;
     } else if (allowed_type.indexOf('*') > -1) {
       const [A,B] = allowed_type.split('/');
       const [a,b] = type.split('/');
       if ((A === '*' || A === a) && (B === '*' || B === b)) {
-        is_allowed = true;
-        return false;
+        return true;
       }
     } else {
       if (allowed_type === type) {
-        is_allowed = true;
-        return false;
+        return true;
       }
     }
-  });
-  return is_allowed;
+  };
+  return false;
 };
 
 const mark_droppable = (evt) => {
