@@ -35,7 +35,7 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
   style: {
     ':host': {
       position: 'relative',
-      display: 'inline-block',
+      display: 'none',
       borderRadius: '99px',
       cursor: 'default',
     },
@@ -62,8 +62,11 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
     }
   },
   methods: {
-    render() {
+    onMount(){
       this.tabIndex = 0;
+    },
+    render() {
+      this.style.display = this.hidden ? 'none' : 'inline-block';
       const thumb = this.shadowRoot.querySelector('.thumb');
       thumb.style.transition = this.transition;
       thumb.style.background = this.thumbColor;

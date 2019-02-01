@@ -31,6 +31,20 @@ const {
   makeWebComponent,
 } = require('../lib/web-components.js');
 
+const rectUnion = (r, s) => {
+  const union = {
+    left: Math.min(r.left, s.left),
+    top: Math.min(r.top, s.top),
+    bottom: Math.max(r.bottom, s.bottom),
+    right: Math.max(r.right, s.right),
+  }
+  
+  union.width = union.right - union.left;
+  union.height = union.bottom - union.top;
+  
+  return union;
+};
+
 const SelectOption = makeWebComponent('b8r-option', {
   attributes: {
     value: '',
@@ -130,11 +144,11 @@ const SelectPop = makeWebComponent('b8r-select', {
       padding: '0 4px',
     },
     '.menu': {
-      position: 'absolute',
-      top: '22px',
-      left: '-1px',
-      zIndex: 100,
       display: 'flex',
+      position: 'fixed',
+      top: 0,
+      left: '-1000px',
+      zIndex: 100,
       flexDirection: 'column',
       font: '14px Helvetica, Sans-serif',
       alignItems: 'stretch',
@@ -143,19 +157,35 @@ const SelectPop = makeWebComponent('b8r-select', {
       userSelect: 'none',
       border: '1px solid transparent',
     },
+    '.outer': {
+      display: 'block',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: 0,
+      height: 0,
+      background: 'transparent',
+    },
   },
   eventHandlers: {
     mouseenter(evt) {
       if (evt.target === this) this.open = true;
-    },
-    mouseleave(evt) {
-      if (evt.target === this) this.open = false;
     },
     mouseup(evt) {
       requestAnimationFrame(() => this.open = !this.open);
     }
   },
   methods: {
+    onMount(){
+      const select = this;
+      select._menu = select.shadowRoot.querySelector('.menu');
+      select._menu.style.background = select.background;
+      select._outer = select.shadowRoot.querySelector('.outer');
+      select._outer.addEventListener('mouseleave', (evt) => {
+        select.open = evt.relatedTarget === select._menu ||
+                      select.contains(evt.relatedTarget);
+      });
+    },
     render(){
       const selection = this.shadowRoot.querySelector('.selection');
       selection.innerHTML = [];
@@ -164,10 +194,6 @@ const SelectPop = makeWebComponent('b8r-select', {
       this.style.borderColor = this.background;
       // x.dataset.list is for b8r list binding support
       const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION');
-      const menu = this.shadowRoot.querySelector('.menu');
-      menu.style.display = this.open ? '' : 'none';
-      menu.style.background = this.background;
-      menu.style.width = this.width;
       options.forEach((option, idx) => {
         const selected = option.value == this.value;
         option.style.transition = this.transition;
@@ -175,11 +201,33 @@ const SelectPop = makeWebComponent('b8r-select', {
         option.style.background = selected ? this.selectedBackground : '';
         if (selected) selection.appendChild(option.cloneNode(true));
       });
+      
+      if (this.open) {
+        const selfRect = this.getBoundingClientRect();
+        this._menu.style.display = '';
+        this._menu.style.left = selfRect.left + 'px';
+        this._menu.style.top = selfRect.bottom + 'px';
+        this._menu.style.width = selfRect.width + 'px';
+      
+        const menuRect = this._menu.getBoundingClientRect();
+        const boundsRect = rectUnion(selfRect, menuRect);
+      
+        this._outer.style.display = '';
+        this._outer.style.left = (boundsRect.left - 20) + 'px';
+        this._outer.style.top = (boundsRect.top - 20) + 'px';
+        this._outer.style.width = (boundsRect.width + 40) + 'px';
+        this._outer.style.height = (boundsRect.height + 40) + 'px';
+      
+      } else {
+        this._outer.style.display = 'none';
+        this._menu.style.display = 'none';
+      }
     },
   },
   content: fragment(
     div({classes: ['selection']}),
     div({content: '▾', classes: ['indicator']}), 
+    div({classes: ['outer']}),
     div({classes: ['menu'], content: slot()}),
   ),
   ariaRole: 'select',

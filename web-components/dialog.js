@@ -188,7 +188,7 @@ const DialogModal = makeWebComponent('b8r-modal', {
         this.addEventListener('keydown', this.handleShortcut.bind(this)); 
       }
       if (this.active) {
-        display = '';
+        display = 'block';
         requestAnimationFrame(() => {
           const elt = this.querySelector('input,textarea,button,select,[tabindex]');
           if (elt) elt.focus();
@@ -200,7 +200,7 @@ const DialogModal = makeWebComponent('b8r-modal', {
   },
   style: {
     ':host': {
-      display: 'block',
+      display: 'none',
       position: 'fixed',
       background: 'rgba(0,0,0,0.25)',
       left: 0,

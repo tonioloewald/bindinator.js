@@ -74,34 +74,56 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
   },
   eventHandlers: {
     childListChange() {
-      this.render();
+      this.buildTabs();
     },
   },
   methods: {
-    render() {
-      const value = this.value || 0;
+    onMount(){
+      this.buildTabs();
+    },
+    pickTab(idx){
+      this.value = idx;
+      const tab = this.shadowRoot.querySelector('.tabs').children[idx];
+      requestAnimationFrame(() => tab.focus());
+    },
+    buildTabs(){
       const tabs = this.shadowRoot.querySelector('.tabs');
-      // note that this is explicitly supporting b8r list bindings, but should cause no problems
-      // for vanilla js
+      // note that this is explicitly supporting b8r list bindings, 
+      // but should cause no problems for vanilla js.
       const bodies = [...this.children].filter(body => !body.dataset.list);
-      [...tabs.children].forEach(tab => bodies.find(body => body._tab === tab) || tab.remove());
+      tabs.innerHTML = '';
       bodies.forEach((body, idx) => {
-              if (! body._tab) {
-                const tab = span({
-                  attributes: {tabIndex: 0},
-                  content: body.getAttribute('name') || 'untitled',
-                });
-                tab.addEventListener('click', () => {
-                  this.value = idx;
-                  requestAnimationFrame(() => tab.focus());
-                });
-                tab._body = body;
-                body._tab = tab;
-              }
-              body.style.display = idx == value ? '' : 'none';
-              body._tab.classList.toggle('selected', idx == value);
-              tabs.appendChild(body._tab);
-            });
+        const tab = span({
+          attributes: {tabIndex: 0},
+          content: body.getAttribute('name') || 'untitled',
+        });
+        body._tab = tab;
+        tab.addEventListener('keydown', (evt) => {
+          switch(evt.code) {
+            case 'Space':
+              this.pickTab(idx);
+              break;
+            case 'ArrowRight':
+              this.pickTab(idx < bodies.length - 1 ? idx + 1 : 0);
+              break;
+            case 'ArrowLeft':
+              this.pickTab(idx ? idx - 1 : bodies.length - 1);
+              break;
+          }
+        });
+        tab.addEventListener('click', () => this.pickTab(idx));
+        tabs.appendChild(tab);
+      });
+      this._bodies = bodies;
+    },
+    render() {
+      const value = this.value && this.value <= this._bodies.length ? 
+                    this.value : 
+                    0;
+      this._bodies.forEach((body, idx) => {      
+        body.style.display = idx == value ? '' : 'none';
+        body._tab.classList.toggle('selected', idx == value);
+      });
     },
   },
   content: fragment(

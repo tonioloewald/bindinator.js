@@ -5,6 +5,8 @@ This is a simple experimental component for binding a model to the DOM.
 You assign an object to the `<b8r-bindery>`'s `value` and then bind to its 
 (top-level) properties by name.
 
+Bindery has no styling and does not use a shadow DOM.
+
 For example:
 
 ```
@@ -47,7 +49,7 @@ Bindery uses `data-on`, `data-to`, and `data-from` attributes to drive its bindi
 
 - implement multiple bindings
 - implement `toTargets` (and possibly `fromTargets`)
-- implement list bindings -- `<bindery-list>`? Contents become template, slot is hidden.
+- implement list bindings -- `<bindery-list>`? contents become template, slot is hidden.
 - consider whether to add `byPath` support or keep paths simple (one level deep)
 
 As of now, this is really just a toy. It only allows for one event and one data
@@ -122,10 +124,10 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
       this.handleChange(evt)
     },
   },
+  createShadow: false,
   methods: {
     onMount() {
-      const slot = this.shadowRoot.querySelector('slot');
-      implicit_event_types.forEach(type => slot.addEventListener(type, this.handleEvent, {capture:true}));
+      implicit_event_types.forEach(type => this.addEventListener(type, this.handleEvent, {capture:true}));
 
       // automatic binding of elements added or modified dynamically
       // but it may be a performance issue
@@ -163,7 +165,6 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
       }
     },
     updateBindings() {
-      console.log('updating bindings');
       this.subscribers = [...this.querySelectorAll('[data-to],[data-from]')]
         .map(elt => {
           const [prop, path] = (elt.dataset.to || elt.dataset.from).split('=');
@@ -175,7 +176,7 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
       if (! this.subscribers) this.updateBindings();
       const {subscribers, value} = this;
       let dirty = false;
-      Object.keys(newValue).forEach(path => {
+      Object.keys(newValue || {}).forEach(path => {
         if (newValue[path] !== value[path]) dirty = true;
         subscribers
           .forEach((subscriber) => {
@@ -188,12 +189,11 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
       if(dirty) this.value = newValue;
     },
     render() {
-      const slot = this.shadowRoot.querySelector('slot');
       this.events.split(',')
         .filter(type => type && ! implicit_event_types.includes(type))
         .forEach(type => {
-          slot.removeEventListener(type, this.handleEvent, {capture:true});
-          slot.addEventListener(type, this.handleEvent, {capture:true});
+          this.removeEventListener(type, this.handleEvent, {capture:true});
+          this.addEventListener(type, this.handleEvent, {capture:true});
         });
 
       this.update(this.value);
