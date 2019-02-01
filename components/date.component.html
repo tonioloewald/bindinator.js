@@ -97,6 +97,7 @@ them for anything.
   'use strict';
   /* global b8r, get, set, component, findOne, touch */
   const DAY_IN_MS = 24 * 3600 * 1000;
+  const days = [];
 
   const update = date => {
     const currentMonth = date.getMonth();
@@ -106,7 +107,8 @@ them for anything.
     const month = currentMonth < 9 ? '0' + (currentMonth + 1) : (currentMonth + 1);
     const firstDayOfMonth = new Date(`${date.getFullYear()}-${month}-01T${timezone}`);
     const firstDay = firstDayOfMonth - firstDayOfMonth.getDay() * DAY_IN_MS;
-    const days = ! get('firstDayOfMonth') || (get('firstDayOfMonth') - firstDayOfMonth) ? [] : get('days');
+    const firstDayOfMonthISO = firstDayOfMonth.toISOString().split('T')[0];
+    if (get('firstDayOfMonthISO') !== firstDayOfMonthISO) days.splice(0);
 
     // do we need to [re]build days?
     if (! days.length) {
@@ -136,6 +138,7 @@ them for anything.
           {initial: 'S', name: 'Saturday'},
         ],
         firstDayOfMonth,
+        firstDayOfMonthISO,
         value: date.toISOString(),
         dateValue: date.toISOString().split('T')[0],
         days,
