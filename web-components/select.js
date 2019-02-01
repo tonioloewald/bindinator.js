@@ -171,7 +171,13 @@ const SelectPop = makeWebComponent('b8r-select', {
     mouseenter(evt) {
       if (evt.target === this) this.open = true;
     },
-    mouseup(evt) {
+    touchstart(evt) {
+      if (evt.target === this){
+        this.open = true;
+        evt.preventDefault();
+      }
+    },
+    mouseup() {
       requestAnimationFrame(() => this.open = !this.open);
     }
   },
