@@ -126,11 +126,13 @@ const {create, find, findWithin} = require('./b8r.dom.js');
 const {ajax} = require('./b8r.ajax.js');
 const makeStylesheet = require('./b8r.makeStylesheet.js');
 const AsyncFunction = (async function(){}).constructor;
+const uuid = require('../lib/uuid.js');
 
 const makeComponent = function(name, source, url, preserve_source) {
   let css = false, content, script = false, parts, remains;
 
-  if (url) component_preload_map[name] = url;
+  if (!url) url = uuid();
+  component_preload_map[name] = url;
 
   // nothing <style> css </style> rest-of-component
   parts = source.split(/<style>|<\/style>/);
