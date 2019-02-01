@@ -375,6 +375,7 @@ module.exports = function(b8r) {
 
   const img = require('./b8r.imgSrc.js');
   const {get_component_with_method} = require('./b8r.events.js');
+  const describe = require('../lib/describe.js');
 
   const special_values = {
     '_true_': true,
@@ -610,7 +611,15 @@ module.exports = function(b8r) {
       }
     },
     json: function(element, value) {
-      element.textContent = JSON.stringify(value, false, 2);
+      try {
+        element.textContent = JSON.stringify(value, false, 2); 
+      } catch (_) {
+        const obj = {};
+        Object.keys(value).forEach(key => {
+          obj[key] = describe(value[key]);
+        });
+        element.textContent = '/* partial data -- could not stringify */\n' + JSON.stringify(obj, false, 2);
+      }
     },
     data_path: function(element, value) {
       if (!element.dataset.path || value && element.dataset.path.substr(-value.length) !== value) {

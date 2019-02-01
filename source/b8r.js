@@ -609,9 +609,13 @@ function loadAvailableComponents(element, data_path) {
     });
 }
 
+b8r._DEPRECATED_COMPONENTS_PASS_DOWN_DATA = false;
 const inheritData = element => {
   const reserved = ['destroy']; // reserved lifecycle methods
-  const source = element.closest('[data-path],[data-list-instance],[data-component-id]');
+  const selector = b8r._DEPRECATED_COMPONENTS_PASS_DOWN_DATA ?
+                   '[data-path],[data-list-instance],[data-component-id]' :
+                   '[data-path],[data-list-instance]';
+  const source = element.closest(selector);
   if (! source) {
     return null;
   } else {

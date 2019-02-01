@@ -1,5 +1,9 @@
 <div class="info"></div>
 <div class="example"></div>
+<details>
+  <summary>Component Data</summary>
+  <pre></pre>
+</details>
 <div class="hidden">
   <pre>
     <code style="font-size: 12px; white-space: pre-wrap;" class="language-markup"></code>
@@ -11,10 +15,17 @@
   const code = findOne('code');
   const info = findOne('.info');
   const {md} = require('../lib/text-render.js');
+  const example = findOne('.example');
+  const pre = findOne('pre');
+  const {domInterval} = require('../lib/dom-timers.js');
 
+  b8r.component('./path-browser');
   b8r.component(data.url, undefined, true).
   then(c => {
-    b8r.insertComponent(c, findOne('.example'));
+    b8r.insertComponent(c, example).then(() => {
+      b8r.addDataBinding(pre, 'json', example.dataset.componentId);
+      domInterval(pre, () => b8r.bindAll(pre), 1000);
+    });
     var docs_md, source;
     if (c._source.indexOf('<!--') === 0) {
       [docs_md, source] = c._source.substr(4).split('-->');
