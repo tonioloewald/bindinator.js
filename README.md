@@ -1,7 +1,7 @@
 <div style="text-align: center">
   <img
     alt="bindinator b∞r logo"
-    style="width: 600px; height: 600px; padding: 5vh 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.75));"
+    style="width: 300px; height: 300px; padding: 5vh 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"
     src="images/bindinator-logo.svg"
   >
 </div>
@@ -19,6 +19,7 @@
 - Don't learn new mini-languages.
 - Don't learn a templating language.
 - Don't use a special debugger. 
+- Write less boilerplate.
 - Don't tell the left hand what the right hand is doing.
 
 And `b8r` is lazy too.
