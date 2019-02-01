@@ -432,7 +432,11 @@ module.exports = function(b8r) {
             if (element.dataset.componentId) {
               b8r.set(`${element.dataset.componentId}.value`, value);
             } else {
-              console.error('could not set component value', element, value);
+              // <b8r-component> does not support value if it does
+              // not have a loaded component
+              if (element.tagName !== 'B8R-COMPONENT') {
+                console.error('could not set component value', element, value); 
+              }
             }
           }
       }

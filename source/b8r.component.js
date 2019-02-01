@@ -128,6 +128,22 @@ const makeStylesheet = require('./b8r.makeStylesheet.js');
 const AsyncFunction = (async function(){}).constructor;
 const uuid = require('../lib/uuid.js');
 
+const {makeWebComponent} = require('../lib/web-components.js');
+const View = makeWebComponent('b8r-component', {
+  attributes: {
+    name: '',
+  },
+  methods: {
+    render () {
+      if (this.name) {
+        b8r.insertComponent(this.name, this); 
+      } else {
+        b8r.removeComponent(this);
+      }
+    },
+  }
+});
+
 const makeComponent = function(name, source, url, preserve_source) {
   let css = false, content, script = false, parts, remains;
 
@@ -224,12 +240,13 @@ const collapse = path => {
   return path;
 };
 
-const component = (name, url, preserve_source) => {
+const component = (name, url, preserve_source=false) => {
   if (url === undefined) {
     url = name;
     name = url.split('/').pop();
   }
   if (!component_promises[name] || preserve_source) {
+    if (! url) throw `expected component ${name} to be defined`;
     url = collapse(url);
     component_promises[name] = new Promise(function(resolve, reject) {
       if (components[name] && !preserve_source) {
