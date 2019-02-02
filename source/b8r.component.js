@@ -114,8 +114,6 @@ If you want to force a cleanup, you can call:
 If a component has a property named `destroy` (and it's a method) it will
 be called just before the instance is removed from the registry.
 */
-/* global require, module */
-'use strict';
 
 import {async_update} from './b8r.update.js';
 import {create, find, findWithin} from './b8r.dom.js';
@@ -235,7 +233,6 @@ const makeComponent = function(name, source, url, preserve_source) {
   return component;
 };
 
-// copied from require.js
 // path/to/../foo -> path/foo
 const collapse = path => {
   while (path.match(/([^/]+\/\.\.\/)/)) {

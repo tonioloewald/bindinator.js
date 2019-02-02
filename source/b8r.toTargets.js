@@ -368,8 +368,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 * `_null_`
 */
 /* jshint expr: true */
-/* global require, module, console */
-'use strict';
+/* global console */
 
 import {imgSrc} from './b8r.imgSrc.js';
 import {get_component_with_method} from './b8r.events.js';

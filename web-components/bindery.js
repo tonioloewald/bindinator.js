@@ -62,7 +62,6 @@ Similarly, it would be easy enough to make the `data-from` bindings inactive by
 default (essentially giving you a redux-like data-flow) or simply not support them
 at all.
 */
-/* global require, module */
 
 import implicit_event_types from '../source/b8r.implicit-event-types.js';
 import {makeWebComponent} from '../lib/web-components.js';

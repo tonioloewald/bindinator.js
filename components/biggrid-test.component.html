@@ -49,8 +49,7 @@
   data-bind="text=total items: ${biggrid-test.list.length}, items in DOM: ${biggrid-test.dom.items}"
 ></div>
 <script>
-  /* global require, b8r, component, find */
-  'use strict';
+  /* global b8r, component, find */
 
   await import('../lib/biggrid.js');
   const {domInterval} = await import('../lib/dom-timers.js');

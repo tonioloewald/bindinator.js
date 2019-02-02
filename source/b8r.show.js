@@ -12,8 +12,6 @@ passing any additional arguments.
 Hides the element (storing its original `display` value in an attribute). Triggers a synthetic
 `hide` event on any elements with `hide` event handlers passing any additional arguments.
 */
-/* global module, require */
-'use strict';
 
 import {findWithin, isVisible} from './b8r.dom.js';
 import {trigger} from './b8r.events.js';

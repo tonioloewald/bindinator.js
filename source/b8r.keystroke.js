@@ -21,7 +21,7 @@ To get a normalized representation of a keystroke:
 </label>
 <div data-bind="text=_component_.keystroke"></div>
 <script>
-  const {keystroke} = require('source/b8r.keystroke.js');
+  const {keystroke} = await import('../source/b8r.keystroke.js');
   const key = evt => {
     set('keystroke', keystroke(evt));
     return true; // process keystroke normally

@@ -21,8 +21,6 @@ returns active any listeners.
 everything else for purposes of propagation.
 
 */
-/* global module, require */
-'use strict';
 
 import {on, off, getEventHandlers} from './b8r.events.js';
 import anyElement from './b8r.anyElement.js';

@@ -25,12 +25,8 @@ pass a callback to `after_update`:
 
     after_update(() => { ... }); // does stuff after force_update fires
 
-
 after_update fires immediately (and synchronously) if there are no pending updates.
 */
-/* global require, module */
-'use strict';
-
 const _change_list = [];
 let _update_frame = null;
 const _update_list = [];

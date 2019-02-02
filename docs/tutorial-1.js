@@ -16,11 +16,9 @@ your web app's page needs to look like this:
     </head>
     <body>
       ...
-      <script src="lib/require.js"></script>
-      <script>
-        require.autoPreload('source/b8r.js').then(b8r => {
-          ...
-        });
+      <script type="module">
+        import b8r from 'path/to/b8r.js';
+        ...
       </script>
     </body>
 

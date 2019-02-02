@@ -273,8 +273,7 @@ To quickly obtain bound data a list instance from an element inside it:
 
     b8r.getListInstance(elt)
 */
-/* global module, require, console */
-'use strict';
+/* global console */
 
 import {findWithin} from './b8r.dom.js';
 import {touchElement} from './b8r.update.js';

@@ -2,9 +2,7 @@
 # Events
 */
 /* jshint latedef:false */
-/* global module, console, window, require, KeyboardEvent */
-
-'use strict';
+/* global console, window, KeyboardEvent */
 
 import {findWithin} from './b8r.dom.js';
 import {get, registered, call} from './b8r.registry.js';

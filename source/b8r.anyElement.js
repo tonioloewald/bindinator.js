@@ -1,8 +1,6 @@
 /**
 # anyElement
 */
-/* global require, module */
-'use strict';
 
 const anyElement = document.createElement('div');
 

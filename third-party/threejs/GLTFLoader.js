@@ -704,7 +704,7 @@ THREE.GLTFLoader = ( function () {
 			 * normally be defined by MeshStandardMaterial.
 			 *
 			 * This method allows GLTFSpecularGlossinessMaterials to be cloned in the process of
-			 * loading a glTF model, but cloning later (e.g. by the user) would require these changes
+			 * loading a glTF model, but cloning later (e.g. by the user) would necessitate these changes
 			 * AND also updating `.onBeforeRender` on the parent mesh.
 			 *
 			 * @param  {THREE.ShaderMaterial} source

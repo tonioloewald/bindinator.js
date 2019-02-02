@@ -202,8 +202,6 @@ unwraps the element of its immediate parent or its closest `wrapper_selector` if
 </script>
 ```
 */
-/* global module, require */
-'use strict';
 
 import {makeArray, forEachKey} from './b8r.iterators.js';
 

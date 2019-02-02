@@ -60,9 +60,6 @@
   </div>
 </div>
 <script type="module">
-/* global require */
-'use strict';
-
 import b8r from '../source/b8r.js';
 
 window.b8r = b8r;
@@ -75,7 +72,7 @@ b8r.find('simple-span').forEach(elt => elt.dataset.component = 'simple');
 b8r.makeComponent('simple', '<style>._component_ {font-style: italic;}</style>');
 */
 /*
-const {makeWebComponent} = require('../lib/web-components.js');
+import {makeWebComponent} from '../lib/web-components.js';
 makeWebComponent('simple-span', {
   attributes: {dontcare: true},
   style: {':host': {'font-style': 'italic'}},

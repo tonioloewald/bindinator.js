@@ -131,8 +131,7 @@ lists).
 
 */
 /* jshint latedef:false */
-/* global module, require, console */
-'use strict';
+/* global console */
 
 import {getByPath, setByPath, deleteByPath} from './b8r.byPath.js';
 import {getDataPath, getComponentId, splitPaths} from './b8r.bindings.js';

@@ -5,7 +5,7 @@ These are convenient methods that behave a bit like the "spaceship" operator in 
 
 ### Usage
 
-    const {sortAscending, sortDescending} = require('path/to/b8r.sort.js');
+    import {sortAscending, sortDescending} from 'path/to/b8r.sort.js';
     const a = ['b', 'a', 'c'];
     const ascending = a.sort(sortAscending); // ['a', 'b', 'c'];
     const descending = a.sort(sortDescending); // ['c', 'b', 'a'];
@@ -23,7 +23,6 @@ They're also useful for building custom sort methods:
     Test(() => ['3', 1, 2].sort(sortDescending), 'sort mixed types, descending').shouldBeJSON(['3',2,1]);
 ~~~~
 */
-/* global module */
 
 export const sortAscending = (a, b) => 
     typeof a === 'string' || typeof b === 'string' ? 

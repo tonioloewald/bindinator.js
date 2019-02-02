@@ -22,8 +22,7 @@ is no longer in the DOM (versus needing to be manually stopped as part of a life
 </style>
 <input data-bind="value=_component_.time" disabled>
 <script>
-  /* global require, set, findOne */
-  'use strict';
+  /* global set, findOne */
   const {domInterval} = await import('../lib/dom-timers.js');
   const clock = findOne('input');
   domInterval(clock, () => set('time', new Date().toLocaleTimeString()), 100);

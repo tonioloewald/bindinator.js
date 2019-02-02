@@ -320,7 +320,6 @@
 
     // complex lists
     b8r.set('test1.sort', list => {
-      console.log(list);
       return list.sort((a, b) => b8r.sortAscending(a.name, b.name));
     });
     b8r.register('nested_list', [

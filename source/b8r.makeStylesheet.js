@@ -20,8 +20,6 @@ to the document header if (and only if) no such tag is already present (it only 
 `<link>` tags with the same href, so if you're doing something *really weird* with links this
 might lead to problems.)
 */
-/* global module, require */
-'use strict';
 
 import {create, text, findOne} from './b8r.dom.js';
 

@@ -100,7 +100,7 @@
   }
 </style>
 <script>
-  /* global require, b8r, component */
+  /* global b8r, component */
   const {update} = await import('../lib/shortcuts.js');
   b8r.on(component, ['mouseup', 'keydown(Space)'], 'menubar', 'action');
   b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open');

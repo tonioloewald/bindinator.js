@@ -14,7 +14,7 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
 > 
 > - Static analysis of code and dependencies (also autocomplete, etc.)
 > - Doubling down on standards:
->   - Eventually abandon b8r's custom `require` in favor of `import`
+>   - Replacing `require` with `import` where possible
 >   - Web-components have no dependency on `b8r` at all
 > - It will be possible to build a `<b8r-context>` component that neatly encapsulates all (almost! -- see below) of b8r's virtues in a web-component, allowing `b8r` to "live" anywhere -- inside, outside, or without other frameworks.
 > - It should be possible to provide a neat way to migrate old HTML components to the new model (wrap them in web-components).
@@ -97,7 +97,7 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
     ></b8r-markdown>
 </div>
 <script>
-  /* global require, b8r */
+  /* global b8r */
   await import('../web-components/switch.js');
   await import('../web-components/select.js');
   await import('../web-components/markdown.js');
