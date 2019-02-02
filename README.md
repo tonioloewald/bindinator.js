@@ -10,6 +10,10 @@
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
+## Breaking Changes
+
+I'm switching `b8r` from using its own `require.js` library to using ES6 `import`.
+
 ## The lazy JavaScript framework.
 
 *Laziness drives every design decision in b8r*. 

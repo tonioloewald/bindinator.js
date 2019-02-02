@@ -7,6 +7,10 @@
         "path": "README.md"
       },
       {
+        "name": "From require to import",
+        "path": "docs/import.md"
+      },
+      {
         "name": "Overview",
         "path": "docs/overview.md"
       },
