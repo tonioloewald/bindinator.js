@@ -340,7 +340,7 @@ const parseBinding = binding => {
 
 splitPaths is used to prise apart data-paths in bindings.
 ~~~~
-const {splitPaths} = require('./source/b8r.bindings.js');
+const {splitPaths} = await import('../source/b8r.bindings.js');
 
 Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
 Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
