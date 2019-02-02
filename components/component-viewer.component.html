@@ -14,7 +14,7 @@
   const {md} = await import('../lib/text-render.js');
   const {domInterval} = await import('../lib/dom-timers.js');
   const {viaTag} = await import('../lib/scripts.js');
-  await viaTag('../third-party/prism.min.js');
+  await viaTag('third-party/prism.min.js');
   const {Prism} = window;
 
   const code = findOne('code');
