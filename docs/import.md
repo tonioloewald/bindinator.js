@@ -1,20 +1,22 @@
 ## From `require` to `import`
 
 - `require` has been abolished in favor of `import`.
+- `require.lazy` and misc. support for legacy libraries has been replaced with
+  the much simpler `viaTag` from `scripts.js`.
 - The `<script>` tag of components is implemented as an `AsyncFunction`.
 - `data-component`  is being phased out in favor of `<bar-component>`.
 - extensive support for `web-components` (a.k.a. "Custom Elements") is now available.
 
 Within components, you'll need to rewrite imports from something like this:
 
-    const foo = require('./path/to/foo.js');
+    const foo = require('./path/to/foo.js'); // NO LONGER WORKS!
 
 To something like this:
 
     const {foo} = await import('../path/to/foo.js');
 
-(Right now, the import base path will be that of the context from which
-b8r.component was called, rather than the directory the component is in.)
+(**Note**: right now, the import base path will be that of the context 
+from which b8r.component was called, rather than the directory the component is in.)
 
 In libraries, you'll need to replace `module.exports = foo` with `export`
 statements. In general:
