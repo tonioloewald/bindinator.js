@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8"/>
   <title>Benchmark</title>
-  <script src="../lib/require.js"></script>
 </head>
 <body>
 <div id='main'>
@@ -60,13 +59,12 @@
     <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
   </div>
 </div>
-<script>
+<script type="module">
 /* global require */
 'use strict';
 
-require.autoPreload().then(() => {
+import b8r from '../source/b8r.js';
 
-const b8r = require('../source/b8r.js');
 window.b8r = b8r;
 var startTime;
 var lastMeasure;
@@ -216,8 +214,6 @@ b8r.register('benchmark', {
     }
     b8r.after_update(() => console.timeEnd('swap'));
   },
-});
-
 });
 </script>
 </body>
