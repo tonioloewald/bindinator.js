@@ -22,7 +22,7 @@ A simple image editor using [glfx.js](http://evanw.github.io/glfx.js/) for image
 </style>
 <script>
   /* global require, component */
-  const fx = require('../third-party/glfx.js');
+  const {fx} = await import('../third-party/glfx.js');
   const canvas = fx.canvas();
 
   const img = new Image();

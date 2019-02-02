@@ -201,7 +201,7 @@ const assignValues = (object, ancestor) => {
   return object;
 };
 
-module.exports = {
+export {
   makeArray,
   last,
   forEach,

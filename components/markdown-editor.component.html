@@ -42,8 +42,9 @@
   /*global require, b8r, get, set, findOne */
   'use strict';
 
+  const {md} = await import('../lib/text-render.js');
+  
   b8r.component('sizer');
-  const {md} = require('../lib/text-render.js');
 
   const source = `# Heading
 

@@ -74,7 +74,7 @@ Here's a simple example of using a component:
 ```
 <div data-component="switch"></div>
 <script>
-  b8r.component('components/switch');
+  b8r.component('./switch');
 </script>
 ```
 

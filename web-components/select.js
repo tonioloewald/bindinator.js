@@ -18,18 +18,18 @@ These select components work like a `<select>` but behave more like an input.
       <b8r-option value="c">C</b8r-option>
     </b8r-select>
     <script>
+      await import('../web-components/select.js');
       set('option', 'b');
-      require('web-components/select.js');
     </script>
 ```
 */
 
-const {
+import {
   fragment,
   div,
   slot,
   makeWebComponent,
-} = require('../lib/web-components.js');
+} from '../lib/web-components.js';
 
 const rectUnion = (r, s) => {
   const union = {
@@ -239,7 +239,7 @@ const SelectPop = makeWebComponent('b8r-select', {
   ariaRole: 'select',
 });
 
-module.exports = {
+export {
   SelectOption,
   SelectBar,
   SelectPop,

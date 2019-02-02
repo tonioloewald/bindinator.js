@@ -24,7 +24,7 @@ is no longer in the DOM (versus needing to be manually stopped as part of a life
 <script>
   /* global require, set, findOne */
   'use strict';
+  const {domInterval} = await import('../lib/dom-timers.js');
   const clock = findOne('input');
-  const {domInterval} = require('lib/dom-timers.js');
   domInterval(clock, () => set('time', new Date().toLocaleTimeString()), 100);
 </script>

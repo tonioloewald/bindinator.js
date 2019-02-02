@@ -6,9 +6,9 @@
  * Released under the MIT license
  */
 
-// changed the first line of this module to make it play nicely with require()
+// changed the first line of this module to make it into a module
 /* global module */
-module.exports = (function() {
+export const fx = (function() {
 var exports = {};
 
 // src/OES_texture_float_linear-polyfill.js

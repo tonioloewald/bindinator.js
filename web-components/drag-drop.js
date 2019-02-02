@@ -88,7 +88,7 @@ in the second example.
 <b8r-dropzone class="custom-drop-handler" effect="move">Custom drop handler</b8r-dropzone>
 <b8r-dropzone class="file-dropzone" type="Files">I accept PNG files</b8r-dropzone>
 <script>
-  require('web-components/drag-drop.js');
+  await import('../web-components/drag-drop.js');
   const dynamicContent = findOne('.dynamic-content');
   dynamicContent.content = Math.random();
   const customDropZone = findOne('.custom-drop-handler');
@@ -156,18 +156,17 @@ For complex cases, you'll almost always want to override the container's default
   <b8r-draggable>of</b8r-draggable>
 </b8r-drag-sortable>
 <script>
-  require('web-components/drag-drop.js');
+  await import('../web-components/drag-drop.js');
 </script>
 ```
 */
 
 'use strict';
 
-const {
-  makeWebComponent,
-} = require('../lib/web-components.js');
+import {makeWebComponent} from '../lib/web-components.js';
 
 let element_being_dragged = null;
+const dragged = () => element_being_dragged;
 
 const is_type_allowed = (allowed_types, type) => {
   for(let i = 0; i < allowed_types.length; i++) {
@@ -247,14 +246,14 @@ const drag = (evt) => {
   }
 };
 
-const end = () => {
+const dragEnd = () => {
   element_being_dragged = null;
   [...document.querySelectorAll('.drag-source')].forEach(elt => elt.classList.remove('drag-source'));
   [...document.querySelectorAll('.drag-over')].forEach(elt => elt.classList.remove('drag-over'));
   [...document.querySelectorAll('.drag-target')].forEach(elt => elt.classList.remove('drag-target'));
 };
 
-document.body.addEventListener('dragend', end);
+document.body.addEventListener('dragend', dragEnd);
 
 // handle things dragged from outside the app's window
 document.body.addEventListener('dragstart', dragstart);
@@ -278,7 +277,7 @@ const DropZone = makeWebComponent('b8r-dropzone', {
       evt.preventDefault();
       evt.stopPropagation();
       if (this.handleDrop(evt) === true) {
-        end();
+        dragEnd();
         return;
       }
       const target = evt.target.closest('b8r-dropzone');
@@ -292,7 +291,7 @@ const DropZone = makeWebComponent('b8r-dropzone', {
           }
         }
       });
-      end();
+      dragEnd();
     }
   },
 });
@@ -342,10 +341,10 @@ const DragSortable = makeWebComponent('b8r-drag-sortable', {
   },
 });
 
-module.exports = {
+export {
   DragItem,
   DropZone,
   DragSortable,
-  dragged: () => element_being_dragged,
-  dragEnd: end,
+  dragged,
+  dragEnd,
 }

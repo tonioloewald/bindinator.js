@@ -42,5 +42,7 @@ The toolbar component merely styles its children and adds shortcut support.
     the component.
   */
   /* global require */
-  require('../lib/shortcuts.js').update();
+  const {update} = await import('../lib/shortcuts.js');
+
+  update();
 </script>

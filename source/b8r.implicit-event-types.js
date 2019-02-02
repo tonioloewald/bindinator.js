@@ -1,6 +1,4 @@
-/* global module */
-
-module.exports = [
+export default [
   'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click', 'dblclick',
   'mouseleave', 'mouseenter',
   'mousewheel', 'scroll', // FIXEME passive?!

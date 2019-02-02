@@ -60,10 +60,10 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
   </div>
 </div>
 <script>
+  const {color, cssColorNames} = await import('../lib/color.js');
   /* global component, require, set */
   if(component.closest('.example')) {
-    const color = require('../lib/color.js');
-    const colors = color.cssColorNames();
+    const colors = cssColorNames();
     const items = [];
     const num_items = Math.random() * 20 + 10;
     for(let id = 0; id < num_items; id++) {

@@ -101,5 +101,5 @@ const jsonp = (url, method, request_data, config) => {
 
 const ajax_requests_in_flight = () => _requests_in_flight;
 
-module.exports = {ajax, json, jsonp, ajax_requests_in_flight};
+export {ajax, json, jsonp, ajax_requests_in_flight};
 

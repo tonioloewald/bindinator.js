@@ -98,10 +98,10 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
 </div>
 <script>
   /* global require, b8r */
-  require('../web-components/switch.js');
-  require('../web-components/select.js');
-  require('../web-components/markdown.js');
-  require('../web-components/tabs.js');
+  await import('../web-components/switch.js');
+  await import('../web-components/select.js');
+  await import('../web-components/markdown.js');
+  await import('../web-components/tabs.js');
 
   if (! b8r.get('web-component-demo')) {
     b8r.register('web-component-demo', {

@@ -101,7 +101,7 @@
 </style>
 <script>
   /* global require, b8r, component */
-  const shortcuts = require('../lib/shortcuts.js');
+  const {update} = await import('../lib/shortcuts.js');
   b8r.on(component, ['mouseup', 'keydown(Space)'], 'menubar', 'action');
   b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open');
   b8r.on(component, ['blur', 'keydown(Escape)'], 'menubar', 'close');
@@ -126,7 +126,7 @@
   // keyboard navigation
   b8r.makeArray(component.querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
 
-  shortcuts.update();
+  update();
 
   function close_all_menus() {
     b8r.off(document.body, 'mousedown', 'menubar', 'close');

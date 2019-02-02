@@ -17,10 +17,11 @@ You can use them the obvious way:
 /* global module, require */
 'use strict';
 
-module.exports = b8r => {
-  const {getBindings} = require('./b8r.bindings.js');
-  const fromTargets = require('./b8r.fromTargets.js')(b8r);
-  const hasFromTarget = t => fromTargets[t.target];
+import {getBindings} from './b8r.bindings.js';
+import * as fromTargets from './b8r.fromTargets.js';
+
+export default (b8r) => {
+  const hasFromTarget = (t) => fromTargets[t.target];
 
   b8r._register('_b8r_', {
     echo : evt => console.log(evt) || true,

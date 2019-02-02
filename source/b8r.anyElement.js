@@ -4,8 +4,6 @@
 /* global require, module */
 'use strict';
 
-const {create} = require('./b8r.dom.js');
+const anyElement = document.createElement('div');
 
-const anyElement = create('div');
-
-module.exports = anyElement;
+export default anyElement;

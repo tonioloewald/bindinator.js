@@ -79,9 +79,12 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   /* global require, findOne, b8r, data, set, component */
   'use strict';
 
+  const {AsyncFunction} = await import('../source/b8r.functions.js');
+  const {code} = await import('../lib/text-render.js');
+  const {Test} = await import('../lib/test.js');
+
   b8r.component('tab-selector');
   b8r.component('resizer');
-  const {code} = require('../lib/text-render.js');
 
   set({
     show: false,
@@ -93,7 +96,6 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     set({show: true});
   };
 
-  const Test = require('lib/test.js');
   Test.onError = () => {
     const test_error = b8r.findOne('.literate-errors');
     if(test_error) {
@@ -102,10 +104,10 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   };
 
   Test.setReportContainer(findOne('.test-transcript'));
-  const test_runner = new Function('Test', 'b8r', '_required_', data.source + `////# sourceURL=${component.dataset.componentId}`); // jshint ignore:line
+  const test_runner = new AsyncFunction('Test', 'b8r', data.source + `////# sourceURL=${component.dataset.componentId}`); // jshint ignore:line
 
   try {
-    test_runner.call(null, Test, b8r, data._required_);
+    test_runner.call(null, Test, b8r);
   } catch(e) {
     notify_errors();
     Test.report(`test runner threw exception: ${e}`, 'failure');

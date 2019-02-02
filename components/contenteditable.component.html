@@ -38,7 +38,7 @@ The key point is that you can bind to this component's `value` and it should wor
 /* global component, findOne, set, require */
 'use strict';
 
-  const selection = require('../lib/selection.js');
+  const {setSelection} = await import('../lib/selection.js');
   const placeholder = component.getAttribute('placeholder');
   const field = findOne('div');
 
@@ -46,6 +46,6 @@ The key point is that you can bind to this component's `value` and it should wor
     field.dataset.placeholder = placeholder;
   }
   set({
-    select_all: () => selection.setSelection(field, 0, field.textContent.length)
+    select_all: () => setSelection(field, 0, field.textContent.length)
   });
 </script>

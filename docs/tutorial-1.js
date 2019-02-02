@@ -64,7 +64,7 @@ run it again, which will overwrite the registered data.
     ]
   });
 
-  const {domInterval} = require('lib/dom-timers.js');
+  const {domInterval} = await import('../lib/dom-timers.js');
   domInterval(
     component,
     () => b8r.bindAll(b8r.id('tutorial1-data')),

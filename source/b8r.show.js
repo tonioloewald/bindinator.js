@@ -15,8 +15,8 @@ Hides the element (storing its original `display` value in an attribute). Trigge
 /* global module, require */
 'use strict';
 
-const {findWithin, isVisible} = require('./b8r.dom.js');
-const {trigger} = require('./b8r.events.js');
+import {findWithin, isVisible} from './b8r.dom.js';
+import {trigger} from './b8r.events.js';
 
 const show = (element, ...args) => {
   if (! isVisible(element)) {
@@ -40,7 +40,7 @@ const hide = (element, ...args) => {
   }
 };
 
-module.exports = {
+export {
   show,
   hide
 };

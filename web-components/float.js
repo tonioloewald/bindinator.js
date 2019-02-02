@@ -42,8 +42,8 @@ Supports some useful attributes:
   ">&times;</button>
 </b8r-float>
 <script>
+  await import('../web-components/float.js');
   const floater = findOne('b8r-float').cloneNode(true);
-  require('web-components/float.js');
   set({
     create(){
       component.appendChild(floater.cloneNode(true));
@@ -55,12 +55,12 @@ Supports some useful attributes:
 </script>
 ```
 */
-const {
+import {
   makeWebComponent,
   div,
   fragment,
   slot,
-} = require('../lib/web-components.js');
+} from '../lib/web-components.js';
 
 
 const mousemove = (evt) => {
@@ -154,6 +154,6 @@ const Float = makeWebComponent('b8r-float', {
   },
 });
 
-module.exports = {
+export {
   Float,
 }

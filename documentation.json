@@ -122,10 +122,6 @@
       {
         "name": "update",
         "path": "source/b8r.update.js"
-      },
-      {
-        "name": "require",
-        "path": "lib/require.js"
       }
     ]
   },

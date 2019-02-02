@@ -100,12 +100,11 @@ Note that the shortcuts leverage the behavior described above under **button sho
     <button data-event="click:dialog-demo.showConfirm">dialogConfirm</button>
     <button data-event="click:dialog-demo.showPrompt">dialogPrompt</button>
     <script>
-      require('web-components/dialog.js');
       const {
         dialogAlert,
         dialogConfirm,
         dialogPrompt,
-      } = require('web-components/dialog.js');
+      } = await import('../web-components/dialog.js');
       const dialog = findOne('b8r-modal');
       const input = dialog.querySelector('input');
       dialog.addCallback(value => b8r.set('dialog-demo.result', value));
@@ -140,14 +139,14 @@ Note that the shortcuts leverage the behavior described above under **button sho
 ```
 */
 
-const {
+import {
   makeWebComponent,
   makeElement,
   fragment,
   div,
   input,
   button,
-} = require('../lib/web-components.js');
+} from '../lib/web-components.js';
 
 const DialogModal = makeWebComponent('b8r-modal', {
   attributes: {
@@ -284,9 +283,9 @@ const dialogPrompt = (message='Enter some text', text='', title=window.location.
     dialog.querySelector('input').setSelectionRange(0, 32000);
   });
 
-module.exports = {
+export {
   DialogModal,
   dialogAlert,
   dialogConfirm,
   dialogPrompt,
-}
+};

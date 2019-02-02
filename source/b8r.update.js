@@ -35,7 +35,7 @@ const _change_list = [];
 let _update_frame = null;
 const _update_list = [];
 const _after_update_callbacks = [];
-const {trigger} = require('./b8r.events.js');
+import {trigger} from './b8r.events.js';
 let _force_update = () => {};
 
 const requestAnimationFrameWithTimeout = callback => {
@@ -131,9 +131,11 @@ const touchByPath = (...args) => {
   async_update(full_path, source_element);
 };
 
-module.exports = {
+const _set_force_update = (fn) => _force_update = fn;
+
+export {
   // hack to eliminate circular dependency
-  _set_force_update: fn => _force_update = fn,
+  _set_force_update,
   async_update,
   get_update_list,
   _trigger_change,

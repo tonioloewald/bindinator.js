@@ -47,7 +47,7 @@ WebRTC configuration (pick audio and video source). Exposes functionality in web
 <script>
 /* global require, b8r, component */
 'use strict';
-  require('../lib/webrtc.js');
+  await import('../lib/webrtc.js');
   b8r.component('floater');
   b8r.wrapWithComponent('floater', component, null, {style: 'width: 280px; right: 200px; top: 100px;'});
 </script>

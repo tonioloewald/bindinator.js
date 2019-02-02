@@ -134,8 +134,8 @@ lists).
 /* global module, require, console */
 'use strict';
 
-const {getByPath, setByPath, deleteByPath} = require('./b8r.byPath.js');
-const {getDataPath, getComponentId, splitPaths} = require('./b8r.bindings.js');
+import {getByPath, setByPath, deleteByPath} from './b8r.byPath.js';
+import {getDataPath, getComponentId, splitPaths} from './b8r.bindings.js';
 const registry = {};
 const listeners = [];  // { path_string_or_test, callback }
 const debug_paths = true;
@@ -616,7 +616,7 @@ const register = (name, obj, block_updates) => {
 
   if (!block_updates) {
     touch(name);
-    require.lazy('./b8r.events.js').then(({play_saved_messages}) => play_saved_messages(name));
+    import('./b8r.events.js').then(({play_saved_messages}) => play_saved_messages(name));
   }
 };
 
@@ -899,9 +899,18 @@ const increment = path => set(path, get(path) + 1);
 
 const decrement = path => set(path, get(path) - 1);
 
-module.exports = {
+const deregister = path => {
+  console.warn('deregister is deprecated, use b8r.remove');
+  remove(path);
+};
+
+const _getByPath = (model, path) => 
+  get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
+
+export {
   get,
   getJSON,
+  _getByPath as getByPath,
   set,
   setJSON,
   increment, decrement, zero,
@@ -915,10 +924,7 @@ module.exports = {
   register,
   registered,
   remove,
-  deregister: path => {
-    console.warn('deregister is deprecated, use b8r.remove');
-    remove(path);
-  },
+  deregister,
   resolvePath,
   isValidPath,
 };

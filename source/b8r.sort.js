@@ -25,7 +25,10 @@ They're also useful for building custom sort methods:
 */
 /* global module */
 
-const sortAscending = (a, b) => typeof a === 'string' || typeof b === 'string' ? `${a}`.localeCompare(b) : a > b ? 1 : b > a ? -1 : 0;
-const sortDescending = (a, b) => typeof a === 'string' || typeof b === 'string' ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
-
-module.exports = {sortAscending, sortDescending};
+export const sortAscending = (a, b) => 
+    typeof a === 'string' || typeof b === 'string' ? 
+    `${a}`.localeCompare(b) : a > b ? 1 : b > a ? -1 : 0;
+    
+export const sortDescending = (a, b) => 
+    typeof a === 'string' || typeof b === 'string' ? 
+    `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;

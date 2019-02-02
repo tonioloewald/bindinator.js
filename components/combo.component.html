@@ -57,7 +57,7 @@ the string.
 /* global component, b8r, require */
 'use strict';
 
-  const {getSelection, setSelection} = require('../lib/selection.js');
+  const {getSelection, setSelection} = await import('../lib/selection.js');
 
   if (!b8r.registered('combo-controller')) {
     const combos = {};

@@ -10,19 +10,18 @@ Set the component's `data-src` to specify an animation
 <script>
 /* global require, set, component */
 'use strict';
+  const {viaTag} = await import('../lib/scripts.js');
+  await viaTag('../third-party/bodymovin.min.js');
+  const {bodymovin} = window;
 
-  require.
-  lazy('../third-party/bodymovin.min.js').
-  then(bodymovin => {
-    const animation = bodymovin.loadAnimation({
-        container: component,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: component.dataset.src || 'test/motorcycle.json'
-      });
-    set({animation});
+  const animation = bodymovin.loadAnimation({
+      container: component,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: component.dataset.src || 'test/motorcycle.json'
+    });
+  set({animation});
 
-    animation.addEventListener('DOMLoaded', () => component.classList.add('bodymovin-loaded'));
-  });
+  animation.addEventListener('DOMLoaded', () => component.classList.add('bodymovin-loaded'));
 </script>

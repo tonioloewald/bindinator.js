@@ -17,42 +17,50 @@ This is an example of implementing an animated control using bodymovin.
 </style>
 <input
   type="hidden"
-  data-bind="method(_component_.update)=_component_.value"
 >
 <script>
 /* global require, b8r, set, component, data, get, on */
 'use strict';
 
-  require.
-  lazy('../third-party/bodymovin.min.js').
-  then(bodymovin => {
-    data.animation = bodymovin.loadAnimation({
-      container: component,
-      renderer: 'svg',
-      loop: false,
-      autoplay: false,
-      path: component.dataset.src || 'test/toggle_switch.json'
-    });
+  const {viaTag} = await import('../lib/scripts.js');
 
-    data.animation.addEventListener('DOMLoaded', data.update);
+  await viaTag('../third-party/bodymovin.min.js');
+  const {bodymovin} = window;
+
+  const input = findOne('input');
+
+  const animation = bodymovin.loadAnimation({
+    container: component,
+    renderer: 'svg',
+    loop: false,
+    autoplay: false,
+    path: component.dataset.src || 'test/toggle_switch.json'
   });
 
-  set({
-    toggle: () => {
-      set({value: ! get('value')});
-      b8r.trigger('change', component);
-    },
-    update: () => {
-      if (data.animation) {
-        data.animation.setSpeed(4);
-        if (data.value) {
-          data.animation.playSegments([0,50], true);
-        } else {
-          data.animation.playSegments([50,100], true);
-        }
+  const toggle = () => {
+    set({value: ! get('value')});
+    b8r.trigger('change', component);
+  };
+
+  const update = () => {
+    if (animation) {
+      animation.setSpeed(4);
+      if (get('value')) {
+        animation.playSegments([0,50], true);
+      } else {
+        animation.playSegments([50,100], true);
       }
     }
+  };
+
+  set({
+    toggle,
+    update,
   });
+
+  b8r.addDataBinding(input, 'method(_component_.update)', '_component_.value');
+
+  animation.addEventListener('DOMLoaded', update, {once: true});
 
   on('mouseup,touchend', '_component_.toggle');
 </script>

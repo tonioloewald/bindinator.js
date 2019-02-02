@@ -24,8 +24,8 @@ everything else for purposes of propagation.
 /* global module, require */
 'use strict';
 
-const {on, off, getEventHandlers} = require('./b8r.events.js');
-const anyElement = require('./b8r.anyElement.js');
+import {on, off, getEventHandlers} from './b8r.events.js';
+import anyElement from './b8r.anyElement.js';
 
 const anyArgs = args => {
   var event_type, object, method, path;
@@ -50,7 +50,7 @@ const offAny = function(...args) {
 
 const anyListeners = () => getEventHandlers(anyElement);
 
-module.exports = {
+export {
   anyListeners,
   anyArgs,
   onAny,

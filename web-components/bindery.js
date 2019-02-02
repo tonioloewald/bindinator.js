@@ -25,7 +25,7 @@ For example:
   </label>
 </b8r-bindery>
 <script>
-  require('web-components/bindery.js');
+  await import('../web-components/bindery.js');
   document.querySelector('b8r-bindery').value = {
     caption: 'an example',
     alert () {
@@ -64,10 +64,8 @@ at all.
 */
 /* global require, module */
 
-const implicit_event_types = require('../source/b8r.implicit-event-types.js');
-const {
-  makeWebComponent,
-} = require('../lib/web-components.js');
+import implicit_event_types from '../source/b8r.implicit-event-types.js';
+import {makeWebComponent} from '../lib/web-components.js';
 
 const fromTargets = {
   value(element){
@@ -201,6 +199,6 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
   },
 });
 
-module.exports = {
+export {
   BinderyModel,
-}
+};

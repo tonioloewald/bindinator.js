@@ -11,12 +11,14 @@ is loaded.
 /* global require, module */
 'use strict';
 
+import {render} from '../lib/pixel.js';
+
 const images = {};
 const pixel = new Image();
-pixel.src = require('../lib/pixel.js').render();
+pixel.src = render();
 const pixelPromise = new Promise(resolve => resolve(pixel));
 
-const imagePromise = (url, cors=true) => {
+export const imagePromise = (url, cors=true) => {
   if (!url) {
     return pixelPromise;
   } else if (images[url]) {
@@ -42,7 +44,7 @@ const imagePromise = (url, cors=true) => {
   }
 };
 
-const imgSrc = (img, url, cors=true) => {
+export const imgSrc = (img, url, cors=true) => {
   if(img instanceof HTMLImageElement && img.src === url) {
     return;
   }
@@ -71,7 +73,3 @@ const imgSrc = (img, url, cors=true) => {
     }
   });
 };
-
-imgSrc.imagePromise = imagePromise;
-
-module.exports = imgSrc;

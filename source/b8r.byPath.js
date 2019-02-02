@@ -91,7 +91,7 @@ In this case, you want the absence of an object to be either undefined
     setByPath(obj, {bar: 17}); // {bar: 17} will not be converted
 
 ~~~~
-const {getByPath, setByPath, pathParts} = require('source/b8r.byPath.js');
+const {getByPath, setByPath, pathParts} = await import('../source/b8r.byPath.js');
 const obj = {
   foo: 17,
   bar: {baz: 'hello'},
@@ -408,5 +408,5 @@ function matchTypes(value, oldValue) {
   return value;
 }
 
-module.exports = {getByPath, setByPath, deleteByPath, matchTypes, pathParts, pathSplit};
+export {getByPath, setByPath, deleteByPath, matchTypes, pathParts, pathSplit};
 

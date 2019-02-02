@@ -40,7 +40,8 @@ A tool for browsing objects.
 /* global require, component, b8r, get, set, data, touch */
 'use strict';
 
-  const uuid = require('../lib/uuid.js');
+  const {uuid} = await import('../lib/uuid.js');
+  const {describe} = await import('../lib/describe.js');
   const reset = path => {
     set({
       value: path,
@@ -51,7 +52,6 @@ A tool for browsing objects.
 
   reset();
 
-  const describe = require('../lib/describe.js');
 
   if (component.matches('.example') && !data.value) {
     b8r.register('object-browser-test', {

@@ -110,13 +110,10 @@
     <div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
   </div>
   <div class="report"></div>
-  <script src="lib/require.js"></script>
-  <script>
-    /* global require */
-    'use strict';
-    const b8r = require('source/b8r.js');
-    const Test = require('lib/test.js');
-    const {getByPath, setByPath} = require('source/b8r.byPath.js');
+  <script type="module">
+    import b8r from './source/b8r.js';
+    import Test from './lib/test.js';
+    import {getByPath, setByPath} from './source/b8r.byPath.js';
 
     Test.setReportContainer(b8r.findOne('.report'));
   /*

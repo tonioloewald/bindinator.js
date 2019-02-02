@@ -276,7 +276,8 @@ To quickly obtain bound data a list instance from an element inside it:
 /* global module, require, console */
 'use strict';
 
-const {findWithin} = require('./b8r.dom.js');
+import {findWithin} from './b8r.dom.js';
+import {touchElement} from './b8r.update.js';
 
 const addDataBinding = (element, toTarget, path) => {
   path = path.replace(/_component_/g, getComponentId(element));
@@ -286,9 +287,9 @@ const addDataBinding = (element, toTarget, path) => {
   if (existing.indexOf(binding) === -1) {
     existing.push(binding);
     element.dataset.bind = existing.join(';');
-    require.lazy('./b8r.js').then(b8r => {
+    import('./b8r.js').then(b8r => {
       delete element._b8r_boundValues;
-      b8r.bindAll(element);
+      touchElement(element);
     });
   }
 };
@@ -412,7 +413,7 @@ const resolveListInstanceBindings = (instance_elt, instance_path) => {
   });
 };
 
-module.exports = {
+export {
   addDataBinding,
   removeDataBinding,
   getDataPath,

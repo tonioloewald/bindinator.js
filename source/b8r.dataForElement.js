@@ -40,7 +40,7 @@ const dataForElement = (target_element, _default) => {
   return _default;
 };
 
-module.exports = {
+export {
   saveDataForElement,
   dataForElement
 };

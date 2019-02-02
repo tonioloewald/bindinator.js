@@ -55,7 +55,7 @@ Markdown allows for two ways of embedding code, backquotes (used for examples)
 and tildes (used for tests).
 ~~~~
 // _required_ => require('path/to/the/module.js');
-const {add} = _required_;
+const {add} = await import('../test/literate-test.js');
 
 Test(() => add(1,1)).shouldBe(2);
 Test(() => add(1,-1)).shouldBe(0);
@@ -76,4 +76,4 @@ function add(a, b) {
   return a + b;
 }
 
-module.exports = {add};
+export {add};

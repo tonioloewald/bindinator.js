@@ -12,14 +12,14 @@
 <script>
 /* global findOne, require, b8r, data */
 'use strict';
-  const code = findOne('code');
-  const render = require('lib/text-render.js');
+  const codeElt = findOne('code');
+  const {code} = await import('../lib/text-render.js');
 
   if(data.source) {
-    render.code(code, data.source.split('\n').filter(s => s.trim()).join('\n'), 'js');
+    code(codeElt, data.source.split('\n').filter(s => s.trim()).join('\n'), 'js');
   } else if (data.url) {
     b8r.component('loading').
     then(() => b8r.ajax(data.url)).
-    then(source => render.code(code, source, 'js'));
+    then(source => code(codeElt, source, 'js'));
   }
 </script>

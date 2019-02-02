@@ -76,4 +76,4 @@ const modifierKeys = {
   shift: '⇧',
 };
 
-module.exports = {keystroke, keycode, modifierKeys};
+export {keystroke, keycode, modifierKeys};

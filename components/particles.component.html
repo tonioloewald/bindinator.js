@@ -45,10 +45,10 @@
 /* global b8r, require, get, set, findOne */
 'use strict';
 
-  const color = require('../lib/color.js');
+  const {randomCssColor} = await import('../lib/color.js');
+  const {particleController} = await import('../lib/particle-controller.js');
 
   b8r.component('tab-selector');
-  const particle_controller = require('../lib/particle-controller.js');
 
   const canvas = findOne('canvas');
   const g = canvas.getContext('2d');
@@ -60,7 +60,7 @@
       const y = Math.random() * 32 + 16;
       const w = Math.random() * 16;
       const h = Math.random() * 16;
-      g.fillStyle = color.randomCssColor();
+      g.fillStyle = randomCssColor();
       if (Math.random() < 0.5) {
         g.fillRect(x - w, y - h, w * 2, h * 2);
       } else {
@@ -86,13 +86,13 @@
       switch(get('mode')) {
         case 0:
           const emoji = ['😀', '💜', '👍', '💩', '🍆'][Math.floor(Math.random() * 5)];
-          particle_controller.spawnAt(x, y, emoji, get('particle_count'), get('particle_size'));
+          particleController.spawnAt(x, y, emoji, get('particle_count'), get('particle_size'));
           break;
         case 1:
-          particle_controller.spawnAt(x, y, get('chars').split(','), get('particle_count'), get('particle_size'));
+          particleController.spawnAt(x, y, get('chars').split(','), get('particle_count'), get('particle_size'));
           break;
         case 2:
-          particle_controller.spawnAt(x, y, [canvas], get('particle_count'), get('particle_size'));
+          particleController.spawnAt(x, y, [canvas], get('particle_count'), get('particle_size'));
           break;
       }
     },

@@ -9,16 +9,16 @@ It provides a straightforward value (instead of having to worry about `checked`)
     <b8r-switch data-bind="value=_component_.switch"></b8r-switch>
     <span data-bind="text=_component_.switch"></span>
     <script>
-      require('web-components/switch.js');
+      await import('../web-components/switch.js');
       set({switch: true});
     </script>
 ```
 */
 
-const {
+import {
   span,
   makeWebComponent,
-} = require('../lib/web-components.js');
+} from '../lib/web-components.js';
 
 const CheckboxSwitch = makeWebComponent('b8r-switch', {
   attributes: {
@@ -89,6 +89,6 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
   },
 });
 
-module.exports = {
+export {
   CheckboxSwitch,
 };

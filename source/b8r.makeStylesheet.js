@@ -3,13 +3,14 @@
 
 Usage:
 
-    const makeStyleSheet = ('path/to/makeStylesheet.js');
+    import makeStyleSheet from 'path/to/makeStylesheet.js';
     makeStylesheet('h1 { font-size: 100px; }', 'my style sheet');
 
 Inserts the source in a `<style>` tag and sticks in in the document head. It will have the
 supplied title as its `data-title` attribute;
 
-    makeStyleSheet.viaLink('path/to/styles.css');
+    import {viaLink} from 'path/to/makeStyleSheet.js';
+    viaLink('path/to/styles.css'); // returns a <link> tag with appropriate href
 
 Adds:
 
@@ -22,9 +23,9 @@ might lead to problems.)
 /* global module, require */
 'use strict';
 
-const {create, text, findOne} = require('./b8r.dom.js');
+import {create, text, findOne} from './b8r.dom.js';
 
-module.exports = (source, title) => {
+const makeStyleSheet = (source, title) => {
   const style = source ? create('style') : false;
   if (style) {
     style.type = 'text/css';
@@ -35,7 +36,7 @@ module.exports = (source, title) => {
   return style;
 };
 
-module.exports.viaLink = href => {
+export const viaLink = (href) => {
   if (! findOne(`link[href="${href}"]`)) {
     const link = create('link');
     link.rel = 'stylesheet';
@@ -44,3 +45,5 @@ module.exports.viaLink = href => {
     document.head.append(link);
   }
 };
+
+export default makeStyleSheet;

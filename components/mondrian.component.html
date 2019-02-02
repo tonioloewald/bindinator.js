@@ -92,6 +92,9 @@ A component for messing around with the `mondrian.js` layout library.
 /* global find, findOne, require, register, b8r, on, get */
 'use strict';
 
+  const mondrian = await import('../lib/mondrian.js');
+  const resize = await import('../lib/resize.js');
+
   const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
   const hidden = () => find('.mondrian > .hidden');
   const random_changes = findOne('.random_changes');
@@ -109,9 +112,6 @@ A component for messing around with the `mondrian.js` layout library.
   g.fillRect(0,64,64,64);
   g.fillStyle = 'yellow';
   g.fillRect(64,64,64,64);
-
-  const mondrian = require('lib/mondrian.js');
-  const resize = require('lib/resize.js');
 
   const update = () => requestAnimationFrame(() => {
     mondrian.arrange_with_focus(
@@ -152,7 +152,7 @@ A component for messing around with the `mondrian.js` layout library.
     }
   }
 
-  const {domInterval} = require('lib/dom-timers.js');
+  const {domInterval} = await import('../lib/dom-timers.js');
   domInterval(container, random_behavior, 2000);
 
   function hide_random () {

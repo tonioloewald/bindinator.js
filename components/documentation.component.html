@@ -188,9 +188,10 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 /* global b8r, alert, component, set, findOne */
   'use strict';
 
+  const windows = await import('../lib/windows.js');
+
   b8r.on(document.body, 'keydown(alt-I)', 'documentation-controller.inspector');
 
-  const windows = require('../lib/windows.js');
   var content = findOne('.content');
   const nav = findOne('.nav');
   set({year: new Date().getFullYear()});
@@ -232,7 +233,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
         return;
       }
       const part = b8r.getListInstance(evt.target) || {path: 'README.md'};
-      /* global require */
       if (evt.metaKey && part.path.endsWith('.component.html')) {
         const component_name = part.path.split('.').shift();
         const {origin, pathname} = window.location;

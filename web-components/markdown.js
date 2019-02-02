@@ -7,18 +7,18 @@ markdown passed as its `value`.
 ```
     <b8r-markdown data-bind="value=_component_.markdown"></b8r-markdown>
     <script>
+      await import('../web-components/markdown.js');
       set('markdown', '###markdown\n**bold** and _italic');
-      require('web-components/markdown.js');
     </script>
 ```
 */
 
-const {md} = require('../lib/text-render.js');
+import {md} from '../lib/text-render.js';
 
-const {
+import {
   makeElement,
   makeWebComponent,
-} = require('../lib/web-components.js');
+} from '../lib/web-components.js';
 
 const MarkdownArea = makeWebComponent('b8r-markdown', {
   attributes: {
@@ -37,6 +37,6 @@ const MarkdownArea = makeWebComponent('b8r-markdown', {
   ariaRole: 'rich text',
 });
 
-module.exports = {
+export {
   MarkdownArea,
 }

@@ -4,16 +4,15 @@
 /*global require, component, data, b8r */
   'use strict';
 
-  const {md} = require('../lib/text-render.js');
-  const loading = b8r.component('loading');
-  b8r.component('fiddle');
+  const {md} = await import('../lib/text-render.js');
+
+  const loading = await b8r.component('loading');
+  await b8r.component('fiddle');
 
   if (data.content) {
-    loading.
-    then(() => md(component, data.content));
+    md(component, data.content);
   } else if (data.url) {
-    loading.
-    then(() => b8r.ajax(data.url)).
-    then(content => md(component, content));
+    const content = await b8r.ajax(data.url);
+    md(component, content);
   }
 </script>

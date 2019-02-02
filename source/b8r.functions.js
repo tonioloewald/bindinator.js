@@ -1,6 +1,10 @@
 /**
 # functions
 
+This module provides convenient access to the `AsyncFunction` constructor.
+
+    const f = new b8r.AsyncFunction(...args, code)
+
 Utility functions for preventing a method from being called too frequently.
 Not recommended for use on methods which take arguments!
 
@@ -46,4 +50,6 @@ const throttle = (orig_fn, min_interval) => {
   };
 };
 
-module.exports = { debounce, throttle };
+const AsyncFunction = (async function(){}).constructor;
+
+export { AsyncFunction, debounce, throttle };

@@ -371,12 +371,11 @@ These terms are used for comparison to certain values in conditional toTargets.
 /* global require, module, console */
 'use strict';
 
-module.exports = function(b8r) {
+import {imgSrc} from './b8r.imgSrc.js';
+import {get_component_with_method} from './b8r.events.js';
+import describe from '../lib/describe.js';
 
-  const img = require('./b8r.imgSrc.js');
-  const {get_component_with_method} = require('./b8r.events.js');
-  const describe = require('../lib/describe.js');
-
+export default function(b8r) {
   const special_values = {
     '_true_': true,
     '_false_': false,
@@ -505,7 +504,7 @@ module.exports = function(b8r) {
         element.dataset[dest] = value;
       }
     },
-    img,
+    img: imgSrc,
     bgImg: (element, value) => {
       if (value) {
         element.style.backgroundImage = `url("${value}")`;
@@ -608,7 +607,7 @@ module.exports = function(b8r) {
         const date = new Date(zulu);
         element.textContent = date.toLocaleString();
       } else {
-        require.lazy('../third-party/date.format.js').then(() => {
+        import('../third-party/date.format.js').then(() => {
           const date = new Date(zulu);
           element.textContent = date.format(format);
         });

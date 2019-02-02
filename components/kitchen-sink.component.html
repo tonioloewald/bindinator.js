@@ -528,6 +528,8 @@ launches child windows that are synced to `kitchen-sink-demo`.
 /* global b8r, register, console, require */
 'use strict';
 
+  const {is_parent, open} = await import('../lib/windows.js');
+
   b8r.component('menubar');
   b8r.component('toolbar');
   b8r.component('slider-numeric');
@@ -541,8 +543,6 @@ launches child windows that are synced to `kitchen-sink-demo`.
   b8r.component('search-field');
   b8r.component('date');
   b8r.component('iso-date');
-
-  const windows = require('../lib/windows.js');
 
   ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
 
@@ -566,9 +566,9 @@ launches child windows that are synced to `kitchen-sink-demo`.
   b8r.onAny(['timeupdate'], '_b8r_._update_');
 
   // multi-window support, see windows.js
-  if (windows.is_parent()) {
+  if (is_parent()) {
     const spawn_window = () => {
-      windows.open(
+      open(
         window.location.href.split('#')[0] + '#body=components/kitchen-sink',
         { minWidth: 600, minHeight: 400 },
         ['kitchen-sink-demo']

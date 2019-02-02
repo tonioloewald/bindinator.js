@@ -11,8 +11,8 @@ attributes so that it's still accessible.
 <script>
   /* global require, get, set, findOne */
   'use strict';
+  const {domInterval} = await import ('../lib/dom-timers.js');
   const clock = findOne('canvas');
-  const {domInterval} = require('lib/dom-timers.js');
   const g = clock.getContext('2d');
   const logo = new Image();
   logo.src = 'images/bindinator-logo-notext-mono.svg';

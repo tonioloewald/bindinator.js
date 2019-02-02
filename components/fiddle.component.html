@@ -174,9 +174,14 @@ of awesome that this works at all.
 /* global require, findOne, set, b8r, on, data, component, register, ace */
 /* jshint latedef:false */
 'use strict';
+  const {uuid} = await import('../lib/uuid.js');
+  const {viaTag} = await import('../lib/scripts.js');
+
+  await viaTag('https://cdn.jsdelivr.net/ace/1.2.6/noconflict/ace.js');
+  const {ace} = window;
+
   const code_elt = findOne('.code');
   const container = findOne('[name="Example"]');
-  const uuid = require('../lib/uuid.js');
   let editor;
 
   b8r.component('sizer');
@@ -187,21 +192,17 @@ of awesome that this works at all.
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
   on('resize', '_component_.resize');
 
-  // ACE editor — bleargh
   const init_editor = () => {
-    require.lazy('https://cdn.jsdelivr.net/ace/1.2.6/noconflict/ace.js').
-    then(() => {
-      editor = ace.edit(code_elt);
-      ace.config.set('basePath', 'https://cdn.jsdelivr.net/ace/1.2.6/noconflict/');
-      editor.setTheme('ace/theme/monokai');
-      editor.session.setOptions({
-        mode: 'ace/mode/html',
-        tabSize: 2,
-        useSoftTabs: true
-      });
-    }).
-    catch(() => code_elt.contentEditable = true);
+    editor = ace.edit(code_elt);
+    ace.config.set('basePath', 'https://cdn.jsdelivr.net/ace/1.2.6/noconflict/');
+    editor.setTheme('ace/theme/monokai');
+    editor.session.setOptions({
+      mode: 'ace/mode/html',
+      tabSize: 2,
+      useSoftTabs: true
+    });
   };
+
   if(data.source) {
     code_elt.textContent = data.source;
     init_editor();

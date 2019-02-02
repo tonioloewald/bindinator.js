@@ -12,12 +12,16 @@
 <script>
 /* global b8r, data, findOne, require */
 'use strict';
+  const {md} = await import('../lib/text-render.js');
+  const {domInterval} = await import('../lib/dom-timers.js');
+  const {viaTag} = await import('../lib/scripts.js');
+  await viaTag('../third-party/prism.min.js');
+  const {Prism} = window;
+
   const code = findOne('code');
   const info = findOne('.info');
-  const {md} = require('../lib/text-render.js');
   const example = findOne('.example');
   const pre = findOne('pre');
-  const {domInterval} = require('../lib/dom-timers.js');
 
   b8r.component('./path-browser');
   b8r.component(data.url, undefined, true).
@@ -38,11 +42,7 @@
     }
     code.textContent = source.replace(/\t/g, '  ');
     code.closest('.hidden').classList.remove('hidden');
-
-    require.lazy('../third-party/prism.min.js').
-    then(Prism => {
-      Prism.highlightElement(code);
-      b8r.show(code.closest('div'));
-    });
+    Prism.highlightElement(code);
+    b8r.show(code.closest('div'));
   });
 </script>

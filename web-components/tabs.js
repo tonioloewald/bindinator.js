@@ -19,17 +19,17 @@ and rich content in tabs, and assignment of specific values to tabs
       <div name="second" style="padding: 20px">second tab content</div>
     </b8r-tab-selector>
     <script>
-      require('web-components/tabs.js');
+      await import('../web-components/tabs.js');
     </script>
 ```
 */
-const {
+import {
   fragment,
   div,
   span,
   slot,
   makeWebComponent,
-} = require('../lib/web-components.js');
+} from '../lib/web-components.js';
 
 const TabSelector = makeWebComponent('b8r-tab-selector', {
   attributes: {
@@ -133,6 +133,6 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
   ariaRole: 'rich text',
 });
 
-module.exports = {
+export {
   TabSelector,
 }

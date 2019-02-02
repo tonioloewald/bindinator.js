@@ -410,13 +410,16 @@ grid cells that are currently in view.
   /* global require, console, get, set, component, b8r, touch, findOne */
   'use strict';
 
-  const biggrid = require('../lib/biggrid.js');
-  const {imagePromise} = require('../source/b8r.imgSrc.js');
-  const jsfeat = require('../third-party/jsfeat-min.js');
-  const resize = require('../lib/resize.js');
+  const {biggrid} = await import('../lib/biggrid.js');
+  const {imagePromise} = await import('../source/b8r.imgSrc.js');
+  const {viaTag} = await import('../lib/scripts.js');
+  await viaTag('../third-party/jsfeat-min.js');
+  const {jsfeat} = window;
+  const {resize} = await import('../lib/resize.js');
+  const {isElectron} = await import('../lib/runtime-environment.js');
   const scroller = findOne('.raw-viewer-scroller');
 
-  if (! require.electron || window.process.platform !== 'darwin') {
+  if (! isElectron || window.process.platform !== 'darwin') {
     b8r.hide(component);
     return;
   }
@@ -427,8 +430,9 @@ grid cells that are currently in view.
 
   resize.relayTo(scroller);
 
-  const fs = require.globalRequire('fs');
-  const {exec} = require.globalRequire('child_process');
+  /* electron-require */
+  const fs = require('fs');
+  const {exec} = require('child_process');
 
   const MAX_PROCESSING = 4;
   const PREVIEW_SIZE = 256;

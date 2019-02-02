@@ -68,7 +68,7 @@ const medianOfSortedArray = values =>
      values[Math.floor(values.length / 2 - 0.5)]) /
     2;
 
-const perf = {
+export default {
   log: (log_name, entry_name, truncate_logs=false) => {
     let log = logs.find(log => log.name === log_name);
     if (!log) {
@@ -144,5 +144,3 @@ const perf = {
     }
   },
 };
-
-module.exports = perf;

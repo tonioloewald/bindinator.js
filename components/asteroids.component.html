@@ -56,8 +56,8 @@ Uses game-controller.js which relies on presence of a connected gamepad.
 /* global findOne, register, component, require, b8r, touch */
 'use strict';
 
-  const uuid = require('lib/uuid.js');
-  const {buttons, axes, gamepads} = require('lib/game-controller.js');
+  const {uuid} = await import('../lib/uuid.js');
+  const {buttons, axes, gamepads} = await import('../lib/game-controller.js');
   const starfield = findOne('.asteroids');
   const asteroids = [];
   const ships = [];

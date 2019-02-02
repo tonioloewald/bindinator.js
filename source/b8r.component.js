@@ -117,18 +117,19 @@ be called just before the instance is removed from the registry.
 /* global require, module */
 'use strict';
 
+import {async_update} from './b8r.update.js';
+import {create, find, findWithin} from './b8r.dom.js';
+import {ajax} from './b8r.ajax.js';
+import makeStylesheet from './b8r.makeStylesheet.js';
+import uuid from '../lib/uuid.js';
+import {makeWebComponent} from '../lib/web-components.js';
+import {AsyncFunction} from './b8r.functions.js';
+
 const components = {};
 const component_timeouts = [];
 const component_promises = {};
 const component_preload_map = {};
-const {async_update} = require('./b8r.update.js');
-const {create, find, findWithin} = require('./b8r.dom.js');
-const {ajax} = require('./b8r.ajax.js');
-const makeStylesheet = require('./b8r.makeStylesheet.js');
-const AsyncFunction = (async function(){}).constructor;
-const uuid = require('../lib/uuid.js');
 
-const {makeWebComponent} = require('../lib/web-components.js');
 const View = makeWebComponent('b8r-component', {
   attributes: {
     name: '',
@@ -170,10 +171,13 @@ const makeComponent = function(name, source, url, preserve_source) {
   div.innerHTML = content;
   /*jshint evil: true */
   let load = () => console.error('component', name, 'cannot load properly');
+  if (script && script.match(/require\s*\(/) && ! script.match(/electron-require/)) {
+    console.error(`in component "${name}" replace require with await import()`);
+    script = false;
+  }
   try {
     load = script ?
              new AsyncFunction(
-                'require',
                 'component',
                 'b8r',
                 'find',
@@ -188,7 +192,7 @@ const makeComponent = function(name, source, url, preserve_source) {
               ) :
               false;
   } catch(e) {
-    console.error('error creating load method for component', name, e);
+    console.error('error creating load method for component', name, e, script);
     throw `component ${name} load method could not be created`;
   }
   /*jshint evil: false */
@@ -266,7 +270,7 @@ const component = (name, url, preserve_source=false) => {
   return component_promises[name];
 };
 
-module.exports = {
+export {
   component,
   components,
   component_timeouts,

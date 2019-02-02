@@ -30,16 +30,24 @@ implement some kind of virtual machine to replace it.
 /* global console, require, module */
 
 'use strict';
-const { getByPath, pathSplit } = require('./b8r.byPath.js');
+import { getByPath, pathSplit } from './b8r.byPath.js';
+import * as _dom from './b8r.dom.js';
+import _perf from './b8r.perf.js';
+import * as _iterators from './b8r.iterators.js';
+import * as _registry from './b8r.registry.js';
+import * as _functions from './b8r.functions.js';
+import _toTargets from './b8r.toTargets.js';
+import * as _ajax from './b8r.ajax.js';
+import _b8r_ from './b8r._b8r_.js';
+import * as _sort from './b8r.sort.js';
+import catPath from '../lib/cat-path.js';
 
-function b8r() {}
+const b8r = {};
 
-module.exports = b8r;
-
-Object.assign(b8r, require('./b8r.dom.js'));
-Object.assign(b8r, require('./b8r.perf.js'));
-Object.assign(b8r, require('./b8r.iterators.js'));
-const {
+Object.assign(b8r, _dom);
+Object.assign(b8r, _perf);
+Object.assign(b8r, _iterators);
+import {
   on,
   off,
   enable,
@@ -48,9 +56,9 @@ const {
   trigger,
   implicit_event_types,
   handle_event,
-} = require('./b8r.events.js');
+} from './b8r.events.js';
 Object.assign(b8r, { on, off, enable, disable, callMethod, trigger });
-const {
+import {
   addDataBinding,
   removeDataBinding,
   getDataPath,
@@ -62,20 +70,18 @@ const {
   replaceInBindings,
   resolveListInstanceBindings,
   splitPaths,
-} = require('./b8r.bindings.js');
+} from './b8r.bindings.js';
 Object.assign(b8r, {addDataBinding, removeDataBinding, getDataPath, getComponentId, getListInstancePath});
-const { saveDataForElement, dataForElement } =
-  require('./b8r.dataForElement.js');
-const {onAny, offAny, anyListeners} =
-    require('./b8r.anyEvent.js');
-Object.assign(b8r, { onAny, offAny, anyListeners });
-Object.assign(b8r, require('./b8r.registry.js'));
+import {saveDataForElement, dataForElement} from './b8r.dataForElement.js';
+import {onAny, offAny, anyListeners} from './b8r.anyEvent.js';
+Object.assign(b8r, {onAny, offAny, anyListeners});
+Object.assign(b8r, _registry);
 b8r.observe(() => true, (path, source_element) => b8r.touchByPath(path, source_element));
-const { keystroke, modifierKeys } = require('./b8r.keystroke.js');
+import {keystroke, modifierKeys} from './b8r.keystroke.js';
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
 
-Object.assign(b8r, require('./b8r.functions.js'));
+Object.assign(b8r, _functions);
 
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
@@ -92,7 +98,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
   });
 }, 100);
 
-const {
+import {
   async_update,
   get_update_list,
   after_update,
@@ -100,7 +106,7 @@ const {
   touchByPath,
   _after_update,
   _set_force_update,
-} = require('./b8r.update.js');
+} from './b8r.update.js';
 Object.assign(b8r, {async_update, after_update, touchElement, touchByPath});
 
 b8r.force_update = () => {
@@ -255,10 +261,6 @@ b8r.removeByPath = function(...args) {
   }
 };
 
-b8r.getByPath = function(model, path) {
-  return b8r.get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
-};
-
 b8r.listItems = element =>
   b8r.makeArray(element.children)
     .filter(elt => elt.matches('[data-list-instance]'));
@@ -302,7 +304,7 @@ b8r.implicitlyHandleEventsOfType = type => {
   }
 };
 
-const toTargets = require('./b8r.toTargets.js')(b8r);
+const toTargets = _toTargets(b8r);
 
 b8r.onAny(['change', 'input'], '_b8r_._update_');
 
@@ -357,7 +359,7 @@ function bind(element) {
   Object.assign(boundValues, newValues);
 }
 
-const { show, hide } = require('./b8r.show.js');
+import { show, hide } from './b8r.show.js';
 b8r.show = show;
 b8r.hide = hide;
 
@@ -524,53 +526,10 @@ b8r.bindAll = (element, data_path) => {
   findLists(element).forEach(elt => bindList(elt, data_path));
 };
 
-require('./b8r._b8r_.js')(b8r);
-Object.assign(b8r, require('./b8r.ajax.js'));
-Object.assign(b8r, require('./b8r.sort.js'));
+_b8r_(b8r);
 
-b8r.preloadData = () => {
-  if (! b8r.findOne('script[src*="preload.js"]')) return;
-  const modules = require.preloadData(true).reduce((a, b) => a.concat(b), []);
-  const components = [];
-  Object.keys(component_preload_map).forEach(name => {
-    const path = component_preload_map[name];
-    components.push ({name, path});
-  });
-  const data = {
-    modules,
-    components: components.sort((a, b) => b8r.sortAscending(a.name, b.name)) };
-
-  if (window.__b8r_server_debug) {
-    console.log('%c%s', 'color: white; background: #0a0', 'sending preload data');
-    b8r.json('/__preload', 'POST', data);
-  } else if (
-    require.electron &&
-    require.electron.remote.process.defaultApp
-  ) {
-    console.log('%c%s', 'color: white; background: #0a0', 'writing preload data');
-    // using lazy to avoid changing dependency tree
-    require.lazy('../lib/fs-promises.js').then(({save}) => {
-      save('preload-electron.json', JSON.stringify(data, false, 2));
-    });
-  }
-
-  return JSON.stringify(data, false, 2);
-};
-
-if (require.onSyncLoad) require.onSyncLoad(b8r.debounce(b8r.preloadData, 2000));
-
-b8r.preload = (path='preload.components.json') => new Promise((resolve) => {
-  b8r.json(path).then(components => {
-    components.forEach(({name, path, source}) => {
-      try {
-        b8r.makeComponent(name, source, path);
-      } catch(e) {
-        console.error(`${path} failed to preload`, e);
-      }
-    });
-    resolve();
-  }).catch(resolve);
-});
+Object.assign(b8r, _ajax);
+Object.assign(b8r, _sort);
 
 const _path_relative_b8r = _path => {
   return !_path ? b8r : Object.assign({}, b8r, {
@@ -587,13 +546,13 @@ const _path_relative_b8r = _path => {
   });
 };
 
-const {
+import {
   component,
   components,
   component_timeouts,
   component_preload_map,
   makeComponent
-} = require('./b8r.component.js');
+} from './b8r.component.js';
 Object.assign(b8r, {component, makeComponent});
 
 b8r.components = () => Object.keys(components);
@@ -720,7 +679,6 @@ b8r.insertComponent = async function(component, element, data) {
     b8r.register(component_id, data, true);
     try {
       await component.load(
-        require.relative(component.path),
         element, _path_relative_b8r(component.path), selector => b8r.findWithin(element, selector),
         selector => b8r.findOneWithin(element, selector), data, register,
         get, set, on, touch, component
@@ -766,3 +724,5 @@ b8r.componentOnce = function(...args) {
     }
   });
 };
+
+export default b8r;

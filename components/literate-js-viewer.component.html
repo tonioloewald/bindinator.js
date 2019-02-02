@@ -28,7 +28,7 @@
   /* global b8r, set, data, console, require, findOne */
   'use strict';
 
-  const Test = require('lib/test.js');
+  const {Test} = await import('../lib/test.js');
   Test.reset();
 
   const loading = b8r.component('loading');
@@ -84,7 +84,6 @@
                 type: 'test',
                 source: example.replace(/^\n+|\n+$/g, ''),
                 complete_source,
-                _required_: require(data.url)
               });
             }
           }

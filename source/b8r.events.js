@@ -6,12 +6,12 @@
 
 'use strict';
 
-const {findWithin} = require('./b8r.dom.js');
-const {get, registered, call} = require('./b8r.registry.js');
-const anyElement = require('./b8r.anyElement.js');
-const keys = require('./b8r.keystroke.js');
-const {pathSplit} = require('./b8r.byPath.js');
-const implicit_event_types = require('./b8r.implicit-event-types.js');
+import {findWithin} from './b8r.dom.js';
+import {get, registered, call} from './b8r.registry.js';
+import anyElement from './b8r.anyElement.js';
+import * as keys from './b8r.keystroke.js';
+import {pathSplit} from './b8r.byPath.js';
+import implicit_event_types from './b8r.implicit-event-types.js';
 
 const onOffArgs = args => {
   var element, event_type, object, method, prepend = false;
@@ -413,7 +413,7 @@ to use `data-event` bindings for the seeking `media` event, which you
 could do with `b8r.implicitlyHandleEventsOfType('seeking')`.
 */
 
-module.exports = {
+export {
   makeHandler,
   getEventHandlers,
   getParsedEventHandlers,

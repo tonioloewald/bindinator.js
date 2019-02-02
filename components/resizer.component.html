@@ -14,7 +14,7 @@ Makes the thing you stick it into resizable.
 </style>
 <script>
   /* global require, component, on */
-  require('../lib/resizer.js');
+  await import('../lib/resizer.js');
 
   component.classList.add('icon-dots');
   on('mousedown', 'resizer.mousedown');

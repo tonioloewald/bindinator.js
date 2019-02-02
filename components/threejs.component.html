@@ -12,6 +12,11 @@ The test model was created using [Cheetah 3D](http://cheetah3d.com), and animate
 /* global require, component, b8r, findOne, THREE */
 'use strict';
 
+const {viaTag} = await import('../lib/scripts.js');
+await viaTag('../third-party/threejs/three.min.js');
+await viaTag('../third-party/threejs/GLTFLoader.js');
+const {THREE} = window;
+
 const canvas = findOne('canvas');
 
 const walktree = (node, f) => {
@@ -21,109 +26,103 @@ const walktree = (node, f) => {
   }
 };
 
-const load = async () => {
-  await require.lazy('../third-party/threejs/three.min.js');
-  await require.lazy('../third-party/threejs/GLTFLoader.js');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera( 20, 1.5, 0.1, 1000 );
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera( 20, 1.5, 0.1, 1000 );
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+camera.position.z = 4;
 
-  camera.position.z = 4;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setSize( canvas.width, canvas.height );
 
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.setSize( canvas.width, canvas.height );
-
-  const sunlight = new THREE.DirectionalLight(0xddeeff, 1.25);
-  sunlight.castShadow = true;
-  sunlight.position.set(10, 10, 10);
-  scene.add(sunlight);
-  sunlight.shadow.mapSize.width = 2048;
-  sunlight.shadow.mapSize.height = 2048;
-  sunlight.shadow.camera.near = 0.01;
-  sunlight.shadow.camera.far = 500;
+const sunlight = new THREE.DirectionalLight(0xddeeff, 1.25);
+sunlight.castShadow = true;
+sunlight.position.set(10, 10, 10);
+scene.add(sunlight);
+sunlight.shadow.mapSize.width = 2048;
+sunlight.shadow.mapSize.height = 2048;
+sunlight.shadow.camera.near = 0.01;
+sunlight.shadow.camera.far = 500;
 
 /*
-  const helper = new THREE.CameraHelper( sunlight.shadow.camera );
-  scene.add( helper );
+const helper = new THREE.CameraHelper( sunlight.shadow.camera );
+scene.add( helper );
 */
 
-  const ambient = new THREE.AmbientLight(0x603000);
-  scene.add(ambient);
+const ambient = new THREE.AmbientLight(0x603000);
+scene.add(ambient);
 
-  const plane_geometry = new THREE.PlaneGeometry( 1.5, 1.5, 2 );
-  const plane_mat = new THREE.MeshStandardMaterial( {color: 0x707070 });
-  const plane = new THREE.Mesh( plane_geometry, plane_mat );
-  plane.receiveShadow = true;
-  plane.position.y = -0.5;
-  plane.rotation.x = Math.PI * -0.5;
-  scene.add(plane);
+const plane_geometry = new THREE.PlaneGeometry( 1.5, 1.5, 2 );
+const plane_mat = new THREE.MeshStandardMaterial( {color: 0x707070 });
+const plane = new THREE.Mesh( plane_geometry, plane_mat );
+plane.receiveShadow = true;
+plane.position.y = -0.5;
+plane.rotation.x = Math.PI * -0.5;
+scene.add(plane);
 
-  const loader = new THREE.GLTFLoader();
-  const load = async path => {
-    return await new Promise(resolve => loader.load(path, gltf => resolve(gltf)));
-  };
-
-  const gltf = await load('test/omnidude.glb');
-  const model = gltf.scene;
-  // pirate.children[0].material.roughness = 1;
-
-  const materials = {};
-  const meshes = {};
-
-  // tweak materials and meshes
-  walktree(model, n => {
-    if (! n.material || n.material.name !== 'glass') {
-      n.castShadow = true;
-      n.receiveShadow = true; 
-    }
-  });
-  model.position.y = -0.5;
-  scene.add(model);
-  const mixer = new THREE.AnimationMixer(model);
-  mixer.clipAction(gltf.animations[0]).play();
-  let time = Date.now();
-
-  // shove this stuff in globals so you can play with it
-  window.threejs_stuff = {scene, camera, renderer, sunlight, model, plane, materials, meshes};
-
-  const update = () => {
-    const mouse = b8r.get('threejs-demo.mouse');
-    if (mouse) {
-      sunlight.position.x = mouse.x * 20;
-      sunlight.position.y = Math.max(-0.4, (mouse.y - 0.5) * -20);
-    }
-    model.rotation.y -= 0.01;
-    const elapsed = (Date.now() - time) * 0.001;
-    time = Date.now();
-    mixer.update(elapsed);
-  };
-
-  b8r.onAny('mousemove', 'threejs-demo.mousemove');
-  b8r.register('threejs-demo', {
-    mousemove: evt => {
-      if (b8r.isInBody(component)) {
-        const x = (evt.clientX / window.innerWidth - 0.5) * 2;
-        const y = (evt.clientY / window.innerHeight - 0.5) * 2;
-        b8r.set('threejs-demo.mouse', {x, y});
-      } else {
-        b8r.remove('threejs-demo');
-        b8r.offAny('mousemove', 'threejs-demo.mousemove');
-      }
-      return true;
-    }
-  });
-
-  function render() {
-    if(b8r.isInBody(canvas)) {
-      update();
-      requestAnimationFrame( render );
-      renderer.render( scene, camera );
-    }
-  }
-  render();
+const loader = new THREE.GLTFLoader();
+const load = async path => {
+  return await new Promise(resolve => loader.load(path, gltf => resolve(gltf)));
 };
 
-load();
+const gltf = await load('test/omnidude.glb');
+const model = gltf.scene;
+// pirate.children[0].material.roughness = 1;
+
+const materials = {};
+const meshes = {};
+
+// tweak materials and meshes
+walktree(model, n => {
+  if (! n.material || n.material.name !== 'glass') {
+    n.castShadow = true;
+    n.receiveShadow = true; 
+  }
+});
+model.position.y = -0.5;
+scene.add(model);
+const mixer = new THREE.AnimationMixer(model);
+mixer.clipAction(gltf.animations[0]).play();
+let time = Date.now();
+
+// shove this stuff in globals so you can play with it
+window.threejs_stuff = {scene, camera, renderer, sunlight, model, plane, materials, meshes};
+
+const update = () => {
+  const mouse = b8r.get('threejs-demo.mouse');
+  if (mouse) {
+    sunlight.position.x = mouse.x * 20;
+    sunlight.position.y = Math.max(-0.4, (mouse.y - 0.5) * -20);
+  }
+  model.rotation.y -= 0.01;
+  const elapsed = (Date.now() - time) * 0.001;
+  time = Date.now();
+  mixer.update(elapsed);
+};
+
+b8r.onAny('mousemove', 'threejs-demo.mousemove');
+b8r.register('threejs-demo', {
+  mousemove: evt => {
+    if (b8r.isInBody(component)) {
+      const x = (evt.clientX / window.innerWidth - 0.5) * 2;
+      const y = (evt.clientY / window.innerHeight - 0.5) * 2;
+      b8r.set('threejs-demo.mouse', {x, y});
+    } else {
+      b8r.remove('threejs-demo');
+      b8r.offAny('mousemove', 'threejs-demo.mousemove');
+    }
+    return true;
+  }
+});
+
+function render() {
+  if(b8r.isInBody(canvas)) {
+    update();
+    requestAnimationFrame( render );
+    renderer.render( scene, camera );
+  }
+}
+
+render();
 </script>

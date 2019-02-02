@@ -6,53 +6,51 @@
   <title>b8r | the lazy JavaScript framework</title>
   <link rel="stylesheet" type="text/css" href="css/b8r.css">
   <link rel="stylesheet" type="text/css" href="icomoon/style.css">
-  <script src="lib/require.js"></script>
-  <script>
-  /* global require */
+  <script type="module">
   'use strict';
-    require.autoPreload().
-    then(() => {
-      const b8r = require('source/b8r.js');
-      // for convenience when debugging
-      window.b8r = b8r;
 
-      // if the # contains 'body=path/to/component' load that
-      // othersize load 'components/documentation'
-      const component_path = (window.location.hash.match(/\bbody=([^=&]+)/) || [])[1]
-                             || 'components/documentation';
-      const div = b8r.create('div');
-      b8r.styles(div, {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-      });
+  import b8r from './source/b8r.js';
+  import {isElectron, isNwjs} from '../lib/runtime-environment.js';
+  // for convenience when debugging
+  window.b8r = b8r;
 
-      requestAnimationFrame(() => {
-        // sometimes document.body doesn't exist yet
-        document.body.appendChild(div);
-        b8r.component(component_path).
-            then(c => {
-              if (c.name !== 'documentation') document.title = c.name;
-              b8r.insertComponent(c, div);
-            });
-      });
+  // if the # contains 'body=path/to/component' load that
+  // othersize load 'components/documentation'
+  const component_path = (window.location.hash.match(/\bbody=([^=&]+)/) || [])[1]
+                         || 'components/documentation';
 
-      // debug tools
-      require('./lib/electron-debug.js');
-      b8r.set('_b8r_.toggleDebug', () => {
-        if (window.nw) {
-          const win = window.nw.Window.get();
-          // bizarrely, isDevToolsOpen requires the SDK build of nwjs but show/close does not
-          const show_dev_tools = !(win.isDevToolsOpen && win.isDevToolsOpen());
-          if (show_dev_tools) win.showDevTools(); else win.closeDevTools();
-        } else if (require.electron) {
-          require.electron.remote.getCurrentWindow().toggleDevTools();
-        }
-      });
-      b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
-    });
+  const div = b8r.create('div');
+  b8r.styles(div, {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+  });
+
+  requestAnimationFrame(() => {
+    // sometimes document.body doesn't exist yet
+    document.body.appendChild(div);
+    b8r.component(component_path).
+        then(c => {
+          if (c.name !== 'documentation') document.title = c.name;
+          b8r.insertComponent(c, div);
+        });
+  });
+
+  // debug tools
+  b8r.set('_b8r_.toggleDebug', () => {
+    if (isNwjs) {
+      const win = window.nw.Window.get();
+      // bizarrely, isDevToolsOpen requires the SDK build of nwjs but show/close does not
+      const show_dev_tools = !(win.isDevToolsOpen && win.isDevToolsOpen());
+      if (show_dev_tools) win.showDevTools(); else win.closeDevTools();
+    } else if (isElectron) {
+      import('./lib/electron-debug.js');
+      electron.remote.getCurrentWindow().toggleDevTools();
+    }
+  });
+  b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
   </script>
 </head>
 <body>
