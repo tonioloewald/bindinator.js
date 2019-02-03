@@ -1,11 +1,27 @@
 ## From `require` to `import`
 
+`b8r` has migrated from using `require` to `import`. This is a _breaking change_ but
+it had to happen sometime.
+
 - `require` has been abolished in favor of `import`.
 - `require.lazy` and misc. support for legacy libraries has been replaced with
   the much simpler `viaTag` from `scripts.js`.
 - The `<script>` tag of components is implemented as an `AsyncFunction`.
 - `data-component`  is being phased out in favor of `<bar-component>`.
 - extensive support for `web-components` (a.k.a. "Custom Elements") is now available.
+
+If you want to use `b8r` from a `<script>` tag, change it to `<script type="module">`
+which will allow you to use `import` in any modern browser (i.e. not IE before Microsoft
+gave up and adopted Chromium, and not some other browsers that `b8r` already didn't care
+about).
+
+Replace `require` with `import` throughout. Replace `module.exports = ...` with `export`.
+You'll probably want this documentation on 
+[import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) 
+and [export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export).
+
+Note that _all import paths need to be relative_, so `require('foo/bar.js')` becomes
+`import('./foo/bar.js')`.
 
 Within components, you'll need to rewrite imports from something like this:
 
