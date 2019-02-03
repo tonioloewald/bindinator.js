@@ -16,9 +16,7 @@ It's an "old school" Javascript library that expects to be included via a script
 <script>
 /* global findOne */
   const {viaTag} = await import('../lib/scripts.js');
-  
-  await viaTag('https://cdnjs.cloudflare.com/ajax/libs/babylonjs/2.5.0/babylon.js');
-  const {BABYLON} = window;
+  const {BABYLON} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/babylonjs/2.5.0/babylon.js');
 
   const canvas = findOne('canvas');
 

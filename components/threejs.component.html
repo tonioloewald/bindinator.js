@@ -12,9 +12,8 @@ The test model was created using [Cheetah 3D](http://cheetah3d.com), and animate
 /* global component, b8r, findOne, THREE */
 
 const {viaTag} = await import('../lib/scripts.js');
-await viaTag('third-party/threejs/three.min.js');
+const {THREE} = await viaTag('third-party/threejs/three.min.js');
 await viaTag('third-party/threejs/GLTFLoader.js');
-const {THREE} = window;
 
 const canvas = findOne('canvas');
 

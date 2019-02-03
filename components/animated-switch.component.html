@@ -23,9 +23,7 @@ This is an example of implementing an animated control using bodymovin.
 'use strict';
 
   const {viaTag} = await import('../lib/scripts.js');
-
-  await viaTag('third-party/bodymovin.min.js');
-  const {bodymovin} = window;
+  const {bodymovin} = await viaTag('third-party/bodymovin.min.js');
 
   const input = findOne('input');
 

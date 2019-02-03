@@ -20,6 +20,24 @@ You'll probably want this documentation on
 [import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) 
 and [export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export).
 
+Old way (**no longer works!**):
+
+    <script src="path/to/require.js"></script>
+    <script>
+      const b8r = require('path/to/b8r.js');
+      const foo = require('lib/foo.js');
+      const {baz} = require('path/to/lurman.js');
+      ...
+
+New Way:
+
+    <script type="module">
+      import b8r from './path/to/b8r.js';
+      import foo from './lib/foo.js';
+      import {baz} from './path/to/lurman.js';
+      ...
+
+
 Note that _all import paths need to be relative_, so `require('foo/bar.js')` becomes
 `import('./foo/bar.js')`.
 
@@ -49,13 +67,14 @@ Because:
 
 does not seem to work.
 
-`lib/scripts.js` provides a `viaTag` function which imports libraries
-as scripts when they do not support modules (which is most of them).
+`lib/scripts.js` provides a `viaTag` function replaces `require.viaTag` 
+and imports libraries as scripts when they do not support modules 
+(which is most of them).
+
 E.g. to use `three.js`:
 
     const {viaTag} = await import('path/to/scripts.js');
-    await viaTag('path/to/three.js');
-    const {THREE} = window;
+    const {THREE} = await viaTag('path/to/three.js'); // viaTag resolves to window
 
 This is clumsy, but the chance that a solid library will cause problems
 this way is small, and all your application code will be tucked away in anonymous

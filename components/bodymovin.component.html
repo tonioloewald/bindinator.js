@@ -11,8 +11,7 @@ Set the component's `data-src` to specify an animation
 /* global set, component */
 
   const {viaTag} = await import('../lib/scripts.js');
-  await viaTag('third-party/bodymovin.min.js');
-  const {bodymovin} = window;
+  const {bodymovin} = await viaTag('third-party/bodymovin.min.js');
 
   const animation = bodymovin.loadAnimation({
       container: component,
