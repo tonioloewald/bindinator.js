@@ -27,14 +27,15 @@ pass a callback to `afterUpdate`:
 
 afterUpdate fires immediately (and synchronously) if there are no pending updates.
 */
+/* global requestAnimationFrame, HTMLElement */
 
 import { dispatch } from './b8r.dispatch.js'
 
-const _change_list = []
-let _update_frame = null
+const _changeList = []
+let _updateFrame = null
 const _updateList = []
-const _afterUpdate_callbacks = []
-let _force_update = () => {}
+const _afterUpdateCallbacks = []
+let _forceUpdate = () => {}
 
 const requestAnimationFrameWithTimeout = callback => {
   let done = false
@@ -44,27 +45,29 @@ const requestAnimationFrameWithTimeout = callback => {
   }
   requestAnimationFrame(finishIt)
   setTimeout(finishIt, 20)
-  return { cancel: () => done = true }
+  return { cancel: () => {
+    done = true
+  } }
 }
 
 const getUpdateList = () => {
-  if (_update_frame) {
-    _update_frame.cancel()
-    _update_frame = null
+  if (_updateFrame) {
+    _updateFrame.cancel()
+    _updateFrame = null
     return _updateList.splice(0)
   } else {
     if (_updateList.length) {
-      throw '_updateList is not empty but no _update_frame set'
+      throw new Error('_updateList is not empty but no _updateFrame set')
     }
     return false
   }
 }
 
 const _afterUpdate = () => {
-  while (_afterUpdate_callbacks.length) {
+  while (_afterUpdateCallbacks.length) {
     let fn
     try {
-      fn = _afterUpdate_callbacks.shift()
+      fn = _afterUpdateCallbacks.shift()
       fn()
     } catch (e) {
       console.error('_afterUpdate_callback error', e, fn)
@@ -72,19 +75,19 @@ const _afterUpdate = () => {
   }
 }
 
-const _trigger_changes = () => {
-  while (_change_list.length) {
-    dispatch('change', _change_list.shift())
+const _triggerChanges = () => {
+  while (_changeList.length) {
+    dispatch('change', _changeList.shift())
   }
 }
 
-const _trigger_change = element => {
+const _triggerChange = element => {
   if (element instanceof HTMLElement) {
-    if (!_change_list.length) {
-      requestAnimationFrame(_trigger_changes)
+    if (!_changeList.length) {
+      requestAnimationFrame(_triggerChanges)
     }
-    if (_change_list.indexOf(element) === -1) {
-      _change_list.push(element)
+    if (_changeList.indexOf(element) === -1) {
+      _changeList.push(element)
     }
   }
 }
@@ -94,8 +97,8 @@ const asyncUpdate = (path, source) => {
     ? _updateList.find(item => path.startsWith(item.path))
     : _updateList.find(item => (!item.path) && item.source && item.source === source)
   if (!item) {
-    if (!_update_frame) {
-      _update_frame = requestAnimationFrameWithTimeout(_force_update)
+    if (!_updateFrame) {
+      _updateFrame = requestAnimationFrameWithTimeout(_forceUpdate)
     }
     _updateList.push({ path, source })
   } else if (path) {
@@ -106,8 +109,8 @@ const asyncUpdate = (path, source) => {
 
 const afterUpdate = callback => {
   if (_updateList.length) {
-    if (_afterUpdate_callbacks.indexOf(callback) === -1) {
-      _afterUpdate_callbacks.push(callback)
+    if (_afterUpdateCallbacks.indexOf(callback) === -1) {
+      _afterUpdateCallbacks.push(callback)
     }
   } else {
     callback()
@@ -117,26 +120,28 @@ const afterUpdate = callback => {
 const touchElement = element => asyncUpdate(false, element)
 
 const touchByPath = (...args) => {
-  let full_path, sourceElement, name, path
+  let fullPath, sourceElement, name, path
 
   if (args[1] instanceof HTMLElement) {
-    [full_path, sourceElement] = args
+    [fullPath, sourceElement] = args
   } else {
     [name, path, sourceElement] = args
-    full_path = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path
+    fullPath = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path
   }
 
-  asyncUpdate(full_path, sourceElement)
+  asyncUpdate(fullPath, sourceElement)
 }
 
-const _setForceUpdate = (fn) => _force_update = fn
+const _setForceUpdate = (fn) => {
+  _forceUpdate = fn
+}
 
 export {
   // hack to eliminate circular dependency
   _setForceUpdate,
   asyncUpdate,
   getUpdateList,
-  _trigger_change,
+  _triggerChange,
   _afterUpdate,
   afterUpdate,
   touchElement,
