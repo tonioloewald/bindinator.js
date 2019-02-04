@@ -26,10 +26,10 @@ Supports some useful attributes:
     right: 5px;
   }
 </style>
-<button 
+<button
   data-event="click:_component_.create"
 >Create Floater</button>
-<b8r-float 
+<b8r-float
   drag="true"
 >
   <h3>I'm floating</h3>
@@ -55,30 +55,31 @@ Supports some useful attributes:
 </script>
 ```
 */
+/* global getComputedStyle */
+
 import {
   makeWebComponent,
   div,
   fragment,
-  slot,
-} from '../lib/web-components.js';
-
+  slot
+} from '../lib/web-components.js'
 
 const mousemove = (evt) => {
-  const target = evt.target._target;
-  const {clientX, clientY} = evt;
-  target.style.left = (clientX - target._dragging.x) + 'px';
-  target.style.top = (clientY - target._dragging.y) + 'px';
-  evt.preventDefault();
-  evt.stopPropagation();
-};
+  const target = evt.target._target
+  const { clientX, clientY } = evt
+  target.style.left = (clientX - target._dragging.x) + 'px'
+  target.style.top = (clientY - target._dragging.y) + 'px'
+  evt.preventDefault()
+  evt.stopPropagation()
+}
 
 const mouseup = (evt) => {
-  evt.target.style.display = 'none';
-  const target = evt.target._target;
-  delete(target._dragging);
-  evt.preventDefault();
-  evt.stopPropagation();
-};
+  evt.target.style.display = 'none'
+  const target = evt.target._target
+  delete (target._dragging)
+  evt.preventDefault()
+  evt.stopPropagation()
+}
 
 const Float = makeWebComponent('b8r-float', {
   style: {
@@ -86,7 +87,7 @@ const Float = makeWebComponent('b8r-float', {
       display: 'block',
       position: 'fixed',
       top: 0,
-      left: 0,
+      left: 0
     },
     '.drag-region': {
       display: 'none',
@@ -94,66 +95,66 @@ const Float = makeWebComponent('b8r-float', {
       top: 0,
       left: 0,
       right: 0,
-      bottom: 0,
+      bottom: 0
     }
   },
   attributes: {
-    x: "50%",
-    y: "50%",
+    x: '50%',
+    y: '50%',
     pin: 'center',
-    drag: false,
+    drag: false
   },
   content: fragment(
     slot(),
-    div({classes: ['drag-region']}),
+    div({ classes: ['drag-region'] })
   ),
   eventHandlers: {
     mousedown (evt) {
-      const target = evt.target.closest('b8r-float');
+      const target = evt.target.closest('b8r-float')
 
       // move clicked floater on top of all its siblings
       const topMost = [...document.querySelectorAll('b8r-float')]
         .map(elt => parseInt(getComputedStyle(elt).zIndex, 10))
-        .reduce((zIndex, max) => zIndex > max ? zIndex : max, 0);
-      target.style.zIndex = topMost + 1;
+        .reduce((zIndex, max) => zIndex > max ? zIndex : max, 0)
+      target.style.zIndex = topMost + 1
 
       if (target.drag) {
-        this.shadowRoot.querySelector('.drag-region').style.display = 'block';
-        const {clientX, clientY} = evt;
+        this.shadowRoot.querySelector('.drag-region').style.display = 'block'
+        const { clientX, clientY } = evt
         target._dragging = {
           x: clientX - parseFloat(target.style.left),
-          y: clientY - parseFloat(target.style.top),
-        };
-        evt.preventDefault();
-        evt.stopPropagation();
+          y: clientY - parseFloat(target.style.top)
+        }
+        evt.preventDefault()
+        evt.stopPropagation()
       }
-    },
+    }
   },
   methods: {
-    render() {
-      const dragRegion = this.shadowRoot.querySelector('.drag-region');
+    render () {
+      const dragRegion = this.shadowRoot.querySelector('.drag-region')
       if (!dragRegion._target) {
-        dragRegion._target = this;
-        dragRegion.addEventListener('mousemove', mousemove);
-        dragRegion.addEventListener('mouseup', mouseup);
+        dragRegion._target = this
+        dragRegion.addEventListener('mousemove', mousemove)
+        dragRegion.addEventListener('mouseup', mouseup)
       }
-      const x = this.pin.toLowerCase().includes('n') ? 0 :
-                this.pin.toLowerCase().includes('s') ? -1 : 0.5;
-      const y = this.pin.toLowerCase().includes('w') ? 0 :
-                this.pin.toLowerCase().includes('e') ? -1 : 0.5;
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const left = this.x.endsWith('%') ? w * parseFloat(this.x) * 0.01 : parseFloat(this.x);
-      const top = this.y.endsWith('%') ? h * parseFloat(this.y) * 0.01 : parseFloat(this.y);
-      this.style.left = (left + x * this.offsetWidth) + 'px';
-      this.style.top = (top + y * this.offsetHeight) + 'px';
+      const x = this.pin.toLowerCase().includes('n') ? 0
+        : this.pin.toLowerCase().includes('s') ? -1 : 0.5
+      const y = this.pin.toLowerCase().includes('w') ? 0
+        : this.pin.toLowerCase().includes('e') ? -1 : 0.5
+      const w = window.innerWidth
+      const h = window.innerHeight
+      const left = this.x.endsWith('%') ? w * parseFloat(this.x) * 0.01 : parseFloat(this.x)
+      const top = this.y.endsWith('%') ? h * parseFloat(this.y) * 0.01 : parseFloat(this.y)
+      this.style.left = (left + x * this.offsetWidth) + 'px'
+      this.style.top = (top + y * this.offsetHeight) + 'px'
     },
     close () {
-      this.remove();
-    },
-  },
-});
+      this.remove()
+    }
+  }
+})
 
 export {
-  Float,
+  Float
 }

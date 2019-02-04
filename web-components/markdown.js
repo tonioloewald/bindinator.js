@@ -13,30 +13,29 @@ markdown passed as its `value`.
 ```
 */
 
-import {md} from '../lib/text-render.js';
+import { md } from '../lib/text-render.js'
 
 import {
-  makeElement,
-  makeWebComponent,
-} from '../lib/web-components.js';
+  makeWebComponent
+} from '../lib/web-components.js'
 
 const MarkdownArea = makeWebComponent('b8r-markdown', {
   attributes: {
-    value: '',
+    value: ''
   },
   style: {
     ':host': {
-      display: 'block',
-    },
+      display: 'block'
+    }
   },
   methods: {
-    render() {
-      md(this, this.value);
-    },
+    render () {
+      md(this, this.value)
+    }
   },
-  ariaRole: 'rich text',
-});
+  ariaRole: 'rich text'
+})
 
 export {
-  MarkdownArea,
+  MarkdownArea
 }

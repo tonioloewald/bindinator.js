@@ -4,7 +4,7 @@
 This library provides three custom elements:
 - `<b8r-draggable>` — a draggable object
 - `<b8r-dropzone>` — a b8r-dropzone
-- `<b8r-drag-sortable>` — a container for <b8r-draggables> that supports 
+- `<b8r-drag-sortable>` — a container for <b8r-draggables> that supports
   reordering and insertion via drag-and-drop
 
 This is HTML5 drag-and-drop, so it transparently supports built-in browser and OS
@@ -94,7 +94,7 @@ in the second example.
   const customDropZone = findOne('.custom-drop-handler');
   customDropZone.handleDrop = (evt) => {
     target = evt.target.closest('b8r-dropzone');
-    const html = evt.dataTransfer.getData('text/html') || 
+    const html = evt.dataTransfer.getData('text/html') ||
                  evt.dataTransfer.getData('text/plain');
     const types = [...evt.dataTransfer.items].map(item => item.type).join();
     target.innerHTML = `Custom drop handler received: <blockquote>${types}</blockquote>`;
@@ -128,14 +128,14 @@ The simplest way to make this work is to choose a very specific `type` for a
 given sortable so that it will only accept items of that exact type. (You could
 even use a uuid.)
 
-For complex cases, you'll almost always want to override the container's default 
+For complex cases, you'll almost always want to override the container's default
 `handleDrop` method and explicitly look at the event's dataTransfer property
 (since this will allow you to drag data between apps, pages, etc).
 
 ```
 <style>
   b8r-drag-sortable {
-    padding-top: 5px;  
+    padding-top: 5px;
   }
   b8r-drag-sortable > b8r-dropzone {
     margin: -5px 0 -20px;
@@ -161,190 +161,190 @@ For complex cases, you'll almost always want to override the container's default
 ```
 */
 
-'use strict';
+'use strict'
 
-import {makeWebComponent} from '../lib/web-components.js';
+import { makeWebComponent } from '../lib/web-components.js'
 
-let element_being_dragged = null;
-const dragged = () => element_being_dragged;
+let elementBeingDragged = null
+const dragged = () => elementBeingDragged
 
-const is_type_allowed = (allowed_types, type) => {
-  for(let i = 0; i < allowed_types.length; i++) {
-    const allowed_type = allowed_types[i];
-    if (allowed_type === 'special/any') {
-      return true;
-    } else if (allowed_type.indexOf('*') > -1) {
-      const [A,B] = allowed_type.split('/');
-      const [a,b] = type.split('/');
+const isTypeAllowed = (allowedTypes, type) => {
+  for (let i = 0; i < allowedTypes.length; i++) {
+    const allowedType = allowedTypes[i]
+    if (allowedType === 'special/any') {
+      return true
+    } else if (allowedType.indexOf('*') > -1) {
+      const [A, B] = allowedType.split('/')
+      const [a, b] = type.split('/')
       if ((A === '*' || A === a) && (B === '*' || B === b)) {
-        return true;
+        return true
       }
     } else {
-      if (allowed_type === type) {
-        return true;
+      if (allowedType === type) {
+        return true
       }
     }
   };
-  return false;
-};
+  return false
+}
 
-const mark_droppable = (evt) => {
-  const {types} = evt.dataTransfer;
-  const elements = [...document.querySelectorAll('b8r-dropzone')];
+const markDroppable = (evt) => {
+  const { types } = evt.dataTransfer
+  const elements = [...document.querySelectorAll('b8r-dropzone')]
   elements.forEach(element => {
-    const drop_types = element.type.split(';');
-    if (types.find(type => is_type_allowed(drop_types, type))) {
-      element.classList.add('drag-target');
+    const dropTypes = element.type.split(';')
+    if (types.find(type => isTypeAllowed(dropTypes, type))) {
+      element.classList.add('drag-target')
     } else {
-      element.classList.remove('drag-target');
+      element.classList.remove('drag-target')
     }
-  });
-};
+  })
+}
 
 const dragstart = (evt, draggable) => {
   if (draggable) {
-    const types = draggable.type.split(';');
+    const types = draggable.type.split(';')
     types.forEach(type => {
-      const content = draggable.content !== 'auto' ?
-                      draggable.content :
-                      (type === 'text/html' ? draggable.innerHTML : draggable.textContent);
-      evt.dataTransfer.setData(type, content);
-    });
-    draggable.classList.add('drag-source');
-    element_being_dragged = draggable;
+      const content = draggable.content !== 'auto'
+        ? draggable.content
+        : (type === 'text/html' ? draggable.innerHTML : draggable.textContent)
+      evt.dataTransfer.setData(type, content)
+    })
+    draggable.classList.add('drag-source')
+    elementBeingDragged = draggable
   } else {
-    if (!element_being_dragged) element_being_dragged = true;
+    if (!elementBeingDragged) elementBeingDragged = true
   }
-  mark_droppable(evt);
+  markDroppable(evt)
 }
 
 const DragItem = makeWebComponent('b8r-draggable', {
   attributes: {
     type: 'text/plain;text/html',
-    content: 'auto',
+    content: 'auto'
   },
   eventHandlers: {
-    dragstart(evt) {
-      this.classList.add('drag-source');
-      dragstart(evt, this);
-    },
+    dragstart (evt) {
+      this.classList.add('drag-source')
+      dragstart(evt, this)
+    }
   },
   methods: {
-    render() {
-      this.setAttribute('draggable', true);
-    },
-  },
-});
+    render () {
+      this.setAttribute('draggable', true)
+    }
+  }
+})
 
 const drag = (evt) => {
-  const target = evt.target.closest('b8r-dropzone.drag-target');
+  const target = evt.target.closest('b8r-dropzone.drag-target')
   if (target) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    target.classList.add('drag-over');
-    evt.dataTransfer.dropEffect = target.effect; 
+    evt.preventDefault()
+    evt.stopPropagation()
+    target.classList.add('drag-over')
+    evt.dataTransfer.dropEffect = target.effect
   }
-};
+}
 
 const dragEnd = () => {
-  element_being_dragged = null;
+  elementBeingDragged = null;
   [...document.querySelectorAll('.drag-source')].forEach(elt => elt.classList.remove('drag-source'));
   [...document.querySelectorAll('.drag-over')].forEach(elt => elt.classList.remove('drag-over'));
-  [...document.querySelectorAll('.drag-target')].forEach(elt => elt.classList.remove('drag-target'));
-};
+  [...document.querySelectorAll('.drag-target')].forEach(elt => elt.classList.remove('drag-target'))
+}
 
-document.body.addEventListener('dragend', dragEnd);
+document.body.addEventListener('dragend', dragEnd)
 
 // handle things dragged from outside the app's window
-document.body.addEventListener('dragstart', dragstart);
-document.body.addEventListener('dragenter', dragstart);
+document.body.addEventListener('dragstart', dragstart)
+document.body.addEventListener('dragenter', dragstart)
 
 const DropZone = makeWebComponent('b8r-dropzone', {
   attributes: {
     type: 'text/plain;text/html',
-    effect: 'copy',
+    effect: 'copy'
   },
   methods: {
-    handleDrop: evt => false, // return explicit `true` to prevent defaults
+    handleDrop: evt => false // return explicit `true` to prevent defaults
   },
   eventHandlers: {
     dragenter: drag,
     dragover: drag,
     dragleave () {
-      this.classList.remove('drag-over');
+      this.classList.remove('drag-over')
     },
     drop (evt) {
-      evt.preventDefault();
-      evt.stopPropagation();
+      evt.preventDefault()
+      evt.stopPropagation()
       if (this.handleDrop(evt) === true) {
-        dragEnd();
-        return;
+        dragEnd()
+        return
       }
-      const target = evt.target.closest('b8r-dropzone');
-      const drop_types = target.type.split(';');
-      drop_types.forEach(type => {
-        if (is_type_allowed(drop_types, type)) {
+      const target = evt.target.closest('b8r-dropzone')
+      const dropTypes = target.type.split(';')
+      dropTypes.forEach(type => {
+        if (isTypeAllowed(dropTypes, type)) {
           if (type === 'text/html') {
-            target.innerHTML = evt.dataTransfer.getData(type);
+            target.innerHTML = evt.dataTransfer.getData(type)
           } else {
-            target.textContent = evt.dataTransfer.getData(type);
+            target.textContent = evt.dataTransfer.getData(type)
           }
         }
-      });
-      dragEnd();
+      })
+      dragEnd()
     }
-  },
-});
+  }
+})
 
 const DragSortable = makeWebComponent('b8r-drag-sortable', {
   style: {
     ':host': {
-      display: 'block',
+      display: 'block'
     }
   },
   attributes: {
     type: 'text/plain;text/html',
-    outsideEffect: 'copy',
+    outsideEffect: 'copy'
   },
   methods: {
-    handleDrop(evt) {
-      const target = evt.target.closest('b8r-dropzone');
-      const container = this;
-      if (element_being_dragged.parentElement === container) {
-        container.insertBefore(element_being_dragged, target);
+    handleDrop (evt) {
+      const target = evt.target.closest('b8r-dropzone')
+      const container = this
+      if (elementBeingDragged.parentElement === container) {
+        container.insertBefore(elementBeingDragged, target)
       } else {
         if (container.outsideEffect === 'copy') {
-          container.insertBefore(element_being_dragged.cloneNode(true), target); 
+          container.insertBefore(elementBeingDragged.cloneNode(true), target)
         } else {
-          container.insertBefore(element_being_dragged, target);
+          container.insertBefore(elementBeingDragged, target)
         }
       }
-      container.render();
-      return true;
+      container.render()
+      return true
     },
-    render() {
-      const dz = new DropZone();
-      const container = this;
-      const handleDrop = this.handleDrop.bind(this);
-      dz.type = container.type;
+    render () {
+      const dz = new DropZone()
+      const container = this
+      const handleDrop = this.handleDrop.bind(this)
+      dz.type = container.type
       dz.effect = 'move';
       [...this.querySelectorAll('b8r-dropzone')].forEach(elt => elt.remove());
       [...this.querySelectorAll('b8r-draggable')].forEach(elt => {
-        const dzClone = dz.cloneNode(true);
-        dzClone.handleDrop = handleDrop;
-        container.insertBefore(dzClone, elt);
-      });
-      const _dz = dz.cloneNode(true);
-      _dz.handleDrop = handleDrop;
-      container.appendChild(_dz);
-    },
-  },
-});
+        const dzClone = dz.cloneNode(true)
+        dzClone.handleDrop = handleDrop
+        container.insertBefore(dzClone, elt)
+      })
+      const _dz = dz.cloneNode(true)
+      _dz.handleDrop = handleDrop
+      container.appendChild(_dz)
+    }
+  }
+})
 
 export {
   DragItem,
   DropZone,
   DragSortable,
   dragged,
-  dragEnd,
+  dragEnd
 }
