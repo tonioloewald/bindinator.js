@@ -7,7 +7,7 @@ the scrolling region. It automatically picks up elements with a `data-tab-name` 
 Note that it's set up as a vertical scroller. A horizontal equivalent would simply need to check
 scrollLeft and offsetLeft (and, obviously, be styled differently).
 
-The heavy lifting is mostly done by the [animated_scroll](#source=lib/animated-scroll.js) library,
+The heavy lifting is mostly done by the [animatedScroll](#source=lib/animated-scroll.js) library,
 so making similar components with different attributes should be pretty straightforward.
 -->
 <style>
@@ -105,9 +105,9 @@ so making similar components with different attributes should be pretty straight
 /* global component, set, get, find, findOne, b8r */
 
   const {
-    animated_scroll,
+    animatedScroll,
     visible,
-    into_view,
+    intoView,
   } = await import('../lib/animated-scroll.js');
   const scroller = findOne('.tab-scroller');
 
@@ -138,7 +138,7 @@ so making similar components with different attributes should be pretty straight
     set({tabs});
     b8r.afterUpdate(() => {
       if (! visible(findOne('.tab-scroller-active'))) {
-        into_view(findOne('.tab-scroller-active'));
+        intoView(findOne('.tab-scroller-active'));
       }
     });
   };
@@ -160,7 +160,7 @@ so making similar components with different attributes should be pretty straight
 
   const show = (evt, elt) => {
     const tab = b8r.getListInstance(elt);
-    animated_scroll(scroller, tab.elt.offsetTop);
+    animatedScroll(scroller, tab.elt.offsetTop);
   };
 
   set({
