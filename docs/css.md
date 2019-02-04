@@ -7,6 +7,12 @@ Managing CSS is a serious problem with most complex web applications.
 The `b8r` approach to CSS is intended to be conceptually simple and robust.  In essence, you should have 
 global rules and component-level rules.
 
+### Web-Components
+
+One of the nice things about web-components is that they all have custom tagNames. This means they provide
+a unique top-level namespace for styling (i.e. `<foo-bar>` can be styled using `foo-bar` as a selector,
+without overriding any classes).
+
 ### Automatic Classes & Scope
 
 If you create a component named `foo` it will automatically have the class `foo-component`. You can

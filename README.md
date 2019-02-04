@@ -67,10 +67,25 @@ b8r.set('example.name', 'Trump')
 
 Try it in the **console**!
 
-> Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own
-> `<iframe>`s -- it's all happily running in the same `body`. Normally, the only
-> global you see is `b8r`'s `require` but I've exposed `b8r` to let you play around. If it
-> weren't exposed you could simply write `b8r = require('path/to/b8r.js')` in the console.
+### Interacting with `b8r` in the console
+
+Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own
+`<iframe>`s -- it's all happily running in the same `body`. By default, b8r doesn't
+leave anything at all in global namespace.
+
+In the `b8r` documentation app I've exposed `b8r` to let you play around. This is 
+generally useful for debugging.
+
+If `b8r` weren't exposed you could enter something like the line below in the browser 
+console:
+
+    import('./path/to/b8r.js').then(({default}) => {window.b8r = default});
+
+One day you might find this trick useful in a pinch!
+
+Note that you need to point the `import()` at the correct version of `b8r` (e.g. if
+you're using the minified version, point at that) — otherwise you won't be able to see
+the registry.
 
 ### Bind arrays to the DOM with `data-list`
 
