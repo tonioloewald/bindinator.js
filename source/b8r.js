@@ -82,10 +82,12 @@ import { show, hide } from './b8r.show.js'
 import {
   component,
   components,
-  component_timeouts,
-  component_preload_map,
+  componentTimeouts,
+  componentPreloadMap,
   makeComponent
 } from './b8r.component.js'
+
+import { makeWebComponent } from '../lib/web-components.js'
 
 const b8r = {}
 
@@ -99,6 +101,7 @@ Object.assign(b8r, _registry)
 b8r.observe(() => true, (path, source_element) => b8r.touchByPath(path, source_element))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
+b8r.makeWebComponent = makeWebComponent;
 
 Object.assign(b8r, _functions)
 
@@ -591,9 +594,9 @@ b8r.insertComponent = async function (component, element, data) {
   }
   if (typeof component === 'string') {
     if (!components[component]) {
-      if (!component_timeouts[component]) {
+      if (!componentTimeouts[component]) {
         // if this doesn't happen for five seconds, we have a problem
-        component_timeouts[component] = setTimeout(
+        componentTimeouts[component] = setTimeout(
           () => console.error('component timed out: ', component), 5000)
       }
       if (data) {
@@ -686,6 +689,21 @@ b8r.insertComponent = async function (component, element, data) {
   }
   b8r.bindAll(element)
 }
+
+b8r.Component = makeWebComponent('b8r-component', {
+  attributes: {
+    name: ''
+  },
+  methods: {
+    render () {
+      if (this.name) {
+        b8r.insertComponent(this.name, this)
+      } else {
+        b8r.removeComponent(this)
+      }
+    }
+  }
+})
 
 b8r.wrapWithComponent = (component, element, data, attributes) => {
   const wrapper = b8r.create('div')

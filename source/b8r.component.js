@@ -45,9 +45,9 @@ Note that `removeComponent` does not preserve children!
 
 ## Creating Components Programmatically
 
-    makeComponent(name, source, url, preserve_source); // preserve_source are optional
+    makeComponent(name, source, url, preserveSource); // preserveSource are optional
 
-Create a component with the specified name, source code, and url. Use preserve_source if
+Create a component with the specified name, source code, and url. Use preserveSource if
 you want the component's source code kept for debugging purposes.
 
 `makeComponent` is used internally by component to create components, and by the documentation
@@ -115,39 +115,23 @@ If a component has a property named `destroy` (and it's a method) it will
 be called just before the instance is removed from the registry.
 */
 
-import { async_update } from './b8r.update.js'
+import { async_update as asyncUpdate } from './b8r.update.js'
 import { create, find, findWithin } from './b8r.dom.js'
 import { ajax } from './b8r.ajax.js'
 import makeStylesheet from './b8r.makeStylesheet.js'
 import uuid from '../lib/uuid.js'
-import { makeWebComponent } from '../lib/web-components.js'
 import { AsyncFunction } from './b8r.functions.js'
 
 const components = {}
-const component_timeouts = []
-const component_promises = {}
-const component_preload_map = {}
+const componentTimeouts = []
+const componentPromises = {}
+const componentPreloadMap = {}
 
-const View = makeWebComponent('b8r-component', {
-  attributes: {
-    name: ''
-  },
-  methods: {
-    render () {
-      if (this.name) {
-        b8r.insertComponent(this.name, this)
-      } else {
-        b8r.removeComponent(this)
-      }
-    }
-  }
-})
-
-const makeComponent = function (name, source, url, preserve_source) {
+const makeComponent = function (name, source, url, preserveSource) {
   let css = false; let content; let script = false; let parts; let remains
 
   if (!url) url = uuid()
-  component_preload_map[name] = url
+  componentPreloadMap[name] = url
 
   // nothing <style> css </style> rest-of-component
   parts = source.split(/<style>|<\/style>/)
@@ -191,13 +175,13 @@ const makeComponent = function (name, source, url, preserve_source) {
       : false
   } catch (e) {
     console.error('error creating load method for component', name, e, script)
-    throw `component ${name} load method could not be created`
+    throw new Error(`component ${name} load method could not be created`)
   }
   /* jshint evil: false */
-  const class_name = `${name}-component`
-  const style = css ? makeStylesheet(css.replace(/_component_/g, class_name), class_name) : false
-  const update_classes = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, class_name))
-  findWithin(div, '[class*="_component_"]').forEach(update_classes)
+  const className = `${name}-component`
+  const style = css ? makeStylesheet(css.replace(/_component_/g, className), className) : false
+  const updateClasses = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, className))
+  findWithin(div, '[class*="_component_"]').forEach(updateClasses)
   const component = {
     name,
     style,
@@ -208,11 +192,11 @@ const makeComponent = function (name, source, url, preserve_source) {
   if (component.path === 'undefined') {
     debugger // eslint-disable-line no-debugger
   }
-  if (preserve_source) {
+  if (preserveSource) {
     component._source = source
   }
-  if (component_timeouts[name]) {
-    clearInterval(component_timeouts[name])
+  if (componentTimeouts[name]) {
+    clearInterval(componentTimeouts[name])
   }
   if (components[name]) {
     // don't want to leak stylesheets
@@ -227,7 +211,7 @@ const makeComponent = function (name, source, url, preserve_source) {
     // somehow things can happen in between find() and here so the
     // second check is necessary to prevent race conditions
     if (!element.closest('[data-list]') && element.dataset.component === name) {
-      async_update(false, element)
+      asyncUpdate(false, element)
     }
   })
   return component
@@ -241,36 +225,36 @@ const collapse = path => {
   return path
 }
 
-const component = (name, url, preserve_source = false) => {
+const component = (name, url, preserveSource = false) => {
   if (url === undefined) {
     url = name
     name = url.split('/').pop()
   }
-  if (!component_promises[name] || preserve_source) {
-    if (!url) throw `expected component ${name} to be defined`
+  if (!componentPromises[name] || preserveSource) {
+    if (!url) throw new Error(`expected component ${name} to be defined`)
     url = collapse(url)
-    component_promises[name] = new Promise(function (resolve, reject) {
-      if (components[name] && !preserve_source) {
+    componentPromises[name] = new Promise(function (resolve, reject) {
+      if (components[name] && !preserveSource) {
         resolve(components[name])
       } else {
-        component_preload_map[name] = url
+        componentPreloadMap[name] = url
         ajax(`${url}.component.html`)
-          .then(source => resolve(makeComponent(name, source, url, preserve_source)))
+          .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
-            delete component_promises[name]
+            delete componentPromises[name]
             console.error(err, `failed to load component ${url}`)
             reject(err)
           })
       }
     })
   }
-  return component_promises[name]
+  return componentPromises[name]
 }
 
 export {
   component,
   components,
-  component_timeouts,
-  component_preload_map,
+  componentTimeouts,
+  componentPreloadMap,
   makeComponent
 }
