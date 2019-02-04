@@ -27,11 +27,13 @@ pass a callback to `after_update`:
 
 after_update fires immediately (and synchronously) if there are no pending updates.
 */
+
+import {dispatch} from './b8r.dispatch.js';
+
 const _change_list = [];
 let _update_frame = null;
 const _update_list = [];
 const _after_update_callbacks = [];
-import {trigger} from './b8r.events.js';
 let _force_update = () => {};
 
 const requestAnimationFrameWithTimeout = callback => {
@@ -72,7 +74,7 @@ const _after_update = () => {
 
 const _trigger_changes = () => {
   while (_change_list.length) {
-    trigger('change', _change_list.shift());
+    dispatch('change', _change_list.shift());
   }
 };
 

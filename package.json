@@ -1,0 +1,25 @@
+{
+  "name": "@tonioloewald/b8r",
+  "version": "0.1.1",
+  "description": "the even lazier javascript framework",
+  "main": "dist/b8r.js",
+  "scripts": {
+    "build": "rollup source/b8r.js --dir dist --format esm --inlineDynamicImports true & uglifyjs dist/b8r.js -c -m > dist/b8r.min.js"
+  },
+  "keywords": [
+    "javascript",
+    "front end",
+    "html",
+    "mvc",
+    "framework"
+  ],
+  "files": [
+    "css/*",
+    "dist/*",
+    "lib/*",
+    "components/*",
+    "web-components/*"
+  ],
+  "author": "Tonio Loewald (https://bindinator.com)",
+  "license": "BSD-3-Clause"
+}

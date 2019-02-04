@@ -50,12 +50,13 @@ import {
   off,
   enable,
   disable,
-  callMethod,
   trigger,
+  callMethod,
   implicit_event_types,
+  implicitlyHandleEventsOfType,
   handle_event,
 } from './b8r.events.js';
-Object.assign(b8r, { on, off, enable, disable, callMethod, trigger });
+Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHandleEventsOfType });
 import {
   addDataBinding,
   removeDataBinding,
@@ -294,13 +295,6 @@ if (document.body) {
     forEach(type => document.body.addEventListener(type, handle_event, true));
   });
 }
-
-b8r.implicitlyHandleEventsOfType = type => {
-  if (implicit_event_types.indexOf(type) === -1) {
-    implicit_event_types.push(type);
-    document.body.addEventListener(type, handle_event, true);
-  }
-};
 
 const toTargets = _toTargets(b8r);
 

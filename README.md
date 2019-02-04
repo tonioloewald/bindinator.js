@@ -10,9 +10,15 @@
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
-## Breaking Changes
-
-I'm switching `b8r` from using its own `require.js` library to using ES6 `import`.
+> ### News
+>
+> `b8r` is now available as an [npm package](https://www.npmjs.com/package/@tonioloewald/b8r).
+>
+> `b8r` not includes a `dist` subdirectory with single file versions of `b8r`. Minified
+> and gzipped, b8r continues to come in under 20kB.
+> 
+> I'm switching `b8r` from using its own `require.js` library to using ES6 `import`. This
+> is a *breaking change*; I've written [documentation to help with migration](#source=docs/import.md).
 
 ## The lazy JavaScript framework.
 

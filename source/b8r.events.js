@@ -10,6 +10,7 @@ import anyElement from './b8r.anyElement.js';
 import * as keys from './b8r.keystroke.js';
 import {pathSplit} from './b8r.byPath.js';
 import implicit_event_types from './b8r.implicit-event-types.js';
+import {dispatch} from './b8r.dispatch.js';
 
 const onOffArgs = args => {
   var element, event_type, object, method, prepend = false;
@@ -225,17 +226,6 @@ const enable = (element, include_children) => {
   });
 };
 
-const dispatch = (type, target, ...args) => {
-  const event = new Event(type);
-  event.args = args;
-  target.dispatchEvent(event);
-  if (event.target !== target) {
-    // in some cases dispatchEvent will fail to set an event's target property (!)
-    return {type, target, args};
-  } else {
-    return event;
-  }
-};
 
 // add touch events if needed
 if (window.TouchEvent) {
@@ -320,48 +310,6 @@ const callMethod = (...args) => {
   return result;
 };
 
-/**
-### Triggering Events
-
-Sometimes you will want to simulate a user action, e.g. click a button as though
-the user clicked it, rather than call a handler directly. In vanilla javascript you can to
-this specifically via `button.click()` but in a more general sense you can use
-`element.dispatchEvent(new Event('click'))`.
-
-b8r provides a convenience method that wraps all this stuff up but, more importantly, is
-aware of which events b8r itself handles so it can short-circuit the event propagation system
-(effectively route the call directly to the relevant event-handler and pass arguments directly
-to it).
-
-    b8r.trigger(type, target, ...args); //
-
-Trigger a synthetic implicit (only!) event. Note that you can trigger and
-handle completely made-up events, but if you trigger events that occur
-naturally the goal is for them to be handled exactly as if they were "real".
-*/
-
-const trigger = (type, target, ...args) => {
-  if (
-    typeof type !== 'string' ||
-    (target && !(target.dispatchEvent instanceof Function))
-  ) {
-    console.error(
-      'expected trigger(event_type, target_element)',
-      type,
-      target
-    );
-    return;
-  }
-  if (target) {
-    const event = dispatch(type, target, ...args);
-    if (target instanceof Element && implicit_event_types.indexOf(type) === -1) {
-      handle_event(event);
-    }
-  } else {
-    console.warn('b8r.trigger called with no specified target');
-  }
-};
-
 const handle_event = evt => {
   var target = anyElement;
   var args = evt.args || [];
@@ -402,6 +350,48 @@ const handle_event = evt => {
 };
 
 /**
+# Triggering Events
+
+Sometimes you will want to simulate a user action, e.g. click a button as though
+the user clicked it, rather than call a handler directly. In vanilla javascript you can to
+this specifically via `button.click()` but in a more general sense you can use
+`element.dispatchEvent(new Event('click'))`.
+
+b8r provides a convenience method that wraps all this stuff up but, more importantly, is
+aware of which events b8r itself handles so it can short-circuit the event propagation system
+(effectively route the call directly to the relevant event-handler and pass arguments directly
+to it).
+
+    b8r.trigger(type, target, ...args); //
+
+Trigger a synthetic implicit (only!) event. Note that you can trigger and
+handle completely made-up events, but if you trigger events that occur
+naturally the goal is for them to be handled exactly as if they were "real".
+*/
+
+const trigger = (type, target, ...args) => {
+  if (
+    typeof type !== 'string' ||
+    (target && !(target.dispatchEvent instanceof Function))
+  ) {
+    console.error(
+      'expected trigger(event_type, target_element)',
+      type,
+      target
+    );
+    return;
+  }
+  if (target) {
+    const event = dispatch(type, target, ...args);
+    if (target instanceof Element && implicit_event_types.indexOf(type) === -1) {
+      // handle_event(event);
+    }
+  } else {
+    console.warn('b8r.trigger called with no specified target');
+  }
+};
+
+/**
 ## Handling Other Event Types
 
   b8r.implicitlyHandleEventsOfType(type_string)
@@ -411,10 +401,19 @@ to use `data-event` bindings for the seeking `media` event, which you
 could do with `b8r.implicitlyHandleEventsOfType('seeking')`.
 */
 
+const implicitlyHandleEventsOfType = type => {
+  if (implicit_event_types.indexOf(type) === -1) {
+    implicit_event_types.push(type);
+    document.body.addEventListener(type, handle_event, true);
+  }
+};
+
 export {
   makeHandler,
   getEventHandlers,
   getParsedEventHandlers,
-  on, off, enable, disable, dispatch, trigger, callMethod,
+  dispatch, trigger,
+  on, off, enable, disable, callMethod,
+  implicitlyHandleEventsOfType,
   implicit_event_types, get_component_with_method, handle_event, play_saved_messages,
 };
