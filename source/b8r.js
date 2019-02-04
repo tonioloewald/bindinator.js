@@ -23,7 +23,6 @@ implement some kind of virtual machine to replace it.
 - [Functions](#source=source/b8r.functions.js)
 - [Iterators](#source=source/b8r.iterators.js)
 - [Showing and Hiding](#source=source/b8r.show.js)
-- [Performance Logging](#source=source/b8r.perf.js)
 */
 /* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
 /* global console, Element */
