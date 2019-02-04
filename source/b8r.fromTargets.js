@@ -19,7 +19,7 @@ value.
 >
 > `value` and most "from"-bindings are also ["to"-bindings](#source=source/b8r.toTargets.js).
 > which means that an element will automatically be populated with bound data, and updated
-> when it is set or changed *by path* (e.g. `set('path.to.data', new_value)`) or the path to that
+> when it is set or changed *by path* (e.g. `set('path.to.data', newValue)`) or the path to that
 > data is `touch()`ed (e.g. `touch('path.to.data'))`).
 
 ### checked
@@ -52,12 +52,12 @@ import { find } from './b8r.dom.js'
 import { get, getByPath } from './b8r.registry.js'
 
 export const value = (element) => {
-  let pending_value = element.dataset.pendingValue
-  if (pending_value) {
-    pending_value = JSON.parse(pending_value)
-    element.value = pending_value
-    if (element.value === pending_value) {
-      // console.log('restored pending value', element, pending_value);
+  let pendingValue = element.dataset.pendingValue
+  if (pendingValue) {
+    pendingValue = JSON.parse(pendingValue)
+    element.value = pendingValue
+    if (element.value === pendingValue) {
+      // console.log('restored pending value', element, pendingValue);
       if (element.dataset.pendingValue) {
         delete element.dataset.pendingValue
       }
@@ -89,8 +89,8 @@ export const playbackRate = (element) => element.playbackRate
 export const prop = (element, property) => element[property]
 
 export const component = (element, path) => {
-  const component_id = element.dataset.componentId
-  return getByPath(component_id, path)
+  const componentId = element.dataset.componentId
+  return getByPath(componentId, path)
 }
 
 export const fromMethod = (element, path) => {
