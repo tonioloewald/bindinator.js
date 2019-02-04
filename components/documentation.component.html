@@ -190,8 +190,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 
   const windows = await import('../lib/windows.js');
 
-  b8r.on(document.body, 'keydown(alt-I)', 'documentation-controller.inspector');
-
   var content = findOne('.content');
   const nav = findOne('.nav');
   set({year: new Date().getFullYear()});
@@ -242,7 +240,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
         window.location.hash = 'source=' + part.path;
       }
     },
-    inspector: () => b8r.componentOnce('inspector'),
     alertKeystroke: evt => alert(b8r.keystroke(evt)),
   });
 

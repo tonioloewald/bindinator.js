@@ -11,6 +11,7 @@ import * as keys from './b8r.keystroke.js'
 import { pathSplit } from './b8r.byPath.js'
 import implicitEventTypes from './b8r.implicit-event-types.js'
 import { dispatch } from './b8r.dispatch.js'
+import { setPlaySavedMessages } from './b8r.future.js'
 
 const onOffArgs = args => {
   var element; var eventType; var object; var method; var prepend = false
@@ -270,7 +271,7 @@ function saveMethodCall (model, method, args) {
   savedMessages.push({ model, method, args })
 }
 
-const playSavedMessages = (forModel) => {
+setPlaySavedMessages((forModel) => {
   var playbackQueue = []
   for (var i = savedMessages.length - 1; i >= 0; i--) {
     if (savedMessages[i].model === forModel) {
@@ -282,7 +283,7 @@ const playSavedMessages = (forModel) => {
     var { model, method, args } = playbackQueue.pop()
     callMethod(model, method, ...args)
   }
-}
+})
 
 const callMethod = (...args) => {
   var model, method
@@ -414,5 +415,5 @@ export {
   dispatch, trigger,
   on, off, enable, disable, callMethod,
   implicitlyHandleEventsOfType,
-  implicitEventTypes, getComponentWithMethod, handleEvent, playSavedMessages
+  implicitEventTypes, getComponentWithMethod, handleEvent
 }

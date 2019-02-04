@@ -134,12 +134,7 @@ lists).
 
 import { getByPath, setByPath, deleteByPath } from './b8r.byPath.js'
 import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
-
-// this is an intractible circular reference
-let _playSavedMessages = () => {};
-import('./b8r.events.js').then(({playSavedMessages }) => {
-  _playSavedMessages = playSavedMessages
-});
+import { playSavedMessages } from './b8r.future.js'
 
 const registry = {}
 const listeners = [] // { path_string_or_test, callback }
@@ -621,7 +616,7 @@ const register = (name, obj, blockUpdates) => {
 
   if (!blockUpdates) {
     touch(name)
-    _playSavedMessages(name)
+    playSavedMessages(name)
   }
 }
 

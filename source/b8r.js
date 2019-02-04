@@ -116,7 +116,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
 }, 100)
 Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement, touchByPath })
 
-b8r.force_update = () => {
+b8r.forceUpdate = () => {
   let updateList
 
   while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
@@ -157,7 +157,7 @@ b8r.force_update = () => {
   _afterUpdate()
 }
 
-_setForceUpdate(b8r.force_update)
+_setForceUpdate(b8r.forceUpdate)
 
 b8r.setByPath = function (...args) {
   let name, path, value, sourceElement
@@ -342,7 +342,7 @@ function bind (element) {
     return
   }
   const bindings = getBindings(element)
-  const boundValues = element._b8r_boundValues || (element._b8r_boundValues = {})
+  const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {})
   const newValues = {}
   for (let i = 0; i < bindings.length; i++) {
     const { targets, path } = bindings[i]

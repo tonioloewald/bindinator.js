@@ -18,12 +18,12 @@ performance (a simple update to one item of a list).
 All of these updates are asynchronous, so the DOM won't actually change immediately. If you do
 want the DOM to change immediately:
 
-    b8r.force_update(); // flushes all queued updates to the DOM synchronously
+    b8r.forceUpdate(); // flushes all queued updates to the DOM synchronously
 
 If you'd prefer to wait for the update(s) to complete and then do something, you can
 pass a callback to `afterUpdate`:
 
-    afterUpdate(() => { ... }); // does stuff after force_update fires
+    afterUpdate(() => { ... }); // does stuff after forceUpdate fires
 
 afterUpdate fires immediately (and synchronously) if there are no pending updates.
 */

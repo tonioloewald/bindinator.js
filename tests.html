@@ -166,16 +166,16 @@
     Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2]);
     setByPath(obj, 'base', 42);
     setByPath(obj, 'kettle.black', 11);
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
     Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
     setByPath(obj, 'sub.list[2]', 25);
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
     // binding (to), data mounting
     b8r.register('test1', obj);
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.id('a').textContent).shouldBe('42');
     Test(() => b8r.id('b').textContent).shouldBe('hello');
     Test(() => b8r.id('c').textContent).shouldBe(obj.sub.list[2] + '');
@@ -191,11 +191,11 @@
     Test(() => b8r.id('intepolated-1').textContent, 'interpolated RHS value').shouldBe('hello baz!');
     Test(() => b8r.id('intepolated-2').textContent, 'nested interpolated RHS value').shouldBe('hello baz!');
     b8r.set('test1.buried.id', 42);
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.id('intepolated-2').textContent, 'dynamically updated nested interpolated RHS value').shouldBe('hello lurman!');
 
     b8r.register('test2', {color: 'green'});
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.id('b').style.color).shouldBe('green');
 
     Test(() => b8r.findOne('[data-list-instance="test1.list[_auto_=2]"] span').textContent).shouldBe('12');
@@ -203,13 +203,13 @@
     // binding (from)
     b8r.findOne('input').value = 55;
     Test.trigger('input', b8r.findOne('input'));
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.id('e').value)
                        .shouldBe(obj.sub.list[2] + '');
     Test(() => b8r.id('c').textContent)
                        .shouldBe(obj.sub.list[2] + '');
     b8r.setByPath('test2', 'color', 'purple');
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.id('b').style.color).shouldBe('purple');
     b8r.findOne('select').value = 'two';
     Test.trigger('change', 'select');
@@ -266,10 +266,10 @@
       val: 'A,B',
     });
     const elt = b8r.id('method_binding');
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => elt.getAttribute('first')).shouldBe('A');
     b8r.setByPath('method_binding', 'val', 'C,D');
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => elt.getAttribute('second')).shouldBe('D');
     elt.setAttribute('second', 'Q');
     b8r.trigger('change', elt);
@@ -288,7 +288,7 @@
     // async updates
     b8r.set('test1.base', 86);
     Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.id('a').textContent, 'Async Update afterUpdate').shouldBe('86');
 
     b8r.register('empty_obj', {});
@@ -302,7 +302,7 @@
     // components
     b8r.component('test', 'test/test')
       .then(() => {
-        b8r.force_update();
+        b8r.forceUpdate();
         Test(() => b8r.findOne('.test-component p').textContent, 'Component loaded')
           .shouldBe('This is a test');
         Test(() => b8r.findOne('.test-component input').value, 'Component bound')
@@ -351,18 +351,18 @@
         ],
       },
     ]);
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list binding').
       shouldBe('Vance');
     Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list binding')[4].textContent).
       shouldBe('Frodo');
-    b8r.force_update();
+    b8r.forceUpdate();
     b8r.set('nested_list[id=1].name', 'John Ronald Reuel Tolkien');
     b8r.push('nested_list[id=1].children', {name: 'Elrond'});
     b8r.set('nested_list[id=2].name', 'Marion Zimmer Bradley');
     b8r.set('nested_list[id=3].name', 'Jack Vance');
     b8r.touch('nested_list');
-    b8r.force_update();
+    b8r.forceUpdate();
     Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list update').
       shouldBe('Marion Zimmer Bradley');
     Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list update')[4].textContent).
