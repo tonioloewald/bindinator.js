@@ -41,12 +41,12 @@ const keycode = evt => {
   if (evt.code) {
     return evt.code.replace(/Key|Digit/, '')
   } else {
-    let synthetic_code = evt.keyIdentifier
-    if (synthetic_code.substr(0, 2) === 'U+') {
-      synthetic_code =
+    let syntheticCode = evt.keyIdentifier
+    if (syntheticCode.substr(0, 2) === 'U+') {
+      syntheticCode =
           String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16))
     }
-    return synthetic_code
+    return syntheticCode
   }
 }
 

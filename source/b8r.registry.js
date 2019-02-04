@@ -94,7 +94,6 @@ Test(() => b8r.isValidPath('airtime-rooms[]]'), 'NO failure to provide index').s
 
 ## Examples
 
-
     b8r.set('model.data.path', value);
     b8r.setByPath('model', 'data.path, value);
     b8r.setByPath('model.data.path', value);
@@ -133,87 +132,89 @@ lists).
 /* jshint latedef:false */
 /* global console */
 
-import {getByPath, setByPath, deleteByPath} from './b8r.byPath.js';
-import {getDataPath, getComponentId, splitPaths} from './b8r.bindings.js';
-const registry = {};
-const listeners = [];  // { path_string_or_test, callback }
-const debug_paths = true;
-const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*\=[^[\]()]+\])*$/;
+import { getByPath, setByPath, deleteByPath } from './b8r.byPath.js'
+import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
+import { playSavedMessages } from './b8r.events.js'
 
-const isValidPath = path => validPath.test(path);
+const registry = {}
+const listeners = [] // { path_string_or_test, callback }
+const debugPaths = true
+const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/
+
+const isValidPath = path => validPath.test(path)
 
 class Listener {
-  constructor(test, callback) {
-    this._orig_test = test; // keep it around for unobserve
+  constructor (test, callback) {
+    this._orig_test = test // keep it around for unobserve
     if (typeof test === 'string') {
       this.test = t =>
-          t.length >= test.length && test === t.substr(0, test.length);
+        t.length >= test.length && test === t.substr(0, test.length)
     } else if (test instanceof RegExp) {
-      this.test = test.test.bind(test);
+      this.test = test.test.bind(test)
     } else if (test instanceof Function) {
-      this.test = test;
+      this.test = test
     } else {
-      throw 'expect listener test to be a string, RegExp, or test function';
-  }
+      throw new Error('expect listener test to be a string, RegExp, or test function')
+    }
     if (typeof callback === 'string') {
       this.callback = (...args) => {
         if (get(callback)) {
-          call(callback, ...args);
+          call(callback, ...args)
         } else {
-          unobserve(this);
+          unobserve(this)
         }
-      };
+      }
     } else if (typeof callback === 'function') {
-      this.callback = callback;
+      this.callback = callback
     } else {
-      throw 'expect callback to be a path or function';
+      throw new Error('expect callback to be a path or function')
     }
-    listeners.push(this);
+    listeners.push(this)
   }
 }
 
 const resolvePath = (path, element) => {
   if (path[0] === '.') {
     if (!element) {
-      throw 'cannot evaluate relative path without element';
+      throw new Error('cannot evaluate relative path without element')
     }
-    path = getDataPath(element) + path;
+    path = getDataPath(element) + path
   } else if (path.substr(0, 6) === '_data_') {
     if (!element) {
-      throw 'cannot evaluate _data_ path without element';
+      throw new Error('cannot evaluate _data_ path without element')
     }
-    path = getDataPath(element) + path.substr(6);
+    path = getDataPath(element) + path.substr(6)
   } else if (path.substr(0, 11) === '_component_') {
     if (!element) {
-      throw 'cannot evaluate _component_ path without element';
+      throw new Error('cannot evaluate _component_ path without element')
     }
-    path = getComponentId(element) + path.substr(11);
+    path = getComponentId(element) + path.substr(11)
   }
-  return path;
-};
+  return path
+}
 
-const _compute = (expression_path, element) => {
-  const [,method_path, value_paths] = expression_path.match(/([^(]+)\(([^)]+)\)/);
-  return value_paths.indexOf(',') === -1 ?
-         call(method_path, get(value_paths, element)) :
-         call(method_path, ...get(value_paths, element));
-};
+const _compute = (expressionPath, element) => {
+  const [, methodPath, valuePaths] = expressionPath.match(/([^(]+)\(([^)]+)\)/)
+  return valuePaths.indexOf(',') === -1
+    ? call(methodPath, get(valuePaths, element))
+    : call(methodPath, ...get(valuePaths, element))
+}
 
 const _get = (path, element) => {
   if (path.substr(-1) === ')') {
-    return _compute(path, element);
+    return _compute(path, element)
   } else if (path.startsWith('.')) {
-    const elt = element.closest('[data-list-instance]');
-    return elt ? getByPath(elt._b8r_listInstance, path.substr(1)) : undefined;
+    const elt = element.closest('[data-list-instance]')
+    return elt ? getByPath(elt._b8r_listInstance, path.substr(1)) : undefined
   } else {
-    path = resolvePath(path, element);
-    if (debug_paths && ! isValidPath(path)) {
-      console.error(`getting invalid path ${path}`);
+    path = resolvePath(path, element)
+    if (debugPaths && !isValidPath(path)) {
+      console.error(`getting invalid path ${path}`)
     } else {
-      return getByPath(registry, path);
+      return getByPath(registry, path)
     }
   }
-};
+}
 
 /**
 ## Computed Properties, b8r-style
@@ -531,56 +532,56 @@ Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[2].on
 */
 
 const get = (path, element) => {
-  const paths = splitPaths(path);
-  return paths.length === 1 ?
-         _get(paths[0], element) :
-         paths.map(path => _get(path, element));
-};
+  const paths = splitPaths(path)
+  return paths.length === 1
+    ? _get(paths[0], element)
+    : paths.map(path => _get(path, element))
+}
 
 const getJSON = (path, element, pretty) => {
-  const obj = get(path, element);
-  const objects = [];
+  const obj = get(path, element)
+  const objects = []
   const replacer = (key, value) => {
     if (!value || typeof value !== 'object') {
-      return value;
+      return value
     } else if (typeof value === 'object') {
       if (value.constructor !== Object && value.constructor !== Array) {
-        return `[${value.constructor.name}]`;
+        return `[${value.constructor.name}]`
       } else if (objects.indexOf(value) === -1) {
-        objects.push(value);
-        return value;
+        objects.push(value)
+        return value
       } else {
-        return '[duplicate or circular reference]';
+        return '[duplicate or circular reference]'
       }
     }
-  };
-  return JSON.stringify(obj, replacer, pretty ? 2 : 0);
-};
+  }
+  return JSON.stringify(obj, replacer, pretty ? 2 : 0)
+}
 
 const touch = (path, sourceElement) => {
   listeners.filter(listener => listener.test(path))
-           .forEach(listener => listener.callback(path, sourceElement));
-};
+    .forEach(listener => listener.callback(path, sourceElement))
+}
 
 const set = (path, value, sourceElement) => {
-  if (debug_paths && ! isValidPath(path)) {
-    console.error(`setting invalid path ${path}`);
+  if (debugPaths && !isValidPath(path)) {
+    console.error(`setting invalid path ${path}`)
   }
-  const path_parts = path.split(/\.|\[/);
-  const model = path_parts[0];
-  const existing = getByPath(registry, path);
-  if (path_parts.length > 1 && !registry[model]) {
-    console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
-  } else if (path_parts.length === 1 && typeof value !== 'object') {
-    throw `cannot set ${path}; you can only register objects at root-level`;
+  const pathParts = path.split(/\.|\[/)
+  const model = pathParts[0]
+  const existing = getByPath(registry, path)
+  if (pathParts.length > 1 && !registry[model]) {
+    console.error(`cannot set ${path} to ${value}, ${model} does not exist`)
+  } else if (pathParts.length === 1 && typeof value !== 'object') {
+    throw new Error(`cannot set ${path}; you can only register objects at root-level`)
   } else if (value === existing) {
     // if it's an array then it might have gained or lost elements
     if (Array.isArray(value) || Array.isArray(existing)) {
-      touch(path, sourceElement);
+      touch(path, sourceElement)
     }
   } else if (value && value.constructor) {
-    if (path_parts.length === 1 && ! registry[path]) {
-      register(path, value);
+    if (pathParts.length === 1 && !registry[path]) {
+      register(path, value)
     } else {
       // we only overlay vanilla objects, not custom classes or arrays
       if (value.constructor === Object && existing && existing.constructor === Object) {
@@ -588,38 +589,38 @@ const set = (path, value, sourceElement) => {
         // but
         // - we don’t want to lose values in existing that aren’t in value
         // - we don’t want to damage the original object in case other references exist
-        setByPath(registry, path, Object.assign(value, Object.assign({}, existing, value)));
+        setByPath(registry, path, Object.assign(value, Object.assign({}, existing, value)))
       } else {
-        setByPath(registry, path, value);
+        setByPath(registry, path, value)
       }
-      touch(path, sourceElement);
+      touch(path, sourceElement)
     }
   } else {
-    setByPath(registry, path, value);
-    touch(path, sourceElement);
+    setByPath(registry, path, value)
+    touch(path, sourceElement)
   }
-  return value; // convenient for things push (see below) but maybe an anti-feature?!
-};
+  return value // convenient for things push (see below) but maybe an anti-feature?!
+}
 
 const _register = (name, obj) => {
-  registry[name] = obj;
-};
+  registry[name] = obj
+}
 
-const register = (name, obj, block_updates) => {
+const register = (name, obj, blockUpdates) => {
   if (name.match(/^_[^_]*_$/)) {
-    throw 'cannot register object as ' + name +
-      ', all names starting and ending with a single \'_\' are reserved.';
+    throw new Error('cannot register object as ' + name +
+      ', all names starting and ending with a single \'_\' are reserved.')
   }
 
-  _register(name, obj, block_updates);
+  _register(name, obj, blockUpdates)
 
-  if (!block_updates) {
-    touch(name);
-    import('./b8r.events.js').then(({playSavedMessages}) => playSavedMessages(name));
+  if (!blockUpdates) {
+    touch(name)
+    playSavedMessages(name)
   }
-};
+}
 
-const setJSON = (path, value) => set(path, JSON.parse(value));
+const setJSON = (path, value) => set(path, JSON.parse(value))
 
 /**
     push('path.to.array', item [, callback]);
@@ -648,23 +649,23 @@ Test(() => get('test-obj.list').length).shouldBe(1);
 */
 
 const push = (path, value, callback) => {
-  const list = get(path) || set(path, []);
-  if(Array.isArray(list)) {
-    list.push(value);
+  const list = get(path) || set(path, [])
+  if (Array.isArray(list)) {
+    list.push(value)
     if (callback) {
-      callback(list);
+      callback(list)
     }
-    touch(path);
+    touch(path)
   }
-};
+}
 
 const unshift = (path, value) => {
-  const list = get(path) || set(path, []);
-  if(Array.isArray(list)) {
-    list.unshift(value);
-    touch(path);
+  const list = get(path) || set(path, [])
+  if (Array.isArray(list)) {
+    list.unshift(value)
+    touch(path)
   }
-};
+}
 
 /**
     sort('path.to.array', comparison_fn);
@@ -706,12 +707,12 @@ Sorts the array at path using the provided sorting function.
 */
 
 const sort = (path, comparison) => {
-  const list = get(path) || set(path, []);
-  if(Array.isArray(list)) {
-    list.sort(comparison);
-    touch(path);
+  const list = get(path) || set(path, [])
+  if (Array.isArray(list)) {
+    list.sort(comparison)
+    touch(path)
   }
-};
+}
 
 /**
     call('path.to.method', ...args);
@@ -720,24 +721,24 @@ Call a method by path with the arguments provided (and return result).
 */
 
 const call = (path, ...args) => {
-  const method = get(path);
+  const method = get(path)
   if (method instanceof Function) {
-    return method(...args);
+    return method(...args)
   } else {
-    console.error(`cannot call ${path}; not a method`);
+    console.error(`cannot call ${path}; not a method`)
   }
-};
+}
 
 /**
-    call_if('path.to.method', ...args);
+    callIf('path.to.method', ...args);
 
 If a method is found at path, call it and return result, otherwise return null.
 */
 
-const call_if = (path, ...args) => {
-  const f = get(path);
-  return f instanceof Function ? f(...args) : null;
-};
+const callIf = (path, ...args) => {
+  const f = get(path)
+  return f instanceof Function ? f(...args) : null
+}
 
 /**
     observe('root.path.to', callback); // returns a Listener instance
@@ -796,30 +797,30 @@ Test(() => b8r.get('listener_test2.counter'), 'observer automatically removed').
 */
 
 const observe = (test, callback) => {
-  return new Listener(test, callback);
-};
+  return new Listener(test, callback)
+}
 
 const unobserve = test => {
-  let index;
-  let found = false;
+  let index
+  let found = false
   if (test instanceof Listener) {
-    index = listeners.indexOf(test);
+    index = listeners.indexOf(test)
     if (index > -1) {
-      listeners.splice(index, 1);
+      listeners.splice(index, 1)
     } else {
-      console.error('unobserve failed, listener not found');
+      console.error('unobserve failed, listener not found')
     }
   } else if (test) {
     for (let i = listeners.length - 1; i >= 0; i--) {
       if (listeners[i]._orig_test === test) {
-        listeners.splice(i, 1);
-        found = true;
+        listeners.splice(i, 1)
+        found = true
       }
     }
   }
 
-  return found;
-};
+  return found
+}
 
 /**
     registered('root-name'); // => true | false
@@ -831,9 +832,9 @@ You can get a list of root level objects:
 You can obtain a value using a path.
 */
 
-const models = () => Object.keys(registry);
+const models = () => Object.keys(registry)
 
-const registered = path => !!registry[path.split('.')[0]];
+const registered = path => !!registry[path.split('.')[0]]
 
 /**
     remove('path.to.property', update=true);
@@ -849,15 +850,15 @@ Test(() => {remove('foo.boris.yeltsin'); return get('foo.boris')}).shouldBe(null
 Test(() => {remove('foo.baz.lurman'); return Object.keys(get('foo.baz')).length}).shouldBe(0);
 ~~~~
 */
-const remove = (path, update=true) => {
-  deleteByPath(registry, path);
+const remove = (path, update = true) => {
+  deleteByPath(registry, path)
   if (update) {
     touch(path);
     /* touch array containing the element if appropriate */
-    [,path] = (path.match(/^(.+)\[[^\]]+\]$/) || []);
-    if (path) { touch(path); }
+    [, path] = (path.match(/^(.+)\[[^\]]+\]$/) || [])
+    if (path) { touch(path) }
   }
-};
+}
 
 /**
 
@@ -891,20 +892,19 @@ Test(() => get('counter-test.other_count'), 'zero a new path').shouldBe(0);
 ~~~~
 */
 
+const zero = path => set(path, 0)
 
-const zero = path => set(path, 0);
+const increment = path => set(path, get(path) + 1)
 
-const increment = path => set(path, get(path) + 1);
-
-const decrement = path => set(path, get(path) - 1);
+const decrement = path => set(path, get(path) - 1)
 
 const deregister = path => {
-  console.warn('deregister is deprecated, use b8r.remove');
-  remove(path);
-};
+  console.warn('deregister is deprecated, use b8r.remove')
+  remove(path)
+}
 
-const _getByPath = (model, path) => 
-  get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
+const _getByPath = (model, path) =>
+  get(path ? model + (path[0] === '[' ? path : '.' + path) : model)
 
 export {
   get,
@@ -914,7 +914,7 @@ export {
   setJSON,
   increment, decrement, zero,
   push, unshift, sort,
-  call, call_if,
+  call, callIf,
   touch,
   observe,
   unobserve,
@@ -925,5 +925,5 @@ export {
   remove,
   deregister,
   resolvePath,
-  isValidPath,
-};
+  isValidPath
+}

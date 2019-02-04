@@ -182,7 +182,6 @@ options if supplied.
 This is the specified attribute. This can also be used to set "special"
 properties like id, class, and style.
 
-
 ### prop()
 
     data-bind="prop(currentTime)=_component_.video.position"
@@ -278,7 +277,6 @@ This lets you pick between two classes.
 
     data-bind="hide_if(_undefined_)=message.priority"
 
-
 ### enabled\_if, enabled\_if(), disabled\_if, disabled\_if()
 
     data-bind="enabled_if=_data_.editable"
@@ -330,7 +328,7 @@ You can pass an array of values to a bound method by comma-delimiting the paths,
 ### component\_map()
 
     data-bind="component_map(
-        value:component_name|
+        value:componentName|
         other_value:other_name|
         default_component
     )=message.type"
@@ -370,70 +368,71 @@ These terms are used for comparison to certain values in conditional toTargets.
 /* jshint expr: true */
 /* global console */
 
-import {imgSrc} from './b8r.imgSrc.js';
-import {getComponentWithMethod} from './b8r.events.js';
-import describe from '../lib/describe.js';
+import { imgSrc } from './b8r.imgSrc.js'
+import { getComponentWithMethod } from './b8r.events.js'
+import describe from '../lib/describe.js'
+import '../third-party/date.format.js'
 
-export default function(b8r) {
-  const special_values = {
+export default function (b8r) {
+  const specialValues = {
     '_true_': true,
     '_false_': false,
     '_undefined_': undefined,
-    '_null_': null,
-  };
+    '_null_': null
+  }
 
-  const equals = (value_to_match, value) => {
+  const equals = (valueToMatch, value) => {
     if (typeof value === 'string') {
-      value = value.replace(/\&nbsp;/g, '').trim();
+      value = value.replace(/&nbsp;/g, '').trim()
     }
-    if (special_values.hasOwnProperty(value_to_match)) {
-      return value === special_values[value_to_match];
-    } else if (value_to_match !== undefined) {
-      return value == value_to_match;
+    if (specialValues.hasOwnProperty(valueToMatch)) {
+      return value === specialValues[valueToMatch]
+    } else if (valueToMatch !== undefined) {
+      return value == valueToMatch // eslint-disable-line eqeqeq
     } else {
-      return !!value;
+      return !!value
     }
-  };
+  }
 
-  const parse_options = source => {
+  const parseOptions = source => {
     if (!source) {
-      throw 'expected options';
+      throw new Error('expected options')
     }
     return source.split('|').map(s => s.trim()).filter(s => !!s).map(s => {
-      s = s.split(':').map(s => s.trim());
-      return s.length === 1 ? {value: s[0]} : {match: s[0], value: s[1]};
-    });
-  };
+      s = s.split(':').map(s => s.trim())
+      return s.length === 1 ? { value: s[0] } : { match: s[0], value: s[1] }
+    })
+  }
 
   return {
-    value: function(element, value) {
+    value: function (element, value) {
       switch (element.getAttribute('type')) {
         case 'radio':
-          if (element.checked !== (element.value == value)) {
-            element.checked = element.value == value;
+          if (element.checked !== (element.value == value)) { // eslint-disable-line eqeqeq
+            element.checked = element.value == value // eslint-disable-line eqeqeq
           }
-          break;
+          break
         case 'checkbox':
-          element.checked = value;
-          break;
+          element.checked = value
+          break
         default:
           if (element.value !== undefined) {
-            element.value = value;
+            element.value = value
             // <select> element will not take value if no matching option exists
-            if (value && ! element.value) {
-              element.dataset.pendingValue = JSON.stringify(value);
+            if (value && !element.value) {
+              element.dataset.pendingValue = JSON.stringify(value)
               // console.warn('set value deferred', element, value);
             } else if (element.dataset.pendingValue) {
-              delete element.dataset.pendingValue;
+              delete element.dataset.pendingValue
             }
           } else {
             if (element.dataset.componentId) {
-              b8r.set(`${element.dataset.componentId}.value`, value);
+              b8r.set(`${element.dataset.componentId}.value`, value)
             } else {
               // <b8r-component> does not support value if it does
               // not have a loaded component
               if (element.tagName !== 'B8R-COMPONENT') {
-                console.error('could not set component value', element, value); 
+                console.error('could not set component value', element, value)
               }
             }
           }
@@ -441,209 +440,211 @@ export default function(b8r) {
     },
     checked: (element, value) => {
       if (value === null) {
-        element.checked = false;
-        element.indeterminate = true;
+        element.checked = false
+        element.indeterminate = true
       } else {
-        element.checked = !! value;
+        element.checked = !!value
       }
     },
     selected: (element, value) => {
-      element.selected = !! value;
+      element.selected = !!value
     },
-    text: (element, value) => element.textContent = value,
+    text: (element, value) => {
+      element.textContent = value
+    },
     format: (element, value) => {
-      let content = value || '';
+      let content = value || ''
       if (typeof content !== 'string') {
-        throw 'format only accepts strings or falsy values';
+        throw new Error('format only accepts strings or falsy values')
       }
-      let template = false;
+      let template = false
       if (content.match(/[*_]/) && !content.match(/<|>/)) {
-        template = true;
+        template = true
         content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
-                                   .replace(/[*_](.*?)[*_]/g, '<i>$1</i>');
+          .replace(/[*_](.*?)[*_]/g, '<i>$1</i>')
       }
-      if(content.indexOf('${') > -1){
-        content = b8r.interpolate(content, element);
+      if (content.indexOf('${') > -1) {
+        content = b8r.interpolate(content, element)
       }
       if (template) {
-        element.innerHTML = content;
+        element.innerHTML = content
       } else {
-        element.textContent = content;
+        element.textContent = content
       }
     },
-    fixed: (element, value, dest) => element.textContent = parseFloat(value).toFixed(dest || 1),
+    fixed: (element, value, dest) => {
+      element.textContent = parseFloat(value).toFixed(dest || 1)
+    },
     bytes: (element, value) => {
       if (!value) {
-        element.textContent = '';
-        return;
+        element.textContent = ''
+        return
       }
-      const suffixes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB'];
-      let suffix = suffixes.shift();
-      element.title = `${value} bytes`;
+      const suffixes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB']
+      let suffix = suffixes.shift()
+      element.title = `${value} bytes`
       while (value > 1024 && suffix.length) {
-        value = (value / 1024).toFixed(1);
-        suffix = suffixes.shift();
+        value = (value / 1024).toFixed(1)
+        suffix = suffixes.shift()
       }
-      element.textContent = `${value} ${suffix}`;
+      element.textContent = `${value} ${suffix}`
     },
-    attr: function(element, value, dest) {
+    attr: function (element, value, dest) {
       if (value === undefined || value === null || value === false) {
-        element.removeAttribute(dest);
+        element.removeAttribute(dest)
       } else {
-        element.setAttribute(dest, value);
+        element.setAttribute(dest, value)
       }
     },
-    prop: function(element, value, property) {
-      element[property] = value;
+    prop: function (element, value, property) {
+      element[property] = value
     },
-    data: function(element, value, dest) {
+    data: function (element, value, dest) {
       if (value === undefined || value === null || value === false) {
-        delete element.dataset[dest];
+        delete element.dataset[dest]
       } else {
-        element.dataset[dest] = value;
+        element.dataset[dest] = value
       }
     },
     img: imgSrc,
     bgImg: (element, value) => {
       if (value) {
-        element.style.backgroundImage = `url("${value}")`;
+        element.style.backgroundImage = `url("${value}")`
       } else {
-        element.style.backgroundImage = '';
+        element.style.backgroundImage = ''
       }
     },
-    style: function(element, value, dest) {
+    style: function (element, value, dest) {
       if (!dest) {
         if (typeof value === 'string') {
-          element.setAttribute('style', dest);
+          element.setAttribute('style', dest)
         } else if (typeof value === 'object') {
-          Object.assign(element.style, value);
+          Object.assign(element.style, value)
         }
       } else if (value !== undefined) {
-        element.style[dest] = value;
+        element.style[dest] = value
       }
     },
-    class: function(element, value, class_to_toggle) {
-      if (!class_to_toggle) {
-        throw 'class toTarget requires a class to be specified';
+    class: function (element, value, classToToggle) {
+      if (!classToToggle) {
+        throw new Error('class toTarget requires a class to be specified')
       }
-      const options = parse_options(class_to_toggle);
-      element.classList.toggle(options[0].value, !!value);
+      const options = parseOptions(classToToggle)
+      element.classList.toggle(options[0].value, !!value)
       if (options.length > 1) {
-        element.classList.toggle(options[1].value, !value);
+        element.classList.toggle(options[1].value, !value)
       }
     },
-    class_unless: function(element, value, class_to_toggle) {
-      if (!class_to_toggle) {
-        throw 'class_unless toTarget requires a class to be specified';
+    class_unless: function (element, value, classToToggle) {
+      if (!classToToggle) {
+        throw new Error('class_unless toTarget requires a class to be specified')
       }
-      if (! value) {
-        element.classList.add(class_to_toggle);
+      if (!value) {
+        element.classList.add(classToToggle)
       } else {
-        element.classList.remove(class_to_toggle);
+        element.classList.remove(classToToggle)
       }
     },
-    class_map: function(element, value, map) {
-      const class_options = parse_options(map);
-      let done = false;
-      class_options.forEach(item => {
+    class_map: function (element, value, map) {
+      const classOptions = parseOptions(map)
+      let done = false
+      classOptions.forEach(item => {
         if (done || (item.match && !equals(item.match, value))) {
-          element.classList.remove(item.value);
+          element.classList.remove(item.value)
         } else {
-          element.classList.add(item.value);
-          done = true;
+          element.classList.add(item.value)
+          done = true
         }
-      });
+      })
     },
-    contenteditable: function(element, value, dest) {
+    contenteditable: function (element, value, dest) {
       if (equals(dest, value)) {
-        element.setAttribute('contenteditable', true);
+        element.setAttribute('contenteditable', true)
       } else {
-        element.removeAttribute('contenteditable');
+        element.removeAttribute('contenteditable')
       }
     },
-    enabled_if: function(element, value, dest) {
-      if(equals(dest, value)) {
-        b8r.enable(element);
+    enabled_if: function (element, value, dest) {
+      if (equals(dest, value)) {
+        b8r.enable(element)
       } else {
-        b8r.disable(element);
+        b8r.disable(element)
       }
     },
-    disabled_if: function(element, value, dest) {
-      if(!equals(dest, value)) {
-        b8r.enable(element);
+    disabled_if: function (element, value, dest) {
+      if (!equals(dest, value)) {
+        b8r.enable(element)
       } else {
-        b8r.disable(element);
+        b8r.disable(element)
       }
     },
     pointer_events_if: function (element, value) {
-      element.style.pointerEvents = value ? 'auto' : 'none';
+      element.style.pointerEvents = value ? 'auto' : 'none'
     },
     pointer_events_off_if: function (element, value) {
-      element.style.pointerEvents = !value ? 'auto' : 'none';
+      element.style.pointerEvents = !value ? 'auto' : 'none'
     },
-    show_if: function(element, value, dest) {
-      equals(dest, value) ? b8r.show(element) : b8r.hide(element);
+    show_if: function (element, value, dest) {
+      equals(dest, value) ? b8r.show(element) : b8r.hide(element)
     },
-    hide_if: function(element, value, dest) {
-      equals(dest, value) ? b8r.hide(element) : b8r.show(element);
+    hide_if: function (element, value, dest) {
+      equals(dest, value) ? b8r.hide(element) : b8r.show(element)
     },
-    method: function(element, value, dest) {
-      let [model, ...method] = dest.split('.');
-      method = method.join('.');
+    method: function (element, value, dest) {
+      let [model, ...method] = dest.split('.')
+      method = method.join('.')
       if (model === '_component_') {
-        model = getComponentWithMethod(element, method);
+        model = getComponentWithMethod(element, method)
       }
       if (model) {
-        b8r.callMethod(model, method, element, value);
+        b8r.callMethod(model, method, element, value)
       } else if (element.closest('body')) {
-        console.warn(`method ${method} not found in`, element);
+        console.warn(`method ${method} not found in`, element)
       }
     },
-    timestamp: function(element, zulu, format) {
+    timestamp: function (element, zulu, format) {
       if (!zulu) {
-        element.textContent = '';
+        element.textContent = ''
       } else if (!format) {
-        const date = new Date(zulu);
-        element.textContent = date.toLocaleString();
+        const date = new Date(zulu)
+        element.textContent = date.toLocaleString()
       } else {
-        import('../third-party/date.format.js').then(() => {
-          const date = new Date(zulu);
-          element.textContent = date.format(format);
-        });
+        const date = new Date(zulu)
+        element.textContent = date.format(format)
       }
     },
-    json: function(element, value) {
+    json: function (element, value) {
       try {
-        element.textContent = JSON.stringify(value, false, 2); 
+        element.textContent = JSON.stringify(value, false, 2)
       } catch (_) {
-        const obj = {};
+        const obj = {}
         Object.keys(value).forEach(key => {
-          obj[key] = describe(value[key]);
-        });
-        element.textContent = '/* partial data -- could not stringify */\n' + JSON.stringify(obj, false, 2);
+          obj[key] = describe(value[key])
+        })
+        element.textContent = '/* partial data -- could not stringify */\n' + JSON.stringify(obj, false, 2)
       }
     },
-    data_path: function(element, value) {
-      if (!element.dataset.path || value && element.dataset.path.substr(-value.length) !== value) {
-        element.dataset.path = value;
-        b8r.bindAll(element);
+    data_path: function (element, value) {
+      if (!element.dataset.path || (value && element.dataset.path.substr(-value.length) !== value)) {
+        element.dataset.path = value
+        b8r.bindAll(element)
       }
     },
-    component: function(element, value, dest) {
-      const componentId = b8r.getComponentId(element);
-      b8r.setByPath(componentId, dest, value);
+    component: function (element, value, dest) {
+      const componentId = b8r.getComponentId(element)
+      b8r.setByPath(componentId, dest, value)
     },
-    component_map: function(element, value, map) {
-      const component_options = parse_options(map);
-      const option = component_options.find(item => !item.match || item.match == value);
+    component_map: function (element, value, map) {
+      const componentOptions = parseOptions(map)
+      const option = componentOptions.find(item => !item.match || item.match == value) // eslint-disable-line eqeqeq
       if (option) {
-        const component_name = option.value;
-        const existing = element.dataset.componentId || '';
-        if (existing.indexOf(`c#${component_name}#`) === -1) {
-          b8r.removeComponent(element);
-          b8r.insertComponent(component_name, element);
+        const componentName = option.value
+        const existing = element.dataset.componentId || ''
+        if (existing.indexOf(`c#${componentName}#`) === -1) {
+          b8r.removeComponent(element)
+          b8r.insertComponent(componentName, element)
         }
       }
     }
-  };
+  }
 };
