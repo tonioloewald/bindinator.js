@@ -27,29 +27,29 @@ been called in the last interval.
 If you call f several times within the interval, *only the first call will fire*.
 */
 /* global module */
-'use strict';
+'use strict'
 
 const debounce = (orig_fn, min_interval) => {
-  let debounce_id;
+  let debounce_id
   return (...args) => {
     if (debounce_id) {
-      clearTimeout(debounce_id);
+      clearTimeout(debounce_id)
     }
-    debounce_id = setTimeout(() => orig_fn(...args), min_interval);
-  };
-};
+    debounce_id = setTimeout(() => orig_fn(...args), min_interval)
+  }
+}
 
 const throttle = (orig_fn, min_interval) => {
-  let last_call = Date.now() - min_interval;
+  let last_call = Date.now() - min_interval
   return (...args) => {
-    const now = Date.now();
+    const now = Date.now()
     if (now - last_call > min_interval) {
-      last_call = now;
-      orig_fn(...args);
+      last_call = now
+      orig_fn(...args)
     }
-  };
-};
+  }
+}
 
-const AsyncFunction = (async function(){}).constructor;
+const AsyncFunction = async function () {}.constructor
 
-export { AsyncFunction, debounce, throttle };
+export { AsyncFunction, debounce, throttle }

@@ -35,45 +35,45 @@ Also provides modifierKeys, a map from the modifier strings (e.g. alt) to
 the relevant unicode glyphs (e.g. '⌥').
 */
 /* global module */
-'use strict';
+'use strict'
 
 const keycode = evt => {
   if (evt.code) {
-    return evt.code.replace(/Key|Digit/, '');
+    return evt.code.replace(/Key|Digit/, '')
   } else {
-    let synthetic_code = evt.keyIdentifier;
+    let synthetic_code = evt.keyIdentifier
     if (synthetic_code.substr(0, 2) === 'U+') {
       synthetic_code =
-          String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
+          String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16))
     }
-    return synthetic_code;
+    return synthetic_code
   }
-};
+}
 
 const keystroke = evt => {
-  const code = [];
+  const code = []
   if (evt.altKey) {
-    code.push('alt');
+    code.push('alt')
   }
   if (evt.ctrlKey) {
-    code.push('ctrl');
+    code.push('ctrl')
   }
   if (evt.metaKey) {
-    code.push('meta');
+    code.push('meta')
   }
   if (evt.shiftKey) {
-    code.push('shift');
+    code.push('shift')
   }
-  code.push(keycode(evt));
-  return code.join('-');
-};
+  code.push(keycode(evt))
+  return code.join('-')
+}
 
 const modifierKeys = {
   meta: '⌘',
   ctrl: '⌃',
   alt: '⌥',
   escape: '⎋',
-  shift: '⇧',
-};
+  shift: '⇧'
+}
 
-export {keystroke, keycode, modifierKeys};
+export { keystroke, keycode, modifierKeys }

@@ -59,88 +59,88 @@ or (in case the intervening code changes the element signature):
 */
 /* jshint latedef:false */
 /* global module, console */
-'use strict';
+'use strict'
 
-const logs = []; // {name, total_time, entries: [{name,count, times, total_time}]}
+const logs = [] // {name, total_time, entries: [{name,count, times, total_time}]}
 
 const medianOfSortedArray = values =>
-    (values[Math.floor(values.length / 2)] +
+  (values[Math.floor(values.length / 2)] +
      values[Math.floor(values.length / 2 - 0.5)]) /
-    2;
+    2
 
 export default {
-  log: (log_name, entry_name, truncate_logs=false) => {
-    let log = logs.find(log => log.name === log_name);
+  log: (log_name, entry_name, truncate_logs = false) => {
+    let log = logs.find(log => log.name === log_name)
     if (!log) {
-      log = {name: log_name, total_time: 0, entries: []};
-      logs.push(log);
+      log = { name: log_name, total_time: 0, entries: [] }
+      logs.push(log)
     }
-    let entry = log.entries.find(entry => entry.name === entry_name);
+    let entry = log.entries.find(entry => entry.name === entry_name)
     if (!entry) {
-      entry = {name: entry_name, count: 0, times: [], total_time: 0, starts: []};
-      log.entries.push(entry);
+      entry = { name: entry_name, count: 0, times: [], total_time: 0, starts: [] }
+      log.entries.push(entry)
     }
 
     if (truncate_logs && log.entries.length > 200) {
-      console.log('truncating log entries for', log_name);
-      log.entries.splice(log.entries.length - 100);
+      console.log('truncating log entries for', log_name)
+      log.entries.splice(log.entries.length - 100)
     }
-    return entry;
+    return entry
   },
 
   logStart: (log_name, entry_name) => {
-    const entry = perf.log(log_name, entry_name);
-    entry.count += 1;
-    entry.starts.push(performance.now());
+    const entry = perf.log(log_name, entry_name)
+    entry.count += 1
+    entry.starts.push(performance.now())
   },
 
   logEnd: (log_name, entry_name) => {
-    const entry = perf.log(log_name, entry_name, true);
-    const start = entry.starts.pop();
-    const log = logs.find(log => log.name === log_name);
+    const entry = perf.log(log_name, entry_name, true)
+    const start = entry.starts.pop()
+    const log = logs.find(log => log.name === log_name)
     if (start === undefined) {
-      console.error('logEnd without corresponding logStart', log_name, entry_name, entry);
+      console.error('logEnd without corresponding logStart', log_name, entry_name, entry)
     }
-    const elapsed = performance.now() - start;
-    log.total_time += elapsed;
-    entry.total_time += elapsed;
-    entry.times.push(elapsed);
+    const elapsed = performance.now() - start
+    log.total_time += elapsed
+    entry.total_time += elapsed
+    entry.times.push(elapsed)
   },
 
   elementSignature: element => {
-    let signature = element.tagName;
+    let signature = element.tagName
     if (element.classList.value) {
-      signature += '.' + element.classList.value.split(' ').join('.');
+      signature += '.' + element.classList.value.split(' ').join('.')
     } else if (element.parentElement) {
-      signature = perf.elementSignature(element.parentElement) + '>' + signature;
+      signature = perf.elementSignature(element.parentElement) + '>' + signature
     }
-    return signature;
+    return signature
   },
 
   showLogs: (which, threshold) => {
     if (which) {
-      const log = logs.find(log => log.name === which);
+      const log = logs.find(log => log.name === which)
       var mapped = log.entries.map(entry => {
-        const {name, count, times, total_time} = entry;
-        var best, worst, median;
+        const { name, count, times, total_time } = entry
+        var best, worst, median
         if (times.length) {
-          const sorted = times.sort((a, b) => a - b);
-          best = sorted[0];
-          worst = sorted[sorted.length - 1];
-          median = medianOfSortedArray(sorted);
+          const sorted = times.sort((a, b) => a - b)
+          best = sorted[0]
+          worst = sorted[sorted.length - 1]
+          median = medianOfSortedArray(sorted)
         } else {
-          best = worst = median = '';
+          best = worst = median = ''
         }
-        return {name, count, best, median, worst, total_time};
-      });
+        return { name, count, best, median, worst, total_time }
+      })
       if (threshold) {
-        mapped = mapped.filter(mapped => mapped.worst > threshold);
+        mapped = mapped.filter(mapped => mapped.worst > threshold)
       }
-      console.table(mapped, ['name', 'count', 'best', 'median', 'worst', 'total_time']);
-      return mapped;
+      console.table(mapped, ['name', 'count', 'best', 'median', 'worst', 'total_time'])
+      return mapped
     } else {
-      console.table(logs, ['name', 'total_time']);
-      return logs;
+      console.table(logs, ['name', 'total_time'])
+      return logs
     }
-  },
-};
+  }
+}

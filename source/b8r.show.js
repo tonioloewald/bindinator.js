@@ -13,32 +13,32 @@ Hides the element (storing its original `display` value in an attribute). Trigge
 `hide` event on any elements with `hide` event handlers passing any additional arguments.
 */
 
-import {findWithin, isVisible} from './b8r.dom.js';
-import {trigger} from './b8r.events.js';
+import { findWithin, isVisible } from './b8r.dom.js'
+import { trigger } from './b8r.events.js'
 
 const show = (element, ...args) => {
-  if (! isVisible(element)) {
-    if(element.dataset.origDisplay === undefined) {
-      element.dataset.origDisplay = element.style.display === 'none' ? '' : element.style.display;
+  if (!isVisible(element)) {
+    if (element.dataset.origDisplay === undefined) {
+      element.dataset.origDisplay = element.style.display === 'none' ? '' : element.style.display
     }
-    element.style.display = element.dataset.origDisplay;
+    element.style.display = element.dataset.origDisplay
     findWithin(element, '[data-event*="show"]', true)
-        .forEach(elt => trigger('show', elt, ...args));
+      .forEach(elt => trigger('show', elt, ...args))
   }
-};
+}
 
 const hide = (element, ...args) => {
   if (isVisible(element)) {
     if (element.dataset.origDisplay === undefined) {
-      element.dataset.origDisplay = element.style.display;
+      element.dataset.origDisplay = element.style.display
       findWithin(element, '[data-event*="hide"]', true)
-          .forEach(elt => trigger('hide', elt, ...args));
+        .forEach(elt => trigger('hide', elt, ...args))
     }
-    element.style.display = 'none';
+    element.style.display = 'none'
   }
-};
+}
 
 export {
   show,
   hide
-};
+}

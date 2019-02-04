@@ -21,27 +21,27 @@ to the document header if (and only if) no such tag is already present (it only 
 might lead to problems.)
 */
 
-import {create, text, findOne} from './b8r.dom.js';
+import { create, text, findOne } from './b8r.dom.js'
 
 const makeStyleSheet = (source, title) => {
-  const style = source ? create('style') : false;
+  const style = source ? create('style') : false
   if (style) {
-    style.type = 'text/css';
-    style.dataset.title = title;
-    style.appendChild(text(source));
-    document.head.appendChild(style);
+    style.type = 'text/css'
+    style.dataset.title = title
+    style.appendChild(text(source))
+    document.head.appendChild(style)
   }
-  return style;
-};
+  return style
+}
 
 export const viaLink = (href) => {
-  if (! findOne(`link[href="${href}"]`)) {
-    const link = create('link');
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.href = href;
-    document.head.append(link);
+  if (!findOne(`link[href="${href}"]`)) {
+    const link = create('link')
+    link.rel = 'stylesheet'
+    link.type = 'text/css'
+    link.href = href
+    document.head.append(link)
   }
-};
+}
 
-export default makeStyleSheet;
+export default makeStyleSheet

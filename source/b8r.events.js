@@ -4,46 +4,46 @@
 /* jshint latedef:false */
 /* global console, window, KeyboardEvent */
 
-import {findWithin} from './b8r.dom.js';
-import {get, registered, call} from './b8r.registry.js';
-import anyElement from './b8r.anyElement.js';
-import * as keys from './b8r.keystroke.js';
-import {pathSplit} from './b8r.byPath.js';
-import implicit_event_types from './b8r.implicit-event-types.js';
-import {dispatch} from './b8r.dispatch.js';
+import { findWithin } from './b8r.dom.js'
+import { get, registered, call } from './b8r.registry.js'
+import anyElement from './b8r.anyElement.js'
+import * as keys from './b8r.keystroke.js'
+import { pathSplit } from './b8r.byPath.js'
+import implicit_event_types from './b8r.implicit-event-types.js'
+import { dispatch } from './b8r.dispatch.js'
 
 const onOffArgs = args => {
-  var element, event_type, object, method, prepend = false;
-  if(typeof args[2] === 'object') {
+  var element; var event_type; var object; var method; var prepend = false
+  if (typeof args[2] === 'object') {
     console.warn('b8r.on(element, type, OBJECT) is deprecated');
-    [element, event_type, object] = args;
-    return on(element, event_type, object.model, object.method);
-  } else if(args.length > 4 || typeof args[3] === 'string') {
-    [element, event_type, object, method, prepend] = args;
-    if(typeof object !== 'string' || typeof method !== 'string') {
-      console.error('implicit bindings are by name, not', object, method);
-      return;
+    [element, event_type, object] = args
+    return on(element, event_type, object.model, object.method)
+  } else if (args.length > 4 || typeof args[3] === 'string') {
+    [element, event_type, object, method, prepend] = args
+    if (typeof object !== 'string' || typeof method !== 'string') {
+      console.error('implicit bindings are by name, not', object, method)
+      return
     }
-    method = object + '.' + method;
+    method = object + '.' + method
   } else {
-    [element, event_type, method, prepend] = args;
+    [element, event_type, method, prepend] = args
   }
   if (!(element instanceof Element)) {
-    console.error('bind bare elements please, not', element);
-    throw 'bad argument';
+    console.error('bind bare elements please, not', element)
+    throw 'bad argument'
   }
-  return {element, event_type, path: method, prepend};
-};
+  return { element, event_type, path: method, prepend }
+}
 
 const getEventHandlers = (element) => {
-  const source = element.dataset.event;
-  const existing = source ?
-                   source.
-                   replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';').
-                   filter(handler => handler.trim()) :
-                   [];
-  return existing;
-};
+  const source = element.dataset.event
+  const existing = source
+    ? source
+      .replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';')
+      .filter(handler => handler.trim())
+    : []
+  return existing
+}
 
 /**
 
@@ -62,51 +62,51 @@ is returned as
 */
 
 const getParsedEventHandlers = element => {
-  const handlers = getEventHandlers(element);
+  const handlers = getEventHandlers(element)
   try {
-    return handlers.map(function(instruction){
-      const [type, handler] = instruction.split(':');
+    return handlers.map(function (instruction) {
+      const [type, handler] = instruction.split(':')
       if (!handler) {
-        if(instruction.indexOf('.')) {
-          console.error('bad event handler (missing event type)', instruction, 'in', element);
+        if (instruction.indexOf('.')) {
+          console.error('bad event handler (missing event type)', instruction, 'in', element)
         } else {
-          console.error('bad event handler (missing handler)', instruction, 'in', element);
+          console.error('bad event handler (missing handler)', instruction, 'in', element)
         }
-        return { types: [] };
+        return { types: [] }
       }
-      const [, model, method] = handler.trim().match(/^([^\.]+)\.(.+)$/);
-      const types = type.split(',').sort();
+      const [, model, method] = handler.trim().match(/^([^\.]+)\.(.+)$/)
+      const types = type.split(',').sort()
       return {
         types: types.map(s => s.split('(')[0].trim()),
         type_args: types.map(s => {
-          if (s.substr(0,3) === 'key') {
-            s = s.replace(/Key|Digit/g, '');
+          if (s.substr(0, 3) === 'key') {
+            s = s.replace(/Key|Digit/g, '')
             // Allows for a key to be CMD in Mac and Ctrl in Windows
-            s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl');
+            s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl')
           }
-          var args = s.match(/\(([^)]+)\)/);
-          return args && args[1] ? args[1].split(',') : false;
+          var args = s.match(/\(([^)]+)\)/)
+          return args && args[1] ? args[1].split(',') : false
         }),
         model,
-        method,
-      };
-    });
-  } catch(e) {
-    console.error('fatal error in event handler', e);
-    return [];
+        method
+      }
+    })
+  } catch (e) {
+    console.error('fatal error in event handler', e)
+    return []
   }
-};
+}
 
 const makeHandler = (event_type, method) => {
   if (typeof event_type === 'string') {
-    event_type = [event_type];
+    event_type = [event_type]
   }
-  if(!Array.isArray(event_type)) {
-    console.error('makeHandler failed; bad event_type', event_type);
-    return;
+  if (!Array.isArray(event_type)) {
+    console.error('makeHandler failed; bad event_type', event_type)
+    return
   }
-  return event_type.sort().join(',') + ':' + method;
-};
+  return event_type.sort().join(',') + ':' + method
+}
 
 /**
     on(element, event_type, model_name, method_name);
@@ -140,40 +140,40 @@ For your convenience, there's a *Keyboard Event Utility*.
 
 // TODO use parsed event handlers to do this properly
 function on (...args) {
-  const {element, event_type, path, prepend} = onOffArgs(args);
-  const handler = makeHandler(event_type, path);
-  const existing = getEventHandlers(element);
-  if(existing.indexOf(handler) === -1) {
+  const { element, event_type, path, prepend } = onOffArgs(args)
+  const handler = makeHandler(event_type, path)
+  const existing = getEventHandlers(element)
+  if (existing.indexOf(handler) === -1) {
     if (prepend) {
-      existing.unshift(handler);
+      existing.unshift(handler)
     } else {
-      existing.push(handler);
+      existing.push(handler)
     }
-    element.dataset.event = existing.join(';');
+    element.dataset.event = existing.join(';')
   }
 }
 
 // TODO use parsed event handlers to do this properly
 function off (...args) {
-  var element, event_type, object, method;
-  if(args.length === 4) {
-    [element, event_type, object, method] = args;
-    method = object + '.' + method;
+  var element, event_type, object, method
+  if (args.length === 4) {
+    [element, event_type, object, method] = args
+    method = object + '.' + method
   } else if (args.length === 3) {
-    [element, event_type, method] = args;
+    [element, event_type, method] = args
   } else {
-    throw 'b8r.off requires three or four arguments';
+    throw 'b8r.off requires three or four arguments'
   }
-  const existing = element.dataset.event.split(';');
-  const handler = makeHandler(event_type, method);
-  const idx = existing.indexOf(handler);
+  const existing = element.dataset.event.split(';')
+  const handler = makeHandler(event_type, method)
+  const idx = existing.indexOf(handler)
   if (idx > -1) {
-    existing.splice(idx, 1);
+    existing.splice(idx, 1)
     if (existing.length) {
-      element.dataset.event = existing.join(';');
+      element.dataset.event = existing.join(';')
     } else {
       if (element.dataset.event) {
-        delete element.dataset.event;
+        delete element.dataset.event
       }
     }
   }
@@ -197,54 +197,53 @@ turns them into data-event-disabled attributes;
 */
 
 const disable = (element, include_children) => {
-  const elements = include_children ? findWithin(element, '[data-event]', true) : [element];
+  const elements = include_children ? findWithin(element, '[data-event]', true) : [element]
   elements.forEach(elt => {
     if (elt.dataset.event) {
-      elt.dataset.eventDisabled = elt.dataset.event;
+      elt.dataset.eventDisabled = elt.dataset.event
       if (elt.dataset.event) {
-        delete elt.dataset.event;
+        delete elt.dataset.event
       }
     }
     if (!elt.disabled) {
-      elt.disabled = true;
+      elt.disabled = true
     }
-  });
-};
+  })
+}
 
 const enable = (element, include_children) => {
-  const elements = include_children ? findWithin(element, '[data-event-disabled]', true) : [element];
+  const elements = include_children ? findWithin(element, '[data-event-disabled]', true) : [element]
   elements.forEach(elt => {
     if (elt.dataset.eventDisabled) {
-      elt.dataset.event = elt.dataset.eventDisabled;
+      elt.dataset.event = elt.dataset.eventDisabled
       if (elt.dataset.eventDisabled) {
-        delete elt.dataset.eventDisabled;
+        delete elt.dataset.eventDisabled
       }
     }
     if (elt.disabled) {
-      elt.disabled = false;
+      elt.disabled = false
     }
-  });
-};
-
+  })
+}
 
 // add touch events if needed
 if (window.TouchEvent) {
   ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(
-      type => implicit_event_types.push(type));
+    type => implicit_event_types.push(type))
 }
 
-const get_component_with_method = function(element, path) {
-  var component_id = false;
-  element = element.closest('[data-component-id]');
+const get_component_with_method = function (element, path) {
+  var component_id = false
+  element = element.closest('[data-component-id]')
   while (element instanceof Element) {
     if (get(`${element.dataset.componentId}.${path}`) instanceof Function) {
-      component_id = element.dataset.componentId;
-      break;
+      component_id = element.dataset.componentId
+      break
     }
-    element = element.parentElement.closest('[data-component-id]');
+    element = element.parentElement.closest('[data-component-id]')
   }
-  return component_id;
-};
+  return component_id
+}
 
 /**
 ## Calling Event Handlers
@@ -265,89 +264,89 @@ yet been registered (e.g. it's being loaded asynchronously) it will get the
 message when it's registered.
 */
 
-var saved_messages = [];  // {model, method, evt}
+var saved_messages = [] // {model, method, evt}
 
-function saveMethodCall(model, method, args) {
-  saved_messages.push({model, method, args});
+function saveMethodCall (model, method, args) {
+  saved_messages.push({ model, method, args })
 }
 
 const play_saved_messages = for_model => {
-  var playbackQueue = [];
+  var playbackQueue = []
   for (var i = saved_messages.length - 1; i >= 0; i--) {
     if (saved_messages[i].model === for_model) {
-      playbackQueue.push(saved_messages[i]);
-      saved_messages.splice(i, 1);
+      playbackQueue.push(saved_messages[i])
+      saved_messages.splice(i, 1)
     }
   }
   while (playbackQueue.length) {
-    var {model, method, args} = playbackQueue.pop();
-    callMethod(model, method, ...args);
+    var { model, method, args } = playbackQueue.pop()
+    callMethod(model, method, ...args)
   }
-};
+}
 
 const callMethod = (...args) => {
-  var model, method;
+  var model, method
   try {
     if (args[0].match(/[\[.]/)) {
       [method, ...args] = args;
-      [model, method] = pathSplit(method);
+      [model, method] = pathSplit(method)
     } else {
-      [model, method, ...args] = args;
+      [model, method, ...args] = args
     }
   } catch (e) {
-    debugger;  // eslint-disable-line no-debugger
+    debugger // eslint-disable-line no-debugger
   }
-  var result = null;
+  var result = null
   if (registered(model)) {
-    result = call(`${model}.${method}`, ...args);
+    result = call(`${model}.${method}`, ...args)
   } else {
     // TODO queue if model not available
     // event is stopped from further propagation
     // provide global wrappers that can e.g. put up a spinner then call the
     // method
-    saveMethodCall(model, method, args);
+    saveMethodCall(model, method, args)
   }
-  return result;
-};
+  return result
+}
 
 const handle_event = evt => {
-  var target = anyElement;
-  var args = evt.args || [];
-  var keystroke = evt instanceof KeyboardEvent ? keys.keystroke(evt) : {};
+  var target = anyElement
+  var args = evt.args || []
+  var keystroke = evt instanceof KeyboardEvent ? keys.keystroke(evt) : {}
   while (target) {
-    var handlers = getParsedEventHandlers(target);
-    var result = false;
+    var handlers = getParsedEventHandlers(target)
+    var result = false
     for (var i = 0; i < handlers.length; i++) {
-      var handler = handlers[i];
+      var handler = handlers[i]
       for (var type_index = 0; type_index < handler.types.length;
-           type_index++) {
+        type_index++) {
         if (handler.types[type_index] === evt.type &&
             (!handler.type_args[type_index] ||
              handler.type_args[type_index].indexOf(keystroke) > -1)) {
           if (handler.model && handler.method) {
             if (handler.model === '_component_') {
-              handler.model = get_component_with_method(target, handler.method);
+              handler.model = get_component_with_method(target, handler.method)
             }
             if (handler.model) {
-              result = callMethod(handler.model, handler.method, evt, target, ...args);
+              result = callMethod(handler.model, handler.method, evt, target, ...args)
             } else {
-              console.warn(`_component_.${handler.method} not found`, target);
+              console.warn(`_component_.${handler.method} not found`, target)
             }
           } else {
-            console.error('incomplete event handler on', target);
-            break;
+            console.error('incomplete event handler on', target)
+            break
           }
           if (result !== true) {
-            evt.stopPropagation();
-            evt.preventDefault();
-            return;
+            evt.stopPropagation()
+            evt.preventDefault()
+            return
           }
         }
       }
     }
-    target = target === anyElement ? evt.target.closest('[data-event]') : target.parentElement.closest('[data-event]');
+    target = target === anyElement ? evt.target.closest('[data-event]') : target.parentElement.closest('[data-event]')
   }
-};
+}
 
 /**
 # Triggering Events
@@ -378,18 +377,18 @@ const trigger = (type, target, ...args) => {
       'expected trigger(event_type, target_element)',
       type,
       target
-    );
-    return;
+    )
+    return
   }
   if (target) {
-    const event = dispatch(type, target, ...args);
+    const event = dispatch(type, target, ...args)
     if (target instanceof Element && implicit_event_types.indexOf(type) === -1) {
       // handle_event(event);
     }
   } else {
-    console.warn('b8r.trigger called with no specified target');
+    console.warn('b8r.trigger called with no specified target')
   }
-};
+}
 
 /**
 ## Handling Other Event Types
@@ -403,10 +402,10 @@ could do with `b8r.implicitlyHandleEventsOfType('seeking')`.
 
 const implicitlyHandleEventsOfType = type => {
   if (implicit_event_types.indexOf(type) === -1) {
-    implicit_event_types.push(type);
-    document.body.addEventListener(type, handle_event, true);
+    implicit_event_types.push(type)
+    document.body.addEventListener(type, handle_event, true)
   }
-};
+}
 
 export {
   makeHandler,
@@ -415,5 +414,5 @@ export {
   dispatch, trigger,
   on, off, enable, disable, callMethod,
   implicitlyHandleEventsOfType,
-  implicit_event_types, get_component_with_method, handle_event, play_saved_messages,
-};
+  implicit_event_types, get_component_with_method, handle_event, play_saved_messages
+}

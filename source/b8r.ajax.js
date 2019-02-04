@@ -3,9 +3,9 @@
 
 Copyright ©2016-2017 Tonio Loewald
 
-    ajax(url, method, request_data, config)
-    json(url, method, request_data, config)
-    jsonp(url, method, request_data, config)
+    ajax(url, method, requestData, config)
+    json(url, method, requestData, config)
+    jsonp(url, method, requestData, config)
 
 All parameters except url are optional.
 
@@ -16,90 +16,89 @@ These methods generate promises of the specified response. Usage:
 Also note that these methods are folded into b8r by default, so available as
 b8r.ajax, etc.
 */
-/* global module, console */
+/* global console, XMLHttpRequest */
 
-'use strict';
+'use strict'
 
-const _requests_in_flight = [];
+const _requestsInFlight = []
 
-const _remove_in_flight_request = request => {
-  const idx = _requests_in_flight.indexOf(request);
+const _removeInFlightRequest = request => {
+  const idx = _requestsInFlight.indexOf(request)
   if (idx > -1) {
-    _requests_in_flight.splice(idx, 1);
+    _requestsInFlight.splice(idx, 1)
   }
-};
+}
 
-const ajax = (url, method, request_data, config) => {
-  return new Promise(function(resolve, reject) {
-    config = config || {};
+const ajax = (url, method, requestData, config) => {
+  return new Promise(function (resolve, reject) {
+    config = config || {}
     if (!config.headers) {
-      config.headers = {};
+      config.headers = {}
     }
-    var request = new XMLHttpRequest();
-    _requests_in_flight.push(request);
-    request.open(method || 'GET', url, true);
+    var request = new XMLHttpRequest()
+    _requestsInFlight.push(request)
+    request.open(method || 'GET', url, true)
     request.onreadystatechange = () => {
       if (request.readyState === XMLHttpRequest.DONE) {
         switch (Math.floor(request.status / 100)) {
           case 0:
           case 5:
           case 4:
-            _remove_in_flight_request(request);
-            reject(request);
-            break;
+            _removeInFlightRequest(request)
+            reject(request)
+            break
           case 3:
             // redirect of some kind
-            break;
+            break
           case 2:
-            _remove_in_flight_request(request);
-            resolve(request.responseText);
-            break;
+            _removeInFlightRequest(request)
+            resolve(request.responseText)
+            break
         }
       }
-    };
-    if (typeof request_data === 'object') {
+    }
+    if (typeof requestData === 'object') {
       if (method === 'GET') {
-        throw 'GET requests do not support request body data';
+        throw new Error('GET requests do not support request body data')
       }
-      request_data = JSON.stringify(request_data);
-      config.headers['Content-Type'] = 'application/json; charset=utf-8';
+      requestData = JSON.stringify(requestData)
+      config.headers['Content-Type'] = 'application/json; charset=utf-8'
     }
-    for(var prop in config.headers) {
-      request.setRequestHeader(prop, config.headers[prop]);
+    for (var prop in config.headers) {
+      request.setRequestHeader(prop, config.headers[prop])
     }
-    request.send(request_data);
-  });
-};
+    request.send(requestData)
+  })
+}
 
-const json = (url, method, request_data, config) => {
-  return new Promise(function(resolve, reject) {
-    ajax(url, method, request_data, config).then(data => {
+const json = (url, method, requestData, config) => {
+  return new Promise(function (resolve, reject) {
+    ajax(url, method, requestData, config).then(data => {
       try {
-        resolve(JSON.parse(data || 'null'));
-      } catch(e) {
-        console.error('Failed to parse data', data, e);
-        reject(e, data);
+        resolve(JSON.parse(data || 'null'))
+      } catch (e) {
+        console.error('Failed to parse data', data, e)
+        reject(e, data)
       }
-    }, reject);
-  });
-};
+    }, reject)
+  })
+}
 
-const jsonp = (url, method, request_data, config) => {
-  return new Promise(function(resolve, reject) {
-    ajax(url, method, request_data, config).then(data => {
-      let parsed = 'null';
+const jsonp = (url, method, requestData, config) => {
+  return new Promise(function (resolve, reject) {
+    ajax(url, method, requestData, config).then(data => {
+      let parsed = 'null'
       try {
-        parsed = JSON.parse(data);
-      } catch(e) {
-        console.error('Failed to parse data', data, e);
-        reject(e, data);
+        parsed = JSON.parse(data)
+      } catch (e) {
+        console.error('Failed to parse data', data, e)
+        reject(e, data)
       }
-      resolve(parsed);
-    }, reject);
-  });
-};
+      resolve(parsed)
+    }, reject)
+  })
+}
 
-const ajax_requests_in_flight = () => _requests_in_flight;
+const ajaxRequestsInFlight = () => _requestsInFlight
 
-export {ajax, json, jsonp, ajax_requests_in_flight};
-
+export { ajax, json, jsonp, ajaxRequestsInFlight }

@@ -3,8 +3,8 @@
 
     makeArray(arrayish) // => [array]
 
-(**Deprecated**, just use `[...arrayish]`.) Creates a proper array from annoying 
-array-like objects, like *NodeLists* and *arguments* (although *don't use 
+(**Deprecated**, just use `[...arrayish]`.) Creates a proper array from annoying
+array-like objects, like *NodeLists* and *arguments* (although *don't use
 arguments, use ...args**).
 
     last(array) // => last element of array or null
@@ -119,87 +119,87 @@ Test(() => {
 */
 /* global module */
 
-'use strict';
+'use strict'
 
-const makeArray = arrayish => [...arrayish];
+const makeArray = arrayish => [...arrayish]
 
 const forEach = (array, method) => {
   for (let i = 0; i < array.length; i++) {
     if (method(array[i], i) === false) {
-      break;
+      break
     }
   }
-};
+}
 
-const last = array => array.length ? array[array.length - 1] : null;
+const last = array => array.length ? array[array.length - 1] : null
 
 const forEachKey = (object, method) => {
-  const keys = Object.keys(object);
-  for (const key of keys) if (method(object[key], key) === false) break;
-};
+  const keys = Object.keys(object)
+  for (const key of keys) if (method(object[key], key) === false) break
+}
 
 const mapKeys = (object, method) => {
-  const keys = Object.keys(object);
-  const map = [];
-  for (const key of keys) map.push(method(object[key], key));
-  return map;
-};
+  const keys = Object.keys(object)
+  const map = []
+  for (const key of keys) map.push(method(object[key], key))
+  return map
+}
 
 const mapEachKey = (object, method) => {
-  const keys = Object.keys(object);
-  const map = {};
-  for (const key of keys) map[key] = method(object[key], key);
-  return map;
-};
+  const keys = Object.keys(object)
+  const map = {}
+  for (const key of keys) map[key] = method(object[key], key)
+  return map
+}
 
 const findKey = (object, test) => {
-  const keys = Object.keys(object);
-  for(const key of keys) if (test(object[key], key)) return key;
-  return null;
-};
+  const keys = Object.keys(object)
+  for (const key of keys) if (test(object[key], key)) return key
+  return null
+}
 
 const findValue = (object, test) => {
-  const key = findKey(object, test);
-  return key ? object[key] : null;
-};
+  const key = findKey(object, test)
+  return key ? object[key] : null
+}
 
 const filterInPlace = (list, test) => {
-  for(let i = list.length - 1; i >= 0; i--) {
-    if (! test(list[i], i)) list.splice(i, 1);
+  for (let i = list.length - 1; i >= 0; i--) {
+    if (!test(list[i], i)) list.splice(i, 1)
   }
-};
+}
 
 const filterKeys = (object, test) => {
-  const keys = Object.keys(object);
-  const filtered = [];
-  for(const key of keys) if (test(object[key], key)) filtered.push(key);
-  return filtered;
-};
+  const keys = Object.keys(object)
+  const filtered = []
+  for (const key of keys) if (test(object[key], key)) filtered.push(key)
+  return filtered
+}
 
 const filterObject = (object, test) => {
-  const keys = Object.keys(object);
-  const filtered = {};
-  for(const key of keys) if (test(object[key], key)) filtered[key] = object[key];
-  return filtered;
-};
+  const keys = Object.keys(object)
+  const filtered = {}
+  for (const key of keys) if (test(object[key], key)) filtered[key] = object[key]
+  return filtered
+}
 
 const filterObjectInPlace = (object, test) => {
-  const keys = Object.keys(object);
-  for(const key of keys) if (! test(object[key], key)) delete object[key];
-};
+  const keys = Object.keys(object)
+  for (const key of keys) if (!test(object[key], key)) delete object[key]
+}
 
 const assignValues = (object, ancestor) => {
   forEachKey(ancestor, (val, key) => {
     if (typeof val !== 'function') {
       if (val && val.constructor === Object) {
-        object[key] = assignValues({}, val);
+        object[key] = assignValues({}, val)
       } else {
-        object[key] = val;
+        object[key] = val
       }
     }
-  });
-  return object;
-};
+  })
+  return object
+}
 
 export {
   makeArray,
@@ -214,5 +214,5 @@ export {
   filterKeys,
   filterObject,
   filterObjectInPlace,
-  assignValues,
-};
+  assignValues
+}

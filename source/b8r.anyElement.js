@@ -2,6 +2,6 @@
 # anyElement
 */
 
-const anyElement = document.createElement('div');
+const anyElement = document.createElement('div')
 
-export default anyElement;
+export default anyElement

@@ -46,55 +46,55 @@ Allows you to get data from element properties (e.g. the `currentTime` of an `HT
 The `component` target lets you get (and set) component properties.
 */
 /* global module */
-'use strict';
+'use strict'
 
-import {find} from './b8r.dom.js';
-import {get, getByPath} from './b8r.registry.js';
+import { find } from './b8r.dom.js'
+import { get, getByPath } from './b8r.registry.js'
 
 export const value = (element) => {
-  let pending_value = element.dataset.pendingValue;
+  let pending_value = element.dataset.pendingValue
   if (pending_value) {
-    pending_value = JSON.parse(pending_value);
-    element.value = pending_value;
+    pending_value = JSON.parse(pending_value)
+    element.value = pending_value
     if (element.value === pending_value) {
       // console.log('restored pending value', element, pending_value);
       if (element.dataset.pendingValue) {
-        delete element.dataset.pendingValue;
+        delete element.dataset.pendingValue
       }
     }
   }
-  if(element.matches('input[type=radio]')){
-    const name = element.getAttribute('name');
-    const checked = find(`input[type=radio][name=${name}]`).find(elt => elt.checked);
-    return checked ? checked.value : null;
+  if (element.matches('input[type=radio]')) {
+    const name = element.getAttribute('name')
+    const checked = find(`input[type=radio][name=${name}]`).find(elt => elt.checked)
+    return checked ? checked.value : null
   } else {
     if (element.dataset.componentId) {
-      return get(`${element.dataset.componentId}.value`);
+      return get(`${element.dataset.componentId}.value`)
     } else {
-      return element.value;
+      return element.value
     }
   }
-};
+}
 
-export const checked = (element) => element.indeterminate ? null : element.checked;
+export const checked = (element) => element.indeterminate ? null : element.checked
 
-export const selected = (element) => element.selected;
+export const selected = (element) => element.selected
 
-export const text = (element) => element.textContent;
+export const text = (element) => element.textContent
 
-export const currentTime = (element) => element.currentTime;
+export const currentTime = (element) => element.currentTime
 
-export const playbackRate = (element) => element.playbackRate;
+export const playbackRate = (element) => element.playbackRate
 
-export const prop = (element, property) => element[property];
+export const prop = (element, property) => element[property]
 
 export const component = (element, path) => {
-  const component_id = element.dataset.componentId;
-  return getByPath(component_id, path);
-};
+  const component_id = element.dataset.componentId
+  return getByPath(component_id, path)
+}
 
 export const fromMethod = (element, path) => {
-  let [model, ...method] = path.split('.');
-  method = method.join('.');
-  return getByPath(model, method)(element);
-};
+  let [model, ...method] = path.split('.')
+  method = method.join('.')
+  return getByPath(model, method)(element)
+}

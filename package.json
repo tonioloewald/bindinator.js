@@ -37,7 +37,6 @@
 
       "/components/",
       "/lib/",
-      "/source/",
       "/docs/"
     ]
   }

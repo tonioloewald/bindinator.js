@@ -203,163 +203,163 @@ unwraps the element of its immediate parent or its closest `wrapper_selector` if
 ```
 */
 
-import {makeArray, forEachKey} from './b8r.iterators.js';
+import { makeArray, forEachKey } from './b8r.iterators.js'
 
 export const isVisible = (element, include_parents) => element &&
   getComputedStyle(element).display !== 'none' &&
-  ((! include_parents) || element === document.body || isVisible(element.parentElement, true));
+  ((!include_parents) || element === document.body || isVisible(element.parentElement, true))
 
 export const isInView = (element, view) => {
-  if (! element || ! isVisible(element, true)) {
-    return false;
+  if (!element || !isVisible(element, true)) {
+    return false
   }
-  const r = element.getBoundingClientRect();
+  const r = element.getBoundingClientRect()
   const s = view ? view.getBoundingClientRect()
-                 : {left: 0, top: 0, width: window.innerWidth, height: window.innerHeight};
-  return rectsOverlap(r, s);
-};
+    : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
+  return rectsOverlap(r, s)
+}
 
-export const rectsOverlap = (r, s) => ! (
-                                 r.top > s.top + s.height ||
+export const rectsOverlap = (r, s) => !(
+  r.top > s.top + s.height ||
                                  r.top + r.height < s.top ||
                                  r.left > s.left + s.width ||
                                  r.left + r.width < s.left
-                               );
+)
 
-export const find = selector => makeArray(document.querySelectorAll(selector));
+export const find = selector => makeArray(document.querySelectorAll(selector))
 
-export const findOne = document.querySelector.bind(document);
+export const findOne = document.querySelector.bind(document)
 
 export const findWithin = (element, selector, include_self) => {
-  const list = makeArray(element.querySelectorAll(selector));
+  const list = makeArray(element.querySelectorAll(selector))
   if (include_self && element.matches(selector)) {
-    list.unshift(element);
+    list.unshift(element)
   }
-  return list;
-};
+  return list
+}
 
 export const findOneWithin = (element, selector, include_self) =>
   include_self &&
-  element.matches(selector) ? element : element.querySelector(selector);
+  element.matches(selector) ? element : element.querySelector(selector)
 
 export const succeeding = (element, selector) => {
-  while(element.nextElementSibling && !element.nextElementSibling.matches(selector)){
-    element = element.nextElementSibling;
+  while (element.nextElementSibling && !element.nextElementSibling.matches(selector)) {
+    element = element.nextElementSibling
   }
-  return element.nextElementSibling;
-};
+  return element.nextElementSibling
+}
 
 export const preceding = (element, selector) => {
-  while(element.previousElementSibling && !element.previousElementSibling.matches(selector)){
-    element = element.previousElementSibling;
+  while (element.previousElementSibling && !element.previousElementSibling.matches(selector)) {
+    element = element.previousElementSibling
   }
-  return element.previousElementSibling;
-};
+  return element.previousElementSibling
+}
 
 export const findAbove = (elt, selector, until_elt, include_self) => {
-  let current_elt = include_self ? elt : elt.parentElement;
-  const found = [];
-  while(current_elt) {
+  let current_elt = include_self ? elt : elt.parentElement
+  const found = []
+  while (current_elt) {
     if (current_elt === document.body) {
-      break;
+      break
     }
     if (typeof until_elt === 'string' && current_elt.matches(until_elt)) {
-      break;
+      break
     } else if (current_elt === until_elt) {
-      break;
+      break
     }
-    if(current_elt.matches(selector)) {
-      found.push(current_elt);
+    if (current_elt.matches(selector)) {
+      found.push(current_elt)
     }
-    current_elt = current_elt.parentElement;
+    current_elt = current_elt.parentElement
   }
-  return found;
-};
+  return found
+}
 
-export const id = document.getElementById.bind(document);
+export const id = document.getElementById.bind(document)
 
-export const text = document.createTextNode.bind(document);
+export const text = document.createTextNode.bind(document)
 
-export const fragment = document.createDocumentFragment.bind(document);
+export const fragment = document.createDocumentFragment.bind(document)
 
-export const create = document.createElement.bind(document);
+export const create = document.createElement.bind(document)
 
 export const classes = (element, settings) => {
   forEachKey(settings, (on_off, class_name) => {
     if (on_off) {
-      element.classList.add(class_name);
+      element.classList.add(class_name)
     } else {
-      element.classList.remove(class_name);
+      element.classList.remove(class_name)
     }
-  });
-};
+  })
+}
 
 export const styles = (element, settings) => {
-  forEachKey(settings, (value, key) => element.style[key] = value);
-};
+  forEachKey(settings, (value, key) => element.style[key] = value)
+}
 
 export const empty = (element) => {
   while (element.lastChild) {
-    element.lastChild.remove();
+    element.lastChild.remove()
   }
-};
+}
 
-export const elementIndex = (element) => [...element.parentElement.children].indexOf(element);
+export const elementIndex = (element) => [...element.parentElement.children].indexOf(element)
 
 export const moveChildren = (source, dest) => {
   while (source.firstChild) {
-    dest.appendChild(source.firstChild);
+    dest.appendChild(source.firstChild)
   }
-};
+}
 
 export const copyChildren = (source, dest) => {
-  let element = source.firstChild;
+  let element = source.firstChild
   while (element) {
-    dest.appendChild(element.cloneNode(true));
-    element = element.nextSibling;
+    dest.appendChild(element.cloneNode(true))
+    element = element.nextSibling
   }
-};
+}
 
 export const wrap = (element, wrapping_element, dest_selector) => {
   try {
-    const parent = element.parentElement;
-    const destination = dest_selector ? wrapping_element.querySelector(dest_selector) : wrapping_element;
-    parent.insertBefore(wrapping_element, element);
-    destination.appendChild(element);
-  } catch(e) {
-    throw 'wrap failed';
+    const parent = element.parentElement
+    const destination = dest_selector ? wrapping_element.querySelector(dest_selector) : wrapping_element
+    parent.insertBefore(wrapping_element, element)
+    destination.appendChild(element)
+  } catch (e) {
+    throw 'wrap failed'
   }
-};
+}
 
 export const unwrap = (element, wrapper_selector) => {
   try {
-    const wrapper = wrapper_selector ? element.closest(wrapper_selector) : element.parentElement;
-    const parent = wrapper.parentElement;
-    parent.insertBefore(element, wrapper);
-    wrapper.remove();
-  } catch(e) {
-    throw 'unwrap failed';
+    const wrapper = wrapper_selector ? element.closest(wrapper_selector) : element.parentElement
+    const parent = wrapper.parentElement
+    parent.insertBefore(element, wrapper)
+    wrapper.remove()
+  } catch (e) {
+    throw 'unwrap failed'
   }
-};
+}
 
 export const within = (element, mouse_event, margin) => {
-  const r = element.getBoundingClientRect();
-  const {clientX, clientY} = mouse_event;
+  const r = element.getBoundingClientRect()
+  const { clientX, clientY } = mouse_event
   return (
     clientX + margin > r.left &&
     clientX - margin < r.right &&
     clientY + margin > r.top &&
     clientY - margin < r.bottom
-  );
-};
+  )
+}
 
-export const isInBody = (element) => element && document.body.contains(element);
+export const isInBody = (element) => element && document.body.contains(element)
 
 export const cssVar = (name, value) => {
   if (value === undefined) {
-    const htmlStyles = getComputedStyle(document.querySelector('html'));
-    return htmlStyles.getPropertyValue(name);
+    const htmlStyles = getComputedStyle(document.querySelector('html'))
+    return htmlStyles.getPropertyValue(name)
   } else {
-    document.querySelector('html').style.setProperty(name, value);
+    document.querySelector('html').style.setProperty(name, value)
   }
-};
+}

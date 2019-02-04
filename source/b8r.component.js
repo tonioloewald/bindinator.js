@@ -115,162 +115,162 @@ If a component has a property named `destroy` (and it's a method) it will
 be called just before the instance is removed from the registry.
 */
 
-import {async_update} from './b8r.update.js';
-import {create, find, findWithin} from './b8r.dom.js';
-import {ajax} from './b8r.ajax.js';
-import makeStylesheet from './b8r.makeStylesheet.js';
-import uuid from '../lib/uuid.js';
-import {makeWebComponent} from '../lib/web-components.js';
-import {AsyncFunction} from './b8r.functions.js';
+import { async_update } from './b8r.update.js'
+import { create, find, findWithin } from './b8r.dom.js'
+import { ajax } from './b8r.ajax.js'
+import makeStylesheet from './b8r.makeStylesheet.js'
+import uuid from '../lib/uuid.js'
+import { makeWebComponent } from '../lib/web-components.js'
+import { AsyncFunction } from './b8r.functions.js'
 
-const components = {};
-const component_timeouts = [];
-const component_promises = {};
-const component_preload_map = {};
+const components = {}
+const component_timeouts = []
+const component_promises = {}
+const component_preload_map = {}
 
 const View = makeWebComponent('b8r-component', {
   attributes: {
-    name: '',
+    name: ''
   },
   methods: {
     render () {
       if (this.name) {
-        b8r.insertComponent(this.name, this); 
+        b8r.insertComponent(this.name, this)
       } else {
-        b8r.removeComponent(this);
+        b8r.removeComponent(this)
       }
-    },
+    }
   }
-});
+})
 
-const makeComponent = function(name, source, url, preserve_source) {
-  let css = false, content, script = false, parts, remains;
+const makeComponent = function (name, source, url, preserve_source) {
+  let css = false; let content; let script = false; let parts; let remains
 
-  if (!url) url = uuid();
-  component_preload_map[name] = url;
+  if (!url) url = uuid()
+  component_preload_map[name] = url
 
   // nothing <style> css </style> rest-of-component
-  parts = source.split(/<style>|<\/style>/);
+  parts = source.split(/<style>|<\/style>/)
   if (parts.length === 3) {
-    [, css, remains] = parts;
+    [, css, remains] = parts
   } else {
-    remains = source;
+    remains = source
   }
 
   // content <script> script </script> nothing
-  parts = remains.split(/<script>|<\/script>/);
+  parts = remains.split(/<script>|<\/script>/)
   if (parts.length === 3) {
-    [content, script] = parts;
+    [content, script] = parts
   } else {
-    content = remains;
+    content = remains
   }
 
-  const div = create('div');
-  div.innerHTML = content;
-  /*jshint evil: true */
-  let load = () => console.error('component', name, 'cannot load properly');
-  if (script && script.match(/require\s*\(/) && ! script.match(/electron-require/)) {
-    console.error(`in component "${name}" replace require with await import()`);
-    script = false;
+  const div = create('div')
+  div.innerHTML = content
+  /* jshint evil: true */
+  let load = () => console.error('component', name, 'cannot load properly')
+  if (script && script.match(/require\s*\(/) && !script.match(/electron-require/)) {
+    console.error(`in component "${name}" replace require with await import()`)
+    script = false
   }
   try {
-    load = script ?
-             new AsyncFunction(
-                'component',
-                'b8r',
-                'find',
-                'findOne',
-                'data',
-                'register',
-                'get',
-                'set',
-                'on',
-                'touch',
-                `${script}\n//# sourceURL=${name}(component)`
-              ) :
-              false;
-  } catch(e) {
-    console.error('error creating load method for component', name, e, script);
-    throw `component ${name} load method could not be created`;
+    load = script
+      ? new AsyncFunction(
+        'component',
+        'b8r',
+        'find',
+        'findOne',
+        'data',
+        'register',
+        'get',
+        'set',
+        'on',
+        'touch',
+        `${script}\n//# sourceURL=${name}(component)`
+      )
+      : false
+  } catch (e) {
+    console.error('error creating load method for component', name, e, script)
+    throw `component ${name} load method could not be created`
   }
-  /*jshint evil: false */
-  const class_name = `${name}-component`;
-  const style = css ? makeStylesheet(css.replace(/_component_/g, class_name), class_name) : false;
-  const update_classes = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, class_name));
-  findWithin(div, '[class*="_component_"]').forEach(update_classes);
+  /* jshint evil: false */
+  const class_name = `${name}-component`
+  const style = css ? makeStylesheet(css.replace(/_component_/g, class_name), class_name) : false
+  const update_classes = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, class_name))
+  findWithin(div, '[class*="_component_"]').forEach(update_classes)
   const component = {
     name,
     style,
-    view : div,
+    view: div,
     load,
-    path : url.split('/').slice(0,-1).join('/'),
-  };
+    path: url.split('/').slice(0, -1).join('/')
+  }
   if (component.path === 'undefined') {
-    debugger; // eslint-disable-line no-debugger
+    debugger // eslint-disable-line no-debugger
   }
   if (preserve_source) {
-    component._source = source;
+    component._source = source
   }
   if (component_timeouts[name]) {
-    clearInterval(component_timeouts[name]);
+    clearInterval(component_timeouts[name])
   }
   if (components[name]) {
     // don't want to leak stylesheets
     if (components[name].style) {
-      components[name].style.remove();
+      components[name].style.remove()
     }
-    console.warn('component %s has been redefined', name);
+    console.warn('component %s has been redefined', name)
   }
-  components[name] = component;
+  components[name] = component
 
   find(`[data-component="${name}"]`).forEach(element => {
     // somehow things can happen in between find() and here so the
     // second check is necessary to prevent race conditions
     if (!element.closest('[data-list]') && element.dataset.component === name) {
-      async_update(false, element);
+      async_update(false, element)
     }
-  });
-  return component;
-};
+  })
+  return component
+}
 
 // path/to/../foo -> path/foo
 const collapse = path => {
   while (path.match(/([^/]+\/\.\.\/)/)) {
-    path = path.replace(/([^/]+\/\.\.\/)/g, '');
+    path = path.replace(/([^/]+\/\.\.\/)/g, '')
   }
-  return path;
-};
+  return path
+}
 
-const component = (name, url, preserve_source=false) => {
+const component = (name, url, preserve_source = false) => {
   if (url === undefined) {
-    url = name;
-    name = url.split('/').pop();
+    url = name
+    name = url.split('/').pop()
   }
   if (!component_promises[name] || preserve_source) {
-    if (! url) throw `expected component ${name} to be defined`;
-    url = collapse(url);
-    component_promises[name] = new Promise(function(resolve, reject) {
+    if (!url) throw `expected component ${name} to be defined`
+    url = collapse(url)
+    component_promises[name] = new Promise(function (resolve, reject) {
       if (components[name] && !preserve_source) {
-        resolve(components[name]);
+        resolve(components[name])
       } else {
-        component_preload_map[name] = url;
+        component_preload_map[name] = url
         ajax(`${url}.component.html`)
-        .then(source => resolve(makeComponent(name, source, url, preserve_source)))
-        .catch(err => {
-          delete component_promises[name];
-          console.error(err, `failed to load component ${url}`);
-          reject(err);
-        });
+          .then(source => resolve(makeComponent(name, source, url, preserve_source)))
+          .catch(err => {
+            delete component_promises[name]
+            console.error(err, `failed to load component ${url}`)
+            reject(err)
+          })
       }
-    });
+    })
   }
-  return component_promises[name];
-};
+  return component_promises[name]
+}
 
 export {
   component,
   components,
   component_timeouts,
   component_preload_map,
-  makeComponent,
-};
+  makeComponent
+}

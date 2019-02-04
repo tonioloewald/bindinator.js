@@ -9,4 +9,4 @@ export default [
   'keydown', 'keyup',
   'cut', 'copy', 'paste',
   'focus', 'blur' // more to follow
-];
+]
