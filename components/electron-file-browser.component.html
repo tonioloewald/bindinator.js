@@ -298,7 +298,7 @@ A file browser for use in [Electron](https://electronjs.org) Apps (also works in
   const folder_menu = findOne('.folder-menu');
   const settings_menu = findOne('.settings-menu');
   let file_id = 0;
-  b8r.addDataBinding(component, 'class(show-hidden)', `${data.component_id}.show_hidden`);
+  b8r.addDataBinding(component, 'class(show-hidden)', `${data.componentId}.show_hidden`);
 
   const _get_stats = (path, file) => {
     return new Promise(resolve => {

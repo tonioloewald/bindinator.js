@@ -136,7 +136,7 @@ so making similar components with different attributes should be pretty straight
     }
     tabs[active_index].active = true;
     set({tabs});
-    b8r.after_update(() => {
+    b8r.afterUpdate(() => {
       if (! visible(findOne('.tab-scroller-active'))) {
         into_view(findOne('.tab-scroller-active'));
       }

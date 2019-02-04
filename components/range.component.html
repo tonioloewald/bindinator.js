@@ -89,15 +89,15 @@ This is a control that lets you pick a range within a range
           adjustment_max = 100 - get('start');
           break;
       }
-      b8r.onAny('mousemove', data.component_id + '.adjust');
-      b8r.onAny('mousemove', data.component_id + '.endAdjust');
+      b8r.onAny('mousemove', data.componentId + '.adjust');
+      b8r.onAny('mousemove', data.componentId + '.endAdjust');
     },
     adjust: evt => {
       console.log((evt.pageX - initial_mouse_x)/component.offsetWidth);
     },
     endAdjust: evt => {
-      b8r.offAny('mousemove', data.component_id + '.adjust');
-      b8r.offAny('mousemove', data.component_id + '.endAdjust');
+      b8r.offAny('mousemove', data.componentId + '.adjust');
+      b8r.offAny('mousemove', data.componentId + '.endAdjust');
     },
   })
 </script>

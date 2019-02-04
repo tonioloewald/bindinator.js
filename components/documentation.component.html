@@ -197,7 +197,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   set({year: new Date().getFullYear()});
 
   function markCurrent() {
-    b8r.after_update(() => {
+    b8r.afterUpdate(() => {
       const doc = window.location.hash.split('=').pop();
       b8r.findWithin(nav, '.current').forEach(elt => {
         elt.classList.remove('current');

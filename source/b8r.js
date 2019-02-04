@@ -26,7 +26,7 @@ implement some kind of virtual machine to replace it.
 - [Performance Logging](#source=source/b8r.perf.js)
 */
 /* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
-/* global console */
+/* global console, Element */
 
 import { getByPath, pathSplit } from './b8r.byPath.js'
 import * as _dom from './b8r.dom.js'
@@ -38,7 +38,6 @@ import _toTargets from './b8r.toTargets.js'
 import * as _ajax from './b8r.ajax.js'
 import _b8r_ from './b8r._b8r_.js'
 import * as _sort from './b8r.sort.js'
-import catPath from '../lib/cat-path.js'
 import {
   on,
   off,
@@ -68,13 +67,13 @@ import { onAny, offAny, anyListeners } from './b8r.anyEvent.js'
 import { keystroke, modifierKeys } from './b8r.keystroke.js'
 
 import {
-  async_update,
-  get_update_list,
-  after_update,
+  asyncUpdate,
+  getUpdateList,
+  afterUpdate,
   touchElement,
   touchByPath,
-  _after_update,
-  _set_force_update
+  _afterUpdate,
+  _setForceUpdate
 } from './b8r.update.js'
 
 import { show, hide } from './b8r.show.js'
@@ -83,7 +82,6 @@ import {
   component,
   components,
   componentTimeouts,
-  componentPreloadMap,
   makeComponent
 } from './b8r.component.js'
 
@@ -98,7 +96,7 @@ Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHa
 Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListInstancePath })
 Object.assign(b8r, { onAny, offAny, anyListeners })
 Object.assign(b8r, _registry)
-b8r.observe(() => true, (path, source_element) => b8r.touchByPath(path, source_element))
+b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
 b8r.makeWebComponent = makeWebComponent
@@ -107,34 +105,34 @@ Object.assign(b8r, _functions)
 
 b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
-  b8r.forEachKey(_component_instances, (element, component_id) => {
-    if (!b8r.isInBody(element) || element.dataset.componentId !== component_id) {
-      delete _component_instances[component_id]
+  b8r.forEachKey(_componentInstances, (element, componentId) => {
+    if (!b8r.isInBody(element) || element.dataset.componentId !== componentId) {
+      delete _componentInstances[componentId]
     }
   })
   b8r.models().forEach(model => {
-    if (model.substr(0, 2) === 'c#' && !_component_instances[model]) {
+    if (model.substr(0, 2) === 'c#' && !_componentInstances[model]) {
       b8r.call_if(`${model}.destroy`)
       b8r.remove(model, false)
     }
   })
 }, 100)
-Object.assign(b8r, { async_update, after_update, touchElement, touchByPath })
+Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement, touchByPath })
 
 b8r.force_update = () => {
-  let update_list
+  let updateList
 
-  while (update_list = get_update_list()) { // eslint-disable-line no-cond-assign
+  while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
     const lists = b8r.find('[data-list]')
-      .map(elt => { return { elt, list_binding: elt.dataset.list } })
+      .map(elt => { return { elt, listBinding: elt.dataset.list } })
     let binds = false // avoid collecting elements before big list updates
 
-    while (update_list.length) {
-      const { path, source } = update_list.shift()
+    while (updateList.length) {
+      const { path, source } = updateList.shift()
       try {
         if (path) {
           lists
-            .filter(bound => bound.elt !== source && bound.list_binding.includes(path))
+            .filter(bound => bound.elt !== source && bound.listBinding.includes(path))
             .forEach(({ elt }) => bindList(elt))
 
           if (!binds) {
@@ -144,7 +142,9 @@ b8r.force_update = () => {
 
           binds
             .filter(bound => bound.elt !== source && bound.data_binding.includes(path))
-            .forEach(rec => rec.dirty = true)
+            .forEach(rec => {
+              rec.dirty = true
+            })
         } else {
           b8r.bindAll(source)
         }
@@ -157,37 +157,37 @@ b8r.force_update = () => {
 
   b8r.cleanupComponentInstances()
 
-  _after_update()
+  _afterUpdate()
 }
 
-_set_force_update(b8r.force_update)
+_setForceUpdate(b8r.force_update)
 
 b8r.setByPath = function (...args) {
-  let name, path, value, source_element
+  let name, path, value, sourceElement
   if (args.length === 2 && typeof args[1] === 'object' && !Array.isArray(args[1])) {
     [name, value] = args
     b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val))
     return
   } else if (args.length === 2 || args[2] instanceof Element) {
-    [path, value, source_element] = args
-    path = b8r.resolvePath(path, source_element);
+    [path, value, sourceElement] = args
+    path = b8r.resolvePath(path, sourceElement);
     [name, path] = pathSplit(path)
   } else {
-    [name, path, value, source_element] = args
+    [name, path, value, sourceElement] = args
   }
   if (b8r.registered(name)) {
     // const model = b8r.get(name);
     if (typeof path === 'object') {
       // Object.assign(model, path);
-      // b8r.touchByPath(name, '/', source_element);
-      b8r.set(name, path, source_element)
+      // b8r.touchByPath(name, '/', sourceElement);
+      b8r.set(name, path, sourceElement)
     } else {
       // setByPath(model, path, value);
-      // b8r.touchByPath(name, path, source_element);
+      // b8r.touchByPath(name, path, sourceElement);
       b8r.set(
         path[0] === '[' || !path
           ? `${name}${path}`
-          : `${name}.${path}`, value, source_element
+          : `${name}.${path}`, value, sourceElement
       )
     }
   } else {
@@ -251,8 +251,8 @@ function indexFromKey (list, key) {
   if (typeof key === 'number') {
     return key
   }
-  const [id_path, value] = key.split('=')
-  return list.findIndex(elt => getByPath(elt, id_path) == value)
+  const [idPath, value] = key.split('=')
+  return list.findIndex(elt => `${getByPath(elt, idPath)}` === value)
 }
 
 b8r.removeByPath = function (...args) {
@@ -328,7 +328,7 @@ b8r.interpolate = (template, elt) => {
   } else {
     const paths = splitPaths(template)
     if (paths.indexOf('') > -1) {
-      throw `empty path in binding ${template}`
+      throw new Error(`empty path in binding ${template}`)
     }
     formatted = paths.map(path => b8r.get(path, elt))
     if (formatted.length === 1) {
@@ -368,15 +368,15 @@ function bind (element) {
 b8r.show = show
 b8r.hide = hide
 
-const forEachItemIn = (obj, id_path, func) => {
+const forEachItemIn = (obj, idPath, func) => {
   if (Array.isArray(obj)) {
     for (let i = obj.length - 1; i >= 0; i--) {
       const item = obj[i]
-      func(item, id_path ? `${id_path}=${getByPath(item, id_path)}` : i)
+      func(item, idPath ? `${idPath}=${getByPath(item, idPath)}` : i)
     }
   } else if (obj.constructor === Object) {
-    if (id_path) {
-      throw `id-path is not supported for objects bound as lists`
+    if (idPath) {
+      throw new Error(`id-path is not supported for objects bound as lists`)
     }
     const keys = Object.keys(obj)
     for (let i = keys.length - 1; i >= 0; i--) {
@@ -384,151 +384,151 @@ const forEachItemIn = (obj, id_path, func) => {
       func(obj[key], `=${key}`)
     }
   } else if (obj !== null) {
-    throw 'can only bind Array and Object instances as lists'
+    throw new Error('can only bind Array and Object instances as lists')
   }
 }
 
-let id_count = 0 // used to assign unique ids as required
-function bindList (list_template, data_path) {
-  list_template.classList.add('-b8r-empty-list')
+let idCount = 0 // used to assign unique ids as required
+function bindList (listTemplate, dataPath) {
+  listTemplate.classList.add('-b8r-empty-list')
   if (
-    !list_template.parentElement || // skip if disembodied
-    list_template.parentElement.closest('[data-component]') || // or it's in an unloaded component
-    list_template.parentElement.closest('[data-list]') // or it's in a list template
+    !listTemplate.parentElement || // skip if disembodied
+    listTemplate.parentElement.closest('[data-component]') || // or it's in an unloaded component
+    listTemplate.parentElement.closest('[data-list]') // or it's in a list template
   ) {
     return
   }
-  const [source_path, id_path] = list_template.dataset.list.split(':')
-  let method_path, list_path, arg_paths
+  const [sourcePath, idPath] = listTemplate.dataset.list.split(':')
+  let methodPath, listPath, argPaths
   try {
     // parse computed list method if any
-    [, , method_path, arg_paths] =
-      source_path.match(/^(([^()]*)\()?([^()]*)(\))?$/)
-    arg_paths = arg_paths.split(',')
-    list_path = arg_paths[0]
+    [, , methodPath, argPaths] =
+      sourcePath.match(/^(([^()]*)\()?([^()]*)(\))?$/)
+    argPaths = argPaths.split(',')
+    listPath = argPaths[0]
   } catch (e) {
-    console.error('bindList failed; bad source path', source_path)
+    console.error('bindList failed; bad source path', sourcePath)
   }
-  if (data_path) {
-    list_path = data_path + list_path
+  if (dataPath) {
+    listPath = dataPath + listPath
   }
-  const resolved_path = b8r.resolvePath(list_path, list_template)
+  const resolvedPath = b8r.resolvePath(listPath, listTemplate)
   // rewrite the binding if necessary (otherwise nested list updates fail)
-  if (resolved_path !== list_path) {
-    let list_binding = list_path = resolved_path
-    if (method_path) {
-      arg_paths[0] = list_path
-      list_binding = `${method_path}(${arg_paths.join(',')})`
+  if (resolvedPath !== listPath) {
+    let listBinding = listPath = resolvedPath
+    if (methodPath) {
+      argPaths[0] = listPath
+      listBinding = `${methodPath}(${argPaths.join(',')})`
     }
-    list_template.dataset.list = id_path ? `${list_binding}:${id_path}` : list_binding
+    listTemplate.dataset.list = idPath ? `${listBinding}:${idPath}` : listBinding
   }
-  let list = b8r.get(list_path)
+  let list = b8r.get(listPath)
   if (!list) {
     return
   }
   // assign unique ids if _auto_ id-path is specified
-  if (id_path === '_auto_') {
+  if (idPath === '_auto_') {
     for (let i = 0; i < list.length; i++) {
       if (!list[i]._auto_) {
-        list[i]._auto_ = ++id_count
+        list[i]._auto_ = ++idCount
       }
     }
   }
   // compute list
-  if (method_path) {
-    if (!b8r.get(method_path)) {
-      // method_path is not yet available; when it becomes available it will trigger
+  if (methodPath) {
+    if (!b8r.get(methodPath)) {
+      // methodPath is not yet available; when it becomes available it will trigger
       // the binding so we can ignore it for now
       return
     }
     (() => {
       try {
-        const args = arg_paths.map(b8r.get)
-        const filtered_list = b8r.callMethod(method_path, ...args, list_template)
+        const args = argPaths.map(b8r.get)
+        const filteredList = b8r.callMethod(methodPath, ...args, listTemplate)
         // debug warning for lists that get "filtered" into new objects
         if (
           Array.isArray(list) &&
-          filtered_list.length &&
-          list.indexOf(filtered_list[0]) === -1
+          filteredList.length &&
+          list.indexOf(filteredList[0]) === -1
         ) {
           console.warn(
-            `list filter ${method_path} returned a new object` +
+            `list filter ${methodPath} returned a new object` +
             ` (not from original list); this will break updates!`
           )
         }
-        list = filtered_list
+        list = filteredList
       } catch (e) {
-        console.error(`bindList failed, ${method_path} threw error`, e)
+        console.error(`bindList failed, ${methodPath} threw error`, e)
       }
     })()
     if (!list) {
-      throw 'could not compute list; async filtered list methods not supported (yet)'
+      throw new Error('could not compute list; async filtered list methods not supported (yet)')
     }
   }
 
-  b8r.show(list_template)
+  b8r.show(listTemplate)
   // efficient list update:
-  // if we have an id_path we grab existing instances, and re-use those with
+  // if we have an idPath we grab existing instances, and re-use those with
   // matching ids
-  const existing_list_instances = list_template._b8r_listInstances || {}
-  const list_instances = list_template._b8r_listInstances = {}
+  const existingListInstances = listTemplate._b8rListInstances || {}
+  const listInstances = listTemplate._b8rListInstances = {}
 
-  const template = list_template.cloneNode(true)
+  const template = listTemplate.cloneNode(true)
   template.classList.remove('-b8r-empty-list')
   delete template.dataset.list
 
   /* Safari refuses to hide hidden options */
-  if (list_template.tagName === 'OPTION') {
-    list_template.setAttribute('disabled', '')
-    list_template.textContent = ''
+  if (listTemplate.tagName === 'OPTION') {
+    listTemplate.setAttribute('disabled', '')
+    listTemplate.textContent = ''
     template.removeAttribute('disabled')
   }
 
-  let previous_instance = list_template
+  let previousInstance = listTemplate
   let instance
-  let list_content_changed = false
+  let listContentChanged = false
 
   const ids = {}
-  list_template.classList.toggle('-b8r-empty-list', !list.length)
-  forEachItemIn(list, id_path, (item, id) => {
+  listTemplate.classList.toggle('-b8r-empty-list', !list.length)
+  forEachItemIn(list, idPath, (item, id) => {
     if (ids[id]) {
-      console.warn(`${id} not unique ${id_path} in ${list_template.dataset.list}`)
+      console.warn(`${id} not unique ${idPath} in ${listTemplate.dataset.list}`)
       return
     }
     ids[id] = true
-    const itemPath = `${list_path}[${id}]`
-    instance = existing_list_instances[itemPath]
+    const itemPath = `${listPath}[${id}]`
+    instance = existingListInstances[itemPath]
     if (instance === undefined) {
-      list_content_changed = true
+      listContentChanged = true
       instance = template.cloneNode(true)
       instance.dataset.listInstance = itemPath
-      instance._b8r_listInstance = item
-      list_template.parentElement.insertBefore(instance, previous_instance)
+      instance._b8rListInstance = item
+      listTemplate.parentElement.insertBefore(instance, previousInstance)
       resolveListInstanceBindings(instance, itemPath)
       b8r.bindAll(instance)
     } else {
-      delete existing_list_instances[itemPath]
-      if (instance.nextSibling !== previous_instance) {
-        list_template.parentElement.insertBefore(instance, previous_instance)
+      delete existingListInstances[itemPath]
+      if (instance.nextSibling !== previousInstance) {
+        listTemplate.parentElement.insertBefore(instance, previousInstance)
       }
     }
-    list_instances[itemPath] = instance
-    previous_instance = instance
+    listInstances[itemPath] = instance
+    previousInstance = instance
   })
-  b8r.forEachKey(existing_list_instances, elt => {
-    list_content_changed = true
+  b8r.forEachKey(existingListInstances, elt => {
+    listContentChanged = true
     elt.remove()
   })
   // for <select> elements and components whose possible values may be dictated by their children
   // we trigger a 'change' event in the parent element.
-  if (list_content_changed) b8r.trigger('change', list_template.parentElement)
-  b8r.hide(list_template)
+  if (listContentChanged) b8r.trigger('change', listTemplate.parentElement)
+  b8r.hide(listTemplate)
 }
 
-b8r.bindAll = (element, data_path) => {
-  loadAvailableComponents(element, data_path)
+b8r.bindAll = (element, dataPath) => {
+  loadAvailableComponents(element, dataPath)
   findBindables(element).forEach(elt => bind(elt))
-  findLists(element).forEach(elt => bindList(elt, data_path))
+  findLists(element).forEach(elt => bindList(elt, dataPath))
 }
 
 _b8r_(b8r)
@@ -536,15 +536,15 @@ _b8r_(b8r)
 Object.assign(b8r, _ajax)
 Object.assign(b8r, _sort)
 
-const _path_relative_b8r = _path => {
+const _pathRelativeB8r = _path => {
   return !_path ? b8r : Object.assign({}, b8r, {
     _path,
     component: (...args) => {
-      const path_index = args[1] ? 1 : 0
-      let url = args[path_index]
+      const pathIndex = args[1] ? 1 : 0
+      let url = args[pathIndex]
       if (url.indexOf('://') === -1) {
         url = `${_path}/${url}`
-        args[path_index] = url
+        args[pathIndex] = url
       }
       return b8r.component(...args)
     }
@@ -554,13 +554,13 @@ Object.assign(b8r, { component, makeComponent })
 
 b8r.components = () => Object.keys(components)
 
-function loadAvailableComponents (element, data_path) {
+function loadAvailableComponents (element, dataPath) {
   b8r.findWithin(element || document.body, '[data-component]', true)
     .forEach(target => {
       if (!target.closest('[data-list]') &&
           !target.dataset.componentId) {
         const name = target.dataset.component
-        b8r.insertComponent(name, target, data_path)
+        b8r.insertComponent(name, target, dataPath)
       }
     })
 }
@@ -583,10 +583,10 @@ const inheritData = element => {
   }
 }
 
-let component_count = 0
-const _component_instances = {}
+let componentCount = 0
+const _componentInstances = {}
 b8r.insertComponent = async function (component, element, data) {
-  const data_path = typeof data === 'string' ? data : b8r.getDataPath(element)
+  const dataPath = typeof data === 'string' ? data : b8r.getDataPath(element)
   if (!element) {
     element = b8r.create('div')
   } else if (!b8r.isInBody(element)) {
@@ -610,7 +610,7 @@ b8r.insertComponent = async function (component, element, data) {
   if (element.dataset.component) {
     delete element.dataset.component
   }
-  if (!data || data_path) {
+  if (!data || dataPath) {
     data = dataForElement(element) || inheritData(element) || {}
   }
   if (element.parentElement === null) {
@@ -626,7 +626,7 @@ b8r.insertComponent = async function (component, element, data) {
       passed-through child elements that aren't distinguishable from a component's
       original body
   */
-  const component_id = 'c#' + component.name + '#' + (++component_count)
+  const componentId = 'c#' + component.name + '#' + (++componentCount)
   if (component.view.children.length) {
     if (element.dataset.componentId) {
       if (element.querySelector('[data-children]')) {
@@ -639,44 +639,44 @@ b8r.insertComponent = async function (component, element, data) {
     }
     const source = component.view.querySelector('[data-parent]') || component.view
     b8r.copyChildren(source, element)
-    replaceInBindings(element, '_component_', component_id)
-    if (data_path) {
-      replaceInBindings(element, '_data_', data_path)
+    replaceInBindings(element, '_component_', componentId)
+    if (dataPath) {
+      replaceInBindings(element, '_data_', dataPath)
     }
-    const children_dest = b8r.findOneWithin(element, '[data-children]')
-    if (children.firstChild && children_dest) {
-      b8r.empty(children_dest)
-      b8r.moveChildren(children, children_dest)
+    const childrenDest = b8r.findOneWithin(element, '[data-children]')
+    if (children.firstChild && childrenDest) {
+      b8r.empty(childrenDest)
+      b8r.moveChildren(children, childrenDest)
     }
   }
-  element.dataset.componentId = component_id
-  _component_instances[component_id] = element
+  element.dataset.componentId = componentId
+  _componentInstances[componentId] = element
   b8r.makeArray(element.classList).forEach(c => {
     if (c.substr(-10) === '-component') {
       element.classList.remove(c)
     }
   })
   element.classList.add(component.name + '-component')
-  if (data_path) {
-    element.dataset.path = data_path
+  if (dataPath) {
+    element.dataset.path = dataPath
   }
-  const register = component_data => b8r.register(component_id, component_data)
-  data = Object.assign({}, data, { data_path, component_id })
+  const register = componentData => b8r.register(componentId, componentData)
+  data = Object.assign({}, data, { dataPath, componentId })
   if (component.load) {
-    const get = path => b8r.getByPath(component_id, path)
+    const get = path => b8r.getByPath(componentId, path)
     const set = (...args) => {
-      b8r.setByPath(component_id, ...args)
+      b8r.setByPath(componentId, ...args)
       // updates value bindings
       if (args[0] === 'value' || args[0].hasOwnProperty('value')) {
         b8r.trigger('change', element)
       }
     }
     const on = (...args) => b8r.on(element, ...args)
-    const touch = path => b8r.touchByPath(component_id, path)
-    b8r.register(component_id, data, true)
+    const touch = path => b8r.touchByPath(componentId, path)
+    b8r.register(componentId, data, true)
     try {
       await component.load(
-        element, _path_relative_b8r(component.path), selector => b8r.findWithin(element, selector),
+        element, _pathRelativeB8r(component.path), selector => b8r.findWithin(element, selector),
         selector => b8r.findOneWithin(element, selector), data, register,
         get, set, on, touch, component
       )
@@ -685,7 +685,7 @@ b8r.insertComponent = async function (component, element, data) {
       console.error('component', component.name, 'failed to load', e)
     }
   } else {
-    b8r.register(component_id, data, true)
+    b8r.register(componentId, data, true)
   }
   b8r.bindAll(element)
 }

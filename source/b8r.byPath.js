@@ -169,7 +169,7 @@ Test(() => {
     caught++;
   }
   return caught;
-}, 'item inserted at id_path must satisfy it').shouldBe(1);
+}, 'item inserted at idPath must satisfy it').shouldBe(1);
 ~~~~
 */
 /* jshint latedef:false */

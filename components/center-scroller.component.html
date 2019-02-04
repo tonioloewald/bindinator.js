@@ -48,7 +48,7 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
   const min_item_width = parseInt(data.min_item_width || component.dataset.minimumItemWidth || 28, 10);
   const item_spacing = parseInt(data.item_spacing || component.dataset.itemSpacing || 2, 10);
   set({center_gap, min_item_width, item_spacing});
-  const component_id = b8r.getComponentId(component);
+  const componentId = b8r.getComponentId(component);
 
   if (getComputedStyle(component).position !== 'absolute') {
     component.style.position = 'relative';
@@ -98,8 +98,8 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 
   const dragStart = evt => {
     set('dragging', {x0: evt.pageX, position});
-    b8r.onAny('mousemove', `${component_id}.drag`);
-    b8r.onAny('mouseup', `${component_id}.dragEnd`);
+    b8r.onAny('mousemove', `${componentId}.drag`);
+    b8r.onAny('mouseup', `${componentId}.dragEnd`);
   };
   const drag = evt => {
     const dragging = get('dragging');
@@ -116,8 +116,8 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     const dragging = get('dragging');
     if (dragging) {
       set('dragging', null);
-      b8r.offAny('mousemove', `${component_id}.drag`);
-      b8r.offAny('mouseup', `${component_id}.dragEnd`);
+      b8r.offAny('mousemove', `${componentId}.drag`);
+      b8r.offAny('mouseup', `${componentId}.dragEnd`);
       update();
     }
     return true;

@@ -289,7 +289,7 @@
     b8r.set('test1.base', 86);
     Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
     b8r.force_update();
-    Test(() => b8r.id('a').textContent, 'Async Update after_update').shouldBe('86');
+    Test(() => b8r.id('a').textContent, 'Async Update afterUpdate').shouldBe('86');
 
     b8r.register('empty_obj', {});
     b8r.set('empty_obj.array[id=5]', {id: 5, name: 'fred'});

@@ -172,7 +172,7 @@ Copyright ©2016-2017 Tonio Loewald
   const child_selector = component.getAttribute('child-selector') || '.carousel > div';
   const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'));
   const carousel = findOne('.carousel');
-  const {component_id} = data;
+  const {componentId} = data;
 
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
 
@@ -250,16 +250,16 @@ Copyright ©2016-2017 Tonio Loewald
 
   const dragOff = () => {
     component.classList.remove('carousel-dragging');
-    b8r.offAny('mouseup', `${component_id}.setTarget`);
-    b8r.offAny('mousemove', `${component_id}.drag`);
-    b8r.offAny('mouseleave', `${component_id}.dragEnd`);
+    b8r.offAny('mouseup', `${componentId}.setTarget`);
+    b8r.offAny('mousemove', `${componentId}.drag`);
+    b8r.offAny('mouseleave', `${componentId}.dragEnd`);
   };
 
   const dragOn = () => {
     component.classList.add('carousel-dragging');
-    b8r.onAny('mouseup', `${component_id}.setTarget`);
-    b8r.onAny('mousemove', `${component_id}.drag`);
-    b8r.onAny('mouseleave', `${component_id}.dragEnd`);
+    b8r.onAny('mouseup', `${componentId}.setTarget`);
+    b8r.onAny('mousemove', `${componentId}.drag`);
+    b8r.onAny('mouseleave', `${componentId}.dragEnd`);
   };
 
   // Demo Code
@@ -298,7 +298,7 @@ Copyright ©2016-2017 Tonio Loewald
         add: () => {
           add();
           set({items});
-          b8r.after_update(() => snapToTarget(items.length - 1));
+          b8r.afterUpdate(() => snapToTarget(items.length - 1));
         },
         remove,
       });

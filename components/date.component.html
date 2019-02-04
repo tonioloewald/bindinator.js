@@ -172,7 +172,7 @@ them for anything.
     update(new Date(value));
     // focus the (new) current day once we've rendered the update
     if (had_focus) {
-      b8r.after_update(() => {
+      b8r.afterUpdate(() => {
         const current = findOne('.date-component-current');
         if (current) current.focus();
       });

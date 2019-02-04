@@ -637,7 +637,7 @@ grid cells that are currently in view.
 
   const closeDetail = () => {
     set('rawfile', null);
-    b8r.after_update(() => b8r.trigger('resize', scroller));
+    b8r.afterUpdate(() => b8r.trigger('resize', scroller));
   };
 
   const sort_methods = {

@@ -53,12 +53,12 @@ And finally, the component's `<script>` will be run as the body of a function th
 * `b8r` -- a reference to b8r
 * `find` -- find(selector) => b8r.findWithin(component, selector)
 * `findOne` -- findOne(selector) => b8r.findOneWithin(component, selector)
-* `data` -- the component's private data object, i.e. the output of b8r.get(component_id)
-* `register` -- replace the component's private data, i.e. register(obj) => b8r.set(component_id, obj)
-* `get` -- gets paths within the component object; get(path) => b8r.getByPath(component_id, path)
-* `set` -- sets paths within the component object; set(path, val) => b8r.setByPath(component_id, path, val)
+* `data` -- the component's private data object, i.e. the output of b8r.get(componentId)
+* `register` -- replace the component's private data, i.e. register(obj) => b8r.set(componentId, obj)
+* `get` -- gets paths within the component object; get(path) => b8r.getByPath(componentId, path)
+* `set` -- sets paths within the component object; set(path, val) => b8r.setByPath(componentId, path, val)
 * `on` -- adds event listeners to the component element; on(type, path) => b8r.on(component, type, path)
-* `touch` -- touches paths within the component object; touch(...args) => b8r.touchByPath(component_id, ...args)
+* `touch` -- touches paths within the component object; touch(...args) => b8r.touchByPath(componentId, ...args)
 
 > One annoying detail that has emerged as b8r has been used for more complex projects is that sometimes
 > you want a component to have a private event handler that will be triggered before the load script
@@ -71,7 +71,7 @@ And finally, the component's `<script>` will be run as the body of a function th
 > Another option, which makes sense for very simple components or components where each private handler
 > is likely to have very specific behavior (i.e. unique to the component instance) is to add the
 > event handler in the load script (i.e. add the attribute and explicitly construct the paths using
-> the `component_id`).
+> the `componentId`).
 >
 > I'm working on a revised component architecture (which will be implemented by adding a data-version="2"
 > attribute to the component `<script>` tag) which will eliminate the need for both approaches and
@@ -114,13 +114,13 @@ the attribute `data-children`, e.g. if `foo.component.html` were `<blockquote da
 
 ## Binding to Components
 
-A component instance automatically has private data that is registered against its `component_id`. 
+A component instance automatically has private data that is registered against its `componentId`. 
 
-In the component's script you can work with this private data by using paths relative to `component_id` 
+In the component's script you can work with this private data by using paths relative to `componentId` 
 in your scripts, or just use the convenience methods `register` to completely overwrite this data, and 
 `get` and `set` to access and modify paths inside id.
 
-In bindings you can use `_component_` to refer to the `component_id` so if you want a component to
+In bindings you can use `_component_` to refer to the `componentId` so if you want a component to
 have have a private value for some specific state or to use a private method to handle an event,
 you could do something like this:
 

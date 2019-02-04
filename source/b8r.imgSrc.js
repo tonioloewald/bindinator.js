@@ -8,7 +8,7 @@ Gracefully populates an `<img>` element's src attribute to a url,
 sets the element to `opacity: 0`, and then fades it in when the image
 is loaded.
 */
-
+/* global Image, HTMLImageElement, getComputedStyle, HTMLCanvasElement */
 import { render } from '../lib/pixel.js'
 
 const images = {}
@@ -24,12 +24,13 @@ export const imagePromise = (url, cors = true) => {
   } else {
     images[url] = new Promise(resolve => {
       const image = new Image()
-      if (cors)
+
       // Cross-origin is necessary if you want to use the image data from JavaScript, in WebGL
       // for example, but you can't indiscriminately use it on all images. If you use
       // `crossorigin` on images from a source that doesn't reply with the
       // `Access-Control-Allow-Origin` header, the browser won't render them.
-      { image.setAttribute('crossorigin', 'anonymous') }
+      if (cors) { image.setAttribute('crossorigin', 'anonymous') }
+
       image.src = url
       image.onload = () => {
         resolve(image)

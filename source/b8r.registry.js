@@ -46,7 +46,7 @@ If you set a value by path, it should automatically propagate the changes.
 But, there will be times when you need to change values directly and notify the registry
 afterwards.
 
-    touch(path [, source_element]);
+    touch(path [, sourceElement]);
 
 Triggers all observers as though the value at path has changed. Useful
 if you change a property independently of the registry.
@@ -138,9 +138,9 @@ import {getDataPath, getComponentId, splitPaths} from './b8r.bindings.js';
 const registry = {};
 const listeners = [];  // { path_string_or_test, callback }
 const debug_paths = true;
-const valid_path = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*\=[^[\]()]+\])*$/;
+const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*\=[^[\]()]+\])*$/;
 
-const isValidPath = path => valid_path.test(path);
+const isValidPath = path => validPath.test(path);
 
 class Listener {
   constructor(test, callback) {
@@ -471,7 +471,7 @@ is actually pretty slick.
     update: () => b8r.touch('computed-properties.message'),
   });
 
-  b8r.after_update(() => {
+  b8r.afterUpdate(() => {
     find('.foreign-path [data-list-instance]').forEach(elt => {
       const message = b8r.getListInstance(elt);
       b8r.addDataBinding(elt, 'class(offline)', `computed-properties.not(computed-properties.people[id=${message.from}].online)`);
@@ -557,12 +557,12 @@ const getJSON = (path, element, pretty) => {
   return JSON.stringify(obj, replacer, pretty ? 2 : 0);
 };
 
-const touch = (path, source_element) => {
+const touch = (path, sourceElement) => {
   listeners.filter(listener => listener.test(path))
-           .forEach(listener => listener.callback(path, source_element));
+           .forEach(listener => listener.callback(path, sourceElement));
 };
 
-const set = (path, value, source_element) => {
+const set = (path, value, sourceElement) => {
   if (debug_paths && ! isValidPath(path)) {
     console.error(`setting invalid path ${path}`);
   }
@@ -576,7 +576,7 @@ const set = (path, value, source_element) => {
   } else if (value === existing) {
     // if it's an array then it might have gained or lost elements
     if (Array.isArray(value) || Array.isArray(existing)) {
-      touch(path, source_element);
+      touch(path, sourceElement);
     }
   } else if (value && value.constructor) {
     if (path_parts.length === 1 && ! registry[path]) {
@@ -592,11 +592,11 @@ const set = (path, value, source_element) => {
       } else {
         setByPath(registry, path, value);
       }
-      touch(path, source_element);
+      touch(path, sourceElement);
     }
   } else {
     setByPath(registry, path, value);
-    touch(path, source_element);
+    touch(path, sourceElement);
   }
   return value; // convenient for things push (see below) but maybe an anti-feature?!
 };

@@ -153,7 +153,7 @@ b8r.component('path/to/example');
 
 ### A few more things about components
 
-- when a component instance is loaded, it will be given a unique `component_id` (found in `data.component_id`).
+- when a component instance is loaded, it will be given a unique `componentId` (found in `data.componentId`).
   - its data will be **registered** with this id as its root path.
 - `_component_`
   - will be changed to the component's instance path in bindings.

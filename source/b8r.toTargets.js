@@ -630,8 +630,8 @@ export default function(b8r) {
       }
     },
     component: function(element, value, dest) {
-      const component_id = b8r.getComponentId(element);
-      b8r.setByPath(component_id, dest, value);
+      const componentId = b8r.getComponentId(element);
+      b8r.setByPath(componentId, dest, value);
     },
     component_map: function(element, value, map) {
       const component_options = parse_options(map);

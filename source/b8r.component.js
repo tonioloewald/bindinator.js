@@ -115,7 +115,7 @@ If a component has a property named `destroy` (and it's a method) it will
 be called just before the instance is removed from the registry.
 */
 
-import { async_update as asyncUpdate } from './b8r.update.js'
+import { asyncUpdate } from './b8r.update.js'
 import { create, find, findWithin } from './b8r.dom.js'
 import { ajax } from './b8r.ajax.js'
 import makeStylesheet from './b8r.makeStylesheet.js'

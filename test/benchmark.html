@@ -173,17 +173,17 @@ b8r.register('benchmark', {
   create: () => {
     console.time('create');
     b8r.set('benchmark.data', store.buildData(1000));
-    b8r.after_update(() => console.timeEnd('create'));
+    b8r.afterUpdate(() => console.timeEnd('create'));
   },
   create10k:  () => {
     console.time('create 10k');
     b8r.set('benchmark.data', store.buildData(10000));
-    b8r.after_update(() => console.timeEnd('create 10k'));
+    b8r.afterUpdate(() => console.timeEnd('create 10k'));
   },
   append: () => {
     console.time('append');
     b8r.set('benchmark.data', b8r.get('benchmark.data').concat(store.buildData(1000)));
-    b8r.after_update(() => console.timeEnd('append'));
+    b8r.afterUpdate(() => console.timeEnd('append'));
   },
   update:  () => {
     console.time('update');
@@ -192,13 +192,13 @@ b8r.register('benchmark', {
       data[i].label += ' !!!';
     }
     b8r.set('benchmark.data', data);
-    b8r.after_update(() => console.timeEnd('update'));
+    b8r.afterUpdate(() => console.timeEnd('update'));
   },
   clear: () => {
     console.time('clear');
     store.clear();
     b8r.set('benchmark.data', store.data);
-    b8r.after_update(() => console.timeEnd('clear'));
+    b8r.afterUpdate(() => console.timeEnd('clear'));
   },
   swap: () => {
     console.time('swap');
@@ -209,7 +209,7 @@ b8r.register('benchmark', {
       data[7] = row;
       b8r.touch(`benchmark.data`);
     }
-    b8r.after_update(() => console.timeEnd('swap'));
+    b8r.afterUpdate(() => console.timeEnd('swap'));
   },
 });
 </script>
