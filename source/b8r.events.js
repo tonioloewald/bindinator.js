@@ -383,7 +383,7 @@ const trigger = (type, target, ...args) => {
   if (target) {
     const event = dispatch(type, target, ...args)
     if (target instanceof Element && implicitEventTypes.indexOf(type) === -1) {
-      // handleEvent(event);
+      handleEvent(event);
     }
   } else {
     console.warn('b8r.trigger called with no specified target')
