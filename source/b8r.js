@@ -29,7 +29,6 @@ implement some kind of virtual machine to replace it.
 
 import { getByPath, pathSplit } from './b8r.byPath.js'
 import * as _dom from './b8r.dom.js'
-import _perf from './b8r.perf.js'
 import * as _iterators from './b8r.iterators.js'
 import * as _registry from './b8r.registry.js'
 import * as _functions from './b8r.functions.js'
@@ -89,7 +88,6 @@ import { makeWebComponent } from '../lib/web-components.js'
 const b8r = {}
 
 Object.assign(b8r, _dom)
-Object.assign(b8r, _perf)
 Object.assign(b8r, _iterators)
 Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHandleEventsOfType })
 Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListInstancePath })
