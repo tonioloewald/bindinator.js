@@ -19,6 +19,8 @@
 > 
 > I'm switching `b8r` from using its own `require.js` library to using ES6 `import`. This
 > is a *breaking change*; I've written [documentation to help with migration](#source=docs/import.md).
+>
+> `b8r` has been conformed to [standardjs](https://standardjs.com/).
 
 ## The lazy JavaScript framework.
 
