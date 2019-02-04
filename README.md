@@ -14,7 +14,7 @@
 >
 > `b8r` is now available as an [npm package](https://www.npmjs.com/package/@tonioloewald/b8r).
 >
-> `b8r` not includes a `dist` subdirectory with single file versions of `b8r`. Minified
+> `b8r` now includes a `dist` subdirectory with single file versions of `b8r`. Minified
 > and gzipped, b8r continues to come in under 20kB.
 > 
 > I'm switching `b8r` from using its own `require.js` library to using ES6 `import`. This
@@ -159,13 +159,6 @@ child will be moved into it. In the example below, the `tab-selector` component 
 tab for each child.
 
 <div data-component="fiddle" data-path="compose-example"></div>
-
-### `require` just works
-
-You can use third-party libraries easily as well (this example uses `showdown.js` via
-the [text-render.js](#source=lib/text-render.js) library to render markdown.)
-
-<div data-component="fiddle" data-path="markdown-editor"></div>
 
 ### Dog Food!
 
