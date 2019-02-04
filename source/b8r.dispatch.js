@@ -5,6 +5,7 @@
 
 Synthesizes a native event. Don't use it for custom events. Use `trigger` instead.
 */
+/* global Event */
 
 export const dispatch = (type, target, ...args) => {
   const event = new Event(type)

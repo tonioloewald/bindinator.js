@@ -2,37 +2,37 @@
 # Events
 */
 /* jshint latedef:false */
-/* global console, window, KeyboardEvent */
+/* global console, window, KeyboardEvent, Element */
 
 import { findWithin } from './b8r.dom.js'
 import { get, registered, call } from './b8r.registry.js'
 import anyElement from './b8r.anyElement.js'
 import * as keys from './b8r.keystroke.js'
 import { pathSplit } from './b8r.byPath.js'
-import implicit_event_types from './b8r.implicit-event-types.js'
+import implicitEventTypes from './b8r.implicit-event-types.js'
 import { dispatch } from './b8r.dispatch.js'
 
 const onOffArgs = args => {
-  var element; var event_type; var object; var method; var prepend = false
+  var element; var eventType; var object; var method; var prepend = false
   if (typeof args[2] === 'object') {
     console.warn('b8r.on(element, type, OBJECT) is deprecated');
-    [element, event_type, object] = args
-    return on(element, event_type, object.model, object.method)
+    [element, eventType, object] = args
+    return on(element, eventType, object.model, object.method)
   } else if (args.length > 4 || typeof args[3] === 'string') {
-    [element, event_type, object, method, prepend] = args
+    [element, eventType, object, method, prepend] = args
     if (typeof object !== 'string' || typeof method !== 'string') {
       console.error('implicit bindings are by name, not', object, method)
       return
     }
     method = object + '.' + method
   } else {
-    [element, event_type, method, prepend] = args
+    [element, eventType, method, prepend] = args
   }
   if (!(element instanceof Element)) {
     console.error('bind bare elements please, not', element)
-    throw 'bad argument'
+    throw new Error('bad argument')
   }
-  return { element, event_type, path: method, prepend }
+  return { element, eventType, path: method, prepend }
 }
 
 const getEventHandlers = (element) => {
@@ -74,11 +74,11 @@ const getParsedEventHandlers = element => {
         }
         return { types: [] }
       }
-      const [, model, method] = handler.trim().match(/^([^\.]+)\.(.+)$/)
+      const [, model, method] = handler.trim().match(/^([^.]+)\.(.+)$/)
       const types = type.split(',').sort()
       return {
         types: types.map(s => s.split('(')[0].trim()),
-        type_args: types.map(s => {
+        typeArgs: types.map(s => {
           if (s.substr(0, 3) === 'key') {
             s = s.replace(/Key|Digit/g, '')
             // Allows for a key to be CMD in Mac and Ctrl in Windows
@@ -97,23 +97,23 @@ const getParsedEventHandlers = element => {
   }
 }
 
-const makeHandler = (event_type, method) => {
-  if (typeof event_type === 'string') {
-    event_type = [event_type]
+const makeHandler = (eventType, method) => {
+  if (typeof eventType === 'string') {
+    eventType = [eventType]
   }
-  if (!Array.isArray(event_type)) {
-    console.error('makeHandler failed; bad event_type', event_type)
+  if (!Array.isArray(eventType)) {
+    console.error('makeHandler failed; bad eventType', eventType)
     return
   }
-  return event_type.sort().join(',') + ':' + method
+  return eventType.sort().join(',') + ':' + method
 }
 
 /**
-    on(element, event_type, model_name, method_name);
+    on(element, eventType, model_name, method_name);
 
 creates an implicit event-binding data attribute:
 
-    data-event="event_type:module_name.method_name"
+    data-event="eventType:module_name.method_name"
 
 Multiple handlers are semicolon-delimited, e.g.
 
@@ -127,7 +127,7 @@ You can bind multiple event types separated by commas, e.g.
 
 You can remove an implicit event binding using:
 
-    off(element, event_type, model_name, method_name);
+    off(element, eventType, model_name, method_name);
 
 ### Keyboard Events
 
@@ -140,8 +140,8 @@ For your convenience, there's a *Keyboard Event Utility*.
 
 // TODO use parsed event handlers to do this properly
 function on (...args) {
-  const { element, event_type, path, prepend } = onOffArgs(args)
-  const handler = makeHandler(event_type, path)
+  const { element, eventType, path, prepend } = onOffArgs(args)
+  const handler = makeHandler(eventType, path)
   const existing = getEventHandlers(element)
   if (existing.indexOf(handler) === -1) {
     if (prepend) {
@@ -155,17 +155,17 @@ function on (...args) {
 
 // TODO use parsed event handlers to do this properly
 function off (...args) {
-  var element, event_type, object, method
+  var element, eventType, object, method
   if (args.length === 4) {
-    [element, event_type, object, method] = args
+    [element, eventType, object, method] = args
     method = object + '.' + method
   } else if (args.length === 3) {
-    [element, event_type, method] = args
+    [element, eventType, method] = args
   } else {
-    throw 'b8r.off requires three or four arguments'
+    throw new Error('b8r.off requires three or four arguments')
   }
   const existing = element.dataset.event.split(';')
-  const handler = makeHandler(event_type, method)
+  const handler = makeHandler(eventType, method)
   const idx = existing.indexOf(handler)
   if (idx > -1) {
     existing.splice(idx, 1)
@@ -186,18 +186,18 @@ Convenience methods for (temporarily) enabling and disabling event handlers.
 
 Will not play nicely with event handler creation / removal.
 
-    enable(element, include_children); // include_children defaults to false
+    enable(element, includeChildren); // includeChildren defaults to false
 
 Returns data-event-disabled attributes to data-event attributes.
 
-    disable(element, include_children);
+    disable(element, includeChildren);
 
 Finds all data-event bindings on elements within the specified target and
 turns them into data-event-disabled attributes;
 */
 
-const disable = (element, include_children) => {
-  const elements = include_children ? findWithin(element, '[data-event]', true) : [element]
+const disable = (element, includeChildren) => {
+  const elements = includeChildren ? findWithin(element, '[data-event]', true) : [element]
   elements.forEach(elt => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event
@@ -211,8 +211,8 @@ const disable = (element, include_children) => {
   })
 }
 
-const enable = (element, include_children) => {
-  const elements = include_children ? findWithin(element, '[data-event-disabled]', true) : [element]
+const enable = (element, includeChildren) => {
+  const elements = includeChildren ? findWithin(element, '[data-event-disabled]', true) : [element]
   elements.forEach(elt => {
     if (elt.dataset.eventDisabled) {
       elt.dataset.event = elt.dataset.eventDisabled
@@ -229,20 +229,20 @@ const enable = (element, include_children) => {
 // add touch events if needed
 if (window.TouchEvent) {
   ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(
-    type => implicit_event_types.push(type))
+    type => implicitEventTypes.push(type))
 }
 
-const get_component_with_method = function (element, path) {
-  var component_id = false
+const getComponentWithMethod = function (element, path) {
+  var componentId = false
   element = element.closest('[data-component-id]')
   while (element instanceof Element) {
     if (get(`${element.dataset.componentId}.${path}`) instanceof Function) {
-      component_id = element.dataset.componentId
+      componentId = element.dataset.componentId
       break
     }
     element = element.parentElement.closest('[data-component-id]')
   }
-  return component_id
+  return componentId
 }
 
 /**
@@ -264,18 +264,18 @@ yet been registered (e.g. it's being loaded asynchronously) it will get the
 message when it's registered.
 */
 
-var saved_messages = [] // {model, method, evt}
+var savedMessages = [] // {model, method, evt}
 
 function saveMethodCall (model, method, args) {
-  saved_messages.push({ model, method, args })
+  savedMessages.push({ model, method, args })
 }
 
-const play_saved_messages = for_model => {
+const playSavedMessages = (forModel) => {
   var playbackQueue = []
-  for (var i = saved_messages.length - 1; i >= 0; i--) {
-    if (saved_messages[i].model === for_model) {
-      playbackQueue.push(saved_messages[i])
-      saved_messages.splice(i, 1)
+  for (var i = savedMessages.length - 1; i >= 0; i--) {
+    if (savedMessages[i].model === forModel) {
+      playbackQueue.push(savedMessages[i])
+      savedMessages.splice(i, 1)
     }
   }
   while (playbackQueue.length) {
@@ -287,7 +287,7 @@ const play_saved_messages = for_model => {
 const callMethod = (...args) => {
   var model, method
   try {
-    if (args[0].match(/[\[.]/)) {
+    if (args[0].match(/[[.]/)) {
       [method, ...args] = args;
       [model, method] = pathSplit(method)
     } else {
@@ -309,7 +309,7 @@ const callMethod = (...args) => {
   return result
 }
 
-const handle_event = evt => {
+const handleEvent = (evt) => {
   var target = anyElement
   var args = evt.args || []
   var keystroke = evt instanceof KeyboardEvent ? keys.keystroke(evt) : {}
@@ -318,14 +318,14 @@ const handle_event = evt => {
     var result = false
     for (var i = 0; i < handlers.length; i++) {
       var handler = handlers[i]
-      for (var type_index = 0; type_index < handler.types.length;
-        type_index++) {
-        if (handler.types[type_index] === evt.type &&
-            (!handler.type_args[type_index] ||
-             handler.type_args[type_index].indexOf(keystroke) > -1)) {
+      for (var typeIndex = 0; typeIndex < handler.types.length;
+        typeIndex++) {
+        if (handler.types[typeIndex] === evt.type &&
+            (!handler.typeArgs[typeIndex] ||
+             handler.typeArgs[typeIndex].indexOf(keystroke) > -1)) {
           if (handler.model && handler.method) {
             if (handler.model === '_component_') {
-              handler.model = get_component_with_method(target, handler.method)
+              handler.model = getComponentWithMethod(target, handler.method)
             }
             if (handler.model) {
               result = callMethod(handler.model, handler.method, evt, target, ...args)
@@ -374,7 +374,7 @@ const trigger = (type, target, ...args) => {
     (target && !(target.dispatchEvent instanceof Function))
   ) {
     console.error(
-      'expected trigger(event_type, target_element)',
+      'expected trigger(eventType, target_element)',
       type,
       target
     )
@@ -382,8 +382,8 @@ const trigger = (type, target, ...args) => {
   }
   if (target) {
     const event = dispatch(type, target, ...args)
-    if (target instanceof Element && implicit_event_types.indexOf(type) === -1) {
-      // handle_event(event);
+    if (target instanceof Element && implicitEventTypes.indexOf(type) === -1) {
+      // handleEvent(event);
     }
   } else {
     console.warn('b8r.trigger called with no specified target')
@@ -401,9 +401,9 @@ could do with `b8r.implicitlyHandleEventsOfType('seeking')`.
 */
 
 const implicitlyHandleEventsOfType = type => {
-  if (implicit_event_types.indexOf(type) === -1) {
-    implicit_event_types.push(type)
-    document.body.addEventListener(type, handle_event, true)
+  if (implicitEventTypes.indexOf(type) === -1) {
+    implicitEventTypes.push(type)
+    document.body.addEventListener(type, handleEvent, true)
   }
 }
 
@@ -414,5 +414,5 @@ export {
   dispatch, trigger,
   on, off, enable, disable, callMethod,
   implicitlyHandleEventsOfType,
-  implicit_event_types, get_component_with_method, handle_event, play_saved_messages
+  implicitEventTypes, getComponentWithMethod, handleEvent, playSavedMessages
 }

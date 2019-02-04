@@ -615,7 +615,7 @@ const register = (name, obj, block_updates) => {
 
   if (!block_updates) {
     touch(name);
-    import('./b8r.events.js').then(({play_saved_messages}) => play_saved_messages(name));
+    import('./b8r.events.js').then(({playSavedMessages}) => playSavedMessages(name));
   }
 };
 

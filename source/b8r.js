@@ -46,9 +46,9 @@ import {
   disable,
   trigger,
   callMethod,
-  implicit_event_types,
+  implicitEventTypes,
   implicitlyHandleEventsOfType,
-  handle_event
+  handleEvent
 } from './b8r.events.js'
 import {
   addDataBinding,
@@ -101,7 +101,7 @@ Object.assign(b8r, _registry)
 b8r.observe(() => true, (path, source_element) => b8r.touchByPath(path, source_element))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
-b8r.makeWebComponent = makeWebComponent;
+b8r.makeWebComponent = makeWebComponent
 
 Object.assign(b8r, _functions)
 
@@ -302,12 +302,12 @@ b8r.getListInstance = elt => {
 }
 
 if (document.body) {
-  implicit_event_types
-    .forEach(type => document.body.addEventListener(type, handle_event, true))
+  implicitEventTypes
+    .forEach(type => document.body.addEventListener(type, handleEvent, true))
 } else {
   document.addEventListener('DOMContentLoaded', () => {
-    implicit_event_types
-      .forEach(type => document.body.addEventListener(type, handle_event, true))
+    implicitEventTypes
+      .forEach(type => document.body.addEventListener(type, handleEvent, true))
   })
 }
 

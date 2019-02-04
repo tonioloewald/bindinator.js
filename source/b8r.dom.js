@@ -10,11 +10,11 @@ document.querySelectorAll(selector) converted to a true array
 
 document.querySelector(selector)
 
-    findWithin(element, selector, include_self);
+    findWithin(element, selector, includeSelf);
 
 element.querySelectorAll(selector) converted to a true array
 
-    findOneWithin(element, selector, include_self);
+    findOneWithin(element, selector, includeSelf);
 
 element.querySelector(selector)
 
@@ -115,8 +115,8 @@ moves children of source to dest
 
 obtain the offset position of the element relative to the top-left of the window.
 
-    within(element, mouse_event);
-    within(element, mouse_event, margin); // true | false
+    within(element, mouseEvent);
+    within(element, mouseEvent, margin); // true | false
 
 did the event occur within the element (with added margin)?
 
@@ -148,9 +148,9 @@ wraps the element with a wrapper element. If a destination_selector is provided 
 the wrapped element is inserted within the indicated child, otherwise it is appended directly to
 the wrapper.
 
-    unwrap(element [, wrapper_selector]);
+    unwrap(element [, wrapperSelector]);
 
-unwraps the element of its immediate parent or its closest `wrapper_selector` if provided.
+unwraps the element of its immediate parent or its closest `wrapperSelector` if provided.
 
 ```
 <button
@@ -202,12 +202,13 @@ unwraps the element of its immediate parent or its closest `wrapper_selector` if
 </script>
 ```
 */
+/* global getComputedStyle */
 
 import { makeArray, forEachKey } from './b8r.iterators.js'
 
-export const isVisible = (element, include_parents) => element &&
+export const isVisible = (element, includeParents) => element &&
   getComputedStyle(element).display !== 'none' &&
-  ((!include_parents) || element === document.body || isVisible(element.parentElement, true))
+  ((!includeParents) || element === document.body || isVisible(element.parentElement, true))
 
 export const isInView = (element, view) => {
   if (!element || !isVisible(element, true)) {
@@ -221,25 +222,25 @@ export const isInView = (element, view) => {
 
 export const rectsOverlap = (r, s) => !(
   r.top > s.top + s.height ||
-                                 r.top + r.height < s.top ||
-                                 r.left > s.left + s.width ||
-                                 r.left + r.width < s.left
+  r.top + r.height < s.top ||
+  r.left > s.left + s.width ||
+  r.left + r.width < s.left
 )
 
 export const find = selector => makeArray(document.querySelectorAll(selector))
 
 export const findOne = document.querySelector.bind(document)
 
-export const findWithin = (element, selector, include_self) => {
+export const findWithin = (element, selector, includeSelf) => {
   const list = makeArray(element.querySelectorAll(selector))
-  if (include_self && element.matches(selector)) {
+  if (includeSelf && element.matches(selector)) {
     list.unshift(element)
   }
   return list
 }
 
-export const findOneWithin = (element, selector, include_self) =>
-  include_self &&
+export const findOneWithin = (element, selector, includeSelf) =>
+  includeSelf &&
   element.matches(selector) ? element : element.querySelector(selector)
 
 export const succeeding = (element, selector) => {
@@ -256,22 +257,22 @@ export const preceding = (element, selector) => {
   return element.previousElementSibling
 }
 
-export const findAbove = (elt, selector, until_elt, include_self) => {
-  let current_elt = include_self ? elt : elt.parentElement
+export const findAbove = (elt, selector, untilElt, includeSelf) => {
+  let currentElt = includeSelf ? elt : elt.parentElement
   const found = []
-  while (current_elt) {
-    if (current_elt === document.body) {
+  while (currentElt) {
+    if (currentElt === document.body) {
       break
     }
-    if (typeof until_elt === 'string' && current_elt.matches(until_elt)) {
+    if (typeof untilElt === 'string' && currentElt.matches(untilElt)) {
       break
-    } else if (current_elt === until_elt) {
+    } else if (currentElt === untilElt) {
       break
     }
-    if (current_elt.matches(selector)) {
-      found.push(current_elt)
+    if (currentElt.matches(selector)) {
+      found.push(currentElt)
     }
-    current_elt = current_elt.parentElement
+    currentElt = currentElt.parentElement
   }
   return found
 }
@@ -285,17 +286,19 @@ export const fragment = document.createDocumentFragment.bind(document)
 export const create = document.createElement.bind(document)
 
 export const classes = (element, settings) => {
-  forEachKey(settings, (on_off, class_name) => {
-    if (on_off) {
-      element.classList.add(class_name)
+  forEachKey(settings, (onOff, className) => {
+    if (onOff) {
+      element.classList.add(className)
     } else {
-      element.classList.remove(class_name)
+      element.classList.remove(className)
     }
   })
 }
 
 export const styles = (element, settings) => {
-  forEachKey(settings, (value, key) => element.style[key] = value)
+  forEachKey(settings, (value, key) => {
+    element.style[key] = value
+  })
 }
 
 export const empty = (element) => {
@@ -320,31 +323,31 @@ export const copyChildren = (source, dest) => {
   }
 }
 
-export const wrap = (element, wrapping_element, dest_selector) => {
+export const wrap = (element, wrappingElement, destSelector) => {
   try {
     const parent = element.parentElement
-    const destination = dest_selector ? wrapping_element.querySelector(dest_selector) : wrapping_element
-    parent.insertBefore(wrapping_element, element)
+    const destination = destSelector ? wrappingElement.querySelector(destSelector) : wrappingElement
+    parent.insertBefore(wrappingElement, element)
     destination.appendChild(element)
   } catch (e) {
-    throw 'wrap failed'
+    throw new Error('wrap failed')
   }
 }
 
-export const unwrap = (element, wrapper_selector) => {
+export const unwrap = (element, wrapperSelector) => {
   try {
-    const wrapper = wrapper_selector ? element.closest(wrapper_selector) : element.parentElement
+    const wrapper = wrapperSelector ? element.closest(wrapperSelector) : element.parentElement
     const parent = wrapper.parentElement
     parent.insertBefore(element, wrapper)
     wrapper.remove()
   } catch (e) {
-    throw 'unwrap failed'
+    throw new Error('unwrap failed')
   }
 }
 
-export const within = (element, mouse_event, margin) => {
+export const within = (element, mouseEvent, margin) => {
   const r = element.getBoundingClientRect()
-  const { clientX, clientY } = mouse_event
+  const { clientX, clientY } = mouseEvent
   return (
     clientX + margin > r.left &&
     clientX - margin < r.right &&

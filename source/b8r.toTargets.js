@@ -371,7 +371,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 /* global console */
 
 import {imgSrc} from './b8r.imgSrc.js';
-import {get_component_with_method} from './b8r.events.js';
+import {getComponentWithMethod} from './b8r.events.js';
 import describe from '../lib/describe.js';
 
 export default function(b8r) {
@@ -591,7 +591,7 @@ export default function(b8r) {
       let [model, ...method] = dest.split('.');
       method = method.join('.');
       if (model === '_component_') {
-        model = get_component_with_method(element, method);
+        model = getComponentWithMethod(element, method);
       }
       if (model) {
         b8r.callMethod(model, method, element, value);
