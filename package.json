@@ -6,7 +6,7 @@
   "scripts": {
     "server": "node server.js",
     "lint": "node node_modules/standard/bin/cmd.js --fix",
-    "build": "rollup source/b8r.js --dir dist --format esm --inlineDynamicImports true & uglifyjs dist/b8r.js -c -m > dist/b8r.min.js"
+    "build": "rollup source/b8r.js --dir dist --format esm --inlineDynamicImports true && uglifyjs dist/b8r.js -c -m > dist/b8r.min.js"
   },
   "keywords": [
     "javascript",
@@ -36,7 +36,6 @@
       "/third-party/",
 
       "/components/",
-      "/lib/",
       "/docs/"
     ]
   }
