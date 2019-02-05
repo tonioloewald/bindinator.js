@@ -527,7 +527,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
 <script>
 /* global b8r, register, console */
 
-  const {is_parent, open} = await import('../lib/windows.js');
+  const {isParent, open} = await import('../lib/windows.js');
 
   b8r.component('menubar');
   b8r.component('toolbar');
@@ -565,7 +565,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
   b8r.onAny(['timeupdate'], '_b8r_._update_');
 
   // multi-window support, see windows.js
-  if (is_parent()) {
+  if (isParent()) {
     const spawn_window = () => {
       open(
         window.location.href.split('#')[0] + '#body=components/kitchen-sink',
