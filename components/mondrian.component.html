@@ -23,7 +23,7 @@ A component for messing around with the `mondrian.js` layout library.
 </style>
 <div
   class="mondrian"
-  data-bind="style(height)=_component_.container_height"
+  data-bind="style(height)=_component_.containerHeight"
   data-event="click:_component_.focus"
 >
   <video src="test/video/portrait1.mov" autoplay=true loop=true></video>
@@ -44,14 +44,14 @@ A component for messing around with the `mondrian.js` layout library.
   <img src="test/portraits/weasel.png">
   <canvas width="128" height="128"></canvas>
 </div>
-<button class="hide" data-event="click:_component_.hide_random">Hide Random</button>
-<button class="show" data-event="click:_component_.show_random">Show Random</button>
+<button class="hide" data-event="click:_component_.hideRandom">Hide Random</button>
+<button class="show" data-event="click:_component_.showRandom">Show Random</button>
 <label class="mondrian-label">
-  <input class="random_changes" type="checkbox" checked>Randomly add/remove/focus items
+  <input class="randomChanges" type="checkbox" checked>Randomly add/remove/focus items
 </label>
 <label class="mondrian-label">
   <select
-    data-bind="value=_component_.desired_aspect_ratio"
+    data-bind="value=_component_.desiredAspectRatio"
   >
     <option value="0.33">3:1 Extreme Portrait</option>
     <option value="0.67">3:2 Portrait</option>
@@ -63,7 +63,7 @@ A component for messing around with the `mondrian.js` layout library.
   </select> Desired Aspect Ratio
 </label>
   <select
-    data-bind="value=_component_.container_height"
+    data-bind="value=_component_.containerHeight"
   >
     <option value="800px">Tall</option>
     <option value="400px">Normal</option>
@@ -73,16 +73,16 @@ A component for messing around with the `mondrian.js` layout library.
 <label class="mondrian-label">
   <input
     type="checkbox"
-    data-bind="checked=_component_.focus_enabled"
-    data-event="change:_component_.change_focus_enabled"
+    data-bind="checked=_component_.focusEnabled"
+    data-event="change:_component_.changeFocusEnabled"
   >
   Focus Enabled (click to toggle focus on elements)
 </label>
 <label class="mondrian-label">
-  <input type="checkbox" data-bind="checked=_component_.letterbox_enabled">
+  <input type="checkbox" data-bind="checked=_component_.letterboxEnabled">
   Letterbox Enabled
 </label>
-<label class="mondrian-label" data-bind="show_if=_component_.letterbox_enabled">
+<label class="mondrian-label" data-bind="show_if=_component_.letterboxEnabled">
   <input type="range" min="1" max="2" step="0.05" data-bind="value=_component_.letterbox"
   >
   (<span data-bind="fixed(2)=_component_.letterbox"></span>) Letterbox Threshold
@@ -96,7 +96,7 @@ A component for messing around with the `mondrian.js` layout library.
 
   const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
   const hidden = () => find('.mondrian > .hidden');
-  const random_changes = findOne('.random_changes');
+  const randomChanges = findOne('.randomChanges');
   const canvas = findOne('canvas');
 
   on('change,update,resize', '_component_.update');
@@ -113,11 +113,11 @@ A component for messing around with the `mondrian.js` layout library.
   g.fillRect(64,64,64,64);
 
   const update = () => requestAnimationFrame(() => {
-    mondrian.arrange_with_focus(
+    mondrian.arrangeWithFocus(
       visible(),
       {
-        aspect_ratio: get('desired_aspect_ratio'),
-        letterbox: get('letterbox_enabled') && get('letterbox')
+        aspectRatio: get('desiredAspectRatio'),
+        letterbox: get('letterboxEnabled') && get('letterbox')
       }
     );
   });
@@ -125,26 +125,26 @@ A component for messing around with the `mondrian.js` layout library.
   const container = findOne('.mondrian');
   resize.relayTo(container);
 
-  function pick_random(arr) {
+  function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  function random_behavior () {
-    if(random_changes.checked) {
+  function randomBehavior () {
+    if(randomChanges.checked) {
       if(hidden().length === 0) {
-        hide_random();
+        hideRandom();
       } else if (visible().length === 0) {
-        show_random();
+        showRandom();
       } else {
         switch (Math.floor(Math.random() * 4)) {
           case 0:
-            hide_random();
+            hideRandom();
             break;
           case 1:
-            show_random();
+            showRandom();
             break;
           case 3:
-            pick_random(visible()).click();
+            pickRandom(visible()).click();
             break;
         }
       }
@@ -152,18 +152,18 @@ A component for messing around with the `mondrian.js` layout library.
   }
 
   const {domInterval} = await import('../lib/dom-timers.js');
-  domInterval(container, random_behavior, 2000);
+  domInterval(container, randomBehavior, 2000);
 
-  function hide_random () {
-    const elt = pick_random(visible());
+  function hideRandom () {
+    const elt = pickRandom(visible());
     if (elt) {
       elt.classList.add('hidden');
       b8r.trigger('change', container);
     }
   }
 
-  function show_random () {
-    const elt = pick_random(hidden());
+  function showRandom () {
+    const elt = pickRandom(hidden());
     if (elt) {
       elt.classList.remove('hidden');
       b8r.trigger('change', container);
@@ -171,22 +171,22 @@ A component for messing around with the `mondrian.js` layout library.
   }
 
   register ({
-    hide_random,
-    show_random,
+    hideRandom,
+    showRandom,
     update,
-    container_height: '400px',
-    desired_aspect_ratio: 1,
-    focus_enabled: true,
-    letterbox_enabled: true,
+    containerHeight: '400px',
+    desiredAspectRatio: 1,
+    focusEnabled: true,
+    letterboxEnabled: true,
     letterbox: 1.25,
-    change_focus_enabled: () => {
-      if (! get('focus_enabled')) {
+    changeFocusEnabled: () => {
+      if (! get('focusEnabled')) {
         find('.mondrian-focus').forEach(elt => elt.classList.remove('mondrian-focus'));
         update();
       }
     },
     focus: evt => {
-      if (! get('focus_enabled')) {
+      if (! get('focusEnabled')) {
         return;
       }
       const target = evt.target.closest('.mondrian > *');

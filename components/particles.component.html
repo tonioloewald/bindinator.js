@@ -23,9 +23,9 @@
 </div>
 <div>
   <h3>Click on the rectangle to spawn a particle effect</h3>
-  <label>Spawn on mouse move <input type="checkbox" data-bind="checked=_component_.spawn_on_move"></label>
-  <label>How many? <input data-bind="value=_component_.particle_count" type="range" min="1" max="50" value="25"></label>
-  <label>Size? <input data-bind="value=_component_.particle_size" type="range" min="1" max="256" value="48"></label>
+  <label>Spawn on mouse move <input type="checkbox" data-bind="checked=_component_.spawnOnMove"></label>
+  <label>How many? <input data-bind="value=_component_.particleCount" type="range" min="1" max="50" value="25"></label>
+  <label>Size? <input data-bind="value=_component_.particleSize" type="range" min="1" max="256" value="48"></label>
   <div
     data-component="tab-selector"
     data-bind="value=_component_.mode"
@@ -73,25 +73,25 @@
 
 
   set({
-    particle_count: 25,
-    particle_size: 48,
+    particleCount: 25,
+    particleSize: 48,
     mode: 0,
     chars: '☁️,🌧,🌦,🌤,☀️',
     spawn: evt => {
-      if (!get('spawn_on_move') && !evt.type.match(/mousedown|touchstart/)) {
+      if (!get('spawnOnMove') && !evt.type.match(/mousedown|touchstart/)) {
         return;
       }
       const x = evt.clientX, y = evt.clientY;
       switch(get('mode')) {
         case 0:
           const emoji = ['😀', '💜', '👍', '💩', '🍆'][Math.floor(Math.random() * 5)];
-          particleController.spawnAt(x, y, emoji, get('particle_count'), get('particle_size'));
+          particleController.spawnAt(x, y, emoji, get('particleCount'), get('particleSize'));
           break;
         case 1:
-          particleController.spawnAt(x, y, get('chars').split(','), get('particle_count'), get('particle_size'));
+          particleController.spawnAt(x, y, get('chars').split(','), get('particleCount'), get('particleSize'));
           break;
         case 2:
-          particleController.spawnAt(x, y, [canvas], get('particle_count'), get('particle_size'));
+          particleController.spawnAt(x, y, [canvas], get('particleCount'), get('particleSize'));
           break;
       }
     },
