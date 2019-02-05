@@ -198,4 +198,6 @@ We can register data (*models* and *controllers*) and load components (*views*) 
 If the user clicks the button before the controller is registered, the controller method will be
 called when it becomes available.
 
-Copyright ©2016-2018 Tonio Loewald
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
+Copyright ©2016-2019 Tonio Loewald

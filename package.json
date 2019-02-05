@@ -1,6 +1,6 @@
 {
   "name": "@tonioloewald/b8r",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "the even lazier javascript framework",
   "main": "dist/b8r.js",
   "scripts": {
@@ -33,10 +33,7 @@
       "/icomoon/",
       "/test/",
       "/dist/",
-      "/third-party/",
-
-      "/components/",
-      "/docs/"
+      "/third-party/"
     ]
   }
 }

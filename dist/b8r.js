@@ -1057,12 +1057,12 @@ performance (a simple update to one item of a list).
 All of these updates are asynchronous, so the DOM won't actually change immediately. If you do
 want the DOM to change immediately:
 
-    b8r.force_update(); // flushes all queued updates to the DOM synchronously
+    b8r.forceUpdate(); // flushes all queued updates to the DOM synchronously
 
 If you'd prefer to wait for the update(s) to complete and then do something, you can
 pass a callback to `afterUpdate`:
 
-    afterUpdate(() => { ... }); // does stuff after force_update fires
+    afterUpdate(() => { ... }); // does stuff after forceUpdate fires
 
 afterUpdate fires immediately (and synchronously) if there are no pending updates.
 */
@@ -1562,6 +1562,36 @@ const resolveListInstanceBindings = (instanceElt, instancePath) => {
 };
 
 /**
+# importing from the future
+
+Methods in here workaround circular references.
+~~~~
+const {playSavedMessages} = await import('./b8r.future.js')
+
+const div = b8r.create('div');
+div.dataset.event = 'click:future-test.click';
+document.body.appendChild(div);
+b8r.trigger('click', div);
+Test(() => b8r.get('future-test.clickCount')).shouldBe(null)
+b8r.register('future-test', {
+  click () {
+    b8r.increment('future-test.clickCount')
+  }
+})
+await b8r.forceUpdate()
+Test(() => b8r.get('future-test.clickCount')).shouldBe(1)
+~~~~
+*/
+
+let playSavedMessages = () => {
+  throw new Error('playSavedMessages is not ready yet')
+};
+
+const setPlaySavedMessages = (fn) => {
+  playSavedMessages = fn;
+};
+
+/**
 # The Registry
 
 Bindinator is built around the idea of registering objects under unique names
@@ -1692,12 +1722,6 @@ lists).
 > are little more than wrappers for set/get. See the *Registry* docs.
 
 */
-
-// this is an intractible circular reference
-let _playSavedMessages = () => {};
-Promise.resolve().then(function () { return b8r_events; }).then(({playSavedMessages }) => {
-  _playSavedMessages = playSavedMessages;
-});
 
 const registry = {};
 const listeners = []; // { path_string_or_test, callback }
@@ -2178,7 +2202,7 @@ const register = (name, obj, blockUpdates) => {
 
   if (!blockUpdates) {
     touch(name);
-    _playSavedMessages(name);
+    playSavedMessages(name);
   }
 };
 
@@ -2997,7 +3021,7 @@ function saveMethodCall (model, method, args) {
   savedMessages.push({ model, method, args });
 }
 
-const playSavedMessages = (forModel) => {
+setPlaySavedMessages((forModel) => {
   var playbackQueue = [];
   for (var i = savedMessages.length - 1; i >= 0; i--) {
     if (savedMessages[i].model === forModel) {
@@ -3009,7 +3033,7 @@ const playSavedMessages = (forModel) => {
     var { model, method, args } = playbackQueue.pop();
     callMethod(model, method, ...args);
   }
-};
+});
 
 const callMethod = (...args) => {
   var model, method;
@@ -3134,32 +3158,14 @@ const implicitlyHandleEventsOfType = type => {
   }
 };
 
-var b8r_events = /*#__PURE__*/Object.freeze({
-  makeHandler: makeHandler,
-  getEventHandlers: getEventHandlers,
-  getParsedEventHandlers: getParsedEventHandlers,
-  dispatch: dispatch,
-  trigger: trigger,
-  on: on,
-  off: off,
-  enable: enable,
-  disable: disable,
-  callMethod: callMethod,
-  implicitlyHandleEventsOfType: implicitlyHandleEventsOfType,
-  implicitEventTypes: implicitEventTypes,
-  getComponentWithMethod: getComponentWithMethod,
-  handleEvent: handleEvent,
-  playSavedMessages: playSavedMessages
-});
-
 /**
 # describe
 
 A simple function for describing the values of things.
 
-    const description = describe(variable_name, max_uniques=4, generic=false);
+    const description = describe(variable_name, maxUniques=4, generic=false);
 
-`max_uniques` determines how many items/keys it checks before giving up. If  `max_unqiues` is `-1`
+`maxUniques` determines how many items/keys it checks before giving up. If  `max_unqiues` is `-1`
 then everything will be handled.
 
 `generic` determines whether it returns `string` and `#` instead of literals.
@@ -3206,23 +3212,23 @@ Test(() => describe((a, b={x: 17}) => {})).shouldBe('(a, b={x: 17})=>{...}');
 Test(() => describe(async function(x,y,z){})).shouldBe('async (x,y,z)=>{...}');
 ~~~~
 */
-function describe (x, max_uniques = 4, generic = false) {
+function describe (x, maxUniques = 4, generic = false) {
   if (x === undefined) {
     return 'undefined'
   } else if (Array.isArray(x)) {
     if (x.length === 0) {
       return '[]'
     } else if (x.length === 1 || typeof x[0] === typeof x[1]) {
-      return `[${describe(x[0], max_uniques, generic)} × ${x.length}]`
+      return `[${describe(x[0], maxUniques, generic)} × ${x.length}]`
     } else if (typeof x[0] !== typeof x[1]) {
-      return x.length <= max_uniques || max_uniques < 0
-        ? '[' + x.map(v => describe(v, max_uniques, generic)).join(', ') + ']'
+      return x.length <= maxUniques || maxUniques < 0
+        ? '[' + x.map(v => describe(v, maxUniques, generic)).join(', ') + ']'
         : `[* × ${x.length}]`
     }
   } else if (x && x.constructor === Object) {
     const keys = Object.keys(x);
-    if (max_uniques >= 0 && keys.length > max_uniques) {
-      keys.splice(max_uniques);
+    if (maxUniques >= 0 && keys.length > maxUniques) {
+      keys.splice(maxUniques);
       keys.push('…');
     }
     return `{${keys.join(',')}}`
@@ -4503,8 +4509,8 @@ Test(() => uuid()).shouldNotBe(uuid());
 const randomBytes =
   typeof window === 'undefined'
     ? () => {
-      const node_crypto = require('crypto');
-      return node_crypto.randomBytes(16)
+      const nodeCrypto = require('crypto');
+      return nodeCrypto.randomBytes(16)
     }
     : () => {
       const bs = new Uint8Array(16);
@@ -4779,7 +4785,7 @@ Helper methods for creating Web Components.
       superClass=HTMLElement, // the class you're extending
       style=false,            // expect object
       methods={},             // map names to class methods
-      eventHandlers={},       // map event_types to event handlers
+      eventHandlers={},       // map eventTypes to event handlers
       attributes={},          // map attributes to default values
       content=slot(),         // HTMLElement or DocumentFragment or falsy
       ariaRole=false,         // expect string
@@ -4948,7 +4954,7 @@ Instead of creating an internal style node, they could simply insert a singleton
 stylesheet in the `<header>` the way `b8r` components do.
 
 */
-/* global module */
+/* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
 const appendContentToElement = (elt, content) => {
   if (content) {
@@ -4959,7 +4965,7 @@ const appendContentToElement = (elt, content) => {
     } else if (content.cloneNode) {
       elt.appendChild(content.cloneNode(true));
     } else {
-      throw 'expect text content or document node'
+      throw new Error('expect text content or document node')
     }
   }
 };
@@ -4973,7 +4979,9 @@ const makeElement = (tagType, {
   const elt = document.createElement(tagType);
   appendContentToElement(elt, content);
   Object.keys(attributes).forEach((attributeName) => elt.setAttribute(attributeName, attributes[attributeName]));
-  Object.keys(styles).forEach((styleName) => elt.style[styleName] = styles[styleName]);
+  Object.keys(styles).forEach((styleName) => {
+    elt.style[styleName] = styles[styleName];
+  });
   classes.forEach((className) => elt.classList.add(className));
   return elt
 };
@@ -4999,17 +5007,22 @@ const _css = (obj) => {
 const unmountWatchList = [];
 const unmountObserver = new MutationObserver((mutationsList) => {
   if (unmountWatchList.length === 0) return
+
+  let nodesRemoved = false;
   for (let i = 0; i < mutationsList.length; i++) {
     const mutation = mutationsList[i];
     if (mutation.removedNodes.length) {
+      nodesRemoved = true;
       break
     }
   }
-  for (let i = unmountWatchList.length - 1; i >= 0; i--) {
-    const elt = unmountWatchList[i];
-    if (!document.body.contains(elt)) {
-      elt.unMount();
-      unmountWatchList.splice(i, 1);
+  if (nodesRemoved) {
+    for (let i = unmountWatchList.length - 1; i >= 0; i--) {
+      const elt = unmountWatchList[i];
+      if (!document.body.contains(elt)) {
+        elt.unMount();
+        unmountWatchList.splice(i, 1);
+      }
     }
   }
 });
@@ -5021,7 +5034,7 @@ const makeWebComponent = (tagName, {
   value = false, // expect boolean
   style = false, // expect object
   methods = {}, // map names to functions
-  eventHandlers = {}, // map event_types to event handlers
+  eventHandlers = {}, // map eventTypes to event handlers
   props = {}, // map of instance properties to defaults
   attributes = {}, // map attributes to default values
   content = slot(), // HTMLElement or DocumentFragment
@@ -5109,7 +5122,7 @@ const makeWebComponent = (tagName, {
                   if (this.queueRender) this.queueRender(attributeName === 'value');
                 }
               } else {
-                if (typeof value === 'object' || `${value}` != `${this[attributeName]}`) {
+                if (typeof value === 'object' || `${value}` !== `${this[attributeName]}`) {
                   if (value === null || value === undefined || typeof value === 'object') {
                     this.removeAttribute(attributeName);
                   } else {
@@ -5196,7 +5209,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
 }, 100);
 Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement, touchByPath });
 
-b8r.force_update = () => {
+b8r.forceUpdate = () => {
   let updateList;
 
   while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
@@ -5237,7 +5250,7 @@ b8r.force_update = () => {
   _afterUpdate();
 };
 
-_setForceUpdate(b8r.force_update);
+_setForceUpdate(b8r.forceUpdate);
 
 b8r.setByPath = function (...args) {
   let name, path, value, sourceElement;
@@ -5422,7 +5435,7 @@ function bind (element) {
     return
   }
   const bindings = getBindings(element);
-  const boundValues = element._b8r_boundValues || (element._b8r_boundValues = {});
+  const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
   const newValues = {};
   for (let i = 0; i < bindings.length; i++) {
     const { targets, path } = bindings[i];
