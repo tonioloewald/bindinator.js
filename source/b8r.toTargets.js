@@ -108,7 +108,7 @@ via `null` (not `undefined`).
 
 ```
 <style>
-  label { display: block; }
+  ._component_ label { display: block; }
 </style>
 <label>
   <input type="checkbox" data-bind="checked=_component_.first">
