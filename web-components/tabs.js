@@ -39,19 +39,22 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
   },
   style: {
     ':host': {
-      display: 'block'
+      display: 'flex',
+      flexDirection: 'column'
     },
     slot: {
       position: 'relative',
       display: 'block',
       background: 'white',
       border: '1px solid #ccc',
-      borderRadius: '2px'
+      borderRadius: '2px',
+      flexGrow: 1
     },
     '.tabs': {
       borderColor: '#ccc',
       padding: '5px 5px 0 5px',
-      display: 'flex'
+      display: 'flex',
+      flexShrink: 0
     },
     '.tabs > span': {
       flex: '1 1 auto',
