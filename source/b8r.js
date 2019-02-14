@@ -689,9 +689,16 @@ b8r.insertComponent = async function (component, element, data) {
 
 b8r.Component = makeWebComponent('b8r-component', {
   attributes: {
-    name: ''
+    name: '',
+    path: ''
   },
   methods: {
+    onMount () {
+      if (this.path && !this.name) {
+        b8r.component(this.path)
+        this.name = this.path.split('/').pop()
+      }
+    },
     render () {
       if (this.name) {
         b8r.insertComponent(this.name, this)

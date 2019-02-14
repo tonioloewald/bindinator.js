@@ -2,7 +2,7 @@
   <img
     alt="bindinator b∞r logo"
     style="width: 300px; height: 300px; padding: 5vh 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"
-    src="images/bindinator-logo.svg"
+    src="https://bindinator.com/images/bindinator-logo.svg"
   >
 </div>
 
@@ -10,12 +10,69 @@
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
+## b8r in 5 minutes
+
+```
+mkdir path/to/project
+npm init
+```
+
+Accept all the defaults. (We'll ignore the entry point for now.)
+
+```
+npm install @tonioloewald/b8r --save
+```
+
+You'll need something to serve pages, a simple option is:
+
+```
+npm install http-server --save-dev
+```
+
+Now create a simple web page:
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>hello world</title>
+</head>
+<body>
+  <h1 data-bind="text=app.message"></h1>
+  <b8r-component path="node_modules/@tonioloewald/b8r/components/keycodes"></b8r-component>
+  <input data-bind="value=app.message">
+  <button data-event="click:app.speak">Speak</button>
+  <script type="module">
+    import b8r from './node_modules/@tonioloewald/b8r/dist/b8r.js'
+
+    window.b8r = b8r // so we can play with it in console
+
+    b8r.register('app', {
+      message: 'hello world',
+      speak() {
+        alert(b8r.get('app.message'))
+      }
+    })
+  </script>
+</body>
+</html>
+```
+
+Now run:
+
+```
+./node_modules/http-server/bin/http-server
+```
+
+And check out `http://localhost:8080` in your browser.
+
 > ### News
 >
 > `b8r` is now available as an [npm package](https://www.npmjs.com/package/@tonioloewald/b8r).
 >
-> `b8r` now includes a `dist` subdirectory with single file versions of `b8r`. Minified
-> and gzipped, b8r continues to come in under 20kB.
+> `b8r` now includes a `dist` subdirectory with single file bundles of `b8r`. Minified
+> and gzipped, `b8r` continues to come in under 20kB.
 > 
 > I'm switching `b8r` from using its own `require.js` library to using ES6 `import`. This
 > is a *breaking change*; I've written [documentation to help with migration](#source=docs/import.md).
@@ -179,8 +236,9 @@ tab for each child.
 
 ### Dog Food!
 
-This site is built using `b8r` (along with numerous third-party libraries, none of which are
-global dependencies). The inline [fiddle component](#source=fiddle.component.html) used
+[bindinator.com](https://bindinator.com) is built using `b8r` (along with numerous third-party 
+libraries, none of which are global dependencies). The inline 
+[fiddle component](#source=fiddle.component.html) used
 to display interactive examples is 272 lines including comments, styles, markup, and code.
 `b8r` isolates component internals so cleanly from the rest of the page that the fiddle doesn't
 need to use an iframe.
