@@ -10,6 +10,18 @@
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
 [github](https://github.com/tonioloewald/bindinator.js)
 
+> ### News
+>
+> `b8r` is now available as an [npm package](https://www.npmjs.com/package/@tonioloewald/b8r).
+>
+> `b8r` now includes a `dist` subdirectory with single file bundles of `b8r`. Minified
+> and gzipped, `b8r` continues to come in under 20kB.
+> 
+> `b8r` now uses `import` and not `require`. This is a *breaking change*.
+> I've written [documentation to help with migration](#source=docs/import.md).
+>
+> Finally, `b8r` has been conformed to [standardjs](https://standardjs.com/) — no more semicolons!
+
 ## b8r in 5 minutes
 
 ```
@@ -40,9 +52,9 @@ Now create a simple web page:
 </head>
 <body>
   <h1 data-bind="text=app.message"></h1>
-  <b8r-component path="node_modules/@tonioloewald/b8r/components/keycodes"></b8r-component>
   <input data-bind="value=app.message">
   <button data-event="click:app.speak">Speak</button>
+  <b8r-component path="node_modules/@tonioloewald/b8r/components/photo-tabs"></b8r-component>
   <script type="module">
     import b8r from './node_modules/@tonioloewald/b8r/dist/b8r.js'
 
@@ -65,19 +77,7 @@ Now run:
 ./node_modules/http-server/bin/http-server
 ```
 
-And check out `http://localhost:8080` in your browser.
-
-> ### News
->
-> `b8r` is now available as an [npm package](https://www.npmjs.com/package/@tonioloewald/b8r).
->
-> `b8r` now includes a `dist` subdirectory with single file bundles of `b8r`. Minified
-> and gzipped, `b8r` continues to come in under 20kB.
-> 
-> I'm switching `b8r` from using its own `require.js` library to using ES6 `import`. This
-> is a *breaking change*; I've written [documentation to help with migration](#source=docs/import.md).
->
-> `b8r` has been conformed to [standardjs](https://standardjs.com/).
+And open [http://localhost:8080](http://localhost:8080) in your browser.
 
 ## The lazy JavaScript framework.
 
