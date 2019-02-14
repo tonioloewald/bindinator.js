@@ -68,7 +68,7 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
   const getVoices = () => {
     const voices = synth.getVoices();
     // find an Aussie!
-    const voice = voices.find(v => v.lang === 'en-AU').name;
+    const voice = voices.find(v => v.lang === 'en-US').name;
     set({voices, voice});
   };
 
