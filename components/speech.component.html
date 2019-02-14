@@ -54,53 +54,27 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
 </label>
 <textarea
   placeholder="enter text"
-  data-event="keydown(Enter):_component_.speak"
+  data-event="keydown(Enter):_component_.speakText"
   data-bind="value=_component_.text"
 ></textarea>
 <div style="text-align: center">
   <button data-event="click:_component_.stop">Stop</button>
-  <button data-event="click:_component_.speak">Speak</button>
+  <button data-event="click:_component_.speakText">Speak</button>
 </div>
 <script>
-  /* global set, get */
-  const synth = window.speechSynthesis;
+  /* global get, set */
+  const {speak, stop, voicesPromise} = await import('../lib/speech.js')
+  const voices = await voicesPromise
 
-  const getVoices = () => {
-    const voices = synth.getVoices();
-    // find an Aussie!
-    const voice = voices.find(v => v.lang === 'en-US').name;
-    set({voices, voice});
-  };
-
-  if (synth.onvoiceschanged !== undefined) {
-    synth.onvoiceschanged = getVoices;
-  } else {
-    getVoices();
-  }
-
-  const speak = () => {
-    const utterance = new SpeechSynthesisUtterance(get('text'));
-    utterance.voice = get('voices').find(v => v.name === get('voice'));
-    utterance.pitch = parseFloat(get('pitch'));
-    utterance.rate = parseFloat(get('rate'));
-    synth.cancel();
-    synth.speak(utterance);
-  };
-
-  const stop = () => synth.cancel();
-
-  const text =
-`The rain in Spain stays mainly in the plain.
-
-How do I get to St. James square from High St.?
-
-I'm not a pheasant plucker, I'm a pheasant plucker's son.
-And I'm only plucking pheasants 'til the pheasant plucking's done.
-
-'Twas brillig, and the slithy toves
-Did gyre and gimble in the wabe;
-All mimsy were the borogoves,
-And the mome raths outgrabe.`;
-
-  set({speak, stop, pitch: 1, rate: 1, text});
+  set({
+    text: 'the rain in spain stays mainly in the plain',
+    voice: voices.find(v => v.lang === 'en-AU').name,
+    voices,
+    pitch: 1,
+    rate: 1,
+    speakText() {
+      speak(get('text'), get('pitch'), get('rate'), get('voice'))
+    },
+    stop
+  })
 </script>
