@@ -286,7 +286,7 @@ const addDataBinding = (element, toTarget, path) => {
   if (existing.indexOf(binding) === -1) {
     existing.push(binding)
     element.dataset.bind = existing.join(';')
-    delete element._b8r_boundValues
+    delete element._b8rBoundValues
     touchElement(element)
   }
 }
@@ -304,7 +304,7 @@ const removeDataBinding = (element, toTarget, path) => {
         delete element.dataset.bind
       }
     }
-    delete element._b8r_boundValues
+    delete element._b8rBoundValues
   }
 }
 

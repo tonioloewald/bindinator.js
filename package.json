@@ -1,10 +1,10 @@
 {
   "name": "@tonioloewald/b8r",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "the even lazier javascript framework",
   "main": "dist/b8r.js",
   "scripts": {
-    "server": "node utils/server.js web_root:.",
+    "start": "node utils/server.js web_root:.",
     "lint": "node node_modules/standard/bin/cmd.js --fix",
     "build": "rollup source/b8r.js --dir dist --format esm --inlineDynamicImports true && uglifyjs dist/b8r.js -c -m > dist/b8r.min.js"
   },

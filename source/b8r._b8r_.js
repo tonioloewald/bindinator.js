@@ -40,7 +40,7 @@ export default (b8r) => {
             // all bets are off on bound values!
             const value = fromTargets[t.target](elt, t.key)
             if (value !== undefined) {
-              delete elt._b8r_boundValues
+              delete elt._b8rBoundValues
               b8r.setByPath(path, value, elt)
             }
           }

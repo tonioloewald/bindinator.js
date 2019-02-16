@@ -1437,7 +1437,7 @@ const addDataBinding = (element, toTarget, path) => {
   if (existing.indexOf(binding) === -1) {
     existing.push(binding);
     element.dataset.bind = existing.join(';');
-    delete element._b8r_boundValues;
+    delete element._b8rBoundValues;
     touchElement(element);
   }
 };
@@ -1455,7 +1455,7 @@ const removeDataBinding = (element, toTarget, path) => {
         delete element.dataset.bind;
       }
     }
-    delete element._b8r_boundValues;
+    delete element._b8rBoundValues;
   }
 };
 
@@ -4295,7 +4295,7 @@ var _b8r_ = (b8r) => {
             // all bets are off on bound values!
             const value$$1 = fromTargets[t.target](elt, t.key);
             if (value$$1 !== undefined) {
-              delete elt._b8r_boundValues;
+              delete elt._b8rBoundValues;
               b8r.setByPath(path, value$$1, elt);
             }
           };
