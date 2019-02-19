@@ -51,9 +51,9 @@ scene.add( helper );
 const ambient = new THREE.AmbientLight(0x603000);
 scene.add(ambient);
 
-const plane_geometry = new THREE.PlaneGeometry( 1.5, 1.5, 2 );
-const plane_mat = new THREE.MeshStandardMaterial( {color: 0x707070 });
-const plane = new THREE.Mesh( plane_geometry, plane_mat );
+const planeGeometry = new THREE.PlaneGeometry( 1.5, 1.5, 2 );
+const planeMat = new THREE.MeshStandardMaterial( {color: 0x707070 });
+const plane = new THREE.Mesh( planeGeometry, planeMat );
 plane.receiveShadow = true;
 plane.position.y = -0.5;
 plane.rotation.x = Math.PI * -0.5;
@@ -85,7 +85,7 @@ mixer.clipAction(gltf.animations[0]).play();
 let time = Date.now();
 
 // shove this stuff in globals so you can play with it
-window.threejs_stuff = {scene, camera, renderer, sunlight, model, plane, materials, meshes};
+window.threejsStuff = {scene, camera, renderer, sunlight, model, plane, materials, meshes};
 
 const update = () => {
   const mouse = b8r.get('threejs-demo.mouse');

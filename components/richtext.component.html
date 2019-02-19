@@ -257,128 +257,128 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 </div>
 <div data-component="maxtoggle"></div>
 <script>
-/*global b8r, findOne, set, get, prompt, on */
-'use strict';
+/* global b8r, findOne, set, get, prompt, on */
+'use strict'
 
-  b8r.component('menubar');
-  b8r.component('toolbar');
-  b8r.component('maxtoggle');
+b8r.component('menubar')
+b8r.component('toolbar')
+b8r.component('maxtoggle')
 
-  set('filename', 'Untitled.html');
+set('filename', 'Untitled.html')
 
-  const doc = findOne('.richtext');
-  doc.focus();
+const doc = findOne('.richtext')
+doc.focus()
 
-  on('click', '_component_.click');
+on('click', '_component_.click')
 
-  const new_doc = () => doc.innerHTML = '';
+const new_doc = () => doc.innerHTML = ''
 
-  const open_doc = () => {
-    const input = b8r.create('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'text/*');
-    input.addEventListener('change', () => {
-      if (input.value) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          doc.innerHTML = '';
-          doc.focus();
-          set('filename', input.files[0].name);
-          // could use type to decide whether to tread at text, markdown, or html
-          document.execCommand('insertHTML', false, e.target.result);
-        };
-        reader.readAsText(input.files[0]);
+const open_doc = () => {
+  const input = b8r.create('input')
+  input.setAttribute('type', 'file')
+  input.setAttribute('accept', 'text/*')
+  input.addEventListener('change', () => {
+    if (input.value) {
+      const reader = new FileReader()
+      reader.onload = e => {
+        doc.innerHTML = ''
+        doc.focus()
+        set('filename', input.files[0].name)
+        // could use type to decide whether to tread at text, markdown, or html
+        document.execCommand('insertHTML', false, e.target.result)
       }
-    });
-    input.click();
-    b8r.callMethod('menubar.close');
-  };
-
-  const all = evt => {
-    evt.target.select();
-  };
-
-  const save_doc = () => {
-    const a = b8r.create('a');
-    a.setAttribute('download', get('filename') || 'Untitled.html');
-    const data_url = 'data:application/octet-stream;base64,' + btoa(doc.innerHTML);
-    a.setAttribute('href', data_url);
-    a.click();
-    b8r.callMethod('menubar.close');
-  };
-
-  const exec = evt => {
-    doc.focus();
-    const args = evt.target.closest('[data-command]').dataset.command.split(',');
-    if (args.length > 1) {
-      document.execCommand(args[0], false, args[1]);
-    } else {
-      document.execCommand(args[0]);
+      reader.readAsText(input.files[0])
     }
-  };
+  })
+  input.click()
+  b8r.callMethod('menubar.close')
+}
 
-  const insert = evt => {
-    const template = evt.target.querySelector('.insertion-template').cloneNode(true);
-    template.classList.remove('insertion-template');
-    const html = template.outerHTML;
-    document.execCommand('insertHTML', false, html);
-  };
+const all = evt => {
+  evt.target.select()
+}
 
-  const link = () => {
-    const url = prompt('Please enter URL');
-    if (url) {
-      document.execCommand('createLink', false, url);
+const save_doc = () => {
+  const a = b8r.create('a')
+  a.setAttribute('download', get('filename') || 'Untitled.html')
+  const data_url = 'data:application/octet-stream;base64,' + btoa(doc.innerHTML)
+  a.setAttribute('href', data_url)
+  a.click()
+  b8r.callMethod('menubar.close')
+}
+
+const exec = evt => {
+  doc.focus()
+  const args = evt.target.closest('[data-command]').dataset.command.split(',')
+  if (args.length > 1) {
+    document.execCommand(args[0], false, args[1])
+  } else {
+    document.execCommand(args[0])
+  }
+}
+
+const insert = evt => {
+  const template = evt.target.querySelector('.insertion-template').cloneNode(true)
+  template.classList.remove('insertion-template')
+  const html = template.outerHTML
+  document.execCommand('insertHTML', false, html)
+}
+
+const link = () => {
+  const url = prompt('Please enter URL')
+  if (url) {
+    document.execCommand('createLink', false, url)
+  }
+}
+
+const note = () => {
+  const note = prompt('Please enter note')
+  if (note) {
+    document.execCommand('insertHTML', false, `<span class="note" contenteditable="false" data-note="${note}">*</span>`)
+  }
+}
+
+const passThru = () => {
+  doc.focus()
+  return true
+}
+
+const select = element => {
+  element.normalize()
+  const selection = window.getSelection()
+  const range = document.createRange()
+  range.selectNodeContents(element)
+  selection.removeAllRanges()
+  selection.addRange(range)
+}
+
+const tab_key = evt => {
+  const selection = document.getSelection()
+
+  const cell = selection.anchorNode.closest
+    ? selection.anchorNode.closest('td,th')
+    : selection.anchorNode.parentElement.closest('td,th')
+  if (cell) {
+    const cells = b8r.findWithin(doc, 'td,th')
+    const idx = cells.indexOf(cell)
+    if (!evt.shiftKey && idx < cells.length - 1) {
+      select(cells[idx + 1])
+    } else if (evt.shiftKey && idx > 0) {
+      select(cells[idx - 1])
     }
-  };
+  }
+}
 
-  const note = () => {
-    const note = prompt('Please enter note');
-    if (note) {
-      document.execCommand('insertHTML', false, `<span class="note" contenteditable="false" data-note="${note}">*</span>`);
+const click = evt => {
+  if (evt.target.matches('.note')) {
+    const edited = prompt('Edit Note', evt.target.dataset.note)
+    if (edited) {
+      evt.target.dataset.note = edited
     }
-  };
+  } else {
+    return true
+  }
+}
 
-  const passThru = () => {
-    doc.focus();
-    return true;
-  };
-
-  const select = element => {
-    element.normalize();
-    const selection = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
-
-  const tab_key = evt => {
-    const selection = document.getSelection();
-
-    const cell = selection.anchorNode.closest ?
-                 selection.anchorNode.closest('td,th') :
-                 selection.anchorNode.parentElement.closest('td,th');
-    if (cell) {
-      const cells = b8r.findWithin(doc, 'td,th');
-      const idx = cells.indexOf(cell);
-      if (!evt.shiftKey && idx < cells.length - 1) {
-        select(cells[idx + 1]);
-      } else if (evt.shiftKey && idx > 0) {
-        select(cells[idx - 1]);
-      }
-    }
-  };
-
-  const click = evt => {
-    if (evt.target.matches('.note')) {
-      const edited = prompt('Edit Note', evt.target.dataset.note);
-      if (edited) {
-        evt.target.dataset.note = edited;
-      }
-    } else {
-      return true;
-    }
-  };
-
-  set({new_doc, open_doc, save_doc, exec, insert, link, all, note, click, tab_key, passThru});
+set({ new_doc, open_doc, save_doc, exec, insert, link, all, note, click, tab_key, passThru })
 </script>

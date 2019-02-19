@@ -23,21 +23,21 @@ Ideally it should be loaded as a singleton (e.g. using componentOnce).
 </div>
 <script>
 /* global b8r, component */
-'use strict';
+'use strict'
 
 const offline = () => {
-  document.body.appendChild(component);
-  b8r.show(component);
-};
-
-const online = () => b8r.hide(component);
-
-if(navigator.onLine) {
-  online();
-} else {
-  offline();
+  document.body.appendChild(component)
+  b8r.show(component)
 }
 
-window.addEventListener('offline', offline);
-window.addEventListener('online', online);
+const online = () => b8r.hide(component)
+
+if (navigator.onLine) {
+  online()
+} else {
+  offline()
+}
+
+window.addEventListener('offline', offline)
+window.addEventListener('online', online)
 </script>

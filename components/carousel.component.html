@@ -99,259 +99,258 @@ Copyright ©2016-2017 Tonio Loewald
 </div>
 <script>
 /* global b8r, findOne, find, component, set, data */
-'use strict';
+'use strict'
 
-  let position = -1;
+let position = -1
 
-  const max_rotation = parseFloat(component.dataset.carouselRotation || 0);
-  const max_distance = parseFloat(component.dataset.carouselDistance || 50);
-  const inner_offset = parseFloat(component.dataset.carouselInnerOffset || 150);
-  const item_offset = parseFloat(component.dataset.carouselOffset || 100);
-  const item_spacing = parseFloat(component.dataset.carouselSpacing || 10);
-  const centered_at_start = component.hasAttribute('data-carousel-centered');
-  const min_scale = component.dataset.carouselMinscale || 1;
-  const drag_threshold = component.dataset.carouselDragThreshold || 10;
+const max_rotation = parseFloat(component.dataset.carouselRotation || 0)
+const max_distance = parseFloat(component.dataset.carouselDistance || 50)
+const inner_offset = parseFloat(component.dataset.carouselInnerOffset || 150)
+const item_offset = parseFloat(component.dataset.carouselOffset || 100)
+const item_spacing = parseFloat(component.dataset.carouselSpacing || 10)
+const centered_at_start = component.hasAttribute('data-carousel-centered')
+const min_scale = component.dataset.carouselMinscale || 1
+const drag_threshold = component.dataset.carouselDragThreshold || 10
 
-  function ease_in_out(t) {
-    var s = t > 0 ? 0.5 : -0.5;
-    var a = Math.abs(t);
-    return (1 - Math.cos(a * Math.PI)) * s;
-  }
+function ease_in_out (t) {
+  var s = t > 0 ? 0.5 : -0.5
+  var a = Math.abs(t)
+  return (1 - Math.cos(a * Math.PI)) * s
+}
 
-  function ease_out(t) {
-    var s = t > 0 ? 1 : -1;
-    var a = Math.abs(t);
-    return (1 - Math.cos(a * 0.5 * Math.PI)) * s;
-  }
+function ease_out (t) {
+  var s = t > 0 ? 1 : -1
+  var a = Math.abs(t)
+  return (1 - Math.cos(a * 0.5 * Math.PI)) * s
+}
 
-  function ease_in(t) {
-    return 1 - ease_out(1 - t);
-  }
+function ease_in (t) {
+  return 1 - ease_out(1 - t)
+}
 
-  // offset 0: element is in the center
-  // offset 1: the element is one to the right of center
-  // offset 0.5: element is halfway between center and offset 1
-  // offset -2: the element is two to the left of center
-  function setItemPosition(element, offset) {
-    var abs_offset = Math.abs(offset);
-    if (abs_offset < 0.5) {
-      if (!element.classList.contains('carousel-current')) {
-        element.classList.add('carousel-current');
-        b8r.trigger('carousel-focus', element);
-      }
-    } else {
-      if (element.classList.contains('carousel-current')) {
-        element.classList.remove('carousel-current');
-        b8r.trigger('carousel-blur', element);
-      }
+// offset 0: element is in the center
+// offset 1: the element is one to the right of center
+// offset 0.5: element is halfway between center and offset 1
+// offset -2: the element is two to the left of center
+function setItemPosition (element, offset) {
+  var abs_offset = Math.abs(offset)
+  if (abs_offset < 0.5) {
+    if (!element.classList.contains('carousel-current')) {
+      element.classList.add('carousel-current')
+      b8r.trigger('carousel-focus', element)
     }
-    var dx = 0;
-    var dz = 0;
-    var ry = 0;
-    if( abs_offset > 0.01) {
-      dx = abs_offset < 1 ?
-           offset * (inner_offset + item_spacing) :
-           (inner_offset + item_spacing + (abs_offset - 1) * (item_offset + item_spacing)) * (offset < 0 ? -1 : 1);
-      if (abs_offset < 1) {
-        dz = -max_distance * ease_in_out(abs_offset);
-        ry = ease_in(offset) * -max_rotation;
+  } else {
+    if (element.classList.contains('carousel-current')) {
+      element.classList.remove('carousel-current')
+      b8r.trigger('carousel-blur', element)
+    }
+  }
+  var dx = 0
+  var dz = 0
+  var ry = 0
+  if (abs_offset > 0.01) {
+    dx = abs_offset < 1
+      ? offset * (inner_offset + item_spacing)
+      : (inner_offset + item_spacing + (abs_offset - 1) * (item_offset + item_spacing)) * (offset < 0 ? -1 : 1)
+    if (abs_offset < 1) {
+      dz = -max_distance * ease_in_out(abs_offset)
+      ry = ease_in(offset) * -max_rotation
+    } else {
+      dz = -max_distance
+      ry = offset < 0 ? max_rotation : -max_rotation
+    }
+  } else {
+    offset = 0
+    abs_offset = 0
+  }
+  var s = 1 - Math.min(abs_offset, 1 - min_scale)
+
+  element.style.transform = `translateX(-50%) translateY(-50%) translateX(${dx}px) translateZ(${dz}px) rotateY(${ry}deg) scale(${s})`
+  element.style.zIndex = Math.round(6 - 2 * abs_offset)
+}
+
+const child_selector = component.getAttribute('child-selector') || '.carousel > div'
+const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'))
+const carousel = findOne('.carousel')
+const { componentId } = data
+
+const clamp = (x, min, max) => x < min ? min : (x > max ? max : x)
+
+function updateItems () {
+  const item_list = items()
+  item_list.forEach((element, idx) => {
+    setItemPosition(element, idx - position)
+  })
+}
+
+function snapToTarget (element) {
+  if (element === null || element === undefined) {
+    console.warn('carousel cannot snap to target')
+    return
+  }
+
+  let target = -1
+  const item_list = items()
+
+  if (element instanceof HTMLElement) {
+    element = element.closest(child_selector)
+  }
+
+  if (typeof element === 'number') {
+    element = item_list[element]
+  }
+
+  if (element instanceof HTMLElement) {
+    item_list.forEach((item, index) => {
+      if (item === element) {
+        item.classList.add('carousel-target')
+        target = index
       } else {
-        dz = -max_distance;
-        ry = offset < 0 ? max_rotation : -max_rotation;
+        item.classList.remove('carousel-target')
       }
-    } else {
-      offset = 0;
-      abs_offset = 0;
-    }
-    var s = 1 - Math.min(abs_offset, 1 - min_scale);
-
-    element.style.transform = `translateX(-50%) translateY(-50%) translateX(${dx}px) translateZ(${dz}px) rotateY(${ry}deg) scale(${s})`;
-    element.style.zIndex = Math.round(6 - 2 * abs_offset);
+    })
+  } else {
+    target = item_list.findIndex(item => item.classList.contains('carousel-target'))
   }
 
-  const child_selector = component.getAttribute('child-selector') || '.carousel > div';
-  const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'));
-  const carousel = findOne('.carousel');
-  const {componentId} = data;
-
-  const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
-
-  function updateItems(){
-    const item_list = items();
-    item_list.forEach((element, idx) => {
-      setItemPosition(element, idx - position);
-    });
+  if (target === -1) {
+    console.warn('carousel cannot snap to target')
+    return
   }
 
-  function snapToTarget(element){
-    if (element === null || element === undefined) {
-      console.warn('carousel cannot snap to target');
-      return;
-    }
-
-    let target = -1;
-    const item_list = items();
-
-    if (element instanceof HTMLElement) {
-      element = element.closest(child_selector);
-    }
-
-    if (typeof element === 'number') {
-      element = item_list[element];
-    }
-
-    if (element instanceof HTMLElement) {
-      item_list.forEach((item, index) => {
-        if (item === element) {
-          item.classList.add('carousel-target');
-          target = index;
-        } else {
-          item.classList.remove('carousel-target');
-        }
-      });
-    } else {
-      target = item_list.findIndex(item => item.classList.contains('carousel-target'));
-    }
-
-    if (target === -1) {
-      console.warn('carousel cannot snap to target');
-      return;
-    }
-
-    if (Math.abs(position - target) < 0.01) {
-      b8r.trigger('carousel-stop', findOne('.carousel-current'));
-      position = target;
-    } else {
-      position = (position * 15 + target) / 16;
-      requestAnimationFrame(snapToTarget);
-    }
-    updateItems();
+  if (Math.abs(position - target) < 0.01) {
+    b8r.trigger('carousel-stop', findOne('.carousel-current'))
+    position = target
+  } else {
+    position = (position * 15 + target) / 16
+    requestAnimationFrame(snapToTarget)
   }
+  updateItems()
+}
 
-  function init() {
-    const item_list = items();
-    item_list.forEach(element => element.classList.add('carousel-item'));
-    if (position < 0) {
-      if (item_list.length) {
-        position = centered_at_start ? Math.floor((item_list.length - 1) * 0.5) : 0;
-      }
-    } else {
-      if (position > item_list.length - 1) {
-        snapToTarget(b8r.last(item_list));
-      }
+function init () {
+  const item_list = items()
+  item_list.forEach(element => element.classList.add('carousel-item'))
+  if (position < 0) {
+    if (item_list.length) {
+      position = centered_at_start ? Math.floor((item_list.length - 1) * 0.5) : 0
     }
-    updateItems();
-  }
-
-  let drag_x;
-  let drag_dx;
-
-  const dragging = () => component.matches('.carousel-dragging');
-
-  const dragOff = () => {
-    component.classList.remove('carousel-dragging');
-    b8r.offAny('mouseup', `${componentId}.setTarget`);
-    b8r.offAny('mousemove', `${componentId}.drag`);
-    b8r.offAny('mouseleave', `${componentId}.dragEnd`);
-  };
-
-  const dragOn = () => {
-    component.classList.add('carousel-dragging');
-    b8r.onAny('mouseup', `${componentId}.setTarget`);
-    b8r.onAny('mousemove', `${componentId}.drag`);
-    b8r.onAny('mouseleave', `${componentId}.dragEnd`);
-  };
-
-  // Demo Code
-  if (findOne('.carousel-test')) {
-    (() => {
-      const colorNames = ['crimson', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'indigo', 'purple', 'violet', 'pink'];
-      const items = [];
-      let id = 0;
-
-      const add = () => {
-        items.push({
-          id,
-          bg_color: colorNames[id % colorNames.length],
-          width: Math.random() * 200 + 100,
-        });
-        id += 1;
-      };
-
-      const remove = (evt, element) => {
-        const idx = items.indexOf(b8r.getListInstance(element));
-        items.splice(idx, 1);
-        set({items});
-        if (idx === 0) {
-          position = -1;
-          snapToTarget(0);
-        } else {
-          snapToTarget(idx > 0 ? idx - 1 : 0);
-        }
-      };
-
-      for(let i = 0; i < 4; i++) {
-        add();
-      }
-      set({
-        items,
-        add: () => {
-          add();
-          set({items});
-          b8r.afterUpdate(() => snapToTarget(items.length - 1));
-        },
-        remove,
-      });
-    })();
-  }
-
-
-  const update = evt => {
-    updateItems();
-    if(evt === true || (evt || {}).type === 'change') {
-      snapToTarget(Math.round(position));
+  } else {
+    if (position > item_list.length - 1) {
+      snapToTarget(b8r.last(item_list))
     }
-  };
+  }
+  updateItems()
+}
 
-  init();
+let drag_x
+let drag_dx
 
-  set({
-    select: elt => snapToTarget(elt),
-    setTarget: evt => {
-      if (!dragging()) {
-        return true;
-      }
-      dragOff();
-      if (Math.abs(drag_dx) < drag_threshold) {
-        snapToTarget(evt.target);
+const dragging = () => component.matches('.carousel-dragging')
+
+const dragOff = () => {
+  component.classList.remove('carousel-dragging')
+  b8r.offAny('mouseup', `${componentId}.setTarget`)
+  b8r.offAny('mousemove', `${componentId}.drag`)
+  b8r.offAny('mouseleave', `${componentId}.dragEnd`)
+}
+
+const dragOn = () => {
+  component.classList.add('carousel-dragging')
+  b8r.onAny('mouseup', `${componentId}.setTarget`)
+  b8r.onAny('mousemove', `${componentId}.drag`)
+  b8r.onAny('mouseleave', `${componentId}.dragEnd`)
+}
+
+// Demo Code
+if (findOne('.carousel-test')) {
+  (() => {
+    const colorNames = ['crimson', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'indigo', 'purple', 'violet', 'pink']
+    const items = []
+    let id = 0
+
+    const add = () => {
+      items.push({
+        id,
+        bg_color: colorNames[id % colorNames.length],
+        width: Math.random() * 200 + 100
+      })
+      id += 1
+    }
+
+    const remove = (evt, element) => {
+      const idx = items.indexOf(b8r.getListInstance(element))
+      items.splice(idx, 1)
+      set({ items })
+      if (idx === 0) {
+        position = -1
+        snapToTarget(0)
       } else {
-        update(true);
+        snapToTarget(idx > 0 ? idx - 1 : 0)
       }
-    },
-    dragStart: evt => {
-      if (!evt.target.matches('.carousel-item') && ! evt.target.closest('.carousel-drag-handle')) {
-        return true;
-      }
-      drag_x = evt.pageX;
-      drag_dx = 0;
-      dragOn();
-    },
-    drag: evt => {
-      if (dragging()) {
-        const dx = evt.pageX - drag_x;
-        drag_x = evt.pageX;
-        drag_dx += dx;
-        position = clamp(position - dx * 4 / carousel.offsetWidth, -0.125, items().length - 0.875);
-        updateItems();
-      }
-    },
-    dragEnd: evt => {
-      if (evt.target === carousel && dragging()) {
-        dragOff();
-        update(true);
-      }
-    },
-    change: init,
-    update,
-  });
+    }
+
+    for (let i = 0; i < 4; i++) {
+      add()
+    }
+    set({
+      items,
+      add: () => {
+        add()
+        set({ items })
+        b8r.afterUpdate(() => snapToTarget(items.length - 1))
+      },
+      remove
+    })
+  })()
+}
+
+const update = evt => {
+  updateItems()
+  if (evt === true || (evt || {}).type === 'change') {
+    snapToTarget(Math.round(position))
+  }
+}
+
+init()
+
+set({
+  select: elt => snapToTarget(elt),
+  setTarget: evt => {
+    if (!dragging()) {
+      return true
+    }
+    dragOff()
+    if (Math.abs(drag_dx) < drag_threshold) {
+      snapToTarget(evt.target)
+    } else {
+      update(true)
+    }
+  },
+  dragStart: evt => {
+    if (!evt.target.matches('.carousel-item') && !evt.target.closest('.carousel-drag-handle')) {
+      return true
+    }
+    drag_x = evt.pageX
+    drag_dx = 0
+    dragOn()
+  },
+  drag: evt => {
+    if (dragging()) {
+      const dx = evt.pageX - drag_x
+      drag_x = evt.pageX
+      drag_dx += dx
+      position = clamp(position - dx * 4 / carousel.offsetWidth, -0.125, items().length - 0.875)
+      updateItems()
+    }
+  },
+  dragEnd: evt => {
+    if (evt.target === carousel && dragging()) {
+      dragOff()
+      update(true)
+    }
+  },
+  change: init,
+  update
+})
 </script>

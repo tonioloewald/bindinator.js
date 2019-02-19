@@ -63,11 +63,11 @@ Copyright ©2016-2017 Tonio Loewald
 <script>
   /* global component, findOne, register */
   if (component.getAttribute('direction') === 'column') {
-    findOne('.flexcordion').classList.add('column');
-  }
-  function select(evt) {
-    find('.flexcordion > .current').forEach(elt => elt.classList.remove('current'));
-    evt.target.closest('.flexcordion > *').classList.add('current');
-  }
-  register({select});
+    findOne('.flexcordion').classList.add('column')
+}
+  function select (evt) {
+    find('.flexcordion > .current').forEach(elt => elt.classList.remove('current'))
+  evt.target.closest('.flexcordion > *').classList.add('current')
+}
+  register({ select })
 </script>

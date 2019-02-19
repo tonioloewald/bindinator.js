@@ -6,13 +6,13 @@ by exposing the date-part of the ISO string applying changes to just that part.
 -->
 <input type="date" data-bind="method(_component_.to),fromMethod(_component_.from)=_component_.value">
 <script>
-  'use strict';
-  /* global get, set */
-  set({
+  'use strict'
+/* global get, set */
+set({
     to: (element, isoString) => element.value = isoString ? isoString.split('T')[0] : '',
     from: dumb_date => {
-      const isoString = get('value') || new Date().toISOString();
-      return dumb_date.value + 'T' + isoString.split('T')[1];
-    },
-  });
+      const isoString = get('value') || new Date().toISOString()
+      return dumb_date.value + 'T' + isoString.split('T')[1]
+  }
+  })
 </script>

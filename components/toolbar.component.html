@@ -41,7 +41,7 @@ The toolbar component merely styles its children and adds shortcut support.
     Note that the toolbar component has no actual elements of its own — it simply decorates
     the component.
   */
-  const {update} = await import('../lib/shortcuts.js');
-
-  update();
+  import('../lib/shortcuts.js').then(({update}) => {
+    update()
+  })
 </script>

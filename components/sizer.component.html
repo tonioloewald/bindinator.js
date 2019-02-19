@@ -34,49 +34,49 @@ and it lets the user dynamically resize them.
 <div data-event="mousedown:sizer.beginSizing" class="ew-sizer"></div>
 <script>
 /* global findOne, b8r */
-'use strict';
-  var ew_sizer = findOne('.ew-sizer');
-  var next_elt;
-  var prev_elt;
-  var orig_x;
-  var prev_width;
-  var next_width;
-  var total_width;
-  var total_percentage;
-  var parent_width;
-  var prev_min;
-  var next_min;
+'use strict'
+var ew_sizer = findOne('.ew-sizer')
+var next_elt
+var prev_elt
+var orig_x
+var prev_width
+var next_width
+var total_width
+var total_percentage
+var parent_width
+var prev_min
+var next_min
 
-  function beginSizing(evt) {
-    const sizer = evt.target.closest('.ew-sizer').parentElement;
-    orig_x = evt.pageX;
-    prev_elt = sizer.previousElementSibling;
-    next_elt = sizer.nextElementSibling;
-    parent_width = sizer.offsetParent.offsetWidth;
-    prev_width = prev_elt.offsetWidth;
-    next_width = next_elt.offsetWidth;
-    total_width = prev_width + next_width + sizer.offsetWidth;
-    total_percentage = total_width * 100 / parent_width;
-    prev_min = parseInt(getComputedStyle(prev_elt).minWidth, 10) || 40;
-    next_min = parseInt(getComputedStyle(next_elt).minWidth, 10) || 40;
-    ew_sizer.classList.add('active');
-    b8r.onAny('mousemove', 'sizer', 'sizing');
-    b8r.onAny('mouseup', 'sizer', 'endSizing');
-  }
+function beginSizing (evt) {
+  const sizer = evt.target.closest('.ew-sizer').parentElement
+  orig_x = evt.pageX
+  prev_elt = sizer.previousElementSibling
+  next_elt = sizer.nextElementSibling
+  parent_width = sizer.offsetParent.offsetWidth
+  prev_width = prev_elt.offsetWidth
+  next_width = next_elt.offsetWidth
+  total_width = prev_width + next_width + sizer.offsetWidth
+  total_percentage = total_width * 100 / parent_width
+  prev_min = parseInt(getComputedStyle(prev_elt).minWidth, 10) || 40
+  next_min = parseInt(getComputedStyle(next_elt).minWidth, 10) || 40
+  ew_sizer.classList.add('active')
+  b8r.onAny('mousemove', 'sizer', 'sizing')
+  b8r.onAny('mouseup', 'sizer', 'endSizing')
+}
 
-  function sizing(evt) {
-    var offset = evt.pageX - orig_x;
-    offset = Math.min(offset, next_width - next_min); // min width for next element
-    offset = Math.max(offset, prev_min - prev_width); // min width for previous element
-    prev_elt.style.width = (prev_width + offset) / total_width * total_percentage + '%';
-    next_elt.style.width = (next_width - offset) / total_width * total_percentage + '%';
-  }
+function sizing (evt) {
+  var offset = evt.pageX - orig_x
+  offset = Math.min(offset, next_width - next_min) // min width for next element
+  offset = Math.max(offset, prev_min - prev_width) // min width for previous element
+  prev_elt.style.width = (prev_width + offset) / total_width * total_percentage + '%'
+  next_elt.style.width = (next_width - offset) / total_width * total_percentage + '%'
+}
 
-  function endSizing() {
-    ew_sizer.classList.remove('active');
-    b8r.offAny('mousemove', 'sizer', 'sizing');
-    b8r.offAny('mouseup', 'sizer', 'endSizing');
-  }
+function endSizing () {
+  ew_sizer.classList.remove('active')
+  b8r.offAny('mousemove', 'sizer', 'sizing')
+  b8r.offAny('mouseup', 'sizer', 'endSizing')
+}
 
-  b8r.register('sizer', {beginSizing, sizing, endSizing});
+b8r.register('sizer', { beginSizing, sizing, endSizing })
 </script>

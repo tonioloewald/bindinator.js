@@ -67,37 +67,37 @@ This is a control that lets you pick a range within a range
   <span class="range-end" data-event="mousedown:_component_.startAdjust"></span>
 </span>
 <script>
-  let adjustment_type, adjustment_min, adjustment_max, initial_mouse_x;
+  let adjustment_type, adjustment_min, adjustment_max, initial_mouse_x
 
-  set({
+set({
     start: 25,
     extent: 50,
     startAdjust: (evt, elt) => {
-      initial_mouse_x = evt.pageX;
-      adjustment_type = elt.getAttribute('class').split('-').pop();
-      switch(adjustment_type) {
+      initial_mouse_x = evt.pageX
+      adjustment_type = elt.getAttribute('class').split('-').pop()
+      switch (adjustment_type) {
         case 'start':
-          adjustment_min = 0;
-          adjustment_max = get('start') + get('extent');
-          break;
+          adjustment_min = 0
+          adjustment_max = get('start') + get('extent')
+          break
         case 'extent':
-          adjustment_min = 0;
-          adjustment_max = 100 - get('extent');
-          break;
+          adjustment_min = 0
+          adjustment_max = 100 - get('extent')
+          break
         case 'end':
-          adjustment_min = 0;
-          adjustment_max = 100 - get('start');
-          break;
+          adjustment_min = 0
+          adjustment_max = 100 - get('start')
+          break
       }
-      b8r.onAny('mousemove', data.componentId + '.adjust');
-      b8r.onAny('mousemove', data.componentId + '.endAdjust');
-    },
+      b8r.onAny('mousemove', data.componentId + '.adjust')
+      b8r.onAny('mousemove', data.componentId + '.endAdjust')
+  },
     adjust: evt => {
-      console.log((evt.pageX - initial_mouse_x)/component.offsetWidth);
-    },
+      console.log((evt.pageX - initial_mouse_x) / component.offsetWidth)
+  },
     endAdjust: evt => {
-      b8r.offAny('mousemove', data.componentId + '.adjust');
-      b8r.offAny('mousemove', data.componentId + '.endAdjust');
-    },
+      b8r.offAny('mousemove', data.componentId + '.adjust')
+      b8r.offAny('mousemove', data.componentId + '.endAdjust')
+  }
   })
 </script>

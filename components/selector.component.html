@@ -35,47 +35,47 @@ This is a simple replacement for `<select>` elements.
 </span>
 <script>
 /* global find, findOne, b8r, component, get, set */
-'use strict';
-  const _value = element => element.value !== undefined ? element.value :
-                            element.dataset.value !== undefined ? element.dataset.value :
-                            element.textContent;
+'use strict'
+const _value = element => element.value !== undefined ? element.value
+  : element.dataset.value !== undefined ? element.dataset.value
+    : element.textContent
 
-  const select = evt => {
-    if (!evt.target.closest('[data-children] > *')) {
-      return;
-    }
-    find('[data-children] > *:not([data-list])').forEach(child => {
-      if (child === evt.target.closest('[data-children] > *')) {
-        child.dataset.selected = '';
-        set('value', _value(child));
-        b8r.trigger('change', component);
-      } else {
-        if (child.dataset.selected !== undefined) {
-          delete child.dataset.selected;
-        }
+const select = evt => {
+  if (!evt.target.closest('[data-children] > *')) {
+    return
+  }
+  find('[data-children] > *:not([data-list])').forEach(child => {
+    if (child === evt.target.closest('[data-children] > *')) {
+      child.dataset.selected = ''
+      set('value', _value(child))
+      b8r.trigger('change', component)
+    } else {
+      if (child.dataset.selected !== undefined) {
+        delete child.dataset.selected
       }
-    });
-    return true;
-  };
-  const pick = (_, value) => {
-    if (_ instanceof Event) {
-      value = get('value');
     }
-    find('[data-children] > *:not([data-list])').forEach(child => {
-      if (_value(child) === value) {
-        child.dataset.selected = '';
-        set('value', _value(child));
-        b8r.trigger('change', component);
-      } else {
-        if (child.dataset.selected !== undefined) {
-          delete child.dataset.selected;
-        }
+  })
+  return true
+}
+const pick = (_, value) => {
+  if (_ instanceof Event) {
+    value = get('value')
+  }
+  find('[data-children] > *:not([data-list])').forEach(child => {
+    if (_value(child) === value) {
+      child.dataset.selected = ''
+      set('value', _value(child))
+      b8r.trigger('change', component)
+    } else {
+      if (child.dataset.selected !== undefined) {
+        delete child.dataset.selected
       }
-    });
-  };
+    }
+  })
+}
 
-  const selected = findOne('[data-selected]');
-  if(selected && get('value') !== _value(selected)) set('value', _value(selected));
+const selected = findOne('[data-selected]')
+if (selected && get('value') !== _value(selected)) set('value', _value(selected))
 
-  set({select, pick});
+set({ select, pick })
 </script>

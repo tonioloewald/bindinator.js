@@ -28,8 +28,8 @@ to operate within a private scope.
 </div>
 <script>
   /* global get, set, register */
-  const click = () => set('click_count', get('click_count') + 1);
+  const click = () => set('click_count', get('click_count') + 1)
 
-  // establish a private scope for this component
-  register({click, click_count: 0});
+// establish a private scope for this component
+register({ click, click_count: 0 })
 </script>

@@ -38,26 +38,26 @@ priority, with completed items having low priority.
 >
 <script>
   /* global b8r */
-  'use strict';
-  const comparePriority = (a, b) => (a.done ? a.priority + 3 : a.priority) - (b.done ? b.priority + 3 : b.priority);
-  let id = 0;
+  'use strict'
+  const comparePriority = (a, b) => (a.done ? a.priority + 3 : a.priority) - (b.done ? b.priority + 3 : b.priority)
+  let id = 0
 
   b8r.register('app', {
     todolist: [],
-    composer: {text: '', priority: 2},
+    composer: { text: '', priority: 2 },
     addItem () {
-      id++;
+      id++
       const item = Object.assign(
-        {done: false, id},
+        { done: false, id },
         b8r.get('app.composer')
-      );
-      b8r.push('app.todolist', item, list => list.sort(comparePriority));
-      b8r.set('app.composer.text', '');
+      )
+      b8r.push('app.todolist', item, list => list.sort(comparePriority))
+      b8r.set('app.composer.text', '')
     },
     prioritySort () {
-      b8r.get('app.todolist').sort(comparePriority);
-      b8r.touch('app.todolist');
+      b8r.get('app.todolist').sort(comparePriority)
+      b8r.touch('app.todolist')
     },
     remove: evt => b8r.removeListInstance(evt.target)
-  });
+  })
 </script>

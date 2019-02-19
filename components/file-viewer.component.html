@@ -20,44 +20,44 @@ implement a more sophisticated approach
 <div></div>
 <script>
 /* global data, b8r, findOne */
-'use strict';
+'use strict'
 
-  const {url} = data;
-  const container = findOne('div');
+const { url } = data
+const container = findOne('div')
 
-  switch (data.file_type || (data.url.match(/\.(\w+|component\.html)$/) || [])[1]) {
-    case 'md':
-    case 'markdown':
-      b8r.component('markdown-viewer').then(viewer => {
-        b8r.insertComponent(viewer, container, {url});
-      });
-      break;
+switch (data.file_type || (data.url.match(/\.(\w+|component\.html)$/) || [])[1]) {
+  case 'md':
+  case 'markdown':
+    b8r.component('markdown-viewer').then(viewer => {
+      b8r.insertComponent(viewer, container, { url })
+    })
+    break
 
-    case 'html':
-      b8r.component('iframe').then(iframe => {
-        b8r.insertComponent(iframe, container, {src: url});
-      });
-      break;
+  case 'html':
+    b8r.component('iframe').then(iframe => {
+      b8r.insertComponent(iframe, container, { src: url })
+    })
+    break
 
-    case 'component.html':
-      b8r.component('component-viewer').then(viewer => {
-        b8r.insertComponent(viewer, container, {url: url.match(/^(.*)\.component\.html$/)[1]});
-      });
-      break;
+  case 'component.html':
+    b8r.component('component-viewer').then(viewer => {
+      b8r.insertComponent(viewer, container, { url: url.match(/^(.*)\.component\.html$/)[1] })
+    })
+    break
 
-    case 'text':
-      b8r.component('text-viewer').then(viewer => {
-        b8r.insertComponent(viewer, container, {url});
-      });
-      break;
+  case 'text':
+    b8r.component('text-viewer').then(viewer => {
+      b8r.insertComponent(viewer, container, { url })
+    })
+    break
 
-    case 'js':
-      b8r.component('literate-js-viewer').then(viewer => {
-        b8r.insertComponent(viewer, container, {url});
-      });
-      break;
+  case 'js':
+    b8r.component('literate-js-viewer').then(viewer => {
+      b8r.insertComponent(viewer, container, { url })
+    })
+    break
 
-    default:
-      console.error('unknown file type', {url});
-  }
+  default:
+    console.error('unknown file type', { url })
+}
 </script>

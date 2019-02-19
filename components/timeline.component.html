@@ -82,48 +82,48 @@ The component is driven by properties:
 </svg>
 <script>
   /* global data, get, set */
-  if (! data.history) {
-    set('heading', 'Quantum Computing vs HTML Centering');
+  if (!data.history) {
+    set('heading', 'Quantum Computing vs HTML Centering')
     set('history', [
-      {time: 1980, below: false, color: 'orange', title: 'Proposal', info: 'Yuri Manin Proposes Quantum Computing'},
-      {time: 1993, below: false, color: 'orange', title: 'Theory', info: 'Theory that true teleportation is possible'},
-      {time: 1996, below: false, color: 'orange', title: 'Success Criteria', info: 'DiVincenzo\'s Critera'},
-      {time: 2001, below: false, color: 'orange', title: 'Practical Demo', info: 'Shor\'s algorithm demonstrated'},
-      {time: 2009, below: false, color: 'orange', title: 'Solid-State', info: 'First solid-state quantum computer'},
-      {time: 2011, below: false, color: 'orange', title: 'Commercial', info: 'D-Wave One announced'},
-      {time: 2011, below: false, color: 'orange', title: 'Teleportation', info: 'Chinese scientists demonstrate macro teleportation'},
-      {time: 2016, below: false, color: 'orange', title: 'Practical', info: 'First reprogrammable quantum computer'},
-      {time: 2018, below: false, color: 'orange', title: 'Advancement', info: 'Google BristleCone 72 qubit processor'},
+      { time: 1980, below: false, color: 'orange', title: 'Proposal', info: 'Yuri Manin Proposes Quantum Computing' },
+      { time: 1993, below: false, color: 'orange', title: 'Theory', info: 'Theory that true teleportation is possible' },
+      { time: 1996, below: false, color: 'orange', title: 'Success Criteria', info: 'DiVincenzo\'s Critera' },
+      { time: 2001, below: false, color: 'orange', title: 'Practical Demo', info: 'Shor\'s algorithm demonstrated' },
+      { time: 2009, below: false, color: 'orange', title: 'Solid-State', info: 'First solid-state quantum computer' },
+      { time: 2011, below: false, color: 'orange', title: 'Commercial', info: 'D-Wave One announced' },
+      { time: 2011, below: false, color: 'orange', title: 'Teleportation', info: 'Chinese scientists demonstrate macro teleportation' },
+      { time: 2016, below: false, color: 'orange', title: 'Practical', info: 'First reprogrammable quantum computer' },
+      { time: 2018, below: false, color: 'orange', title: 'Advancement', info: 'Google BristleCone 72 qubit processor' },
 
-      {time: 1960, below: true, color: 'green', title: 'Project Xanadu', info: 'Ted Nelson founds ultimate hypertext project'},
-      {time: 1991, below: true, color: 'blue', title: 'Web Invented', info: 'Sir Tim Berners-Lee'},
-      {time: 1993, below: true, color: 'purple', title: '<H1> is centered', info: 'HTML 1.2 Internal Draft'},
-      {time: 1995, below: true, color: 'purple', title: 'ALIGN=CENTER', info: 'HTML 2.0'},
-      {time: 1996, below: true, color: 'purple', title: '<CENTER>', info: 'HTML 3.2'},
-      {time: 1996, below: true, color: 'crimson', title: 'text-align: center', info: 'CSS 1'},
-      {time: 1998, below: true, color: 'crimson', title: 'position: absolute', info: 'CSS 2'},
-      {time: 2011, below: true, color: 'crimson', title: 'transform: translateY(-50%)', info: 'CSS 3'},
-      {time: 2015, below: true, color: 'crimson', title: 'justify-content: middle', info: 'CSS 4, Flexbox'}
-    ]);
+      { time: 1960, below: true, color: 'green', title: 'Project Xanadu', info: 'Ted Nelson founds ultimate hypertext project' },
+      { time: 1991, below: true, color: 'blue', title: 'Web Invented', info: 'Sir Tim Berners-Lee' },
+      { time: 1993, below: true, color: 'purple', title: '<H1> is centered', info: 'HTML 1.2 Internal Draft' },
+      { time: 1995, below: true, color: 'purple', title: 'ALIGN=CENTER', info: 'HTML 2.0' },
+      { time: 1996, below: true, color: 'purple', title: '<CENTER>', info: 'HTML 3.2' },
+      { time: 1996, below: true, color: 'crimson', title: 'text-align: center', info: 'CSS 1' },
+      { time: 1998, below: true, color: 'crimson', title: 'position: absolute', info: 'CSS 2' },
+      { time: 2011, below: true, color: 'crimson', title: 'transform: translateY(-50%)', info: 'CSS 3' },
+      { time: 2015, below: true, color: 'crimson', title: 'justify-content: middle', info: 'CSS 4, Flexbox' }
+    ])
   }
-  if (! data.defaultColor) {
-    set('defaultColor', '#4A90E2');
+  if (!data.defaultColor) {
+    set('defaultColor', '#4A90E2')
   }
-  const history = get('history');
-  history.sort((a, b) => a.time - b.time);
-  const start = history[0].time;
-  const finish = history[history.length - 1].time;
-  const scale = finish - start;
+  const history = get('history')
+  history.sort((a, b) => a.time - b.time)
+  const start = history[0].time
+  const finish = history[history.length - 1].time
+  const scale = finish - start
   history.forEach((item, idx) => {
     // spread out overlapping items
-    const t = (item.time - start) / scale; // time relative to scale
-    const l = idx / history.length; // position in sequence
-    item.x = (63 + (l * 2 + t) * 0.33 * 900).toFixed(1);
+    const t = (item.time - start) / scale // time relative to scale
+    const l = idx / history.length // position in sequence
+    item.x = (63 + (l * 2 + t) * 0.33 * 900).toFixed(1)
     if (item.below === undefined) {
-      item.below = !! (idx % 2);
+      item.below = !!(idx % 2)
     }
     if (!item.color) {
-      item.color = get('defaultColor');
+      item.color = get('defaultColor')
     }
-  });
+  })
 </script>

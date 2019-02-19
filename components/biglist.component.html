@@ -75,7 +75,7 @@ any given time.
   Scroll Position:
   <span data-bind="text=_component_.position"></span>
   Items in DOM:
-  <span data-bind="text=_component_.rows_to_show"></span>
+  <span data-bind="text=_component_.rowsToShow"></span>
   Total Items:
   <span data-bind="text=_component_.list.length"></span>
 </div>
@@ -86,75 +86,75 @@ any given time.
 */
 
 /* global findOne, b8r, component, data, set, touch */
-  'use strict';
+'use strict'
 
-  const viewport = findOne('.biglist-viewport');
-  const scroller = findOne('.biglist-scroller');
-  const visible_item_container = findOne('.biglist-visible-items');
+const viewport = findOne('.biglist-viewport')
+const scroller = findOne('.biglist-scroller')
+const visibleItemContainer = findOne('.biglist-visible-items')
 
-  set({
-    pin: data.pin || component.getAttribute('pin') || 'top',
-    minRowHeight: data.minRowHeight || 35
-  });
+set({
+  pin: data.pin || component.getAttribute('pin') || 'top',
+  minRowHeight: data.minRowHeight || 35
+})
 
-  if (!data.list) {
-    data.list = [];
-    for (var i = 0; i < 1000; i++) {
-      data.list.push({
-        caption: 'Item ' + i,
-        fontSize: (Math.random() * 36 + 12) + 'px',
-        color: '#eeeeee',
-        selected: false,
-        id: i,
-      });
-    }
+if (!data.list) {
+  data.list = []
+  for (var i = 0; i < 1000; i++) {
+    data.list.push({
+      caption: 'Item ' + i,
+      fontSize: (Math.random() * 36 + 12) + 'px',
+      color: '#eeeeee',
+      selected: false,
+      id: i
+    })
   }
+}
 
-  function clamp(x) {
-    return x < 0 ? 0 : (x > 1 ? 1 : x);
+function clamp (x) {
+  return x < 0 ? 0 : (x > 1 ? 1 : x)
+}
+
+function update (specifiedProgress) {
+  const rowsToShow = Math.min(data.list.length, Math.floor(viewport.offsetHeight / data.minRowHeight + 2))
+  const maxPosition = data.list.length - rowsToShow + 1
+  const scrollerHeight = data.list.length * data.minRowHeight
+  const maxScroll = scrollerHeight - viewport.offsetHeight
+  scroller.style.height = scrollerHeight + 'px'
+  var t, position
+  if (rowsToShow >= data.list.length || rowsToShow === 0) {
+    t = 0
+    position = 0
+    viewport.scrollTop = 0
+  } else if (typeof specifiedProgress === 'number') {
+    t = clamp(specifiedProgress)
+    viewport.scrollTop = t * maxScroll
+  } else {
+    t = clamp(viewport.scrollTop / maxScroll)
   }
-
-  function update(specified_progress) {
-    const rows_to_show = Math.min(data.list.length, Math.floor(viewport.offsetHeight / data.minRowHeight + 2));
-    const max_position = data.list.length - rows_to_show + 1;
-    const scroller_height = data.list.length * data.minRowHeight;
-    const max_scroll = scroller_height - viewport.offsetHeight;
-    scroller.style.height = scroller_height + 'px';
-    var t, position;
-    if (rows_to_show >= data.list.length || rows_to_show === 0) {
-      t = 0;
-      position = 0;
-      viewport.scrollTop = 0;
-    } else if (typeof specified_progress === 'number') {
-      t = clamp(specified_progress);
-      viewport.scrollTop = t * max_scroll;
-    } else {
-      t = clamp(viewport.scrollTop / max_scroll);
-    }
-    position = t * max_position;
-    const first_visible_item = Math.max(Math.min(Math.floor(position) - 1, data.list.length - rows_to_show), 0);
-    set('position', position.toFixed(2));
-    set('rows_to_show', rows_to_show);
-    set('t', (t * 100).toFixed(2) + '%' );
-    set({rows_to_show, first_visible_item});
-    touch('list');
-    const rows = b8r.makeArray(visible_item_container.children).filter(elt => !elt.matches('[data-list]'));
-    if (!rows.length) {
-      return;
-    }
-    const offsetElementIndex = Math.floor(rows.length * t);
-    const offsetElement = rows[offsetElementIndex] || rows.pop();
-    const pin_top_offset = viewport.scrollTop;
-    const pin_bottom_offset = viewport.scrollTop + viewport.offsetHeight - visible_item_container.offsetHeight;
-    const offset = t * pin_bottom_offset + (1 - t) * pin_top_offset - (position % 1) * offsetElement.offsetHeight;
-    visible_item_container.style.top = offset + 'px';
+  position = t * maxPosition
+  const firstVisibleItem = Math.max(Math.min(Math.floor(position) - 1, data.list.length - rowsToShow), 0)
+  set('position', position.toFixed(2))
+  set('rowsToShow', rowsToShow)
+  set('t', (t * 100).toFixed(2) + '%')
+  set({ rowsToShow, firstVisibleItem })
+  touch('list')
+  const rows = b8r.makeArray(visibleItemContainer.children).filter(elt => !elt.matches('[data-list]'))
+  if (!rows.length) {
+    return
   }
+  const offsetElementIndex = Math.floor(rows.length * t)
+  const offsetElement = rows[offsetElementIndex] || rows.pop()
+  const pinTopOffset = viewport.scrollTop
+  const pinBottomOffset = viewport.scrollTop + viewport.offsetHeight - visibleItemContainer.offsetHeight
+  const offset = t * pinBottomOffset + (1 - t) * pinTopOffset - (position % 1) * offsetElement.offsetHeight
+  visibleItemContainer.style.top = offset + 'px'
+}
 
-  function visible(list) {
-    return list.slice(data.first_visible_item, data.first_visible_item + data.rows_to_show);
-  }
+function visible (list) {
+  return list.slice(data.firstVisibleItem, data.firstVisibleItem + data.rowsToShow)
+}
 
-  set({update, visible});
+set({ update, visible })
 
-  update(data.pin === 'bottom' ? 1 : 0);
+update(data.pin === 'bottom' ? 1 : 0)
 </script>

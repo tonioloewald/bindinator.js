@@ -36,12 +36,12 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
   </label>
   <label>
     <span>Toggle Me</span>
-    <b8r-switch data-bind="value=web-component-demo.other_toggle" thumbsize="20px" height="24px"
+    <b8r-switch data-bind="value=web-component-demo.otherToggle" thumbsize="20px" height="24px"
     ></b8r-switch>
   </label>
   <label>
     <span>Disabled (but linked) Toggle</span>
-    <b8r-switch disabled data-bind="value=web-component-demo.other_toggle" thumbsize="20px" height="24px"
+    <b8r-switch disabled data-bind="value=web-component-demo.otherToggle" thumbsize="20px" height="24px"
     ></b8r-switch>
   </label>
 </div>
@@ -95,18 +95,21 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
       name="Rendered" 
       data-bind="value=web-component-demo.markdown"
     ></b8r-markdown>
+  </b8r-tab-selector>
 </div>
 <script>
   /* global b8r */
-  await import('../web-components/switch.js');
-  await import('../web-components/select.js');
-  await import('../web-components/markdown.js');
-  await import('../web-components/tabs.js');
+
+  // we need to load web-components before we bind to them (unlike b8r components)
+  import('../web-components/switch.js');
+  import('../web-components/select.js');
+  import('../web-components/markdown.js');
+  import('../web-components/tabs.js');
 
   if (! b8r.get('web-component-demo')) {
     b8r.register('web-component-demo', {
       toggle: false, 
-      other_toggle: true,
+      otherToggle: true,
       onColor: 'red',
       offColor: 'pink',
       select: 2,

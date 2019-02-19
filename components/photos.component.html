@@ -19,27 +19,27 @@ component's "tags" attribute.
 <img data-list="_component_.photos.items" data-bind="img=.media.m;attr(label)=.title">
 <script>
   /* global findOne, component, set */
-  var jsonp = 'jsonp' + Math.floor(Math.random() * 100000);
-  findOne('img').classList.add(component.getAttribute('img-class') || 'flickr-image');
+  var jsonp = 'jsonp' + Math.floor(Math.random() * 100000)
+findOne('img').classList.add(component.getAttribute('img-class') || 'flickr-image')
 
-  function getFlickrData(url, callback) {
-      window[jsonp] = function(data) {
-          delete window[jsonp];
-          callback(data);
-          document.body.removeChild(script);
-      };
+function getFlickrData (url, callback) {
+    window[jsonp] = function (data) {
+      delete window[jsonp]
+      callback(data)
+      document.body.removeChild(script)
+    }
 
-      var script = document.createElement('script');
-      script.src = url;
-      document.body.appendChild(script);
-  }
+  var script = document.createElement('script')
+    script.src = url
+    document.body.appendChild(script)
+}
 
-  var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json&jsoncallback=' + jsonp;
-  if (component.getAttribute('tags')) {
-    feed_url += '&tags=fave,' + escape(component.getAttribute('tags'));
-  } else {
-    feed_url += '&tags=fave,airshow';
-  }
+  var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json&jsoncallback=' + jsonp
+if (component.getAttribute('tags')) {
+    feed_url += '&tags=fave,' + escape(component.getAttribute('tags'))
+} else {
+    feed_url += '&tags=fave,airshow'
+}
 
-  getFlickrData(feed_url, photos => set({photos}) );
+  getFlickrData(feed_url, photos => set({ photos }))
 </script>

@@ -52,32 +52,32 @@ This component attempts to deal with the annoyances for you.
 </label>
 <script>
 /* global data, find, get, set, on */
-'use strict';
-  const example = {
-    value: '2',
-    options: [
-      {text: 'first', value: 1},
-      {text: 'second', value: 2},
-      {text: 'third', value: 3}
-    ]
-  };
-  if(!data.name) {
-    data.name = 'test';
-  }
+'use strict'
+const example = {
+  value: '2',
+  options: [
+    { text: 'first', value: 1 },
+    { text: 'second', value: 2 },
+    { text: 'third', value: 3 }
+  ]
+}
+if (!data.name) {
+  data.name = 'test'
+}
 
-  const update = () => {
-    find('input').forEach(radio => {
-      if (radio.getAttribute('value') == get('value')) {
-        radio.checked = true;
-      }
-    });
-  };
+const update = () => {
+  find('input').forEach(radio => {
+    if (radio.getAttribute('value') == get('value')) {
+      radio.checked = true
+    }
+  })
+}
 
-  set ({update});
+set({ update })
 
-  on('change', '_component_.update');
+on('change', '_component_.update')
 
-  if(!data.options) {
-    Object.assign(data, example);
-  }
+if (!data.options) {
+  Object.assign(data, example)
+}
 </script>

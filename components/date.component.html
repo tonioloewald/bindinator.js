@@ -94,94 +94,94 @@ them for anything.
   ></div>
 </div>
 <script>
-  'use strict';
-  /* global b8r, get, set, component, findOne, touch */
-  const DAY_IN_MS = 24 * 3600 * 1000;
-  const days = [];
+  'use strict'
+/* global b8r, get, set, component, findOne, touch */
+const DAY_IN_MS = 24 * 3600 * 1000
+const days = []
 
-  const update = date => {
-    const currentMonth = date.getMonth();
-    const currentDate = date.toLocaleDateString();
-    const timezone = new Date().toISOString().split('T')[1];
-    // Safari turns out to be super strict about the date strings it will parse
-    const month = currentMonth < 9 ? '0' + (currentMonth + 1) : (currentMonth + 1);
-    const firstDayOfMonth = new Date(`${date.getFullYear()}-${month}-01T${timezone}`);
-    const firstDay = firstDayOfMonth - firstDayOfMonth.getDay() * DAY_IN_MS;
-    const firstDayOfMonthISO = firstDayOfMonth.toISOString().split('T')[0];
-    if (get('firstDayOfMonthISO') !== firstDayOfMonthISO) days.splice(0);
+const update = date => {
+    const currentMonth = date.getMonth()
+  const currentDate = date.toLocaleDateString()
+  const timezone = new Date().toISOString().split('T')[1]
+  // Safari turns out to be super strict about the date strings it will parse
+  const month = currentMonth < 9 ? '0' + (currentMonth + 1) : (currentMonth + 1)
+  const firstDayOfMonth = new Date(`${date.getFullYear()}-${month}-01T${timezone}`)
+  const firstDay = firstDayOfMonth - firstDayOfMonth.getDay() * DAY_IN_MS
+  const firstDayOfMonthISO = firstDayOfMonth.toISOString().split('T')[0]
+  if (get('firstDayOfMonthISO') !== firstDayOfMonthISO) days.splice(0)
 
-    // do we need to [re]build days?
-    if (! days.length) {
-      let timestamp;
+  // do we need to [re]build days?
+  if (!days.length) {
+      let timestamp
       for (let day = 0; day < 42; day++) {
-        timestamp = new Date(firstDay + day * DAY_IN_MS);
+        timestamp = new Date(firstDay + day * DAY_IN_MS)
         days.push({
           day: timestamp.getDate(),
           date: timestamp.toLocaleDateString(),
           current: timestamp.toLocaleDateString() === currentDate,
           current_month: timestamp.getMonth() === currentMonth,
-          timestamp,
-        });
+          timestamp
+        })
         // skip trailing weeks
         if (day % 7 === 6 && new Date(firstDay + (day + 1) * DAY_IN_MS).getMonth() !== currentMonth) {
-          break;
+          break
         }
       }
       set({
         weekdays: [
-          {initial: 'S', name: 'Sunday'},
-          {initial: 'M', name: 'Monday'},
-          {initial: 'T', name: 'Tuesday'},
-          {initial: 'W', name: 'Wednesday'},
-          {initial: 'T', name: 'Thursday'},
-          {initial: 'F', name: 'Friday'},
-          {initial: 'S', name: 'Saturday'},
+          { initial: 'S', name: 'Sunday' },
+          { initial: 'M', name: 'Monday' },
+          { initial: 'T', name: 'Tuesday' },
+          { initial: 'W', name: 'Wednesday' },
+          { initial: 'T', name: 'Thursday' },
+          { initial: 'F', name: 'Friday' },
+          { initial: 'S', name: 'Saturday' }
         ],
         firstDayOfMonth,
         firstDayOfMonthISO,
         value: date.toISOString(),
         dateValue: date.toISOString().split('T')[0],
-        days,
-      });
-    } else {
+        days
+      })
+  } else {
       if (get('days[current=true].date') === currentDate) {
         // our work is done
-        return;
+        return
       }
-      set('days[current=true].current', false);
-      set(`days[date=${currentDate}].current`, true);
+      set('days[current=true].current', false)
+      set(`days[date=${currentDate}].current`, true)
       set({
         value: date.toISOString(),
-        dateValue: date.toISOString().split('T')[0],
-      });
-      touch('days');
-    }
-  };
-
-  if (component.dataset.date) {
-    update(component.dataset.date === 'today' ? new Date() : new Date(component.dataset.date));
+        dateValue: date.toISOString().split('T')[0]
+      })
+      touch('days')
+  }
   }
 
+if (component.dataset.date) {
+    update(component.dataset.date === 'today' ? new Date() : new Date(component.dataset.date))
+}
+
   const pick = (_, value) => {
-    const had_focus = component.contains(document.activeElement);
+    const had_focus = component.contains(document.activeElement)
 
-    if (typeof value === 'string' && value.match(/^\d{4,4}\-\d{2,2}\-\d{2,2}$/)) {
-      value += 'T' + new Date().toISOString().split('T')[1];
-    }
+  if (typeof value === 'string' && value.match(/^\d{4,4}\-\d{2,2}\-\d{2,2}$/)) {
+      value += 'T' + new Date().toISOString().split('T')[1]
+  }
 
-    update(new Date(value));
-    // focus the (new) current day once we've rendered the update
-    if (had_focus) {
+    update(new Date(value))
+  // focus the (new) current day once we've rendered the update
+  if (had_focus) {
       b8r.afterUpdate(() => {
-        const current = findOne('.date-component-current');
-        if (current) current.focus();
-      });
-    }
-  };
+        const current = findOne('.date-component-current')
+        if (current) current.focus()
+      })
+  }
+  }
 
-  const select = evt => {
-    pick(null, b8r.getListInstance(evt.target).timestamp);
-  };
+const select = evt => {
+    pick(null, b8r.getListInstance(evt.target).timestamp)
+}
 
-  set({pick, select});
+set({ pick, select })
 </script>
