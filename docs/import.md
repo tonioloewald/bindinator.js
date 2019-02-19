@@ -7,7 +7,7 @@ it had to happen sometime.
 - `require.viaTag`, `require.lazy` and misc. support for legacy libraries has been 
   replaced with the much simpler `viaTag` from `scripts.js`.
 - The `<script>` tag of components is implemented as an `AsyncFunction`.
-- `data-component`  is being phased out in favor of `<bar-component>`.
+- `data-component`  is being phased out in favor of `<b8r-component>`.
 - extensive support for `web-components` (a.k.a. "Custom Elements") is now available.
 
 If you want to use `b8r` from a `<script>` tag, change it to `<script type="module">`
