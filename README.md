@@ -21,6 +21,7 @@
 > I've written [documentation to help with migration](#source=docs/import.md).
 >
 > Finally, `b8r` has been conformed to [standardjs](https://standardjs.com/) — no more semicolons!
+> (Still working on the component library, because it doesn't lint cleanly.)
 
 ## b8r in 5 minutes
 
