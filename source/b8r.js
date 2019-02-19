@@ -25,7 +25,7 @@ implement some kind of virtual machine to replace it.
 - [Showing and Hiding](#source=source/b8r.show.js)
 */
 /* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
-/* global console, Element */
+/* global console, Element, HTMLElement */
 
 import { getByPath, pathSplit } from './b8r.byPath.js'
 import * as _dom from './b8r.dom.js'
@@ -83,7 +83,7 @@ import {
   makeComponent
 } from './b8r.component.js'
 
-import { makeWebComponent } from '../lib/web-components.js'
+import { makeWebComponent, onComponentDefined } from '../lib/web-components.js'
 
 const b8r = {}
 
@@ -97,6 +97,13 @@ b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceEle
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
 b8r.makeWebComponent = makeWebComponent
+
+onComponentDefined((tagName) => {
+  b8r.find(tagName).forEach((elt) => {
+    delete elt._b8rBoundValues
+    b8r.touchElement(elt)
+  })
+})
 
 Object.assign(b8r, _functions)
 
@@ -338,6 +345,9 @@ b8r.interpolate = (template, elt) => {
 const _unequal = (a, b) => (a !== b) || (a && typeof a === 'object')
 
 function bind (element) {
+  if (element.tagName.includes('-') && element.constructor === HTMLElement) {
+    return // do not attempt to bind to custom components before they are defined
+  }
   if (element.closest('[data-component],[data-list]')) {
     return
   }

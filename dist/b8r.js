@@ -3823,7 +3823,7 @@ function _toTargets (b8r) {
             } else {
               // <b8r-component> does not support value if it does
               // not have a loaded component
-              if (element.tagName !== 'B8R-COMPONENT') {
+              if (!element.tagName.includes('-')) {
                 console.error('could not set component value', element, value);
               }
             }
@@ -5162,7 +5162,16 @@ const makeWebComponent = (tagName, {
 
   window.customElements.define(tagName, componentClass);
 
+  listeners$1.forEach(listener => {
+    listener(tagName);
+  });
+
   return componentClass
+};
+
+const listeners$1 = [];
+const onComponentDefined = (listener) => {
+  listeners$1.push(listener);
 };
 
 /**
@@ -5204,6 +5213,13 @@ b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceEle
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
 b8r.makeWebComponent = makeWebComponent;
+
+onComponentDefined((tagName) => {
+  b8r.find(tagName).forEach((elt) => {
+    delete elt._b8rBoundValues;
+    b8r.touchElement(elt);
+  });
+});
 
 Object.assign(b8r, _functions);
 
@@ -5445,6 +5461,9 @@ b8r.interpolate = (template, elt) => {
 const _unequal = (a, b) => (a !== b) || (a && typeof a === 'object');
 
 function bind (element) {
+  if (element.tagName.includes('-') && element.constructor === HTMLElement) {
+    return // do not attempt to bind to custom components before they are defined
+  }
   if (element.closest('[data-component],[data-list]')) {
     return
   }

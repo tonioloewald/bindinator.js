@@ -431,7 +431,7 @@ export default function (b8r) {
             } else {
               // <b8r-component> does not support value if it does
               // not have a loaded component
-              if (element.tagName !== 'B8R-COMPONENT') {
+              if (!element.tagName.includes('-')) {
                 console.error('could not set component value', element, value)
               }
             }
