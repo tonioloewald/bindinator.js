@@ -109,7 +109,7 @@ you bind **javascript objects to paths** using `b8r.set`, and `b8r` does the res
 
 This is all asynchronous. Do it in whatever order makes sense.
 
-<div data-component="fiddle" data-path="drumpf"></div>
+<b8r-component path="components/fiddle" data-path="drumpf"></b8r-component>
 
 In this example `text` is the **target**, `example.name` is the **data-path**. The root **name**
 (`example`) is bound to the path via `b8r.register`.
@@ -150,7 +150,7 @@ the registry.
 
 Binding **arrays** is just as simple, using the `data-list` attribute:
 
-<div data-component="fiddle" data-path="list"></div>
+<b8r-component path="components/fiddle" data-path="list"></b8r-component>
 
 Within a list binding, paths beginning with a period are relative to the list instance. (Look at
 the `<li>` tags in the preceding example.)
@@ -170,11 +170,11 @@ bind to a list of bare strings then `data-bind="text=."` will get the string,
 
 Most **updates** are handled automatically:
 
-<div data-component="fiddle" data-path="update"></div>
+<b8r-component path="components/fiddle" data-path="update"></b8r-component>
 
 ### Bind events to methods with `data-event`
 
-<div data-component="fiddle" data-path="events"></div>
+<b8r-component path="components/fiddle" data-path="events"></b8r-component>
 
 Events are bound via data-paths as just like data. In this example `click` is the event type and
 `example4.click` is the path to the event.
@@ -189,26 +189,24 @@ Any of these snippets can be converted into reusable components by saving them a
 `example.component.html`. (Each of these snippets is in fact a complete component.)
 
 You can load a component using `b8r.component('path/to/example')`. Once
-loaded, it will automatically be inserted where-ever you use `data-component="example"`.
+loaded, it will automatically be inserted where-ever you use `<b8r-component name="example">`.
 Components can be nested exactly as you would expect.
 
-### Add components with `data-component`
+### Add components with `<b8r-component>`
 
 A **stateful component** looks like this:
 
-<div data-component="fiddle" data-path="clock"></div>
+<b8r-component path="components/fiddle" data-path="clock"></b8r-component>
 
 And to use the preceding component, you'd write something like this:
 
 ```
-<div data-component="time"></div>
-...
-b8r.component('path/to/time');
+<b8r-component path="path/to/time"></b8r-component>
 ```
 
 You can build a **To Do List** app like this:
 
-<div data-component="fiddle" data-path="todo"></div>
+<b8r-component path="components/fiddle" data-path="todo"></b8r-component>
 
 > **Note**: the to-do list component in the preceding example is bound to a global path,
 > as is the one below. So the two share data automatically. This is *not* an accident.
@@ -223,16 +221,16 @@ of the element bound to the component.
 E.g. in the snippet below:
 
 ```
-<div data-component="parent">
-  <div data-component="child"></div>
-</div>
+<b8r-component name="parent">
+  <b8r-component name="child"></b8r-component>
+</b8r-component>
 ```
 
 If the `parent` component has an element with the `data-children` attribute, when it loads, the 
 child will be moved into it. In the example below, the `tab-selector` component creates one
 tab for each child.
 
-<div data-component="fiddle" data-path="compose-example"></div>
+<b8r-component name="fiddle" data-path="compose-example"></b8r-component>
 
 ### Dog Food!
 
@@ -250,7 +248,7 @@ need to use an iframe.
 - access and modify values bound to paths using `b8r.get()` and `b8r.set()`.
 - bind arrays to the DOM using `data-list`.
 - bind events to event handlers using `data-event`.
-- bind components to the DOM using `data-component`.
+- bind components to the DOM using `<b8r-component>`.
 
 We can register data (*models* and *controllers*) and load components (*views*) asynchronously.
 If the user clicks the button before the controller is registered, the controller method will be

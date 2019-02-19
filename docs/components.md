@@ -87,12 +87,12 @@ removed, and if that data includes a `destroy` method, that method will be calle
 It is possible to *compose* components with normal html, e.g.
 
 ```
-<div data-component="foo">
+<b8r-component path="path/to/foo">
   <h2>Look I'm inside foo!</h2>
-  <div data-component="bar">
+  <b8r-component="path/to/bar">
     And I'm inside bar, inside foo
-  </div>
-</div>
+  </b8r-component>
+</b8r-component>
 ```
 
 To tell a component where to put its children, simply give the element that is to receive them
@@ -100,19 +100,19 @@ the attribute `data-children`, e.g. if `foo.component.html` were `<blockquote da
 `bar.component.html` were `<p data-children></p>` then the result of loading the two would be:
 
 ```
-<div class="foo-component" data-component-id="c#foo..." data-component="foo">
+<b8r-component class="foo-component" data-component-id="c#foo..." data-component="foo">
   <blockquote data-children>
     <h2>Look I'm inside foo!</h2>
-    <div class="bar-component" data-component-id="c#bar..." data-component="bar">
+    <b8r-component class="bar-component" data-component-id="c#bar..." data-component="bar">
       <p data-children>
         And I'm inside bar, inside foo
       </p>
-    </div>
+    </b8r-component>
   </blockquote>
-</div>
+</b8r-component>
 ```
 
-## Binding to Components
+## Binding within Components
 
 A component instance automatically has private data that is registered against its `componentId`. 
 
