@@ -370,7 +370,7 @@ const getDataPath = element => {
 const getListPath = element => {
   const listInstanceElement = element.closest('[data-list-instance]')
   const listTemplate = listInstanceElement && succeeding(listInstanceElement, '[data-list]')
-  return listTemplate && listTemplate.dataset.list.split(';')[0]
+  return listTemplate && listTemplate.dataset.list.split(':')[0]
 }
 
 const getListInstancePath = element => {
