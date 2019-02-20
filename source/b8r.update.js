@@ -30,6 +30,7 @@ afterUpdate fires immediately (and synchronously) if there are no pending update
 /* global requestAnimationFrame, HTMLElement */
 
 import { dispatch } from './b8r.dispatch.js'
+import { find } from './b8r.dom.js'
 
 const _changeList = []
 let _updateFrame = null
@@ -136,6 +137,18 @@ const _setForceUpdate = (fn) => {
   _forceUpdate = fn
 }
 
+const _expectedCustomElements = []
+const expectCustomElement = async tagName => {
+  tagName = tagName.toLocaleLowerCase()
+  if (window.customElements.get(tagName) || _expectedCustomElements.includes(tagName)) return
+  _expectedCustomElements.push(tagName)
+  await window.customElements.whenDefined(tagName)
+  find(tagName).forEach(elt => {
+    delete elt._b8rBoundValues
+    touchElement(elt)
+  })
+}
+
 export {
   // hack to eliminate circular dependency
   _setForceUpdate,
@@ -145,5 +158,6 @@ export {
   _afterUpdate,
   afterUpdate,
   touchElement,
-  touchByPath
+  touchByPath,
+  expectCustomElement
 }

@@ -72,7 +72,8 @@ import {
   touchElement,
   touchByPath,
   _afterUpdate,
-  _setForceUpdate
+  _setForceUpdate,
+  expectCustomElement
 } from './b8r.update.js'
 
 import { show, hide } from './b8r.show.js'
@@ -84,7 +85,7 @@ import {
   makeComponent
 } from './b8r.component.js'
 
-import { makeWebComponent, onComponentDefined } from '../lib/web-components.js'
+import { makeWebComponent } from '../lib/web-components.js'
 
 const b8r = {}
 
@@ -98,13 +99,6 @@ b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceEle
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
 b8r.makeWebComponent = makeWebComponent
-
-onComponentDefined((tagName) => {
-  b8r.find(tagName).forEach((elt) => {
-    delete elt._b8rBoundValues
-    b8r.touchElement(elt)
-  })
-})
 
 Object.assign(b8r, _functions)
 
@@ -347,6 +341,7 @@ const _unequal = (a, b) => (a !== b) || (a && typeof a === 'object')
 
 function bind (element) {
   if (element.tagName.includes('-') && element.constructor === HTMLElement) {
+    expectCustomElement(element.tagName)
     return // do not attempt to bind to custom components before they are defined
   }
   if (element.closest('[data-component],[data-list]')) {
