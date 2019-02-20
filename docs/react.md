@@ -50,7 +50,7 @@ state, changing it triggers renders of the inner and outer object,
 even though the outer object doesn't do any rendering of its own
 that relies on items.
 
-(Of course, React lets you write shouldComponentUpdate and reject
+(Of course, React lets you implement `shouldComponentUpdate` and reject
 rendering if something you don't care changes but, it won't actually
 work here since if `state.items` changes you need to communicate this to
 `<TodoList>` -- by needlessly rendering everything in `<TodoApp>`. So all
