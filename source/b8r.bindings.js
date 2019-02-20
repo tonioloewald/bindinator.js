@@ -275,7 +275,7 @@ To quickly obtain bound data a list instance from an element inside it:
 */
 /* global console */
 
-import { findWithin } from './b8r.dom.js'
+import { findWithin, succeeding } from './b8r.dom.js'
 import { touchElement } from './b8r.update.js'
 
 const addDataBinding = (element, toTarget, path) => {
@@ -367,6 +367,12 @@ const getDataPath = element => {
   return ['.', '['].indexOf(path[0]) === -1 ? path : getDataPath(dataParent.parentElement) + path
 }
 
+const getListPath = element => {
+  const listInstanceElement = element.closest('[data-list-instance]')
+  const listTemplate = listInstanceElement && succeeding(listInstanceElement, '[data-list]')
+  return listTemplate && listTemplate.dataset.list.split(';')[0]
+}
+
 const getListInstancePath = element => {
   const component = element.closest('[data-list-instance]')
   return component ? component.dataset.listInstance : null
@@ -414,6 +420,7 @@ export {
   addDataBinding,
   removeDataBinding,
   getDataPath,
+  getListPath,
   getListInstancePath,
   getComponentId,
   parseBinding,

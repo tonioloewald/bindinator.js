@@ -1518,6 +1518,12 @@ const getDataPath = element => {
   return ['.', '['].indexOf(path[0]) === -1 ? path : getDataPath(dataParent.parentElement) + path
 };
 
+const getListPath = element => {
+  const listInstanceElement = element.closest('[data-list-instance]');
+  const listTemplate = listInstanceElement && succeeding(listInstanceElement, '[data-list]');
+  return listTemplate && listTemplate.dataset.list.split(';')[0]
+};
+
 const getListInstancePath = element => {
   const component = element.closest('[data-list-instance]');
   return component ? component.dataset.listInstance : null
@@ -5206,7 +5212,7 @@ const b8r = {};
 Object.assign(b8r, _dom);
 Object.assign(b8r, _iterators);
 Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHandleEventsOfType });
-Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListInstancePath });
+Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListPath, getListInstancePath });
 Object.assign(b8r, { onAny, offAny, anyListeners });
 Object.assign(b8r, _registry);
 b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement));

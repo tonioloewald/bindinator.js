@@ -69,3 +69,92 @@ model is automatically updated when the user changes the view. This just works.
 To learn about out all kinds of targets, as well as get more information about specific targets,
 see the documentation for ["to targets"](#source=source/b8r.toTargets.js) 
 and ["from targets"](#source=source/b8r.fromTargets.js)
+
+## The Binding Hierarchy
+
+A single element can have a `data-list`, `data-component`, and `data-bind` attribute. (It can also
+have a `data-event` attribute for that matter.)
+
+These bindings have a hierarchy -- that exact order -- i.e. the `data-list` binding is outermost
+and is always resolved first, while the `data-bind` binding is the innermost and always resolved last.
+Thus, `data-component` and `data-bind` bindings are "dormant" in a list-template, and `data-bind`
+bindings are "dormant" in an unloaded component.
+
+This means that you don't need concentric elements just to have a list of bound components.
+
+## Lists
+
+`b8r` provides extensive support for binding arrays to the DOM via the `data-list` attribute. Here's
+a simple example which binds a list of objects, each with a `name` property to an unordered
+list in the DOM.
+
+    <ul>
+      <li 
+        data-list="path.to.list"
+        data-bind="text=.name"
+      ></li>
+    </ul>
+
+### Convenience Mathods
+
+    b8r.getListInstance(element)
+
+`b8r.getListInstance` retrieves the array element corresponding to the `[data-list-instance]`
+the element belongs to.
+
+    b8r.getListInstancePath(element)
+
+`b8r.getListInstancePath` retrieves the data-path corresponding to the `[data-list-instance]`
+the element belongs to.
+
+    b8r.getListPath(element)
+
+`b8r.getListPath` retrieves the data-path corresponding to the list of which the `[data-list-instance]`
+is a member.
+
+    b8r.removeListInstance(element)
+
+`b8r.removeListInstance` removes the list member corresponding to the `[data-list-instance]`
+and updates the DOM.
+
+### Under the Hood
+
+Under the hood, `b8r` uses the DOM element with the `data-list` attribute as both a 
+__template__ and a __bookmark__ within the DOM. For each element in the bound list
+`b8r` will clone the template, remove its `data-list` attribute, add a `data-list-instance`
+attribute with a `path` to the list element's corresponding data, and then `bindAll` the
+list element.
+
+These clones are inserted in order before the list template.
+
+Assuming the `data-list` attribute is simply `path.to.list` the `data-list-instance`
+attributes will be `path.to.list[0]`, `path.to.list[1]` and so on.
+
+If an `id-path` is provided (see below), the path will use the `id-path`.
+
+### Efficient List Updates
+
+To help `b8r` update lists more efficiently, you can provide an `id-path` in a list binding.
+Typically, the `id-path` will simply be the name of some guaranteed unique object property
+from a service (e.g. `id`, `uuid`, `fooId`, or `foo_id`). This lets `b8r` ensure it can 
+tell exactly which list instance corresponds to a given item in a source `Array`.
+
+The format here is simply `data-list="path.to.list:id-path"`, e.g.
+
+    <ul>
+      <li 
+        data-list="path.to.list:id"
+        data-bind="text=.name"
+      ></li>
+    </ul>
+
+Sometimes you'll have a list with no unique id (or you may wish not to use the id, so that
+the user can, for example, add new items to the list without their round-tripping to the
+service layer). In such cases you can specify an `_auto_` generated id.
+
+    <ul>
+      <li 
+        data-list="path.to.list:_auto_"
+        data-bind="text=.name"
+      ></li>
+    </ul>
