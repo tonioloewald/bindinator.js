@@ -223,6 +223,7 @@ const DragItem = makeWebComponent('b8r-draggable', {
     type: 'text/plain;text/html',
     content: 'auto'
   },
+  content: false,
   eventHandlers: {
     dragstart (evt) {
       this.classList.add('drag-source')
@@ -264,6 +265,7 @@ const DropZone = makeWebComponent('b8r-dropzone', {
     type: 'text/plain;text/html',
     effect: 'copy'
   },
+  content: false,
   methods: {
     handleDrop: evt => false // return explicit `true` to prevent defaults
   },
