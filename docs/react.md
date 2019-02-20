@@ -68,22 +68,18 @@ in the constructor? Well that's because doing the most obvious thing:
 inserted in the virtual DOM element's props, and then `this` will point to the
 wrong thing, and the second most obvious thing -- putting `this.handleChange.bind(this)`
 here -- is an _antipattern_ which is typically addressed by a suitably configured
-linter screaming at you that because react is constantly calling render, binding 
-the method here runs the risk of leaking context like crazy.
+linter screaming at you (because you run the risk of leaking context every time
+you `render`, and you `render` a lot).
 
 If you want to know just how constantly react is calling `render`, put in a 
 `console.log` and watch it run every time you hit a key, and when you create a 
-new ToDo item.
+new <TodoList> item.
 
 Now, React does lots of clever stuff to avoid doing inefficient things like
 rebuilding DOM nodes unnecessarily. Still, it's interesting to turn on Chrome's
 "paint flashing" feature and see just what does get redrawn and when. The
-`<h3>` tag, for example, gets redrawn when a new item is created -- not sure 
-how that doesn't get optimized out.
-
-Also, imagine if the `<form>` and the `<ul>` were part of the same component or
-their state were slightly more entangled. You might easily end up re-rendering the
-list every time you entered a keystroke.
+`<h3>` tag, for example, gets redrawn when a new item is created -- I'm not sure 
+why that doesn't get optimized out.
 ```
             value={this.state.text}
           />
@@ -99,9 +95,14 @@ list every time you entered a keystroke.
     this.setState({ text: e.target.value });
   }
 ```
-When the `<input>` changes, `handleChange` takes the value, sets `state.text` to that value, 
+When the `<input>` changes, `handleChange` takes its value, sets `state.text` to that value, 
 which triggers a `render` which tells the DOM to set the `<input>.value` to the
-next value (which it already has, so never mind.)
+next value (which it already has because that's where it came from, so never mind.)
+
+Imagine if the `<form>` and the `<TodoList>` were slightly more entangled. 
+You might easily end up re-rendering the `<TodoList>` every time you entered a keystroke, 
+all so that React can tell itself to set the value of an `<input>` to the value it just 
+got from the `<input>`.
 ```
   handleSubmit(e) {
     e.preventDefault();
@@ -124,14 +125,14 @@ return `true` from an event handler to have the event continue "bubbling").
     }
 ```
 In `b8r` we would disable the submit button with a simple binding. Allowing the user
-to click the button but ignoring the click is a UI _antipattern_. Things that won't work
-should look and behave like they aren't going to work.
+to click the button but ignoring the click is an _antipattern_. Things that aren't 
+going to work should look and behave like they aren't going to work.
 ```
     const newItem = {
       text: this.state.text,
       id: Date.now()
 ```
-We need to mock a unique `id` because rendering arrays correctly in React requires a _unique_
+We need to create a unique `id` because rendering arrays correctly in React requires a _unique_
 key value, and using the index is not efficient (if the array gets reordered you may discover
 that you aren't correctly and/or efficiently redrawing the DOM). 
 
@@ -153,7 +154,8 @@ class TodoList extends React.Component {
         {this.props.items.map(item => (
           <li key={item.id}>{item.text}</li>
 ```
-Here's where the "unique" `id` gets used.
+Here's where the "unique" `id` gets used. It could just as easily use the array
+index in this case, but I guess the example was trying to be "realistic"?
 ```
         ))}
       </ul>
@@ -169,33 +171,40 @@ ReactDOM.render(
 
 ## b8r version
 
-The equivalent `b8r` ToDo list would look something like:
+The equivalent `b8r` ToDo list would looks like:
 
 ```
 <h3>ToDo</h3>
 <ul>
   <li data-list="_component_.list:_auto_" data-bind="text=.text"></li>
 ```
-Note the use of `_auto_` to get `b8r` to auto-generate unique ids for the array elements.
-If we wanted to do it the same was as React did, we'd generate `id` in some way, e.g. 
-[uuid](#source=lib/uuid.js), and have `data-list="_component_.list:id"` here.
+Note the use of `_auto_` to get `b8r` to auto-generate _unique_ ids for the array elements.
+(Not "probably" unique. Guaranteed unique.) If we wanted to do it the same was as React 
+did, we'd generate `id` in some way, e.g. [uuid](#source=lib/uuid.js), and have 
+`data-list="_component_.list:id"` here.
 
-A more realistic scenario would be you add the item (with no proper id) to the list
-and simultaneously call a service to store it on the server. When the request returns
-you can add the correct id to the object and `b8r` will smoothly update it using the 
-automatically generated `_auto_` id. If the service fails in some way you would handle 
-that by flagging the item for resend or whatever.
+A more realistic scenario would be to:
+
+1. add the item (with no proper id) to the list
+2. and then call a service to store it on the server. 
+3. When the request succeeds it will return the "real" object and you can add the correct (server-generated) id to the object, `b8r` can efficiently update it using the automatically generated `_auto_` id.
+4. If the service fails in some way flag the item for resend or remove it and display display an error or something.
 ```
 </ul>
 ```
-Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is bad,
-but we're trying to be like the React example so I've put one in and blocked the default 
-`onsubmit` behavior.
+Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is 
+often (usually!) not what you want, but we're trying to be like the React example so 
+I've put one in and blocked the default `onsubmit` behavior.
+
+All the `<form>` gets us is that pressing `Enter` in the `<input>` triggers a `click` in the `<button>`.
+I would ordinarily skip the `<form>` and put explicit event handlers for the `keydown` and the `click`.
+(**Aside**: `b8r` offers a convenience for key events -- you can write (for example) `data-event="keydown(Enter):...`
+to avoid writing a bunch of boilerplate filter code in the event handler.)
 
 A `b8r` component is a single "html" file (it's more of an html `fragment`). The `<script>` tag ends up as the body of an `async` `load` function that gets passed a bunch of useful methods, including `get` and `set` which provide convenient access to a component's private data. `_component_` refers to the component's private data in bindings.
 
-If a `b8r` component includes a `<style>` tag you can refer to the component's class -- 
-`<component-name>-component` by default -- as `_component_` in the component's CSS selectors,
+If a `b8r` component includes a `<style>` tag you can refer to the component's `class` -- 
+`<component-name>-component` -- as `_component_` in the component's CSS selectors,
 e.g. `._component_ { background: red; }`.
 
 Note that the React version defines `TodoList` as a subcomponent (corresponding to the `<ul>`
@@ -211,7 +220,7 @@ necessitate `addItem` exiting if `text` is empty.
 
 If we wanted to _exactly_ replicate the React example, we'd add `data-event="submit:_component_.addItem"`
 and then, like React, we'd have to exit if `text` were empty and we'd _still_ want to disable the
-button for usability.
+`<button>` for usability.
 ```
   <input
     placeholder="thing to do"
@@ -268,11 +277,11 @@ You could, of course, encapsulate the list as a sub-component in `b8r` too.
 the React version because you don't end up re-rendering the list every time you
 type a keystroke in the input field.)
 
-Because `b8r` doesn't have tooling to allow inline subcomponents, you'd need to break 
-out a new file or use `b8r`'s slightly ungainly syntax for defining components in pure javascript.
+Because `b8r` doesn't provide tooling to allow inline subcomponents (I've never felt
+a need), you'd need to break out a new file or use `b8r`'s slightly ungainly syntax 
+for defining components in pure javascript.
 
 So you'd end up wanting to define a component that looked like this:
-
 ```
 <ul>
   <li data-list="_data_:_auto_" data-bind="text=.text"></li>
@@ -291,7 +300,6 @@ And then compose it in the DOM thus:
 ```
 <b8r-component name="todo-list" data-path="_component_.list"></b8r-component>
 ```
-
 That's it!
 
 
