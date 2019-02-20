@@ -380,7 +380,7 @@ export default function (b8r) {
     _false_: v => v === false,
     _undefined_: v => v === undefined,
     _null_: v => v === null,
-    _empty_: v => typeof v === 'string' && !! v.trim()
+    _empty_: v => typeof v === 'string' && !!v.trim()
   }
 
   const equals = (valueToMatch, value) => {
