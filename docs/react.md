@@ -3,6 +3,9 @@
 I imagine a lot of potential users of `b8r` will be familiar with [ReactJS](https://reactjs.org/).
 Below I've included the React __ToDo__ example along with the same thing implemented using `b8r`.
 
+To see the ReactJS version in action is on the [ReactJS home page](https://reactjs.org/).
+The `b8r` version is [here](#source=todo-simple.component.html)
+
 I've annotated both with comments discussing how the two differ.
 
 ## React Version
@@ -27,6 +30,13 @@ class had a virtual method that could be overridden for this purpose.
 
 The last two lines exist solely because of React's need to pipe things around, even
 within a component. More on this below.
+
+(It's worth noting that __custom elements__ are also created via subclassing and
+run into similar issues. As a result of this, [web-components.js](#source=lib/web-components.js)
+automatically attaches event handlers to the component _instance_ in its constructor.
+The difference is that `b8r` doesn't assume the constructor needs to be overridden
+if the component does anything interesting, and handles the boilerplate function binding
+for you.)
 
 ```
   render() {
@@ -56,6 +66,10 @@ the risk of leaking context like crazy.
 
 If you want to know just how constantly react is calling `render`, put in a 
 console.log and watch it run every time you hit a key…
+
+Also, imagine if the form and the list were part of the same component or
+their state were slightly more entangled. You might end up re-rendering the
+list every time you entered a keystroke.
 ```
             value={this.state.text}
           />
@@ -137,6 +151,8 @@ ReactDOM.render(
 );
 ```
 
+## b8r version
+
 The equivalent `b8r` ToDo list would look something like:
 
 ```
@@ -152,13 +168,15 @@ have `data-list="_component_.list:id"` here.
 ```
 Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is bad, but we're trying to be like the React example so I've put one in and blocked the default onsubmit behavior.
 
-## b8r version
-
 A `b8r` component is a single "html" file (it's more of an html `fragment`). The `<script>` tag ends up as the body of an `async` `load` function that gets passed a bunch of useful methods, including `get` and `set` which provide convenient access to a component's private data. `_component_` refers to the component's private data in bindings.
 
 If a `b8r` component includes a `<style>` tag you can refer to the component's class -- 
 `<component-name>-component` by default -- as `_component_` in the component's CSS selectors,
 e.g. `._component_ { background: red; }`.
+
+Note that the React version defines `TodoList` as a subcomponent (corresponding to the `<ul>`
+tag) whereas we're just inlining it. I'll discuss this further at the end.
+
 ```
 <form data-event="submit:_b8r_.stopEvent">
 ```
@@ -215,6 +233,41 @@ Or, in "pure javascript", something like:
 ```
 b8r.component('path/to/todo-simple').then(c => b8r.insertComponent(c, document.body))
 ```
+
+### A final aside on sub-components…
+
+The entire ToDo "app" has been encapsulated as a single component
+here, whereas in the React example `TodoList` is a sub-component of the app.
+You could, of course, encapsulate the list as a sub-component in `b8r` too.
+
+(Realistically, why would you do this? You wouldn't. It maybe makes sense in
+the React version because you don't end up re-rendering the list every time you
+type a keystroke in the input field.)
+
+Because `b8r` doesn't have tooling to allow inline subcomponents, you'd need to break 
+out a new file or use `b8r`'s slightly ungainly syntax for defining components in pure javascript.
+
+So you'd end up wanting to define a component that looked like this:
+
+```
+<ul>
+  <li data-list="_data_:_auto_" data-bind="text=.text"></li>
+</ul>
+```
+And compose it thus:
+```
+<b8r-component path="path/to/todo-list" data-path="_component_.list"></b8r-component>
+```
+If we wanted to avoid creating a separate file for the component, we could
+define it inline thus:
+```
+b8r.makeComponent('todo-list', '<ul><li data-list="_data_:_auto_" data-bind="text=.text"></li></ul>')
+```
+And then compose it in the DOM thus:
+```
+<b8r-component name="todo-list" data-path="_component_.list"></b8r-component>
+```
+
 That's it!
 
 
