@@ -8,7 +8,7 @@ the submit button if there's no text.
 -->
 <h3>ToDo</h3>
 <ul>
-  <li data-list="_component_.list:id" data-bind="text=.text"></li>
+  <li data-list="_component_.list:_auto_" data-bind="text=.text"></li>
 </ul>
 <form data-event="submit:_b8r_.stopEvent">
   <input
@@ -28,7 +28,7 @@ the submit button if there's no text.
     nextItem: 1,
     addItem() {
       const {list, nextItem, text} = get()
-      list.push({text, id: Date.now()})
+      list.push({text})
       set({
         nextItem: nextItem + 1,
         list,

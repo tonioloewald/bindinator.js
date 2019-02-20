@@ -478,6 +478,7 @@ function bindList (listTemplate, dataPath) {
 
   const template = listTemplate.cloneNode(true)
   template.classList.remove('-b8r-empty-list')
+  if (template.classList.length === 0) template.removeAttribute('class')
   delete template.dataset.list
 
   /* Safari refuses to hide hidden options */

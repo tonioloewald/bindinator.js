@@ -158,3 +158,9 @@ service layer). In such cases you can specify an `_auto_` generated id.
         data-bind="text=.name"
       ></li>
     </ul>
+
+### Annotating Empty Lists
+
+If you want to provide feedback for an empty list, a list template (an element with the
+`data-list` attribute) will have the class `-b8r-empty-list` if bound to an empty or
+non-existent list.
