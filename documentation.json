@@ -35,6 +35,10 @@
         "path": "docs/css.md"
       },
       {
+        "name": "React vs. b8r",
+        "path": "docs/react.md"
+      },
+      {
         "name": "License",
         "path": "LICENSE.md"
       }
@@ -445,6 +449,10 @@
       {
         "name": "Hello",
         "path": "hello.component.html"
+      },
+      {
+        "name": "To Do (Simple)",
+        "path": "todo-simple.component.html"
       },
       {
         "name": "To Do",

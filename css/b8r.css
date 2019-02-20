@@ -127,6 +127,10 @@ label {
   vertical-align: baseline;
 }
 
+:disabled {
+  opacity: 0.5;
+}
+
 button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {

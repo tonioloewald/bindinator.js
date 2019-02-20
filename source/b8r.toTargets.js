@@ -364,6 +364,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 * `_false_`
 * `_undefined_`
 * `_null_`
+* `_empty_`
 */
 /* jshint expr: true */
 /* global console */
@@ -375,10 +376,11 @@ import '../third-party/date.format.js'
 
 export default function (b8r) {
   const specialValues = {
-    '_true_': true,
-    '_false_': false,
-    '_undefined_': undefined,
-    '_null_': null
+    _true_: v => v === true,
+    _false_: v => v === false,
+    _undefined_: v => v === undefined,
+    _null_: v => v === null,
+    _empty_: v => typeof v === 'string' && !! v.trim()
   }
 
   const equals = (valueToMatch, value) => {
@@ -386,7 +388,7 @@ export default function (b8r) {
       value = value.replace(/&nbsp;/g, '').trim()
     }
     if (specialValues.hasOwnProperty(valueToMatch)) {
-      return value === specialValues[valueToMatch]
+      return specialValues[valueToMatch](value)
     } else if (valueToMatch !== undefined) {
       return value == valueToMatch // eslint-disable-line eqeqeq
     } else {

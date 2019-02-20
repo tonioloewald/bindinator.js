@@ -85,7 +85,7 @@ And `b8r` is lazy too.
 - Don't do things for the browser that the browser knows how to do (like
 parse HTML).
 - Don't implement a new templating language.
-- Don't implement special debugging tools. 
+- Don't require special debugging tools. 
 - Don't add zillions of runtime dependencies.
 
 ### Bind Data to the DOM with `data-bind`
@@ -181,6 +181,13 @@ You can load a component using `b8r.component('path/to/example')`. Once
 loaded, it will automatically be inserted where-ever you use `<b8r-component name="example">`.
 Components can be nested exactly as you would expect.
 
+### Supports Web-Components
+
+`b8r` provides [convenience methods](#source=lib/web-components.js) for creating 
+[Web Components](https://www.webcomponents.org/), a.k.a. Custom Elements, and its bindings 
+play nice with them (e.g. waiting for a custom-element's  definition before attempting to bind 
+values to it).
+
 ### Add components with `<b8r-component>`
 
 A **stateful component** looks like this:
@@ -190,7 +197,7 @@ A **stateful component** looks like this:
 And to use the preceding component, you'd write something like this:
 
 ```
-<b8r-component path="path/to/time"></b8r-component>
+<b8r-component path="path/to/clock"></b8r-component>
 ```
 
 You can build a **To Do List** app like this:
@@ -238,6 +245,7 @@ need to use an iframe.
 - bind arrays to the DOM using `data-list`.
 - bind events to event handlers using `data-event`.
 - bind components to the DOM using `<b8r-component>`.
+- use [web-components](https://www.webcomponents.org/) without worrying about binding.
 
 We can register data (*models* and *controllers*) and load components (*views*) asynchronously.
 If the user clicks the button before the controller is registered, the controller method will be

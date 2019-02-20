@@ -1,0 +1,39 @@
+<!--
+# ToDo (Simple)
+
+This example is based on the React "to do" example. It exactly
+mirrors the React example except that instead of rejecting submit
+events if there's no text (which is a UI antipattern), it disables 
+the submit button if there's no text.
+-->
+<h3>ToDo</h3>
+<ul>
+  <li data-list="_component_.list:id" data-bind="text=.text"></li>
+</ul>
+<form data-event="submit:_b8r_.stopEvent">
+  <input
+    placeholder="thing to do"
+    data-bind="value=_component_.text"
+  >
+  <button 
+    data-bind="enabled_if=_component_.text;text=Add #${_component_.nextItem}"
+    data-event="click:_component_.addItem"
+  ></button>
+</form>
+<script>
+  /* global get, set */
+  set({
+    list: [],
+    text: '',
+    nextItem: 1,
+    addItem() {
+      const {list, nextItem, text} = get()
+      list.push({text, id: Date.now()})
+      set({
+        nextItem: nextItem + 1,
+        list,
+        text: ''
+      })
+    }
+  })
+</script>
