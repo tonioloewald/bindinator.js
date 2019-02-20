@@ -5,6 +5,7 @@ Below I've included the React __ToDo__ example along with the same thing impleme
 
 To see the ReactJS version in action, go to the [ReactJS home page](https://reactjs.org/). It's
 one of the interactive examples. The `b8r` version is [here](#source=todo-simple.component.html)
+(this link won't work if you're reading this in github).
 
 ## React Version
 
