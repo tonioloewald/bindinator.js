@@ -78,9 +78,9 @@ new <TodoList> item.
 
 Now, React does lots of clever stuff to avoid doing inefficient things like
 rebuilding DOM nodes unnecessarily. Still, it's interesting to turn on Chrome's
-"paint flashing" feature and see just what does get redrawn and when. The
-`<h3>` tag, for example, gets redrawn when a new item is created -- I'm not sure 
-why that doesn't get optimized out.
+_performance > rendering > paint flashing_ tool and see just what does get redrawn 
+and when. The `<h3>` tag, for example, gets redrawn when a new item is created -- 
+I'm not sure why that doesn't get optimized out…
 ```
             value={this.state.text}
           />
@@ -98,7 +98,8 @@ why that doesn't get optimized out.
 ```
 When the `<input>` changes, `handleChange` takes its value, sets `state.text` to that value, 
 which triggers a `render` which tells the DOM to set the `<input>.value` to the
-next value (which it already has because that's where it came from, so never mind.)
+newly updated `state.text` (which it already has because that's where it came from, 
+so never mind.)
 
 Imagine if the `<form>` and the `<TodoList>` were slightly more entangled. 
 You might easily end up re-rendering the `<TodoList>` every time you entered a keystroke, 
