@@ -194,35 +194,32 @@ A more realistic scenario would be to:
 ```
 </ul>
 ```
-Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is 
-often (usually!) not what you want, but we're trying to be like the React example so 
-I've put one in and blocked the default `onsubmit` behavior.
-
-All the `<form>` gets us is that pressing `Enter` in the `<input>` triggers a `click` in the `<button>`.
-I would ordinarily skip the `<form>` and put explicit event handlers for the `keydown` and the `click`.
-(**Aside**: `b8r` offers a convenience for key events -- you can write (for example) `data-event="keydown(Enter):...`
-to avoid writing a bunch of boilerplate filter code in the event handler.)
-
-A `b8r` component is a single "html" file (it's more of an html `fragment`). The `<script>` tag ends up as the body of an `async` `load` function that gets passed a bunch of useful methods, including `get` and `set` which provide convenient access to a component's private data. `_component_` refers to the component's private data in bindings.
-
-If a `b8r` component includes a `<style>` tag you can refer to the component's `class` -- 
-`<component-name>-component` -- as `_component_` in the component's CSS selectors,
-e.g. `._component_ { background: red; }`.
-
 Note that the React version defines `TodoList` as a subcomponent (corresponding to the `<ul>`
 tag) whereas we're just inlining it. I'll discuss this further at the end.
 
 ```
 <form data-event="submit:_b8r_.stopEvent">
 ```
-We don't want the form to reload the page. Ordinarily, I simply wouldn't use a `<form>` because
-the default behavior of forms is pathological, and instead add 
-`data-event="keydown(Enter):_component_.addItem"` to the `<input>` field (which would then
-necessitate `addItem` exiting if `text` is empty.
+Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is 
+often (usually!) not what you want, but we're trying to be like the React example so 
+I've put one in and blocked the default `onsubmit` behavior.
 
-If we wanted to _exactly_ replicate the React example, we'd add `data-event="submit:_component_.addItem"`
-and then, like React, we'd have to exit if `text` were empty and we'd _still_ want to disable the
-`<button>` for usability.
+The `<form>` saves us putting an event handler on the `<input>`.
+My preference would be to skip the `<form>` and put explicit event handlers 
+for the `keydown` (on the `<input>`) and the `click` (on the `<button>`).
+
+**Aside**: `b8r` offers a convenience for key events -- you can write (for example) 
+`data-event="keydown(Enter):...` to avoid writing a bunch of boilerplate filter code 
+in the event handler.
+
+A `b8r` component is a single "html" file (it's more of an html `fragment`). The `<script>` 
+tag ends up as the body of an `async` `load` function that gets passed a bunch of useful 
+methods, including `get` and `set` which provide convenient access to a component's private 
+data. `_component_` refers to the component's private data in bindings.
+
+If a `b8r` component includes a `<style>` tag you can refer to the component's `class` -- 
+`<component-name>-component` -- as `_component_` in the component's CSS selectors,
+e.g. `._component_ { background: red; }`.
 ```
   <input
     placeholder="thing to do"
@@ -268,7 +265,6 @@ Or, in "pure javascript", something like:
 ```
 b8r.component('path/to/todo-simple').then(c => b8r.insertComponent(c, document.body))
 ```
-
 ### A final aside on sub-components…
 
 The entire ToDo "app" has been encapsulated as a single component
