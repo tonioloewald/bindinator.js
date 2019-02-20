@@ -3,10 +3,8 @@
 I imagine a lot of potential users of `b8r` will be familiar with [ReactJS](https://reactjs.org/).
 Below I've included the React __ToDo__ example along with the same thing implemented using `b8r`.
 
-To see the ReactJS version in action is on the [ReactJS home page](https://reactjs.org/).
-The `b8r` version is [here](#source=todo-simple.component.html)
-
-I've annotated both with comments discussing how the two differ.
+To see the ReactJS version in action, go to the [ReactJS home page](https://reactjs.org/). It's
+one of the interactive examples. The `b8r` version is [here](#source=todo-simple.component.html)
 
 ## React Version
 
@@ -24,9 +22,7 @@ The first line is a consequence of React creating components via subclassing.
 
 The whole classical inheritance pattern (even though under the hood Javascript
 does prototypical inheritance) means that if a subclass fails to call an 
-inherited method correctly things can go wrong, sometimes in subtle ways. 
-It would be better if super(props) were a guaranteed behavior and the Component 
-class had a virtual method that could be overridden for this purpose.
+inherited method correctly things can go wrong, sometimes in subtle ways.
 
 The last two lines exist solely because of React's need to pipe things around, even
 within a component. More on this below.
@@ -47,6 +43,17 @@ for you.)
         <form onSubmit={this.handleSubmit}>
 ```
 Two lines of code that simply pass the parcel and rename it.
+
+Interestingly, because `items` is part of the outer component's
+state, changing it triggers renders of the inner and outer object,
+even though the outer object doesn't do any rendering of its own
+that relies on items.
+
+(Of course, React lets you write shouldComponentUpdate and reject
+rendering if something you don't care changes but, it won't actually
+work here since if `state.items` changes you need to communicate this to
+`<TodoList>` -- by needlessly rendering everything in `<TodoApp>`. So all
+that complexity buys you… what?)
 ```
           <label htmlFor="new-todo">
             What needs to be done?
@@ -58,17 +65,24 @@ Two lines of code that simply pass the parcel and rename it.
 Remember how we had `this.handleChange = this.handleChange.bind(this)`
 in the constructor? Well that's because doing the most obvious thing:
 -- putting `this.handleChange` here -- won't work, because it's going to be
-inserted in the virtual DOM element's props, and `this` will point at the
+inserted in the virtual DOM element's props, and then `this` will point to the
 wrong thing, and the second most obvious thing -- putting `this.handleChange.bind(this)`
-here -- is an _antipattern_ which is typically addressed by the linter screaming at
-you that because react is constantly calling render, binding the method here runs 
-the risk of leaking context like crazy.
+here -- is an _antipattern_ which is typically addressed by a suitably configured
+linter screaming at you that because react is constantly calling render, binding 
+the method here runs the risk of leaking context like crazy.
 
 If you want to know just how constantly react is calling `render`, put in a 
-console.log and watch it run every time you hit a key…
+`console.log` and watch it run every time you hit a key, and when you create a 
+new ToDo item.
 
-Also, imagine if the form and the list were part of the same component or
-their state were slightly more entangled. You might end up re-rendering the
+Now, React does lots of clever stuff to avoid doing inefficient things like
+rebuilding DOM nodes unnecessarily. Still, it's interesting to turn on Chrome's
+"paint flashing" feature and see just what does get redrawn and when. The
+`<h3>` tag, for example, gets redrawn when a new item is created -- not sure 
+how that doesn't get optimized out.
+
+Also, imagine if the `<form>` and the `<ul>` were part of the same component or
+their state were slightly more entangled. You might easily end up re-rendering the
 list every time you entered a keystroke.
 ```
             value={this.state.text}
@@ -89,7 +103,6 @@ When the `<input>` changes, `handleChange` takes the value, sets `state.text` to
 which triggers a `render` which tells the DOM to set the `<input>.value` to the
 next value (which it already has, so never mind.)
 ```
-
   handleSubmit(e) {
     e.preventDefault();
 ```
@@ -97,8 +110,8 @@ An interesting case where `b8r` is less "vanilla" than React, which is especiall
 since React has its own entire event system and `b8r` doesn't.
 
 If we're going to have our own event system, why not make the common case (handle events ONCE) 
-the default? But because React faitfully re-implements Javascript's default behavior (only
-with synthetic events), we have to prevent that default behavior.
+the default? But because React faithfully re-implements the DOM's default behavior (only
+with synthetic events), we still have to prevent that default behavior.
 
 `b8r` leverages the browser's intrinsic event system, but always "captures" events and, by
 default, halts propagation of an event when it has been handled once. (You can explicitly
@@ -112,15 +125,18 @@ return `true` from an event handler to have the event continue "bubbling").
 ```
 In `b8r` we would disable the submit button with a simple binding. Allowing the user
 to click the button but ignoring the click is a UI _antipattern_. Things that won't work
-should look like they aren't working.
+should look and behave like they aren't going to work.
 ```
     const newItem = {
       text: this.state.text,
       id: Date.now()
 ```
-We need to mock a unique `id` because rendering arrays correctly in React requires a unique
-key value, and using the index is not efficient (if the array gets reordered). In `b8r` if you
-don't have a unique key, you can use `_auto_` and `b8r` will create the unique ids for you.
+We need to mock a unique `id` because rendering arrays correctly in React requires a _unique_
+key value, and using the index is not efficient (if the array gets reordered you may discover
+that you aren't correctly and/or efficiently redrawing the DOM). 
+
+In `b8r` if you don't have a unique key, you can use `_auto_` and `b8r` will create the unique 
+ids for you. If you don't have a unique key, `b8r` will just handle updates less efficiently.
 ```
     };
     this.setState(state => ({
@@ -161,12 +177,20 @@ The equivalent `b8r` ToDo list would look something like:
   <li data-list="_component_.list:_auto_" data-bind="text=.text"></li>
 ```
 Note the use of `_auto_` to get `b8r` to auto-generate unique ids for the array elements.
-If we wanted to do it the same was as React did, we'd generate `id` the same way and 
-have `data-list="_component_.list:id"` here.
+If we wanted to do it the same was as React did, we'd generate `id` in some way, e.g. 
+[uuid](#source=lib/uuid.js), and have `data-list="_component_.list:id"` here.
+
+A more realistic scenario would be you add the item (with no proper id) to the list
+and simultaneously call a service to store it on the server. When the request returns
+you can add the correct id to the object and `b8r` will smoothly update it using the 
+automatically generated `_auto_` id. If the service fails in some way you would handle 
+that by flagging the item for resend or whatever.
 ```
 </ul>
 ```
-Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is bad, but we're trying to be like the React example so I've put one in and blocked the default onsubmit behavior.
+Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is bad,
+but we're trying to be like the React example so I've put one in and blocked the default 
+`onsubmit` behavior.
 
 A `b8r` component is a single "html" file (it's more of an html `fragment`). The `<script>` tag ends up as the body of an `async` `load` function that gets passed a bunch of useful methods, including `get` and `set` which provide convenient access to a component's private data. `_component_` refers to the component's private data in bindings.
 
