@@ -1,27 +1,15 @@
 <div style="text-align: center">
   <img
     alt="bindinator b∞r logo"
-    style="width: 300px; height: 300px; padding: 5vh 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"
+    style="width: 400px; height: 400px; padding: 5vh 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"
     src="https://bindinator.com/images/bindinator-logo.svg"
   >
 </div>
 
 [bindinator.com](http://bindinator.com/) |
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
-[github](https://github.com/tonioloewald/bindinator.js)
-
-> ### News
->
-> `b8r` is now available as an [npm package](https://www.npmjs.com/package/@tonioloewald/b8r).
->
-> `b8r` now includes a `dist` subdirectory with single file bundles of `b8r`. Minified
-> and gzipped, `b8r` continues to come in under 20kB.
-> 
-> `b8r` now uses `import` and not `require`. This is a *breaking change*.
-> I've written [documentation to help with migration](#source=docs/import.md).
->
-> Finally, `b8r` has been conformed to [standardjs](https://standardjs.com/) — no more semicolons!
-> (Still working on the component library, because it doesn't lint cleanly.)
+[github](https://github.com/tonioloewald/bindinator.js) | 
+[npm](https://www.npmjs.com/package/@tonioloewald/b8r)
 
 ## b8r in 5 minutes
 
