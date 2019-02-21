@@ -272,8 +272,8 @@ here, whereas in the React example `TodoList` is a sub-component of the app.
 You could, of course, encapsulate the list as a sub-component in `b8r` too.
 
 (Realistically, why would you do this? You wouldn't. It maybe makes sense in
-the React version because you don't end up re-rendering the list every time you
-type a keystroke in the input field.)
+the React version because by doing this you don't end up re-rendering the list 
+every time you type a keystroke in the input field.)
 
 Because `b8r` doesn't provide tooling to allow inline subcomponents (I've never felt
 a need), you'd need to break out a new file or use `b8r`'s slightly ungainly syntax 
