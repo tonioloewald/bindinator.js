@@ -117,6 +117,26 @@ is a member.
 `b8r.removeListInstance` removes the list member corresponding to the `[data-list-instance]`
 and updates the DOM.
 
+### Sorting, Filtering — Computed List Bindings
+
+You can bind to a method (by path) so long as the method returns a filtered subset
+of the source list, so:
+
+    <ul>
+      <li 
+        data-list="path.to.filter(path.to.list):id-path"
+        data-bind="text=.name"
+      ></li>
+    </ul>
+
+Will allow you to dynamically filter, sort, or otherwise rearrange the source list.
+
+The individual list instances will have paths derived from the source list, so
+(for example) `path.to.list[uuid=9884698d-2f44-43a6-9c6f-30098e84f233]`. If no
+id-path is provided, the indices will be wrong (but it won't matter because
+the existing elements will be blown away on refresh -- which is why you should
+use id-paths!)
+
 ### Under the Hood
 
 Under the hood, `b8r` uses the DOM element with the `data-list` attribute as both a 
