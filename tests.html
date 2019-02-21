@@ -91,6 +91,8 @@
         third
       </label>
       <span data-bind="text=test1.radio"></span>
+      <h4>Computed List</h4>
+      <div data-list="computedList.oddOnly(computedList.list)" data-bind="text=.value"></div>
       <h4>Complex Bindings</h4>
       <ul id="complex-list">
         <li data-list="test1.complex_list:id"><span data-component="show-bar" data-path=".foo"></span></li>
@@ -153,6 +155,10 @@
       radio: 'second',
       bind_path: 'test1.complex_list[id=-3].foo',
     };
+    const computedList = {
+      oddOnly: (list) => list.filter(item => item.value % 2),
+      list: [{value: 1}, {value: 2}, {value: 3}]
+    }
     b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
     Test(() => getByPath(obj, '')).shouldBe(obj);
     Test(() => getByPath(obj, '/')).shouldBe(obj);
@@ -367,5 +373,18 @@
       shouldBe('Marion Zimmer Bradley');
     Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list update')[4].textContent).
       shouldBe('Elrond');
+    
+    Test(() => { 
+      b8r.register('computedList', computedList)
+      b8r.forceUpdate()
+      return b8r.find('[data-list-instance*="computedList"]').length
+    }).shouldBe(0);
+    Test(async () => { 
+      const listTemplate = b8r.findOne('[data-list="computedList.oddOnly(computedList.list)"]')
+      listTemplate.dataset.list += ':_auto_'
+      b8r.touchElement(listTemplate)
+      b8r.forceUpdate()
+      return b8r.find('[data-list-instance*="computedList"]').length
+    }).shouldBe(2);
   </script>
 </body>

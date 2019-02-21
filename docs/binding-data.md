@@ -133,9 +133,7 @@ Will allow you to dynamically filter, sort, or otherwise rearrange the source li
 
 The individual list instances will have paths derived from the source list, so
 (for example) `path.to.list[uuid=9884698d-2f44-43a6-9c6f-30098e84f233]`. If no
-id-path is provided, the indices will be wrong (but it won't matter because
-the existing elements will be blown away on refresh -- which is why you should
-use id-paths!)
+id-path is provided, `b8r.bindList` will `throw` an exception.
 
 ### Under the Hood
 
