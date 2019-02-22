@@ -115,9 +115,10 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       const bodies = [...this.children].filter(body => !body.dataset.list)
       tabs.innerHTML = ''
       const attributes = { tabIndex: 0 }
+      const closeButtonAttributes = { title: 'close tab' }
       bodies.forEach((body, idx) => {
         const name = body.getAttribute('name') || 'untitled'
-        const closeButton = button({ content: '×' })
+        const closeButton = button({ attributes: closeButtonAttributes, content: '×' })
         const content = [span({ content: name }), closeButton]
         const tab = span({ attributes, content })
         body._tab = tab
