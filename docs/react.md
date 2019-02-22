@@ -1,4 +1,18 @@
-# React vs. b8r
+# React vs b8r
+
+React and `b8r` deal with the same key problem in different ways. _How to tell when the application's state changes and then correctly update the user interface._ 
+
+If you imagine that state is stored in an object, let's call it `props`, then it's hard to tell when it changes, e.g. somewhere in your program someone writes `props.foo.bar = 17`.
+
+React takes a _functional_ approach, based on the idea that the user interface should be a (side-effect free, mostly) product of the application's state. Change the state, then re-render the user interface based on the state, using various optimizations to avoid rebuilding things that don't need to change.
+
+`b8r` instead says, "if you promise to story your state in my registry and either change it by telling me to change it or tell me if you change it behind my back, I'll keep everything up-to-date". It does this by being very good at figuring out precisely which bits of the UI care about precisely which bits of state.
+
+There are lots of wrinkles, optimizations, and implications to each approach. And both frameworks do similar things to minimize perturbations to the DOM (although `b8r` does not use a "virtual DOM"). 
+
+I happen to think `b8r` is simpler, easier to grok, and easier to work with, but clearly plenty of people love React. I also object to React being a "platform abstraction layer". (`b8r` really isn't, it's more like a platform "toolbox".) A lot of the ideas in `b8r` have appeared in part or in full in other frameworks, but I think `b8r` offers a unique blend of completeness and simplicity. E.g. it does not rely on custom tooling, new templating languages, or transpilation.
+
+## React vs. b8r — ToDo List Example
 
 I imagine a lot of potential users of `b8r` will be familiar with [ReactJS](https://reactjs.org/).
 Below I've included the React __ToDo__ example along with the same thing implemented using `b8r`.
@@ -7,7 +21,7 @@ To see the ReactJS version in action, go to the [ReactJS home page](https://reac
 one of the interactive examples. The `b8r` version is [here](#source=todo-simple.component.html)
 (this link won't work if you're reading this in github).
 
-## React Version
+### React Version
 
 ```
 class TodoApp extends React.Component {
@@ -171,7 +185,7 @@ ReactDOM.render(
 );
 ```
 
-## b8r version
+### b8r version
 
 The equivalent `b8r` ToDo list would looks like:
 
@@ -265,7 +279,7 @@ Or, in "pure javascript", something like:
 ```
 b8r.component('path/to/todo-simple').then(c => b8r.insertComponent(c, document.body))
 ```
-### A final aside on sub-components…
+#### A final aside on sub-components…
 
 The entire ToDo "app" has been encapsulated as a single component
 here, whereas in the React example `TodoList` is a sub-component of the app.
@@ -275,7 +289,7 @@ You could, of course, encapsulate the list as a sub-component in `b8r` too.
 the React version because by doing this you don't end up re-rendering the list 
 every time you type a keystroke in the input field.)
 
-Because `b8r` doesn't provide tooling to allow inline subcomponents (I've never felt
+Because `b8r` doesn't provide a really easy way to write inline subcomponents (I've never found
 a need), you'd need to break out a new file or use `b8r`'s slightly ungainly syntax 
 for defining components in pure javascript.
 
@@ -298,6 +312,9 @@ And then compose it in the DOM thus:
 ```
 <b8r-component name="todo-list" data-path="_component_.list"></b8r-component>
 ```
+This is quite similar to what's going on in React chiefly because the outer component
+is sharing its _private_ data with the inner component.
+
 That's it!
 
 
