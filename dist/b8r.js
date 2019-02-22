@@ -3696,7 +3696,7 @@ This lets you pick between two classes.
 
 ### enabled\_if, enabled\_if(), disabled\_if, disabled\_if()
 
-    data-bind="enabled_if=_data_.editable"
+    data-bind="enabled_if=path.to.editable"
 
 This shows (or hides) an element based on whether a bound value is truthy or
 matches the provided parameter.
@@ -5553,6 +5553,9 @@ function bindList (listTemplate, dataPath) {
   let list = b8r.get(listPath);
   if (!list) {
     return
+  }
+  if (methodPath && !idPath) {
+    throw new Error(`data-list="${listTemplate.dataset.list}" -- computed list requires id-path`)
   }
   // assign unique ids if _auto_ id-path is specified
   if (idPath === '_auto_') {
