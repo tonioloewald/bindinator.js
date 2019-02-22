@@ -14,13 +14,13 @@ and rich content in tabs, and assignment of specific values to tabs
 (versus indices).
 
 ```
-    <b8r-tab-selector>
-      <div name="first" style="padding: 20px">first tab content</div>
-      <div name="second" style="padding: 20px">second tab content</div>
-    </b8r-tab-selector>
-    <script>
-      await import('../web-components/tabs.js');
-    </script>
+<b8r-tab-selector closeable>
+  <div name="first" style="padding: 20px">first tab content</div>
+  <div name="second" style="padding: 20px">second tab content</div>
+</b8r-tab-selector>
+<script>
+  await import('../web-components/tabs.js');
+</script>
 ```
 */
 /* global requestAnimationFrame */
@@ -30,12 +30,14 @@ import {
   div,
   span,
   slot,
+  button,
   makeWebComponent
 } from '../lib/web-components.js'
 
 const TabSelector = makeWebComponent('b8r-tab-selector', {
   attributes: {
-    value: 0
+    value: 0,
+    closeable: false,
   },
   style: {
     ':host': {
@@ -54,10 +56,13 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       borderColor: '#ccc',
       padding: '5px 5px 0 5px',
       display: 'flex',
-      flexShrink: 0
+      flexShrink: 0,
+      position: 'relative'
     },
     '.tabs > span': {
       flex: '1 1 auto',
+      display: 'flex',
+      maxWidth: '50%',
       whitespace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
@@ -68,6 +73,15 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       borderBottom: '1px solid transparent',
       cursor: 'default',
       margin: '-1px'
+    },
+    '.tabs > span > span' : {
+      flexGrow: 1
+    },
+    '.tabs > span > span+button': {
+      border: 0,
+      background: 'transparent',
+      flexGrow: 0,
+      margin: '0 -5px'
     },
     '.tabs > .selected': {
       background: 'white',
@@ -97,16 +111,25 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       // but should cause no problems for vanilla js.
       const bodies = [...this.children].filter(body => !body.dataset.list)
       tabs.innerHTML = ''
+      const attributes = { tabIndex: 0 }
       bodies.forEach((body, idx) => {
-        const tab = span({
-          attributes: { tabIndex: 0 },
-          content: body.getAttribute('name') || 'untitled'
-        })
+        const name = body.getAttribute('name') || 'untitled'
+        const content = [span({content: name})]
+        if (this.closeable) {
+          const closeButton = button({content: '×'})
+          content.push(closeButton)
+        }
+        const tab = span({attributes, content})
         body._tab = tab
         tab.addEventListener('keydown', (evt) => {
           switch (evt.code) {
             case 'Space':
-              this.pickTab(idx)
+              if (evt.composedPath()[0].matches('button')) {
+                this.value -= 1
+                body.remove()
+              } else {
+                this.pickTab(idx) 
+              }
               break
             case 'ArrowRight':
               this.pickTab(idx < bodies.length - 1 ? idx + 1 : 0)
@@ -116,13 +139,20 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
               break
           }
         })
-        tab.addEventListener('click', () => this.pickTab(idx))
+        tab.addEventListener('click', (evt) => {
+          if (evt.composedPath()[0].matches('button')) {
+            this.value -= 1
+            body.remove()
+          } else {
+            this.pickTab(idx) 
+          }
+        })
         tabs.appendChild(tab)
       })
       this._bodies = bodies
     },
     render () {
-      const value = this.value && this.value <= this._bodies.length
+      const value = this.value >= 0 && this.value <= this._bodies.length 
         ? this.value
         : 0
       this._bodies.forEach((body, idx) => {
