@@ -37,7 +37,7 @@ import {
 const TabSelector = makeWebComponent('b8r-tab-selector', {
   attributes: {
     value: 0,
-    closeable: false,
+    closeable: false
   },
   style: {
     ':host': {
@@ -74,7 +74,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       cursor: 'default',
       margin: '-1px'
     },
-    '.tabs > span > span' : {
+    '.tabs > span > span': {
       flexGrow: 1
     },
     '.tabs > span > span+button': {
@@ -114,12 +114,12 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       const attributes = { tabIndex: 0 }
       bodies.forEach((body, idx) => {
         const name = body.getAttribute('name') || 'untitled'
-        const content = [span({content: name})]
+        const content = [span({ content: name })]
         if (this.closeable) {
-          const closeButton = button({content: '×'})
+          const closeButton = button({ content: '×' })
           content.push(closeButton)
         }
-        const tab = span({attributes, content})
+        const tab = span({ attributes, content })
         body._tab = tab
         tab.addEventListener('keydown', (evt) => {
           switch (evt.code) {
@@ -128,7 +128,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
                 this.value -= 1
                 body.remove()
               } else {
-                this.pickTab(idx) 
+                this.pickTab(idx)
               }
               break
             case 'ArrowRight':
@@ -144,7 +144,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
             this.value -= 1
             body.remove()
           } else {
-            this.pickTab(idx) 
+            this.pickTab(idx)
           }
         })
         tabs.appendChild(tab)
@@ -152,7 +152,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       this._bodies = bodies
     },
     render () {
-      const value = this.value >= 0 && this.value <= this._bodies.length 
+      const value = this.value >= 0 && this.value <= this._bodies.length
         ? this.value
         : 0
       this._bodies.forEach((body, idx) => {

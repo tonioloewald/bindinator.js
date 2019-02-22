@@ -430,7 +430,7 @@ function bindList (listTemplate, dataPath) {
     return
   }
   if (methodPath && !idPath) {
-    throw `data-list="${listTemplate.dataset.list}" -- computed list requires id-path`
+    throw new Error(`data-list="${listTemplate.dataset.list}" -- computed list requires id-path`)
   }
   // assign unique ids if _auto_ id-path is specified
   if (idPath === '_auto_') {
