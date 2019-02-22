@@ -279,7 +279,7 @@ This lets you pick between two classes.
 
 ### enabled\_if, enabled\_if(), disabled\_if, disabled\_if()
 
-    data-bind="enabled_if=_data_.editable"
+    data-bind="enabled_if=path.to.editable"
 
 This shows (or hides) an element based on whether a bound value is truthy or
 matches the provided parameter.
