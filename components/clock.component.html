@@ -8,7 +8,7 @@ Also note that the domInterval is automatically removed when/if element provided
 is no longer in the DOM (versus needing to be manually stopped as part of a life-cycle).
 -->
 <style>
-  ._component_ > input {
+  ._component_ > span {
     display: inline-block;
     font-size: 30px;
     font-family: Monaco, Menlo, monospace;
@@ -20,10 +20,10 @@ is no longer in the DOM (versus needing to be manually stopped as part of a life
     width: 240px;
   }
 </style>
-<input data-bind="value=_component_.time" disabled>
+<span data-bind="text=_component_.time"><span>
 <script>
   /* global set, findOne */
   const {domInterval} = await import('../lib/dom-timers.js');
-  const clock = findOne('input');
+  const clock = findOne('span');
   domInterval(clock, () => set('time', new Date().toLocaleTimeString()), 100);
 </script>
