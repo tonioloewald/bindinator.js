@@ -134,11 +134,33 @@ Documentation in markdown format.
 
 This would be saved as, for example, `example.component.html`.
 
+### loading components with <b8r-component>
+
+The easiest way to insert a `b8r` component is to use a `<b8r-component>` custom element.
+
+You can use a component by `path` (which automatically loads the component if necessary) or
+by `name` if a component is already (or will be) loaded (e.g. via `b8r.component`, as per below, 
+or by another `<b8r-component>`)
+
+E.g.
+
+```
+<b8r-component path="path/to/some-component"></b8r-component>
+```
+
+Or
+
+```
+<b8r-component name="some-component"></b8r-component>
+...
+b8r.component('path/to/some-component')
+```
+
 ### loading components with b8r.component
 
 Having created a component, you can load it using `b8r.component('path/to/component_name')` (omit the `.component.html`). This returns a `promise` of the component object itself (in case you want to write code that is contingent on a component having loaded).
 
-### binding components with data-component
+### binding components with data-component (deprecated)
 
 The simplest way to use components is to bind them to DOM elements using `data-component` using `data-component`.
 
