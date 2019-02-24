@@ -50,10 +50,12 @@ register({
 
   custom_dialog: () => {
     b8r.component('reactor-dialog').then(
-      () => b8r.insertComponent(
-        'reactor-dialog',
+      (dialog) => b8r.insertComponent(
+        dialog,
         false,
-        { callback: (evt, component) => result.textContent = 'reactor setting: ' + b8r.findOneWithin(component, 'input').value }
+        {
+          callback: (evt, component) => result.textContent = 'reactor setting: ' + b8r.findOneWithin(component, 'input').value
+        }
       )
     )
   }
