@@ -6,7 +6,7 @@ If you imagine that state is stored in an object, let's call it `props`, then it
 
 React takes a _functional_ approach, based on the idea that the user interface should be a (side-effect free, mostly) product of the application's state. Change the state, then re-render the user interface based on the state, using various optimizations to avoid rebuilding things that don't need to change.
 
-`b8r` instead says, "if you promise to story your state in my registry and either change it by telling me to change it or tell me if you change it behind my back, I'll keep everything up-to-date". It does this by being very good at figuring out precisely which bits of the UI care about precisely which bits of state.
+`b8r` instead says, "if you promise to store your state in my registry and either change it by telling me to change it or tell me if you change it behind my back, I'll keep everything up-to-date". It does this by being very good at figuring out precisely which bits of the UI care about precisely which bits of state.
 
 There are lots of wrinkles, optimizations, and implications to each approach. And both frameworks do similar things to minimize perturbations to the DOM (although `b8r` does not use a "virtual DOM"). 
 
@@ -33,7 +33,7 @@ class TodoApp extends React.Component {
   }
 ```
 
-The first line is a consequence of React creating components via subclassing.
+The first line of the constructor is a consequence of React creating components via subclassing.
 
 The whole classical inheritance pattern (even though under the hood Javascript
 does prototypical inheritance) means that if a subclass fails to call an 
