@@ -1,0 +1,34 @@
+<!--
+# layout
+
+WIP on a graphical UI Builder tool for b8r projects
+-->
+<style>
+  ._component_ {
+    position: relative;
+    min-height: 300px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  ._component_ > * {
+    position: absolute;
+    background: rgba(0,0,0,0.1);
+    line-height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+  }
+
+  ._component_ > *:hover,
+  ._component_ > *:focus,
+  ._component_ > *:active {
+    border: 0;
+  }
+</style>
+<button style="top: 10px; left: 10px; height: 20px; width: 100px;">Button</button>
+<b8r-component style="top: 40px; left: 10px; height: 20px; width: 100px;">Button</b8r-component>
+<b8r-component style="left: 120px; top: 10px; right: 120px; bottom: 10px;"></b8r-component>
+<b8r-component style="bottom: 10px; right: 10px; height: 20px; width: 100px;">Field</b8r-component>
+<b8r-component style="right: 130px; bottom: 20px; width: 200px; height: 20px;">Field</b8r-component>
