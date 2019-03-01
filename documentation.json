@@ -491,20 +491,16 @@
         "path": "analog-clock.component.html"
       },
       {
-        "name": "Electron File Browser",
-        "path": "electron-file-browser.component.html"
-      },
-      {
-        "name": "RAW Viewer",
-        "path": "raw-viewer.component.html"
-      },
-      {
         "name": "Speech",
         "path": "speech.component.html"
       },
       {
         "name": "Unaligned Grid",
         "path": "unaligned-grid.component.html"
+      },
+      {
+        "name": "Layout",
+        "path": "layout.component.html"
       }
     ]
   }
