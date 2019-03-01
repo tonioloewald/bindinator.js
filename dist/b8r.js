@@ -5827,6 +5827,7 @@ b8r.Component = makeWebComponent('b8r-component', {
     name: '',
     path: ''
   },
+  content: false,
   methods: {
     onMount () {
       if (this.path && !this.name) {
