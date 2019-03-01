@@ -9,7 +9,8 @@
 [bindinator.com](http://bindinator.com/) |
 [Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
-[npm](https://www.npmjs.com/package/@tonioloewald/b8r)
+[npm](https://www.npmjs.com/package/@tonioloewald/b8r) |
+[b8r-native](https://github.com/tonioloewald/b8r-native)
 
 ## b8r in 5 minutes
 
