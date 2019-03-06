@@ -45,11 +45,11 @@
         <tr data-list="benchmark.data:id">
           <td class="col-md-1" data-bind="text=.id">1</td>
           <td class="col-md-4">
-            <simple-span class="lbl" data-bind="text=.label">clean blue chair</simple-span>
+            <span class="lbl" data-bind="text=.label">clean blue chair</span>
           </td>
           <td class="col-md-1">
             <a class="remove">
-              <simple-span class="glyphicon glyphicon-remove remove" aria-hidden="true"></simple-span>
+              <span class="glyphicon glyphicon-remove remove" aria-hidden="true"></span>
             </a>
           </td>
           <td class="col-md-6"></td>
@@ -65,34 +65,6 @@ import b8r from '../source/b8r.js';
 window.b8r = b8r;
 var startTime;
 var lastMeasure;
-
-// web-components perf tests
-/*
-b8r.find('simple-span').forEach(elt => elt.dataset.component = 'simple');
-b8r.makeComponent('simple', '<style>._component_ {font-style: italic;}</style>');
-*/
-/*
-import {makeWebComponent} from '../lib/web-components.js';
-makeWebComponent('simple-span', {
-  attributes: {dontcare: true},
-  style: {':host': {'font-style': 'italic'}},
-});
-*/
-/*
-class SimpleSpan extends HTMLElement {
-  constructor() {
-  super();
-
-  // const style = document.createElement('style');
-  // style.textContent = ':host { font-style: italic; }';
-  const shadow = this.attachShadow({mode: 'open'});
-  const slot = document.createElement('slot');
-  // shadow.appendChild(style);
-  shadow.appendChild(slot);
-  }
-}
-window.customElements.define('simple-span', SimpleSpan);
-*/
 
 function _random(max) {
   return Math.round(Math.random()*1000)%max;
@@ -188,10 +160,10 @@ b8r.register('benchmark', {
   update:  () => {
     console.time('update');
     const data = b8r.get(`benchmark.data`);
-    for (var i = 0; i < data.length; i += 10) {
-      data[i].label += ' !!!';
+    for (let i = 0; i < data.length; i += 10) {
+      const datum = data[i];
+      b8r.set(`benchmark.data[id=${datum.id}].label`, datum.label + ' !!!');
     }
-    b8r.set('benchmark.data', data);
     b8r.afterUpdate(() => console.timeEnd('update'));
   },
   clear: () => {
