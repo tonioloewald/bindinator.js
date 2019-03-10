@@ -187,11 +187,6 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
   },
   style: {
     ':host': {
-      position: 'absolute',
-      width: '100%',
-      height: '100%'
-    },
-    ':host .positioned': {
       display: 'block',
       position: 'absolute',
       background: 'rgba(0,128,255,0.1)'
@@ -251,21 +246,16 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
     }
   },
   content: [
-    div({
-      classes: ['positioned'],
-      content: [
-        slot(),
-        div({classes: ['handle', 'top', 'left']}),
-        div({classes: ['handle', 'top', 'right']}),
-        div({classes: ['handle', 'bottom', 'left']}),
-        div({classes: ['handle', 'bottom', 'right']}),
-        div({classes: ['handle', 'center']}),
-        lockToggle({classes: ['left']}),
-        lockToggle({classes: ['top']}),
-        lockToggle({classes: ['right']}),
-        lockToggle({classes: ['bottom']})
-      ]
-    })
+    slot(),
+    div({classes: ['handle', 'top', 'left']}),
+    div({classes: ['handle', 'top', 'right']}),
+    div({classes: ['handle', 'bottom', 'left']}),
+    div({classes: ['handle', 'bottom', 'right']}),
+    div({classes: ['handle', 'center']}),
+    lockToggle({classes: ['left']}),
+    lockToggle({classes: ['top']}),
+    lockToggle({classes: ['right']}),
+    lockToggle({classes: ['bottom']})
   ],
   methods: {
     onMount() {
@@ -392,14 +382,12 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
         bottomRight
       } = this
 
-      const positioned = this.shadowRoot.querySelector('.positioned')
-
-      positioned.style.left = pixelDimension(left)
-      positioned.style.top = pixelDimension(top)
-      positioned.style.width = pixelDimension(width)
-      positioned.style.height = pixelDimension(height)
-      positioned.style.right = pixelDimension(right)
-      positioned.style.bottom = pixelDimension(bottom)
+      this.style.left = pixelDimension(left)
+      this.style.top = pixelDimension(top)
+      this.style.width = pixelDimension(width)
+      this.style.height = pixelDimension(height)
+      this.style.right = pixelDimension(right)
+      this.style.bottom = pixelDimension(bottom)
 
       this.shadowRoot.querySelector('b8r-lock-toggle.left').locked = ! isNaN(this.left)
       this.shadowRoot.querySelector('b8r-lock-toggle.right').locked = ! isNaN(this.right)
