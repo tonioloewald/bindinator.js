@@ -17,6 +17,10 @@ If the `constraints` attribute is omitted then the locks will be hidden.
 
 When the a `shiftKey` is depressed dragging will be snapped to a `10px` grid.
 
+If the rect is shrunk below 20px on a side, it will hide some of the controls.
+
+To see the constraints working, **resize** the preview pane or the entire fiddle.
+
 ```
 <style>
   b8r-editable-rect {
@@ -24,8 +28,9 @@ When the a `shiftKey` is depressed dragging will be snapped to a `10px` grid.
     background: rgba(205, 230, 255, 0.5);
   }
 </style>
-<b8r-editable-rect top=30 left=10 constraints></b8r-editable-rect>
+<b8r-editable-rect top=30 bottom=30 left=10 constraints></b8r-editable-rect>
 <b8r-editable-rect top=10 left=200 height=100 right=20 constraints></b8r-editable-rect>
+<b8r-editable-rect top=auto left=auto bottom=10 right=10 width=16 height=16 constraints></b8r-editable-rect>
 <script>
   import('../web-components/editable-rect.js')
 </script>
