@@ -384,6 +384,10 @@
       {
         "name": "Float",
         "path": "web-components/float.js"
+      },
+      {
+        "name": "Editable Rect",
+        "path": "web-components/editable-rect.js"
       }
     ]
   },

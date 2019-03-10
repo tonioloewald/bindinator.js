@@ -160,9 +160,6 @@ For complex cases, you'll almost always want to override the container's default
 </script>
 ```
 */
-
-'use strict'
-
 import { makeWebComponent } from '../lib/web-components.js'
 
 let elementBeingDragged = null

@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?eeqhhu');
-  src:  url('fonts/icomoon.eot?eeqhhu#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?eeqhhu') format('truetype'),
-    url('fonts/icomoon.woff?eeqhhu') format('woff'),
-    url('fonts/icomoon.svg?eeqhhu#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?uj2nrs');
+  src:  url('fonts/icomoon.eot?uj2nrs#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?uj2nrs') format('truetype'),
+    url('fonts/icomoon.woff?uj2nrs') format('woff'),
+    url('fonts/icomoon.svg?uj2nrs#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,17 +24,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-check:before {
-  content: "\f00c";
+.icon-locked:before {
+  content: "\eb53";
 }
-.icon-cross:before {
-  content: "\f00d";
-}
-.icon-thumbs-o-up:before {
-  content: "\f087";
-}
-.icon-thumbs-o-down:before {
-  content: "\f088";
+.icon-unlocked:before {
+  content: "\eb54";
 }
 .icon-eye2:before {
   content: "\ecb2";
@@ -143,6 +137,18 @@
 }
 .icon-indent-decrease2:before {
   content: "\eec6";
+}
+.icon-check:before {
+  content: "\f00c";
+}
+.icon-cross:before {
+  content: "\f00d";
+}
+.icon-thumbs-o-up:before {
+  content: "\f087";
+}
+.icon-thumbs-o-down:before {
+  content: "\f088";
 }
 .icon-wifi-off:before {
   content: "\e911";
