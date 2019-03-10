@@ -15,6 +15,8 @@ By default, the rect is {left: 0, width: 80, top: 0, height: 40}
 
 If the `constraints` attribute is omitted then the locks will be hidden.
 
+When the a `shiftKey` is depressed dragging will be snapped to a `10px` grid.
+
 ```
 <style>
   b8r-editable-rect {
@@ -70,21 +72,29 @@ Object.assign(_moveEventDiv.style, {
   zIndex: 9999
 })
 
+const snapped = (x, gridSize=10) => Math.round(x / gridSize) * gridSize
+
 const _move = (evt) => {
   const {
     callback,
     pageX,
     pageY,
-    lastPageX,
-    lastPageY,
+    lastX,
+    lastY,
     origX,
-    origY,
+    origY
   } = _moveState
-  const dx = evt.pageX - lastPageX
-  const dy = evt.pageY - lastPageY
-  _moveState.lastPageX += dx
-  _moveState.lastPageY += dy
-  callback(evt.pageX - pageX + origX, evt.pageY - pageY + origY, dx, dy)
+  let x = evt.pageX - pageX + origX
+  let y = evt.pageY - pageY + origY
+  if (evt.shiftKey) {
+    x = snapped(x)
+    y = snapped(y)
+  }
+  const dx = x - lastX
+  const dy = y - lastY
+  _moveState.lastX += dx
+  _moveState.lastY += dy
+  callback(x, y, dx, dy)
 }
 
 _moveEventDiv.addEventListener('mousemove', _move)
@@ -104,10 +114,10 @@ const trackDrag = (initialEvent, origX, origY, callback) => {
     callback,
     pageX,
     pageY,
-    lastPageX: pageX,
-    lastPageY: pageY,
     origX,
-    origY
+    origY,
+    lastX: origX,
+    lastY: origY
   }
   document.body.append(_moveEventDiv)
 }
