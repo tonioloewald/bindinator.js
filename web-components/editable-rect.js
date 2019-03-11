@@ -99,6 +99,7 @@ const _move = (evt) => {
   const dy = y - lastY
   _moveState.lastX += dx
   _moveState.lastY += dy
+  console.log(x,y)
   callback(x, y, dx, dy)
 }
 
@@ -248,8 +249,22 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
     lockToggle({classes: ['bottom']})
   ],
   methods: {
+    getBounds() {
+      const w = this.offsetParent.offsetWidth
+      const h = this.offsetParent.offsetHeight
+      return {
+        left: isNaN(this.left) ? w - this.right - this.width : this.left,
+        right: isNaN(this.right) ? w - this.left - this.width : this.right,
+        top: isNaN(this.top) ? h - this.bottom - this.height : this.top,
+        bottom: isNaN(this.bottom) ? h - this.top - this.height : this.bottom,
+        width: isNaN(this.width) ? w - this.left - this.right : this.width,
+        height: isNaN(this.height) ? w - this.top - this.bottom : this.height
+      }
+    },
+
     onMount() {
       const editable = this
+      const parent = this.parentElement
 
       if (this.left && this.right) this.width = NaN
       if (this.top && this.bottom) this.height = NaN
@@ -258,7 +273,11 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const topLeft = this.shadowRoot.querySelector('.top.left')
       topLeft.addEventListener('mousedown', (evt) => {
-        trackDrag(evt, 0, 0, (x, y, dx, dy) => {
+        const {
+          left,
+          top
+        } = this.getBounds()
+        trackDrag(evt, left, top, (x, y, dx, dy) => {
           if (! isNaN(editable.left)) editable.left += dx
           if (! isNaN(editable.width)) editable.width -= dx
           if (! isNaN(editable.top)) editable.top += dy
@@ -268,7 +287,11 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const topRight = this.shadowRoot.querySelector('.top.right')
       topRight.addEventListener('mousedown', (evt) => {
-        trackDrag(evt, 0, 0, (x, y, dx, dy) => {
+        const {
+          right,
+          top
+        } = this.getBounds()
+        trackDrag(evt, parent.offsetWidth - right, top, (x, y, dx, dy) => {
           if (! isNaN(editable.right)) editable.right -= dx
           if (! isNaN(editable.width)) editable.width += dx
           if (! isNaN(editable.top)) editable.top += dy
@@ -278,7 +301,11 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const bottomLeft = this.shadowRoot.querySelector('.bottom.left')
       bottomLeft.addEventListener('mousedown', (evt) => {
-        trackDrag(evt, 0, 0, (x, y, dx, dy) => {
+        const {
+          left,
+          bottom
+        } = this.getBounds()
+        trackDrag(evt, left, parent.offsetHeight - bottom, (x, y, dx, dy) => {
           if (! isNaN(editable.left)) editable.left += dx
           if (! isNaN(editable.width)) editable.width -= dx
           if (! isNaN(editable.bottom)) editable.bottom -= dy
@@ -288,7 +315,11 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const bottomRight = this.shadowRoot.querySelector('.bottom.right')
       bottomRight.addEventListener('mousedown', (evt) => {
-        trackDrag(evt, 0, 0, (x, y, dx, dy) => {
+        const {
+          right,
+          bottom
+        } = this.getBounds()
+        trackDrag(evt, parent.offsetWidth - right, parent.offsetHeight - bottom, (x, y, dx, dy) => {
           if (! isNaN(editable.right)) editable.right -= dx
           if (! isNaN(editable.width)) editable.width += dx
           if (! isNaN(editable.bottom)) editable.bottom -= dy
@@ -298,7 +329,13 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const center = this.shadowRoot.querySelector('.center')
       center.addEventListener('mousedown', (evt) => {
-        trackDrag(evt, 0, 0, (x, y, dx, dy) => {
+        const {
+          left,
+          top,
+          width,
+          height
+        } = this.getBounds()
+        trackDrag(evt, left + width * 0.5, top + height * 0.5, (x, y, dx, dy) => {
           if (! isNaN(editable.right)) editable.right -= dx
           if (! isNaN(editable.left)) editable.left += dx
           if (! isNaN(editable.bottom)) editable.bottom -= dy
