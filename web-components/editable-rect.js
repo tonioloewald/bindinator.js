@@ -55,16 +55,6 @@ const makeSVG = (d, width=12, height=12, viewWidth=16, viewHeight=16) => {
 const locked = makeSVG('M10,8 L10,6 C10,4.8954305 9.1045695,4 8,4 C6.8954305,4 6,4.8954305 6,6 L6,8 L10,8 Z M4,8 L4,6 C4,3.790861 5.790861,2 8,2 C10.209139,2 12,3.790861 12,6 L12,8 C12.5522847,8 13,8.44771525 13,9 L13,14 C13,14.5522847 12.5522847,15 12,15 L4,15 C3.44771525,15 3,14.5522847 3,14 L3,9 C3,8.44771525 3.44771525,8 4,8 Z')
 const unlocked = makeSVG('M9,8 C9.55228475,8 10,8.44771525 10,9 L10,14 C10,14.5522847 9.55228475,15 9,15 L1,15 C0.44771525,15 0,14.5522847 0,14 L0,9 C0,8.44771525 0.44771525,8 1,8 L7,8 L7,4 C7,1.790861 8.790861,0 11,0 C13.209139,0 15,1.790861 15,4 L15,7 L13,7 L13,4 C13,2.8954305 12.1045695,2 11,2 C9.8954305,2 9,2.8954305 9,4 L9,8 Z')
 
-const clamp = (min, x, max) => {
-  if (x < min) { 
-    return min
-  } else if (x > max) {
-    return max
-  } else {
-    return x
-  }
-}
-
 let _moveState = null
 const _moveEventDiv = div()
 Object.assign(_moveEventDiv.style, {
@@ -79,7 +69,8 @@ Object.assign(_moveEventDiv.style, {
 
 const snapped = (x, gridSize=10) => Math.round(x / gridSize) * gridSize
 
-const _move = (evt) => {
+const _move = (evt, dragEnd=false) => {
+  const isMouseEvent = evt.type.startsWith('mouse')
   const {
     callback,
     pageX,
@@ -87,10 +78,13 @@ const _move = (evt) => {
     lastX,
     lastY,
     origX,
-    origY
+    origY,
+    touchIdentifier
   } = _moveState
-  let x = evt.pageX - pageX + origX
-  let y = evt.pageY - pageY + origY
+  const touch = isMouseEvent ? null : [...evt.changedTouches].find(c => c.identifier === touchIdentifier)
+  const positionSource = isMouseEvent ? evt : touch
+  let x = positionSource.pageX - pageX + origX
+  let y = positionSource.pageY - pageY + origY
   if (evt.shiftKey) {
     x = snapped(x)
     y = snapped(y)
@@ -99,23 +93,25 @@ const _move = (evt) => {
   const dy = y - lastY
   _moveState.lastX += dx
   _moveState.lastY += dy
-  console.log(x,y)
-  callback(x, y, dx, dy)
+  callback(x, y, dx, dy, dragEnd)
+  evt.stopPropagation()
+  evt.preventDefault()
 }
 
 _moveEventDiv.addEventListener('mousemove', _move)
 
 _moveEventDiv.addEventListener('mouseup', (evt) => {
-  _move(evt)
+  _move(evt, true)
   _moveState = null
   _moveEventDiv.remove()
 })
 
 const trackDrag = (initialEvent, origX, origY, callback) => {
+  const isMouseEvent = initialEvent.type === 'mousedown'
   const {
     pageX,
     pageY
-  } = initialEvent
+  } = isMouseEvent ? initialEvent : initialEvent.changedTouches[0]
   _moveState = {
     callback,
     pageX,
@@ -123,12 +119,24 @@ const trackDrag = (initialEvent, origX, origY, callback) => {
     origX,
     origY,
     lastX: origX,
-    lastY: origY
+    lastY: origY,
+    touchIdentifier: isMouseEvent ? null : initialEvent.changedTouches[0].identifier
   }
-  document.body.append(_moveEventDiv)
+  if (isMouseEvent) {
+    document.body.append(_moveEventDiv)
+  }
+  initialEvent.stopPropagation()
+  initialEvent.preventDefault()
 }
 
-const handle = (props={}) => makeElement('b8r-moveable', props)
+const listenForDragStart = (elt, callback) => {
+  elt.addEventListener('mousedown', callback)
+  elt.addEventListener('touchstart', callback)
+  elt.addEventListener('touchmove', _move)
+  elt.addEventListener('touchend', (evt) => {
+    _move(evt, true)
+  })
+}
 
 const LockToggle = makeWebComponent('b8r-lock-toggle', {
   attributes: {
@@ -272,7 +280,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       if (this.height && this.bottom) this.top = NaN
 
       const topLeft = this.shadowRoot.querySelector('.top.left')
-      topLeft.addEventListener('mousedown', (evt) => {
+      listenForDragStart(topLeft, (evt) => {
         const {
           left,
           top
@@ -286,7 +294,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       })
 
       const topRight = this.shadowRoot.querySelector('.top.right')
-      topRight.addEventListener('mousedown', (evt) => {
+      listenForDragStart(topRight, (evt) => {
         const {
           right,
           top
@@ -300,7 +308,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       })
 
       const bottomLeft = this.shadowRoot.querySelector('.bottom.left')
-      bottomLeft.addEventListener('mousedown', (evt) => {
+      listenForDragStart(bottomLeft, (evt) => {
         const {
           left,
           bottom
@@ -314,7 +322,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       })
 
       const bottomRight = this.shadowRoot.querySelector('.bottom.right')
-      bottomRight.addEventListener('mousedown', (evt) => {
+      listenForDragStart(bottomRight, (evt) => {
         const {
           right,
           bottom
@@ -328,7 +336,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       })
 
       const center = this.shadowRoot.querySelector('.center')
-      center.addEventListener('mousedown', (evt) => {
+      listenForDragStart(center, (evt) => {
         const {
           left,
           top,
