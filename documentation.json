@@ -204,6 +204,10 @@
       {
         "name": "windows",
         "path": "lib/windows.js"
+      },
+      {
+        "name": "track drag",
+        "path": "lib/track-drag.js"
       }
     ]
   },
