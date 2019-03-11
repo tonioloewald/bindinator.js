@@ -13,9 +13,22 @@ Makes the thing you stick it into resizable.
   }
 </style>
 <script>
-  /* global component, on */
-  await import('../lib/resizer.js');
+  /* global component */
+  const {trackDrag, listenForDragStart} = await import('../lib/track-drag.js')
+  const parent = component.parentElement
 
   component.classList.add('icon-dots');
-  on('mousedown', 'resizer.mousedown');
+  listenForDragStart(component, (evt) => {
+    const style = getComputedStyle(parent)
+    const width = parseFloat(style.width)
+    const height = parseFloat(style.height)
+    const minWidth = parseFloat(style.minWidth) || 100
+    const minHeight = parseFloat(style.minHeight) || 100
+    trackDrag(evt, width, height, (x, y) => {
+      if (x < minWidth) x = minWidth
+      if (y < minHeight) y = minHeight
+      parent.style.width = x + 'px'
+      parent.style.height = y + 'px'
+    })
+  })
 </script>
