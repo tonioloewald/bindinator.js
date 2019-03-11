@@ -270,7 +270,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const lockLeft = editable.shadowRoot.querySelector('b8r-lock-toggle.left')
       lockLeft.addEventListener('change', function (evt) {
-        if (editable.locked) {
+        if (this.locked) {
           editable.left = editable.parentElement.offsetWidth - editable.right - editable.width
           editable.width = NaN
         } else if (!isNaN(editable.width)) {
@@ -284,7 +284,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const lockRight = editable.shadowRoot.querySelector('b8r-lock-toggle.right')
       lockRight.addEventListener('change', function (evt) {
-        if (editable.locked) {
+        if (this.locked) {
           editable.right = editable.parentElement.offsetWidth - editable.left - editable.width
           editable.width = NaN
         } else if (!isNaN(editable.width)) {
@@ -298,7 +298,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const lockTop = editable.shadowRoot.querySelector('b8r-lock-toggle.top')
       lockTop.addEventListener('change', function (evt) {
-        if (editable.locked) {
+        if (this.locked) {
           editable.top = editable.parentElement.offsetHeight - editable.bottom - editable.height
           editable.height = NaN
         } else if (!isNaN(editable.height)) {
@@ -312,7 +312,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const lockBottom = editable.shadowRoot.querySelector('b8r-lock-toggle.bottom')
       lockBottom.addEventListener('change', function (evt) {
-        if (editable.locked) {
+        if (this.locked) {
           editable.bottom = editable.parentElement.offsetHeight - editable.top - editable.height
           editable.height = NaN
         } else if (!isNaN(editable.height)) {
