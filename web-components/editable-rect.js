@@ -28,9 +28,9 @@ To see the constraints working, **resize** the preview pane or the entire fiddle
     background: rgba(205, 230, 255, 0.5);
   }
 </style>
-<b8r-editable-rect top=30 bottom=30 left=10 constraints></b8r-editable-rect>
-<b8r-editable-rect top=10 left=200 height=100 right=20 constraints></b8r-editable-rect>
-<b8r-editable-rect top=auto left=auto bottom=10 right=10 width=16 height=16 constraints></b8r-editable-rect>
+<b8r-editable-rect constraints top="10" bottom="20" left="10" height="NaN" width="NaN" right="178"></b8r-editable-rect>
+<b8r-editable-rect constraints top="10" left="NaN" bottom="70" right="20" width="148"></b8r-editable-rect>
+<b8r-editable-rect constraints top="NaN" left="NaN" bottom="20" right="20" width="148" height="40"></b8r-editable-rect>
 <script>
   import('../web-components/editable-rect.js')
 </script>
