@@ -5197,7 +5197,7 @@ const makeWebComponent = (tagName, {
     }
 
     static defaultAttributes () {
-      return {...attributes}
+      return { ...attributes }
     }
   };
 
