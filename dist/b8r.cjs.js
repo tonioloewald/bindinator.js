@@ -1,3 +1,5 @@
+'use strict';
+
 /**
 # Object Path Methods
 Copyright ©2016-2017 Tonio Loewald
@@ -5907,4 +5909,4 @@ b8r.componentOnce = function (...args) {
   });
 };
 
-export default b8r;
+module.exports = b8r;
