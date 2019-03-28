@@ -9,6 +9,7 @@ const url = require('url')
 const settings = {
   socket: 8017,
   web_root: __dirname,
+  https: false,
   cert_path: 'localhost-ssl/public.pem',
   key_path: 'localhost-ssl/private.pem'
 }
