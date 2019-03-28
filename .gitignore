@@ -27,3 +27,6 @@ CVS
 *.pem
 *.p12
 * (Autosaved)
+
+# pack builds
+tonioloewald-b8r-*.tgz
