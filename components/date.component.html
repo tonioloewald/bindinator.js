@@ -72,6 +72,7 @@ them for anything.
   .date-component-month > select {
     background: transparent;
     color: var(--dark-text-color);
+    border: 0;
   }
 
   .date-component-current-month {
@@ -232,11 +233,8 @@ const updateMonth = () => {
   const date = new Date(get('value'))
   const month = get('month');
   const year = get('year');
-  const day = Math.min(date.getDate(), daysInMonth(month, year))
-  date.setDate(1)
-  date.setMonth(month)
-  date.setFullYear(year)
-  date.setDate(day)
+  const day = Math.min(date.getUTCDate(), daysInMonth(month, year))
+  date.setUTCFullYear(year, month, day)
   update(date)
 }
 
