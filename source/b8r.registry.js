@@ -672,9 +672,10 @@ const unshift = (path, value) => {
 
 For example:
 
-    sort('file-list', (a, b) => a.name < b.name ? -1 : 1);
+    sort('file-list', (a, b) => b8r.sortAscending(a.name, b.name));
 
-Sorts the array at path using the provided sorting function.
+Sorts the array at path using the provided sorting function. (And b8r provides 
+[two convenience methods for creating sort functions](#source=source/b8r.sort.js).)
 
 ```
 <table>
@@ -690,6 +691,7 @@ Sorts the array at path using the provided sorting function.
     </tr>
   </tbody>
 </table>
+<p>Click column heading to sort.</p>
 <script>
   b8r.register('test-people', [
     { id: 0, name: 'Tom', age: 41 },
@@ -700,7 +702,7 @@ Sorts the array at path using the provided sorting function.
 
   set('sort', evt => {
     const prop_name = evt.target.textContent.toLowerCase();
-    b8r.sort('test-people', (a, b) => a[prop_name] < b[prop_name] ? -1 : 1);
+    b8r.sort('test-people', (a, b) => b8r.sortAscending(a[prop_name], b[prop_name]));
   });
 </script>
 ```
