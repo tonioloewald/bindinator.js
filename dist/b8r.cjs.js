@@ -5033,7 +5033,18 @@ const makeElement = (tagType, {
   classes.forEach((className) => elt.classList.add(className));
   return elt
 };
+
+const div = (settings = {}) => makeElement('div', settings);
+const span = (settings = {}) => makeElement('span', settings);
+const input = (settings = {}) => makeElement('input', settings);
+const button = (settings = {}) => makeElement('button', settings);
 const slot = (settings = {}) => makeElement('slot', settings);
+
+const fragment$1 = (...elements) => {
+  const container = document.createDocumentFragment();
+  elements.forEach(element => container.appendChild(element.cloneNode(true)));
+  return container
+};
 
 const _hyphenated = s => s.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
 
@@ -5255,6 +5266,16 @@ Object.assign(b8r, _registry);
 b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement));
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
+b8r.webComponents = {
+  fragment: fragment$1,
+  makeElement,
+  div,
+  slot,
+  input,
+  button,
+  span,
+  dispatch: dispatch$1
+};
 b8r.makeWebComponent = makeWebComponent;
 
 Object.assign(b8r, _functions);

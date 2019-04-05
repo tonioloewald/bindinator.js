@@ -85,7 +85,17 @@ import {
   makeComponent
 } from './b8r.component.js'
 
-import { makeWebComponent } from '../lib/web-components.js'
+import {
+  fragment,
+  makeElement,
+  makeWebComponent,
+  div,
+  slot,
+  input,
+  button,
+  span,
+  dispatch
+} from '../lib/web-components.js'
 
 const b8r = {}
 
@@ -98,6 +108,16 @@ Object.assign(b8r, _registry)
 b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
+b8r.webComponents = {
+  fragment,
+  makeElement,
+  div,
+  slot,
+  input,
+  button,
+  span,
+  dispatch
+}
 b8r.makeWebComponent = makeWebComponent
 
 Object.assign(b8r, _functions)
