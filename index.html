@@ -51,6 +51,13 @@
     });
     b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
   </script>
+  <script>
+    try {
+      eval(`import('').catch(() => {})`)
+    } catch(e) {
+      window.location = 'import.html'
+    }
+  </script>
 </head>
 <body>
 </body>
