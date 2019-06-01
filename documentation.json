@@ -84,6 +84,10 @@
         "path": "source/b8r.events.js"
       },
       {
+        "name": "event types",
+        "path": "source/b8r.implicit-event-types.js"
+      },
+      {
         "name": "_b8r_",
         "path": "source/b8r._b8r_.js"
       },
