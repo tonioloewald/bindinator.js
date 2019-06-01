@@ -100,7 +100,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
     }
   },
   methods: {
-    onMount () {
+    connectedCallback () {
       this.buildTabs()
     },
     pickTab (idx) {

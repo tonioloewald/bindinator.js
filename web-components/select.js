@@ -186,7 +186,7 @@ const SelectPop = makeWebComponent('b8r-select', {
     }
   },
   methods: {
-    onMount () {
+    connectedCallback () {
       const select = this
       select._menu = select.shadowRoot.querySelector('.menu')
       select._menu.style.background = select.background

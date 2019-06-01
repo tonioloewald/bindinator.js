@@ -188,7 +188,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       }
     },
 
-    onMount () {
+    connectedCallback () {
       const editable = this
 
       if (editable.left && editable.right) editable.width = NaN

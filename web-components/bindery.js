@@ -126,7 +126,7 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
   },
   createShadow: false,
   methods: {
-    onMount () {
+    connectedCallback () {
       implicitEventTypes.forEach(type => this.addEventListener(type, this.handleEvent, { capture: true }))
 
       // automatic binding of elements added or modified dynamically

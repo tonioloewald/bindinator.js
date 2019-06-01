@@ -63,7 +63,7 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
     }
   },
   methods: {
-    onMount () {
+    connectedCallback () {
       this.tabIndex = 0
     },
     render () {

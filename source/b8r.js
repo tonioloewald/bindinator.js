@@ -724,7 +724,7 @@ b8r.Component = makeWebComponent('b8r-component', {
   },
   content: false,
   methods: {
-    onMount () {
+    connectedCallback () {
       if (this.path && !this.name) {
         b8r.component(this.path)
         this.name = this.path.split('/').pop()
