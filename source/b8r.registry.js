@@ -674,7 +674,7 @@ For example:
 
     sort('file-list', (a, b) => b8r.sortAscending(a.name, b.name));
 
-Sorts the array at path using the provided sorting function. (And b8r provides 
+Sorts the array at path using the provided sorting function. (And b8r provides
 [two convenience methods for creating sort functions](#source=source/b8r.sort.js).)
 
 ```
