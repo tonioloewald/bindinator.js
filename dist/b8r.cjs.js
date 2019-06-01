@@ -2174,12 +2174,12 @@ const set = (path, value, sourceElement) => {
   if (!isValidPath(path)) {
     console.error(`setting invalid path ${path}`);
   }
-  const pathParts$$1 = path.split(/\.|\[/);
-  const model = pathParts$$1[0];
+  const pathParts = path.split(/\.|\[/);
+  const model = pathParts[0];
   const existing = getByPath(registry, path);
-  if (pathParts$$1.length > 1 && !registry[model]) {
+  if (pathParts.length > 1 && !registry[model]) {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
-  } else if (pathParts$$1.length === 1 && typeof value !== 'object') {
+  } else if (pathParts.length === 1 && typeof value !== 'object') {
     throw new Error(`cannot set ${path}; you can only register objects at root-level`)
   } else if (value === existing) {
     // if it's an array then it might have gained or lost elements
@@ -2187,7 +2187,7 @@ const set = (path, value, sourceElement) => {
       touch(path, sourceElement);
     }
   } else if (value && value.constructor) {
-    if (pathParts$$1.length === 1 && !registry[path]) {
+    if (pathParts.length === 1 && !registry[path]) {
       register(path, value);
     } else {
       // we only overlay vanilla objects, not custom classes or arrays
@@ -2279,9 +2279,10 @@ const unshift = (path, value) => {
 
 For example:
 
-    sort('file-list', (a, b) => a.name < b.name ? -1 : 1);
+    sort('file-list', (a, b) => b8r.sortAscending(a.name, b.name));
 
-Sorts the array at path using the provided sorting function.
+Sorts the array at path using the provided sorting function. (And b8r provides
+[two convenience methods for creating sort functions](#source=source/b8r.sort.js).)
 
 ```
 <table>
@@ -2297,6 +2298,7 @@ Sorts the array at path using the provided sorting function.
     </tr>
   </tbody>
 </table>
+<p>Click column heading to sort.</p>
 <script>
   b8r.register('test-people', [
     { id: 0, name: 'Tom', age: 41 },
@@ -2307,7 +2309,7 @@ Sorts the array at path using the provided sorting function.
 
   set('sort', evt => {
     const prop_name = evt.target.textContent.toLowerCase();
-    b8r.sort('test-people', (a, b) => a[prop_name] < b[prop_name] ? -1 : 1);
+    b8r.sort('test-people', (a, b) => b8r.sortAscending(a[prop_name], b[prop_name]));
   });
 </script>
 ```
@@ -2767,9 +2769,39 @@ const modifierKeys = {
   shift: '⇧'
 };
 
+/**
+# Implicit Event Types
+
+These are the event types which b8r handles by default.
+
+To handle other types of events, you can call `b8r.implicitlyHandleEventsOfType('type')`
+
+## Mouse Events
+
+- `mousedown`, `mouseup`, `click`, `dblclick`, `contextmenu`
+- `mouseleave`, `mouseenter`, `mousemove`, `mouseover`, `mouseout`
+- `mousewheel`, `scroll`
+
+## Drag Events
+
+- `dragstart`, `dragenter`, `dragover`, `dragleave`, `dragend`, `drop`
+
+## CSS Animations
+
+- `transitionend`, `animationend`
+
+## User Input
+
+- `keydown`, `keyup`
+- `input`, `change`
+- `cut`, `copy`, `paste`
+- `focus`, `blur`
+
+*/
+
 var implicitEventTypes = [
-  'mousedown', 'mouseup', 'mousemove', 'mouseover', 'mouseout', 'click', 'dblclick',
-  'mouseleave', 'mouseenter',
+  'mousedown', 'mouseup', 'click', 'dblclick',
+  'mouseleave', 'mouseenter', 'mousemove', 'mouseover', 'mouseout',
   'mousewheel', 'scroll', // FIXEME passive?!
   'contextmenu',
   'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
@@ -3084,7 +3116,7 @@ const callMethod = (...args) => {
 const handleEvent = (evt) => {
   var target = anyElement;
   var args = evt.args || [];
-  var keystroke$$1 = evt instanceof KeyboardEvent ? keystroke(evt) : {};
+  var keystroke$1 = evt instanceof KeyboardEvent ? keystroke(evt) : {};
   while (target) {
     var handlers = getParsedEventHandlers(target);
     var result = false;
@@ -3094,7 +3126,7 @@ const handleEvent = (evt) => {
         typeIndex++) {
         if (handler.types[typeIndex] === evt.type &&
             (!handler.typeArgs[typeIndex] ||
-             handler.typeArgs[typeIndex].indexOf(keystroke$$1) > -1)) {
+             handler.typeArgs[typeIndex].indexOf(keystroke$1) > -1)) {
           if (handler.model && handler.method) {
             if (handler.model === '_component_') {
               handler.model = getComponentWithMethod(target, handler.method);
@@ -4315,10 +4347,10 @@ var _b8r_ = (b8r) => {
           const boundTargets = targets.filter(hasFromTarget);
           const processFromTargets = t => { // jshint ignore:line
             // all bets are off on bound values!
-            const value$$1 = fromTargets[t.target](elt, t.key);
-            if (value$$1 !== undefined) {
+            const value = fromTargets[t.target](elt, t.key);
+            if (value !== undefined) {
               delete elt._b8rBoundValues;
-              b8r.setByPath(path, value$$1, elt);
+              b8r.setByPath(path, value, elt);
             }
           };
           boundTargets.forEach(processFromTargets);
@@ -4869,9 +4901,9 @@ a given custom element has).
 
 #### Component Lifecycle
 
-- if it exists, `methods.onMount` will be called when an instance is created.
-- if it exists, `methods.unMount` will be called when an instance is removed
-  from the DOM.
+makeComponent copies all methods provided into the component's prototype, so the
+standard lifecycle methods `connectedCallback`, `disconnectedCallback`,
+`adoptedCallback`, and `attributeChangedCallback` work as normal.
 
 #### Performance Notes
 
@@ -5063,31 +5095,6 @@ const _css = (obj) => {
   }
 };
 
-const unmountWatchList = [];
-const unmountObserver = new MutationObserver((mutationsList) => {
-  if (unmountWatchList.length === 0) return
-
-  let nodesRemoved = false;
-  for (let i = 0; i < mutationsList.length; i++) {
-    const mutation = mutationsList[i];
-    if (mutation.removedNodes.length) {
-      nodesRemoved = true;
-      break
-    }
-  }
-  if (nodesRemoved) {
-    for (let i = unmountWatchList.length - 1; i >= 0; i--) {
-      const elt = unmountWatchList[i];
-      if (!document.body.contains(elt)) {
-        elt.unMount();
-        unmountWatchList.splice(i, 1);
-      }
-    }
-  }
-});
-
-unmountObserver.observe(document.body, { childList: true, attributes: true, subtree: true });
-
 const makeWebComponent = (tagName, {
   superClass = HTMLElement, // the class you're exetending
   value = false, // expect boolean
@@ -5204,8 +5211,6 @@ const makeWebComponent = (tagName, {
           });
         });
       }
-      if (this.onMount) this.onMount();
-      if (this.unMount) unmountWatchList.push(this);
       if (this.queueRender) this.queueRender();
     }
 
@@ -5459,13 +5464,13 @@ b8r.listIndex = element =>
   b8r.listItems(element.parentElement).indexOf(element);
 
 b8r.getComponentData = (elt, type) => {
-  const id$$1 = getComponentId(elt, type);
-  return id$$1 ? b8r.get(id$$1) : null
+  const id = getComponentId(elt, type);
+  return id ? b8r.get(id) : null
 };
 
 b8r.setComponentData = (elt, path, value) => {
-  const id$$1 = getComponentId(elt);
-  b8r.setByPath(id$$1, path, value);
+  const id = getComponentId(elt);
+  b8r.setByPath(id, path, value);
 };
 
 b8r.getData = elt => {
@@ -5534,9 +5539,9 @@ function bind (element) {
     const existing = boundValues[path];
     if (_unequal(existing, value)) {
       newValues[path] = value;
-      const _toTargets$$1 = targets.filter(t => toTargets[t.target]);
-      if (_toTargets$$1.length) {
-        _toTargets$$1.forEach(t => {
+      const _toTargets = targets.filter(t => toTargets[t.target]);
+      if (_toTargets.length) {
+        _toTargets.forEach(t => {
           toTargets[t.target](element, value, t.key);
         });
       } else {
@@ -5675,13 +5680,13 @@ function bindList (listTemplate, dataPath) {
 
   const ids = {};
   listTemplate.classList.toggle('-b8r-empty-list', !list.length);
-  forEachItemIn(list, idPath, (item, id$$1) => {
-    if (ids[id$$1]) {
-      console.warn(`${id$$1} not unique ${idPath} in ${listTemplate.dataset.list}`);
+  forEachItemIn(list, idPath, (item, id) => {
+    if (ids[id]) {
+      console.warn(`${id} not unique ${idPath} in ${listTemplate.dataset.list}`);
       return
     }
-    ids[id$$1] = true;
-    const itemPath = `${listPath}[${id$$1}]`;
+    ids[id] = true;
+    const itemPath = `${listPath}[${id}]`;
     instance = existingListInstances[itemPath];
     if (instance === undefined) {
       listContentChanged = true;
@@ -5845,25 +5850,25 @@ b8r.insertComponent = async function (component, element, data) {
   if (dataPath) {
     element.dataset.path = dataPath;
   }
-  const register$$1 = componentData => b8r.register(componentId, componentData);
+  const register = componentData => b8r.register(componentId, componentData);
   data = Object.assign({}, data, { dataPath, componentId });
   if (component.load) {
-    const get$$1 = path => b8r.getByPath(componentId, path);
-    const set$$1 = (...args) => {
+    const get = path => b8r.getByPath(componentId, path);
+    const set = (...args) => {
       b8r.setByPath(componentId, ...args);
       // updates value bindings
       if (args[0] === 'value' || args[0].hasOwnProperty('value')) {
         b8r.trigger('change', element);
       }
     };
-    const on$$1 = (...args) => b8r.on(element, ...args);
-    const touch$$1 = path => b8r.touchByPath(componentId, path);
+    const on = (...args) => b8r.on(element, ...args);
+    const touch = path => b8r.touchByPath(componentId, path);
     b8r.register(componentId, data, true);
     try {
       await component.load(
         element, _pathRelativeB8r(component.path), selector => b8r.findWithin(element, selector),
-        selector => b8r.findOneWithin(element, selector), data, register$$1,
-        get$$1, set$$1, on$$1, touch$$1, component
+        selector => b8r.findOneWithin(element, selector), data, register,
+        get, set, on, touch, component
       );
     } catch (e) {
       debugger // eslint-disable-line no-debugger
@@ -5882,7 +5887,7 @@ b8r.Component = makeWebComponent('b8r-component', {
   },
   content: false,
   methods: {
-    onMount () {
+    connectedCallback () {
       if (this.path && !this.name) {
         b8r.component(this.path);
         this.name = this.path.split('/').pop();
