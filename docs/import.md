@@ -73,11 +73,17 @@ at the bottom of the file. This can be replaced with:
 
 And then you can use either:
 
-    import {bar} from './path/to/foo.js';
+    import {bar} from './path/to/foo.js'
 
 or:
 
-    import * as foo from './path/to/foo.js';
+    import * as foo from './path/to/foo.js'
+
+You can also export something you've imported in one step, e.g.
+
+    export {foo, bar} from './path/to/foo.js'
+    export {default} from './path/to/something.js'
+    export * from './path/to/something-else.js'
 
 Finally, there's **dynamic import**. You can only use `import` a module context. 
 In particular, code loaded at runtime and evaled inside a function is not such a 
@@ -88,7 +94,7 @@ It works like this:
 
     const {bar, baz} = await import('./path/to/foo.js');
 
-Notably, default is treated like a named specific symbol in a dynmically imported
+Notably, `default` is treated like a named specific symbol in a dynmically imported
 module, so if you wanted everything out of `foo.js` inside `const foo` you'd write:
 
     const foo = (await import('./path/to/foo.js')).default;
@@ -111,7 +117,6 @@ New Way:
       import foo from './lib/foo.js';
       import {baz} from './path/to/lurman.js';
       ...
-
 
 Note that _all import paths need to be relative_, so `require('foo/bar.js')` becomes
 `import('./foo/bar.js')`.
