@@ -14,8 +14,8 @@
 
 ## b8r in 5 minutes
 
-Here's a really quick start to working with b8r. If you're interested in building
-a desktop app, you can try [b8r-native](https://github.com/tonioloewald/b8r-native).
+Here's a really quick start to working with b8r to build a web app. (If you're interested in building
+a desktop app, you can try [b8r-native](https://github.com/tonioloewald/b8r-native).)
 
 ```
 mkdir path/to/project
