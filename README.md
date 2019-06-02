@@ -64,7 +64,7 @@ Now create a simple web page:
 Now run:
 
 ```
-./node_modules/http-server/bin/http-server
+./node_modules/http-server/bin/http-server .
 ```
 
 And open [http://localhost:8080](http://localhost:8080) in your browser.
