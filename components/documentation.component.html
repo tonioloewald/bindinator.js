@@ -162,7 +162,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   }
 </style>
 <div class="content"></div>
-<div class="nav" data-event="click:details-accordion-controller.click">
+<div class="nav">
   <div style="text-align: center; padding-bottom: 10px">
     <img
       alt="bindinator logo"
@@ -170,12 +170,22 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       src="images/bindinator-logo-notext-mono.svg"
     >
   </div>
-  <details data-list="_component_.docs:title">
+  <b8r-component 
+    data-placeholder="search docs"
+    path="./components/search-field"
+    data-bind="value=_component_.searchFilter"
+    data-event="input,change:_component_.filterDocs"
+  ></b8r-component>
+  <details
+    data-list="_component_.docs:title"
+    data-bind="hide_if=._hide;prop(open)=._open"
+    data-event="click:_component_.toggle"
+  >
     <summary data-bind="text=.title">Title</summary>
     <div
       class="loadable"
       data-list=".parts"
-      data-bind="text=.name;data(ref)=.path"
+      data-bind="text=.name;data(ref)=.path;hide_if=._hide;class(current)=._current"
       data-event="click,keydown(Space):documentation-controller.showDocs"
       tabindex="0"
     >
@@ -186,44 +196,47 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 <script>
 /* jshint latedef:false */
 /* global b8r, alert, component, set, findOne */
-  'use strict';
 
   const windows = await import('../lib/windows.js');
 
   var content = findOne('.content');
   const nav = findOne('.nav');
-  set({year: new Date().getFullYear()});
+  set({
+    year: new Date().getFullYear(),
+    searchFilter: '',
+    filterDocs: b8r.debounce(() => {
+      const docs = get('docs')
+      const searchField = get('searchFilter').toLocaleLowerCase()
+      const isFiltered = !!searchField
+      docs.forEach(section => {
+        section._hide = isFiltered
+        section.parts.forEach(part => {
+          part._hide = isFiltered && !part.name.toLocaleLowerCase().includes(searchField)
+          if (!part._hide) section._hide = false
+        })
+        section._open = isFiltered ? !section._hide : section.parts.find(part => part._current)
+      })
+      set({docs})
+    }),
+    toggle (evt, details) {
+      const {title} = b8r.getListInstance(details);
+      get('docs').forEach(doc => doc._open = doc.title === title ? !doc._open : false)
+      touch('docs')
+    }
+  });
 
   function markCurrent() {
     b8r.afterUpdate(() => {
-      const doc = window.location.hash.split('=').pop();
-      b8r.findWithin(nav, '.current').forEach(elt => {
-        elt.classList.remove('current');
-      });
-      const current = b8r.findOne('[data-ref="' + doc + '"]');
-      if (current) {
-        current.classList.add('current');
-        b8r.find('.nav details').forEach(details => {
-          details.open = details.contains(current);
-        });
-      }
+      const path = window.location.hash.split('=').pop();
+      get('docs').forEach(section => {
+        section.parts.forEach(part => {
+          part._current = part.path === path
+          if (part._current) section._open = true
+        })
+      })
+      touch('docs')
     });
   }
-
-  b8r.register('details-accordion-controller', {
-    click (evt) {
-      const details = evt.target.closest('details');
-      // TODO shim for summary / details
-      if (details && !details.open) {
-        b8r.makeArray(details.parentElement.children).forEach(elt => {
-          if(elt.tagName === 'DETAILS'){
-            elt.open = false;
-          }
-        });
-      }
-      return true;
-    }
-  });
 
   b8r.register('documentation-controller', {
     showDocs: function(evt) {

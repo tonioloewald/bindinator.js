@@ -17,6 +17,7 @@
 .search-field-component input {
   border-radius: 99px;
   padding-left: 24px;
+  width: 100%;
 }
 
 .search-field-component input:focus+.icon-search3 {
@@ -43,14 +44,16 @@
   opacity: 1;
 }
 </style>
-<input placeholder="search field" data-bind="value=_component_.value">
+<input 
+  data-bind="attr(placeholder)=_component_.placeholder;value=_component_.value">
 <span class="icon-search3"></span>
 <span class="icon-cross2" data-event="mouseup,touchup:_component_.clear"></span>
 <script>
-  /* global set */
+  /* global get, set */
   'use strict'
 
-set({
-    clear: () => set('value', '')
+  set({
+    placeholder: component.dataset.placeholder || 'search field',
+    clear: () => set('value', ''),
   })
 </script>
