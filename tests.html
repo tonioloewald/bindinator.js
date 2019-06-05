@@ -97,7 +97,18 @@
       <ul id="complex-list">
         <li data-list="test1.complex_list:id"><span data-component="show-bar" data-path=".foo"></span></li>
       </ul>
+      <h4>Indirect Binding</h4>
       <div id="indirect-bind" data-component="show-bar" data-bind="data_path=test1.bind_path"></div>
+      <h4>Nested Computed List</h4>
+      <ul>
+        <li data-list="test1.outer_list:_auto_">
+          <span 
+            data-list="list.filter(.inner_list,.filter):_auto_"
+            data-bind="text=.name"
+          >
+          </span>
+        </li>
+      </ul>
     </div>
     <div data-component="test">
       <p>First Child</p>
@@ -117,6 +128,7 @@
     import Test from './lib/test.js';
     import {getByPath, setByPath} from './source/b8r.byPath.js';
 
+    window.b8r = b8r
     Test.setReportContainer(b8r.findOne('.report'));
   /*
     Test(() => 2).shouldBe(2);
@@ -150,14 +162,49 @@
         b: {label: 'object.b'},
         c: {label: 'object.c'},
       },
+      outer_list: [
+        {
+          filter: 'test',
+          inner_list: [
+            {
+              name: 'test'
+            },
+            {
+              name: 'omit me'
+            },
+            {
+              name: 'also test'
+            }
+          ]
+        },
+        {
+          filter: 'hello',
+          inner_list: [
+            {
+              name: 'hello'
+            },
+            {
+              name: 'hello world'
+            },
+            {
+              name: 'omit me'
+            }
+          ]
+        }
+      ],
       option: '3',
       checkbox: true,
       radio: 'second',
       bind_path: 'test1.complex_list[id=-3].foo',
     };
+    b8r.register('list', {
+      filter: (list, filter) => {
+        return list.filter(item => item.name.includes(filter))
+      },
+    })
     const computedList = {
       oddOnly: (list) => list.filter(item => item.value % 2),
-      list: [{value: 1}, {value: 2}, {value: 3}]
+      list: [{value: 1}, {value: 2}, {value: 3}],
     }
     b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
     Test(() => getByPath(obj, '')).shouldBe(obj);
@@ -381,7 +428,7 @@
     }).shouldBe(0);
     Test(async () => { 
       const listTemplate = b8r.findOne('[data-list="computedList.oddOnly(computedList.list)"]')
-      listTemplate.dataset.list += ':_auto_'
+      listTemplate.dataset.list += ':value'
       b8r.touchElement(listTemplate)
       b8r.forceUpdate()
       return b8r.find('[data-list-instance*="computedList"]').length

@@ -440,7 +440,8 @@ function bindList (listTemplate, dataPath) {
   if (resolvedPath !== listPath) {
     let listBinding = listPath = resolvedPath
     if (methodPath) {
-      argPaths[0] = listPath
+      argPaths.shift()
+      argPaths = [listPath, ...argPaths.map(path => b8r.resolvePath(path, listTemplate))]
       listBinding = `${methodPath}(${argPaths.join(',')})`
     }
     listTemplate.dataset.list = idPath ? `${listBinding}:${idPath}` : listBinding
