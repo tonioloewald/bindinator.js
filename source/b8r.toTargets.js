@@ -284,6 +284,25 @@ This lets you pick between two classes.
 This shows (or hides) an element based on whether a bound value is truthy or
 matches the provided parameter.
 
+### img
+
+    <img data-bind="img=path.to.imageUrl">
+
+The `<img>` element will have its src attribute set after the image has been preloaded
+(and it will fade in). Leverage's b8r's [imgSrc library](#source=source/b8r.imgSrc.js)
+
+**Note**: This can cause problems with cross-domain policies. If you just want to set the src
+to the specified string, you can use a simple `prop()` binding:
+
+    <img data-bind="prop(src)=path.to.imageUrl"
+
+### bgImg
+
+    <div data-bind="bgImg=path.to.imageUrl">...</div>
+
+The `<div>` will have its style.backgroundImage set to `url(the-path-provided)` or
+nothing (if the path is falsey).
+
 ### method()
 
     data-bind="method(model.notify)=message.priority"

@@ -1,0 +1,92 @@
+<!--
+# National Gallery of Art
+
+Simple search interface built on the 
+[public API for the National Gallery's online collection](https://metmuseum.github.io/).
+-->
+<style>
+  ._component_ .search {
+    padding: 10px;
+    background: #eee;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  ._component_ .art-object {
+    display: inline-block;
+    text-align: center;
+    width: 200px;
+    margin: 10px;
+  }
+
+  ._component_ .art-object img {
+    max-width: 200px;
+    max-height: 200px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    margin: 10px 0 20px;
+  }
+</style>
+<div class="search">
+  <input 
+    placeholder="Search NGA Collection"
+    data-event="change,keyup(Enter):_component_.search"
+  >
+  <span data-bind="
+    text=${_component_.total} found;
+    show_if=_component_.total
+  "></span>
+  <span data-bind="show_if=_component_.objectIDs">
+    <input type="range" 
+      min="1"
+      data-bind="
+        value=_component_.currentPage;
+        prop(max)=_component_.pageCount
+      "
+      data-event="change:_component_.show()"
+    >
+    <span data-bind="text=${_component_.currentPage} of ${_component_.pageCount}"></span>
+  </span>
+</div>
+<div class="art-object" data-list="_component_.objects:objectID">
+  <img data-bind="prop(src)=.primaryImageSmall">
+  <div class="caption" data-bind="text=.title"></div>
+</div>
+<script>
+  const ngaBaseUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/'
+  const pageSize = 12
+
+  const search = async (evt, target) => {
+    const query = escape(target.value)
+    if (get('query') === query) return
+    set({query, currentPage: 0, pageCount: 0, objectIDs: [], objects: []})
+    show()
+    target.disabled = true
+    const {total, objectIDs} = await b8r.json(`${ngaBaseUrl}search?q=${query}`)
+    set({objectIDs, total, currentPage: 1, pageCount: Math.ceil(total / pageSize)})
+    target.disabled = false
+    show()
+  }
+  
+  const show = async () => {
+    const {currentPage, objectIDs} = get()
+    const first = (currentPage - 1) * pageSize
+    const objects = await Promise.all(objectIDs.slice(first,first + pageSize).map(id => b8r.json(`${ngaBaseUrl}objects/${id}`)))
+    set({objects})
+  }
+
+  set({
+    query: '',
+    total: 0,
+    currentPage: 1,
+    pageCount: 0,
+    search,
+    show
+  })
+
+  // const {departments} = await b8r.json(`${ngaBaseUrl}departments`)
+  // set ({departments})
+
+  // const {objectIDs} = await b8r.json(`${ngaBaseUrl}objects`)
+  // set ({objectIDs})
+</script>

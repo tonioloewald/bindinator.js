@@ -459,6 +459,10 @@
         "path": "bodymovin.component.html"
       },
       {
+        "name": "National Gallery",
+        "path": "nga.component.html"
+      },
+      {
         "name": "Hello",
         "path": "hello.component.html"
       },
