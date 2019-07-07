@@ -292,9 +292,9 @@ The `<img>` element will have its src attribute set after the image has been pre
 (and it will fade in). Leverage's b8r's [imgSrc library](#source=source/b8r.imgSrc.js)
 
 **Note**: This can cause problems with cross-domain policies. If you just want to set the src
-to the specified string, you can use a simple `prop()` binding:
+to the specified string, you can use a simple `attr()` binding:
 
-    <img data-bind="prop(src)=path.to.imageUrl"
+    <img data-bind="attr(src)=path.to.imageUrl"
 
 ### bgImg
 
