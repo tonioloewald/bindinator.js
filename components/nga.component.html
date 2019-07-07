@@ -34,9 +34,9 @@ Simple search interface built on the
   >
   <span data-bind="
     text=${_component_.total} found;
-    show_if=_component_.total
+    show_if=_component_.query
   "></span>
-  <span data-bind="show_if=_component_.objectIDs">
+  <span data-bind="show_if=_component_.total">
     <input type="range" 
       min="1"
       data-bind="
@@ -45,12 +45,14 @@ Simple search interface built on the
       "
       data-event="change:_component_.show()"
     >
-    <span data-bind="text=${_component_.currentPage} of ${_component_.pageCount}"></span>
+    <span data-bind="text=page ${_component_.currentPage} of ${_component_.pageCount}"></span>
   </span>
 </div>
 <div class="art-object" data-list="_component_.objects:objectID">
-  <img data-bind="prop(src)=.primaryImageSmall">
-  <div class="caption" data-bind="text=.title"></div>
+  <img data-bind="attr(src)=.primaryImageSmall">
+  <div class="caption">
+    <a data-bind="text=.title;attr(href)=.objectURL"></a>
+  </div>
 </div>
 <script>
   const ngaBaseUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/'
@@ -62,16 +64,23 @@ Simple search interface built on the
     set({query, currentPage: 0, pageCount: 0, objectIDs: [], objects: []})
     show()
     target.disabled = true
-    const {total, objectIDs} = await b8r.json(`${ngaBaseUrl}search?q=${query}`)
-    set({objectIDs, total, currentPage: 1, pageCount: Math.ceil(total / pageSize)})
-    target.disabled = false
-    show()
+    b8r.json(`${ngaBaseUrl}search?q=${query}`)
+      .then(({total, objectIDs}) => {
+        set({objectIDs, total, currentPage: 1, pageCount: Math.ceil(total / pageSize)})
+        target.disabled = false
+        show()
+      })
+      .catch(() => {
+        target.disabled = false
+        show()
+      })
   }
   
   const show = async () => {
     const {currentPage, objectIDs} = get()
     const first = (currentPage - 1) * pageSize
-    const objects = await Promise.all(objectIDs.slice(first,first + pageSize).map(id => b8r.json(`${ngaBaseUrl}objects/${id}`)))
+    let objects = objectIDs.slice(first,first + pageSize).map(id => b8r.json(`${ngaBaseUrl}objects/${id}`))
+    objects = await Promise.all(objects).catch(() => set({objects: []}))
     set({objects})
   }
 
