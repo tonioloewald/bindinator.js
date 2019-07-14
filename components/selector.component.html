@@ -2,6 +2,18 @@
 # selector
 
 This is a simple replacement for `<select>` elements.
+
+It lets you select between any children you provide it, and figures
+out their "value" based on the child element's
+
+- value
+- data-value (attribute)
+- textContent
+
+…in that order.
+
+If the children have keyboard navigation set up, hitting space should also
+allow selection.
 -->
 <style>
 .selector-component > [data-children] {
@@ -28,10 +40,10 @@ This is a simple replacement for `<select>` elements.
   "
   data-bind="method(_component_.pick)=_component_.value"
 >
-  <span>One</span>
-  <span data-selected>Two</span>
-  <span style="font-size: 36px;">3</span>
-  <span style="font-size: 24px;">🕓</span>
+  <span tabindex=0>One</span>
+  <span tabindex=0 data-selected>Two</span>
+  <span tabindex=0 style="font-size: 36px;">3</span>
+  <span tabindex=0 style="font-size: 24px;" data-value="clock">🕓</span>
 </span>
 <script>
 /* global find, findOne, b8r, component, get, set */
@@ -40,24 +52,7 @@ const _value = element => element.value !== undefined ? element.value
   : element.dataset.value !== undefined ? element.dataset.value
     : element.textContent
 
-const select = evt => {
-  if (!evt.target.closest('[data-children] > *')) {
-    return
-  }
-  find('[data-children] > *:not([data-list])').forEach(child => {
-    if (child === evt.target.closest('[data-children] > *')) {
-      child.dataset.selected = ''
-      set('value', _value(child))
-      b8r.trigger('change', component)
-    } else {
-      if (child.dataset.selected !== undefined) {
-        delete child.dataset.selected
-      }
-    }
-  })
-  return true
-}
-const pick = (_, value) => {
+    const pick = (_, value) => {
   if (_ instanceof Event) {
     value = get('value')
   }
@@ -65,13 +60,19 @@ const pick = (_, value) => {
     if (_value(child) === value) {
       child.dataset.selected = ''
       set('value', _value(child))
-      b8r.trigger('change', component)
     } else {
       if (child.dataset.selected !== undefined) {
         delete child.dataset.selected
       }
     }
   })
+}
+const select = evt => {
+  if (!evt.target.closest('[data-children] > *')) {
+    return
+  }
+  const value = _value(evt.target.closest('[data-children] > *'))
+  pick(null, value)
 }
 
 const selected = findOne('[data-selected]')
