@@ -396,6 +396,10 @@
       {
         "name": "Editable Rect",
         "path": "web-components/editable-rect.js"
+      },
+      {
+        "name": "Object",
+        "path": "web-components/object.js"
       }
     ]
   },
