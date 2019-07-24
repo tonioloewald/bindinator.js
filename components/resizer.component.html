@@ -24,11 +24,14 @@ Makes the thing you stick it into resizable.
     const height = parseFloat(style.height)
     const minWidth = parseFloat(style.minWidth) || 100
     const minHeight = parseFloat(style.minHeight) || 100
-    trackDrag(evt, width, height, (x, y) => {
+    trackDrag(evt, width, height, (x, y, _dx, _dy, doneResizing) => {
       if (x < minWidth) x = minWidth
       if (y < minHeight) y = minHeight
       parent.style.width = x + 'px'
       parent.style.height = y + 'px'
+      if (doneResizing) {
+        b8r.trigger('resize', component)
+      }
     })
   })
 </script>
