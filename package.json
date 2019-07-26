@@ -6,7 +6,7 @@
   "scripts": {
     "start": "open http://localhost:8017/index.html & node utils/server.js web_root:.",
     "lint": "node node_modules/standard/bin/cmd.js --fix",
-    "stylelint": "./node_modules/stylelint/bin/stylelint.js css/*.css --fix",
+    "stylelint": "./node_modules/stylelint/bin/stylelint.js css/*.css **/*.html --fix",
     "build": "./utils/build.command"
   },
   "keywords": [
