@@ -1,7 +1,10 @@
 /**
 # Type Checking By Example
 
-The goal of this module is to provide simple type-checking by example.
+The goal of this module is to provide simple type-checking by example. Ultimately, it is
+intended to afford both static analysis of `b8r` code and components and efficient
+run-time checking of application state -- see [The Registry](#source=source/b8r.registry.js)
+documentation for more information.
 
 General usage is:
 

@@ -8,7 +8,7 @@ b8r's registry is an observable object that b8r uses to keep track of objects.
 Once an object is registered, its properties will automatically be bound
 to events and DOM properties by path.
 
-Both of these lines register an object under the name 'root'
+Both of these lines register an object under the name 'root':
 
     register('root', object_value);
     set('root', object_value);
@@ -51,15 +51,21 @@ afterwards.
 Triggers all observers as though the value at path has changed. Useful
 if you change a property independently of the registry.
 
+The `sourceElement` parameter is used to indicate that the source of the
+change is a particular element. That element will not be updated by `b8r`.
+(You probably don't need to worry about this, but it prevents unnecessary
+updates to, for example, an `<input>` control that the user is editing which
+can interfere with selection and focus.)
+
     touch(path);
 
 Triggers all observers asynchronousely (on requestAnimationFrame).
 
 ## Type Checking
 
-You can enforce type checking on registry entries using registerType.
+You can enforce type checking on registry entries using `registerType`.
 
-    registerType('foo', {bar: 17})
+    b8r.registerType('foo', {bar: 17})
 
 This will use `matchType` (see [Type Checking by Example](#source=source/b8r.byExample.js))
 to compare the specified registry entry when that entry is initialized or changed. So, if you
@@ -67,10 +73,11 @@ registered the type of 'foo' as above, then:
 
     b8r.register('foo', {bar: 100}) // no problem
     b8r.set('foo.bar', 0) // no problem
-    b8r.set('foo.bar, 'hello') // generates a console error
+    b8r.set('foo.bar', 'hello') // generates a console error
 
-There is a (small) overhead to doing this type checking, and it will not prevent
-errors (yet).
+There is a *small* overhead to doing this type checking, and it will not *prevent*
+incorrect values being added to the register (yet), but it will do a pretty good
+job of telling you exactly what went wrong.
 
 (PLANNED) I plan to make type checking more efficient and have it throw
 on erroneous changes rather than simply complain about them. The mechanism will
@@ -79,6 +86,34 @@ check possible (e.g. compare what's at `path.to.value` with the new value rather
 than the resultant registry entry for `path` with whatever is there after the change.
 
 THe trick is to deal with (a) `Match` instances in the hierarchy and (b) arrays.
+
+### Custom Handling of Type Errors
+
+By default, type errors are simply spammed to the console. You can override
+this behavior by using `b8r.onTypeError()` to set your own handler (e.g. to
+log the failure or trigger an alarm.)
+
+For example:
+
+    b8r.onTypeError(errors => {
+      b8r.json('/logerror', 'post', {timestamp: Data.now(), errors})
+    })
+    b8r.offTypeError() // restores the default error handler
+
+~~~~
+b8r.registerType('error-handling-test', {
+  number: 17
+})
+b8r.register('error-handling-test', {
+  number: 0
+})
+let _errors
+b8r.onTypeError(errors => _errors = errors)
+b8r.set('error-handling-test.number', false)
+Test(() => _errors, 'verify custom handler for type errors works')
+  .shouldBeJSON(["error-handling-test.number was NaN, expected number"])
+b8r.offTypeError()
+~~~~
 
 ### Component Type Checks (PLANNED)
 
@@ -93,7 +128,22 @@ analysis can check internal bindings, e.g.:
 
 ### Static Type Checks (PLANNED)
 
-If you provide a `b8r-registry-types.js` and you can then do something like:
+If you provide `b8r-registry-types.js`, which might look like this:
+
+    export const documents = {
+      ...
+    }
+    export const app = {
+      ...
+    }
+
+Then you can then do something like:
+
+    import {app, documents} from './b8r-registry-types.js'
+    b8r.registerType('app', app)
+    b8r.registerType('documents', documents)
+
+I'll probably add a convenience function so you could write something like this:
 
     import * as types from './b8r-registry-types.js'
     b8r.registerTypes(types)
@@ -613,11 +663,18 @@ const touch = (path, sourceElement) => {
     .forEach(listener => listener.callback(path, sourceElement))
 }
 
+const _defaultTypeErrorHandler = (errors) => {
+  console.error(`registry type check(s) failed after ${action}`, errors)
+}
+let typeErrorHandler = _defaultTypeErrorHandler
+export const onTypeError = (callback) => typeErrorHandler = callback
+export const offTypeError = () => typeErrorHandler = _defaultTypeErrorHandler
+
 const checkType = (action, name) => {
   if (registeredTypes[name] && registry[name]) {
     const errors = matchType(registeredTypes[name], registry[name], [], name, true)
     if (errors.length) {
-      console.error(`registry type check(s) failed after ${action}`, errors)
+      typeErrorHandler(errors)
     }
   }
 }
@@ -845,7 +902,6 @@ that test.
 ~~~~
 b8r.register('listener_test1', {
   flag_changed: () => {
-    console.log('flag changed');
     b8r.set('listener_test2.counter', b8r.get('listener_test2.counter') + 1);
   }
 });

@@ -149,6 +149,15 @@ class Store {
 }
 
 const store = new Store();
+
+// declaring type with heterogeneous list to worsen checkType performance
+b8r.registerType('benchmark', {
+  data: [
+    {id: 2, label: 'do not care', missing: 'not present'},
+    {id: 1, label: "quaint orange pony"}
+  ]
+});
+
 b8r.register('benchmark', {
   data: [],
   create: () => {
