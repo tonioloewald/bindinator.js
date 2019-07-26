@@ -37,6 +37,7 @@ body {
 
 * {
   box-sizing: border-box;
+
   /* overflow issue */
   min-height: 0;
   min-width: 0;
@@ -70,15 +71,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 { margin-top: 64px; font-size: 64px; }
+
 h2 { margin-top: 48px; font-size: 36px; }
+
 h3 { margin-top: 32px; font-size: 30px; }
+
 h4 { margin-top: 16px; font-size: 24px; }
+
 h5 { margin-top: 8px; font-size: 18px; }
+
 h6 { font-size: 14px; }
 
 h1, .b8r-color {
   color: var(--bright-accent-color);
 }
+
 h2, h3, h4, h5, h6, b, strong, summary {
   color: var(--accent-color);
 }
@@ -104,6 +111,7 @@ h2, h3, h4, h5, h6, b, strong, summary {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -118,6 +126,7 @@ h2, h3, h4, h5, h6, b, strong, summary {
   from {
     opacity: inherit;
   }
+
   to {
     opacity: 0 !important;
   }
@@ -347,9 +356,11 @@ pre > code {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb:window-inactive {
   background: transparent;
 }
@@ -357,9 +368,11 @@ pre > code {
 :hover::-webkit-scrollbar-track {
   background: rgba(0,0,0,0.05);
 }
+
 :hover::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.1);
 }
+
 :hover::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(0,0,0,0.05);
 }

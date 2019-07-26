@@ -6,6 +6,7 @@
   "scripts": {
     "start": "open http://localhost:8017/index.html & node utils/server.js web_root:.",
     "lint": "node node_modules/standard/bin/cmd.js --fix",
+    "stylelint": "./node_modules/stylelint/bin/stylelint.js css/*.css --fix",
     "build": "./utils/build.command"
   },
   "keywords": [
@@ -26,12 +27,33 @@
     "third-party/*",
     "utils/*"
   ],
+  "stylelint": {
+    "rules": {
+      "block-no-empty": null,
+      "color-no-invalid-hex": true,
+      "comment-empty-line-before": [ "always", {
+        "except": ["first-nested"],
+        "ignore": ["stylelint-commands", "after-comment"]
+      } ],
+      "declaration-colon-space-after": "always",
+      "indentation": [2, {
+        "except": ["value"]
+      }],
+      "max-empty-lines": 2,
+      "rule-empty-line-before": [ "always", {
+        "except": ["first-nested"],
+        "ignore": ["after-comment"]
+      } ],
+      "unit-whitelist": ["px", "vw", "vh", "em", "rem", "%", "s"]
+    }
+  },
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "ace-builds": "^1.4.5",
     "rollup": "^1.16.7",
     "standard": "^12.0.1",
+    "stylelint": "^10.1.0",
     "uglify-es": "^3.3.9"
   },
   "standard": {
