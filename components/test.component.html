@@ -101,12 +101,12 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
       notify_errors();
     }
   };
-
-  Test.setReportContainer(findOne('.test-transcript'));
+  
   const test_runner = new AsyncFunction('Test', 'b8r', data.source + `////# sourceURL=${component.dataset.componentId}`); // jshint ignore:line
 
   try {
-    test_runner.call(null, Test, b8r);
+    const reportContainer = findOne('.test-transcript')
+    await test_runner.call(null, (fn, description) => Test(fn, description, reportContainer), b8r);
   } catch(e) {
     notify_errors();
     Test.report(`test runner threw exception: ${e}`, 'failure');
