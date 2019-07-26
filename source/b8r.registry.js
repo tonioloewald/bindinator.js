@@ -55,6 +55,54 @@ if you change a property independently of the registry.
 
 Triggers all observers asynchronousely (on requestAnimationFrame).
 
+## Type Checking
+
+You can enforce type checking on registry entries using registerType.
+
+    registerType('foo', {bar: 17})
+
+This will use `matchType` (see [Type Checking by Example](#source=source/b8r.byExample.js))
+to compare the specified registry entry when that entry is initialized or changed. So, if you
+registered the type of 'foo' as above, then:
+
+    b8r.register('foo', {bar: 100}) // no problem
+    b8r.set('foo.bar', 0) // no problem
+    b8r.set('foo.bar, 'hello') // generates a console error
+
+There is a (small) overhead to doing this type checking, and it will not prevent
+errors (yet).
+
+(PLANNED) I plan to make type checking more efficient and have it throw
+on erroneous changes rather than simply complain about them. The mechanism will
+be if you change `path.to.value` then `b8r` will attempt to do with most specific 
+check possible (e.g. compare what's at `path.to.value` with the new value rather
+than the resultant registry entry for `path` with whatever is there after the change.
+
+THe trick is to deal with (a) `Match` instances in the hierarchy and (b) arrays.
+
+### Component Type Checks (PLANNED)
+
+A component can register a type for its private data by calling `registerType()`
+and then all its instances will be checked against this type and static 
+analysis can check internal bindings, e.g.:
+
+    <div data-bind="text=_component_.caption">Caption</div>
+    <script>
+      registerType({caption: 'hello'})
+    </script>
+
+### Static Type Checks (PLANNED)
+
+If you provide a `b8r-registry-types.js` and you can then do something like:
+
+    import * as types from './b8r-registry-types.js'
+    b8r.registerTypes(types)
+
+`b8r` will provide static analysis tools in the form of an ESLint plugin and an
+HTMLHint plugin/fork that will identify type errors based on the exported
+examples in `b8r-registry-types.js`, the goal being to flag any bad bindings
+in components, and in general identify as many errors as possible before they occur.
+
 ## JSON Utilities
 
 Two convenience methods are provided for working with JSON data:
@@ -135,8 +183,10 @@ lists).
 import { getByPath, setByPath, deleteByPath } from './b8r.byPath.js'
 import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
 import { playSavedMessages } from './b8r.future.js'
+import { matchType } from './b8r.byExample.js'
 
 const registry = {}
+const registeredTypes = {}
 const listeners = [] // { path_string_or_test, callback }
 const debugPaths = true
 const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/
@@ -563,11 +613,21 @@ const touch = (path, sourceElement) => {
     .forEach(listener => listener.callback(path, sourceElement))
 }
 
+const checkType = (action, name) => {
+  if (registeredTypes[name] && registry[name]) {
+    const errors = matchType(registeredTypes[name], registry[name], [], name, true)
+    if (errors.length) {
+      console.error(`registry type check(s) failed after ${action}`, errors)
+    }
+  }
+}
+
 const set = (path, value, sourceElement) => {
   if (debugPaths && !isValidPath(path)) {
     console.error(`setting invalid path ${path}`)
   }
   const pathParts = path.split(/\.|\[/)
+  const [name] = pathParts
   const model = pathParts[0]
   const existing = getByPath(registry, path)
   if (pathParts.length > 1 && !registry[model]) {
@@ -599,11 +659,18 @@ const set = (path, value, sourceElement) => {
     setByPath(registry, path, value)
     touch(path, sourceElement)
   }
-  return value // convenient for things push (see below) but maybe an anti-feature?!
+  checkType(`set('${path}',...)`, name)
+  return value // convenient for push (see below) but maybe an anti-feature?!
+}
+
+const registerType = (name, example) => {
+  registeredTypes[name] = example
+  checkType(`registerType('${name}')`, name)
 }
 
 const _register = (name, obj) => {
   registry[name] = obj
+  checkType(`register('${name}')`, name)
 }
 
 const register = (name, obj, blockUpdates) => {
@@ -922,6 +989,7 @@ export {
   unobserve,
   models,
   _register,
+  registerType,
   register,
   registered,
   remove,

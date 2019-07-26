@@ -396,7 +396,7 @@ function deleteByPath (orig, path) {
 function matchTypes (value, oldValue) {
   if (value == null || oldValue == null || typeof value === typeof oldValue) { // jshint ignore:line
     return value
-  } else if (typeof value === 'string' && typeof oldValue === 'number') {
+  } else if (typeof oldValue === 'number') {
     return parseFloat(value)
   } else if (typeof oldValue === 'string') {
     return value + ''

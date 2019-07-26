@@ -74,7 +74,7 @@ export const scalar = makeWebComponent('b8r-scalar', {
   },
   content: null,
   methods: {
-    connectedCallback() {
+    connectedCallback () {
       this.appendChild(label({ content: [span(), objectNode()] }))
     },
     render () {
@@ -98,14 +98,14 @@ export const list = makeWebComponent('b8r-list', {
   methods: {
     render () {
       const { value, keys } = this
-      while(this.childNodes.length > value.length) {
+      while (this.childNodes.length > value.length) {
         console.log('removing child')
-        this.removeChild(this.lastChild);
+        this.removeChild(this.lastChild)
       }
-      while(value.length > this.childNodes.length) {
+      while (value.length > this.childNodes.length) {
         this.appendChild(objectNode())
       }
-      for(let i = 0; i < value.length; i++) {
+      for (let i = 0; i < value.length; i++) {
         this.childNodes[i].value = value[i]
         this.childNodes[i].keys = keys
       }
@@ -140,7 +140,7 @@ export const object = makeWebComponent('b8r-object', {
         } else if (Array.isArray(keys)) {
           _keys = keys
         } else {
-          throw `b8r-object expects keys to be comma-delimited string or Array (received ${typeof keys})`
+          throw new Error(`b8r-object expects keys to be comma-delimited string or Array (received ${typeof keys})`)
         }
         while (this.children.length > _keys.length) {
           this.removeChild(this.lastChild)
@@ -149,7 +149,7 @@ export const object = makeWebComponent('b8r-object', {
           this.appendChild(scalarNode())
         }
 
-        for(let i = 0; i < _keys.length; i++) {
+        for (let i = 0; i < _keys.length; i++) {
           const key = _keys[i]
           this.children[i].caption = key
           this.children[i].value = value[key] || ''

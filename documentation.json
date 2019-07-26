@@ -72,6 +72,10 @@
         "path": "source/b8r.byPath.js"
       },
       {
+        "name": "byExample",
+        "path": "source/b8r.byExample.js"
+      },
+      {
         "name": "component",
         "path": "source/b8r.component.js"
       },

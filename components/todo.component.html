@@ -45,6 +45,26 @@ to attach to private data.
   const comparePriority = (a, b) => (a.done ? a.priority + 3 : a.priority) - (b.done ? b.priority + 3 : b.priority)
   let id = 0
 
+  /*
+  example of registering a type which will be verified after changes to the registry item
+  try creating a few items and then calling 
+      b8r.set('app.todolist[0].priority', false)
+  in the console
+  */
+ 
+  b8r.registerType('app', {
+    todolist:[{
+      done: false,
+      id: 1,
+      text: "something to do",
+      priority: 2
+    }],
+    composer:{
+      text: "",
+      priority: 2
+    }
+  })
+
   b8r.register('app', {
     todolist: [],
     composer: { text: '', priority: 2 },
