@@ -81,7 +81,7 @@ job of telling you exactly what went wrong.
 
 (PLANNED) I plan to make type checking more efficient and have it throw
 on erroneous changes rather than simply complain about them. The mechanism will
-be if you change `path.to.value` then `b8r` will attempt to do with most specific 
+be if you change `path.to.value` then `b8r` will attempt to do with most specific
 check possible (e.g. compare what's at `path.to.value` with the new value rather
 than the resultant registry entry for `path` with whatever is there after the change.
 
@@ -91,12 +91,17 @@ THe trick is to deal with (a) `Match` instances in the hierarchy and (b) arrays.
 
 By default, type errors are simply spammed to the console. You can override
 this behavior by using `b8r.onTypeError()` to set your own handler (e.g. to
-log the failure or trigger an alarm.)
+log the failure or trigger an alarm.) This handler will receiving two arguments:
+
+- `errors` -- an array of descriptions of type failures, and
+- `action` -- a string
+
+describing the operation that failed.
 
 For example:
 
-    b8r.onTypeError(errors => {
-      b8r.json('/logerror', 'post', {timestamp: Data.now(), errors})
+    b8r.onTypeError((errors, action) => {
+      b8r.json('/logerror', 'post', {timestamp: Data.now(), action, errors})
     })
     b8r.offTypeError() // restores the default error handler
 
@@ -118,7 +123,7 @@ b8r.offTypeError()
 ### Component Type Checks (PLANNED)
 
 A component can register a type for its private data by calling `registerType()`
-and then all its instances will be checked against this type and static 
+and then all its instances will be checked against this type and static
 analysis can check internal bindings, e.g.:
 
     <div data-bind="text=_component_.caption">Caption</div>
@@ -663,18 +668,22 @@ const touch = (path, sourceElement) => {
     .forEach(listener => listener.callback(path, sourceElement))
 }
 
-const _defaultTypeErrorHandler = (errors) => {
+const _defaultTypeErrorHandler = (errors, action) => {
   console.error(`registry type check(s) failed after ${action}`, errors)
 }
 let typeErrorHandler = _defaultTypeErrorHandler
-export const onTypeError = (callback) => typeErrorHandler = callback
-export const offTypeError = () => typeErrorHandler = _defaultTypeErrorHandler
+export const onTypeError = (callback) => {
+  typeErrorHandler = callback
+}
+export const offTypeError = () => {
+  typeErrorHandler = _defaultTypeErrorHandler
+}
 
 const checkType = (action, name) => {
   if (registeredTypes[name] && registry[name]) {
     const errors = matchType(registeredTypes[name], registry[name], [], name, true)
     if (errors.length) {
-      typeErrorHandler(errors)
+      typeErrorHandler(errors, action)
     }
   }
 }
