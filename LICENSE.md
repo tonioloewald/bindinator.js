@@ -1,7 +1,7 @@
 bindinator.js License
 =======================
 
-Copyright ©2016-2018, Tonio Loewald
+Copyright ©2016-2019, Tonio Loewald
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
