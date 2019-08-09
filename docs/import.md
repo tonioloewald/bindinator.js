@@ -45,6 +45,8 @@ Takes the specific exports from `bar.js` and sticks them in `const baz` and `con
 
 Takes all the specific exports from `bar.js` and makes them properties of `const bar = {...}`.
 
+## Export
+
 There are a ton of ways to export stuff from a library, but the ones you really need to
 know about are:
 
@@ -62,7 +64,7 @@ A typical module pattern involves defining a bunch of stuff and then putting som
     // foo.js
     const bar = ...
     const baz = ...
-    module.exports {bar, baz}
+    module.exports = {bar, baz}
 
 at the bottom of the file. This can be replaced with:
 
@@ -85,6 +87,8 @@ You can also export something you've imported in one step, e.g.
     export {default} from './path/to/something.js'
     export * from './path/to/something-else.js'
 
+## Dynamic Import
+
 Finally, there's **dynamic import**. You can only use `import` a module context. 
 In particular, code loaded at runtime and evaled inside a function is not such a 
 context. (In `b8r` this means "component scripts".) Here, you need to use
@@ -98,6 +102,18 @@ Notably, `default` is treated like a named specific symbol in a dynmically impor
 module, so if you wanted everything out of `foo.js` inside `const foo` you'd write:
 
     const foo = (await import('./path/to/foo.js')).default;
+
+    ## Dynamic import()
+
+**Note** that `import()` treats the `default` export of a module as a named import 
+(named `default`), so the async equivalent of:
+
+    import foo from './path/to/foo.js'
+
+is something like:
+
+    let foo
+    import('./path/to/foo.js').then(({default}) => foo = default)
 
 ### Migrating to `import` by Example
 
