@@ -180,8 +180,9 @@ b8r.register('benchmark', {
     const data = b8r.get(`benchmark.data`);
     for (let i = 0; i < data.length; i += 10) {
       const datum = data[i];
-      b8r.set(`benchmark.data[id=${datum.id}].label`, datum.label + ' !!!');
+      datum.label += ' !!!'
     }
+    b8r.touch('benchmark.data');
     b8r.afterUpdate(() => console.timeEnd('update'));
   },
   clear: () => {
