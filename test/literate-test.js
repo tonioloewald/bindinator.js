@@ -25,7 +25,6 @@ as a component, as below:
 ```
 <style>
   .test-calculator input { width: 100px; }
-
 </style>
 <div class="test-calculator" data-event="input,change:_component_.calculate">
   <input data-bind="value=_component_.a" type="number"> +
