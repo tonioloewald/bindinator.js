@@ -161,6 +161,32 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     margin: -1px -12px -1px -8px;
     background-color: white;
   }
+
+  ._component_ :not([open]) > summary.hasErrors:after,
+  ._component_ .loadable.hasErrors:after {
+    content: " ";
+    display: inline-block;
+    border-radius: 99px;
+    width: 10px;
+    height: 10px;
+    margin-left: 5px;
+    vertical-align: baseline;
+    animation: error-blink 1s infinite;
+  }
+
+  @keyframes error-blink {
+    0% {
+      background-color: rgba(255,0,0,0);
+    }
+
+    50% {
+      background-color: rgba(255,0,0,1);
+    }
+
+    100% {
+      background-color: rgba(255,0,0,0);
+    }
+  }
 </style>
 <div class="content"></div>
 <div class="nav">
@@ -182,11 +208,11 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     data-bind="hide_if=._hide;prop(open)=._open"
     data-event="click:_component_.toggle"
   >
-    <summary data-bind="text=.title">Title</summary>
+    <summary data-bind="text=.title;class(hasErrors)=.hasErrors">Title</summary>
     <div
       class="loadable"
       data-list=".parts"
-      data-bind="text=.name;data(ref)=.path;hide_if=._hide;class(current)=._current"
+      data-bind="text=.name;data(ref)=.path;hide_if=._hide;class(current)=._current;class(hasErrors)=.hasErrors"
       data-event="click,keydown(Space):documentation-controller.showDocs"
       tabindex="0"
     >
@@ -199,6 +225,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 /* global b8r, alert, component, set, findOne */
 
   const windows = await import('../lib/windows.js');
+  const {configuredTest} = await import('../lib/test.js');
 
   var content = findOne('.content');
   const nav = findOne('.nav');
@@ -257,15 +284,42 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     alertKeystroke: evt => alert(b8r.keystroke(evt)),
   });
 
+  // in the background, we're going to run every test block in every library
+  const AsyncFunction = (async () => {}).constructor
+  const runTests = async (sectionTitle, partIdx) => {
+    const path = get(`docs[title=${sectionTitle}].parts[${partIdx}].path`)
+    if (path.endsWith('.js')) {
+      const source = await b8r.ajax(path)
+      const tests = source.split('~~~~').filter((_, idx) => idx % 2)
+      tests.forEach(testSource => {
+        const t = new AsyncFunction('Test', 'b8r', testSource + `////# sourceURL=${path}`)
+        try {
+          t.call(null, configuredTest({
+            onError: () => {
+              set(`docs[title=${sectionTitle}].hasErrors`, true);
+              set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
+            },
+            reportContainer: document.createElement('div'),
+          }), b8r);
+        } catch (_) {
+          set(`docs[title=${sectionTitle}].hasErrors`, true);
+          set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
+        }
+      });
+    }     
+  }
+
   b8r.json(component.dataset.sourceFiles || 'documentation.json')
      .then(docs => {
         docs.forEach(section => {
           if (section.sort) {
-            section.parts.sort((a, b) => a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1);
+            section.parts.sort((a, b) => a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1)
           }
         });
         set({docs});
         update();
+
+        docs.forEach(section => section.parts.forEach((part, idx) => runTests(section.title, idx)))
       });
 
   var last_component_path;

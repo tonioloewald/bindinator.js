@@ -125,11 +125,14 @@
   <div class="report"></div>
   <script type="module">
     import b8r from './source/b8r.js';
-    import Test from './lib/test.js';
+    import {configuredTest, trigger} from './lib/test.js';
     import {getByPath, setByPath} from './source/b8r.byPath.js';
 
     window.b8r = b8r
-    Test.setReportContainer(b8r.findOne('.report'));
+
+    const Test = configuredTest({
+      reportContainer: b8r.findOne('.report'),
+    })
   /*
     Test(() => 2).shouldBe(2);
     Test(() => 2).shouldBe(1);
@@ -255,7 +258,7 @@
 
     // binding (from)
     b8r.findOne('input').value = 55;
-    Test.trigger('input', b8r.findOne('input'));
+    trigger('input', b8r.findOne('input'));
     b8r.forceUpdate();
     Test(() => b8r.id('e').value)
                        .shouldBe(obj.sub.list[2] + '');
@@ -265,19 +268,19 @@
     b8r.forceUpdate();
     Test(() => b8r.id('b').style.color).shouldBe('purple');
     b8r.findOne('select').value = 'two';
-    Test.trigger('change', 'select');
+    trigger('change', 'select');
     Test(() => obj.option).shouldBe('two');
     b8r.findOne('[type=checkbox]').checked = false;
-    Test.trigger('input', '[type=checkbox]');
+    trigger('input', '[type=checkbox]');
     Test(() => obj.checkbox).shouldBe(false);
 
     // verify type-matching
     obj.checkbox = false;
     b8r.findOne('[type=checkbox]').checked = true;
-    Test.trigger('input', '[type=checkbox]');
+    trigger('input', '[type=checkbox]');
     Test(() => obj.checkbox).shouldBe(true);
     b8r.findOne('[type=radio][value=first]').checked = true;
-    Test.trigger('change', '[type=radio][value=first]');
+    trigger('change', '[type=radio][value=first]');
     Test(() => obj.radio).shouldBe('first');
 
     // ajax methods

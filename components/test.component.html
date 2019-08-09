@@ -78,12 +78,12 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
 <script>
   /* global findOne, b8r, data, set, component */
 
-  const {AsyncFunction} = await import('../source/b8r.functions.js');
-  const {code} = await import('../lib/text-render.js');
-  const {Test} = await import('../lib/test.js');
+  const {AsyncFunction} = await import('../source/b8r.functions.js')
+  const {code} = await import('../lib/text-render.js')
+  const {configuredTest} = await import('../lib/test.js')
 
-  b8r.component('tab-selector');
-  b8r.component('resizer');
+  b8r.component('tab-selector')
+  b8r.component('resizer')
 
   set({
     show: false,
@@ -91,24 +91,26 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   });
 
   const notify_errors = () => {
-    b8r.findOne('.literate-errors').style.display = 'block';
-    set({show: true});
+    b8r.findOne('.literate-errors').style.display = 'block'
+    set({show: true})
   };
 
-  Test.onError = () => {
-    const test_error = b8r.findOne('.literate-errors');
-    if(test_error) {
-      notify_errors();
-    }
+ const onError = () => {
+    const test_error = b8r.findOne('.literate-errors')
+    if(test_error) notify_errors()
   };
+  const Test = configuredTest({
+    onError,
+    reportContainer: findOne('.test-transcript')
+  })
   
-  const test_runner = new AsyncFunction('Test', 'b8r', data.source + `////# sourceURL=${component.dataset.componentId}`); // jshint ignore:line
+  const test_runner = new AsyncFunction('Test', 'b8r', data.source + `////# sourceURL=${component.dataset.componentId}`) // jshint ignore:line
 
   try {
     const reportContainer = findOne('.test-transcript')
-    await test_runner.call(null, (fn, description) => Test(fn, description, reportContainer), b8r);
+    await test_runner.call(null, Test, b8r)
   } catch(e) {
-    notify_errors();
-    Test.report(`test runner threw exception: ${e}`, 'failure');
+    notify_errors()
+    Test.report(`test runner threw exception: ${e}`, 'failure')
   }
 </script>

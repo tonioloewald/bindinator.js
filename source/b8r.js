@@ -31,6 +31,7 @@ import { getByPath, pathSplit } from './b8r.byPath.js'
 import * as _dom from './b8r.dom.js'
 import * as _iterators from './b8r.iterators.js'
 import * as _registry from './b8r.registry.js'
+import * as _byExample from './b8r.byExample.js'
 import * as _functions from './b8r.functions.js'
 import _toTargets from './b8r.toTargets.js'
 import * as _ajax from './b8r.ajax.js'
@@ -105,6 +106,7 @@ Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHa
 Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListPath, getListInstancePath })
 Object.assign(b8r, { onAny, offAny, anyListeners })
 Object.assign(b8r, _registry)
+Object.assign(b8r, _byExample)
 b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys

@@ -1,10 +1,15 @@
 /**
-# Type Checking By Example
+# Type Checking, Mocks By Example
 
-The goal of this module is to provide simple type-checking by example. Ultimately, it is
+The goal of this module is to provide simple, effective type-checking by example. Ultimately, it is
 intended to afford both static analysis of `b8r` code and components and efficient
 run-time checking of application state -- see [The Registry](#source=source/b8r.registry.js)
 documentation for more information.
+
+(WORK IN PROGRESS)
+As a side-benefit, it is also capable of driving mock-data and optimistic rendering.
+Annotations in example data can provide hints as to how to generate mock data for
+testing purposes and for rendering user interfaces before live data is available.
 
 General usage is:
 
@@ -12,27 +17,44 @@ General usage is:
       // returns a list of problems discovered otherwise
 E.g.
 
-    matchType(0, 17) // [] -- 17 is a number and so is 0
-    matchType('foo', 17) // false -- 17 is not a string
+    matchType(0, 17) // [] -- no errors
+    matchType('foo', 17) // ["was number, expected string"]
 
 This is most useful when comparing objects, e.g.
 
-    matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 'world'}) // []
-    matchType({foo: 17, bar: 'hello'}, {bar: 'world'}) // false -- foo is missing from subject
-    matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 17}) // false -- expected bar to be a string
+    matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 'world'}) // [] -- no errors
+    matchType({foo: 17, bar: 'hello'}, {bar: 'world'}) // [".foo was undefined, expected number"]
+    matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 17}) // [".bar was number, expected string"]
+
+If the example includes arrays, the elements in the array are assumed to be the valid examples
+for items in the array, e.g.
+
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], []) // [] -- no errors
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 10, y: 10}, {x: -1, y: -1}]) // []
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{lat: -20, long: 40, alt: 100}]) // []
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5, y: -5}, {long: 20}])
+      // ["[1] had no matching type"]
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5}, {long: 20}])
+      // ["[0] had no matching type", "[1] had no matching type"]
+
+For efficiency, put the most common example elements in example arrays first (since checks are
+performed in order) and do not include unnecessary elements in example arrays.
 
 ## Custom Types
 
 A `Match` class which allows you to declare arbitrarily specific (or general) types. Usage:
 
-    new Match(testFunc, typeDescription)
+    new Match(testFunc, typeDescription, generateMock)
 
-`testFunc` is a function that tests its first parameter and returns a string complaining
+- `testFunc` is a function that tests its first parameter and returns a string complaining
 about what's wrong with it or nothing if it's OK.
+- `typeDescription` describes the type
+- `generateMock` is a function that produces example data that satisfies the textFunc
 
     const wholeNumber = new Match(
       x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false,
-      'whole number'
+      'whole number',
+      () => Math.floor(Math.random() * 100 - 50)
     )
 
 ## `describe`
@@ -52,7 +74,17 @@ Some useful utilities (built using Match) are also provided, including `oneOf`,
     oneOf('a', 'b', 'c') // creates a type that will match one of the arguments provided
 
 ~~~~
-const {matchType, describe, oneOf, Match, nonEmpty, nullable, optional} = await import('./b8r.byExample.js');
+const {
+  matchType,
+  describe,
+  oneOf,
+  Match,
+  nonEmpty,
+  nullable,
+  optional,
+  pickOne
+} = await import('./b8r.byExample.js');
+
 Test(() => matchType(0, 17)).shouldBeJSON([])
 Test(() => matchType(0, 'hello')).shouldBeJSON(['was string, expected number'])
 Test(() => matchType(false, true)).shouldBeJSON([])
@@ -99,7 +131,7 @@ const cardinal = new Match(subject => {
   } else if (subject % 1) {
     return `was not a whole number`
   }
-}, 'cardinal number')
+}, 'cardinal number', () => 17)
 Test(() => matchType(cardinal, 0))
   .shouldBeJSON([])
 Test(() => matchType(cardinal, null))
@@ -113,7 +145,11 @@ Test(() => matchType(requestType, 'post'))
 Test(() => matchType(requestType, 'save'))
   .shouldBeJSON(["was save, expected one of get|post|put|delete|head"])
 
-const wholeNumber = new Match(x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false, 'whole number')
+const wholeNumber = new Match(
+  x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false,
+  'whole number',
+  () => Math.floor(Math.random() * 100 - 50)
+)
 Test(() => matchType(wholeNumber, 11))
   .shouldBeJSON([])
 Test(() => matchType(wholeNumber, 12.345))
@@ -145,6 +181,8 @@ Test(() => matchType(['a', 17], [0, 'qq'], [], '', true))
   .shouldBeJSON([])
 Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
   .shouldBeJSON(["[2] had no matching type"])
+Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
+  .shouldThrow()
 ~~~~
 */
 
@@ -156,38 +194,70 @@ export const describe = x => {
   return typeof x
 }
 
-export class Match {
-  constructor (testFunction, description) {
-    this.test = testFunction
-    this.description = description
+export const describeType = (x) => {
+  const scalarType = describe(x)
+  switch (scalarType) {
+    case 'array':
+      return x.map(describeType)
+    case 'object':
+      const _type = {}
+      Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]) })
+      return _type
+    default:
+      return scalarType
   }
 }
+
+export const typeJSON = (x) => JSON.stringify(describeType(x), false, 2)
+export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
+
+export class Match {
+  constructor (testFunction, description, generateMock) {
+    this.test = testFunction
+    this.description = description
+    if (typeof generateMock !== 'function') {
+      throw new Error(`Match "${description}" requires generateMock to be specified`)
+    }
+    if (this.test(generateMock())) {
+      throw new Error(`Match "${description}" mock() fails its own test!`)
+    }
+    this.mock = () => {
+      let example
+      do {
+        example = generateMock()
+      } while (example instanceof Match)
+      return example
+    }
+  }
+}
+
+export const pickOne = (...array) => array[Math.floor(array.length * Math.random())]
 
 export const oneOf = (...options) => new Match(subject => {
   if (!options.includes(subject)) {
     return `was ${subject}`
   }
-}, `one of ${options.join('|')}`)
+}, `one of ${options.join('|')}`, () => pickOne(...options))
 
 export const nullable = (example, description = '') => new Match(subject => {
   if (subject !== null) {
     if (matchType(example, subject).length) return `was ${describe(subject)}`
   }
-}, `${description || describe(example)} or null`)
+}, `${description || describe(example)} or null`, () => pickOne(null, example))
 
 export const optional = (example, description = '') => new Match(subject => {
   if (subject !== null && subject !== undefined) {
     if (matchType(example, subject).length) return `was ${describe(subject)}`
   }
-}, `${description || describe(example)}, null, or undefined`)
+}, `${description || describe(example)}, null, or undefined`, () => pickOne(null, undefined, example))
 
 export const nonEmpty = (example, description = '') => new Match(subject => {
   if (subject == null) return `was ${describe(subject)}`
   if (matchType(example, subject).length) return `was ${describe(subject)}`
   if (subject.length === 0) return 'has length 0'
-}, `non-empty ${description || describe(example)}`)
+}, `non-empty ${description || describe(example)}`, () => example)
 
-export const matchType = (example, subject, errors = [], path = '', checkArrays = false) => {
+export const matchType = (example, subject, errors = [], path = '') => {
   if (example instanceof Match) {
     const outcome = example.test(subject)
     if (outcome) errors.push(`${path ? path + ' ' : ''}${outcome}, expected ${example.description}`)
@@ -199,18 +269,18 @@ export const matchType = (example, subject, errors = [], path = '', checkArrays 
     errors.push(`${path ? path + ' ' : ''}was ${subjectType}, expected ${exampleType}`)
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
-    const count = checkArrays ? subject.length : 1
-    if (example.length === 1 && subject.length) {
+    const count = subject.length
+    if (example.length === 1 && count) {
       // assume homogenous array
       for (let i = 0; i < count; i++) {
-        matchType(example[0], subject[i], errors, `${path}[${i}]`, checkArrays)
+        matchType(example[0], subject[i], errors, `${path}[${i}]`)
       }
-    } else if (example.length > 1 && subject.length) {
+    } else if (example.length > 1 && count) {
       // assume heterogeneous array
       for (let i = 0; i < count; i++) {
         let foundMatch = false
         for (let listItem of example) {
-          if (matchType(listItem, subject[i], [], '', checkArrays).length === 0) {
+          if (matchType(listItem, subject[i], [], '').length === 0) {
             foundMatch = true
             break
           }
@@ -219,14 +289,14 @@ export const matchType = (example, subject, errors = [], path = '', checkArrays 
       }
     }
   } else if (exampleType === 'object') {
-    matchKeys(example, subject, errors, path, checkArrays)
+    matchKeys(example, subject, errors, path)
   }
   return errors
 }
 
-const matchKeys = (example, subject, errors = [], path = '', checkArrays = false) => {
+const matchKeys = (example, subject, errors = [], path = '') => {
   for (let key of Object.keys(example).sort()) {
-    matchType(example[key], subject[key], errors, path + '.' + key, checkArrays)
+    matchType(example[key], subject[key], errors, path + '.' + key)
   }
   return errors
 }

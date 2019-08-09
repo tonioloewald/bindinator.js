@@ -116,7 +116,7 @@ let _errors
 b8r.onTypeError(errors => _errors = errors)
 b8r.set('error-handling-test.number', false)
 Test(() => _errors, 'verify custom handler for type errors works')
-  .shouldBeJSON(["error-handling-test.number was NaN, expected number"])
+  .shouldBeJSON(["error-handling-test.number was boolean, expected number"])
 b8r.offTypeError()
 ~~~~
 
@@ -128,8 +128,14 @@ analysis can check internal bindings, e.g.:
 
     <div data-bind="text=_component_.caption">Caption</div>
     <script>
-      registerType({caption: 'hello'})
+      componentType('{"caption": "hello"}')
+      ...
     </script>
+
+The component-type can be inline JSON (as above) or a named reference to a type
+defined in `b8r-registry-types.js`:
+
+    componentType('hasCaption')
 
 ### Static Type Checks (PLANNED)
 
@@ -680,11 +686,10 @@ export const offTypeError = () => {
 }
 
 const checkType = (action, name) => {
-  if (registeredTypes[name] && registry[name]) {
-    const errors = matchType(registeredTypes[name], registry[name], [], name, true)
-    if (errors.length) {
-      typeErrorHandler(errors, action)
-    }
+  if (!registeredTypes[name] || !registry[name]) return
+  const errors = matchType(registeredTypes[name], registry[name], [], name, true)
+  if (errors.length) {
+    typeErrorHandler(errors, name)
   }
 }
 

@@ -1593,9 +1593,9 @@ intended to afford both static analysis of `b8r` code and components and efficie
 run-time checking of application state -- see [The Registry](#source=source/b8r.registry.js)
 documentation for more information.
 
-(WORK IN PROGRESS) 
+(WORK IN PROGRESS)
 As a side-benefit, it is also capable of driving mock-data and optimistic rendering.
-Annotations in example data can provide hints as to how to generate mock data for 
+Annotations in example data can provide hints as to how to generate mock data for
 testing purposes and for rendering user interfaces before live data is available.
 
 General usage is:
@@ -1619,9 +1619,9 @@ for items in the array, e.g.
     matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], []) // [] -- no errors
     matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 10, y: 10}, {x: -1, y: -1}]) // []
     matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{lat: -20, long: 40, alt: 100}]) // []
-    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5, y: -5}, {long: 20}]) 
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5, y: -5}, {long: 20}])
       // ["[1] had no matching type"]
-    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5}, {long: 20}]) 
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5}, {long: 20}])
       // ["[0] had no matching type", "[1] had no matching type"]
 
 For efficiency, put the most common example elements in example arrays first (since checks are
@@ -1663,12 +1663,12 @@ Some useful utilities (built using Match) are also provided, including `oneOf`,
 ~~~~
 const {
   matchType,
-  describe, 
-  oneOf, 
-  Match, 
-  nonEmpty, 
-  nullable, 
-  optional, 
+  describe,
+  oneOf,
+  Match,
+  nonEmpty,
+  nullable,
+  optional,
   pickOne
 } = await import('./b8r.byExample.js');
 
@@ -1733,7 +1733,7 @@ Test(() => matchType(requestType, 'save'))
   .shouldBeJSON(["was save, expected one of get|post|put|delete|head"])
 
 const wholeNumber = new Match(
-  x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false, 
+  x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false,
   'whole number',
   () => Math.floor(Math.random() * 100 - 50)
 )
@@ -1788,7 +1788,7 @@ const describeType = (x) => {
       return x.map(describeType)
     case 'object':
       const _type = {};
-      Object.keys(x).forEach((key) => _type[key] = describeType(x[key]));
+      Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]); });
       return _type
     default:
       return scalarType
@@ -1805,14 +1805,14 @@ class Match {
     if (typeof generateMock !== 'function') {
       throw new Error(`Match "${description}" requires generateMock to be specified`)
     }
-    if (!! this.test(generateMock())) {
+    if (this.test(generateMock())) {
       throw new Error(`Match "${description}" mock() fails its own test!`)
     }
     this.mock = () => {
       let example;
       do {
         example = generateMock();
-      } while (example instanceof Matcher)
+      } while (example instanceof Match)
       return example
     };
   }
@@ -2021,7 +2021,6 @@ b8r.onTypeError(errors => _errors = errors)
 b8r.set('error-handling-test.number', false)
 Test(() => _errors, 'verify custom handler for type errors works')
   .shouldBeJSON(["error-handling-test.number was boolean, expected number"])
-  console.log(_errors)
 b8r.offTypeError()
 ~~~~
 
