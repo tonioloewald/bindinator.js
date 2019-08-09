@@ -118,14 +118,6 @@ Test(() => getByPath(list, '[id=100].name')).shouldBe('boris');
 Test(() => getByPath(list, '[bar.baz=hello].foo')).shouldBe(17);
 Test(() => getByPath(list, '[bar.baz=hello].list[id=17].name')).shouldBe('fred');
 Test(() => {
-  setByPath(obj, 'foo', '42');
-  return obj.foo;
-}).shouldBe(42);
-Test(() => {
-  setByPath(obj, 'bool', {bar: 17});
-  return obj.bool;
-}).shouldBe(true);
-Test(() => {
   setByPath(obj, 'obj', {bar: 17});
   return obj.obj.bar;
 }).shouldBe(17);
@@ -269,7 +261,7 @@ function byKeyPath (array, keyPath, keyValue, valueToInsert) {
     }
   } else if (valueToInsert) {
     if (idx !== undefined) {
-      array[idx] = matchTypes(valueToInsert, array[idx]);
+      array[idx] = valueToInsert;
     } else if (keyPath && getByPath(valueToInsert, keyPath) + '' === keyValue + '') {
       array.push(valueToInsert);
       idx = array.length - 1;
@@ -351,7 +343,7 @@ function setByPath (orig, path, val) {
           obj = obj[idx];
         } else {
           if (val !== _delete_) {
-            obj[idx] = matchTypes(val, obj[idx]);
+            obj[idx] = val;
           } else {
             obj.splice(idx, 1);
           }
@@ -367,7 +359,7 @@ function setByPath (orig, path, val) {
           obj = byKey(obj, key, part.length ? {} : []);
         } else {
           if (val !== _delete_) {
-            obj[key] = matchTypes(val, obj[key]);
+            obj[key] = val;
           } else {
             delete obj[key];
           }
@@ -387,23 +379,6 @@ function deleteByPath (orig, path) {
   if (getByPath(orig, path) !== null) {
     setByPath(orig, path, _delete_);
   }
-}
-
-function matchTypes (value, oldValue) {
-  if (value == null || oldValue == null || typeof value === typeof oldValue) { // jshint ignore:line
-    return value
-  } else if (typeof value === 'string' && typeof oldValue === 'number') {
-    return parseFloat(value)
-  } else if (typeof oldValue === 'string') {
-    return value + ''
-  } else if (typeof oldValue === 'boolean') {
-    return value === 'false'
-      ? false
-      : !!value // maps undefined || null || '' || 0 => false
-  } else if (oldValue !== undefined && oldValue !== null) {
-    console.warn('setByPath replaced', oldValue, 'with', value);
-  }
-  return value
 }
 
 /**
@@ -1598,7 +1573,7 @@ b8r.register('future-test', {
 })
 await b8r.forceUpdate()
 Test(() => b8r.get('future-test.clickCount')).shouldBe(1)
-b8r.deregister('future-test')
+b8r.remove('future-test')
 ~~~~
 */
 
@@ -1611,6 +1586,323 @@ const setPlaySavedMessages = (fn) => {
 };
 
 /**
+# Type Checking, Mocks By Example
+
+The goal of this module is to provide simple, effective type-checking by example. Ultimately, it is
+intended to afford both static analysis of `b8r` code and components and efficient
+run-time checking of application state -- see [The Registry](#source=source/b8r.registry.js)
+documentation for more information.
+
+(WORK IN PROGRESS) 
+As a side-benefit, it is also capable of driving mock-data and optimistic rendering.
+Annotations in example data can provide hints as to how to generate mock data for 
+testing purposes and for rendering user interfaces before live data is available.
+
+General usage is:
+
+    matchType(example, subject) // returns empty list if subject has same type as example
+      // returns a list of problems discovered otherwise
+E.g.
+
+    matchType(0, 17) // [] -- no errors
+    matchType('foo', 17) // ["was number, expected string"]
+
+This is most useful when comparing objects, e.g.
+
+    matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 'world'}) // [] -- no errors
+    matchType({foo: 17, bar: 'hello'}, {bar: 'world'}) // [".foo was undefined, expected number"]
+    matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 17}) // [".bar was number, expected string"]
+
+If the example includes arrays, the elements in the array are assumed to be the valid examples
+for items in the array, e.g.
+
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], []) // [] -- no errors
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 10, y: 10}, {x: -1, y: -1}]) // []
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{lat: -20, long: 40, alt: 100}]) // []
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5, y: -5}, {long: 20}]) 
+      // ["[1] had no matching type"]
+    matchType([{x: 0, y: 0}, {long: 0, lat: 0, alt: 0}], [{x: 5}, {long: 20}]) 
+      // ["[0] had no matching type", "[1] had no matching type"]
+
+For efficiency, put the most common example elements in example arrays first (since checks are
+performed in order) and do not include unnecessary elements in example arrays.
+
+## Custom Types
+
+A `Match` class which allows you to declare arbitrarily specific (or general) types. Usage:
+
+    new Match(testFunc, typeDescription, generateMock)
+
+- `testFunc` is a function that tests its first parameter and returns a string complaining
+about what's wrong with it or nothing if it's OK.
+- `typeDescription` describes the type
+- `generateMock` is a function that produces example data that satisfies the textFunc
+
+    const wholeNumber = new Match(
+      x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false,
+      'whole number',
+      () => Math.floor(Math.random() * 100 - 50)
+    )
+
+## `describe`
+
+A simple and useful wrapper for `typeof` is provided in the form of `describe` which
+gives the typeof the value passed unless it's an `Array` (in which case it returns
+'array') or `null` (in which case it returns 'null')
+
+    describe([]) // 'array'
+    describe(null) // 'null'
+
+## Type Utilities
+
+Some useful utilities (built using Match) are also provided, including `oneOf`,
+`optional`, `nullable`, and `nonEmpty`.
+
+    oneOf('a', 'b', 'c') // creates a type that will match one of the arguments provided
+
+~~~~
+const {
+  matchType,
+  describe, 
+  oneOf, 
+  Match, 
+  nonEmpty, 
+  nullable, 
+  optional, 
+  pickOne
+} = await import('./b8r.byExample.js');
+
+Test(() => matchType(0, 17)).shouldBeJSON([])
+Test(() => matchType(0, 'hello')).shouldBeJSON(['was string, expected number'])
+Test(() => matchType(false, true)).shouldBeJSON([])
+Test(() => matchType(false, null)).shouldBeJSON(["was null, expected boolean"])
+Test(() => matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 'world'}))
+  .shouldBeJSON([])
+Test(() => matchType({foo: 17, bar: 'hello'}, {bar: 'world'}))
+  .shouldBeJSON([".foo was undefined, expected number"])
+Test(() => matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 17}))
+  .shouldBeJSON([".bar was number, expected string"])
+Test(() => matchType({foo: 17, bar: 'hello'}, {bar: 17}))
+  .shouldBeJSON([".bar was number, expected string", ".foo was undefined, expected number"])
+Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: false}}}))
+  .shouldBeJSON([])
+Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: 17}}}))
+  .shouldBeJSON([".foo.bar.baz was number, expected boolean"])
+Test(() => matchType([], []))
+  .shouldBeJSON([])
+Test(() => matchType([1], []))
+  .shouldBeJSON([])
+Test(() => matchType([], [1]))
+  .shouldBeJSON([])
+Test(() => matchType(['hello'], ['world']))
+  .shouldBeJSON([])
+Test(() => matchType([false], ['world']))
+  .shouldBeJSON(["[0] was string, expected boolean"])
+Test(() => matchType([{x: 0, y: 17}], [{y: 0, x: 17}]))
+  .shouldBeJSON([])
+Test(() => matchType([{x: 0, y: 17}], [{y: 0}]))
+  .shouldBeJSON(["[0].x was undefined, expected number"])
+Test(() => matchType([{x: 0, y: 17}], [{x: 'world'}]))
+  .shouldBeJSON(["[0].x was string, expected number", "[0].y was undefined, expected number"])
+Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: 'baz'}]))
+  .shouldBeJSON([])
+Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: false}]))
+  .shouldBeJSON(["[0] had no matching type"])
+
+const cardinal = new Match(subject => {
+  const subjectType = describe(subject)
+  if (subjectType !== 'number') {
+    return `was ${subjectType}`
+  } else if (subject < 0) {
+    return `was negative`
+  } else if (subject % 1) {
+    return `was not a whole number`
+  }
+}, 'cardinal number', () => 17)
+Test(() => matchType(cardinal, 0))
+  .shouldBeJSON([])
+Test(() => matchType(cardinal, null))
+  .shouldBeJSON(["was null, expected cardinal number"])
+Test(() => matchType(cardinal, -1))
+  .shouldBeJSON(["was negative, expected cardinal number"])
+
+const requestType = oneOf('get', 'post', 'put', 'delete', 'head')
+Test(() => matchType(requestType, 'post'))
+  .shouldBeJSON([])
+Test(() => matchType(requestType, 'save'))
+  .shouldBeJSON(["was save, expected one of get|post|put|delete|head"])
+
+const wholeNumber = new Match(
+  x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false, 
+  'whole number',
+  () => Math.floor(Math.random() * 100 - 50)
+)
+Test(() => matchType(wholeNumber, 11))
+  .shouldBeJSON([])
+Test(() => matchType(wholeNumber, 12.345))
+  .shouldBeJSON(["was 12.345, expected whole number"])
+
+const nonEmptyString = nonEmpty('test')
+Test(() => matchType(nonEmptyString, 'hello'))
+  .shouldBeJSON([])
+Test(() => matchType(nonEmptyString, ''))
+  .shouldBeJSON(["has length 0, expected non-empty string"])
+Test(() => matchType(nonEmptyString, []))
+  .shouldBeJSON(["was array, expected non-empty string"])
+
+const nullableObject = nullable({})
+Test(() => matchType(nullableObject, null))
+  .shouldBeJSON([])
+Test(() => matchType(nullableObject, 'hello'))
+  .shouldBeJSON(["was string, expected object or null"])
+const optionalArrayOfNumbers = optional([1], 'array<number>')
+Test(() => matchType(optionalArrayOfNumbers))
+  .shouldBeJSON([])
+Test(() => matchType(optionalArrayOfNumbers, [1,2,3]))
+  .shouldBeJSON([])
+Test(() => matchType(optionalArrayOfNumbers, ['a','b','c']))
+  .shouldBeJSON(['was array, expected array<number>, null, or undefined'])
+Test(() => matchType(['a', 17], ['qq'], [], '', true))
+  .shouldBeJSON([])
+Test(() => matchType(['a', 17], [0, 'qq'], [], '', true))
+  .shouldBeJSON([])
+Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
+  .shouldBeJSON(["[2] had no matching type"])
+Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
+  .shouldThrow()
+~~~~
+*/
+
+const describe = x => {
+  if (x === null) return 'null'
+  if (x instanceof Match) return x.description
+  if (Array.isArray(x)) return 'array'
+  if (typeof x === 'number' && isNaN(x)) return 'NaN'
+  return typeof x
+};
+
+const describeType = (x) => {
+  const scalarType = describe(x);
+  switch (scalarType) {
+    case 'array':
+      return x.map(describeType)
+    case 'object':
+      const _type = {};
+      Object.keys(x).forEach((key) => _type[key] = describeType(x[key]));
+      return _type
+    default:
+      return scalarType
+  }
+};
+
+const typeJSON = (x) => JSON.stringify(describeType(x), false, 2);
+const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:');
+
+class Match {
+  constructor (testFunction, description, generateMock) {
+    this.test = testFunction;
+    this.description = description;
+    if (typeof generateMock !== 'function') {
+      throw new Error(`Match "${description}" requires generateMock to be specified`)
+    }
+    if (!! this.test(generateMock())) {
+      throw new Error(`Match "${description}" mock() fails its own test!`)
+    }
+    this.mock = () => {
+      let example;
+      do {
+        example = generateMock();
+      } while (example instanceof Matcher)
+      return example
+    };
+  }
+}
+
+const pickOne = (...array) => array[Math.floor(array.length * Math.random())];
+
+const oneOf = (...options) => new Match(subject => {
+  if (!options.includes(subject)) {
+    return `was ${subject}`
+  }
+}, `one of ${options.join('|')}`, () => pickOne(...options));
+
+const nullable = (example, description = '') => new Match(subject => {
+  if (subject !== null) {
+    if (matchType(example, subject).length) return `was ${describe(subject)}`
+  }
+}, `${description || describe(example)} or null`, () => pickOne(null, example));
+
+const optional = (example, description = '') => new Match(subject => {
+  if (subject !== null && subject !== undefined) {
+    if (matchType(example, subject).length) return `was ${describe(subject)}`
+  }
+}, `${description || describe(example)}, null, or undefined`, () => pickOne(null, undefined, example));
+
+const nonEmpty = (example, description = '') => new Match(subject => {
+  if (subject == null) return `was ${describe(subject)}`
+  if (matchType(example, subject).length) return `was ${describe(subject)}`
+  if (subject.length === 0) return 'has length 0'
+}, `non-empty ${description || describe(example)}`, () => example);
+
+const matchType = (example, subject, errors = [], path = '') => {
+  if (example instanceof Match) {
+    const outcome = example.test(subject);
+    if (outcome) errors.push(`${path ? path + ' ' : ''}${outcome}, expected ${example.description}`);
+    return errors
+  }
+  const exampleType = describe(example);
+  const subjectType = describe(subject);
+  if (exampleType !== subjectType) {
+    errors.push(`${path ? path + ' ' : ''}was ${subjectType}, expected ${exampleType}`);
+  } else if (exampleType === 'array') {
+    // only checking first element of subject for now
+    const count = subject.length;
+    if (example.length === 1 && count) {
+      // assume homogenous array
+      for (let i = 0; i < count; i++) {
+        matchType(example[0], subject[i], errors, `${path}[${i}]`);
+      }
+    } else if (example.length > 1 && count) {
+      // assume heterogeneous array
+      for (let i = 0; i < count; i++) {
+        let foundMatch = false;
+        for (let listItem of example) {
+          if (matchType(listItem, subject[i], [], '').length === 0) {
+            foundMatch = true;
+            break
+          }
+        }
+        if (!foundMatch) errors.push(`${path}[${i}] had no matching type`);
+      }
+    }
+  } else if (exampleType === 'object') {
+    matchKeys(example, subject, errors, path);
+  }
+  return errors
+};
+
+const matchKeys = (example, subject, errors = [], path = '') => {
+  for (let key of Object.keys(example).sort()) {
+    matchType(example[key], subject[key], errors, path + '.' + key);
+  }
+  return errors
+};
+
+var _byExample = /*#__PURE__*/Object.freeze({
+  describe: describe,
+  describeType: describeType,
+  typeJSON: typeJSON,
+  typeJS: typeJS,
+  Match: Match,
+  pickOne: pickOne,
+  oneOf: oneOf,
+  nullable: nullable,
+  optional: optional,
+  nonEmpty: nonEmpty,
+  matchType: matchType
+});
+
+/**
 # The Registry
 
 Bindinator is built around the idea of registering objects under unique names
@@ -1620,7 +1912,7 @@ b8r's registry is an observable object that b8r uses to keep track of objects.
 Once an object is registered, its properties will automatically be bound
 to events and DOM properties by path.
 
-Both of these lines register an object under the name 'root'
+Both of these lines register an object under the name 'root':
 
     register('root', object_value);
     set('root', object_value);
@@ -1663,9 +1955,119 @@ afterwards.
 Triggers all observers as though the value at path has changed. Useful
 if you change a property independently of the registry.
 
+The `sourceElement` parameter is used to indicate that the source of the
+change is a particular element. That element will not be updated by `b8r`.
+(You probably don't need to worry about this, but it prevents unnecessary
+updates to, for example, an `<input>` control that the user is editing which
+can interfere with selection and focus.)
+
     touch(path);
 
 Triggers all observers asynchronousely (on requestAnimationFrame).
+
+## Type Checking
+
+You can enforce type checking on registry entries using `registerType`.
+
+    b8r.registerType('foo', {bar: 17})
+
+This will use `matchType` (see [Type Checking by Example](#source=source/b8r.byExample.js))
+to compare the specified registry entry when that entry is initialized or changed. So, if you
+registered the type of 'foo' as above, then:
+
+    b8r.register('foo', {bar: 100}) // no problem
+    b8r.set('foo.bar', 0) // no problem
+    b8r.set('foo.bar', 'hello') // generates a console error
+
+There is a *small* overhead to doing this type checking, and it will not *prevent*
+incorrect values being added to the register (yet), but it will do a pretty good
+job of telling you exactly what went wrong.
+
+(PLANNED) I plan to make type checking more efficient and have it throw
+on erroneous changes rather than simply complain about them. The mechanism will
+be if you change `path.to.value` then `b8r` will attempt to do with most specific
+check possible (e.g. compare what's at `path.to.value` with the new value rather
+than the resultant registry entry for `path` with whatever is there after the change.
+
+THe trick is to deal with (a) `Match` instances in the hierarchy and (b) arrays.
+
+### Custom Handling of Type Errors
+
+By default, type errors are simply spammed to the console. You can override
+this behavior by using `b8r.onTypeError()` to set your own handler (e.g. to
+log the failure or trigger an alarm.) This handler will receiving two arguments:
+
+- `errors` -- an array of descriptions of type failures, and
+- `action` -- a string
+
+describing the operation that failed.
+
+For example:
+
+    b8r.onTypeError((errors, action) => {
+      b8r.json('/logerror', 'post', {timestamp: Data.now(), action, errors})
+    })
+    b8r.offTypeError() // restores the default error handler
+
+~~~~
+b8r.registerType('error-handling-test', {
+  number: 17
+})
+b8r.register('error-handling-test', {
+  number: 0
+})
+let _errors
+b8r.onTypeError(errors => _errors = errors)
+b8r.set('error-handling-test.number', false)
+Test(() => _errors, 'verify custom handler for type errors works')
+  .shouldBeJSON(["error-handling-test.number was boolean, expected number"])
+  console.log(_errors)
+b8r.offTypeError()
+~~~~
+
+### Component Type Checks (PLANNED)
+
+A component can register a type for its private data by calling `registerType()`
+and then all its instances will be checked against this type and static
+analysis can check internal bindings, e.g.:
+
+    <div data-bind="text=_component_.caption">Caption</div>
+    <script>
+      componentType('{"caption": "hello"}')
+      ...
+    </script>
+
+The component-type can be inline JSON (as above) or a named reference to a type
+defined in `b8r-registry-types.js`:
+
+    componentType('hasCaption')
+
+### Static Type Checks (PLANNED)
+
+If you provide `b8r-registry-types.js`, which might look like this:
+
+    export const documents = {
+      ...
+    }
+    export const app = {
+      ...
+    }
+
+Then you can then do something like:
+
+    import {app, documents} from './b8r-registry-types.js'
+    b8r.registerType('app', app)
+    b8r.registerType('documents', documents)
+
+I'll probably add a convenience function so you could write something like this:
+
+    import * as types from './b8r-registry-types.js'
+    b8r.registerTypes(types)
+
+`b8r` will provide static analysis tools in the form of an ESLint plugin and an
+HTMLHint plugin/fork that will identify type errors based on the exported
+examples in `b8r-registry-types.js`, the goal being to flag any bad bindings
+in components, and in general identify as many errors as possible before they occur.
 
 ## JSON Utilities
 
@@ -1743,6 +2145,7 @@ lists).
 */
 
 const registry = {};
+const registeredTypes = {};
 const listeners = []; // { path_string_or_test, callback }
 const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/;
 
@@ -1813,7 +2216,7 @@ const _get = (path, element) => {
     return elt ? getByPath(elt._b8rListInstance, path.substr(1)) : undefined
   } else {
     path = resolvePath(path, element);
-    if (!isValidPath(path)) {
+    if ( !isValidPath(path)) {
       console.error(`getting invalid path ${path}`);
     } else {
       return getByPath(registry, path)
@@ -2168,11 +2571,31 @@ const touch = (path, sourceElement) => {
     .forEach(listener => listener.callback(path, sourceElement));
 };
 
+const _defaultTypeErrorHandler = (errors, action) => {
+  console.error(`registry type check(s) failed after ${action}`, errors);
+};
+let typeErrorHandler = _defaultTypeErrorHandler;
+const onTypeError = (callback) => {
+  typeErrorHandler = callback;
+};
+const offTypeError = () => {
+  typeErrorHandler = _defaultTypeErrorHandler;
+};
+
+const checkType = (action, name) => {
+  if (!registeredTypes[name] || !registry[name]) return
+  const errors = matchType(registeredTypes[name], registry[name], [], name);
+  if (errors.length) {
+    typeErrorHandler(errors, name);
+  }
+};
+
 const set = (path, value, sourceElement) => {
-  if (!isValidPath(path)) {
+  if ( !isValidPath(path)) {
     console.error(`setting invalid path ${path}`);
   }
   const pathParts = path.split(/\.|\[/);
+  const [name] = pathParts;
   const model = pathParts[0];
   const existing = getByPath(registry, path);
   if (pathParts.length > 1 && !registry[model]) {
@@ -2204,11 +2627,18 @@ const set = (path, value, sourceElement) => {
     setByPath(registry, path, value);
     touch(path, sourceElement);
   }
-  return value // convenient for things push (see below) but maybe an anti-feature?!
+  checkType(`set('${path}',...)`, name);
+  return value // convenient for push (see below) but maybe an anti-feature?!
+};
+
+const registerType = (name, example) => {
+  registeredTypes[name] = example;
+  checkType(`registerType('${name}')`, name);
 };
 
 const _register = (name, obj) => {
   registry[name] = obj;
+  checkType(`register('${name}')`, name);
 };
 
 const register = (name, obj, blockUpdates) => {
@@ -2217,7 +2647,7 @@ const register = (name, obj, blockUpdates) => {
       ', all names starting and ending with a single \'_\' are reserved.')
   }
 
-  _register(name, obj, blockUpdates);
+  _register(name, obj);
 
   if (!blockUpdates) {
     touch(name);
@@ -2383,7 +2813,6 @@ that test.
 ~~~~
 b8r.register('listener_test1', {
   flag_changed: () => {
-    console.log('flag changed');
     b8r.set('listener_test2.counter', b8r.get('listener_test2.counter') + 1);
   }
 });
@@ -2514,6 +2943,8 @@ const _getByPath = (model, path) =>
   get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
 
 var _registry = /*#__PURE__*/Object.freeze({
+  onTypeError: onTypeError,
+  offTypeError: offTypeError,
   get: get,
   getJSON: getJSON,
   getByPath: _getByPath,
@@ -2532,6 +2963,7 @@ var _registry = /*#__PURE__*/Object.freeze({
   unobserve: unobserve,
   models: models,
   _register: _register,
+  registerType: registerType,
   register: register,
   registered: registered,
   remove: remove,
@@ -3248,6 +3680,7 @@ Test(() => describe(["a",2,{},false,[]], 5, true)).shouldBe('[string, #, {}, boo
 Test(() => describe(["a",2,{}], 2)).shouldBe('[* × 3]');
 Test(() => describe([1,2,3])).shouldBe('[1 × 3]');
 Test(() => describe([1,2,3], 4, true)).shouldBe('[# × 3]');
+Test(() => describe({y: 0, x: 1}) === describe({x: -2, y: 17})).shouldBe(true);
 Test(() => describe([{x:0,y:0},{x:0,y:0},{x:0,y:0}])).shouldBe('[{x,y} × 3]');
 Test(() => describe({a:0,b:1,c:2,d:3,e:4})).shouldBe('{a,b,c,d,…}');
 Test(() => describe({a:0,b:1,c:2,d:3,e:4}, 5)).shouldBe('{a,b,c,d,e}');
@@ -3263,17 +3696,17 @@ Test(() => describe((a, b={x: 17}) => {})).shouldBe('(a, b={x: 17})=>{...}');
 Test(() => describe(async function(x,y,z){})).shouldBe('async (x,y,z)=>{...}');
 ~~~~
 */
-function describe (x, maxUniques = 4, generic = false) {
+function describe$1 (x, maxUniques = 4, generic = false) {
   if (x === undefined) {
     return 'undefined'
   } else if (Array.isArray(x)) {
     if (x.length === 0) {
       return '[]'
     } else if (x.length === 1 || typeof x[0] === typeof x[1]) {
-      return `[${describe(x[0], maxUniques, generic)} × ${x.length}]`
+      return `[${describe$1(x[0], maxUniques, generic)} × ${x.length}]`
     } else if (typeof x[0] !== typeof x[1]) {
       return x.length <= maxUniques || maxUniques < 0
-        ? '[' + x.map(v => describe(v, maxUniques, generic)).join(', ') + ']'
+        ? '[' + x.map(v => describe$1(v, maxUniques, generic)).join(', ') + ']'
         : `[* × ${x.length}]`
     }
   } else if (x && x.constructor === Object) {
@@ -3282,7 +3715,7 @@ function describe (x, maxUniques = 4, generic = false) {
       keys.splice(maxUniques);
       keys.push('…');
     }
-    return `{${keys.join(',')}}`
+    return `{${keys.sort().join(',')}}`
   } else if (typeof x === 'string') {
     return generic ? 'string' : `"${x}"`
   } else if (x instanceof Function) {
@@ -3733,6 +4166,25 @@ This lets you pick between two classes.
 This shows (or hides) an element based on whether a bound value is truthy or
 matches the provided parameter.
 
+### img
+
+    <img data-bind="img=path.to.imageUrl">
+
+The `<img>` element will have its src attribute set after the image has been preloaded
+(and it will fade in). Leverage's b8r's [imgSrc library](#source=source/b8r.imgSrc.js)
+
+**Note**: This can cause problems with cross-domain policies. If you just want to set the src
+to the specified string, you can use a simple `attr()` binding:
+
+    <img data-bind="attr(src)=path.to.imageUrl"
+
+### bgImg
+
+    <div data-bind="bgImg=path.to.imageUrl">...</div>
+
+The `<div>` will have its style.backgroundImage set to `url(the-path-provided)` or
+nothing (if the path is falsey).
+
 ### method()
 
     data-bind="method(model.notify)=message.priority"
@@ -4063,7 +4515,7 @@ function _toTargets (b8r) {
       } catch (_) {
         const obj = {};
         Object.keys(value).forEach(key => {
-          obj[key] = describe(value[key]);
+          obj[key] = describe$1(value[key]);
         });
         element.textContent = '/* partial data -- could not stringify */\n' + JSON.stringify(obj, false, 2);
       }
@@ -5034,20 +5486,6 @@ stylesheet in the `<header>` the way `b8r` components do.
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
-const appendContentToElement = (elt, content) => {
-  if (content) {
-    if (typeof content === 'string') {
-      elt.textContent = content;
-    } else if (Array.isArray(content)) {
-      content.forEach(node => elt.appendChild(node.cloneNode(true)));
-    } else if (content.cloneNode) {
-      elt.appendChild(content.cloneNode(true));
-    } else {
-      throw new Error('expect text content or document node')
-    }
-  }
-};
-
 const makeElement = (tagType, {
   content = false,
   attributes = {},
@@ -5064,11 +5502,28 @@ const makeElement = (tagType, {
   return elt
 };
 
-const div = (settings = {}) => makeElement('div', settings);
-const span = (settings = {}) => makeElement('span', settings);
-const input = (settings = {}) => makeElement('input', settings);
 const button = (settings = {}) => makeElement('button', settings);
+const div = (settings = {}) => makeElement('div', settings);
+const input = (settings = {}) => makeElement('input', settings);
 const slot = (settings = {}) => makeElement('slot', settings);
+const span = (settings = {}) => makeElement('span', settings);
+const text$2 = s => document.createTextNode(s);
+
+const appendContentToElement = (elt, content) => {
+  if (content) {
+    if (typeof content === 'string') {
+      elt.textContent = content;
+    } else if (Array.isArray(content)) {
+      content.forEach(node => {
+        elt.appendChild(node.cloneNode ? node.cloneNode(true) : text$2(node));
+      });
+    } else if (content.cloneNode) {
+      elt.appendChild(content.cloneNode(true));
+    } else {
+      throw new Error('expect text content or document node')
+    }
+  }
+};
 
 const fragment$1 = (...elements) => {
   const container = document.createDocumentFragment();
@@ -5266,6 +5721,7 @@ Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHa
 Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListPath, getListInstancePath });
 Object.assign(b8r, { onAny, offAny, anyListeners });
 Object.assign(b8r, _registry);
+Object.assign(b8r, _byExample);
 b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement));
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;

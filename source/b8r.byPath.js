@@ -118,14 +118,6 @@ Test(() => getByPath(list, '[id=100].name')).shouldBe('boris');
 Test(() => getByPath(list, '[bar.baz=hello].foo')).shouldBe(17);
 Test(() => getByPath(list, '[bar.baz=hello].list[id=17].name')).shouldBe('fred');
 Test(() => {
-  setByPath(obj, 'foo', '42');
-  return obj.foo;
-}).shouldBe(42);
-Test(() => {
-  setByPath(obj, 'bool', {bar: 17});
-  return obj.bool;
-}).shouldBe(true);
-Test(() => {
   setByPath(obj, 'obj', {bar: 17});
   return obj.obj.bar;
 }).shouldBe(17);
@@ -273,7 +265,7 @@ function byKeyPath (array, keyPath, keyValue, valueToInsert) {
     }
   } else if (valueToInsert) {
     if (idx !== undefined) {
-      array[idx] = matchTypes(valueToInsert, array[idx])
+      array[idx] = valueToInsert
     } else if (keyPath && getByPath(valueToInsert, keyPath) + '' === keyValue + '') {
       array.push(valueToInsert)
       idx = array.length - 1
@@ -355,7 +347,7 @@ function setByPath (orig, path, val) {
           obj = obj[idx]
         } else {
           if (val !== _delete_) {
-            obj[idx] = matchTypes(val, obj[idx])
+            obj[idx] = val
           } else {
             obj.splice(idx, 1)
           }
@@ -371,7 +363,7 @@ function setByPath (orig, path, val) {
           obj = byKey(obj, key, part.length ? {} : [])
         } else {
           if (val !== _delete_) {
-            obj[key] = matchTypes(val, obj[key])
+            obj[key] = val
           } else {
             delete obj[key]
           }
@@ -393,21 +385,4 @@ function deleteByPath (orig, path) {
   }
 }
 
-function matchTypes (value, oldValue) {
-  if (value == null || oldValue == null || typeof value === typeof oldValue) { // jshint ignore:line
-    return value
-  } else if (typeof oldValue === 'number') {
-    return parseFloat(value)
-  } else if (typeof oldValue === 'string') {
-    return value + ''
-  } else if (typeof oldValue === 'boolean') {
-    return value === 'false'
-      ? false
-      : !!value // maps undefined || null || '' || 0 => false
-  } else if (oldValue !== undefined && oldValue !== null) {
-    console.warn('setByPath replaced', oldValue, 'with', value)
-  }
-  return value
-}
-
-export { getByPath, setByPath, deleteByPath, matchTypes, pathParts, pathSplit }
+export { getByPath, setByPath, deleteByPath, pathParts, pathSplit }
