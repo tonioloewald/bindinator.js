@@ -17,7 +17,7 @@ b8r.register('future-test', {
 })
 await b8r.forceUpdate()
 Test(() => b8r.get('future-test.clickCount')).shouldBe(1)
-b8r.deregister('future-test')
+b8r.remove('future-test')
 ~~~~
 */
 
