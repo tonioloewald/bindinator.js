@@ -14,6 +14,14 @@ To get a normalized representation of a keystroke:
 
     keystroke(event) // => produces normalized keystroke of the form alt-X
 
+`b8r`'s keyboard event handling provides a convenient feature to specify 
+one or more specified keystrokes for an event to handle, e.g.
+
+    <body data-event="
+      keyup(meta-Q):app.quit;
+      keyup(Tab,ctrl-Space):app.togglePalettes
+    ">
+
 ```
 <label>
   Type in here
@@ -31,7 +39,7 @@ To get a normalized representation of a keystroke:
 ```
 ## Modifier Keys
 
-Also provides modifierKeys, a map from the modifier strings (e.g. alt) to
+Also provides `modifierKeys`, a map from the modifier strings (e.g. alt) to
 the relevant unicode glyphs (e.g. '⌥').
 */
 /* global module */

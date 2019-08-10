@@ -7,6 +7,10 @@ Copyright ©2016-2017 Tonio Loewald
 Gracefully populates an `<img>` element's src attribute to a url,
 sets the element to `opacity: 0`, and then fades it in when the image
 is loaded.
+
+    imagePomise(url, cors=true)
+
+Returns a promise of an image (used by imgSrc), and it's memoized.
 */
 /* global Image, HTMLImageElement, getComputedStyle, HTMLCanvasElement */
 import { render } from '../lib/pixel.js'

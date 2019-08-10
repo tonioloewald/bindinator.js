@@ -82,7 +82,7 @@ const getParsedEventHandlers = element => {
         typeArgs: types.map(s => {
           if (s.substr(0, 3) === 'key') {
             s = s.replace(/Key|Digit/g, '')
-            // Allows for a key to be CMD in Mac and Ctrl in Windows
+            // Allows for a key to be Cmd in Mac and Ctrl in Windows
             s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl')
           }
           var args = s.match(/\(([^)]+)\)/)
