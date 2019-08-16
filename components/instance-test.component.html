@@ -3,7 +3,11 @@
 Copyright ©2016-2017 Tonio Loewald
 
 This component nests a bunch of instances of the hello component, showing
-their private scopes in action, and also
+their private scopes in action, and also component composition.
+
+These elements have different child elements and execute their scripts in unique contexts.
+
+One of the elements is nested in an element of the same type, and the two are still mutually independent.
 -->
 <style>
   [data-id] {
@@ -22,9 +26,6 @@ their private scopes in action, and also
   }
 </style>
 <div>
-  <h4>Multiple Instances</h4>
-  <p>These elements have different child elements and execute their scripts in unique contexts.</p>
-  <p>One of the elements is nested in an element of the same type, and the two are still mutually independent.</p>
   <div style="display: flex">
     <div data-id="a" style="flex-grow: 1" data-component="hello">
       <p>I am an inherited child</p>

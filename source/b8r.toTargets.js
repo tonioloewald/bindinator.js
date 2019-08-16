@@ -89,7 +89,8 @@ bold or italics to tags (e.g. replacing `**bold**` or `_italic_` with `<b>bold</
 and `<i>italic</i>`).
 
 *No other formatting is supported* and if the string contains a `<` or `>` character
-no formatting is applied and the `textContent` of the element is set instead.
+no formatting is applied and the `textContent` of the element is set instead (a
+precaution against script injection).
 ```
 <h2 data-bind="format=_component_.message"></h2>
 <script>

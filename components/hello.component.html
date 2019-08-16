@@ -19,7 +19,10 @@ to operate within a private scope.
   }
 </style>
 <div class="hello">
-  <h4>Hello Component</h4>
+  <h4 data-bind="format=__${_component_.greeting}__ Component"></h4>
+  <label>
+    Greeting: <input data-bind="value=_component_.greeting">
+  </label>
   <button data-event="click:_component_.click">Click Me</button>
   <p data-bind="show_if=_component_.click_count">
     Number of times clicked:
@@ -29,8 +32,11 @@ to operate within a private scope.
 </div>
 <script>
   /* global get, set, register */
-  const click = () => set('click_count', get('click_count') + 1)
+  const click = () => {
+    alert(get('greeting'))
+    set('click_count', get('click_count') + 1)
+  }
 
 // establish a private scope for this component
-register({ click, click_count: 0 })
+register({ click, click_count: 0, greeting: 'Hello' })
 </script>
