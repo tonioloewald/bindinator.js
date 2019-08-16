@@ -23,6 +23,8 @@ one of the interactive examples. The `b8r` version is [here](#source=todo-simple
 
 ### React Version
 
+![react to-do example in action](docs/images/react-to-do.png)
+
 ```
 class TodoApp extends React.Component {
   constructor(props) {
@@ -40,14 +42,15 @@ does prototypical inheritance) means that if a subclass fails to call an
 inherited method correctly things can go wrong, sometimes in subtle ways.
 
 The last two lines exist solely because of React's need to pipe things around, even
-within a component. More on this below.
+within a component. (Some toolchains allow you to declare instance methods as arrow functions,
+effectively doing this for you. This is an example of React solving problems with tooling.) More on this below.
 
 (It's worth noting that __custom elements__ are also created via subclassing and
 run into similar issues. As a result of this, [web-components.js](#source=lib/web-components.js)
 automatically attaches event handlers to the component _instance_ in its constructor.
 The difference is that `b8r` doesn't assume the constructor needs to be overridden
 if the component does anything interesting, and handles the boilerplate function binding
-for you.)
+for you without without manually binding instance methods or transpilation.)
 
 ```
   render() {
@@ -85,10 +88,6 @@ wrong thing, and the second most obvious thing -- putting `this.handleChange.bin
 here -- is an _antipattern_ which is typically addressed by a suitably configured
 linter screaming at you (because you run the risk of leaking context every time
 you `render`, and you `render` a lot).
-
-If you want to know just how constantly react is calling `render`, put in a 
-`console.log` and watch it run every time you hit a key, and when you create a 
-new <TodoList> item.
 
 Now, React does lots of clever stuff to avoid doing inefficient things like
 rebuilding DOM nodes unnecessarily. Still, it's interesting to turn on Chrome's
@@ -187,6 +186,8 @@ ReactDOM.render(
 
 ### b8r version
 
+![react to-do example in action](docs/images/b8r-to-do.png)
+
 The equivalent `b8r` ToDo list would looks like:
 
 ```
@@ -279,6 +280,39 @@ Or, in "pure javascript", something like:
 ```
 b8r.component('path/to/todo-simple').then(c => b8r.insertComponent(c, document.body))
 ```
+
+#### An Aside on Unnecessary Redraws
+
+If you want to know just how constantly react is calling `render`, put in a 
+`console.log` and watch it run every time you hit a key, and when you create a 
+new <TodoList> item. You can also use Chrome's render performance tooling to
+flash a rectangle every time layout gets re-rendered. I've done this with the
+two examples being discussed.
+
+![redraw flashing in react](./docs/images/react-screen-redraws.gif)
+
+In order to minimize unnecessary redraws, React utilizes a "virtual DOM" that
+is intended to store the state of UI components so that it can tell whether they
+need to be redrawn. Despite this, this simple example redraws the static heading
+for no reason and, in practice, developers frequently need to implement a method
+named `shouldComponentUpdate` to manually block redraws.
+
+![redraw flashing in b8r](./docs/images/b8r-screen-redraws.gif)
+
+So far, `b8r` does not use a "virtual DOM" and it does not provide a mechanism
+for manually blocking unnecessary redraws. When the user changes a value in a bound
+input (and some other elements), b8r updates any bound path and then updates all 
+elements bound to that path *except the element that was the source of the change*.
+This is, by far, the most common source of problems in a user interface, e.g. if an
+input field changes a bound value and then that bound value is sent back into the input
+then its selection and focus state may be lost, and if you imagine that the input field
+contains a number, a "smart" optimization might consider the new value to be different.
+
+`b8r` does one more thing to prevent unnecessary refreshes -- tracking the bound values 
+"last seen" during an update and not redrawing if they haven't changed. This can prevent computed 
+bindings from being unnecessary called (if something is bound to `path.tofoo(path.to.bar, path.to.baz))`, 
+`b8r` won't call `foo` if `bar` and `baz` haven't changed since it last called `foo`.
+
 #### A final aside on sub-components…
 
 The entire ToDo "app" has been encapsulated as a single component
