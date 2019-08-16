@@ -7,11 +7,14 @@ their private scopes in action, and also component composition.
 
 These elements have different child elements and execute their scripts in unique contexts.
 
-One of the elements is nested in an element of the same type, and the two are still mutually independent.
+One of the components is nested in a component of the same type, and the two are still mutually independent.
+
+One of the components has had its default `greeting` overridden using a `data` attribute.
 -->
 <style>
   [data-id] {
     position: relative;
+    display: inline-block;
   }
 
   [data-id]:after {
@@ -27,19 +30,19 @@ One of the elements is nested in an element of the same type, and the two are st
 </style>
 <div>
   <div style="display: flex">
-    <div data-id="a" style="flex-grow: 1" data-component="hello">
+    <b8r-component path="components/hello" data-id="a" style="flex-grow: 1">
       <p>I am an inherited child</p>
-    </div>
-    <div data-id="b" style="flex-grow: 1" data-component="hello">
+    </b8r-component>
+    <b8r-component path="components/hello" data-id="b" style="flex-grow: 1">
       <p>I am a different inherited child</p>
-      <div data-id="c" data-component="hello">
+      <b8r-component path="components/hello" data-id="c" data-greeting="Good-Bye">
         <p>
           And I am a child of another instance of myself
         </p>
-      </div>
+      </b8r-component>
     </div>
-  </div>
-  <div data-id="d" style="flex-grow: 1" data-component="hello">
+  </b8r-component>
+  <b8r-component path="components/hello" data-id="d" style="flex-grow: 1">
     <p>Amongst our weaponry are such diverse elements as</p>
     <ul>
       <li>Fear</li>
@@ -47,9 +50,5 @@ One of the elements is nested in an element of the same type, and the two are st
       <li>Ruthless Efficiency</li>
       <li>And a fanatical devotion to the pope</li>
     </ul>
-  </div>
+  </b8r-component>
 </div>
-<script>
-  /* global b8r */
-  b8r.component('hello')
-</script>

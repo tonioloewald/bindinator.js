@@ -133,10 +133,6 @@
     const Test = configuredTest({
       reportContainer: b8r.findOne('.report'),
     })
-  /*
-    Test(() => 2).shouldBe(2);
-    Test(() => 2).shouldBe(1);
-  */
     var obj = {
       base: 17,
       buried: { id: -3 },
@@ -222,11 +218,9 @@
     Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2]);
     setByPath(obj, 'base', 42);
     setByPath(obj, 'kettle.black', 11);
-    b8r.forceUpdate();
     Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
     Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
     setByPath(obj, 'sub.list[2]', 25);
-    b8r.forceUpdate();
     Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
     // binding (to), data mounting

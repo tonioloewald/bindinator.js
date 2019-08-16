@@ -109,6 +109,8 @@ const list = [
   obj
 ]
 
+Test(() => getByPath(obj, '')).shouldBe(obj);
+Test(() => getByPath(obj, '/')).shouldBe(obj);
 Test(() => getByPath(obj, 'foo')).shouldBe(17);
 Test(() => getByPath(obj, '[=foo]')).shouldBe(17);
 Test(() => getByPath(obj, 'bar.baz')).shouldBe('hello');

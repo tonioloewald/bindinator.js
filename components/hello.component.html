@@ -32,11 +32,14 @@ to operate within a private scope.
 </div>
 <script>
   /* global get, set, register */
+
+  const greeting = component.dataset.greeting || 'Hello'
+
   const click = () => {
     alert(get('greeting'))
     set('click_count', get('click_count') + 1)
   }
 
-// establish a private scope for this component
-register({ click, click_count: 0, greeting: 'Hello' })
+  // establish a private scope for this component
+  register({ greeting, click, click_count: 0 })
 </script>

@@ -13,6 +13,8 @@ The basic form of a data binding is `data-bind="target=path.to.value"`.
 <div data-bind="div=path.to.text"></div>
 ```
 
+### Multiple Bindings
+
 You can put **multiple bindings** in a single `data-bind` attribute, separated by semicolons.
 
 ```
@@ -21,6 +23,8 @@ You can put **multiple bindings** in a single `data-bind` attribute, separated b
   enabled_if=app.enable_stuff
 ">
 ```
+
+### Multiple Targets
 
 You can put **multiple targets** on the target side of a binding, separated by commas.
 
@@ -31,12 +35,16 @@ You can put **multiple targets** on the target side of a binding, separated by c
 ">
 ```
 
+### Multiple Values
+
 You can put **multiple values** into a binding, which only makes sense if you're using the `method()` target
 (because the values will be passed as array to the method specified).
 
 ```
 <div data-bind="method(path.to.fn)=path.to.x,path.to.y"></div>
 ```
+
+### Interpolated Values
 
 Finally, you can put an *interpolated value* on the right side of a data-binding, e.g.
 
@@ -46,6 +54,89 @@ Finally, you can put an *interpolated value* on the right side of a data-binding
 
 This is intended to be familiar to Javascript programmers (it looks like interpolated strings in Javascript)
 but be aware that all it does pull `b8r` paths -- code will not be executed.
+
+## Data Path Types
+
+There are three types of data path.
+
+### Absolute Data Path
+
+A typical path such as `path.to.value` is an absolute path. The first "word" is the registry root,
+and the rest of the path drills down into it pretty much as you'd expect.
+
+The main things that differentiate a `b8r` data-path from ordinary javascript variable destructuring
+are array references can include a path lookup, e.g. instead of foo.list[17] you can write foo.list[id=123] 
+as shorthand for `foo.list.find(({id}) => id == '123')` and that `.` always works like the experimental `?.` 
+operator (so it doesn't blow up if it hits a `null` or `undefined` value).
+
+### Relative Data Path
+
+A path that begins with a `.` is considered to be `relative` to its *closest data-ancestor*.  
+*Relative bindings only make sense inside a data-ancestor.*
+
+Say, what? Typically, the *closest data-ancestor* is the *list-instance* containing the binding (which
+may be the bound element itself) or an element with an explicit `data-path` attribute. The former case
+is by far the most common, while the latter requires you to explicitly set the `data-path` at some
+point.
+
+E.g. if we have a list like this:
+
+```
+<ul>
+  <li data-list="chat.messages:id">
+    <h4 data-bind="text=.title">Title</h4>
+    <p data-bind="text=.body">Body text goes here</p>
+  </li>
+</ul>
+```
+
+Then the `<h4>`'s `textContent` is bound to the `title` of each element in the array of messages, and the
+`<p>`'s `textContent` is bound to the `body`.
+
+And yes, lists within lists behave as you would expect.
+
+When `b8r` creates a list-instance in the DOM, it will rewrite all the relative paths inside
+that list-instance as absolute paths to the actual instance. So you'd end up seeing
+something like this in the DOM:
+
+```
+<ul>
+  <li data-list-instance="chat.messages[id=1]">
+    <h4 data-bind="text=chat.messages[id=1].title">My first message</h4>
+    <p data-bind="text=chat.messages[id=1].body">This is what I wrote</p>
+  </li>
+  ...
+  <li data-list="chat.messages:id">
+    <h4 data-bind="text=.title">Title</h4>
+    <p data-bind="text=.body">Body text goes here</p>
+  </li>
+</ul>
+```
+
+### Component Data Path
+
+A path that begins with `_component_` refers to the component's private instance data. This 
+is data that can be set and accessed via `register`, `get`, and `set` inside a component's
+`<script>`.
+
+So in a component that looked like this:
+
+```
+<p data-bind="text=_component_.caption">Caption Goes Here</p>
+<script>
+  set({caption: 'hello world'})
+</script>
+```
+
+The component will display 'hello world'. (Obviously, this is a dumb example.)
+
+Again, when `b8r` creates a component instance, it makes sure the component has a unique
+id, and creates a registry entry for that component and then rewrites the instance's
+bindings, so you might end up with something like this in the DOM:
+
+```
+<p data-bind="text=c#example#123.caption">hello world</p>
+```
 
 ## Targets
 
