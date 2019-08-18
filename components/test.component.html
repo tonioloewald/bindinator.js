@@ -23,8 +23,18 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   }
 
   .test-component .pending {
-    color: #888;
-    background-color: #ddd;
+    color: #eee;
+    background-color: #aaa;
+    position: relative;
+  }
+
+  .test-component .pending:after {
+    font-family: 'icomoon' !important;
+    content: "\eb26";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    animation: spin-clockwise 2s infinite linear;
   }
 
   .test-component .success {
