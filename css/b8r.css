@@ -132,6 +132,16 @@ h2, h3, h4, h5, h6, b, strong, summary {
   }
 }
 
+@keyframes spin-clockwise {
+  0% {
+    transform: rotateZ(0deg);
+  }
+
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
 label {
   vertical-align: baseline;
 }
