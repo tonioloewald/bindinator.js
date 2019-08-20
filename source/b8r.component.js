@@ -237,8 +237,9 @@ const component = (name, url, preserveSource = false) => {
       if (components[name] && !preserveSource) {
         resolve(components[name])
       } else {
-        componentPreloadMap[name] = url
-        ajax(`${url}.component.html`)
+        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
+        componentPreloadMap[name] = finalUrl
+        ajax(finalUrl)
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
             delete componentPromises[name]

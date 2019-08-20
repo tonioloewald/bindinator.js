@@ -111,6 +111,8 @@ const list = [
   obj
 ]
 
+Test(() => getByPath(obj, '')).shouldBe(obj);
+Test(() => getByPath(obj, '/')).shouldBe(obj);
 Test(() => getByPath(obj, 'foo')).shouldBe(17);
 Test(() => getByPath(obj, '[=foo]')).shouldBe(17);
 Test(() => getByPath(obj, 'bar.baz')).shouldBe('hello');
@@ -3054,6 +3056,10 @@ Copyright ©2016-2017 Tonio Loewald
 Gracefully populates an `<img>` element's src attribute to a url,
 sets the element to `opacity: 0`, and then fades it in when the image
 is loaded.
+
+    imagePomise(url, cors=true)
+
+Returns a promise of an image (used by imgSrc), and it's memoized.
 */
 
 const images = {};
@@ -3140,6 +3146,14 @@ To get a normalized representation of a keystroke:
 
     keystroke(event) // => produces normalized keystroke of the form alt-X
 
+`b8r`'s keyboard event handling provides a convenient feature to specify 
+one or more specified keystrokes for an event to handle, e.g.
+
+    <body data-event="
+      keyup(meta-Q):app.quit;
+      keyup(Tab,ctrl-Space):app.togglePalettes
+    ">
+
 ```
 <label>
   Type in here
@@ -3157,7 +3171,7 @@ To get a normalized representation of a keystroke:
 ```
 ## Modifier Keys
 
-Also provides modifierKeys, a map from the modifier strings (e.g. alt) to
+Also provides `modifierKeys`, a map from the modifier strings (e.g. alt) to
 the relevant unicode glyphs (e.g. '⌥').
 */
 
@@ -3316,7 +3330,7 @@ const getParsedEventHandlers = element => {
         typeArgs: types.map(s => {
           if (s.substr(0, 3) === 'key') {
             s = s.replace(/Key|Digit/g, '');
-            // Allows for a key to be CMD in Mac and Ctrl in Windows
+            // Allows for a key to be Cmd in Mac and Ctrl in Windows
             s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl');
           }
           var args = s.match(/\(([^)]+)\)/);
@@ -3972,7 +3986,8 @@ bold or italics to tags (e.g. replacing `**bold**` or `_italic_` with `<b>bold</
 and `<i>italic</i>`).
 
 *No other formatting is supported* and if the string contains a `<` or `>` character
-no formatting is applied and the `textContent` of the element is set instead.
+no formatting is applied and the `textContent` of the element is set instead (a
+precaution against script injection).
 ```
 <h2 data-bind="format=_component_.message"></h2>
 <script>
@@ -5278,7 +5293,8 @@ const component$1 = (name, url, preserveSource = false) => {
       if (components[name] && !preserveSource) {
         resolve(components[name]);
       } else {
-        ajax(`${url}.component.html`)
+        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
+        ajax(finalUrl)
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
             delete componentPromises[name];
