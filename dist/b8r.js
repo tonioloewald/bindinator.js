@@ -5279,6 +5279,16 @@ const collapse = path => {
   return path
 };
 
+/**
+~~~~
+Test(async () => {
+  const {name} = await b8r.component('../test/custom-test.html')
+  b8r.componentOnce('custom-test')
+  return name
+}).shouldBe('custom-test')
+~~~~
+*/
+
 const component$1 = (name, url, preserveSource = false) => {
   if (url === undefined) {
     url = name;
@@ -5292,6 +5302,7 @@ const component$1 = (name, url, preserveSource = false) => {
         resolve(components[name]);
       } else {
         const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
+        console.log(finalUrl);
         ajax(finalUrl)
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
@@ -6360,7 +6371,7 @@ b8r.Component = makeWebComponent('b8r-component', {
     connectedCallback () {
       if (this.path && !this.name) {
         b8r.component(this.path);
-        this.name = this.path.split('/').pop();
+        this.name = this.path.split('/').pop().split('.').shift();
       }
     },
     render () {

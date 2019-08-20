@@ -225,6 +225,16 @@ const collapse = path => {
   return path
 }
 
+/**
+~~~~
+Test(async () => {
+  const {name} = await b8r.component('../test/custom-test.html')
+  b8r.componentOnce('custom-test')
+  return name
+}).shouldBe('custom-test')
+~~~~
+*/
+
 const component = (name, url, preserveSource = false) => {
   if (url === undefined) {
     url = name
@@ -239,6 +249,7 @@ const component = (name, url, preserveSource = false) => {
       } else {
         const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
         componentPreloadMap[name] = finalUrl
+        console.log(finalUrl)
         ajax(finalUrl)
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
