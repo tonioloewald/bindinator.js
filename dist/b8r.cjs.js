@@ -5284,7 +5284,7 @@ const collapse = path => {
 const component$1 = (name, url, preserveSource = false) => {
   if (url === undefined) {
     url = name;
-    name = url.split('/').pop();
+    name = url.split('/').pop().split('.').shift();
   }
   if (!componentPromises[name] || preserveSource) {
     if (!url) throw new Error(`expected component ${name} to be defined`)
