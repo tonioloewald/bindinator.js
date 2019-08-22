@@ -24,16 +24,16 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
 
   .test-component .pending {
     color: #888;
-    background-color: #ddd;
+    background-color: var(--warning-color);
   }
 
   .test-component .success {
-    color: green;
+    color: var(--ok-color);
   }
 
   .test-component .failure {
     color: white;
-    background-color: red;
+    background-color: var(--error-color);
   }
 
   @keyframes test-report-appear {

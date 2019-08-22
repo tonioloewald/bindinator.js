@@ -247,7 +247,7 @@ const component = (name, url, preserveSource = false) => {
       if (components[name] && !preserveSource) {
         resolve(components[name])
       } else {
-        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
+        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`
         componentPreloadMap[name] = finalUrl
         console.log(finalUrl)
         ajax(finalUrl)

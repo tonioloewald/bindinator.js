@@ -3146,7 +3146,7 @@ To get a normalized representation of a keystroke:
 
     keystroke(event) // => produces normalized keystroke of the form alt-X
 
-`b8r`'s keyboard event handling provides a convenient feature to specify 
+`b8r`'s keyboard event handling provides a convenient feature to specify
 one or more specified keystrokes for an event to handle, e.g.
 
     <body data-event="

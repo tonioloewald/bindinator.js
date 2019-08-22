@@ -216,6 +216,10 @@
       {
         "name": "track drag",
         "path": "lib/track-drag.js"
+      },
+      {
+        "name": "scripts",
+        "path": "lib/scripts.js"
       }
     ]
   },
