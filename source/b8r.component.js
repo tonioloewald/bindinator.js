@@ -225,10 +225,20 @@ const collapse = path => {
   return path
 }
 
+/**
+~~~~
+Test(async () => {
+  const {name} = await b8r.component('../test/custom-test.html')
+  b8r.componentOnce('custom-test')
+  return name
+}).shouldBe('custom-test')
+~~~~
+*/
+
 const component = (name, url, preserveSource = false) => {
   if (url === undefined) {
     url = name
-    name = url.split('/').pop()
+    name = url.split('/').pop().split('.').shift()
   }
   if (!componentPromises[name] || preserveSource) {
     if (!url) throw new Error(`expected component ${name} to be defined`)
@@ -237,8 +247,10 @@ const component = (name, url, preserveSource = false) => {
       if (components[name] && !preserveSource) {
         resolve(components[name])
       } else {
-        componentPreloadMap[name] = url
-        ajax(`${url}.component.html`)
+        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
+        componentPreloadMap[name] = finalUrl
+        console.log(finalUrl)
+        ajax(finalUrl)
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
             delete componentPromises[name]
