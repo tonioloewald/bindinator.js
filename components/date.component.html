@@ -18,7 +18,7 @@ them for anything.
   .date-component {
     position: relative;
     width: 200px;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid var(--black-10);
   }
 
   .date-component[data-disabled] {
@@ -27,13 +27,13 @@ them for anything.
 
   .date-component-month {
     text-align: center;
-    color: white;
+    color: var(--content-bg-color);
     background: var(--accent-color);
     padding: 4px;
   }
 
   .date-component-day-of-week {
-    color: var(--accent-color);
+    color: var(--faded-text-color);
     background: var(--light-accent-color);
   }
 
@@ -60,11 +60,13 @@ them for anything.
     text-align: center;
     padding: 2px;
     cursor: default;
-    color: #aaa;
+  }
+
+  .date-component-days {
+    color: var(--accent-color);
   }
 
   .date-component-current-month.date-component-current {
-    color: var(--dark-text-color);
     background: var(--accent-color);
   }
 
@@ -76,7 +78,8 @@ them for anything.
   }
 
   .date-component-current-month {
-    color: black;
+    background: var(--input-bg-color);
+    color: var(--text-color);
   }
 </style>
 <div
@@ -117,6 +120,7 @@ them for anything.
   >
   </div>
   <div
+    class="date-component-dates"
     data-list="_component_.days:_auto_"
     data-bind="text=.day;attr(title)=.date;class(date-component-current)=.current;class(date-component-current-month)=.current_month"
     tabindex="0"

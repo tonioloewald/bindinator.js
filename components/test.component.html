@@ -8,7 +8,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
 -->
 <style>
   .test-component .tab-selector-tabs {
-    background: var(--accent-color);
+    background: var(--bright-accent-color);
   }
 
   .test-component .tab-selector-bodies {
@@ -23,10 +23,9 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   }
 
   .test-component .pending {
-    color: #eee;
-    background-color: #aaa;
+    color: var(--text-color);
+    background-color: var(--content-bg-color);
     position: relative;
-    color: #888;
     background-color: var(--warning-color);
   }
 
@@ -44,7 +43,6 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   }
 
   .test-component .failure {
-    color: white;
     background-color: var(--error-color);
   }
 

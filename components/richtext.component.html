@@ -39,7 +39,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 
   .richtext-component table th,
   .richtext-component table td {
-    border: 1px dotted rgba(0,0,0,0.5);
+    border: 1px dotted var(--black-40);
   }
 
   .fullscreen .richtext-component {
@@ -48,7 +48,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     right: 0;
     top: 0;
     bottom: 0;
-    background-color: white;
+    background-color: var(--content-bg-color);
   }
 
   .richtext-component .richtext {
@@ -61,8 +61,8 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     min-height: 200px;
     border: 0;
     padding: 8px;
-    background-color: white;
-    border: 1px solid rgba(0,0,0,0.1);
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--black-10);
   }
 
   .richtext:focus {
@@ -71,7 +71,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 
   .richtext * {
     font-family: Helvetica Neue, Helvetica, Sans-serif;
-    color: black;
+    color: var(--text-color);
   }
 
   .richtext h1,
@@ -88,7 +88,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
   .note {
     display: inline-block;
     border: 0;
-    background: #ffc;
+    background: var(--light-accent-color);
     padding: 0 4px;
   }
 
@@ -96,7 +96,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     content: attr(data-note);
     display: block;
     position: absolute;
-    background: #ffc;
+    background: var(--acent-color);
     right: 4px;
     padding: 2px 4px;
   }

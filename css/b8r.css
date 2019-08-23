@@ -3,7 +3,8 @@
 :root {
   --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
   --bg-color: aliceblue;
-  --content-bg-color: white;
+  --content-bg-color: #eee;
+  --input-bg-color: #fff;
   --text-color: #222;
   --dark-text-color: #eee;
   --code-text-color: #444;
@@ -12,7 +13,7 @@
   --accent-color: royalblue;
   --dark-accent-color: #444;
   --light-accent-color: aliceblue;
-  --bright-accent-color: lightskyblue;
+  --bright-accent-color: rgb(173, 212, 236);
   --default-bg-color: #cfb;
   --cancel-bg-color: #ffb;
   --selection-color: rgba(0,64,255,0.25);
@@ -33,13 +34,24 @@
 
 @media (prefers-color-scheme: dark) {
   :root {  
-    --content-bg-color: #111;
-    --faded-text-color: #aaa;
+    --content-bg-color: #222;
+    --input-bg-color: #111;
+    --faded-text-color: #ccc;
     --text-color: #eee;
+    --dark-text-color: #222;
     --dark-accent-color: aliceblue;
     --light-accent-color: #444;
-    --bright-accent-color: #345;
+    --bright-accent-color: #346;
+    --pullquote-bg-color: #334;
     --ok-color: lime;
+    --link-color: #43c;
+    --link-active-color: #64f;
+
+  --black-10: rgba(255,255,255,0.1);
+  --black-20: rgba(255,255,255,0.2);
+  --black-40: rgba(255,255,255,0.4);
+  --white-50: rgba(0,0,0,0.5);
+  --white-75: rgba(0,0,0,0.75);
   }
 }
 
@@ -97,11 +109,11 @@ h5 { margin-top: 8px; font-size: 18px; }
 
 h6 { font-size: 14px; }
 
-h1, .b8r-color {
+.b8r-color {
   color: var(--bright-accent-color);
 }
 
-h2, h3, h4, h5, h6, b, strong, summary {
+h1, h2, h3, h4, h5, h6, b, strong, summary {
   color: var(--accent-color);
 }
 
@@ -169,10 +181,10 @@ button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {
   font: var(--ui-font);
-  color: black;
+  color: var(--text-color);
   line-height: 16px;
   padding: 2px 4px;
-  background: white;
+  background: var(--input-bg-color);
   border: 1px solid var(--black-10);
   outline: none;
 }

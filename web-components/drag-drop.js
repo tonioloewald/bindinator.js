@@ -53,7 +53,7 @@ in the second example.
   b8r-draggable {
     box-shadow: inset 0 0 0 2px rgba(255,255,0,0.25);
     cursor: grab;
-    background: #ddd;
+    background: var(--light-accent-color);
   }
   .drag-source {
     box-shadow: inset 0 0 0 2px rgba(255,255,0,0.5);

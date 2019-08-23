@@ -32,8 +32,8 @@ of awesome that this works at all.
     display: flex;
     padding: 4px 8px;
     flex-shrink: 0;
-    background: var(--accent-color);
-    color: white;
+    background: var(--bright-accent-color);
+    color: var(--text-color);
     align-items: center;
   }
 
@@ -41,7 +41,7 @@ of awesome that this works at all.
     background: none;
     border: none;
     opacity: 0.5;
-    color: white;
+    color: var(--text-color);
   }
 
   .fiddle-component .refresh:hover {
@@ -60,7 +60,7 @@ of awesome that this works at all.
     min-height: 200px;
     overflow: hidden;
     display: flex;
-    border: 1px solid var(--accent-color);
+    border: 1px solid var(--bright-accent-color);
     flex-grow: 1;
   }
 
@@ -86,8 +86,8 @@ of awesome that this works at all.
     height: 100%;
   }
 
-  .fiddle-component .resizer-component {
-    background: rgba(255,255,255,0.75);
+  .fiddle-component .fiddle-bodies > .resizer-component {
+    background: var(--pullquote-bg-color);
     margin: 1px;
   }
 
@@ -110,12 +110,8 @@ of awesome that this works at all.
     height: 0;
     transform: translateX(-50%);
     border: 8px solid transparent;
-    border-bottom: 8px solid white;
+    border-bottom: 8px solid var(--content-bg-color);
     animation: fade-in 0.25s ease-out;
-  }
-
-  .fiddle-bodies > .sizer-component {
-    background: var(--pullquote-bg-color);
   }
 </style>
 <div class="fiddle-header">

@@ -17,7 +17,7 @@ Supports some useful attributes:
     border-radius: 8px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.5);
     z-index: 100;
-    background: white;
+    background: var(--content-bg-color);
   }
 
   .close-float {

@@ -50,13 +50,13 @@ Note that the shortcuts leverage the behavior described above under **button sho
 
       button[data-shortcut="Enter"],
       button.default {
-        background: #ddf;
+        background: var(--light-accent-color);
       }
 
       .b8r-modal-title {
         padding: 5px 10px;
         font-weight: bold;
-        background: #eee;
+        background: var(--input-bg-color);
       }
 
       .b8r-modal-input {
@@ -214,7 +214,7 @@ const DialogModal = makeWebComponent('b8r-modal', {
     'slot': {
       display: 'block',
       position: 'fixed',
-      background: 'white',
+      background: 'var(--content-bg-color)',
       left: '50%',
       top: '50%',
       transform: 'translateX(-50%) translateY(-50%)',

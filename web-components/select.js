@@ -81,10 +81,10 @@ const SelectOption = makeWebComponent('b8r-option', {
 
 const SelectBar = makeWebComponent('b8r-select-bar', {
   attributes: {
-    background: '#ddd',
-    color: 'black',
-    selectedBackground: 'white',
-    selectedColor: 'blue',
+    background: 'var(--input-bg-color)',
+    color: 'var(--faded-text-color)',
+    selectedBackground: 'var(--accent-color)',
+    selectedColor: 'var(--text-color)',
     transition: '0.125s ease-out',
     value: ''
   },
@@ -120,10 +120,10 @@ const SelectBar = makeWebComponent('b8r-select-bar', {
 
 const SelectPop = makeWebComponent('b8r-select', {
   attributes: {
-    background: '#ddd',
-    color: 'black',
-    selectedBackground: 'white',
-    selectedColor: 'blue',
+    background: 'var(--input-bg-color)',
+    color: 'var(--faded-text-color)',
+    selectedBackground: 'var(--accent-color)',
+    selectedColor: 'var(--text-color)',
     transition: '0.125s ease-out',
     open: false,
     width: '100px',

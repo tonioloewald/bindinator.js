@@ -42,9 +42,9 @@ so making similar components with different attributes should be pretty straight
 }
 
 .example .tab-scroller-tabs {
-  background: #ddd;
-  color: #444;
-  border: 5px solid #ddd;
+  background: var(--light-accent-color);
+  color: var(--faded-text-color);
+  border: 5px solid var(--light-accent-color);
   border-right: 0;
   overflow-y: overlay;
 }
@@ -60,8 +60,8 @@ so making similar components with different attributes should be pretty straight
 }
 
 .example .tab-scroller-tabs > .tab-scroller-active {
-  background: white;
-  color: black;
+  background: var(--content-bg-color);
+  color: color(--text-color);
 }
 
 .example .tab-scroller [data-tab-name]:before {

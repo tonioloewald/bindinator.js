@@ -16,7 +16,7 @@ and rich content in tabs, and assignment of specific values to tabs
 ```
 <b8r-tab-selector closeable style="height: 100%">
   <div name="first" style="padding: 20px">first tab content</div>
-  <div name="second tab has a long name" style="padding: 20px">second tab content</div>
+  <div name="second tab has a very long name" style="padding: 20px">second tab content</div>
   <div name="third" style="padding: 20px">third tab content</div>
 </b8r-tab-selector>
 <script>
@@ -52,13 +52,13 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
     slot: {
       position: 'relative',
       display: 'block',
-      background: 'white',
-      border: '1px solid #ccc',
+      background: 'var(--content-bg-color)',
+      border: '1px solid var(--accent-color)',
       borderRadius: '2px',
       flexGrow: 1
     },
     '.tabs': {
-      borderColor: '#ccc',
+      borderColor: 'var(--accent-color)',
       padding: '5px 5px 0 5px',
       display: 'flex',
       flexShrink: 0,
@@ -68,10 +68,10 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       flex: '1 1 50%',
       display: 'flex',
       maxWidth: '50%',
-      background: '#ddd',
+      background: 'var(--light-accent-color)',
       padding: '5px 10px',
       borderRadius: '5px 5px 0 0',
-      border: '1px solid #ccc',
+      border: '1px solid var(--accent-color)',
       borderBottom: '1px solid transparent',
       cursor: 'default',
       margin: '-1px',
@@ -91,10 +91,10 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       margin: '0 -5px'
     },
     '.tabs > .selected': {
-      background: 'white',
+      background: 'var(--content-bg-color)',
       zIndex: '2',
-      border: '1px solid #ccc',
-      borderBottom: '1px solid white',
+      border: '1px solid var(--accent-color)',
+      borderBottom: '1px solid var(--content-bg-color)',
       transform: 'translateY(1px)'
     }
   },

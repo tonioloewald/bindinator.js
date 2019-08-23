@@ -24,8 +24,8 @@ To see the constraints working, **resize** the preview pane or the entire fiddle
 ```
 <style>
   b8r-editable-rect {
-    border: 1px solid rgba(0, 128, 255, 0.5);
-    background: rgba(205, 230, 255, 0.5);
+    border: 1px solid var(--black-40);
+    background: var(--light-accent-color);
   }
 </style>
 <b8r-editable-rect constraints top="10" bottom="20" left="10" height="NaN" width="NaN" right="178"></b8r-editable-rect>

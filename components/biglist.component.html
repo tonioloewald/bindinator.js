@@ -16,7 +16,6 @@ any given time.
     overflow-y: scroll;
     position: relative;
     height: 400px;
-    background-color: #eee;
     opacity: 1;
     border: 1px solid rgba(0,0,0,0.1);
   }
@@ -26,7 +25,6 @@ any given time.
   }
 
   .biglist-visible-items {
-    background-color: white;
     position: absolute;
     top: 0;
     left: 0;
@@ -34,7 +32,7 @@ any given time.
   }
 
   .biglist-visible-items > * {
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--light-accent-color);
     box-sizing: border-box;
   }
 
@@ -43,12 +41,11 @@ any given time.
     bottom: 0;
     right: 0;
     background-color: #444;
-    color: white;
     padding: 2px 6px;
   }
 
   .selected {
-    background-color: rgba(0,0,255,0.25);
+    background-color: var(--bright-accent-color);
   }
 </style>
 <div class="biglist-viewport" data-event="scroll:_component_.update">
@@ -59,7 +56,7 @@ any given time.
           <input type="checkbox" data-bind="checked=.selected">
         </div>
         <div style="flex-grow: 1;">
-          <input style="border: 0; background: transparent; border-color: rgba(0,0,0,0.25);" data-bind="style(fontSize)=.fontSize;value=.caption">
+          <input style="border: 0;" data-bind="style(fontSize)=.fontSize;value=.caption">
           <span data-bind="text=.caption"></span>
         </div>
         <div>
