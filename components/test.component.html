@@ -26,6 +26,8 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     color: #eee;
     background-color: #aaa;
     position: relative;
+    color: #888;
+    background-color: var(--warning-color);
   }
 
   .test-component .pending:after {
@@ -38,12 +40,12 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   }
 
   .test-component .success {
-    color: green;
+    color: var(--ok-color);
   }
 
   .test-component .failure {
     color: white;
-    background-color: red;
+    background-color: var(--error-color);
   }
 
   @keyframes test-report-appear {
@@ -113,7 +115,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     onError,
     reportContainer: findOne('.test-transcript')
   })
-  
+
   const test_runner = new AsyncFunction('Test', 'b8r', data.source + `////# sourceURL=${component.dataset.componentId}`) // jshint ignore:line
 
   try {

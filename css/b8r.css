@@ -26,6 +26,21 @@
 
   --link-color: rgba(64,0,255,0.5);
   --link-active-color: #40f;
+  --error-color: red;
+  --warning-color: yellow;
+  --ok-color: green;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {  
+    --content-bg-color: #111;
+    --faded-text-color: #aaa;
+    --text-color: #eee;
+    --dark-accent-color: aliceblue;
+    --light-accent-color: #444;
+    --bright-accent-color: #345;
+    --ok-color: lime;
+  }
 }
 
 body {
