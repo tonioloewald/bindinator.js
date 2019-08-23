@@ -22,6 +22,10 @@ These select components work like a `<select>` but behave more like an input.
       set('option', 'b');
     </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/select.js', 'b8r-select-bar', 'b8r-select', 'b8r-option')
+~~~~
 */
 /* global requestAnimationFrame */
 
@@ -30,7 +34,7 @@ import {
   div,
   slot,
   makeWebComponent
-} from '../lib/web-components.js'
+} from '../source/web-components.js'
 
 const rectUnion = (r, s) => {
   const union = {
@@ -228,8 +232,10 @@ const SelectPop = makeWebComponent('b8r-select', {
         this._outer.style.width = (boundsRect.width + 40) + 'px'
         this._outer.style.height = (boundsRect.height + 40) + 'px'
       } else {
-        this._outer.style.display = 'none'
-        this._menu.style.display = 'none'
+        if (this._outer) {
+          this._outer.style.display = 'none'
+          this._menu.style.display = 'none'
+        }
       }
     }
   },

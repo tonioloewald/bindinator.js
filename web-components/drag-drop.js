@@ -159,8 +159,12 @@ For complex cases, you'll almost always want to override the container's default
   await import('../web-components/drag-drop.js');
 </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/drag-drop.js', 'b8r-draggable', 'b8r-dropzone', 'b8r-drag-sortable')
+~~~~
 */
-import { makeWebComponent } from '../lib/web-components.js'
+import { makeWebComponent } from '../source/web-components.js'
 
 let elementBeingDragged = null
 const dragged = () => elementBeingDragged

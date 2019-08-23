@@ -137,6 +137,10 @@ Note that the shortcuts leverage the behavior described above under **button sho
       });
     </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/dialog.js', 'b8r-modal')
+~~~~
 */
 /* global requestAnimationFrame */
 
@@ -145,7 +149,7 @@ import {
   div,
   input,
   button
-} from '../lib/web-components.js'
+} from '../source/web-components.js'
 
 const DialogModal = makeWebComponent('b8r-modal', {
   attributes: {

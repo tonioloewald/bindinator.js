@@ -88,7 +88,8 @@
       "/icomoon/",
       "/test/",
       "/dist/",
-      "/third-party/"
+      "/third-party/",
+      "web-component-test.js"
     ]
   }
 }

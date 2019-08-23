@@ -41,8 +41,8 @@ A tool for browsing objects.
 <script>
 /* global component, b8r, get, set, data, touch */
 
-  const {uuid} = await import('../lib/uuid.js');
-  const {describe} = await import('../lib/describe.js');
+  const {uuid} = await import('../source/uuid.js');
+  const {describe} = await import('../source/describe.js');
   const reset = path => {
     set({
       value: path,

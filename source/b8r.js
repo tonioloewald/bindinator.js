@@ -86,17 +86,7 @@ import {
   makeComponent
 } from './b8r.component.js'
 
-import {
-  fragment,
-  makeElement,
-  makeWebComponent,
-  div,
-  slot,
-  input,
-  button,
-  span,
-  dispatch
-} from '../lib/web-components.js'
+import * as webComponents from './web-components.js'
 
 const b8r = {}
 
@@ -110,17 +100,7 @@ Object.assign(b8r, _byExample)
 b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
-b8r.webComponents = {
-  fragment,
-  makeElement,
-  div,
-  slot,
-  input,
-  button,
-  span,
-  dispatch
-}
-b8r.makeWebComponent = makeWebComponent
+b8r.webComponents = webComponents
 
 Object.assign(b8r, _functions)
 
@@ -720,7 +700,7 @@ b8r.insertComponent = async function (component, element, data) {
   b8r.bindAll(element)
 }
 
-b8r.Component = makeWebComponent('b8r-component', {
+b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
     path: ''

@@ -14,7 +14,7 @@ then everything will be handled.
 is homogeneous.
 
 ~~~~
-const {describe} = await import('../lib/describe.js');
+const {describe} = await import('../source/describe.js');
 Test(() => describe(undefined)).shouldBe('undefined');
 Test(() => describe(null)).shouldBe('null');
 Test(() => describe(NaN)).shouldBe('NaN');

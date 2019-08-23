@@ -155,11 +155,11 @@
       },
       {
         "name": "UUID",
-        "path": "lib/uuid.js"
+        "path": "source/uuid.js"
       },
       {
         "name": "Web Components",
-        "path": "lib/web-components.js"
+        "path": "source/web-components.js"
       },
       {
         "name": "catPath",
@@ -167,7 +167,7 @@
       },
       {
         "name": "Describe",
-        "path": "lib/describe.js"
+        "path": "source/describe.js"
       },
       {
         "name": "Test",
@@ -404,6 +404,10 @@
       {
         "name": "Object",
         "path": "web-components/object.js"
+      },
+      {
+        "name": "Web Component Test",
+        "path": "web-components/web-component-test.js"
       }
     ]
   },

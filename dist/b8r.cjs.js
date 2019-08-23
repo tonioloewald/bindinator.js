@@ -3146,7 +3146,7 @@ To get a normalized representation of a keystroke:
 
     keystroke(event) // => produces normalized keystroke of the form alt-X
 
-`b8r`'s keyboard event handling provides a convenient feature to specify 
+`b8r`'s keyboard event handling provides a convenient feature to specify
 one or more specified keystrokes for an event to handle, e.g.
 
     <body data-event="
@@ -3672,7 +3672,7 @@ then everything will be handled.
 is homogeneous.
 
 ~~~~
-const {describe} = await import('../lib/describe.js');
+const {describe} = await import('../source/describe.js');
 Test(() => describe(undefined)).shouldBe('undefined');
 Test(() => describe(null)).shouldBe('null');
 Test(() => describe(NaN)).shouldBe('NaN');
@@ -5032,7 +5032,7 @@ A simple method for creading uuids. Usage:
         const some_uuid = uuid();
 
 ~~~~
-const {uuid} = await import('../lib/uuid.js');
+const {uuid} = await import('../source/uuid.js');
 Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
 Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
 Test(() => uuid().length).shouldBe(36);
@@ -5304,7 +5304,6 @@ const component$1 = (name, url, preserveSource = false) => {
         resolve(components[name]);
       } else {
         const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
-        console.log(finalUrl);
         ajax(finalUrl)
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
@@ -5533,6 +5532,7 @@ const makeElement = (tagType, {
 const button = (settings = {}) => makeElement('button', settings);
 const div = (settings = {}) => makeElement('div', settings);
 const input = (settings = {}) => makeElement('input', settings);
+const label = (settings = {}) => makeElement('label', settings);
 const slot = (settings = {}) => makeElement('slot', settings);
 const span = (settings = {}) => makeElement('span', settings);
 const text$2 = s => document.createTextNode(s);
@@ -5714,6 +5714,20 @@ const dispatch$1 = (target, type) => {
   target.dispatchEvent(event);
 };
 
+var webComponents = /*#__PURE__*/Object.freeze({
+  fragment: fragment$1,
+  makeElement: makeElement,
+  makeWebComponent: makeWebComponent,
+  div: div,
+  slot: slot,
+  input: input,
+  button: button,
+  label: label,
+  span: span,
+  text: text$2,
+  dispatch: dispatch$1
+});
+
 /**
 #bindinator
 Copyright ©2016-2017 Tonio Loewald
@@ -5753,17 +5767,7 @@ Object.assign(b8r, _byExample);
 b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement));
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
-b8r.webComponents = {
-  fragment: fragment$1,
-  makeElement,
-  div,
-  slot,
-  input,
-  button,
-  span,
-  dispatch: dispatch$1
-};
-b8r.makeWebComponent = makeWebComponent;
+b8r.webComponents = webComponents;
 
 Object.assign(b8r, _functions);
 
@@ -6363,7 +6367,7 @@ b8r.insertComponent = async function (component, element, data) {
   b8r.bindAll(element);
 };
 
-b8r.Component = makeWebComponent('b8r-component', {
+b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
     path: ''

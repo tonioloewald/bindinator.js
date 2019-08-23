@@ -7,7 +7,7 @@ A simple method for creading uuids. Usage:
         const some_uuid = uuid();
 
 ~~~~
-const {uuid} = await import('../lib/uuid.js');
+const {uuid} = await import('../source/uuid.js');
 Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
 Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
 Test(() => uuid().length).shouldBe(36);

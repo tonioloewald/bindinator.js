@@ -11,13 +11,17 @@ markdown passed as its `value`.
       set('markdown', '###markdown\n**bold** and _italic');
     </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/markdown.js', 'b8r-markdown')
+~~~~
 */
 
 import { md } from '../lib/text-render.js'
 
 import {
   makeWebComponent
-} from '../lib/web-components.js'
+} from '../source/web-components.js'
 
 const MarkdownArea = makeWebComponent('b8r-markdown', {
   attributes: {

@@ -23,6 +23,10 @@ and rich content in tabs, and assignment of specific values to tabs
   await import('../web-components/tabs.js');
 </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/tabs.js', 'b8r-tab-selector')
+~~~~
 */
 /* global requestAnimationFrame */
 
@@ -33,7 +37,7 @@ import {
   slot,
   button,
   makeWebComponent
-} from '../lib/web-components.js'
+} from '../source/web-components.js'
 
 const TabSelector = makeWebComponent('b8r-tab-selector', {
   attributes: {
@@ -153,6 +157,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       this._bodies = bodies
     },
     render () {
+      if (!this._bodies) return
       const value = this.value >= 0 && this.value <= this._bodies.length
         ? this.value
         : 0

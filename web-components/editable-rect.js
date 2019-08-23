@@ -35,9 +35,13 @@ To see the constraints working, **resize** the preview pane or the entire fiddle
   import('../web-components/editable-rect.js')
 </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/editable-rect.js', 'b8r-lock-toggle', 'b8r-editable-rect')
+~~~~
 */
 
-import { makeWebComponent, slot, div, makeElement, dispatch } from '../lib/web-components.js'
+import { makeWebComponent, slot, div, makeElement, dispatch } from '../source/web-components.js'
 import { listenForDragStart, trackDrag } from '../lib/track-drag.js'
 
 const makeSVG = (d, width = 12, height = 12, viewWidth = 16, viewHeight = 16) => {
@@ -189,6 +193,8 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
     },
 
     connectedCallback () {
+      if (this.center) return
+
       const editable = this
 
       if (editable.left && editable.right) editable.width = NaN
@@ -350,6 +356,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       this.style.right = pixelDimension(right)
       this.style.bottom = pixelDimension(bottom)
 
+      if (!center) return
       if (!constraints || this.offsetWidth < 20 || this.offsetHeight < 20) {
         [center, lockLeft, lockRight, lockTop, lockBottom].forEach(elt => {
           elt.style.display = 'none'

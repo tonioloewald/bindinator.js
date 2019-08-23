@@ -13,7 +13,7 @@ is loaded.
 Returns a promise of an image (used by imgSrc), and it's memoized.
 */
 /* global Image, HTMLImageElement, getComputedStyle, HTMLCanvasElement */
-import { render } from '../lib/pixel.js'
+import { render } from './pixel.js'
 
 const images = {}
 const pixel = new Image()

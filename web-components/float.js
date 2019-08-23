@@ -54,6 +54,10 @@ Supports some useful attributes:
   })
 </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/float.js', 'b8r-float')
+~~~~
 */
 /* global getComputedStyle */
 
@@ -62,7 +66,7 @@ import {
   div,
   fragment,
   slot
-} from '../lib/web-components.js'
+} from '../source/web-components.js'
 
 const mousemove = (evt) => {
   const target = evt.target._target

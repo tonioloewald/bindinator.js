@@ -13,13 +13,17 @@ It provides a straightforward value (instead of having to worry about `checked`)
       set({switch: true});
     </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/switch.js', 'b8r-switch')
+~~~~
 */
 /* global requestAnimationFrame */
 
 import {
   span,
   makeWebComponent
-} from '../lib/web-components.js'
+} from '../source/web-components.js'
 
 const CheckboxSwitch = makeWebComponent('b8r-switch', {
   attributes: {

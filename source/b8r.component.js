@@ -119,7 +119,7 @@ import { asyncUpdate } from './b8r.update.js'
 import { create, find, findWithin } from './b8r.dom.js'
 import { ajax } from './b8r.ajax.js'
 import makeStylesheet from './b8r.makeStylesheet.js'
-import uuid from '../lib/uuid.js'
+import uuid from './uuid.js'
 import { AsyncFunction } from './b8r.functions.js'
 
 const components = {}
@@ -247,9 +247,8 @@ const component = (name, url, preserveSource = false) => {
       if (components[name] && !preserveSource) {
         resolve(components[name])
       } else {
-        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
+        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`
         componentPreloadMap[name] = finalUrl
-        console.log(finalUrl)
         ajax(finalUrl)
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {

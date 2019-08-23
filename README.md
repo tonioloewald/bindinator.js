@@ -188,7 +188,7 @@ Components can be nested exactly as you would expect.
 
 ### Supports Web-Components
 
-`b8r` provides [convenience methods](#source=lib/web-components.js) for creating 
+`b8r` provides [convenience methods](#source=source/web-components) for creating 
 [Web Components](https://www.webcomponents.org/), a.k.a. Custom Elements, and its bindings 
 play nice with them (e.g. waiting for a custom-element's  definition before attempting to bind 
 values to it).

@@ -61,11 +61,16 @@ integrated, then a `<b8r-bindery>` element would function as a standalone
 Similarly, it would be easy enough to make the `data-from` bindings inactive by
 default (essentially giving you a redux-like data-flow) or simply not support them
 at all.
+
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/bindery.js', 'b8r-bindery')
+~~~~
 */
 /* global MutationObserver */
 
 import implicitEventTypes from '../source/b8r.implicit-event-types.js'
-import { makeWebComponent } from '../lib/web-components.js'
+import { makeWebComponent } from '../source/web-components.js'
 
 /*
 const fromTargets = {
@@ -127,16 +132,18 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
   createShadow: false,
   methods: {
     connectedCallback () {
+      if (this._observer) return
+
       implicitEventTypes.forEach(type => this.addEventListener(type, this.handleEvent, { capture: true }))
 
       // automatic binding of elements added or modified dynamically
       // but it may be a performance issue
-      const observer = new MutationObserver(mutationsList => {
+      this._observer = new MutationObserver(mutationsList => {
         if (mutationsList.reduce((a, b) => a || !b.attributeName || b.attributeName.match(/^data-to|data-from$/), false)) {
           this.updateBindings()
         }
       })
-      observer.observe(this, { subtree: true, attributes: true, childList: true })
+      this._observer.observe(this, { subtree: true, attributes: true, childList: true })
     },
     get (path) {
       return this.value[path]

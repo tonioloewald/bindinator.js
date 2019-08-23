@@ -54,6 +54,10 @@ It provides a straightforward value (instead of having to worry about `checked`)
   set({obj});
 </script>
 ```
+~~~~
+const {webComponentTest} = await import('../web-components/web-component-test.js')
+webComponentTest(Test, '../web-components/object.js', 'b8r-object', 'b8r-list', 'b8r-scalar')
+~~~~
 */
 
 import {
@@ -61,7 +65,7 @@ import {
   label,
   makeElement,
   makeWebComponent
-} from '../lib/web-components.js'
+} from '../source/web-components.js'
 
 const objectNode = (settings = {}) => makeElement('b8r-object', settings)
 const scalarNode = (settings = {}) => makeElement('b8r-scalar', settings)
@@ -75,6 +79,7 @@ export const scalar = makeWebComponent('b8r-scalar', {
   content: null,
   methods: {
     connectedCallback () {
+      if (this.children.length > 0) return
       this.appendChild(label({ content: [span(), objectNode()] }))
     },
     render () {
@@ -82,6 +87,7 @@ export const scalar = makeWebComponent('b8r-scalar', {
         caption,
         value
       } = this
+      if (!this.firstElementChild) return
       const [_caption, _object] = this.firstElementChild.childNodes
       _caption.textContent = caption
       _object.value = value
@@ -98,10 +104,11 @@ export const list = makeWebComponent('b8r-list', {
   methods: {
     render () {
       const { value, keys } = this
-      while (this.childNodes.length > value.length) {
+      while (this.childNodes.length > (value || []).length) {
         console.log('removing child')
         this.removeChild(this.lastChild)
       }
+      if (!value || value.length === 0) return
       while (value.length > this.childNodes.length) {
         this.appendChild(objectNode())
       }

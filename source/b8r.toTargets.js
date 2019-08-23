@@ -391,7 +391,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 
 import { imgSrc } from './b8r.imgSrc.js'
 import { getComponentWithMethod } from './b8r.events.js'
-import describe from '../lib/describe.js'
+import describe from './describe.js'
 import '../third-party/date.format.js'
 
 export default function (b8r) {
