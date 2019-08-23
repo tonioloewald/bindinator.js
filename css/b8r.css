@@ -4,6 +4,7 @@
   --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
   --bg-color: aliceblue;
   --content-bg-color: #eee;
+  --example-bg-color: rgb(229, 229, 241);
   --input-bg-color: #fff;
   --text-color: #222;
   --dark-text-color: #eee;
@@ -35,6 +36,7 @@
 @media (prefers-color-scheme: dark) {
   :root {  
     --content-bg-color: #222;
+    --example-bg-color: rgb(39, 39, 49);
     --input-bg-color: #111;
     --faded-text-color: #ccc;
     --text-color: #eee;
