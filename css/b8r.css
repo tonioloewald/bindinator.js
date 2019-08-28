@@ -49,6 +49,8 @@
     --ok-color: lime;
     --link-color: #88f;
     --link-active-color: #64f;
+    --default-bg-color: #687;
+    --cancel-bg-color: #884;
 
   --black-10: rgba(255,255,255,0.1);
   --black-20: rgba(255,255,255,0.2);
