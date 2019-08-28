@@ -14,7 +14,7 @@ The basic form of a data binding is `data-bind="target=path.to.value"`.
 ```
 
 In `b8r` terms, `text` is the **target** (the DOM property you are binding
-data to and/or from, while `path.to.text` is the data **path**.
+data to and/or from), while `path.to.text` is the data **path**.
 
 - [Binding to the DOM](#source=source/b8r.toTargets.js) 
 - [Binding from the DOM](#source=source/b8r.fromTargets.js))
