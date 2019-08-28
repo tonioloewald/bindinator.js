@@ -10,8 +10,16 @@ a user interface (or "view") is `b8r`'s job one.
 The basic form of a data binding is `data-bind="target=path.to.value"`.
 
 ```
-<div data-bind="div=path.to.text"></div>
+<div data-bind="text=path.to.text"></div>
 ```
+
+In `b8r` terms, `text` is the **target** (the DOM property you are binding 
+[to](#source=source/b8r.toTargets.js) and/or 
+[from](#source=source/b8r.fromTargets.js)) and 
+`path.to.text` is the data **path** (in `b8r`'s 
+[registry](#source=source/b8r.registry.js)).
+
+``
 
 ### Multiple Bindings
 
