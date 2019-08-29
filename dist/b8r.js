@@ -958,10 +958,10 @@ const isInBody = (element) => element && document.body.contains(element);
 
 const cssVar = (name, value) => {
   if (value === undefined) {
-    const htmlStyles = getComputedStyle(document.querySelector('html'));
+    const htmlStyles = getComputedStyle(document.documentElement);
     return htmlStyles.getPropertyValue(name)
   } else {
-    document.querySelector('html').style.setProperty(name, value);
+    document.documentElement.style.setProperty(name, value);
   }
 };
 
@@ -1910,9 +1910,11 @@ var _byExample = /*#__PURE__*/Object.freeze({
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
-b8r's registry is an observable object that b8r uses to keep track of objects.
-Once an object is registered, its properties will automatically be bound
-to events and DOM properties by path.
+`b8r`'s **registry** is an **observable** object store that b8r uses to keep 
+track of objects. Once an object is registered, its properties will 
+automatically be bound to events and DOM properties by path. The goal is 
+for your registry to be your **model** and the **single source of truth**
+for the state of your application.
 
 Both of these lines register an object under the name 'root':
 
@@ -1935,6 +1937,56 @@ You can get a property by path.
 
 Remove a registered (named) object. deregister also removes component instance objects
 for components no longer in the DOM.
+
+## Paths
+
+Data inside the registry is [accessed by path](#source=source/b8r.byPath.js).
+A path is a text string that resembles javascript object references, e.g.
+
+    const foo = {
+      bar: [{
+        id: 17,
+        baz: 'lurman'
+      }]
+    }
+  
+    console.log(foo.bar[0].baz) // "lurman"
+  
+    b8r.register('foo', foo)
+    console.log(b8r.get('foo.bar[0].baz')) // "lurman"
+
+The big differences are that array references can be by `index` or
+by a `path expression`, e.g.
+
+    b8r.get('foo.bar[id=17].baz') // "lurman"
+
+**Note** that the `only` comparison allowed is `=` and it's a stringified
+comparison. In practice this has never been a problem since it's usually
+used to match primary key ids or uuids.
+
+`b8r` also accepts **relative** bindings inside element bindings (e.g.
+ `data-path`, `data-list`, and `data-event` attributes)
+ 
+A binding that starts with a `.` is bound to the array member the closest containing
+list-instance is bound to.
+
+    // assuming that 'foo' was registered as above
+    <ul>
+      <li data-list="foo.bar" data-bind="text=.baz"></li>
+    </ul>
+
+A binding that starts with `_component_.` is bound to the component instance
+data. Here's a simple component example:
+
+```
+    <!-- a component -->
+    <div data-bind="text=_component_.foo.bar[id=17].baz"></div>
+    <script>
+      set('foo', {
+        bar: [{id: 17, baz: 'hello world'}]
+      })
+    </script>
+```
 
 ## Calling functions in the registry
 
@@ -4204,9 +4256,9 @@ nothing (if the path is falsey).
     data-bind="method(model.notify)=message.priority"
 
 Calls the specified method, passing it the bound value. The method will receive
-the element, value, and data source as parameters. (This means that methods
-registered as event handlers will need to deal with being passed a naked element
-instead of an event)
+the **element**, **value**, and **data source** as parameters. (This means that methods
+also registered as event handlers will need to deal with being passed a naked 
+element instead of an event).
 
 ```
 <input type="range" data-bind="value=_component_.num">
@@ -4217,7 +4269,6 @@ instead of an event)
     for(let i = 2; i < max; i++) {
       if (x % i === 0) { return false; }
     }
-    return true;
   }
   set('order', (elt, val) => {
     const info = [];
@@ -4236,9 +4287,32 @@ instead of an event)
 
 #### Passing multiple values to a bound method
 
-You can pass an array of values to a bound method by comma-delimiting the paths, e.g.
+You can pass an multiple values to a bound method by comma-delimiting the paths, e.g.
 
     data-bind="method(path.to.method)=path.to.value,path.to.other,another.path"
+
+In this case, the **value** passed to the method will be an array of values
+corresponding to the paths.
+
+```
+<style>
+  pre {
+    lineheight: 1
+  }
+</style>
+<pre>
+<input data-bind="value=_component_.a">+
+<input data-bind="value=_component_.b">=
+<span data-bind="method(_component_.sum)=_component_.a,_component_.b"></span>
+</pre>
+<script>
+  set({
+    a: 17,
+    b: Math.PI,
+    sum: (elt, values) => elt.textContent = values.reduce((a, b) => a + parseFloat(b), 0)
+  })
+</script>
+```
 
 ### component\_map()
 
