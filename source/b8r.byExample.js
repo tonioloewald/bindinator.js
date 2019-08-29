@@ -183,6 +183,9 @@ Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
   .shouldBeJSON(["[2] had no matching type"])
 Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
   .shouldThrow()
+  
+Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe('string')
+Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe('string')
 ~~~~
 */
 
@@ -208,7 +211,7 @@ export const describeType = (x) => {
   }
 }
 
-export const typeJSON = (x) => JSON.stringify(describeType(x), false, 2)
+export const typeJSON = (x) => JSON.stringify(describeType(x))
 export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
 
 export class Match {
@@ -233,11 +236,19 @@ export class Match {
 
 export const pickOne = (...array) => array[Math.floor(array.length * Math.random())]
 
-export const oneOf = (...options) => new Match(subject => {
-  if (!options.includes(subject)) {
-    return `was ${subject}`
-  }
-}, `one of ${options.join('|')}`, () => pickOne(...options))
+export const oneOf = (...options) => {
+  if (options.length === 0) return undefined
+  if (options.length === 1) return options[1]
+  const optionDescriptions = options.map(typeJS).reduce((a, b) => {
+    if (!a.includes(b)) a.push(b)
+    return a
+  }, [])
+  return new Match(subject => {
+    if (!options.includes(subject)) {
+      return `was ${subject}`
+    }
+  }, `one of ${optionDescriptions.join('|')}`, () => pickOne(...options))
+}
 
 export const nullable = (example, description = '') => new Match(subject => {
   if (subject !== null) {
@@ -292,6 +303,26 @@ export const matchType = (example, subject, errors = [], path = '') => {
     matchKeys(example, subject, errors, path)
   }
   return errors
+}
+
+export const exampleAtPath = (example, path) => {
+  const parts = Array.isArray(path) 
+    ? [...path]
+    : path.replace(/\[[^\]]*\]/g, '.*').split('.')
+  if(example === null || example === undefined || parts.length === 0) {
+    return example
+  } else {
+    const part = parts.shift()
+    if (part === '*') {
+      if (Array.isArray(example)) {
+        return oneOf(...example.map(x => exampleAtPath(x, parts)))
+      } else {
+        return undefined
+      }
+    } else {
+      return exampleAtPath(example[part], parts)
+    }
+  }
 }
 
 const matchKeys = (example, subject, errors = [], path = '') => {
