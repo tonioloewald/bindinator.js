@@ -41,13 +41,16 @@
     --faded-text-color: #ccc;
     --text-color: #eee;
     --dark-text-color: #222;
-    --dark-accent-color: aliceblue;
+    --dark-accent-color: lightskyblue;
     --light-accent-color: #444;
     --bright-accent-color: #346;
     --pullquote-bg-color: #334;
+    --code-text-color: #88f;
     --ok-color: lime;
-    --link-color: #43c;
+    --link-color: #88f;
     --link-active-color: #64f;
+    --default-bg-color: #687;
+    --cancel-bg-color: #884;
 
   --black-10: rgba(255,255,255,0.1);
   --black-20: rgba(255,255,255,0.2);
@@ -116,7 +119,7 @@ h6 { font-size: 14px; }
 }
 
 h1, h2, h3, h4, h5, h6, b, strong, summary {
-  color: var(--accent-color);
+  color: var(--dark-accent-color);
 }
 
 .hidden,
@@ -343,7 +346,7 @@ pre {
 }
 
 code {
-  color: var(--accent-color);
+  color: var(--code-text-color);
   font-family: Menlo, Monaco, Monospace;
   font-size: 90%;
 }

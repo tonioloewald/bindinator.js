@@ -4,9 +4,11 @@
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
-b8r's registry is an observable object that b8r uses to keep track of objects.
-Once an object is registered, its properties will automatically be bound
-to events and DOM properties by path.
+`b8r`'s **registry** is an **observable** object store that b8r uses to keep 
+track of objects. Once an object is registered, its properties will 
+automatically be bound to events and DOM properties by path. The goal is 
+for your registry to be your **model** and the **single source of truth**
+for the state of your application.
 
 Both of these lines register an object under the name 'root':
 
@@ -29,6 +31,56 @@ You can get a property by path.
 
 Remove a registered (named) object. deregister also removes component instance objects
 for components no longer in the DOM.
+
+## Paths
+
+Data inside the registry is [accessed by path](#source=source/b8r.byPath.js).
+A path is a text string that resembles javascript object references, e.g.
+
+    const foo = {
+      bar: [{
+        id: 17,
+        baz: 'lurman'
+      }]
+    }
+  
+    console.log(foo.bar[0].baz) // "lurman"
+  
+    b8r.register('foo', foo)
+    console.log(b8r.get('foo.bar[0].baz')) // "lurman"
+
+The big differences are that array references can be by `index` or
+by a `path expression`, e.g.
+
+    b8r.get('foo.bar[id=17].baz') // "lurman"
+
+**Note** that the `only` comparison allowed is `=` and it's a stringified
+comparison. In practice this has never been a problem since it's usually
+used to match primary key ids or uuids.
+
+`b8r` also accepts **relative** bindings inside element bindings (e.g.
+ `data-path`, `data-list`, and `data-event` attributes)
+ 
+A binding that starts with a `.` is bound to the array member the closest containing
+list-instance is bound to.
+
+    // assuming that 'foo' was registered as above
+    <ul>
+      <li data-list="foo.bar" data-bind="text=.baz"></li>
+    </ul>
+
+A binding that starts with `_component_.` is bound to the component instance
+data. Here's a simple component example:
+
+```
+    <!-- a component -->
+    <div data-bind="text=_component_.foo.bar[id=17].baz"></div>
+    <script>
+      set('foo', {
+        bar: [{id: 17, baz: 'hello world'}]
+      })
+    </script>
+```
 
 ## Calling functions in the registry
 

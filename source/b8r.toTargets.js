@@ -309,9 +309,9 @@ nothing (if the path is falsey).
     data-bind="method(model.notify)=message.priority"
 
 Calls the specified method, passing it the bound value. The method will receive
-the element, value, and data source as parameters. (This means that methods
-registered as event handlers will need to deal with being passed a naked element
-instead of an event)
+the **element**, **value**, and **data source** as parameters. (This means that methods
+also registered as event handlers will need to deal with being passed a naked 
+element instead of an event).
 
 ```
 <input type="range" data-bind="value=_component_.num">
@@ -322,7 +322,6 @@ instead of an event)
     for(let i = 2; i < max; i++) {
       if (x % i === 0) { return false; }
     }
-    return true;
   }
   set('order', (elt, val) => {
     const info = [];
@@ -341,9 +340,32 @@ instead of an event)
 
 #### Passing multiple values to a bound method
 
-You can pass an array of values to a bound method by comma-delimiting the paths, e.g.
+You can pass an multiple values to a bound method by comma-delimiting the paths, e.g.
 
     data-bind="method(path.to.method)=path.to.value,path.to.other,another.path"
+
+In this case, the **value** passed to the method will be an array of values
+corresponding to the paths.
+
+```
+<style>
+  pre {
+    lineheight: 1
+  }
+</style>
+<pre>
+<input data-bind="value=_component_.a">+
+<input data-bind="value=_component_.b">=
+<span data-bind="method(_component_.sum)=_component_.a,_component_.b"></span>
+</pre>
+<script>
+  set({
+    a: 17,
+    b: Math.PI,
+    sum: (elt, values) => elt.textContent = values.reduce((a, b) => a + parseFloat(b), 0)
+  })
+</script>
+```
 
 ### component\_map()
 
