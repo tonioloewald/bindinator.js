@@ -82,7 +82,8 @@ const {
   nonEmpty,
   nullable,
   optional,
-  pickOne
+  pickOne,
+  exampleAtPath
 } = await import('./b8r.byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
@@ -184,8 +185,18 @@ Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
 Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
   .shouldThrow()
   
-Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe('string')
-Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe('string')
+Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
+Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
+Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo')).shouldBeJSON([{"bar":"hello"}])
+Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo[]')).shouldBeJSON({"bar":"hello"})
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[]'))
+  .shouldBeJSON({"bar":"hello",baz:17})
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].bar'))
+  .shouldBe('hello')
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].baz'))
+  .shouldBe(17)
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
+  .shouldBe(undefined)
 ~~~~
 */
 
@@ -236,19 +247,11 @@ export class Match {
 
 export const pickOne = (...array) => array[Math.floor(array.length * Math.random())]
 
-export const oneOf = (...options) => {
-  if (options.length === 0) return undefined
-  if (options.length === 1) return options[1]
-  const optionDescriptions = options.map(typeJS).reduce((a, b) => {
-    if (!a.includes(b)) a.push(b)
-    return a
-  }, [])
-  return new Match(subject => {
-    if (!options.includes(subject)) {
-      return `was ${subject}`
-    }
-  }, `one of ${optionDescriptions.join('|')}`, () => pickOne(...options))
-}
+export const oneOf = (...options) => new Match(subject => {
+  if (!options.includes(subject)) {
+    return `was ${subject}`
+  }
+}, `one of ${options.join('|')}`, () => pickOne(...options))
 
 export const nullable = (example, description = '') => new Match(subject => {
   if (subject !== null) {
@@ -315,7 +318,9 @@ export const exampleAtPath = (example, path) => {
     const part = parts.shift()
     if (part === '*') {
       if (Array.isArray(example)) {
-        return oneOf(...example.map(x => exampleAtPath(x, parts)))
+        return example.length === 1
+          ? exampleAtPath(example[0], parts)
+          : exampleAtPath(Object.assign({}, ...example), parts)
       } else {
         return undefined
       }
