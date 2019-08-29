@@ -65,6 +65,8 @@ Now create a simple web page:
 </html>
 ```
 
+…and save it as `index.html`.
+
 Now run:
 
 ```
