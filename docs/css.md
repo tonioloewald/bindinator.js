@@ -49,6 +49,13 @@ a very efficient way to do it.
 Using `cssVar()` you can also easily communicate theme settings to web-components (e.g. allow global theme
 settings to change the rendering of different custom-element's shadow-DOMs).
 
+### Themes and "Dark Mode"
+
+If you want to see the power (and grace) of css-variables, you should look at the
+[Theme Editor](#source=theme-editor.component.html) component, and at how
+__Dark Mode__ is implemented in `b8r.css`. (And, assuming you can, try switching between
+normal and dark mode while you have the page open.)
+
 ### Less.js, Sass, etc.
 
 `b8r` makes _no allowances_ for css pre-processors right now (even though doing so would be easy). 

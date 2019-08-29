@@ -1,0 +1,60 @@
+<!--
+  # Theme Editor
+  
+  A simple tool that finds all the `:root` css-variables currently in the DOM
+  and lets you edit them directly.
+-->
+<style>
+  ._component_ label > span {
+    display: inline-block;
+    min-width: 200px;
+    flex: 0 0;
+  }
+  
+  ._component_ label {
+    display: flex;
+  }
+  
+  ._component_ input[type=color] {
+    flex: 0 0 auto;
+  }
+  
+  ._component_ label > * {
+    flex: 1 1;
+  }
+</style>
+<h4>Theme Editor</h4>
+<div data-list="_component_.cssVars:name">
+  <label>
+    <span data-bind="text=.name"></span>
+    <b8r-component 
+      path="components/color" 
+      data-bind="value=.value;show_if(color)=.type"
+      data-event="change:_component_.setVar"
+    ></b8r-component>
+    <input data-bind="value=.value;hide_if(color)=.type" data-event="input,change:_component_.setVar">
+  </label>
+</div>
+<script>
+  const rootRules = [...document.styleSheets]
+    .map(s => [...s.cssRules].filter(r => r.selectorText === ':root'))
+    .flat()
+  
+  const cssVars = rootRules.map(r => [...r.style].map(name => {
+    const value = b8r.cssVar(name).trim()
+    type = value.match(/^(\#|rgb\(|rgba\()/) ? 'color' : name.split('-').pop()
+    return {
+      name,
+      value,
+      type
+    }
+  })).flat()
+  
+  set({
+    cssVars,
+    setVar(evt, elt) {
+      const {name, value} = b8r.getListInstance(elt)
+      b8r.cssVar(name, value)
+    }
+  })
+</script>

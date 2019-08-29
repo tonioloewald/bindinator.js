@@ -313,7 +313,7 @@ const parseBinding = binding => {
     throw new Error('empty binding')
   }
   if (binding.indexOf('=') === -1) {
-    throw new Error('binding is missing = sign; probably need a source or target')
+    throw new Error(`binding "${binding}" is missing = sign; probably need a source or target`)
   }
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim())
@@ -356,9 +356,14 @@ const findBindables = element => findWithin(element, '[data-bind]', true)
 const findLists = element => findWithin(element, '[data-list]', true)
 
 const getBindings = element => {
-  return element.dataset.bind.split(';')
-    .filter(s => !!s.trim())
-    .map(parseBinding)
+  try {
+    return element.dataset.bind.split(';')
+      .filter(s => !!s.trim())
+      .map(parseBinding)
+  } catch(e) {
+    console.error(element, e)
+    return [];
+  }
 }
 
 const getDataPath = element => {

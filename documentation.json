@@ -362,6 +362,10 @@
       {
         "name": "Range",
         "path": "range.component.html"
+      },
+      {
+        "name": "Theme Editor",
+        "path": "theme-editor.component.html"
       }
     ]
   },
