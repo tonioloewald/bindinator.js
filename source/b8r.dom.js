@@ -360,9 +360,9 @@ export const isInBody = (element) => element && document.body.contains(element)
 
 export const cssVar = (name, value) => {
   if (value === undefined) {
-    const htmlStyles = getComputedStyle(document.querySelector('html'))
+    const htmlStyles = getComputedStyle(document.documentElement)
     return htmlStyles.getPropertyValue(name)
   } else {
-    document.querySelector('html').style.setProperty(name, value)
+    document.documentElement.style.setProperty(name, value)
   }
 }
