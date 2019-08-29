@@ -3,32 +3,34 @@
   data-bind="
     method(_component_.opaqueColor)=_component_.value;
   "
-  data-event="change:_component_.update"
+  data-event="input,change:_component_.update"
 >
 <input data-bind="value=_component_.value">
 <input 
   type="range" min=0 max=1 step=0.05 
   data-bind="method(_component_.opacity)=_component_.value"
-  data-event="change:_component_.update"
+  data-event="input,change:_component_.update"
 >
 <script>
-  /* global set */
-  
-  const {parse} = await import('../lib/color.js')
+  /* global set */  
+
   set({
-    update() {
+    async update() {
+      const {parse} = await import('../lib/color.js')
       const htmlColor = findOne('input[type=color]').value
       const color = parse(htmlColor)
       color.a = parseFloat(findOne('input[type=range]').value)
       set('value', color.rgba())
       b8r.trigger('change', component)
     },
-    opaqueColor (elt, value) {
+    async opaqueColor (elt, value) {
+      const {parse} = await import('../lib/color.js')
       const color = parse(value)
       elt.value = color.html()
       elt.style.opacity = color.a
     },
-    opacity (elt, value) {
+    async opacity (elt, value) {
+      const {parse} = await import('../lib/color.js')
       elt.value = parse(value).a
     }
   })
