@@ -5,7 +5,9 @@ Provides `<b8r-select-bar>` and `<b8r-select>` selection widgets, which let the
 user pick from among a set of `<b8r-option>` children.
 
 These select components work like a `<select>` but behave more like an input and
-can accept a value before they have a corresponding option.
+can accept a value before they have a corresponding option. (The demo below
+intentionally delays the population of the selects until after they've been
+assigned a value. When new options appear, the control is refreshed.)
 
 ```
     <b8r-select-bar data-bind="value=_component_.option">
