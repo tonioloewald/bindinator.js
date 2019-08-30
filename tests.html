@@ -360,8 +360,8 @@
           .shouldBe('55');
         Test(() => window.getComputedStyle(b8r.findOne('.test-component > h2')).backgroundColor, 'Component stylesheet inserted')
           .shouldBe(computed_color('purple'));
-        Test(() => window.getComputedStyle(b8r.findOne('h2')).backgroundColor, 'Component stylesheet did not "leak"')
-            .shouldBe(window.getComputedStyle(document.body).backgroundColor);
+        Test(() => window.getComputedStyle(b8r.findOne('p')).backgroundColor, 'Component stylesheet did not "leak"')
+            .shouldBe(window.getComputedStyle(b8r.findOne('h2')).backgroundColor);
         Test(() => b8r.findOne('.test-component h2').textContent, 'Component script ran')
           .shouldBe('Set on load');
         Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
