@@ -5300,6 +5300,68 @@ const components = {};
 const componentTimeouts = [];
 const componentPromises = {};
 
+/**
+## Making Components without Eval
+
+You may prefer to create pure javascript components for any number of reasons.
+
+    makeComponentNoEval(name, {css, html, load})
+
+`load` is a function with the signature:
+
+    async ({component, b8r, find, findOne, data, register, get, set, on, touch}) => {
+      // same stuff you'd normally put in a component's script
+    }
+
+This should appease linters!
+
+```
+<b8r-component name="no-eval"></b8r-component>
+<script>
+  b8r.makeComponentNoEval('no-eval', {
+    css: '._component_ > span { color: yellow; }',
+    html: '<span></span>',
+    load: async ({findOne}) => {
+      findOne('span').textContent = 'Hello Pure Component'
+    }
+  })
+</script>
+```
+*/
+
+const makeComponentNoEval = function (name, { css, html, load }) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+
+  const className = `${name}-component`;
+  const style = css ? makeStyleSheet(css.replace(/_component_/g, className), className) : false;
+  const updateClasses = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, className));
+  findWithin(div, '[class*="_component_"]').forEach(updateClasses);
+  const component = {
+    name,
+    style,
+    view: div,
+    load: (component, b8r, find, findOne, data, register, get, set, on, touch) => {
+      load({ component, b8r, find, findOne, data, register, get, set, on, touch });
+    },
+    path: `inline-${name}`
+  };
+
+  if (componentTimeouts[name]) {
+    clearInterval(componentTimeouts[name]);
+  }
+
+  find(`[data-component="${name}"]`).forEach(element => {
+    // somehow things can happen in between find() and here so the
+    // second check is necessary to prevent race conditions
+    if (!element.closest('[data-list]') && element.dataset.component === name) {
+      asyncUpdate(false, element);
+    }
+  });
+  components[name] = component;
+  return component
+};
+
 const makeComponent = function (name, source, url, preserveSource) {
   let css = false; let content; let script = false; let parts; let remains;
 
@@ -6343,7 +6405,7 @@ const _pathRelativeB8r = _path => {
     }
   })
 };
-Object.assign(b8r, { component: component$1, makeComponent });
+Object.assign(b8r, { component: component$1, makeComponent, makeComponentNoEval });
 
 b8r.components = () => Object.keys(components);
 
