@@ -4,7 +4,8 @@
 Provides `<b8r-select-bar>` and `<b8r-select>` selection widgets, which let the
 user pick from among a set of `<b8r-option>` children.
 
-These select components work like a `<select>` but behave more like an input.
+These select components work like a `<select>` but behave more like an input and
+can accept a value before they have a corresponding option.
 
 ```
     <b8r-select-bar data-bind="value=_component_.option">
@@ -13,13 +14,20 @@ These select components work like a `<select>` but behave more like an input.
       <b8r-option value="c">C</b8r-option>
     </b8r-select-bar>
     <b8r-select data-bind="value=_component_.option">
-      <b8r-option value="a">A</b8r-option>
-      <b8r-option value="b">B</b8r-option>
-      <b8r-option value="c">C</b8r-option>
+      <b8r-option data-list="_component_.chars" data-bind="text,value=."></b8r-option>
+    </b8r-select>
+    <b8r-select data-bind="value=_component_.page">
+      <b8r-option data-list="_component_.nums" data-bind="text,value=."></b8r-option>
     </b8r-select>
     <script>
       await import('../web-components/select.js');
       set('option', 'b');
+      set('page', 1)
+      set('nums', [])
+      // this shows that the select copes with values set before
+      // the option appears, and renders correctly
+      setTimeout(() => set('chars', ["a", "b", "c"]), 1000)
+      setTimeout(() => set('nums', [1,2,3,4,5]), 2000)
     </script>
 ```
 ~~~~
@@ -199,6 +207,8 @@ const SelectPop = makeWebComponent('b8r-select', {
         select.open = evt.relatedTarget === select._menu ||
                       select.contains(evt.relatedTarget)
       })
+      select._slot = this.shadowRoot.querySelector('slot')
+      select._slot.addEventListener('slotchange', () => this.render())
     },
     render () {
       const selection = this.shadowRoot.querySelector('.selection')
