@@ -310,7 +310,7 @@ nothing (if the path is falsey).
 
 Calls the specified method, passing it the bound value. The method will receive
 the **element**, **value**, and **data source** as parameters. (This means that methods
-also registered as event handlers will need to deal with being passed a naked 
+also registered as event handlers will need to deal with being passed a naked
 element instead of an event).
 
 ```

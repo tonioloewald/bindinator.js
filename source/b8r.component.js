@@ -142,8 +142,8 @@ const makeComponent = function (name, source, url, preserveSource) {
   }
 
   // content <script> script </script> nothing
-  parts = remains.split(/<script>|<\/script>/)
-  if (parts.length === 3) {
+  parts = remains.split(/<script[^>\n]*>|<\/script>/)
+  if (parts.length >= 3) {
     [content, script] = parts
   } else {
     content = remains

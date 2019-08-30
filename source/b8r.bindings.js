@@ -360,9 +360,9 @@ const getBindings = element => {
     return element.dataset.bind.split(';')
       .filter(s => !!s.trim())
       .map(parseBinding)
-  } catch(e) {
+  } catch (e) {
     console.error(element, e)
-    return [];
+    return []
   }
 }
 

@@ -184,7 +184,7 @@ Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
   .shouldBeJSON(["[2] had no matching type"])
 Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
   .shouldThrow()
-  
+
 Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
 Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
 Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo')).shouldBeJSON([{"bar":"hello"}])
@@ -309,10 +309,10 @@ export const matchType = (example, subject, errors = [], path = '') => {
 }
 
 export const exampleAtPath = (example, path) => {
-  const parts = Array.isArray(path) 
+  const parts = Array.isArray(path)
     ? [...path]
     : path.replace(/\[[^\]]*\]/g, '.*').split('.')
-  if(example === null || example === undefined || parts.length === 0) {
+  if (example === null || example === undefined || parts.length === 0) {
     return example
   } else {
     const part = parts.shift()

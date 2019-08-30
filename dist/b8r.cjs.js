@@ -1455,7 +1455,7 @@ const parseBinding = binding => {
     throw new Error('empty binding')
   }
   if (binding.indexOf('=') === -1) {
-    throw new Error('binding is missing = sign; probably need a source or target')
+    throw new Error(`binding "${binding}" is missing = sign; probably need a source or target`)
   }
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim());
@@ -1498,9 +1498,14 @@ const findBindables = element => findWithin(element, '[data-bind]', true);
 const findLists = element => findWithin(element, '[data-list]', true);
 
 const getBindings = element => {
-  return element.dataset.bind.split(';')
-    .filter(s => !!s.trim())
-    .map(parseBinding)
+  try {
+    return element.dataset.bind.split(';')
+      .filter(s => !!s.trim())
+      .map(parseBinding)
+  } catch (e) {
+    console.error(element, e);
+    return []
+  }
 };
 
 const getDataPath = element => {
@@ -1673,7 +1678,8 @@ const {
   nonEmpty,
   nullable,
   optional,
-  pickOne
+  pickOne,
+  exampleAtPath
 } = await import('./b8r.byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
@@ -1774,6 +1780,19 @@ Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
   .shouldBeJSON(["[2] had no matching type"])
 Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
   .shouldThrow()
+
+Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
+Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
+Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo')).shouldBeJSON([{"bar":"hello"}])
+Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo[]')).shouldBeJSON({"bar":"hello"})
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[]'))
+  .shouldBeJSON({"bar":"hello",baz:17})
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].bar'))
+  .shouldBe('hello')
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].baz'))
+  .shouldBe(17)
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
+  .shouldBe(undefined)
 ~~~~
 */
 
@@ -1799,7 +1818,7 @@ const describeType = (x) => {
   }
 };
 
-const typeJSON = (x) => JSON.stringify(describeType(x), false, 2);
+const typeJSON = (x) => JSON.stringify(describeType(x));
 const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:');
 
 class Match {
@@ -1885,6 +1904,28 @@ const matchType = (example, subject, errors = [], path = '') => {
   return errors
 };
 
+const exampleAtPath = (example, path) => {
+  const parts = Array.isArray(path)
+    ? [...path]
+    : path.replace(/\[[^\]]*\]/g, '.*').split('.');
+  if (example === null || example === undefined || parts.length === 0) {
+    return example
+  } else {
+    const part = parts.shift();
+    if (part === '*') {
+      if (Array.isArray(example)) {
+        return example.length === 1
+          ? exampleAtPath(example[0], parts)
+          : exampleAtPath(Object.assign({}, ...example), parts)
+      } else {
+        return undefined
+      }
+    } else {
+      return exampleAtPath(example[part], parts)
+    }
+  }
+};
+
 const matchKeys = (example, subject, errors = [], path = '') => {
   for (let key of Object.keys(example).sort()) {
     matchType(example[key], subject[key], errors, path + '.' + key);
@@ -1903,7 +1944,8 @@ var _byExample = /*#__PURE__*/Object.freeze({
   nullable: nullable,
   optional: optional,
   nonEmpty: nonEmpty,
-  matchType: matchType
+  matchType: matchType,
+  exampleAtPath: exampleAtPath
 });
 
 /**
@@ -1912,9 +1954,9 @@ var _byExample = /*#__PURE__*/Object.freeze({
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
-`b8r`'s **registry** is an **observable** object store that b8r uses to keep 
-track of objects. Once an object is registered, its properties will 
-automatically be bound to events and DOM properties by path. The goal is 
+`b8r`'s **registry** is an **observable** object store that b8r uses to keep
+track of objects. Once an object is registered, its properties will
+automatically be bound to events and DOM properties by path. The goal is
 for your registry to be your **model** and the **single source of truth**
 for the state of your application.
 
@@ -1951,9 +1993,9 @@ A path is a text string that resembles javascript object references, e.g.
         baz: 'lurman'
       }]
     }
-  
+
     console.log(foo.bar[0].baz) // "lurman"
-  
+
     b8r.register('foo', foo)
     console.log(b8r.get('foo.bar[0].baz')) // "lurman"
 
@@ -1968,7 +2010,7 @@ used to match primary key ids or uuids.
 
 `b8r` also accepts **relative** bindings inside element bindings (e.g.
  `data-path`, `data-list`, and `data-event` attributes)
- 
+
 A binding that starts with a `.` is bound to the array member the closest containing
 list-instance is bound to.
 
@@ -4259,7 +4301,7 @@ nothing (if the path is falsey).
 
 Calls the specified method, passing it the bound value. The method will receive
 the **element**, **value**, and **data source** as parameters. (This means that methods
-also registered as event handlers will need to deal with being passed a naked 
+also registered as event handlers will need to deal with being passed a naked
 element instead of an event).
 
 ```
@@ -5272,8 +5314,8 @@ const makeComponent = function (name, source, url, preserveSource) {
   }
 
   // content <script> script </script> nothing
-  parts = remains.split(/<script>|<\/script>/);
-  if (parts.length === 3) {
+  parts = remains.split(/<script[^>\n]*>|<\/script>/);
+  if (parts.length >= 3) {
     [content, script] = parts;
   } else {
     content = remains;

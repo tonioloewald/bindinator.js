@@ -4,9 +4,9 @@
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
-`b8r`'s **registry** is an **observable** object store that b8r uses to keep 
-track of objects. Once an object is registered, its properties will 
-automatically be bound to events and DOM properties by path. The goal is 
+`b8r`'s **registry** is an **observable** object store that b8r uses to keep
+track of objects. Once an object is registered, its properties will
+automatically be bound to events and DOM properties by path. The goal is
 for your registry to be your **model** and the **single source of truth**
 for the state of your application.
 
@@ -43,9 +43,9 @@ A path is a text string that resembles javascript object references, e.g.
         baz: 'lurman'
       }]
     }
-  
+
     console.log(foo.bar[0].baz) // "lurman"
-  
+
     b8r.register('foo', foo)
     console.log(b8r.get('foo.bar[0].baz')) // "lurman"
 
@@ -60,7 +60,7 @@ used to match primary key ids or uuids.
 
 `b8r` also accepts **relative** bindings inside element bindings (e.g.
  `data-path`, `data-list`, and `data-event` attributes)
- 
+
 A binding that starts with a `.` is bound to the array member the closest containing
 list-instance is bound to.
 
