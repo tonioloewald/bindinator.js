@@ -24,35 +24,37 @@ You can put multiple event handlers on an element using semicolons.
 ">Use Me</button>
 ```
 
-Whitespace between handlers is ignored, but no whitespace is allowed in the handler itself.
+Whitespace between handlers is ignored, but no whitespace is allowed in the handler 
+itself.
 
 ## Event Propagation (Surprise!)
 
-In general, one of the central principles of `b8r`'s design is _the principle of least surprise_.
-The goal is that any reasonably experienced web developer should be able to look at `b8r` code 
-and grok what's going on.
+In general, one of the central principles of `b8r`'s design is 
+_the principle of least surprise_. The goal is that any reasonably experienced web 
+developer should be able to look at `b8r` code and grok what's going on.
 
-`b8r` handles events in a slightly surprising way, violating this principle.
+`b8r` handles events in a slightly surprising way, arguably violating this principle.
 
 - all events "bubble"
 - handling an event stops it
 - return `true` from an event handler to allow it to continue bubbling
 
-In JavaScript different events have different "bubbling" behavior. Some events are received by
+Normally different events have different "bubbling" behavior. Some events are received by
 an element but not its ancestors. Others are received only by the document.
 
-In `b8r` all events 'bubble' unless you tell them not to. Also all events stop (and preventDefault)
-when handled unless the event handler returns an explicit `true`.
+In `b8r` all events 'bubble' unless you tell them not to. Also all events stop 
+(and `preventDefault`) when handled unless the event handler returns an explicit `true`.
 
-I hope you find this tradeoff to be worthwhile. It is borrowed from the way events behaved in
-*HyperCard* which I continue to regard as the most productive and robust development environment I have ever used.
+I hope you find this tradeoff to be worthwhile. It is borrowed from the way events 
+behaved in *HyperCard* which I continue to regard as the most productive and robust 
+development environment I have ever used.
 
 Also see [b8r.events.js](#source=source/b8r.anyEvent.js).
 
 ## Keyboard Events
 
-`b8r` provides some very convenient shorthand for dealing with keyboard events. You can specialize
-a keyboard event (e.g. `keyup`) by adding specific keys in parentheses:
+`b8r` provides some very convenient shorthand for dealing with keyboard events. You can 
+specialize a keyboard event (e.g. `keyup`) by adding specific keys in parentheses:
 
 ```
 <input data-event="keydown(Enter):path.to.enter_key_handler">
@@ -64,8 +66,12 @@ embedded in the [keystroke library](#source=source/b8r.keystroke.js) documentati
 
 ## Catching Events Early
 
-A common requirement when building user interfaces is to handle an event before anything else can
-get at it.
+A common requirement when building user interfaces is to handle an event before anything 
+else can get at it.
+
+**Be careful**: if you use this feature, the handlers will block the events handled unless
+you explicitly `return true` from them. This is incredibly useful but can get you in 
+trouble if you're careless.
 
 Also see [b8r.anyEvent.js](#source=source/b8r.anyEvent.js).
 

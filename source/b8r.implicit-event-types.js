@@ -1,9 +1,11 @@
 /**
 # Implicit Event Types
 
-These are the event types which b8r handles by default.
+These are the event types which b8r handles by default. (`b8r` inserts *one* event
+handler for each of these event types at the `document.body` level and then routes
+events from the original target.)
 
-To handle other types of events, you can call `b8r.implicitlyHandleEventsOfType('type')`
+To add other types of events, you can call `b8r.implicitlyHandleEventsOfType('type')`
 
 ## Mouse Events
 
