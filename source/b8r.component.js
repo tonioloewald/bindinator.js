@@ -130,17 +130,34 @@ const componentPreloadMap = {}
 /**
 ## Making Components without Eval
 
-You may prefer to create pure javascript components for any number of reasons.
+You may prefer to create **pure javascript components** for any number of reasons,
+including security policies or to take advantage of javascript-centric tooling. 
 
-    makeComponentNoEval(name, {css, html, load})
+E.g. if  you've written a lot of `b8r` components using HTML you'll probably have noticed
+things like `/* global ... *\/` comments designed to stop linters from complaining
+about the things component load scripts get passed for convenience.
 
-`load` is a function with the signature:
+    makeComponentNoEval('component-name', {
+      css: 'css text goes here',
+      html: '<div>html goes here</div>',
+      load: async ({
+        component,
+        b8r,
+        find,
+        findOne,
+        data,
+        register,
+        get,
+        set,
+        on,
+        touch
+      }) => {
+        // your javascript goes here
+      },
+    })
 
-    async ({component, b8r, find, findOne, data, register, get, set, on, touch}) => {
-      // same stuff you'd normally put in a component's script
-    }
-
-This should appease linters!
+You only need to destructure the parameters you want to use (to avoid linter complaints
+about unused variables).
 
 ```
 <b8r-component name="no-eval"></b8r-component>
@@ -156,18 +173,29 @@ This should appease linters!
 ```
 */
 
-const makeComponentNoEval = function (name, { css, html, load }) {
-  const div = document.createElement('div')
-  div.innerHTML = html
-
+const processComponent = (css, html, name) => {
+  const view = document.createElement('div')
+  view.innerHTML = html || ''
   const className = `${name}-component`
   const style = css ? makeStylesheet(css.replace(/_component_/g, className), className) : false
-  const updateClasses = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, className))
-  findWithin(div, '[class*="_component_"]').forEach(updateClasses)
+  for (const elt of findWithin(view, '[class*="_component_"]')) {
+    elt.setAttribute(
+      'class',
+      elt.getAttribute('class').replace(/_component_/g, className)
+    )
+  }
+  return {style, view}
+}
+
+const makeComponentNoEval = function (name, { css, html, load }) {
+  const {
+    style,
+    view,
+  } = processComponent(css, html, name)
   const component = {
     name,
     style,
-    view: div,
+    view,
     load: (component, b8r, find, findOne, data, register, get, set, on, touch) => {
       load({ component, b8r, find, findOne, data, register, get, set, on, touch })
     },
@@ -189,7 +217,7 @@ const makeComponentNoEval = function (name, { css, html, load }) {
   return component
 }
 
-const makeComponent = function (name, source, url, preserveSource) {
+const makeComponent = (name, source, url, preserveSource) => {
   let css = false; let content; let script = false; let parts; let remains
 
   if (!url) url = uuid()
@@ -211,8 +239,10 @@ const makeComponent = function (name, source, url, preserveSource) {
     content = remains
   }
 
-  const div = create('div')
-  div.innerHTML = content
+  const {
+    style,
+    view
+  } = processComponent(css, content, name)
   /* jshint evil: true */
   let load = () => console.error('component', name, 'cannot load properly')
   if (script && script.match(/require\s*\(/) && !script.match(/electron-require/)) {
@@ -240,14 +270,10 @@ const makeComponent = function (name, source, url, preserveSource) {
     throw new Error(`component ${name} load method could not be created`)
   }
   /* jshint evil: false */
-  const className = `${name}-component`
-  const style = css ? makeStylesheet(css.replace(/_component_/g, className), className) : false
-  const updateClasses = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, className))
-  findWithin(div, '[class*="_component_"]').forEach(updateClasses)
   const component = {
     name,
     style,
-    view: div,
+    view,
     load,
     path: url.split('/').slice(0, -1).join('/')
   }
