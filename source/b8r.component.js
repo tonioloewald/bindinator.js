@@ -45,6 +45,55 @@ Note that `removeComponent` does not preserve children!
 
 ## Creating Components Programmatically
 
+Instead of writing `something.component.html` and loading it using `b8r.component`
+you can make component's programmatically (i.e. using Javascript) and simply `import()`
+the file to load the component.
+
+### Making a Component with Javascript
+
+The best way to create components programmatically (and, arguably, the best way to
+create components period) is using makeComponentNoEval. (It's called that because it
+does not use `eval` to construct the component's `load` method. `eval` is widely
+considered a **Bad Thing** and it makes linters say mean things.)
+
+    export default const componentName = makeComponentNoEval('component-name', {
+      css: '._component_ > div { color: yellow }',
+      html: '<div>this text will be yellow</div>',
+      load: async ({
+        component, // this is the element that the component is inserted into
+        b8r,       // it's b8r!
+        find,      // b8r.findWithin(component, ...)
+        findOne,   // b8r.findOneWithin(component, ...)
+        data,      // the component's private data object
+        register,  // replace the component's private data object
+        get,       // get (within the component's private data)
+        set,       // set (within the component's private data)
+        on,        // b8r.on(component, ...)
+        touch      // refresh the component
+      }) => {
+        // your javascript goes here
+      },
+    })
+
+You only need to destructure the parameters you want to use (to avoid linter complaints
+about unused variables).
+
+```
+<b8r-component name="no-eval"></b8r-component>
+<script>
+  b8r.makeComponentNoEval('no-eval', {
+    css: '._component_ > span { color: yellow; }',
+    html: '<span></span>',
+    load: async ({findOne}) => {
+      findOne('span').textContent = 'Hello Pure Component'
+    }
+  })
+</script>
+```
+### Making a Component from HTML Source
+
+This is how `b8r` makes components from `.html` files (and also in its inline "fiddles").
+
     makeComponent(name, source, url, preserveSource); // preserveSource are optional
 
 Create a component with the specified name, source code, and url. Use preserveSource if
@@ -126,52 +175,6 @@ const components = {}
 const componentTimeouts = []
 const componentPromises = {}
 const componentPreloadMap = {}
-
-/**
-## Making Components without Eval
-
-You may prefer to create **pure javascript components** for any number of reasons,
-including security policies or to take advantage of javascript-centric tooling. 
-
-E.g. if  you've written a lot of `b8r` components using HTML you'll probably have noticed
-things like `/* global ... *\/` comments designed to stop linters from complaining
-about the things component load scripts get passed for convenience.
-
-    makeComponentNoEval('component-name', {
-      css: 'css text goes here',
-      html: '<div>html goes here</div>',
-      load: async ({
-        component,
-        b8r,
-        find,
-        findOne,
-        data,
-        register,
-        get,
-        set,
-        on,
-        touch
-      }) => {
-        // your javascript goes here
-      },
-    })
-
-You only need to destructure the parameters you want to use (to avoid linter complaints
-about unused variables).
-
-```
-<b8r-component name="no-eval"></b8r-component>
-<script>
-  b8r.makeComponentNoEval('no-eval', {
-    css: '._component_ > span { color: yellow; }',
-    html: '<span></span>',
-    load: async ({findOne}) => {
-      findOne('span').textContent = 'Hello Pure Component'
-    }
-  })
-</script>
-```
-*/
 
 const processComponent = (css, html, name) => {
   const view = document.createElement('div')
