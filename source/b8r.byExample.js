@@ -82,7 +82,8 @@ const {
   nonEmpty,
   nullable,
   optional,
-  pickOne
+  pickOne,
+  exampleAtPath
 } = await import('./b8r.byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
@@ -183,6 +184,19 @@ Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
   .shouldBeJSON(["[2] had no matching type"])
 Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
   .shouldThrow()
+
+Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
+Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
+Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo')).shouldBeJSON([{"bar":"hello"}])
+Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo[]')).shouldBeJSON({"bar":"hello"})
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[]'))
+  .shouldBeJSON({"bar":"hello",baz:17})
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].bar'))
+  .shouldBe('hello')
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].baz'))
+  .shouldBe(17)
+Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
+  .shouldBe(undefined)
 ~~~~
 */
 
@@ -208,7 +222,7 @@ export const describeType = (x) => {
   }
 }
 
-export const typeJSON = (x) => JSON.stringify(describeType(x), false, 2)
+export const typeJSON = (x) => JSON.stringify(describeType(x))
 export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
 
 export class Match {
@@ -292,6 +306,28 @@ export const matchType = (example, subject, errors = [], path = '') => {
     matchKeys(example, subject, errors, path)
   }
   return errors
+}
+
+export const exampleAtPath = (example, path) => {
+  const parts = Array.isArray(path)
+    ? [...path]
+    : path.replace(/\[[^\]]*\]/g, '.*').split('.')
+  if (example === null || example === undefined || parts.length === 0) {
+    return example
+  } else {
+    const part = parts.shift()
+    if (part === '*') {
+      if (Array.isArray(example)) {
+        return example.length === 1
+          ? exampleAtPath(example[0], parts)
+          : exampleAtPath(Object.assign({}, ...example), parts)
+      } else {
+        return undefined
+      }
+    } else {
+      return exampleAtPath(example[part], parts)
+    }
+  }
 }
 
 const matchKeys = (example, subject, errors = [], path = '') => {

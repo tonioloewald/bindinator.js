@@ -15,6 +15,10 @@
 </head>
 <body>
 <div id='main'>
+  <label>
+    Search
+    <input data-bind="value=benchmark.filterSettings.text">
+  </label>
   <div class="container">
     <div class="jumbotron">
       <div class="row">
@@ -51,7 +55,7 @@
     </div>
     <table class="table table-hover table-striped test-data">
       <tbody id="tbody">
-        <tr data-list="benchmark.data:id">
+        <tr data-list="benchmark.filter(benchmark.data,benchmark.filterSettings.text):id">
           <td class="col-md-1" data-bind="text=.id">1</td>
           <td class="col-md-4">
             <span class="lbl" data-bind="text=.label">clean blue chair</span>
@@ -155,10 +159,17 @@ b8r.registerType('benchmark', {
   data: [
     {id: 2, label: 'do not care', missing: 'not present'},
     {id: 1, label: "quaint orange pony"}
-  ]
+  ],
 });
 
 b8r.register('benchmark', {
+  filterSettings: {
+    text: ''
+  },
+  filter: (list, text) => {
+    console.log(list, text)
+    return list ? list.filter(({label}) => label.includes(text)) : []
+  },
   data: [],
   create: () => {
     console.time('create');

@@ -83,7 +83,8 @@ import {
   component,
   components,
   componentTimeouts,
-  makeComponent
+  makeComponent,
+  makeComponentNoEval
 } from './b8r.component.js'
 
 import * as webComponents from './web-components.js'
@@ -560,7 +561,7 @@ const _pathRelativeB8r = _path => {
     }
   })
 }
-Object.assign(b8r, { component, makeComponent })
+Object.assign(b8r, { component, makeComponent, makeComponentNoEval })
 
 b8r.components = () => Object.keys(components)
 
