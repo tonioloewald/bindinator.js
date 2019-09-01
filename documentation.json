@@ -19,6 +19,10 @@
         "path": "docs/binding-data.md"
       },
       {
+        "name": "Lists",
+        "path": "docs/lists.js"
+      },
+      {
         "name": "Events",
         "path": "docs/events.md"
       },
