@@ -172,7 +172,7 @@ of awesome that this works at all.
 /* global findOne, set, b8r, on, data, component, register, ace */
 /* jshint latedef:false */
 
-  const {uuid} = await import('../source/uuid.js');
+  const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
   const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
 
@@ -206,7 +206,7 @@ of awesome that this works at all.
     setTimeout(run);
   } else {
     const path = component.dataset.path || 'hello';
-    b8r.component('fiddle-' + uuid(), path, true).then(c => {
+    b8r.component('fiddle-' + unique(), path, true).then(c => {
       set('title', path);
       code_elt.textContent = c._source.replace(/\t/g, '  ');
       init_editor();
@@ -231,7 +231,7 @@ of awesome that this works at all.
     last_code = source;
     if (source.match(/<\w+[^<>]*>/)) {
       b8r.insertComponent(
-        b8r.makeComponent('fiddle-' + uuid(), source, b8r._path ? `${b8r._path}/` : ''),
+        b8r.makeComponent('fiddle-' + unique(), source, b8r._path ? `${b8r._path}/` : ''),
         container
       );
       setTimeout(() => editor && editor.resize(true), 1000);
