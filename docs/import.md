@@ -89,7 +89,7 @@ You can also export something you've imported in one step, e.g.
 
 ## Dynamic Import
 
-Finally, there's **dynamic import**. You can only use `import` a module context. 
+Finally, there's **dynamic import**. You can only use `import` within a module context. 
 In particular, code loaded at runtime and evaled inside a function is not such a 
 context. (In `b8r` this means "component scripts".) Here, you need to use
 the dynamic import pseudo-function, which works a bit like `require` but not really.
@@ -98,22 +98,10 @@ It works like this:
 
     const {bar, baz} = await import('./path/to/foo.js');
 
-Notably, `default` is treated like a named specific symbol in a dynmically imported
+**Note**: `default` is treated like a named specific symbol in a dynmically imported
 module, so if you wanted everything out of `foo.js` inside `const foo` you'd write:
 
     const foo = (await import('./path/to/foo.js')).default;
-
-    ## Dynamic import()
-
-**Note** that `import()` treats the `default` export of a module as a named import 
-(named `default`), so the async equivalent of:
-
-    import foo from './path/to/foo.js'
-
-is something like:
-
-    let foo
-    import('./path/to/foo.js').then(({default}) => foo = default)
 
 ### Migrating to `import` by Example
 

@@ -1,14 +1,26 @@
 /**
 # Async Update Queue
 
-When data changes "out of b8r's sight" you may need to inform b8r of the change so it can
-make appropriate changes to the DOM.
+`b8r` queues DOM updates and then performs them at the next animation frame. Generally,
+you don't need to worry about how this works. Just use [registry](#source=source/b8r.register.js)
+methods such as `b8r.set` (and `set` inside components) to change bound values and
+everything *should just work*.
+
+If you change values directly (e.g. because you need to make lots of deep changes
+to a big dataset efficiently) you can just use `b8r.touch` to inform `b8r` of the changes.
+
+## Manipulating the Update Queue Directly
+
+To add updates for a path to `b8r`'s async update queue use `touchByPath`.
 
     touchByPath('path.to.data'); // tells b8r to update anything bound to that path
     touchByPath('path.to.data', sourceElement); // as above, but exclude sourceElement
-    touchElement(element); // tell b8r the element in question needs updating
     touchByPath('path.to.list[id=abcd]'); // updates the specified list
     touchByPath('path.to.list[id=abcd].bar.baz'); // updates the underlying list
+
+Similarly, to add an element to the update queue:
+
+    touchElement(element); // tell b8r the element in question needs updating
 
 If you want to precisely update a list item without updating the list it belongs to,
 the simplest option is to `b8r.bindAll` the list element or `touchElement` the list element.

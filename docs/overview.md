@@ -24,6 +24,18 @@ You can update the value at the path:
 b8r.set('root.test', Math.PI)
 ```
 
+### register, set, and get — inside a component
+
+Within a component's load method (its `<script>` if it's an HTML component) you have access to `register`, `get`, and `set`
+which are local to the component.
+
+```
+<script> // assume this is inside a component's script tag
+  b8r.set('someRoot.to.foo', 'hello') // sets the registry entry for "someRoot.to.foo" to "hello"
+  set('to.foo', 'good-bye') // sets the registry entry for `\`${component.dataset.id}.to.foo\`` to "good-bye"
+</script>
+```
+
 ### paths for array items
 
 You can reference array items via **index**. This looks like an ordinary javascript array reference (e.g. `path.to.array[17]`):

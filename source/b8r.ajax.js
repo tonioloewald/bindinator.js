@@ -1,20 +1,26 @@
 /**
 # Ajax Methods
 
-Copyright ©2016-2017 Tonio Loewald
+`b8r` provides some simple utilities for interacting with REST/json services.
 
     ajax(url, method, requestData, config)
     json(url, method, requestData, config)
     jsonp(url, method, requestData, config)
 
-All parameters except url are optional.
+All parameters except `url` are optional.
 
-These methods generate promises of the specified response. Usage:
+These methods are all async (they return) `promises` of the specified response).
+
+Usage:
 
     json('path/to/endpoint', 'PUT', {...}).then(response => { ...});
 
-Also note that these methods are folded into b8r by default, so available as
-b8r.ajax, etc.
+or:
+
+    const myData = await jason('path/to/endpoint', ...)
+
+Also note that these methods are folded into `b8r` by default, so available as
+`b8r.ajax`, etc.
 */
 /* global console, XMLHttpRequest */
 

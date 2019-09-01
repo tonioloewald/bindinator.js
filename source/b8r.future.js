@@ -1,7 +1,8 @@
 /**
 # importing from the future
 
-Methods in here workaround circular references.
+Methods in here work around circular references. You shouldn't need to use
+it yourself!
 ~~~~
 const {playSavedMessages} = await import('./b8r.future.js')
 

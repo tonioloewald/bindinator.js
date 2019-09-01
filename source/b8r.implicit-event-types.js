@@ -1,5 +1,5 @@
 /**
-# Implicit Event Types
+# event type b8r handles implicitly
 
 These are the event types which b8r handles by default. (`b8r` inserts *one* event
 handler for each of these event types at the `document.body` level and then routes

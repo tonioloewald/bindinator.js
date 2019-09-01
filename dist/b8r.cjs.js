@@ -1019,14 +1019,26 @@ const dispatch = (type, target, ...args) => {
 /**
 # Async Update Queue
 
-When data changes "out of b8r's sight" you may need to inform b8r of the change so it can
-make appropriate changes to the DOM.
+`b8r` queues DOM updates and then performs them at the next animation frame. Generally,
+you don't need to worry about how this works. Just use [registry](#source=source/b8r.register.js)
+methods such as `b8r.set` (and `set` inside components) to change bound values and
+everything *should just work*.
+
+If you change values directly (e.g. because you need to make lots of deep changes
+to a big dataset efficiently) you can just use `b8r.touch` to inform `b8r` of the changes.
+
+## Manipulating the Update Queue Directly
+
+To add updates for a path to `b8r`'s async update queue use `touchByPath`.
 
     touchByPath('path.to.data'); // tells b8r to update anything bound to that path
     touchByPath('path.to.data', sourceElement); // as above, but exclude sourceElement
-    touchElement(element); // tell b8r the element in question needs updating
     touchByPath('path.to.list[id=abcd]'); // updates the specified list
     touchByPath('path.to.list[id=abcd].bar.baz'); // updates the underlying list
+
+Similarly, to add an element to the update queue:
+
+    touchElement(element); // tell b8r the element in question needs updating
 
 If you want to precisely update a list item without updating the list it belongs to,
 the simplest option is to `b8r.bindAll` the list element or `touchElement` the list element.
@@ -1566,7 +1578,8 @@ const resolveListInstanceBindings = (instanceElt, instancePath) => {
 /**
 # importing from the future
 
-Methods in here workaround circular references.
+Methods in here work around circular references. You shouldn't need to use
+it yourself!
 ~~~~
 const {playSavedMessages} = await import('./b8r.future.js')
 
@@ -3087,7 +3100,7 @@ the interval being reset if the function is called again.
 E.g. you want to call a query "as the user types" but don't want to call until the user pauses
 typing for a while or at least has a chance to type a few keys.
 
-A debounced method will call the original function at least once after the debounced version is
+> A debounced method will call the original function at least once after the debounced version is
 called.
 
     b8r.throttle(method, minInterval_ms) => throttled method
@@ -3095,15 +3108,13 @@ called.
 From a function `f`, create a function that will call f if and only if the function hasn't
 been called in the last interval.
 
-If you call f several times within the interval, *only the first call will fire*.
+> If you call f several times within the specified interval, *only the first call will fire*.
 */
 
 const debounce = (origFn, minInterval) => {
   let debounceId;
   return (...args) => {
-    if (debounceId) {
-      clearTimeout(debounceId);
-    }
+    if (debounceId) clearTimeout(debounceId);
     debounceId = setTimeout(() => origFn(...args), minInterval);
   }
 };
@@ -3142,7 +3153,7 @@ const render = (color) => {
 };
 
 /**
-# imgSrc
+# images
 Copyright ©2016-2017 Tonio Loewald
 
     imgSrc(img, url, cors=true)
@@ -3227,7 +3238,7 @@ const anyElement = document.createElement('div');
 /**
 # Keystroke
 
-Leverages the modern browser's event "code" to identify keystrokes,
+Leverages the modern browser's `event.code` to identify keystrokes,
 and uses a normalized representation of modifier keys (in alphabetical)
 order.
 
@@ -3309,7 +3320,7 @@ const modifierKeys = {
 };
 
 /**
-# Implicit Event Types
+# event type b8r handles implicitly
 
 These are the event types which b8r handles by default. (`b8r` inserts *one* event
 handler for each of these event types at the `document.body` level and then routes
@@ -4682,20 +4693,26 @@ function _toTargets (b8r) {
 /**
 # Ajax Methods
 
-Copyright ©2016-2017 Tonio Loewald
+`b8r` provides some simple utilities for interacting with REST/json services.
 
     ajax(url, method, requestData, config)
     json(url, method, requestData, config)
     jsonp(url, method, requestData, config)
 
-All parameters except url are optional.
+All parameters except `url` are optional.
 
-These methods generate promises of the specified response. Usage:
+These methods are all async (they return) `promises` of the specified response).
+
+Usage:
 
     json('path/to/endpoint', 'PUT', {...}).then(response => { ...});
 
-Also note that these methods are folded into b8r by default, so available as
-b8r.ajax, etc.
+or:
+
+    const myData = await jason('path/to/endpoint', ...)
+
+Also note that these methods are folded into `b8r` by default, so available as
+`b8r.ajax`, etc.
 */
 
 const _requestsInFlight = [];
@@ -4897,7 +4914,7 @@ var fromTargets = /*#__PURE__*/Object.freeze({
 /**
 ## `_b8r_` — Built-in Event Handlers
 
-The _b8r_ object is registered by default as a useful set of always available
+The `_b8r_` object is registered by default as a useful set of always available
 methods, especially for handling events.
 
 You can use them the obvious way:
@@ -5024,10 +5041,12 @@ const dataForElement = (targetElement, _default) => {
 };
 
 /**
-# Any Event
+# anyEvents — priority access
 
-Utility methods for intercepting __ANY__ event before anything else sees it. Note
-that if you don't return `true` from the handler the event will be stopped.
+`b8r` provides a mechanism for intercepting events before they do anything
+else. This is incredibly powerful for dealing with complex user interface interactions.
+
+> **Caution** if you don't return `true` from the handler the event will be stopped.
 
     b8r.onAny(eventType, object, method) => handlerRef
 
@@ -5108,26 +5127,33 @@ const hide = (element, ...args) => {
 };
 
 /**
-# Make Stylesheet
+# Stylesheets
+
+Two utilities for dynamically adding style sheets to the document head.
 
 Usage:
 
     import makeStyleSheet from 'path/to/makeStylesheet.js';
     makeStylesheet('h1 { font-size: 100px; }', 'my style sheet');
 
-Inserts the source in a `<style>` tag and sticks in in the document head. It will have the
-supplied title as its `data-title` attribute;
+inserts:
+
+    <style title="my style sheet">
+      h1 { font-size: 100px; }
+    </style>
+
+in the document `<head>`.
 
     import {viaLink} from 'path/to/makeStyleSheet.js';
-    viaLink('path/to/styles.css'); // returns a <link> tag with appropriate href
+    viaLink('path/to/styles.css'); // inserts a <link> tag with appropriate href
 
-Adds:
+inserts:
 
     <link rel="stylesheet" type="text/css" href="path/to/styles.css">
 
-to the document header if (and only if) no such tag is already present (it only checks for
-`<link>` tags with the same href, so if you're doing something *really weird* with links this
-might lead to problems.)
+in the document <head> if (and only if) no such `<link>` tag is already present (it only checks for
+`<link>` tags with the same `href`, so if you're doing something *really weird* with links this
+might lead to duplicate links.)
 */
 
 const makeStyleSheet = (source, title) => {

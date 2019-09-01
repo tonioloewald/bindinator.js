@@ -1,5 +1,5 @@
 /**
-# imgSrc
+# images
 Copyright ©2016-2017 Tonio Loewald
 
     imgSrc(img, url, cors=true)

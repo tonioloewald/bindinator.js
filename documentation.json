@@ -60,23 +60,27 @@
         "path": "source/b8r.bindings.js"
       },
       {
-        "name": "binding to dom",
+        "name": "data registry",
+        "path": "source/b8r.registry.js"
+      },
+      {
+        "name": "data-bind to elements",
         "path": "source/b8r.toTargets.js"
       },
       {
-        "name": "binding from dom",
+        "name": "data-bind from elements",
         "path": "source/b8r.fromTargets.js"
       },
       {
-        "name": "byPath",
+        "name": "data paths",
         "path": "source/b8r.byPath.js"
       },
       {
-        "name": "byExample",
+        "name": "type checking",
         "path": "source/b8r.byExample.js"
       },
       {
-        "name": "component",
+        "name": "components",
         "path": "source/b8r.component.js"
       },
       {
@@ -92,19 +96,19 @@
         "path": "source/b8r.implicit-event-types.js"
       },
       {
-        "name": "_b8r_",
+        "name": "event handlers (built-in)",
         "path": "source/b8r._b8r_.js"
+      },
+      {
+        "name": "events — priority access",
+        "path": "source/b8r.anyEvent.js"
       },
       {
         "name": "functions",
         "path": "source/b8r.functions.js"
       },
       {
-        "name": "anyEvent",
-        "path": "source/b8r.anyEvent.js"
-      },
-      {
-        "name": "imgSrc",
+        "name": "images",
         "path": "source/b8r.imgSrc.js"
       },
       {
@@ -122,10 +126,6 @@
       {
         "name": "sort",
         "path": "source/b8r.sort.js"
-      },
-      {
-        "name": "registry",
-        "path": "source/b8r.registry.js"
       },
       {
         "name": "show",

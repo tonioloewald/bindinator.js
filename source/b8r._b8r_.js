@@ -1,7 +1,7 @@
 /**
 ## `_b8r_` — Built-in Event Handlers
 
-The _b8r_ object is registered by default as a useful set of always available
+The `_b8r_` object is registered by default as a useful set of always available
 methods, especially for handling events.
 
 You can use them the obvious way:

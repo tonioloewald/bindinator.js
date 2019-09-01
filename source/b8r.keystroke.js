@@ -1,7 +1,7 @@
 /**
 # Keystroke
 
-Leverages the modern browser's event "code" to identify keystrokes,
+Leverages the modern browser's `event.code` to identify keystrokes,
 and uses a normalized representation of modifier keys (in alphabetical)
 order.
 

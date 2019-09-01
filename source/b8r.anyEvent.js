@@ -1,8 +1,10 @@
 /**
-# Any Event
+# anyEvents — priority access
 
-Utility methods for intercepting __ANY__ event before anything else sees it. Note
-that if you don't return `true` from the handler the event will be stopped.
+`b8r` provides a mechanism for intercepting events before they do anything
+else. This is incredibly powerful for dealing with complex user interface interactions.
+
+> **Caution** if you don't return `true` from the handler the event will be stopped.
 
     b8r.onAny(eventType, object, method) => handlerRef
 

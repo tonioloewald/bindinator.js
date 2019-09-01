@@ -1,24 +1,31 @@
 /**
-# Make Stylesheet
+# Stylesheets
+
+Two utilities for dynamically adding style sheets to the document head.
 
 Usage:
 
     import makeStyleSheet from 'path/to/makeStylesheet.js';
     makeStylesheet('h1 { font-size: 100px; }', 'my style sheet');
 
-Inserts the source in a `<style>` tag and sticks in in the document head. It will have the
-supplied title as its `data-title` attribute;
+inserts:
+
+    <style title="my style sheet">
+      h1 { font-size: 100px; }
+    </style>
+
+in the document `<head>`.
 
     import {viaLink} from 'path/to/makeStyleSheet.js';
-    viaLink('path/to/styles.css'); // returns a <link> tag with appropriate href
+    viaLink('path/to/styles.css'); // inserts a <link> tag with appropriate href
 
-Adds:
+inserts:
 
     <link rel="stylesheet" type="text/css" href="path/to/styles.css">
 
-to the document header if (and only if) no such tag is already present (it only checks for
-`<link>` tags with the same href, so if you're doing something *really weird* with links this
-might lead to problems.)
+in the document <head> if (and only if) no such `<link>` tag is already present (it only checks for
+`<link>` tags with the same `href`, so if you're doing something *really weird* with links this
+might lead to duplicate links.)
 */
 
 import { create, text, findOne } from './b8r.dom.js'
