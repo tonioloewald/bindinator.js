@@ -177,7 +177,7 @@ const componentPromises = {}
 const componentPreloadMap = {}
 
 const processComponent = (css, html, name) => {
-  const view = document.createElement('div')
+  const view = create('div')
   view.innerHTML = html || ''
   const className = `${name}-component`
   const style = css ? makeStylesheet(css.replace(/_component_/g, className), className) : false
@@ -187,13 +187,13 @@ const processComponent = (css, html, name) => {
       elt.getAttribute('class').replace(/_component_/g, className)
     )
   }
-  return {style, view}
+  return { style, view }
 }
 
 const makeComponentNoEval = function (name, { css, html, load }) {
   const {
     style,
-    view,
+    view
   } = processComponent(css, html, name)
   const component = {
     name,

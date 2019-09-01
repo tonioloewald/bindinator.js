@@ -3309,9 +3309,11 @@ const modifierKeys = {
 /**
 # Implicit Event Types
 
-These are the event types which b8r handles by default.
+These are the event types which b8r handles by default. (`b8r` inserts *one* event
+handler for each of these event types at the `document.body` level and then routes
+events from the original target.)
 
-To handle other types of events, you can call `b8r.implicitlyHandleEventsOfType('type')`
+To add other types of events, you can call `b8r.implicitlyHandleEventsOfType('type')`
 
 ## Mouse Events
 
@@ -5224,6 +5226,55 @@ Note that `removeComponent` does not preserve children!
 
 ## Creating Components Programmatically
 
+Instead of writing `something.component.html` and loading it using `b8r.component`
+you can make component's programmatically (i.e. using Javascript) and simply `import()`
+the file to load the component.
+
+### Making a Component with Javascript
+
+The best way to create components programmatically (and, arguably, the best way to
+create components period) is using makeComponentNoEval. (It's called that because it
+does not use `eval` to construct the component's `load` method. `eval` is widely
+considered a **Bad Thing** and it makes linters say mean things.)
+
+    export default const componentName = makeComponentNoEval('component-name', {
+      css: '._component_ > div { color: yellow }',
+      html: '<div>this text will be yellow</div>',
+      load: async ({
+        component, // this is the element that the component is inserted into
+        b8r,       // it's b8r!
+        find,      // b8r.findWithin(component, ...)
+        findOne,   // b8r.findOneWithin(component, ...)
+        data,      // the component's private data object
+        register,  // replace the component's private data object
+        get,       // get (within the component's private data)
+        set,       // set (within the component's private data)
+        on,        // b8r.on(component, ...)
+        touch      // refresh the component
+      }) => {
+        // your javascript goes here
+      },
+    })
+
+You only need to destructure the parameters you want to use (to avoid linter complaints
+about unused variables).
+
+```
+<b8r-component name="no-eval"></b8r-component>
+<script>
+  b8r.makeComponentNoEval('no-eval', {
+    css: '._component_ > span { color: yellow; }',
+    html: '<span></span>',
+    load: async ({findOne}) => {
+      findOne('span').textContent = 'Hello Pure Component'
+    }
+  })
+</script>
+```
+### Making a Component from HTML Source
+
+This is how `b8r` makes components from `.html` files (and also in its inline "fiddles").
+
     makeComponent(name, source, url, preserveSource); // preserveSource are optional
 
 Create a component with the specified name, source code, and url. Use preserveSource if
@@ -5298,47 +5349,29 @@ const components = {};
 const componentTimeouts = [];
 const componentPromises = {};
 
-/**
-## Making Components without Eval
-
-You may prefer to create pure javascript components for any number of reasons.
-
-    makeComponentNoEval(name, {css, html, load})
-
-`load` is a function with the signature:
-
-    async ({component, b8r, find, findOne, data, register, get, set, on, touch}) => {
-      // same stuff you'd normally put in a component's script
-    }
-
-This should appease linters!
-
-```
-<b8r-component name="no-eval"></b8r-component>
-<script>
-  b8r.makeComponentNoEval('no-eval', {
-    css: '._component_ > span { color: yellow; }',
-    html: '<span></span>',
-    load: async ({findOne}) => {
-      findOne('span').textContent = 'Hello Pure Component'
-    }
-  })
-</script>
-```
-*/
-
-const makeComponentNoEval = function (name, { css, html, load }) {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-
+const processComponent = (css, html, name) => {
+  const view = create('div');
+  view.innerHTML = html || '';
   const className = `${name}-component`;
   const style = css ? makeStyleSheet(css.replace(/_component_/g, className), className) : false;
-  const updateClasses = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, className));
-  findWithin(div, '[class*="_component_"]').forEach(updateClasses);
+  for (const elt of findWithin(view, '[class*="_component_"]')) {
+    elt.setAttribute(
+      'class',
+      elt.getAttribute('class').replace(/_component_/g, className)
+    );
+  }
+  return { style, view }
+};
+
+const makeComponentNoEval = function (name, { css, html, load }) {
+  const {
+    style,
+    view
+  } = processComponent(css, html, name);
   const component = {
     name,
     style,
-    view: div,
+    view,
     load: (component, b8r, find, findOne, data, register, get, set, on, touch) => {
       load({ component, b8r, find, findOne, data, register, get, set, on, touch });
     },
@@ -5360,7 +5393,7 @@ const makeComponentNoEval = function (name, { css, html, load }) {
   return component
 };
 
-const makeComponent = function (name, source, url, preserveSource) {
+const makeComponent = (name, source, url, preserveSource) => {
   let css = false; let content; let script = false; let parts; let remains;
 
   if (!url) url = uuid();
@@ -5381,8 +5414,10 @@ const makeComponent = function (name, source, url, preserveSource) {
     content = remains;
   }
 
-  const div = create('div');
-  div.innerHTML = content;
+  const {
+    style,
+    view
+  } = processComponent(css, content, name);
   /* jshint evil: true */
   let load = () => console.error('component', name, 'cannot load properly');
   if (script && script.match(/require\s*\(/) && !script.match(/electron-require/)) {
@@ -5410,14 +5445,10 @@ const makeComponent = function (name, source, url, preserveSource) {
     throw new Error(`component ${name} load method could not be created`)
   }
   /* jshint evil: false */
-  const className = `${name}-component`;
-  const style = css ? makeStyleSheet(css.replace(/_component_/g, className), className) : false;
-  const updateClasses = elt => elt.setAttribute('class', elt.getAttribute('class').replace(/_component_/g, className));
-  findWithin(div, '[class*="_component_"]').forEach(updateClasses);
   const component = {
     name,
     style,
-    view: div,
+    view,
     load,
     path: url.split('/').slice(0, -1).join('/')
   };

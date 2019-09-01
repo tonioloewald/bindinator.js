@@ -239,7 +239,6 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       docs.forEach(section => {
         section._hide = isFiltered
         section.parts.forEach(part => {
-          console.log(part)
           part._hide = isFiltered 
             && !part.name.toLocaleLowerCase().includes(searchField)
             && !(part.keywords || []).find(h => h.includes(searchField))
