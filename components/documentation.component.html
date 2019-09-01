@@ -239,7 +239,10 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
       docs.forEach(section => {
         section._hide = isFiltered
         section.parts.forEach(part => {
-          part._hide = isFiltered && !part.name.toLocaleLowerCase().includes(searchField)
+          console.log(part)
+          part._hide = isFiltered 
+            && !part.name.toLocaleLowerCase().includes(searchField)
+            && !(part.keywords || []).find(h => h.includes(searchField))
           if (!part._hide) section._hide = false
         })
         section._open = isFiltered ? !section._hide : section.parts.find(part => part._current)
@@ -309,6 +312,31 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
     }     
   }
 
+  async function buildIndex() {
+    const items = get('docs').map(doc => doc.parts).flat()
+    const start = Date.now()
+    items.forEach(async (item) => {
+      const {path} = item;
+
+      if (path.endsWith('.js')) {
+        const source = await b8r.ajax(path)
+        const headings = (source.match(/^#{2,3}\s*[^\n]+/mg) || [])
+        const exported = (source.match(/export\s+const\s+\w[\w\d]+\s+=|export\s+\{[^}]+\}/mg) || [])
+          .map(s => s.endsWith('=') ? s.match(/(\w[\w\d]+)\s+=/)[1] : s.match(/\w[\w\d]+/g).slice(1))
+          .flat()
+        item.keywords = [...headings, ...exported].map(w => w.toLocaleLowerCase())
+      } else if (path.endsWith('.component.html')) {
+        const source = await b8r.ajax('./components/' + path)
+        const headings = (source.match(/^#{2,3}\s*[^\n]+/mg) || [])
+        Object.assign(item, {headings, keywords: headings.map(w => w.toLocaleLowerCase())})
+      } else if (path.endsWith('.md')) {
+        const source = await b8r.ajax(path)
+        const headings = (source.match(/^#{2,3}\s*[^\n]+/mg) || [])
+        Object.assign(item, {headings, keywords: headings.map(w => w.toLocaleLowerCase())})
+      }
+    })
+  }
+
   b8r.json(component.dataset.sourceFiles || 'documentation.json')
      .then(docs => {
         docs.forEach(section => {
@@ -318,7 +346,7 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
         });
         set({docs});
         update();
-
+        buildIndex();
         docs.forEach(section => section.parts.forEach((part, idx) => runTests(section.title, idx)))
       });
 
@@ -349,4 +377,10 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
   }
 
   window.addEventListener('hashchange', update);
+
+  set({
+    destroy() {
+      window.removeEventListener('hashchange', update);
+    },
+  })
 </script>
