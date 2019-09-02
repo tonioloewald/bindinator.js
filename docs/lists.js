@@ -282,10 +282,10 @@ The simplest way to implement a virtual list is via paging.
       return filtered.sort((a, b) => b8r.sortAscending(a.name, b.name)).slice(start, start + pageSize)
     },
     nextPage() {
-      set('page', get('page') + 1)
+      set('page', parseInt(get('page')) + 1)
     },
     previousPage() {
-      set('page', get('page') - 1)
+      set('page', parseInt(get('page')) - 1)
     },
     enablePrevious: false,
     enableNext: true,
