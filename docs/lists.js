@@ -178,6 +178,131 @@ when you tab out of the field, that record disappears.
 </script>
 ```
 
+### Virtual Lists
+
+A common problem in applications is dealing with very large lists of objects. The usual
+solution to this is to render only the things the user can see, and track the rest of the
+objects elsewhere. This is often referred to as a virtual list.
+
+
+#### Paging
+
+The simplest way to implement a virtual list is via paging.
+
+```
+<input placeholder="filter names" data-bind="value=_component_.nameFilter">
+<div data-list="_component_.filterByName(_component_.jedi,_component_.nameFilter,_component_.page):id">
+  <span data-bind="text=.name"></span>
+</div>
+<div style="text-align: center;">
+  <button
+    data-bind="enabled_if=_component_.enablePrevious"
+    data-event="click:_component_.previousPage"
+  >
+    &lt;
+  </button>
+  <input 
+    style="width: 60px; text-align: right" 
+    type="number" 
+    min="1"
+    data-bind="
+      value=_component_.page;
+      attr(max)=_component_.pageCount
+    "
+  >
+  /
+  <span data-bind="text=_component_.pageCount"></span>
+  <button
+    data-bind="enabled_if=_component_.enableNext"
+    data-event="click:_component_.nextPage"
+  >
+    &gt;
+  </button>
+</div>
+<script>
+  const {NameGenerator} = await import('../lib/name-generator.js')
+  const jediNames = new NameGenerator([
+    "Obi Wan Kenobi",
+    "Luke Skywalker",
+    "Yoda",
+    "Mace Windu",
+    "Qui-Gon Jinn",
+    "Saesee Tiin",
+    "Shaaki Ti",
+    "Plo Koon",
+    "Ki Adi Mundi",
+    "Quinlan Vos",
+    "Yaddle",
+    "Even Piell",
+    "Oppo Rancisis",
+    "Adi Gallia",
+    "Yarael Poof",
+    "Eeth Koth",
+    "Depa Billaba",
+    "Jocasta Nu",
+    "Zett Jukassa",
+    "Aayla Secura",
+    "Dooku",
+    "Bultar Swan",
+    "Agen Kolar",
+    "Stass Allie",
+    "Ahsoka Tano",
+    "Asajj Ventress",
+    "Ima Gun Di",
+    "Nahdar Vebb",
+    "Bolla Ropal",
+    "Ord Enisence",
+    "Eekar Oki",
+    "Tera Sinube",
+    "Ky Narec"
+  ])
+
+  set({
+    nameFilter: '',
+    filterByName: (list, nameFilter, page) => {
+      nameFilter = nameFilter.toLocaleLowerCase()
+      const filtered = nameFilter
+        ? list.filter(item => item.name.toLocaleLowerCase().includes(nameFilter))
+        : list
+      if (get('nameFilter') !== nameFilter) {
+        set({
+          nameFilter,
+          page: 1
+        })
+      }
+      const {pageSize} = get()
+      const pageCount = Math.ceil(filtered.length / pageSize)
+      const start = (page - 1) * pageSize
+      set({
+        pageCount,
+        enablePrevious: page > 1,
+        enableNext: page < pageCount
+      })
+      console.log(filtered.length, pageCount, start)
+      return filtered.sort((a, b) => b8r.sortAscending(a.name, b.name)).slice(start, start + pageSize)
+    },
+    nextPage() {
+      set('page', get('page') + 1)
+    },
+    previousPage() {
+      set('page', get('page') - 1)
+    },
+    enablePrevious: false,
+    enableNext: true,
+    pageSize: 20,
+    page: 1,
+    pageCount: 1,
+    jedi: (() => {
+      const list = []
+      for(let id = 0; id < 1000; id++) {
+        list.push({id, name: jediNames.generate().replace(/(^\w| \w)/g, s => s.toLocaleUpperCase()) })
+      }
+      return list
+    })()
+  })
+</script>
+```
+
 ## More Real World Cases to Come
 
 - virtual lists
