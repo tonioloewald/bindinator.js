@@ -12,15 +12,15 @@ Tne simplest cases is straighforward:
 </script>
 ```
 
-If you look at the DOM, there will be one copy of the 
+If you look at the DOM, there will be one copy of the
 list template for each element in the list, and it will have
 a data-list-instance based on its corresponding array index.
 
 e.g.
 
-    <div 
-      data-bind="text=c#fiddle-xxxx.list[1]" 
-      data-orig-display="" 
+    <div
+      data-bind="text=c#fiddle-xxxx.list[1]"
+      data-orig-display=""
       data-list-instance="c#fiddle-xxxx.list[1]"
     >
       that
@@ -35,7 +35,6 @@ bindings are designed with lists of *objects* in mind.
 Ideally, you'll be binding a list of objects each of which has a unique
 identifier. You can provide that path to that identifier in the list
 binding which allows `b8r` to perform more efficient list updates.
-
 
 ```
 <div data-list="_component_.jedi:id">
@@ -62,11 +61,11 @@ In this case `jedi[id=2]` points to:
 
 Now the corresponding list instance looks like this:
 
-    <div 
-      data-orig-display="" 
+    <div
+      data-orig-display=""
       data-list-instance="c#fiddle-xxxx.jedi[id=2]"
     >
-      <span 
+      <span
         data-bind="text=c#fiddle-xxxx.jedi[id=2].name"
       >
         Luke Skywalker
@@ -75,7 +74,7 @@ Now the corresponding list instance looks like this:
 
 ### `_auto_`
 
-If you have a list of objects without a unique id, you can simply use use 
+If you have a list of objects without a unique id, you can simply use use
 `_auto_` as your list id-path and `b8r` will automatically generate a unique
 id for each list instance. E.g.
 
@@ -132,7 +131,7 @@ list must be a filtered subset of the source list. This makes implementing
 ```
 
 If you need to bind a list computed from scratch (e.g. the equivalent of an
-OUTER JOIN), then simply `bind-list` to a path and then stick the computed 
+OUTER JOIN), then simply `bind-list` to a path and then stick the computed
 list in that path.
 
 ### Sorted (and Filtered) List
@@ -184,7 +183,6 @@ A common problem in applications is dealing with very large lists of objects. Th
 solution to this is to render only the things the user can see, and track the rest of the
 objects elsewhere. This is often referred to as a virtual list.
 
-
 #### Paging
 
 The simplest way to implement a virtual list is via paging.
@@ -201,9 +199,9 @@ The simplest way to implement a virtual list is via paging.
   >
     &lt;
   </button>
-  <input 
-    style="width: 60px; text-align: right" 
-    type="number" 
+  <input
+    style="width: 60px; text-align: right"
+    type="number"
     min="1"
     data-bind="
       value=_component_.page;
