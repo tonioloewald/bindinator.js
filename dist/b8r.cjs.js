@@ -5172,15 +5172,21 @@ const makeStyleSheet = (source, title) => {
 
 A simple method for creading uuids. Usage:
 
-        const uuid = require('path/to/uuid.js');
+        import {uuid} = from 'path/to/uuid.js';
         const some_uuid = uuid();
 
+Also provides a simpler `unique` method that returns a unique
+counter every time it's called — for when `uuid()` is overkill.
+
+    import {unique} from 'path/to/uuid.js'
+
 ~~~~
-const {uuid} = await import('../source/uuid.js');
+const {uuid, unique} = await import('../source/uuid.js');
 Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
 Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
 Test(() => uuid().length).shouldBe(36);
 Test(() => uuid()).shouldNotBe(uuid());
+Test(() => unique()).shouldNotBe(unique());
 ~~~~
 */
 
