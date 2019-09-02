@@ -129,7 +129,7 @@ function update (specifiedProgress) {
     t = clamp(viewport.scrollTop / maxScroll)
   }
   position = t * maxPosition
-  const firstVisibleItem = Math.max(Math.min(Math.floor(position) - 1, data.list.length - rowsToShow), 0)
+  const firstVisibleItem = Math.max(Math.min(Math.floor(position), data.list.length - rowsToShow), 0)
   set('position', position.toFixed(2))
   set('rowsToShow', rowsToShow)
   set('t', (t * 100).toFixed(2) + '%')
