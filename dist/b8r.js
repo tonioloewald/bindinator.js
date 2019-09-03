@@ -1219,6 +1219,8 @@ Usage:
       <input type="checkbox" data-bind="checked=path.to.checked">
     </div>
 
+> **Note** for multiline bindings you can use newlines instead of semicolons.
+
 In a binding the part before the `=` sign is the "target" and the part after
 it is the source. If the target looks like a function call, e.g.
 
@@ -1509,7 +1511,7 @@ const findLists = element => findWithin(element, '[data-list]', true);
 
 const getBindings = element => {
   try {
-    return element.dataset.bind.split(';')
+    return element.dataset.bind.split(/[;\n]/)
       .filter(s => !!s.trim())
       .map(parseBinding)
   } catch (e) {
@@ -3393,7 +3395,7 @@ const getEventHandlers = (element) => {
   const source = element.dataset.event;
   const existing = source
     ? source
-      .replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';')
+      .replace(/\s*(^|$|[,:;])\s*/g, '$1').split(/[;\n]/)
       .filter(handler => handler.trim())
     : [];
   return existing
@@ -3469,9 +3471,16 @@ creates an implicit event-binding data attribute:
 
     data-event="eventType:module_name.method_name"
 
-Multiple handlers are semicolon-delimited, e.g.
+Multiple handlers are semicolon-delimited (or you can use newlines), e.g.
 
     data-event="mouseover:_component_.show;mouseover:_component_.hide"
+
+or:
+
+    data-event="
+      mouseover:_component_.show
+      mouseover:_component_.hide
+    "
 
 You can bind multiple event types separated by commas, e.g.
 
@@ -4865,6 +4874,8 @@ const value = (element) => {
     const name = element.getAttribute('name');
     const checked = find(`input[type=radio][name=${name}]`).find(elt => elt.checked);
     return checked ? checked.value : null
+  } else if (element.matches('input[type=number],input[type=range]')) {
+    return parseFloat(element.value)
   } else {
     if (element.dataset.componentId) {
       return get(`${element.dataset.componentId}.value`)

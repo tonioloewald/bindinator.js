@@ -40,7 +40,7 @@ const getEventHandlers = (element) => {
   const source = element.dataset.event
   const existing = source
     ? source
-      .replace(/\s*(^|$|[,:;])\s*/g, '$1').split(';')
+      .replace(/\s*(^|$|[,:;])\s*/g, '$1').split(/[;\n]/)
       .filter(handler => handler.trim())
     : []
   return existing
@@ -116,9 +116,16 @@ creates an implicit event-binding data attribute:
 
     data-event="eventType:module_name.method_name"
 
-Multiple handlers are semicolon-delimited, e.g.
+Multiple handlers are semicolon-delimited (or you can use newlines), e.g.
 
     data-event="mouseover:_component_.show;mouseover:_component_.hide"
+
+or:
+
+    data-event="
+      mouseover:_component_.show
+      mouseover:_component_.hide
+    "
 
 You can bind multiple event types separated by commas, e.g.
 

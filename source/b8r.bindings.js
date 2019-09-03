@@ -63,6 +63,8 @@ Usage:
       <input type="checkbox" data-bind="checked=path.to.checked">
     </div>
 
+> **Note** for multiline bindings you can use newlines instead of semicolons.
+
 In a binding the part before the `=` sign is the "target" and the part after
 it is the source. If the target looks like a function call, e.g.
 
@@ -357,7 +359,7 @@ const findLists = element => findWithin(element, '[data-list]', true)
 
 const getBindings = element => {
   try {
-    return element.dataset.bind.split(';')
+    return element.dataset.bind.split(/[;\n]/)
       .filter(s => !!s.trim())
       .map(parseBinding)
   } catch (e) {
