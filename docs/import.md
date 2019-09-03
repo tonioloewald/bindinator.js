@@ -3,6 +3,12 @@
 `b8r` has migrated from using `require` to `import`. This is a _breaking change_ but
 it had to happen sometime.
 
+> Note that `b8r`'s `/dist` directory includes a .cjs compatible version of b8r.js
+> so you can use it with commonjs-style `require`, but for using `b8r`without any
+> kind of build or transpilation process whatsoever, you need to work with 
+> [modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules),
+> which means `import` and `export` and `<script type="module">`.
+
 - `require` has been abolished in favor of `import`.
 - `require.viaTag`, `require.lazy` and misc. support for legacy libraries has been 
   replaced with the much simpler `viaTag` from `scripts.js`.
@@ -15,9 +21,9 @@ it had to happen sometime.
 - extensive support for `web-components` (a.k.a. "Custom Elements") is now available.
 
 If you want to use `b8r` from a `<script>` tag, change it to `<script type="module">`
-which will allow you to use `import` in any modern browser (i.e. not IE before Microsoft
-gave up and adopted Chromium, and not some other browsers that `b8r` already didn't care
-about).
+which will allow you to use `import` in any modern browser (i.e. not IE or Edge before 
+Microsoft gave up and adopted Chromium, and not some other browsers that `b8r` already 
+didn't care about).
 
 Replace `require` with `import` throughout. Replace `module.exports = ...` with `export`.
 

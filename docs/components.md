@@ -60,22 +60,30 @@ And finally, the component's `<script>` will be run as the body of a function th
 * `on` -- adds event listeners to the component element; on(type, path) => b8r.on(component, type, path)
 * `touch` -- touches paths within the component object; touch(...args) => b8r.touchByPath(componentId, ...args)
 
-> One annoying detail that has emerged as b8r has been used for more complex projects is that sometimes
-> you want a component to have a private event handler that will be triggered before the load script
-> executes, and the load script is where that private event handler is created.
+> ### Components with special needs… (`load` race condition)
 >
-> There are two workarounds. One is to insert the event-bindings in the load script and the other is to
-> register a controller object (by convention named *component-name*-controller) before loading the 
-> component and bind to that.
+> One annoying detail that has emerged as b8r has been used for more complex projects is 
+> that sometimes you want a component to have a private event handler that will be 
+> triggered before the load script executes, and the load script is where that private 
+> event handler is created.
 >
-> Another option, which makes sense for very simple components or components where each private handler
-> is likely to have very specific behavior (i.e. unique to the component instance) is to add the
-> event handler in the load script (i.e. add the attribute and explicitly construct the paths using
-> the `componentId`).
+> #### Define your component in Javascript
 >
-> I'm working on a revised component architecture (which will be implemented by adding a data-version="2"
-> attribute to the component `<script>` tag) which will eliminate the need for both approaches and
-> otherwise improve the development experience.
+> The best way to avoid this issue is to define the component as a Javascript module instead
+> of an HTML file. (See [Making a Component with Javascript](source=source/b8r.component.js).)
+> This allows you to define methods, register controllers, etc. before the component itself
+> is defined.
+>
+> #### Workarounds for HTML components
+>
+> For HTML components are two workarounds. One is to insert the event-bindings in the 
+> load script and the other is to register a controller object (by convention named 
+> *component-name*-controller) before loading the component and bind to that.
+>
+> Another option, which makes sense for very simple components or components where each 
+> private handler is likely to have very specific behavior (i.e. unique to the component 
+> instance) is to add the event handler in the load script (i.e. add the attribute and 
+> explicitly construct the paths using the `componentId`).
 
 ### Death
 
