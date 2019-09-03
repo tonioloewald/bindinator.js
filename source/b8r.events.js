@@ -121,7 +121,7 @@ Multiple handlers are semicolon-delimited (or you can use newlines), e.g.
     data-event="mouseover:_component_.show;mouseover:_component_.hide"
 
 or:
-    
+
     data-event="
       mouseover:_component_.show
       mouseover:_component_.hide
