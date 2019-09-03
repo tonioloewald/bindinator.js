@@ -4874,6 +4874,8 @@ const value = (element) => {
     const name = element.getAttribute('name');
     const checked = find(`input[type=radio][name=${name}]`).find(elt => elt.checked);
     return checked ? checked.value : null
+  } else if (element.matches('input[type=number],input[type=range]')) {
+    return parseFloat(element.value)
   } else {
     if (element.dataset.componentId) {
       return get(`${element.dataset.componentId}.value`)
