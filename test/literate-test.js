@@ -34,7 +34,7 @@ as a component, as below:
 <script>
   // An example of test in action
   function calculate(){
-    set({sum: get('a') + get('b')});
+    set({sum: parseFloat(get('a')) + parseFloat(get('b'))});
   }
   set({a: 5, b: Math.PI, calculate});
   calculate();
