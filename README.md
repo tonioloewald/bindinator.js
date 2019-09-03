@@ -75,6 +75,13 @@ Now run:
 
 And open [http://localhost:8080](http://localhost:8080) in your browser.
 
+Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Safari*, 
+`Cmd+Option+I` in *Firefox*) and try:
+
+    b8r.get('app.message') // should print "hello world"
+    b8r.set('app.message', 'laziness rules!')
+    b8r.call('app.message')
+
 ## The lazy JavaScript framework.
 
 *Laziness drives every design decision in b8r*. 
@@ -194,6 +201,15 @@ Components can be nested exactly as you would expect.
 [Web Components](https://www.webcomponents.org/), a.k.a. Custom Elements, and its bindings 
 play nice with them (e.g. waiting for a custom-element's  definition before attempting to bind 
 values to it).
+
+### Create Components with HTML or JavaScript
+
+Each of these little inline examples is a component written in HTML. (`b8r` expects
+components to be in files named `some-name.component.html`.)
+
+When you want to get into the details of building components, there are sections on
+[components](#source=docs/components.md) and on 
+[`b8r`'s component API](#source=source/b8r.component.js).
 
 ### Add components with `<b8r-component>`
 
