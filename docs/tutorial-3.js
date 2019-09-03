@@ -182,7 +182,7 @@ loan object's definition:
   </div>
   <label>
     Loan Type<br>
-    <select data-bind="value=_component_.type">
+    <select data-bind="value=_component_.years">
       <option value="0">Interest Only (ARM)</option>
       <option value="30">30 year Fixed</option>
       <option value="20">20 year Fixed</option>
@@ -207,7 +207,7 @@ loan object's definition:
   </div>
   <label>
     Monthly Payment</br>
-    <input type="number" disabled data-bind="value=_component_.payment">
+    <input disabled data-bind="value=_component_.payment">
   </label>
 </form>
 <script>
@@ -223,11 +223,13 @@ loan object's definition:
     const principal = get('total') - deposit_amount;
     let payment;
     let num_payments;
-    if (get('type') === 0) {
+    const years = parseFloat(get('years'))
+    if (years === 0) {
       payment = (monthly_rate * principal).toFixed(2);
       num_payments = '∞';
+      console.log({payment, num_payments})
     } else {
-      num_payments = get('type') * 12;
+      num_payments = years * 12;
       // how much will this loan be worth at the end of the duration?
       const future_principal_value = Math.pow(1 + monthly_rate, num_payments) * principal;
       // how much will a compounded payment of $1 be worth at the end of the duration?
@@ -235,16 +237,18 @@ loan object's definition:
       payment = (future_principal_value / future_payment_value).toFixed(2);
     }
     // we'll set the newly calculated values via b8r, so it can update bound elements
-    set('deposit_amount', deposit_amount);
-    set('payment', payment);
-    set('principal', principal);
-    set('num_payments', '' + num_payments);
+    set({
+      deposit_amount,
+      payment,
+      principal,
+      num_payments
+    });
   };
 
   set({
     total: 100000,
     deposit: 20,
-    type: 30,
+    years: 30,
     rate: 3.95,
     calculate,
   });
