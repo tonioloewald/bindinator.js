@@ -7,10 +7,6 @@
         "path": "README.md"
       },
       {
-        "name": "From require to import",
-        "path": "docs/import.md"
-      },
-      {
         "name": "Overview",
         "path": "docs/overview.md"
       },
@@ -37,6 +33,10 @@
       {
         "name": "Styling",
         "path": "docs/css.md"
+      },
+      {
+        "name": "From require to import",
+        "path": "docs/import.md"
       },
       {
         "name": "React vs. b8r",
