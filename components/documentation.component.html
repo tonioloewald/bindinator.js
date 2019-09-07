@@ -1,7 +1,13 @@
 <!--
 # Documentation
 
-b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
+`b8r``'s self-hosted documentation used to be a bespoke page. Now it's a component.
+
+## Features
+- provides a navigation and search interface for all documents in documents.json
+- supports javascript, markdown, and html component files
+- automatically generates a keyword index based on headings and function definitions
+- automatically runs inline tests and flags failures
 -->
 <style>
   .documentation-component {
@@ -319,18 +325,18 @@ b8r's self-hosted documentation used to be a bespoke page. Now it's a component.
 
       if (path.endsWith('.js')) {
         const source = await b8r.ajax(path)
-        const headings = (source.match(/^#{2,3}\s*[^\n]+/mg) || [])
+        const headings = (source.match(/^#{1,3}\s*[^\n]+/mg) || [])
         const exported = (source.match(/export\s+const\s+\w[\w\d]+\s+=|export\s+\{[^}]+\}/mg) || [])
           .map(s => s.endsWith('=') ? s.match(/(\w[\w\d]+)\s+=/)[1] : s.match(/\w[\w\d]+/g).slice(1))
           .flat()
         item.keywords = [...headings, ...exported].map(w => w.toLocaleLowerCase())
       } else if (path.endsWith('.component.html')) {
         const source = await b8r.ajax('./components/' + path)
-        const headings = (source.match(/^#{2,3}\s*[^\n]+/mg) || [])
+        const headings = (source.match(/^#{1,3}\s*[^\n]+/mg) || [])
         Object.assign(item, {headings, keywords: headings.map(w => w.toLocaleLowerCase())})
       } else if (path.endsWith('.md')) {
         const source = await b8r.ajax(path)
-        const headings = (source.match(/^#{2,3}\s*[^\n]+/mg) || [])
+        const headings = (source.match(/^#{1,3}\s*[^\n]+/mg) || [])
         Object.assign(item, {headings, keywords: headings.map(w => w.toLocaleLowerCase())})
       }
     })
