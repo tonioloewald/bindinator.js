@@ -5293,7 +5293,7 @@ considered a **Bad Thing** and it makes linters say mean things.)
         get,       // get (within the component's private data)
         set,       // set (within the component's private data)
         on,        // b8r.on(component, ...)
-        touch      // refresh the component
+        touch      // force updates of paths inside the component
       }) => {
         // your javascript goes here
       },

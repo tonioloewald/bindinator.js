@@ -121,7 +121,9 @@ Within the list template, you can use **relative paths** (e.g. `.name`) which re
 
 ## components
 
-Components are self-contained reusable software blobs. Typically a component is a single `.component.html` file, of the form:
+Components are self-contained reusable software blobs. 
+
+A component can be defined using a single `.component.html` file, of the form:
 
 ```
 <!--
@@ -142,6 +144,29 @@ Documentation in markdown format.
   set('message', 'This is an example');
   // the div will be populated with the text above
 </script>
+```
+
+or it can be defined in javascript using:
+
+```
+const componentName = makeComponentNoEval('component-name', {
+  css: '._component_ > div { color: yellow }',
+  html: '<div>this text will be yellow</div>',
+  load: async ({
+    component, // this is the element that the component is inserted into
+    b8r,       // it's b8r!
+    find,      // b8r.findWithin(component, ...)
+    findOne,   // b8r.findOneWithin(component, ...)
+    data,      // the component's private data object
+    register,  // replace the component's private data object
+    get,       // get (within the component's private data)
+    set,       // set (within the component's private data)
+    on,        // b8r.on(component, ...)
+    touch      // refresh the component
+  }) => {
+    // your javascript goes here
+  },
+})
 ```
 
 This would be saved as, for example, `example.component.html`.
@@ -185,17 +210,3 @@ b8r.component('path/to/example');
   // component will be inserted in div once it loads
 ```
 
-### A few more things about components
-
-- when a component instance is loaded, it will be given a unique `componentId` (found in `data.componentId`).
-  - its data will be **registered** with this id as its root path.
-- `_component_`
-  - will be changed to the component's instance path in bindings.
-  - will be changed into the component's name inside `<style>` rules and classes in the markup.
-- the `script` tag becomes the component's `load(require, component, b8r, find, findOne, get, set, on, touch)` method.
-  - `component` is a reference to the element the component was loaded into
-  - `data` is the component's instance data
-  - `register` lets you completely replace the component's instance data
-  - `set`, `get`, and `touch` affect paths within the component's instance data.
-  - `find` and `findOne` are `querySelectorAll` and `querySelector` scoped to `component` (`find` returns proper arrays)
-- if the component sets a `destroy` method it will be called when the component is removed or replaced.

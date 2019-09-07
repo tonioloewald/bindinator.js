@@ -2,12 +2,61 @@
 
 ## Structure
 
+### Javascript
+
+You can implement a component in javascript as well. 
+
+Moving forward, this is the preferred method for implementing 
+components.
+
+Using makeComponentNoEval allows you to define and register controllers
+before a single instance of the component is inserted in the DOM, 
+and leverage all the  javascript-centric tooling (linters, 
+transpilers, etc.). You can also easily define multiple components 
+in a single file.
+
+```
+/**
+# component-name
+
+documentation in markdown
+*/
+const componentName = makeComponentNoEval('component-name', {
+  css: `
+    ._component_ > div { color: yellow }
+  `,
+  html: `
+    <div>
+      this text will be yellow
+    </div>
+  `,
+  load: async ({
+    component, // this is the element that the component is inserted into
+    b8r,       // it's b8r!
+    find,      // b8r.findWithin(component, ...)
+    findOne,   // b8r.findOneWithin(component, ...)
+    data,      // the component's private data object
+    register,  // replace the component's private data object
+    get,       // get (within the component's private data)
+    set,       // set (within the component's private data)
+    on,        // b8r.on(component, ...)
+    touch      // refresh the component
+  }) => {
+    // your javascript goes here
+  },
+})
+```
+
+### HTML
 A component is, in essence, a reusable self-contained snippet of HTML. It comprises
-documentation, CSS (in a `<style>` tag), markup, and a load script (inside a `<script>` tag).
+documentation, CSS (in a `<style>` tag), markup, and the body of the
+component's async `load()` method (inside a `<script>` tag).
 
 ```
 <!--
-  documentation in markdown
+# component-name
+
+documentation in markdown
 -->
 <style>
   /* style rules */
@@ -20,10 +69,12 @@ documentation, CSS (in a `<style>` tag), markup, and a load script (inside a `<s
 </script>
 ```
 
-*Each of the four parts is optional*. E.g. a component could just be a stylesheet or just some code (although
-in the latter case, why not write a javascript module?).
+*Each of the four parts is optional*. E.g. a component could just be 
+a stylesheet or just some code (although in the latter case, why not 
+write a javascript module?).
 
-A component is saved as a single text file using the naming convention `component-name.component.html`.
+A component is saved as a single text file using the naming convention 
+`component-name.component.html`.
 
 ## Life Cycle
 
@@ -180,3 +231,18 @@ deprecated, and eventually data inheritance will be entirely manual (the child c
 in ancestor components, but it will be made even easier).
 
 The event flow is dynamic (the event handler is looked for when the event occurs).
+
+## A few more things about components
+
+- when a component instance is loaded, it will be given a unique `componentId` (found in `data.componentId`).
+  - its data will be **registered** with this id as its root path.
+- `_component_`
+  - will be changed to the component's instance path in bindings.
+  - will be changed into the component's name inside `<style>` rules and classes in the markup.
+- the `script` tag becomes the component's `load(require, component, b8r, find, findOne, get, set, on, touch)` method.
+  - `component` is a reference to the element the component was loaded into
+  - `data` is the component's instance data
+  - `register` lets you completely replace the component's instance data
+  - `set`, `get`, and `touch` affect paths within the component's instance data.
+  - `find` and `findOne` are `querySelectorAll` and `querySelector` scoped to `component` (`find` returns proper arrays)
+- if the component sets a `destroy` method it will be called when the component is removed or replaced.
