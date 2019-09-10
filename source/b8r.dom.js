@@ -361,7 +361,7 @@ export const isInBody = (element) => element && document.body.contains(element)
 export const cssVar = (name, value) => {
   if (value === undefined) {
     const htmlStyles = getComputedStyle(document.documentElement)
-    return htmlStyles.getPropertyValue(name)
+    return htmlStyles.getPropertyValue(name).trim()
   } else {
     document.documentElement.style.setProperty(name, value)
   }
