@@ -23,6 +23,9 @@ and lets you edit them directly.
     flex: 1 1;
   }
 </style>
+<label>
+  Color Scheme: <b data-bind="text=_component_.darkmode"></b>
+</label><br>
 <div data-list="_component_.cssVars:name">
   <label>
     <span data-bind="text=.name"></span>
@@ -48,12 +51,15 @@ and lets you edit them directly.
       type
     }
   })).flat()
-  
+
+  const darkmode = window.matchMedia('(prefers-color-scheme: dark)')
+  darkmode.addListener((e) => set('darkmode', e.matches))
   set({
     cssVars,
     setVar(evt, elt) {
       const {name, value} = b8r.getListInstance(elt)
       b8r.cssVar(name, value)
-    }
+    },
+    darkmode: darkmode.matches
   })
 </script>
