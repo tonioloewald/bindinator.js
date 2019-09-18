@@ -385,7 +385,8 @@ const makeWebComponent = (tagName, {
     componentClass.prototype[methodName] = methods[methodName]
   })
 
-  window.customElements.define(tagName, componentClass)
+  // if-statement is to prevent some node-based "browser" tests from breaking
+  if (window.customElements) window.customElements.define(tagName, componentClass)
 
   return componentClass
 }

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 # Object Path Methods
 Copyright ©2016-2017 Tonio Loewald
@@ -5956,7 +5954,8 @@ const makeWebComponent = (tagName, {
     componentClass.prototype[methodName] = methods[methodName];
   });
 
-  window.customElements.define(tagName, componentClass);
+  // if-statement is to prevent some node-based "browser" tests from breaking
+  if (window.customElements) window.customElements.define(tagName, componentClass);
 
   return componentClass
 };
@@ -6674,4 +6673,4 @@ b8r.componentOnce = function (...args) {
   });
 };
 
-module.exports = b8r;
+export default b8r;
