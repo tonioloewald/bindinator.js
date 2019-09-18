@@ -38,7 +38,6 @@ npm install http-server --save-dev
 
 Now create a simple web page:
 
-
 ```
 <!DOCTYPE html>
 <html lang="en">
