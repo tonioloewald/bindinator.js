@@ -38,6 +38,7 @@ npm install http-server --save-dev
 
 Now create a simple web page:
 
+
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -51,7 +52,9 @@ Now create a simple web page:
   <button data-event="click:app.speak">Speak</button>
   <b8r-component path="node_modules/@tonioloewald/b8r/components/photo-tabs"></b8r-component>
   <script type="module">
-    import b8r from './node_modules/@tonioloewald/b8r/dist/b8r.js'
+    // you can also use ../b8r/dist/b8r.min.mjs (minified)
+    // or ../b8r/source/b8r.js (source code)
+    import b8r from './node_modules/@tonioloewald/b8r/dist/b8r.mjs'
 
     window.b8r = b8r // so we can play with it in console
 
