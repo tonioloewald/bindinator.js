@@ -18,6 +18,7 @@ of awesome that this works at all.
     display: flex;
     flex-direction: column;
     min-width: 500px;
+    visibility: hidden;
   }
 
   .fiddle-component:not(.minimized) {
@@ -234,7 +235,7 @@ of awesome that this works at all.
         b8r.makeComponent('fiddle-' + unique(), source, b8r._path ? `${b8r._path}/` : ''),
         container
       );
-      setTimeout(() => editor && editor.resize(true), 1000);
+      component.style.visibility = 'visible';
     } else {
       const msg = b8r.create('div');
       try {
