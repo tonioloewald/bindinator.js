@@ -12,6 +12,10 @@ any given time.
 * efficient list updates should get you nicer selection behavior on scroll
 -->
 <style>
+  ._component_ {
+    position: relative;
+  }
+
   .biglist-viewport {
     overflow-y: scroll;
     position: relative;
@@ -37,10 +41,11 @@ any given time.
   }
 
   .biglist-info {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     right: 0;
-    background-color: #444;
+    color: var(--dark-text-color);
+    background-color: var(--dark-accent-color);
     padding: 2px 6px;
   }
 
