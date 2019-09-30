@@ -67,6 +67,22 @@ body {
   overflow: hidden;
 }
 
+@media print {
+  body {
+    overflow: default;
+  }
+}
+
+@media not print {
+  .fullscreen {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+  }
+}
+
 * {
   box-sizing: border-box;
 

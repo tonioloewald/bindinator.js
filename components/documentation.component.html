@@ -10,12 +10,32 @@
 - automatically runs inline tests and flags failures
 -->
 <style>
-  .documentation-component {
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+  @media not print {
+    .documentation-component {
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
 
+    .documentation-component > .content {
+      left: 190px;
+      overflow-y: scroll;
+      overflow-y: overlay;
+    }
+  }
+
+  @media print {
+    .documentation-component > .nav {
+      display: none;
+    }
+
+    .documentation-component > .content {
+      left: 0;
+    }
+  }
+
+  .documentation-component {
     /*
     display: grid;
     grid-template-columns: 10px 180px auto auto 180px 0;
@@ -44,18 +64,11 @@
 
   .documentation-component > .content {
     top: 0;
-    left: 190px;
     right: 0;
     bottom: 0;
-    background: white;
     min-height: 100vh;
-  }
-
-  .documentation-component > .content {
     padding: 0;
     background: var(--content-bg-color);
-    overflow-y: scroll;
-    overflow-y: overlay;
   }
 
   .documentation-component > .content > *,

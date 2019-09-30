@@ -19,13 +19,7 @@
                            || 'components/documentation';
 
     const div = b8r.create('div');
-    b8r.styles(div, {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-    });
+    div.classList.add('fullscreen');
 
     requestAnimationFrame(() => {
       // sometimes document.body doesn't exist yet
