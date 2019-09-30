@@ -224,6 +224,10 @@
       {
         "name": "scripts",
         "path": "lib/scripts.js"
+      },
+      {
+        "name": "undo",
+        "path": "lib/undo.js"
       }
     ]
   },

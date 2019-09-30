@@ -310,8 +310,7 @@ class Listener {
   constructor (test, callback) {
     this._orig_test = test // keep it around for unobserve
     if (typeof test === 'string') {
-      this.test = t =>
-        t.length >= test.length && test === t.substr(0, test.length)
+      this.test = t => typeof t === 'string' && t.startsWith(test)
     } else if (test instanceof RegExp) {
       this.test = test.test.bind(test)
     } else if (test instanceof Function) {
@@ -912,7 +911,7 @@ const sort = (path, comparison) => {
 Call a method by path with the arguments provided (and return result).
 */
 
-const call = (path, ...args) => {
+const call = async (path, ...args) => {
   const method = get(path)
   if (method instanceof Function) {
     return method(...args)
