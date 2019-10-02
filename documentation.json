@@ -226,8 +226,8 @@
         "path": "lib/scripts.js"
       },
       {
-        "name": "undo",
-        "path": "lib/undo.js"
+        "name": "History",
+        "path": "lib/history.js"
       }
     ]
   },
