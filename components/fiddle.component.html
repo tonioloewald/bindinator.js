@@ -235,7 +235,6 @@ of awesome that this works at all.
         b8r.makeComponent('fiddle-' + unique(), source, b8r._path ? `${b8r._path}/` : ''),
         container
       );
-      component.style.visibility = 'visible';
     } else {
       const msg = b8r.create('div');
       try {
@@ -246,6 +245,7 @@ of awesome that this works at all.
       }
       container.appendChild(msg);
     }
+    component.style.visibility = 'visible';
   }
 
   function fullscreen() {
