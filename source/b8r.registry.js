@@ -944,7 +944,7 @@ const sort = (path, comparison) => {
 Call a method by path with the arguments provided (and return result).
 */
 
-const call = async (path, ...args) => {
+const call = (path, ...args) => {
   const method = get(path)
   if (method instanceof Function) {
     return method(...args)
