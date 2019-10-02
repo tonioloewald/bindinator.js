@@ -19,6 +19,32 @@ You can set values deep inside objects using `paths`:
 
     set('root.path.to.value', new_value); // sets the value
 
+Note that `set` overlays values onto what's there, so:
+
+    register('foo', {})
+    set('foo.bar', 17)
+    set('foo', {baz: 'hello'})
+    get('foo') // {bar: 17, baz: 'hello'}
+
+If you want to completely replace an object at a path, use `replace`:
+
+    replace('foo', {baz: 'lurman'})
+    get('foo.bar') // null
+
+Under the hood, `replace('path.to.object', obj)` is simply `b8r.set('path.to.object', null)`
+followed by `b8r.set('path.to.object', obj)`.
+
+~~~~
+b8r.register('replace-test', {})
+b8r.set('replace-test.foo', 17)
+b8r.set('replace-test', {bar: 'baz'})
+Test(() => b8r.get('replace-test.bar')).shouldBe('baz')
+Test(() => b8r.get('replace-test.foo')).shouldBe(17)
+b8r.replace('replace-test', {bar: 'replaced'})
+Test(() => b8r.get('replace-test.bar')).shouldBe('replaced')
+Test(() => b8r.get('replace-test.foo')).shouldBe(null)
+~~~~
+
 You can set the registry's properties by path. Root level properties must
 themselves be objects.
 
@@ -297,6 +323,7 @@ import { getByPath, setByPath, deleteByPath } from './b8r.byPath.js'
 import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
 import { playSavedMessages } from './b8r.future.js'
 import { matchType } from './b8r.byExample.js'
+import b8r from './b8r.js';
 
 const registry = {}
 const registeredTypes = {}
@@ -785,6 +812,12 @@ const set = (path, value, sourceElement) => {
   return value // convenient for push (see below) but maybe an anti-feature?!
 }
 
+const replace = (path, value) => {
+  b8r.set(path, null)
+  b8r.set(path, value)
+  return 
+}
+
 const registerType = (name, example) => {
   registeredTypes[name] = example
   checkType(`registerType('${name}')`, name)
@@ -1101,6 +1134,7 @@ export {
   getJSON,
   _getByPath as getByPath,
   set,
+  replace,
   setJSON,
   increment, decrement, zero,
   push, unshift, sort,
