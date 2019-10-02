@@ -44,7 +44,7 @@ as a component, as below:
 This is treated as pure Javascript:
 ```
 const h4 = b8r.create('h4');
-example.style.backgroundColor = 'yellow';
+example.style.backgroundColor = 'darkgoldenrod';
 h4.textContent = 'plain old javascript';
 example.appendChild(h4);
 return 'returned by example';
