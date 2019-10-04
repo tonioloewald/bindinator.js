@@ -194,7 +194,7 @@ let _errors
 b8r.onTypeError(errors => _errors = errors)
 b8r.set('error-handling-test.number', false)
 Test(() => _errors, 'verify custom handler for type errors works')
-  .shouldBeJSON(["error-handling-test.number was boolean, expected number"])
+  .shouldBeJSON(["error-handling-test.number was false, expected number"])
 b8r.offTypeError()
 ~~~~
 
