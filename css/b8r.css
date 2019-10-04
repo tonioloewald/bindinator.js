@@ -20,6 +20,7 @@
   --selection-color: rgba(0,64,255,0.25);
   --focus-color: #FF6A5C;
   --pullquote-bg-color: aliceblue;
+  --black-5: rgba(0,0,0,0.5);
   --black-10: rgba(0,0,0,0.1);
   --black-20: rgba(0,0,0,0.2);
   --black-40: rgba(0,0,0,0.4);
@@ -54,6 +55,7 @@
     --default-bg-color: #687;
     --cancel-bg-color: #884;
 
+    --black-5: rgba(255,255,255,0.05);
     --black-10: rgba(255,255,255,0.1);
     --black-20: rgba(255,255,255,0.2);
     --black-40: rgba(255,255,255,0.4);
@@ -295,7 +297,7 @@ button.cancel, button[type="cancel"] {
 
 .iconic:active {
   border: 0;
-  background: white;
+  background: var(--content-bg-color);
 }
 
 .hidden-checkbox {
@@ -328,7 +330,7 @@ button:active, .button:active,
 button.cancel:active, .button.cancel:active,
 button.default:active, .button.default:active {
   background-color: var(--accent-color);
-  color: white;
+  color: var(--content-color);
   border: 1px solid var(--black-40);
 }
 
@@ -426,15 +428,15 @@ pre > code {
 }
 
 :hover::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.05);
+  background: var(--black-5);
 }
 
 :hover::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.1);
+  background: var(--black-10);
 }
 
 :hover::-webkit-scrollbar-thumb:window-inactive {
-  background: rgba(0,0,0,0.05);
+  background: var(--black-5);
 }
 
 progress {
@@ -448,12 +450,12 @@ progress {
   height: 10px;
 
   border: 2px solid var(--light-accent-color);
-  background: white;
+  background: var(--content-bg-color);
   border-radius: 5px
 }
 
 progress::-webkit-progress-bar {
-  background: white;
+  background: var(--content-bg-color);
   border-radius: 5px;
 }
 
@@ -467,9 +469,9 @@ progress::-webkit-progress-value {
   position: fixed;
   background: rgba(0,0,0,0.75);
   padding: 2px 6px;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid var(--black-10);
   border-radius: 4px;
-  color: white;
+  color: var(--content-bg-color);
   max-width: 25vw;
   opacity: 0;
   transition: opacity 0.4s;

@@ -813,7 +813,7 @@ const set = (path, value, sourceElement) => {
 
 const replace = (path, value) => {
   if (typeof value === 'object') setByPath(registry, path, null) // skip type checking
-  b8r.set(path, value)
+  set(path, value)
   return value
 }
 

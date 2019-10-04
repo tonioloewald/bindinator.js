@@ -2768,7 +2768,7 @@ const set = (path, value, sourceElement) => {
 
 const replace = (path, value) => {
   if (typeof value === 'object') setByPath(registry, path, null); // skip type checking
-  b8r.set(path, value);
+  set(path, value);
   return value
 };
 
@@ -6047,43 +6047,43 @@ implement some kind of virtual machine to replace it.
 - [Showing and Hiding](#source=source/b8r.show.js)
 */
 
-const b8r$1 = {};
+const b8r = {};
 
-Object.assign(b8r$1, _dom);
-Object.assign(b8r$1, _iterators);
-Object.assign(b8r$1, { on, off, enable, disable, trigger, callMethod, implicitlyHandleEventsOfType });
-Object.assign(b8r$1, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListPath, getListInstancePath });
-Object.assign(b8r$1, { onAny, offAny, anyListeners });
-Object.assign(b8r$1, _registry);
-Object.assign(b8r$1, _byExample);
-b8r$1.observe(() => true, (path, sourceElement) => b8r$1.touchByPath(path, sourceElement));
-b8r$1.keystroke = keystroke;
-b8r$1.modifierKeys = modifierKeys;
-b8r$1.webComponents = webComponents;
+Object.assign(b8r, _dom);
+Object.assign(b8r, _iterators);
+Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHandleEventsOfType });
+Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListPath, getListInstancePath });
+Object.assign(b8r, { onAny, offAny, anyListeners });
+Object.assign(b8r, _registry);
+Object.assign(b8r, _byExample);
+b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement));
+b8r.keystroke = keystroke;
+b8r.modifierKeys = modifierKeys;
+b8r.webComponents = webComponents;
 
-Object.assign(b8r$1, _functions);
+Object.assign(b8r, _functions);
 
-b8r$1.cleanupComponentInstances = b8r$1.debounce(() => {
+b8r.cleanupComponentInstances = b8r.debounce(() => {
   // garbage collect models
-  b8r$1.forEachKey(_componentInstances, (element, componentId) => {
-    if (!b8r$1.isInBody(element) || element.dataset.componentId !== componentId) {
+  b8r.forEachKey(_componentInstances, (element, componentId) => {
+    if (!b8r.isInBody(element) || element.dataset.componentId !== componentId) {
       delete _componentInstances[componentId];
     }
   });
-  b8r$1.models().forEach(model => {
+  b8r.models().forEach(model => {
     if (model.substr(0, 2) === 'c#' && !_componentInstances[model]) {
-      b8r$1.callIf(`${model}.destroy`);
-      b8r$1.remove(model, false);
+      b8r.callIf(`${model}.destroy`);
+      b8r.remove(model, false);
     }
   });
 }, 100);
-Object.assign(b8r$1, { asyncUpdate, afterUpdate, touchElement, touchByPath });
+Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement, touchByPath });
 
-b8r$1.forceUpdate = () => {
+b8r.forceUpdate = () => {
   let updateList;
 
   while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
-    const lists = b8r$1.find('[data-list]')
+    const lists = b8r.find('[data-list]')
       .map(elt => { return { elt, listBinding: elt.dataset.list } });
     let binds = false; // avoid collecting elements before big list updates
 
@@ -6096,7 +6096,7 @@ b8r$1.forceUpdate = () => {
             .forEach(({ elt }) => bindList(elt));
 
           if (!binds) {
-            binds = b8r$1.find('[data-bind]')
+            binds = b8r.find('[data-bind]')
               .map(elt => { return { elt, data_binding: elt.dataset.bind } });
           }
 
@@ -6106,7 +6106,7 @@ b8r$1.forceUpdate = () => {
               rec.dirty = true;
             });
         } else {
-          b8r$1.bindAll(source);
+          b8r.bindAll(source);
         }
       } catch (e) {
         console.error('update error', e, { path, source });
@@ -6115,36 +6115,36 @@ b8r$1.forceUpdate = () => {
     if (binds) binds.forEach(({ elt, dirty }) => dirty && bind(elt));
   }
 
-  b8r$1.cleanupComponentInstances();
+  b8r.cleanupComponentInstances();
 
   _afterUpdate();
 };
 
-_setForceUpdate(b8r$1.forceUpdate);
+_setForceUpdate(b8r.forceUpdate);
 
-b8r$1.setByPath = function (...args) {
+b8r.setByPath = function (...args) {
   let name, path, value, sourceElement;
   if (args.length === 2 && typeof args[1] === 'object' && !Array.isArray(args[1])) {
     [name, value] = args;
-    b8r$1.forEachKey(value, (val, path) => b8r$1.setByPath(name, path, val));
+    b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val));
     return
   } else if (args.length === 2 || args[2] instanceof Element) {
     [path, value, sourceElement] = args;
-    path = b8r$1.resolvePath(path, sourceElement);
+    path = b8r.resolvePath(path, sourceElement);
     [name, path] = pathSplit(path);
   } else {
     [name, path, value, sourceElement] = args;
   }
-  if (b8r$1.registered(name)) {
+  if (b8r.registered(name)) {
     // const model = b8r.get(name);
     if (typeof path === 'object') {
       // Object.assign(model, path);
       // b8r.touchByPath(name, '/', sourceElement);
-      b8r$1.set(name, path, sourceElement);
+      b8r.set(name, path, sourceElement);
     } else {
       // setByPath(model, path, value);
       // b8r.touchByPath(name, path, sourceElement);
-      b8r$1.set(
+      b8r.set(
         path[0] === '[' || !path
           ? `${name}${path}`
           : `${name}.${path}`, value, sourceElement
@@ -6155,7 +6155,7 @@ b8r$1.setByPath = function (...args) {
   }
 };
 
-b8r$1.pushByPath = function (...args) {
+b8r.pushByPath = function (...args) {
   let name, path, value, callback;
   if (args.length === 2 || typeof args[2] === 'function') {
     [path, value, callback] = args;
@@ -6163,19 +6163,19 @@ b8r$1.pushByPath = function (...args) {
   } else {
     [name, path, value, callback] = args;
   }
-  if (b8r$1.registered(name)) {
-    const list = b8r$1.get(path ? `${name}.${path}` : name);
+  if (b8r.registered(name)) {
+    const list = b8r.get(path ? `${name}.${path}` : name);
     list.push(value);
     if (callback) {
       callback(list);
     }
-    b8r$1.touchByPath(name, path);
+    b8r.touchByPath(name, path);
   } else {
     console.error(`pushByPath failed; ${name} is not a registered model`);
   }
 };
 
-b8r$1.unshiftByPath = function (...args) {
+b8r.unshiftByPath = function (...args) {
   let name, path, value;
   if (args.length === 2) {
     [path, value] = args;
@@ -6183,22 +6183,22 @@ b8r$1.unshiftByPath = function (...args) {
   } else {
     [name, path, value] = args;
   }
-  if (b8r$1.registered(name)) {
-    const list = getByPath(b8r$1.get(name), path);
+  if (b8r.registered(name)) {
+    const list = getByPath(b8r.get(name), path);
     list.unshift(value);
-    b8r$1.touchByPath(name, path);
+    b8r.touchByPath(name, path);
   } else {
     console.error(`unshiftByPath failed; ${name} is not a registered model`);
   }
 };
 
-b8r$1.removeListInstance = function (elt) {
+b8r.removeListInstance = function (elt) {
   elt = elt.closest('[data-list-instance]');
   if (elt) {
     const ref = elt.dataset.listInstance;
     try {
       const [, model, path, key] = ref.match(/^([^.]+)\.(.+)\[([^\]]+)\]$/);
-      b8r$1.removeByPath(model, path, key);
+      b8r.removeByPath(model, path, key);
     } catch (e) {
       console.error('cannot find list item for instance', ref);
     }
@@ -6215,7 +6215,7 @@ function indexFromKey (list, key) {
   return list.findIndex(elt => `${getByPath(elt, idPath)}` === value)
 }
 
-b8r$1.removeByPath = function (...args) {
+b8r.removeByPath = function (...args) {
   let name, path, key;
   if (args.length === 2) {
     [path, key] = args;
@@ -6223,42 +6223,42 @@ b8r$1.removeByPath = function (...args) {
   } else {
     [name, path, key] = args;
   }
-  if (b8r$1.registered(name)) {
-    const list = getByPath(b8r$1.get(name), path);
+  if (b8r.registered(name)) {
+    const list = getByPath(b8r.get(name), path);
     const index = indexFromKey(list, key);
     if (Array.isArray(list) && index > -1) {
       list.splice(index, 1);
     } else {
       delete list[key];
     }
-    b8r$1.touchByPath(name, path);
+    b8r.touchByPath(name, path);
   }
 };
 
-b8r$1.listItems = element =>
-  b8r$1.makeArray(element.children)
+b8r.listItems = element =>
+  b8r.makeArray(element.children)
     .filter(elt => elt.matches('[data-list-instance]'));
-b8r$1.listIndex = element =>
-  b8r$1.listItems(element.parentElement).indexOf(element);
+b8r.listIndex = element =>
+  b8r.listItems(element.parentElement).indexOf(element);
 
-b8r$1.getComponentData = (elt, type) => {
+b8r.getComponentData = (elt, type) => {
   const id = getComponentId(elt, type);
-  return id ? b8r$1.get(id) : null
+  return id ? b8r.get(id) : null
 };
 
-b8r$1.setComponentData = (elt, path, value) => {
+b8r.setComponentData = (elt, path, value) => {
   const id = getComponentId(elt);
-  b8r$1.setByPath(id, path, value);
+  b8r.setByPath(id, path, value);
 };
 
-b8r$1.getData = elt => {
-  const dataPath = b8r$1.getDataPath(elt);
-  return dataPath ? b8r$1.get(dataPath, elt) : null
+b8r.getData = elt => {
+  const dataPath = b8r.getDataPath(elt);
+  return dataPath ? b8r.get(dataPath, elt) : null
 };
 
-b8r$1.getListInstance = elt => {
-  const instancePath = b8r$1.getListInstancePath(elt);
-  return instancePath ? b8r$1.get(instancePath, elt) : null
+b8r.getListInstance = elt => {
+  const instancePath = b8r.getListInstancePath(elt);
+  return instancePath ? b8r.get(instancePath, elt) : null
 };
 
 if (document.body) {
@@ -6271,17 +6271,17 @@ if (document.body) {
   });
 }
 
-const toTargets = _toTargets(b8r$1);
+const toTargets = _toTargets(b8r);
 
-b8r$1.onAny(['change', 'input'], '_b8r_._update_');
+b8r.onAny(['change', 'input'], '_b8r_._update_');
 
-b8r$1.interpolate = (template, elt) => {
+b8r.interpolate = (template, elt) => {
   let formatted;
   if (template.match(/\$\{[^{]*?\}/)) {
     formatted = template;
     do {
       formatted = formatted.replace(/\$\{([^{]*?)\}/g, (_, path) => {
-        const value = b8r$1.get(path, elt);
+        const value = b8r.get(path, elt);
         return value !== null ? value : ''
       });
     } while (formatted.match(/\$\{[^{]*?\}/))
@@ -6290,7 +6290,7 @@ b8r$1.interpolate = (template, elt) => {
     if (paths.indexOf('') > -1) {
       throw new Error(`empty path in binding ${template}`)
     }
-    formatted = paths.map(path => b8r$1.get(path, elt));
+    formatted = paths.map(path => b8r.get(path, elt));
     if (formatted.length === 1) {
       formatted = formatted[0];
     }
@@ -6313,7 +6313,7 @@ function bind (element) {
   const newValues = {};
   for (let i = 0; i < bindings.length; i++) {
     const { targets, path } = bindings[i];
-    const value = b8r$1.interpolate(path, element);
+    const value = b8r.interpolate(path, element);
     const existing = boundValues[path];
     if (_unequal(existing, value)) {
       newValues[path] = value;
@@ -6329,8 +6329,8 @@ function bind (element) {
   }
   Object.assign(boundValues, newValues);
 }
-b8r$1.show = show;
-b8r$1.hide = hide;
+b8r.show = show;
+b8r.hide = hide;
 
 const forEachItemIn = (obj, idPath, func) => {
   if (Array.isArray(obj)) {
@@ -6376,18 +6376,18 @@ function bindList (listTemplate, dataPath) {
   if (dataPath) {
     listPath = dataPath + listPath;
   }
-  const resolvedPath = b8r$1.resolvePath(listPath, listTemplate);
+  const resolvedPath = b8r.resolvePath(listPath, listTemplate);
   // rewrite the binding if necessary (otherwise nested list updates fail)
   if (resolvedPath !== listPath) {
     let listBinding = listPath = resolvedPath;
     if (methodPath) {
       argPaths.shift();
-      argPaths = [listPath, ...argPaths.map(path => b8r$1.resolvePath(path, listTemplate))];
+      argPaths = [listPath, ...argPaths.map(path => b8r.resolvePath(path, listTemplate))];
       listBinding = `${methodPath}(${argPaths.join(',')})`;
     }
     listTemplate.dataset.list = idPath ? `${listBinding}:${idPath}` : listBinding;
   }
-  let list = b8r$1.get(listPath);
+  let list = b8r.get(listPath);
   if (!list) {
     return
   }
@@ -6404,15 +6404,15 @@ function bindList (listTemplate, dataPath) {
   }
   // compute list
   if (methodPath) {
-    if (!b8r$1.get(methodPath)) {
+    if (!b8r.get(methodPath)) {
       // methodPath is not yet available; when it becomes available it will trigger
       // the binding so we can ignore it for now
       return
     }
     (() => {
       try {
-        const args = argPaths.map(b8r$1.get);
-        const filteredList = b8r$1.callMethod(methodPath, ...args, listTemplate);
+        const args = argPaths.map(b8r.get);
+        const filteredList = b8r.callMethod(methodPath, ...args, listTemplate);
         // debug warning for lists that get "filtered" into new objects
         if (
           Array.isArray(list) &&
@@ -6434,7 +6434,7 @@ function bindList (listTemplate, dataPath) {
     }
   }
 
-  b8r$1.show(listTemplate);
+  b8r.show(listTemplate);
   // efficient list update:
   // if we have an idPath we grab existing instances, and re-use those with
   // matching ids
@@ -6474,7 +6474,7 @@ function bindList (listTemplate, dataPath) {
       instance._b8rListInstance = item;
       listTemplate.parentElement.insertBefore(instance, previousInstance);
       resolveListInstanceBindings(instance, itemPath);
-      b8r$1.bindAll(instance);
+      b8r.bindAll(instance);
     } else {
       delete existingListInstances[itemPath];
       if (instance.nextSibling !== previousInstance) {
@@ -6484,29 +6484,29 @@ function bindList (listTemplate, dataPath) {
     listInstances[itemPath] = instance;
     previousInstance = instance;
   });
-  b8r$1.forEachKey(existingListInstances, elt => {
+  b8r.forEachKey(existingListInstances, elt => {
     listContentChanged = true;
     elt.remove();
   });
   // for <select> elements and components whose possible values may be dictated by their children
   // we trigger a 'change' event in the parent element.
-  if (listContentChanged) b8r$1.trigger('change', listTemplate.parentElement);
-  b8r$1.hide(listTemplate);
+  if (listContentChanged) b8r.trigger('change', listTemplate.parentElement);
+  b8r.hide(listTemplate);
 }
 
-b8r$1.bindAll = (element, dataPath) => {
+b8r.bindAll = (element, dataPath) => {
   loadAvailableComponents(element, dataPath);
   findBindables(element).forEach(elt => bind(elt));
   findLists(element).forEach(elt => bindList(elt, dataPath));
 };
 
-_b8r_(b8r$1);
+_b8r_(b8r);
 
-Object.assign(b8r$1, _ajax);
-Object.assign(b8r$1, _sort);
+Object.assign(b8r, _ajax);
+Object.assign(b8r, _sort);
 
 const _pathRelativeB8r = _path => {
-  return !_path ? b8r$1 : Object.assign({}, b8r$1, {
+  return !_path ? b8r : Object.assign({}, b8r, {
     _path,
     component: (...args) => {
       const pathIndex = args[1] ? 1 : 0;
@@ -6515,37 +6515,37 @@ const _pathRelativeB8r = _path => {
         url = `${_path}/${url}`;
         args[pathIndex] = url;
       }
-      return b8r$1.component(...args)
+      return b8r.component(...args)
     }
   })
 };
-Object.assign(b8r$1, { component: component$1, makeComponent, makeComponentNoEval });
+Object.assign(b8r, { component: component$1, makeComponent, makeComponentNoEval });
 
-b8r$1.components = () => Object.keys(components);
+b8r.components = () => Object.keys(components);
 
 function loadAvailableComponents (element, dataPath) {
-  b8r$1.findWithin(element || document.body, '[data-component]', true)
+  b8r.findWithin(element || document.body, '[data-component]', true)
     .forEach(target => {
       if (!target.closest('[data-list]') &&
           !target.dataset.componentId) {
         const name = target.dataset.component;
-        b8r$1.insertComponent(name, target, dataPath);
+        b8r.insertComponent(name, target, dataPath);
       }
     });
 }
 
-b8r$1._DEPRECATED_COMPONENTS_PASS_DOWN_DATA = false;
+b8r._DEPRECATED_COMPONENTS_PASS_DOWN_DATA = false;
 const inheritData = element => {
   const reserved = ['destroy']; // reserved lifecycle methods
-  const selector = b8r$1._DEPRECATED_COMPONENTS_PASS_DOWN_DATA
+  const selector = b8r._DEPRECATED_COMPONENTS_PASS_DOWN_DATA
     ? '[data-path],[data-list-instance],[data-component-id]'
     : '[data-path],[data-list-instance]';
   const source = element.closest(selector);
   if (!source) {
     return null
   } else {
-    const data = b8r$1.get(source.dataset.componentId || b8r$1.getDataPath(source));
-    return b8r$1.filterObject(
+    const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source));
+    return b8r.filterObject(
       data || {},
       (v, k) => (!reserved.includes(k)) || typeof v !== 'function'
     )
@@ -6554,11 +6554,11 @@ const inheritData = element => {
 
 let componentCount = 0;
 const _componentInstances = {};
-b8r$1.insertComponent = async function (component, element, data) {
-  const dataPath = typeof data === 'string' ? data : b8r$1.getDataPath(element);
+b8r.insertComponent = async function (component, element, data) {
+  const dataPath = typeof data === 'string' ? data : b8r.getDataPath(element);
   if (!element) {
-    element = b8r$1.create('div');
-  } else if (!b8r$1.isInBody(element)) {
+    element = b8r.create('div');
+  } else if (!b8r.isInBody(element)) {
     return
   }
   if (typeof component === 'string') {
@@ -6585,7 +6585,7 @@ b8r$1.insertComponent = async function (component, element, data) {
   if (element.parentElement === null) {
     document.body.appendChild(element);
   }
-  const children = b8r$1.fragment();
+  const children = b8r.fragment();
   /*
     * if you're replacing a component, it should get the replaced component's children.
     * we probably want to be able to remove a component (i.e. pull out an instance's
@@ -6599,28 +6599,28 @@ b8r$1.insertComponent = async function (component, element, data) {
   if (component.view.children.length) {
     if (element.dataset.componentId) {
       if (element.querySelector('[data-children]')) {
-        b8r$1.moveChildren(element.querySelector('[data-children]'), children);
+        b8r.moveChildren(element.querySelector('[data-children]'), children);
       } else {
-        b8r$1.empty(element);
+        b8r.empty(element);
       }
     } else {
-      b8r$1.moveChildren(element, children);
+      b8r.moveChildren(element, children);
     }
     const source = component.view.querySelector('[data-parent]') || component.view;
-    b8r$1.copyChildren(source, element);
+    b8r.copyChildren(source, element);
     replaceInBindings(element, '_component_', componentId);
     if (dataPath) {
       replaceInBindings(element, '_data_', dataPath);
     }
-    const childrenDest = b8r$1.findOneWithin(element, '[data-children]');
+    const childrenDest = b8r.findOneWithin(element, '[data-children]');
     if (children.firstChild && childrenDest) {
-      b8r$1.empty(childrenDest);
-      b8r$1.moveChildren(children, childrenDest);
+      b8r.empty(childrenDest);
+      b8r.moveChildren(children, childrenDest);
     }
   }
   element.dataset.componentId = componentId;
   _componentInstances[componentId] = element;
-  b8r$1.makeArray(element.classList).forEach(c => {
+  b8r.makeArray(element.classList).forEach(c => {
     if (c.substr(-10) === '-component') {
       element.classList.remove(c);
     }
@@ -6629,24 +6629,24 @@ b8r$1.insertComponent = async function (component, element, data) {
   if (dataPath) {
     element.dataset.path = dataPath;
   }
-  const register = componentData => b8r$1.register(componentId, componentData);
+  const register = componentData => b8r.register(componentId, componentData);
   data = Object.assign({}, data, { dataPath, componentId });
   if (component.load) {
-    const get = path => b8r$1.getByPath(componentId, path);
+    const get = path => b8r.getByPath(componentId, path);
     const set = (...args) => {
-      b8r$1.setByPath(componentId, ...args);
+      b8r.setByPath(componentId, ...args);
       // updates value bindings
       if (args[0] === 'value' || args[0].hasOwnProperty('value')) {
-        b8r$1.trigger('change', element);
+        b8r.trigger('change', element);
       }
     };
-    const on = (...args) => b8r$1.on(element, ...args);
-    const touch = path => b8r$1.touchByPath(componentId, path);
-    b8r$1.register(componentId, data, true);
+    const on = (...args) => b8r.on(element, ...args);
+    const touch = path => b8r.touchByPath(componentId, path);
+    b8r.register(componentId, data, true);
     try {
       await component.load(
-        element, _pathRelativeB8r(component.path), selector => b8r$1.findWithin(element, selector),
-        selector => b8r$1.findOneWithin(element, selector), data, register,
+        element, _pathRelativeB8r(component.path), selector => b8r.findWithin(element, selector),
+        selector => b8r.findOneWithin(element, selector), data, register,
         get, set, on, touch, component
       );
     } catch (e) {
@@ -6654,12 +6654,12 @@ b8r$1.insertComponent = async function (component, element, data) {
       console.error('component', component.name, 'failed to load', e);
     }
   } else {
-    b8r$1.register(componentId, data, true);
+    b8r.register(componentId, data, true);
   }
-  b8r$1.bindAll(element);
+  b8r.bindAll(element);
 };
 
-b8r$1.Component = b8r$1.webComponents.makeWebComponent('b8r-component', {
+b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
     path: ''
@@ -6668,50 +6668,50 @@ b8r$1.Component = b8r$1.webComponents.makeWebComponent('b8r-component', {
   methods: {
     connectedCallback () {
       if (this.path && !this.name) {
-        b8r$1.component(this.path);
+        b8r.component(this.path);
         this.name = this.path.split('/').pop().split('.').shift();
       }
     },
     render () {
       if (this.name) {
-        b8r$1.insertComponent(this.name, this);
+        b8r.insertComponent(this.name, this);
       } else {
-        b8r$1.removeComponent(this);
+        b8r.removeComponent(this);
       }
     }
   }
 });
 
-b8r$1.wrapWithComponent = (component, element, data, attributes) => {
-  const wrapper = b8r$1.create('div');
+b8r.wrapWithComponent = (component, element, data, attributes) => {
+  const wrapper = b8r.create('div');
   if (attributes) {
-    b8r$1.forEachKey(attributes, (val, prop) => wrapper.setAttribute(prop, val));
+    b8r.forEachKey(attributes, (val, prop) => wrapper.setAttribute(prop, val));
   }
-  b8r$1.wrap(element, wrapper);
-  b8r$1.insertComponent(component, wrapper, data);
+  b8r.wrap(element, wrapper);
+  b8r.insertComponent(component, wrapper, data);
   return wrapper
 };
 
-b8r$1.removeComponent = elt => {
+b8r.removeComponent = elt => {
   if (elt.dataset.componentId) {
     delete elt.dataset.componentId;
-    b8r$1.makeArray(elt.classList).forEach(c => {
+    b8r.makeArray(elt.classList).forEach(c => {
       if (/-component$/.test(c)) {
         elt.classList.remove(c);
-        b8r$1.empty(elt);
+        b8r.empty(elt);
       }
     });
-    b8r$1.cleanupComponentInstances();
+    b8r.cleanupComponentInstances();
   }
 };
 
-b8r$1.componentOnce = function (...args) {
+b8r.componentOnce = function (...args) {
   // may be switched out for relative version
   this.component(...args).then(c => {
-    if (!b8r$1.findOne(`[data-component-id*="${c.name}"]`)) {
-      b8r$1.insertComponent(c);
+    if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
+      b8r.insertComponent(c);
     }
   });
 };
 
-export default b8r$1;
+export default b8r;
