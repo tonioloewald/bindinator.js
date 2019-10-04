@@ -87,21 +87,34 @@ const {
 } = await import('./b8r.byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
-Test(() => matchType(0, 'hello')).shouldBeJSON(['was string, expected number'])
+Test(() => matchType(0, 'hello')).shouldBeJSON(['was hello, expected number'])
 Test(() => matchType(false, true)).shouldBeJSON([])
 Test(() => matchType(false, null)).shouldBeJSON(["was null, expected boolean"])
+Test(() => matchType('#int', 17)).shouldBeJSON([])
+Test(() => matchType('#int [-5,5]', 5)).shouldBeJSON([])
+Test(() => matchType('#int [-5,5)', 5)).shouldBeJSON(['was 5, expected #int [-5,5)'])
+Test(() => matchType('#int [-5,5]', 6)).shouldBeJSON(['was 6, expected #int [-5,5]'])
+Test(() => matchType('#int [-5,5)', -5)).shouldBeJSON([])
+Test(() => matchType('#int (-5,5)', -5)).shouldBeJSON(['was -5, expected #int (-5,5)'])
+Test(() => matchType('#int [-5,5]', -6)).shouldBeJSON(['was -6, expected #int [-5,5]'])
+Test(() => matchType('#number [0,5]', Math.PI)).shouldBeJSON([])
+Test(() => matchType('#number [0,2]', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #number [0,2]`])
+Test(() => matchType('#int', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #int`])
+Test(() => matchType('#enum false|null|17|"hello"', null)).shouldBeJSON([])
+Test(() => matchType('#enum false|null|17|"hello"', 17)).shouldBeJSON([])
+Test(() => matchType('#enum false|null|17|"hello"', undefined)).shouldBeJSON(['was undefined, expected #enum false|null|17|"hello"'])
 Test(() => matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 'world'}))
   .shouldBeJSON([])
 Test(() => matchType({foo: 17, bar: 'hello'}, {bar: 'world'}))
   .shouldBeJSON([".foo was undefined, expected number"])
 Test(() => matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 17}))
-  .shouldBeJSON([".bar was number, expected string"])
+  .shouldBeJSON([".bar was 17, expected string"])
 Test(() => matchType({foo: 17, bar: 'hello'}, {bar: 17}))
-  .shouldBeJSON([".bar was number, expected string", ".foo was undefined, expected number"])
+  .shouldBeJSON([".bar was 17, expected string", ".foo was undefined, expected number"])
 Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: false}}}))
   .shouldBeJSON([])
 Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: 17}}}))
-  .shouldBeJSON([".foo.bar.baz was number, expected boolean"])
+  .shouldBeJSON([".foo.bar.baz was 17, expected boolean"])
 Test(() => matchType([], []))
   .shouldBeJSON([])
 Test(() => matchType([1], []))
@@ -111,13 +124,13 @@ Test(() => matchType([], [1]))
 Test(() => matchType(['hello'], ['world']))
   .shouldBeJSON([])
 Test(() => matchType([false], ['world']))
-  .shouldBeJSON(["[0] was string, expected boolean"])
+  .shouldBeJSON(["[0] was world, expected boolean"])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0, x: 17}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0}]))
   .shouldBeJSON(["[0].x was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}], [{x: 'world'}]))
-  .shouldBeJSON(["[0].x was string, expected number", "[0].y was undefined, expected number"])
+  .shouldBeJSON(["[0].x was world, expected number", "[0].y was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: 'baz'}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: false}]))
@@ -205,7 +218,56 @@ export const describe = x => {
   if (x instanceof Match) return x.description
   if (Array.isArray(x)) return 'array'
   if (typeof x === 'number' && isNaN(x)) return 'NaN'
+  if (typeof x === 'string' && x.startsWith('#')) return x
   return typeof x
+}
+
+const inRange = (spec, x) => {
+  let lower, upper
+  try {
+    [, lower, upper] = (spec || '').match(/^([\[\(]\-?[\d\.]+)?,?(\-?[\d\.]+[\]\)])?$/)
+  } catch(e) {
+    throw `bad range spec ${spec}`
+  }
+  if (lower) {
+    const min = parseFloat(lower.substr(1))
+    if (lower[0] === '(') {
+      if (x <= min) return false
+    } else {
+      if (x < min) return false
+    }
+  }
+  if (upper) {
+    const max = parseFloat(upper)
+    if (upper.endsWith(')')) {
+      if (x >= max) return false
+    } else {
+      if (x > max) return false
+    }
+  }
+  return true
+}
+
+export const descriptionMatch = (type, subject) => {
+  const [, baseType, , spec] = type.match(/^#([^\s]+)(\s(.*))?$/) || []
+  const subjectType = describe(subject)
+  switch (baseType) {
+    case 'number':
+      if (subjectType !== 'number') return false
+      return inRange(spec, subject)
+      break;
+    case 'int':
+      if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
+      return inRange(spec, subject)
+      break;
+    case 'enum':
+      try {
+        return spec.split('|').map(JSON.parse).includes(subject)
+      } catch(e) {
+        throw `bad enum specification (${spec}), expect JSON strings`
+      }
+      break;
+  }
 }
 
 export const describeType = (x) => {
@@ -279,8 +341,11 @@ export const matchType = (example, subject, errors = [], path = '') => {
   }
   const exampleType = describe(example)
   const subjectType = describe(subject)
-  if (exampleType !== subjectType) {
-    errors.push(`${path ? path + ' ' : ''}was ${subjectType}, expected ${exampleType}`)
+  const typesMatch = exampleType.startsWith('#')
+    ? descriptionMatch(exampleType, subject)
+    : exampleType === subjectType
+  if (!typesMatch) {
+    errors.push(`${path ? path + ' ' : ''}was ${subject}, expected ${exampleType}`)
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
     const count = subject.length
