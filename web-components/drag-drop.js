@@ -60,7 +60,7 @@ in the second example.
     opacity: 0.5;
   }
   .drag-target {
-    background: rgba(0,0,255,0.1);
+    background: var(--white-10);
     box-shadow: inset 0 0 0 2px rgba(0,0,255,0.5);
   }
   .drag-over {
