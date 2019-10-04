@@ -33,7 +33,7 @@ to attach to private data.
     data-event="click:_app_history.redo"
   >Redo</button>
 </div>
-<div data-list="app.sort(app.todolist):id" data-event="change:app.touchList">
+<div data-list="app.sort(app.todolist):id" data-event="change:app.forceSort">
   <input title="done" type="checkbox" data-bind="checked=.done">
   <input data-bind="value=.text">
   <select data-type="number" data-bind="value=.priority">
@@ -102,7 +102,7 @@ to attach to private data.
       b8r.set('app.composer.text', '')
     },
     sort: list => list.sort(comparePriority),
-    touchList: () => b8r.touch('app.todolist'),
+    forceSort: (evt, elt) => b8r.touchElement(b8r.getListTemplate(elt)),
     remove: evt => b8r.removeListInstance(evt.target),
   })
 

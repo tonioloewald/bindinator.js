@@ -6240,6 +6240,7 @@ b8r.removeByPath = function (...args) {
 b8r.listItems = element =>
   b8r.makeArray(element.children)
     .filter(elt => elt.matches('[data-list-instance]'));
+
 b8r.listIndex = element =>
   b8r.listItems(element.parentElement).indexOf(element);
 
@@ -6261,6 +6262,14 @@ b8r.getData = elt => {
 b8r.getListInstance = elt => {
   const instancePath = b8r.getListInstancePath(elt);
   return instancePath ? b8r.get(instancePath, elt) : null
+};
+
+b8r.getListTemplate = elt => {
+  elt = elt.closest('[data-list-instance]');
+  do {
+    elt = elt.nextElementSibling;
+  } while (!elt.matches('[data-list]'))
+  return elt
 };
 
 if (document.body) {

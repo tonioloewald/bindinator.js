@@ -210,6 +210,11 @@ the element belongs to.
 `b8r.getListPath` retrieves the data-path corresponding to the list of which the `[data-list-instance]`
 is a member.
 
+    b8r.getListTemplate(element)
+
+`b8r.getListTemplate` will find the template element which spawned the list instance containing
+the element provided.
+
     b8r.removeListInstance(element)
 
 `b8r.removeListInstance` removes the list member corresponding to the `[data-list-instance]`
