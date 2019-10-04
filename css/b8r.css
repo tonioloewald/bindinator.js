@@ -25,6 +25,7 @@
   --black-40: rgba(0,0,0,0.4);
   --white-50: rgba(255,255,255,0.5);
   --white-75: rgba(255,255,255,0.75);
+  --shadow-color: rgba(0,0,0,0.5);
 
   --link-color: rgba(64,0,255,0.5);
   --link-active-color: #40f;
@@ -34,7 +35,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {  
+  :root {
+    --bg-color: midnightblue;
     --content-bg-color: #222;
     --example-bg-color: rgb(39, 39, 49);
     --input-bg-color: #111;
