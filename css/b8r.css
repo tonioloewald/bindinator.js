@@ -374,7 +374,7 @@ pre > code {
 }
 
 .select {
-  background: white;
+  background: var(--content-bg-color);
   cursor: pointer;
 }
 
@@ -390,13 +390,13 @@ pre > code {
 }
 
 .select > :active {
-  background: black;
-  color: white;
+  background: var(--text-color);
+  color: var(--content-bg-color);
 }
 
 .select > .selected {
   background: var(--black-20);
-  color: black;
+  color: var(--text-color);
 }
 
 [data-component] {
