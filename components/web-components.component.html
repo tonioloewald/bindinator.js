@@ -68,13 +68,16 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
 </div>
 <div>
   <h2>Markdown</h2>
-  <b8r-markdown style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll;" data-bind="value=web-component-demo.markdown">
+  <b8r-markdown 
+    style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll;" 
+    data-bind="value=web-component-demo.markdown"
+  >
   </b8r-markdown>
   </b8r-tab-selector>
 </div>
 <div>
   <h2>Tab Selector</h2>
-  <b8r-tab-selector data-bind="value=web-component-demo.select">
+  <b8r-tab-selector data-bind="value=web-component-demo.select" data-type="number">
     <div 
       style="margin: 10px;"
       data-list="web-component-demo.options"

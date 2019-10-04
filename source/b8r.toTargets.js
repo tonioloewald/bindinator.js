@@ -450,6 +450,7 @@ export default function (b8r) {
 
   return {
     value: function (element, value) {
+      if (element.dataset.type === 'number') value = parseFloat(value)
       switch (element.getAttribute('type')) {
         case 'radio':
           if (element.checked !== (element.value == value)) { // eslint-disable-line eqeqeq
@@ -460,24 +461,23 @@ export default function (b8r) {
           element.checked = value
           break
         default:
-          if (element.value !== undefined) {
+          if (element.dataset.componentId) {
+            b8r.set(`${element.dataset.componentId}.value`, value)
+          } else if (element.value !== undefined) {
             element.value = value
             // <select> element will not take value if no matching option exists
-            if (value && !element.value) {
-              element.dataset.pendingValue = JSON.stringify(value)
-              // console.warn('set value deferred', element, value);
-            } else if (element.dataset.pendingValue) {
-              delete element.dataset.pendingValue
+            if (element instanceof HTMLSelectElement) {
+              if (value && !element.value) {
+                element.dataset.pendingValue = JSON.stringify(value)
+              } else if (element.dataset.pendingValue) {
+                delete element.dataset.pendingValue
+              }
             }
           } else {
-            if (element.dataset.componentId) {
-              b8r.set(`${element.dataset.componentId}.value`, value)
-            } else {
-              // <b8r-component> does not support value if it does
-              // not have a loaded component
-              if (!element.tagName.includes('-')) {
-                console.error('could not set component value', element, value)
-              }
+            // <b8r-component> does not support value if it does
+            // not have a loaded component
+            if (!element.tagName.includes('-')) {
+              console.error('could not set component value', element, value)
             }
           }
       }
