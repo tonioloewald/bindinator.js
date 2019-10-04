@@ -15,6 +15,12 @@ the value of `<input type="radio" ...>` elements.
 If you bind to a **component instance**'s value it will map directly to the component's
 value.
 
+#### forcing value to be a number
+
+`<input type="number">` and `<input type="range">` will have their values returned as numbers
+(rather than strings). Likewise, if you add `data-type="number"` to an element with a value
+(e.g. `<select>`), its value will be returned as numeric.
+
 > ### Two-Way Bindings
 >
 > `value` and most "from"-bindings are also ["to"-bindings](#source=source/b8r.toTargets.js).
@@ -67,7 +73,7 @@ export const value = (element) => {
     const name = element.getAttribute('name')
     const checked = find(`input[type=radio][name=${name}]`).find(elt => elt.checked)
     return checked ? checked.value : null
-  } else if (element.matches('input[type=number],input[type=range]')) {
+  } else if (element.matches('[data-type=number],input[type=number],input[type=range]')) {
     return parseFloat(element.value)
   } else {
     if (element.dataset.componentId) {

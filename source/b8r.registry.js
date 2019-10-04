@@ -813,9 +813,9 @@ const set = (path, value, sourceElement) => {
 }
 
 const replace = (path, value) => {
-  b8r.set(path, null)
+  if (typeof value === 'object') setByPath(registry, path, null) // skip type checking
   b8r.set(path, value)
-  return 
+  return value
 }
 
 const registerType = (name, example) => {

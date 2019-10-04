@@ -199,10 +199,13 @@ const makeComponentNoEval = function (name, { css, html, load }) {
     name,
     style,
     view,
-    load: (component, b8r, find, findOne, data, register, get, set, on, touch) => {
-      load({ component, b8r, find, findOne, data, register, get, set, on, touch })
-    },
     path: `inline-${name}`
+  }
+
+  if (load) {
+    component.load = (component, b8r, find, findOne, data, register, get, set, on, touch) => {
+      load({ component, b8r, find, findOne, data, register, get, set, on, touch })
+    }
   }
 
   if (componentTimeouts[name]) {

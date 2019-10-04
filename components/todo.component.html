@@ -10,11 +10,33 @@ priority, with completed items having low priority.
 Note that this example is bound to the global `app` path, but could just as easily be written
 to attach to private data.
 -->
+<style>
+  ._component_ {
+    border: 1px solid rgba(128,128,128,0.25);
+    padding: 10px;
+    max-width: 400px;
+  }
+  ._component_ hr {
+    height: 0;
+    border: 1px solid rgba(128,128,128,0.25);
+    border-width: 0 0 1px 0;
+  }
+</style>
 <h3>To Do List</h3>
-<div data-list="app.todolist:id">
-  <input title="done" type="checkbox" data-bind="checked=.done" data-event="change:app.prioritySort">
+<div>
+  <button
+    data-bind="enabled_if=_app_history.canUndo"
+    data-event="click:_app_history.undo"
+  >Undo</button>
+  <button
+    data-bind="enabled_if=_app_history.canRedo"
+    data-event="click:_app_history.redo"
+  >Redo</button>
+</div>
+<div data-list="app.sort(app.todolist):id" data-event="change:app.touchList">
+  <input title="done" type="checkbox" data-bind="checked=.done">
   <input data-bind="value=.text">
-  <select data-bind="value=.priority" data-event="change:app.prioritySort">
+  <select data-type="number" data-bind="value=.priority">
     <option value="1">Important!</option>
     <option value="2">Normal</option>
     <option value="3">Low</option>
@@ -28,7 +50,7 @@ to attach to private data.
 <h4>Create Reminder</h4>
 <label>
   Priority
-  <select data-bind="value=app.composer.priority">
+  <select data-type="number" data-bind="value=app.composer.priority">
     <option value="1">Important!</option>
     <option value="2">Normal</option>
     <option value="3">Low</option>
@@ -42,6 +64,7 @@ to attach to private data.
 <script>
   /* global b8r */
   'use strict'
+  const {HistoryManager} = await import('../lib/history.js');
   const comparePriority = (a, b) => (a.done ? a.priority + 3 : a.priority) - (b.done ? b.priority + 3 : b.priority)
   let id = 0
 
@@ -65,6 +88,7 @@ to attach to private data.
     }
   })
 
+
   b8r.register('app', {
     todolist: [],
     composer: { text: '', priority: 2 },
@@ -77,10 +101,10 @@ to attach to private data.
       b8r.push('app.todolist', item, list => list.sort(comparePriority))
       b8r.set('app.composer.text', '')
     },
-    prioritySort () {
-      b8r.get('app.todolist').sort(comparePriority)
-      b8r.touch('app.todolist')
-    },
-    remove: evt => b8r.removeListInstance(evt.target)
+    sort: list => list.sort(comparePriority),
+    touchList: () => b8r.touch('app.todolist'),
+    remove: evt => b8r.removeListInstance(evt.target),
   })
+
+  new HistoryManager('app.todolist')
 </script>
