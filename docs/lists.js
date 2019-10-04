@@ -3,7 +3,7 @@
 
 `b8r` list bindings are a deceptively simple feature.
 
-Tne simplest cases is straighforward:
+Tne simplest case is straighforward:
 
 ```
 <div data-list="_component_.list" data-bind="text=."></div>
@@ -14,7 +14,7 @@ Tne simplest cases is straighforward:
 
 If you look at the DOM, there will be one copy of the
 list template for each element in the list, and it will have
-a data-list-instance based on its corresponding array index.
+a `data-list-instance` based on its corresponding array index.
 
 e.g.
 
@@ -27,13 +27,13 @@ e.g.
     </div>
 
 Note that in a list instance, binding to `.` gets you the thing itself,
-which is useful when binding to simple arrays. In general, `b8r` list
+which is useful when binding to arrays of strings or numbers. In general, `b8r` list
 bindings are designed with lists of *objects* in mind.
 
 ## Best Practices — id-paths
 
 Ideally, you'll be binding a list of objects each of which has a unique
-identifier. You can provide that path to that identifier in the list
+identifier. You can provide the *path* to that identifier in the list
 binding which allows `b8r` to perform more efficient list updates.
 
 ```
@@ -101,7 +101,7 @@ id for each list instance. E.g.
 
 For computed lists to work, you need to provide an `id-path` and the output
 list must be a filtered subset of the source list. This makes implementing
-**sorted** and **filtered** lists easy and efficient.
+**sorted** and/or **filtered** lists easy and efficient.
 
 ### Filtered List
 
@@ -151,12 +151,12 @@ when you tab out of the field, that record disappears.
 ```
 <input placeholder="filter names" data-bind="value=_component_.nameFilter">
 <div data-list="_component_.filterAndSort(_component_.jedi,_component_.nameFilter):id">
-  <input data-bind="value=.name" data-event="change:_component_.touchList">
+  <input data-bind="value=.name" data-event="change:_component_.forceRender">
 </div>
 <script>
   set({
     nameFilter: '',
-    touchList() {
+    forceRender() {
       touch('jedi')
     },
     filterAndSort: (list, nameFilter) => {
@@ -176,6 +176,17 @@ when you tab out of the field, that record disappears.
   })
 </script>
 ```
+
+### Using bindAll or touchElement for more efficient updates
+
+If, as in the preceding example, you `touch` a list's path to force recomputing its 
+sorting / filtering then you will also force the rerendering the list elsewhere. 
+Usually this isn't a problem, but to avoid it you can instead use `touchElement` or 
+`bindAll` on the list *template*  (the element with the `data-list` binding) to simply 
+rerender that specific list.
+
+You can also see an example of this in the [To Do](#source=todo.component.html) example
+where `touchElement` is used to avoid triggering an unnecessary history entry.
 
 ### Virtual Lists
 
