@@ -2,9 +2,9 @@
 # Type Checking, Mocks By Example
 
 The goal of this module is to provide simple, effective type-checking "by example" -- i.e. in
-most cases an example of a type can function as a type. 
+most cases an example of a type can function as a type.
 
-Certain specialized types — enumerations in particular — are supported in a way that still allows types 
+Certain specialized types — enumerations in particular — are supported in a way that still allows types
 to be encoded as JSON. These types are specified using a string starting with a '#'. (It follows that
 you shouldn't use strings starting with '#' as examples of strings.)
 
@@ -77,9 +77,9 @@ You can specify an enum type simply using a bar-delimited sequence of JSON strin
     specificTypeMatch('#number (0,4)', Math.PI)  === true   // 0 < Math.PI < 4
 
 You can specify whole number types using '#int', and you can restrict #int and #number values
-to **ranges** using, for example, '#int [0,10]' to specify any integer from 0 to 10 (inclusive). 
+to **ranges** using, for example, '#int [0,10]' to specify any integer from 0 to 10 (inclusive).
 
-Use parens to indicate exclusive bounds, so '#number [0,1)' indicates a number ≥ 0 and < 1. 
+Use parens to indicate exclusive bounds, so '#number [0,1)' indicates a number ≥ 0 and < 1.
 (In case you're wondering, this is standard Mathematical notation.)
 
 You can specify just a lower bound or just an upper bound, e.g. '#number (0' specifies a positive
@@ -166,8 +166,6 @@ Test(() => matchType(requestType, 'post'))
 Test(() => matchType(requestType, 'save'))
   .shouldBeJSON(['was save, expected #enum "get"|"post"|"put"|"delete"|"head"'])
 
-
-
 Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
 Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
 Test(() => exampleAtPath({foo: [{bar: 'hello'}]}, 'foo')).shouldBeJSON([{"bar":"hello"}])
@@ -194,9 +192,9 @@ export const describe = x => {
 const inRange = (spec, x) => {
   let lower, upper
   try {
-    [, lower, upper] = (spec || '').match(/^([\[\(]\-?[\d\.]+)?,?(\-?[\d\.]+[\]\)])?$/)
-  } catch(e) {
-    throw `bad range ${spec}`
+    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.]+)?,?(-?[\d.]+[\])])?$/)
+  } catch (e) {
+    throw new Error(`bad range ${spec}`)
   }
   if (lower) {
     const min = parseFloat(lower.substr(1))
@@ -224,20 +222,17 @@ export const specificTypeMatch = (type, subject) => {
     case 'number':
       if (subjectType !== 'number') return false
       return inRange(spec, subject)
-      break;
     case 'int':
       if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
       return inRange(spec, subject)
-      break;
     case 'enum':
       try {
         return spec.split('|').map(JSON.parse).includes(subject)
-      } catch(e) {
-        throw `bad enum specification (${spec}), expect JSON strings`
+      } catch (e) {
+        throw new Error(`bad enum specification (${spec}), expect JSON strings`)
       }
-      break;
     default:
-      throw `unrecognized type specifier ${type}`
+      throw new Error(`unrecognized type specifier ${type}`)
   }
 }
 

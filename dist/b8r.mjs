@@ -1610,12 +1610,19 @@ const setPlaySavedMessages = (fn) => {
 /**
 # Type Checking, Mocks By Example
 
-The goal of this module is to provide simple, effective type-checking by example. Ultimately, it is
-intended to afford both static analysis of `b8r` code and components and efficient
+The goal of this module is to provide simple, effective type-checking "by example" -- i.e. in
+most cases an example of a type can function as a type.
+
+Certain specialized types — enumerations in particular — are supported in a way that still allows types
+to be encoded as JSON. These types are specified using a string starting with a '#'. (It follows that
+you shouldn't use strings starting with '#' as examples of strings.)
+
+## Work in Progress
+
+Ultimately, this module is intended to afford both static analysis of `b8r` code and components and efficient
 run-time checking of application state -- see [The Registry](#source=source/b8r.registry.js)
 documentation for more information.
 
-(WORK IN PROGRESS)
 As a side-benefit, it is also capable of driving mock-data and optimistic rendering.
 Annotations in example data can provide hints as to how to generate mock data for
 testing purposes and for rendering user interfaces before live data is available.
@@ -1649,22 +1656,48 @@ for items in the array, e.g.
 For efficiency, put the most common example elements in example arrays first (since checks are
 performed in order) and do not include unnecessary elements in example arrays.
 
-## Custom Types
+## Specific Types
 
-A `Match` class which allows you to declare arbitrarily specific (or general) types. Usage:
+Some specific types can be defined using strings that start with '#'. (It follows that you should not
+use strings starting with '#' as type examples.)
 
-    new Match(testFunc, typeDescription, generateMock)
+`specficTypeMatch` is the function that evaluates matches against specific types. (Typically you
+won't use it directly, but use matchType instead.)
 
-- `testFunc` is a function that tests its first parameter and returns a string complaining
-about what's wrong with it or nothing if it's OK.
-- `typeDescription` describes the type
-- `generateMock` is a function that produces example data that satisfies the textFunc
+    specificTypeMatch('#int [0,10]', 5) === true   // 0 ≤ 5 ≤ 10
+    specificTypeMatch('#int [0', -5)    === false  // -5 is less than 0
+    specificTypeMatch('#int', Math.PI)  === false  // Math.PI is not a whole number
 
-    const wholeNumber = new Match(
-      x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false,
-      'whole number',
-      () => Math.floor(Math.random() * 100 - 50)
-    )
+### #enum
+
+    specificTypeMatch('#enum true|null|false', null)                      === true
+    specificTypeMatch('#enum true|null|false', 0)                         === false
+    specificTypeMatch('#enum "get"|"post"|"put"|"delete"|"head"', 'head') === true
+    specificTypeMatch('#enum "get"|"post"|"put"|"delete"|"head"', 'save') === false
+
+You can specify an enum type simply using a bar-delimited sequence of JSON strings
+(if you're transmitting a type as JSON you'll need to escape the '"' characters).
+
+### #int and #number
+
+    specificTypeMatch('#int [0,10]', 5)          === true   // 0 ≤ 5 ≤ 10
+    specificTypeMatch('#int [0', -5)             === false  // -5 is less than 0
+    specificTypeMatch('#int', Math.PI)           === false  // Math.PI is not a whole number
+    specificTypeMatch('#number (0,4)', Math.PI)  === true   // 0 < Math.PI < 4
+
+You can specify whole number types using '#int', and you can restrict #int and #number values
+to **ranges** using, for example, '#int [0,10]' to specify any integer from 0 to 10 (inclusive).
+
+Use parens to indicate exclusive bounds, so '#number [0,1)' indicates a number ≥ 0 and < 1.
+(In case you're wondering, this is standard Mathematical notation.)
+
+You can specify just a lower bound or just an upper bound, e.g. '#number (0' specifies a positive
+number.
+
+> #### More Types and Custom Types
+>
+> This mechanism will likely add new types as the need arises, and similarly may afford a
+> convenient mechanism for defining custom types that require test functions to verify.
 
 ## `describe`
 
@@ -1675,42 +1708,46 @@ gives the typeof the value passed unless it's an `Array` (in which case it retur
     describe([]) // 'array'
     describe(null) // 'null'
 
-## Type Utilities
-
-Some useful utilities (built using Match) are also provided, including `oneOf`,
-`optional`, `nullable`, and `nonEmpty`.
-
-    oneOf('a', 'b', 'c') // creates a type that will match one of the arguments provided
-
 ~~~~
 const {
   matchType,
   describe,
-  oneOf,
-  Match,
-  nonEmpty,
-  nullable,
-  optional,
-  pickOne,
   exampleAtPath
 } = await import('./b8r.byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
-Test(() => matchType(0, 'hello')).shouldBeJSON(['was string, expected number'])
+Test(() => matchType(0, 'hello')).shouldBeJSON(['was hello, expected number'])
 Test(() => matchType(false, true)).shouldBeJSON([])
 Test(() => matchType(false, null)).shouldBeJSON(["was null, expected boolean"])
+Test(() => matchType('#int', 17)).shouldBeJSON([])
+Test(() => matchType('#int [-5,5]', 5)).shouldBeJSON([])
+Test(() => matchType('#int [-5,5)', 5)).shouldBeJSON(['was 5, expected #int [-5,5)'])
+Test(() => matchType('#int [-5,5]', 6)).shouldBeJSON(['was 6, expected #int [-5,5]'])
+Test(() => matchType('#int [-5,5)', -5)).shouldBeJSON([])
+Test(() => matchType('#int (-5,5)', -5)).shouldBeJSON(['was -5, expected #int (-5,5)'])
+Test(() => matchType('#int [-5,5]', -6)).shouldBeJSON(['was -6, expected #int [-5,5]'])
+Test(() => matchType('#number (0', 6)).shouldBeJSON([])
+Test(() => matchType('#number (0', -6)).shouldBeJSON(['was -6, expected #number (0'])
+Test(() => matchType('#number 0]', 6)).shouldBeJSON(['was 6, expected #number 0]'])
+Test(() => matchType('#number 0]', -6)).shouldBeJSON([])
+Test(() => matchType('#number [0,5]', Math.PI)).shouldBeJSON([])
+Test(() => matchType('#number [0,2]', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #number [0,2]`])
+Test(() => matchType('#int', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #int`])
+Test(() => matchType('#enum false|null|17|"hello"', null)).shouldBeJSON([])
+Test(() => matchType('#enum false|null|17|"hello"', 17)).shouldBeJSON([])
+Test(() => matchType('#enum false|null|17|"hello"', undefined)).shouldBeJSON(['was undefined, expected #enum false|null|17|"hello"'])
 Test(() => matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 'world'}))
   .shouldBeJSON([])
 Test(() => matchType({foo: 17, bar: 'hello'}, {bar: 'world'}))
   .shouldBeJSON([".foo was undefined, expected number"])
 Test(() => matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 17}))
-  .shouldBeJSON([".bar was number, expected string"])
+  .shouldBeJSON([".bar was 17, expected string"])
 Test(() => matchType({foo: 17, bar: 'hello'}, {bar: 17}))
-  .shouldBeJSON([".bar was number, expected string", ".foo was undefined, expected number"])
+  .shouldBeJSON([".bar was 17, expected string", ".foo was undefined, expected number"])
 Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: false}}}))
   .shouldBeJSON([])
 Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: 17}}}))
-  .shouldBeJSON([".foo.bar.baz was number, expected boolean"])
+  .shouldBeJSON([".foo.bar.baz was 17, expected boolean"])
 Test(() => matchType([], []))
   .shouldBeJSON([])
 Test(() => matchType([1], []))
@@ -1720,79 +1757,23 @@ Test(() => matchType([], [1]))
 Test(() => matchType(['hello'], ['world']))
   .shouldBeJSON([])
 Test(() => matchType([false], ['world']))
-  .shouldBeJSON(["[0] was string, expected boolean"])
+  .shouldBeJSON(["[0] was world, expected boolean"])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0, x: 17}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0}]))
   .shouldBeJSON(["[0].x was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}], [{x: 'world'}]))
-  .shouldBeJSON(["[0].x was string, expected number", "[0].y was undefined, expected number"])
+  .shouldBeJSON(["[0].x was world, expected number", "[0].y was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: 'baz'}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: false}]))
   .shouldBeJSON(["[0] had no matching type"])
 
-const cardinal = new Match(subject => {
-  const subjectType = describe(subject)
-  if (subjectType !== 'number') {
-    return `was ${subjectType}`
-  } else if (subject < 0) {
-    return `was negative`
-  } else if (subject % 1) {
-    return `was not a whole number`
-  }
-}, 'cardinal number', () => 17)
-Test(() => matchType(cardinal, 0))
-  .shouldBeJSON([])
-Test(() => matchType(cardinal, null))
-  .shouldBeJSON(["was null, expected cardinal number"])
-Test(() => matchType(cardinal, -1))
-  .shouldBeJSON(["was negative, expected cardinal number"])
-
-const requestType = oneOf('get', 'post', 'put', 'delete', 'head')
+const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
 Test(() => matchType(requestType, 'post'))
   .shouldBeJSON([])
 Test(() => matchType(requestType, 'save'))
-  .shouldBeJSON(["was save, expected one of get|post|put|delete|head"])
-
-const wholeNumber = new Match(
-  x => typeof x !== 'number' || isNaN(x) || x % 1 ? `was ${x}` : false,
-  'whole number',
-  () => Math.floor(Math.random() * 100 - 50)
-)
-Test(() => matchType(wholeNumber, 11))
-  .shouldBeJSON([])
-Test(() => matchType(wholeNumber, 12.345))
-  .shouldBeJSON(["was 12.345, expected whole number"])
-
-const nonEmptyString = nonEmpty('test')
-Test(() => matchType(nonEmptyString, 'hello'))
-  .shouldBeJSON([])
-Test(() => matchType(nonEmptyString, ''))
-  .shouldBeJSON(["has length 0, expected non-empty string"])
-Test(() => matchType(nonEmptyString, []))
-  .shouldBeJSON(["was array, expected non-empty string"])
-
-const nullableObject = nullable({})
-Test(() => matchType(nullableObject, null))
-  .shouldBeJSON([])
-Test(() => matchType(nullableObject, 'hello'))
-  .shouldBeJSON(["was string, expected object or null"])
-const optionalArrayOfNumbers = optional([1], 'array<number>')
-Test(() => matchType(optionalArrayOfNumbers))
-  .shouldBeJSON([])
-Test(() => matchType(optionalArrayOfNumbers, [1,2,3]))
-  .shouldBeJSON([])
-Test(() => matchType(optionalArrayOfNumbers, ['a','b','c']))
-  .shouldBeJSON(['was array, expected array<number>, null, or undefined'])
-Test(() => matchType(['a', 17], ['qq'], [], '', true))
-  .shouldBeJSON([])
-Test(() => matchType(['a', 17], [0, 'qq'], [], '', true))
-  .shouldBeJSON([])
-Test(() => matchType(['a', 17], [0, 'qq', {}], [], '', true))
-  .shouldBeJSON(["[2] had no matching type"])
-Test(() => new Match(x => typeof x === 'number' && x > 0, 'positiveNumber', -5))
-  .shouldThrow()
+  .shouldBeJSON(['was save, expected #enum "get"|"post"|"put"|"delete"|"head"'])
 
 Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
 Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
@@ -1811,10 +1792,57 @@ Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
 
 const describe = x => {
   if (x === null) return 'null'
-  if (x instanceof Match) return x.description
   if (Array.isArray(x)) return 'array'
   if (typeof x === 'number' && isNaN(x)) return 'NaN'
+  if (typeof x === 'string' && x.startsWith('#')) return x
   return typeof x
+};
+
+const inRange = (spec, x) => {
+  let lower, upper;
+  try {
+    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.]+)?,?(-?[\d.]+[\])])?$/);
+  } catch (e) {
+    throw new Error(`bad range ${spec}`)
+  }
+  if (lower) {
+    const min = parseFloat(lower.substr(1));
+    if (lower[0] === '(') {
+      if (x <= min) return false
+    } else {
+      if (x < min) return false
+    }
+  }
+  if (upper) {
+    const max = parseFloat(upper);
+    if (upper.endsWith(')')) {
+      if (x >= max) return false
+    } else {
+      if (x > max) return false
+    }
+  }
+  return true
+};
+
+const specificTypeMatch = (type, subject) => {
+  const [, baseType, , spec] = type.match(/^#([^\s]+)(\s(.*))?$/) || [];
+  const subjectType = describe(subject);
+  switch (baseType) {
+    case 'number':
+      if (subjectType !== 'number') return false
+      return inRange(spec, subject)
+    case 'int':
+      if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
+      return inRange(spec, subject)
+    case 'enum':
+      try {
+        return spec.split('|').map(JSON.parse).includes(subject)
+      } catch (e) {
+        throw new Error(`bad enum specification (${spec}), expect JSON strings`)
+      }
+    default:
+      throw new Error(`unrecognized type specifier ${type}`)
+  }
 };
 
 const describeType = (x) => {
@@ -1834,62 +1862,14 @@ const describeType = (x) => {
 const typeJSON = (x) => JSON.stringify(describeType(x));
 const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:');
 
-class Match {
-  constructor (testFunction, description, generateMock) {
-    this.test = testFunction;
-    this.description = description;
-    if (typeof generateMock !== 'function') {
-      throw new Error(`Match "${description}" requires generateMock to be specified`)
-    }
-    if (this.test(generateMock())) {
-      throw new Error(`Match "${description}" mock() fails its own test!`)
-    }
-    this.mock = () => {
-      let example;
-      do {
-        example = generateMock();
-      } while (example instanceof Match)
-      return example
-    };
-  }
-}
-
-const pickOne = (...array) => array[Math.floor(array.length * Math.random())];
-
-const oneOf = (...options) => new Match(subject => {
-  if (!options.includes(subject)) {
-    return `was ${subject}`
-  }
-}, `one of ${options.join('|')}`, () => pickOne(...options));
-
-const nullable = (example, description = '') => new Match(subject => {
-  if (subject !== null) {
-    if (matchType(example, subject).length) return `was ${describe(subject)}`
-  }
-}, `${description || describe(example)} or null`, () => pickOne(null, example));
-
-const optional = (example, description = '') => new Match(subject => {
-  if (subject !== null && subject !== undefined) {
-    if (matchType(example, subject).length) return `was ${describe(subject)}`
-  }
-}, `${description || describe(example)}, null, or undefined`, () => pickOne(null, undefined, example));
-
-const nonEmpty = (example, description = '') => new Match(subject => {
-  if (subject == null) return `was ${describe(subject)}`
-  if (matchType(example, subject).length) return `was ${describe(subject)}`
-  if (subject.length === 0) return 'has length 0'
-}, `non-empty ${description || describe(example)}`, () => example);
-
 const matchType = (example, subject, errors = [], path = '') => {
-  if (example instanceof Match) {
-    const outcome = example.test(subject);
-    if (outcome) errors.push(`${path ? path + ' ' : ''}${outcome}, expected ${example.description}`);
-    return errors
-  }
   const exampleType = describe(example);
   const subjectType = describe(subject);
-  if (exampleType !== subjectType) {
-    errors.push(`${path ? path + ' ' : ''}was ${subjectType}, expected ${exampleType}`);
+  const typesMatch = exampleType.startsWith('#')
+    ? specificTypeMatch(exampleType, subject)
+    : exampleType === subjectType;
+  if (!typesMatch) {
+    errors.push(`${path ? path + ' ' : ''}was ${subject}, expected ${exampleType}`);
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
     const count = subject.length;
@@ -1948,15 +1928,10 @@ const matchKeys = (example, subject, errors = [], path = '') => {
 
 var _byExample = /*#__PURE__*/Object.freeze({
   describe: describe,
+  specificTypeMatch: specificTypeMatch,
   describeType: describeType,
   typeJSON: typeJSON,
   typeJS: typeJS,
-  Match: Match,
-  pickOne: pickOne,
-  oneOf: oneOf,
-  nullable: nullable,
-  optional: optional,
-  nonEmpty: nonEmpty,
   matchType: matchType,
   exampleAtPath: exampleAtPath
 });
@@ -2157,7 +2132,7 @@ let _errors
 b8r.onTypeError(errors => _errors = errors)
 b8r.set('error-handling-test.number', false)
 Test(() => _errors, 'verify custom handler for type errors works')
-  .shouldBeJSON(["error-handling-test.number was boolean, expected number"])
+  .shouldBeJSON(["error-handling-test.number was false, expected number"])
 b8r.offTypeError()
 ~~~~
 
@@ -4486,6 +4461,7 @@ function _toTargets (b8r) {
 
   return {
     value: function (element, value) {
+      if (element.dataset.type === 'number') value = parseFloat(value);
       switch (element.getAttribute('type')) {
         case 'radio':
           if (element.checked !== (element.value == value)) { // eslint-disable-line eqeqeq
@@ -4496,24 +4472,23 @@ function _toTargets (b8r) {
           element.checked = value;
           break
         default:
-          if (element.value !== undefined) {
+          if (element.dataset.componentId) {
+            b8r.set(`${element.dataset.componentId}.value`, value);
+          } else if (element.value !== undefined) {
             element.value = value;
             // <select> element will not take value if no matching option exists
-            if (value && !element.value) {
-              element.dataset.pendingValue = JSON.stringify(value);
-              // console.warn('set value deferred', element, value);
-            } else if (element.dataset.pendingValue) {
-              delete element.dataset.pendingValue;
+            if (element instanceof HTMLSelectElement) {
+              if (value && !element.value) {
+                element.dataset.pendingValue = JSON.stringify(value);
+              } else if (element.dataset.pendingValue) {
+                delete element.dataset.pendingValue;
+              }
             }
           } else {
-            if (element.dataset.componentId) {
-              b8r.set(`${element.dataset.componentId}.value`, value);
-            } else {
-              // <b8r-component> does not support value if it does
-              // not have a loaded component
-              if (!element.tagName.includes('-')) {
-                console.error('could not set component value', element, value);
-              }
+            // <b8r-component> does not support value if it does
+            // not have a loaded component
+            if (!element.tagName.includes('-')) {
+              console.error('could not set component value', element, value);
             }
           }
       }

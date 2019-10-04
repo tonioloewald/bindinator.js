@@ -179,10 +179,10 @@ when you tab out of the field, that record disappears.
 
 ### Using bindAll or touchElement for more efficient updates
 
-If, as in the preceding example, you `touch` a list's path to force recomputing its 
-sorting / filtering then you will also force the rerendering the list elsewhere. 
-Usually this isn't a problem, but to avoid it you can instead use `touchElement` or 
-`bindAll` on the list *template*  (the element with the `data-list` binding) to simply 
+If, as in the preceding example, you `touch` a list's path to force recomputing its
+sorting / filtering then you will also force the rerendering the list elsewhere.
+Usually this isn't a problem, but to avoid it you can instead use `touchElement` or
+`bindAll` on the list *template*  (the element with the `data-list` binding) to simply
 rerender that specific list.
 
 You can also see an example of this in the [To Do](#source=todo.component.html) example

@@ -409,7 +409,7 @@ These terms are used for comparison to certain values in conditional toTargets.
 * `_empty_`
 */
 /* jshint expr: true */
-/* global console */
+/* global console, HTMLSelectElement */
 
 import { imgSrc } from './b8r.imgSrc.js'
 import { getComponentWithMethod } from './b8r.events.js'
