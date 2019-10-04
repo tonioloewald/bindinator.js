@@ -323,7 +323,6 @@ import { getByPath, setByPath, deleteByPath } from './b8r.byPath.js'
 import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
 import { playSavedMessages } from './b8r.future.js'
 import { matchType } from './b8r.byExample.js'
-import b8r from './b8r.js';
 
 const registry = {}
 const registeredTypes = {}
