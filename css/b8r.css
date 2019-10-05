@@ -24,6 +24,7 @@
   --black-10: rgba(0,0,0,0.1);
   --black-20: rgba(0,0,0,0.2);
   --black-40: rgba(0,0,0,0.4);
+  --white-25: rgba(255,255,255,0.25);
   --white-50: rgba(255,255,255,0.5);
   --white-75: rgba(255,255,255,0.75);
   --shadow-color: rgba(0,0,0,0.5);
@@ -59,6 +60,7 @@
     --black-10: rgba(255,255,255,0.1);
     --black-20: rgba(255,255,255,0.2);
     --black-40: rgba(255,255,255,0.4);
+    --white-25: rgba(0,0,0,0.25);
     --white-50: rgba(0,0,0,0.5);
     --white-75: rgba(0,0,0,0.75);
   }
@@ -96,21 +98,24 @@ body {
 }
 
 a {
-  color: var(--text-color);
+  color: var(--dark-accent-color);
   text-decoration: none;
-  border-bottom: 1px solid var(--link-color);
+  border-bottom: 1px dotted var(--link-color);
 }
 
 a:hover {
-  border-bottom: 2px solid var(--link-color);
+  background: var(--black-10);
 }
 
 a:visited {
-  color: var(--faded-text-color);
+  color: var(--dark-accent-color);
+  border-bottom: 1px dotted var(--link-color);
+  opacity: 0.8;
 }
 
 a:active {
-  border-bottom: 2px solid var(--link-active-color);
+  background: var(--black-20);
+  border-bottom: 1px solid var(--link-active-color);
 }
 
 .dark {

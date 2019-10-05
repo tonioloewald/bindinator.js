@@ -105,6 +105,10 @@
     cursor: pointer;
   }
 
+    .documentation-component > .nav details[open] summary {
+      margin: 0 -5px 5px 0;
+    }
+
   .documentation-component > .nav summary {
     cursor: pointer;
     font-weight: 500;
@@ -164,20 +168,17 @@
   }
 
   .loadable {
-    padding: 2px 8px;
-    margin-bottom: 4px;
+    padding: 3px 8px 3px 8px;
+    margin: -1px -12px -1px 5px;
     cursor: pointer;
-    margin: 0 -12px;
     transition: background-color ease-out 0.1s;
   }
 
   .loadable:hover {
-    background-color: var(--white-50);
+    background-color: var(--white-25);
   }
 
   .loadable.current {
-    padding: 3px 8px 3px 4px;
-    margin: -1px -12px -1px -8px;
     background-color: var(--content-bg-color);
   }
 
