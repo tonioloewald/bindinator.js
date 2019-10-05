@@ -2896,23 +2896,31 @@ const callIf = (path, ...args) => {
 };
 
 /**
-    observe('root.path.to', callback); // returns a Listener instance
 
-You can observe a path (string). The callback will fire whenever any path
-matching or starting
-with the string changes. The callback will be passed the exact path that
-changed.
+##  Observing Paths Directly
+
+    const listener = observe(observedPath, callback)
+
+Both `observedPath` and `callbackPath` can be paths (strings) or functions.
+
+When something in the registry is changed, the `path` of the change
+is either compared to the observedPath. If the `observedPath` matches
+the start of the path changed, or the test function evaleates to `true`
+the `callback` will be fired.
+
+When `callback` is fired it will be passed *the exact path* that changed
+(and nothing else) *and the change will have occurred*.
+
+`callback` can also be a `path` to a function in the registry.
 
     observe(/root.path.[^\.]+.value/, callback);
 
 Instead of a constant path, you can pass a RegExp which will fire the callback
-when a path
-matching the test changes. The callback will be passed the exact path that
-changed.
+when a path matching the test changes.
 
     observe(path => path.split('.').length === 1, callback);
 
-Finally you can observe a path test function.
+Finally you can observe a path test `function`.
 
     const listener = observe(test, callback);
 
@@ -2925,8 +2933,8 @@ You can remove a listener (if you kept the reference handy).
 
     unobserve(listener);
 
-You can remove a listener by test, but it will remove _all_ listeners which use
-that test.
+You can also remove a listener using the test parameter, but it will remove _all_
+listeners which use that test.
 
 ~~~~
 b8r.register('listener_test1', {
