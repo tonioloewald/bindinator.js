@@ -310,7 +310,7 @@ contains a number, a "smart" optimization might consider the new value to be dif
 
 `b8r` does one more thing to prevent unnecessary refreshes -- tracking the bound values 
 "last seen" during an update and not redrawing if they haven't changed. This can prevent computed 
-bindings from being unnecessary called (if something is bound to `path.tofoo(path.to.bar, path.to.baz))`, 
+bindings from being unnecessarily called (if something is bound to `path.tofoo(path.to.bar, path.to.baz))`, 
 `b8r` won't call `foo` if `bar` and `baz` haven't changed since it last called `foo`.
 
 #### A final aside on sub-components…
@@ -350,5 +350,11 @@ This is quite similar to what's going on in React chiefly because the outer comp
 is sharing its _private_ data with the inner component.
 
 That's it!
+
+> #### Post Script
+>
+> Since I wrote this comparison, I've made some changes to the **To Do** component. I've
+> implemented the list sorting in a more elegant way and added HistoryManager support 
+> (so you can undo/redo changes).
 
 
