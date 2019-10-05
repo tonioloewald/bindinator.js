@@ -43,6 +43,14 @@
         "path": "docs/react.md"
       },
       {
+        "name": "React & b8r",
+        "path": "docs/react-with-b8r.md"
+      },
+      {
+        "name": "Agular vs. b8r",
+        "path": "docs/angular.md"
+      },
+      {
         "name": "License",
         "path": "LICENSE.md"
       }
