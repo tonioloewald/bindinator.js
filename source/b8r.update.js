@@ -58,9 +58,11 @@ const requestAnimationFrameWithTimeout = callback => {
   }
   requestAnimationFrame(finishIt)
   setTimeout(finishIt, 20)
-  return { cancel: () => {
-    done = true
-  } }
+  return {
+    cancel: () => {
+      done = true
+    }
+  }
 }
 
 const getUpdateList = () => {

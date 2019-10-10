@@ -374,7 +374,7 @@ function bind (element) {
           toTargets[t.target](element, value, t.key)
         })
       } else {
-        console.warn(`unrecognized toTarget in binding`, element, bindings[i])
+        console.warn('unrecognized toTarget in binding', element, bindings[i])
       }
     }
   }
@@ -391,7 +391,7 @@ const forEachItemIn = (obj, idPath, func) => {
     }
   } else if (obj.constructor === Object) {
     if (idPath) {
-      throw new Error(`id-path is not supported for objects bound as lists`)
+      throw new Error('id-path is not supported for objects bound as lists')
     }
     const keys = Object.keys(obj)
     for (let i = keys.length - 1; i >= 0; i--) {
@@ -472,7 +472,7 @@ function bindList (listTemplate, dataPath) {
         ) {
           console.warn(
             `list filter ${methodPath} returned a new object` +
-            ` (not from original list); this will break updates!`
+            ' (not from original list); this will break updates!'
           )
         }
         list = filteredList
@@ -687,7 +687,7 @@ b8r.insertComponent = async function (component, element, data) {
     const set = (...args) => {
       b8r.setByPath(componentId, ...args)
       // updates value bindings
-      if (args[0] === 'value' || args[0].hasOwnProperty('value')) {
+      if (args[0] === 'value' || Object.prototype.hasOwnProperty.call(args[0], 'value')) {
         b8r.trigger('change', element)
       }
     }
@@ -718,9 +718,16 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   content: false,
   methods: {
     connectedCallback () {
-      if (this.path && !this.name) {
-        b8r.component(this.path)
-        this.name = this.path.split('/').pop().split('.').shift()
+      const { path, name } = this
+      if (path) {
+        if (path.endsWith('.js')) {
+          import(path).then(() => {})
+        } else {
+          b8r.component(path)
+        }
+      }
+      if (!name && path) {
+        this.name = path.split('/').pop().split('.').shift()
       }
     },
     render () {

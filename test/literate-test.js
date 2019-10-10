@@ -7,9 +7,6 @@ This file exists for the sole purpose of testing the b8r *literate programming* 
 > **Note** that one test deliberately throws an error so you can see the
 > red notifier displayed at the bottom-right of the page.
 */
-/* global module */
-
-'use strict';
 
 /**
 ## Inline Documentation

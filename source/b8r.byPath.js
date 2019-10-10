@@ -166,10 +166,7 @@ Test(() => {
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
 ~~~~
 */
-/* jshint latedef:false */
-/* global module, console */
-
-'use strict'
+/* global console */
 
 // unique tokens passed to set by path to delete or create properties
 const _delete_ = {}

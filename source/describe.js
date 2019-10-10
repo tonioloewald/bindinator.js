@@ -53,9 +53,7 @@ Test(() => describe((a, b={x: 17}) => {})).shouldBe('(a, b={x: 17})=>{...}');
 Test(() => describe(async function(x,y,z){})).shouldBe('async (x,y,z)=>{...}');
 ~~~~
 */
-/* global module */
 
-'use strict'
 export function describe (x, maxUniques = 4, generic = false) {
   if (x === undefined) {
     return 'undefined'

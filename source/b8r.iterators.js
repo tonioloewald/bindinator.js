@@ -117,9 +117,6 @@ Test(() => {
 }).shouldBe('{"b":12,"c":5}');
 ~~~~
 */
-/* global module */
-
-'use strict'
 
 const makeArray = arrayish => [...arrayish]
 

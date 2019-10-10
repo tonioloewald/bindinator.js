@@ -42,8 +42,6 @@ one or more specified keystrokes for an event to handle, e.g.
 Also provides `modifierKeys`, a map from the modifier strings (e.g. alt) to
 the relevant unicode glyphs (e.g. '⌥').
 */
-/* global module */
-'use strict'
 
 const keycode = evt => {
   if (evt.code) {

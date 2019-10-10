@@ -1,8 +1,6 @@
 /**
 # pixel.js
 */
-/* global module */
-'use strict'
 
 export const render = (color) => {
   const c = document.createElement('canvas')

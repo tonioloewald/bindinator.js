@@ -51,7 +51,6 @@ Allows you to get data from element properties (e.g. the `currentTime` of an `HT
 
 The `component` target lets you get (and set) component properties.
 */
-/* global module */
 'use strict'
 
 import { find } from './b8r.dom.js'

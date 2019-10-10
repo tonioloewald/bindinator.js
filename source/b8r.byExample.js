@@ -242,9 +242,11 @@ export const describeType = (x) => {
     case 'array':
       return x.map(describeType)
     case 'object':
+    {
       const _type = {}
       Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]) })
       return _type
+    }
     default:
       return scalarType
   }
@@ -273,7 +275,7 @@ export const matchType = (example, subject, errors = [], path = '') => {
       // assume heterogeneous array
       for (let i = 0; i < count; i++) {
         let foundMatch = false
-        for (let listItem of example) {
+        for (const listItem of example) {
           if (matchType(listItem, subject[i], [], '').length === 0) {
             foundMatch = true
             break
@@ -311,7 +313,7 @@ export const exampleAtPath = (example, path) => {
 }
 
 const matchKeys = (example, subject, errors = [], path = '') => {
-  for (let key of Object.keys(example).sort()) {
+  for (const key of Object.keys(example).sort()) {
     matchType(example[key], subject[key], errors, path + '.' + key)
   }
   return errors

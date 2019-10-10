@@ -211,7 +211,7 @@ const DialogModal = makeWebComponent('b8r-modal', {
       bottom: 0,
       zIndex: 100
     },
-    'slot': {
+    slot: {
       display: 'block',
       position: 'fixed',
       background: 'var(--content-bg-color)',

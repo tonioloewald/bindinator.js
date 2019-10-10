@@ -429,7 +429,7 @@ export default function (b8r) {
     if (typeof value === 'string') {
       value = value.replace(/&nbsp;/g, '').trim()
     }
-    if (specialValues.hasOwnProperty(valueToMatch)) {
+    if (Object.prototype.hasOwnProperty.call(specialValues, valueToMatch)) {
       return specialValues[valueToMatch](value)
     } else if (valueToMatch !== undefined) {
       return value == valueToMatch // eslint-disable-line eqeqeq

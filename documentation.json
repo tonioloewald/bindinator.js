@@ -382,6 +382,10 @@
       {
         "name": "Theme Editor",
         "path": "theme-editor.component.html"
+      },
+      {
+        "name": "Color Picker",
+        "path": "components/color-picker.js"
       }
     ]
   },

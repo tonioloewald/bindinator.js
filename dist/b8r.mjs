@@ -166,6 +166,7 @@ Test(() => {
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
 ~~~~
 */
+/* global console */
 
 // unique tokens passed to set by path to delete or create properties
 const _delete_ = {};
@@ -1068,9 +1069,11 @@ const requestAnimationFrameWithTimeout = callback => {
   };
   requestAnimationFrame(finishIt);
   setTimeout(finishIt, 20);
-  return { cancel: () => {
-    done = true;
-  } }
+  return {
+    cancel: () => {
+      done = true;
+    }
+  }
 };
 
 const getUpdateList = () => {
@@ -1851,9 +1854,11 @@ const describeType = (x) => {
     case 'array':
       return x.map(describeType)
     case 'object':
+    {
       const _type = {};
       Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]); });
       return _type
+    }
     default:
       return scalarType
   }
@@ -1882,7 +1887,7 @@ const matchType = (example, subject, errors = [], path = '') => {
       // assume heterogeneous array
       for (let i = 0; i < count; i++) {
         let foundMatch = false;
-        for (let listItem of example) {
+        for (const listItem of example) {
           if (matchType(listItem, subject[i], [], '').length === 0) {
             foundMatch = true;
             break
@@ -1920,7 +1925,7 @@ const exampleAtPath = (example, path) => {
 };
 
 const matchKeys = (example, subject, errors = [], path = '') => {
-  for (let key of Object.keys(example).sort()) {
+  for (const key of Object.keys(example).sort()) {
     matchType(example[key], subject[key], errors, path + '.' + key);
   }
   return errors
@@ -3840,6 +3845,7 @@ Test(() => describe((a, b={x: 17}) => {})).shouldBe('(a, b={x: 17})=>{...}');
 Test(() => describe(async function(x,y,z){})).shouldBe('async (x,y,z)=>{...}');
 ~~~~
 */
+
 function describe$1 (x, maxUniques = 4, generic = false) {
   if (x === undefined) {
     return 'undefined'
@@ -4448,7 +4454,7 @@ function _toTargets (b8r) {
     if (typeof value === 'string') {
       value = value.replace(/&nbsp;/g, '').trim();
     }
-    if (specialValues.hasOwnProperty(valueToMatch)) {
+    if (Object.prototype.hasOwnProperty.call(specialValues, valueToMatch)) {
       return specialValues[valueToMatch](value)
     } else if (valueToMatch !== undefined) {
       return value == valueToMatch // eslint-disable-line eqeqeq
@@ -6315,7 +6321,7 @@ function bind (element) {
           toTargets[t.target](element, value, t.key);
         });
       } else {
-        console.warn(`unrecognized toTarget in binding`, element, bindings[i]);
+        console.warn('unrecognized toTarget in binding', element, bindings[i]);
       }
     }
   }
@@ -6332,7 +6338,7 @@ const forEachItemIn = (obj, idPath, func) => {
     }
   } else if (obj.constructor === Object) {
     if (idPath) {
-      throw new Error(`id-path is not supported for objects bound as lists`)
+      throw new Error('id-path is not supported for objects bound as lists')
     }
     const keys = Object.keys(obj);
     for (let i = keys.length - 1; i >= 0; i--) {
@@ -6413,7 +6419,7 @@ function bindList (listTemplate, dataPath) {
         ) {
           console.warn(
             `list filter ${methodPath} returned a new object` +
-            ` (not from original list); this will break updates!`
+            ' (not from original list); this will break updates!'
           );
         }
         list = filteredList;
@@ -6628,7 +6634,7 @@ b8r.insertComponent = async function (component, element, data) {
     const set = (...args) => {
       b8r.setByPath(componentId, ...args);
       // updates value bindings
-      if (args[0] === 'value' || args[0].hasOwnProperty('value')) {
+      if (args[0] === 'value' || Object.prototype.hasOwnProperty.call(args[0], 'value')) {
         b8r.trigger('change', element);
       }
     };
@@ -6659,9 +6665,16 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   content: false,
   methods: {
     connectedCallback () {
-      if (this.path && !this.name) {
-        b8r.component(this.path);
-        this.name = this.path.split('/').pop().split('.').shift();
+      const { path, name } = this;
+      if (path) {
+        if (path.endsWith('.js')) {
+          import(path).then(() => {});
+        } else {
+          b8r.component(path);
+        }
+      }
+      if (!name && path) {
+        this.name = path.split('/').pop().split('.').shift();
       }
     },
     render () {

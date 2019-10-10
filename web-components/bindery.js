@@ -160,7 +160,7 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
     },
     handleChange (evt) {
       const { target } = evt
-      const changeTarget = target.closest(`[data-from]`)
+      const changeTarget = target.closest('[data-from]')
       if (changeTarget) {
         const [target, path] = changeTarget.dataset.from.split('=')
         this.update({
