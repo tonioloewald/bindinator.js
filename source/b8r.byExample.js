@@ -72,7 +72,7 @@ You can specify an enum type simply using a bar-delimited sequence of JSON strin
 ### #int and #number
 
     specificTypeMatch('#int [0,10]', 5)          === true   // 0 ≤ 5 ≤ 10
-    specificTypeMatch('#int [0,∞]', -5)             === false  // -5 is less than 0
+    specificTypeMatch('#int [0,∞]', -5)          === false  // -5 is less than 0
     specificTypeMatch('#int [0', -5)             === false  // -5 is less than 0
     specificTypeMatch('#int', Math.PI)           === false  // Math.PI is not a whole number
     specificTypeMatch('#number (0,4)', Math.PI)  === true   // 0 < Math.PI < 4
@@ -99,6 +99,8 @@ gives the typeof the value passed unless it's an `Array` (in which case it retur
 
     describe([]) // 'array'
     describe(null) // 'null'
+    describe(NaN) // 'NaN'
+    describe(-Infinity) // 'number'
 
 ~~~~
 const {
@@ -122,6 +124,8 @@ Test(() => matchType('#number (0', 6)).shouldBeJSON([])
 Test(() => matchType('#number (0', -6)).shouldBeJSON(['was -6, expected #number (0'])
 Test(() => matchType('#number (0,∞)', 6)).shouldBeJSON([])
 Test(() => matchType('#number (0,∞)', -6)).shouldBeJSON(['was -6, expected #number (0,∞)'])
+Test(() => matchType('#number (0,∞)', Infinity)).shouldBeJSON(['was Infinity, expected #number (0,∞)'])
+Test(() => matchType('#number [-∞,∞)', -Infinity)).shouldBeJSON([])
 Test(() => matchType('#number 0]', 6)).shouldBeJSON(['was 6, expected #number 0]'])
 Test(() => matchType('#number 0]', -6)).shouldBeJSON([])
 Test(() => matchType('#number [-∞,0]', 6)).shouldBeJSON(['was 6, expected #number [-∞,0]'])
@@ -189,7 +193,9 @@ Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
 export const describe = x => {
   if (x === null) return 'null'
   if (Array.isArray(x)) return 'array'
-  if (typeof x === 'number' && isNaN(x)) return 'NaN'
+  if (typeof x === 'number') {
+    if (isNaN(x)) return 'NaN'
+  }
   if (typeof x === 'string' && x.startsWith('#')) return x
   return typeof x
 }
@@ -197,7 +203,7 @@ export const describe = x => {
 const parseFloatOrInfinity = x => {
   if (x === '-∞') {
     return -Infinity
-  } else if (x === '∞') {
+  } else if (x[0] === '∞') {
     return Infinity
   } else {
     return parseFloat(x)
