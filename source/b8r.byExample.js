@@ -72,6 +72,7 @@ You can specify an enum type simply using a bar-delimited sequence of JSON strin
 ### #int and #number
 
     specificTypeMatch('#int [0,10]', 5)          === true   // 0 ≤ 5 ≤ 10
+    specificTypeMatch('#int [0,∞]', -5)             === false  // -5 is less than 0
     specificTypeMatch('#int [0', -5)             === false  // -5 is less than 0
     specificTypeMatch('#int', Math.PI)           === false  // Math.PI is not a whole number
     specificTypeMatch('#number (0,4)', Math.PI)  === true   // 0 < Math.PI < 4
@@ -119,8 +120,12 @@ Test(() => matchType('#int (-5,5)', -5)).shouldBeJSON(['was -5, expected #int (-
 Test(() => matchType('#int [-5,5]', -6)).shouldBeJSON(['was -6, expected #int [-5,5]'])
 Test(() => matchType('#number (0', 6)).shouldBeJSON([])
 Test(() => matchType('#number (0', -6)).shouldBeJSON(['was -6, expected #number (0'])
+Test(() => matchType('#number (0,∞)', 6)).shouldBeJSON([])
+Test(() => matchType('#number (0,∞)', -6)).shouldBeJSON(['was -6, expected #number (0,∞)'])
 Test(() => matchType('#number 0]', 6)).shouldBeJSON(['was 6, expected #number 0]'])
 Test(() => matchType('#number 0]', -6)).shouldBeJSON([])
+Test(() => matchType('#number [-∞,0]', 6)).shouldBeJSON(['was 6, expected #number [-∞,0]'])
+Test(() => matchType('#number [-∞,0]', -6)).shouldBeJSON([])
 Test(() => matchType('#number [0,5]', Math.PI)).shouldBeJSON([])
 Test(() => matchType('#number [0,2]', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #number [0,2]`])
 Test(() => matchType('#int', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #int`])
@@ -189,15 +194,25 @@ export const describe = x => {
   return typeof x
 }
 
+const parseFloatOrInfinity = x => {
+  if (x === '-∞') {
+    return -Infinity
+  } else if (x === '∞') {
+    return Infinity
+  } else {
+    return parseFloat(x)
+  }
+}
+
 const inRange = (spec, x) => {
   let lower, upper
   try {
-    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.]+)?,?(-?[\d.]+[\])])?$/)
+    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/)
   } catch (e) {
     throw new Error(`bad range ${spec}`)
   }
   if (lower) {
-    const min = parseFloat(lower.substr(1))
+    const min = parseFloatOrInfinity(lower.substr(1))
     if (lower[0] === '(') {
       if (x <= min) return false
     } else {
@@ -205,7 +220,7 @@ const inRange = (spec, x) => {
     }
   }
   if (upper) {
-    const max = parseFloat(upper)
+    const max = parseFloatOrInfinity(upper)
     if (upper.endsWith(')')) {
       if (x >= max) return false
     } else {
