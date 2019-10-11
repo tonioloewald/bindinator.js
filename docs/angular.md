@@ -20,6 +20,14 @@ With `b8r` you just write regular Javascript, HTML, and CSS. No tooling or
 transpilation is required. Angular, like React, leans heavily on tooling 
 and "magic at a distance".
 
+Now, if you view HTML, CSS, and Javascript as the "assembly language of
+the web" then there'd be a strong argument for an abstraction layer
+that allows more expressive or platform-abstracting code than assembler,
+after all, almost applications are written in assembler these days for
+good reasons. But as we have seen `b8r` is actually more compact and
+expressive, and no less platform-abstracting than React, and it's somewhat
+leaner than Angular (although perhaps the advantage is not as marked).
+
 ## Not Quite HTML
 
 You can kind of puzzle out what this does, but it smells like a whole
@@ -38,16 +46,16 @@ vs:
     </div>
 
 The `b8r` example is simply HTML. It's going to be parsed and rendered by
-the browser using its native C++ HTML pipeline. The Angular code is some
+the browser using its native HTML parsing pipeline. The Angular code is some
 kind of templating language that's going to be parsed and rendered using
-Javascript code (or, if you're lucky, WebAssembly) that you have to both
+Javascript code (or, if you're lucky, WebAssembly) that the client will have to
 download, load into RAM, and run.
 
 `b8r`'s bindings do have a simple syntax, but it's designed to be almost
 self-explanatory, and experience has shown that programmers completely new
 to `b8r` can read b8r bindings and grok what they do (although it can take
 a few visits to the documentation to understand how to write some of the
-more exotic bindings)
+more exotic bindings).
 
 Oh, and `b8r`'s bindings are attributes that show up in the DOM and help
 you debug using the browser's native debugging tools.
@@ -66,10 +74,17 @@ vs:
       Share
     </button>
 
-    // I have no idea what the second part is supposed to do
-    // it looks like a custom-element… is it?!
+    // I'm assuming that the second block is essentially invoking a component
+    <b8r-component name="product-alert" data-bind="component(product)=path.to.product">
+    </b8r-component>
 
-It all looks very boiler-plate and not DRY.
+Of course, `b8r` supports web-components too, so you could also do:
+
+    <app-product-alerts data-bind="prop(product)=path.to.product">
+    </app-product-alerts>
+
+Note that the `b8r` snippets are self-contained. The Angular examples need supporting 
+logic in the surrounding code.
 
 ## Not Quite Javascript
 
@@ -97,7 +112,7 @@ syntax in your source files.
 
 ## Verbosity
 
-The Angular tutorial doesn't actually do anything, and yet takes more code
+The first, long Angular tutorial doesn't actually do anything, and yet takes more code
 and explanation than the React *To Do* tutorial (which at least does something).
 
 ## To Be Continued…
