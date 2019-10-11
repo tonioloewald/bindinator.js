@@ -75,7 +75,9 @@ const getParsedEventHandlers = element => {
         }
         return { types: [] }
       }
-      const [, model, method] = handler.trim().match(/^([^.]+)\.(.+)$/)
+      const handlerParts = handler.trim().match(/^([^.]+)\.(.+)$/)
+      if (!handlerParts) throw new Error(`bad event handler "${handler}"`)
+      const [, model, method] = handlerParts
       const types = type.split(',').sort()
       return {
         types: types.map(s => s.split('(')[0].trim()),

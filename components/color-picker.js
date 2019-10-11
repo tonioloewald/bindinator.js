@@ -5,6 +5,9 @@
 */
 
 import b8r from '../source/b8r.js'
+import { parse } from '../lib/color.js'
+
+const INCREMENTS = 24
 
 function interpolate (t, pointList) {
   const upperBoundIndex = pointList.findIndex(([x]) => x >= t)
@@ -20,15 +23,7 @@ function interpolate (t, pointList) {
   }
 }
 
-function range (min = 0, max = 24, step = 1) {
-  const r = []
-  for (let i = min; i <= max; i += step) {
-    r.push(i)
-  }
-  return r
-}
-
-function hsva2rgba (hue, saturation, value, opacity) {
+function hsva2rgba (hue, saturation = 1, value = 1, opacity = 1) {
   const grey = (1 - saturation) * value * 255
   saturation *= value
   const red = interpolate(hue, [[60, 255], [120, 0], [240, 0], [300, 255]]) * saturation + grey
@@ -37,44 +32,51 @@ function hsva2rgba (hue, saturation, value, opacity) {
   return `rgba(${red},${green},${blue},${opacity})`
 }
 
-const increments = range(0, 24, 1)
-
-const updateColor = (evt, field) => {
-  const { target } = evt
-  const value = b8r.getListInstance(target).v
-  const componentId = b8r.getComponentId(target)
-  let { h, s, v, a } = b8r.get(componentId)
-  switch (field) {
-    case 'h':
-      h = value
-      s = v = a = 1
-      break
-    case 's':
-      s = value
-      v = a = 1
-      break
-    case 'v':
-      v = value
-      a = 1
-      break
-    default:
-      a = value
-      break
-  }
-  b8r.set(componentId, { h, s, v, a, value: hsva2rgba(h, s, v, a) })
-}
-
 b8r.register('color-picker-controller', {
-  swatch: (elt, args) => {
-    elt.style.background = hsva2rgba(...args.map(parseFloat))
+  pickColor: (evt, elt) => {
+    if (evt.type === 'mousemove' && evt.buttons !== 1) {
+      return
+    }
+    const componentId = b8r.getComponentId(elt)
+    const { offsetX, offsetY } = evt
+    const x = Math.floor(offsetX * (INCREMENTS + 1) / elt.offsetWidth)
+    const y = Math.floor(offsetY * 4 / elt.offsetHeight)
+    let { h, s, v, a } = b8r.get(componentId)
+    switch (y) {
+      case 0:
+        h = x / INCREMENTS * 360
+        break
+      case 1:
+        s = x / INCREMENTS
+        break
+      case 2:
+        v = x / INCREMENTS
+        break
+      default:
+        a = x / INCREMENTS
+        break
+    }
+    b8r.set(componentId, { h, s, v, a, value: hsva2rgba(h, s, v, a) })
+    b8r.trigger('change', elt)
   },
-  hues: increments.map(x => ({ v: x * 15 })),
-  values: increments.map(x => ({ v: x / 24 })),
-  one: 1,
-  pickHue: (evt) => updateColor(evt, 'h'),
-  pickSat: (evt) => updateColor(evt, 's'),
-  pickValue: (evt) => updateColor(evt, 'v'),
-  pickAlpha: (evt) => updateColor(evt, 'a')
+  palette: (canvas, [h, s, v]) => {
+    const width = INCREMENTS + 1
+    const height = 4
+    canvas.width = width
+    canvas.height = height
+    const g = canvas.getContext('2d')
+    g.clearRect(0, 0, width, height)
+    for (let x = 0; x <= width; x++) {
+      g.fillStyle = hsva2rgba(x * 360 / INCREMENTS)
+      g.fillRect(x, 0, 1, 1)
+      g.fillStyle = hsva2rgba(h, x / INCREMENTS)
+      g.fillRect(x, 1, 1, 1)
+      g.fillStyle = hsva2rgba(h, s, x / INCREMENTS)
+      g.fillRect(x, 2, 1, 1)
+      g.fillStyle = hsva2rgba(h, s, v, x / INCREMENTS)
+      g.fillRect(x, 3, 1, 1)
+    }
+  }
 })
 
 const diagonalStripes = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAGAAAAADiNXWtAAAAjklEQVRIDbXTWwrAIAxEUdvtuDIX7HoqI1QQHwnJJCD0o5wbP3xKKV9STs454Win1ppe7c8WXB2w4lhevIEHFwNe/Bpg4McAC98GmPgSYONTIAIfgSi8ByLxEcCHZvD0cbSD5cWX/GMWXB2w4lhOvIEHFwNe/Bpg4McAC98GmPgSYONTIAIfgSi8ByJxBBqcr4/rC7K9hgAAAABJRU5ErkJggg=='
@@ -82,10 +84,10 @@ const diagonalStripes = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYC
 export const colorPicker = b8r.makeComponentNoEval('color-picker', {
   css: `
     ._component_ {
-        position: relative;
-        min-width: 240px;
-        cursor: default;
-        user-select: none;
+      position: relative;
+      min-width: 240px;
+      cursor: default;
+      user-select: none;
     }
 
     ._component_ .diagonal-stripes {
@@ -93,49 +95,45 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     }
 
     ._component_ > div {
-        margin: 0;
-        padding: 0;
-        line-height: 24px;
-        text-align: center;
+      margin: 0;
+      padding: 0;
+      line-height: 24px;
+      text-align: center;
     }
 
     ._component_ > div > .swatch {
-        display: inline-block;
-        margin: 0;
-        padding: 0;
-        width: 4%;
-        height: 100%;
-        border-radius: 0;
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+      width: 4%;
+      height: 100%;
+      border-radius: 0;
     }
 
-    ._component_ > *+* {
+    ._component_ canvas {
+      background: url(${diagonalStripes});
       position: relative;
       transition: 0.25s ease-in-out;
       opacity: 0;
       height: 0;
+      width: 100%;
+      display: block;
+      image-rendering: pixelated;
     }
 
-    ._component_:focus > *+* {
+    ._component_:focus canvas {
       opacity: 1;
-      height: 24px;
+      height: 96px;
     }
   `,
   html: `
     <div class="diagonal-stripes" style="padding: 5px;">
         <span class="swatch" data-bind="style(background)=_component_.value" style="width: 25%">&nbsp;</span>
     </div>
-    <div data-event="click:color-picker-controller.pickHue">
-        <span data-list="color-picker-controller.hues" data-bind="method(color-picker-controller.swatch)=.v,color-picker-controller.one,color-picker-controller.one,color-picker-controller.one" class="swatch">&nbsp;</span>
-    </div>
-    <div data-event="click:color-picker-controller.pickSat">
-        <span data-list="color-picker-controller.values" data-bind="method(color-picker-controller.swatch)=_component_.h,.v,color-picker-controller.one,color-picker-controller.one" class="swatch">&nbsp;</span>
-    </div>
-    <div data-event="click:color-picker-controller.pickValue">
-        <span data-list="color-picker-controller.values" data-bind="method(color-picker-controller.swatch)=_component_.h,_component_.s,.v,color-picker-controller.one" class="swatch">&nbsp;</span>
-    </div>
-    <div class="diagonal-stripes" data-event="click:color-picker-controller.pickAlpha">
-        <span data-list="color-picker-controller.values" data-bind="method(color-picker-controller.swatch)=_component_.h,_component_.s,_component_.v,.v" class="swatch">&nbsp;</span>
-    </div>
+    <canvas 
+      data-bind="method(color-picker-controller.palette)=_component_.h,_component_.s,_component_.v"
+      data-event="mousedown,mousemove,mouseup:color-picker-controller.pickColor"
+    ></canvas>
   `,
   load: async ({
     component, // this is the element that the component is inserted into
@@ -150,12 +148,15 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     touch // refresh the component
   }) => {
     component.setAttribute('tabindex', 0)
+    const { value } = data
+    const c = parse(value || 'red')
+    const { h, s, v, a } = c.hsv()
     set({
-      value: component.dataset.value || 'red',
-      h: 180,
-      s: 1,
-      v: 1,
-      a: 1
+      value: value || 'red',
+      h,
+      s,
+      v,
+      a
     })
   }
 })

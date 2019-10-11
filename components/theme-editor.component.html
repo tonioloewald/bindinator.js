@@ -13,6 +13,7 @@ and lets you edit them directly.
   
   ._component_ label {
     display: flex;
+    align-items: center;
   }
   
   ._component_ input[type=color] {
@@ -30,7 +31,7 @@ and lets you edit them directly.
   <label>
     <span data-bind="text=.name"></span>
     <b8r-component 
-      path="components/color" 
+      path="../components/color-picker.js" 
       data-bind="value=.value;show_if(color)=.type"
       data-event="change:_component_.setVar"
     ></b8r-component>
