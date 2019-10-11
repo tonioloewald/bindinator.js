@@ -1,13 +1,21 @@
 /**
 # Color Picker
 
+This `color-picker` component is a replacement for `<input type="color">` that provides
+a graphical hsva (hue, saturation, value, alpha) color picker. It opens when focused.
+
+You can bind to the component's `value` as if it were a native input.
+
 <b8r-component path="../components/color-picker.js"></b8r-component>
+
+You can use the `data-increments` attribute to change the color precision. (By default it is 24.)
+And you can use the `data-open` attribute to keep it open all the time.
+
+<b8r-component path="../components/color-picker.js" data-open data-increments=256></b8r-component>
 */
 
 import b8r from '../source/b8r.js'
 import { parse } from '../lib/color.js'
-
-const INCREMENTS = 24
 
 function interpolate (t, pointList) {
   const upperBoundIndex = pointList.findIndex(([x]) => x >= t)
@@ -38,42 +46,43 @@ b8r.register('color-picker-controller', {
       return
     }
     const componentId = b8r.getComponentId(elt)
+    let { h, s, v, a, increments } = b8r.getComponentData(elt)
     const { offsetX, offsetY } = evt
-    const x = Math.floor(offsetX * (INCREMENTS + 1) / elt.offsetWidth)
+    const x = Math.floor(offsetX * (increments + 1) / elt.offsetWidth)
     const y = Math.floor(offsetY * 4 / elt.offsetHeight)
-    let { h, s, v, a } = b8r.get(componentId)
     switch (y) {
       case 0:
-        h = x / INCREMENTS * 360
+        h = x / increments * 360
         break
       case 1:
-        s = x / INCREMENTS
+        s = x / increments
         break
       case 2:
-        v = x / INCREMENTS
+        v = x / increments
         break
       default:
-        a = x / INCREMENTS
+        a = x / increments
         break
     }
     b8r.set(componentId, { h, s, v, a, value: hsva2rgba(h, s, v, a) })
     b8r.trigger('change', elt)
   },
   palette: (canvas, [h, s, v]) => {
-    const width = INCREMENTS + 1
+    const {increments} = b8r.getComponentData(canvas);
+    const width = increments + 1
     const height = 4
     canvas.width = width
     canvas.height = height
     const g = canvas.getContext('2d')
     g.clearRect(0, 0, width, height)
     for (let x = 0; x <= width; x++) {
-      g.fillStyle = hsva2rgba(x * 360 / INCREMENTS)
+      g.fillStyle = hsva2rgba(x * 360 / increments)
       g.fillRect(x, 0, 1, 1)
-      g.fillStyle = hsva2rgba(h, x / INCREMENTS)
+      g.fillStyle = hsva2rgba(h, x / increments)
       g.fillRect(x, 1, 1, 1)
-      g.fillStyle = hsva2rgba(h, s, x / INCREMENTS)
+      g.fillStyle = hsva2rgba(h, s, x / increments)
       g.fillRect(x, 2, 1, 1)
-      g.fillStyle = hsva2rgba(h, s, v, x / INCREMENTS)
+      g.fillStyle = hsva2rgba(h, s, v, x / increments)
       g.fillRect(x, 3, 1, 1)
     }
   }
@@ -121,7 +130,8 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
       image-rendering: pixelated;
     }
 
-    ._component_:focus canvas {
+    ._component_:focus canvas,
+    ._component_[data-open] canvas {
       opacity: 1;
       height: 96px;
     }
@@ -152,6 +162,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     const c = parse(value || 'red')
     const { h, s, v, a } = c.hsv()
     set({
+      increments: parseInt(component.dataset.increments || 24, 0),
       value: value || 'red',
       h,
       s,
