@@ -60,7 +60,7 @@ const mimeTypes = {
 }
 
 const handleStaticRequest = (req, res) => {
-  let pathname = req.url
+  let pathname = req.url.split('?')[0]
   if (req.headers.origin) {
     res.setHeader('Access-Control-Allow-Headers', req.headers.origin)
   }
@@ -99,7 +99,7 @@ on('GET', /\/api\/files\/.*/, (req, res) => {
 // Pass urlObj rather than generate it twice
 // Allow request handlers to see the server and subdomain
 const requestHandler = (req, res) => {
-  const pathname = req.url
+  const pathname = req.url.split('?')[0]
   console.log(pathname, req.url)
   const handler = handlerMap.find(
     handler => handler.test(pathname) && handler.methods.indexOf(req.method) !== -1
