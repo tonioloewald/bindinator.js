@@ -1,5 +1,5 @@
 <style>
-  .maxtoggle {
+  ._component_ {
     position: absolute;
     top: 2px;
     right: 2px;
@@ -16,30 +16,32 @@
     background-color: var(--input-bg-color);
   }
 
-  .maxtoggle:hover {
+  ._component_:hover {
     color: var(--text-color);
     background-color: var(--light-accent-color);
   }
 
-  .maxtoggle:active {
+  ._component_:active {
     color: var(--text-color);
     background-color: var(--accent-color);
   }
 
-  body.fullscreen .maxtoggle-maximize {
+  .maxtoggle-target.fullscreen .maxtoggle-maximize {
     display: none;
   }
 
-  body:not(.fullscreen) .maxtoggle-minimize {
+  .maxtoggle-target:not(.fullscreen) .maxtoggle-minimize {
     display: none;
   }
 </style>
-  <span class="maxtoggle-maximize icon-enlarge7"></span>
-  <span class="maxtoggle-minimize icon-shrink7"></span>
+<span title="maximize (alt-space)" class="maxtoggle-maximize icon-enlarge7"></span>
+<span title="reduce (alt-space)" class="maxtoggle-minimize icon-shrink7"></span>
 <script>
   /* global component, on */
-  component.classList.add('maxtoggle')
-  component.setAttribute('title', 'Toggle Maximize (alt-space)')
-  set('fullscreen', () => document.body.classList.toggle('fullscreen'))
-  on('mouseup', `${component.dataset.componentId}.fullscreen`)
+  const target = component.closest('.maxtoggle-target') || document.body;
+  target.classList.add('maxtoggle-target')
+  set('fullscreen', () => {
+    target.classList.toggle('fullscreen')
+  })
+  on('mouseup', `_component_.fullscreen`)
 </script>
