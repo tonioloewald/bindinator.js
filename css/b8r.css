@@ -69,6 +69,7 @@
 body {
   font: var(--ui-font);
   color: var(--text-color);
+  background: var(--content-bg-color);
   margin: 0;
   overflow: hidden;
 }
@@ -76,16 +77,6 @@ body {
 @media print {
   body {
     overflow: default;
-  }
-}
-
-@media not print {
-  .fullscreen {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
   }
 }
 
