@@ -68,7 +68,7 @@ b8r.register('color-picker-controller', {
     b8r.trigger('change', elt)
   },
   palette: (canvas, [h, s, v]) => {
-    const {increments} = b8r.getComponentData(canvas);
+    const { increments } = b8r.getComponentData(canvas)
     const width = increments + 1
     const height = 4
     canvas.width = width

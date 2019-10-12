@@ -298,7 +298,8 @@
         const component_name = part.path.split('.').shift();
         const {origin, pathname} = window.location;
         const url = `${origin}${pathname}#body=components/${component_name}`;
-        windows.open(url, {width: 800, height: 450});
+        const w = windows.open(url, {width: 800, height: 450});
+        w.window.addEventListener('load', () => w.window.document.body.classList.add('fullscreen'))
       } else {
         window.location.hash = 'source=' + part.path;
       }

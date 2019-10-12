@@ -39,6 +39,7 @@
 <script>
   /* global component, on */
   component.classList.add('maxtoggle')
-component.setAttribute('title', 'Toggle Maximize (alt-space)')
-on('mouseup', 'demo.fullscreen')
+  component.setAttribute('title', 'Toggle Maximize (alt-space)')
+  set('fullscreen', () => document.body.classList.toggle('fullscreen'))
+  on('mouseup', `${component.dataset.componentId}.fullscreen`)
 </script>
