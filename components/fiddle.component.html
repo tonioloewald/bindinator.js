@@ -181,7 +181,10 @@ of awesome that this works at all.
     data-bind="hide_if(example)=_component_.mode"
     class="code"
     style="width: 50%"
-    data-event="keydown(Tab):_component_.indent"
+    data-event="
+      keydown(Tab):_component_.indent
+      mouseenter:_component_.resize
+    "
   ></div>
 </div>
 <span data-component="resizer"></span>
@@ -218,7 +221,6 @@ of awesome that this works at all.
       tabSize: 2,
       useSoftTabs: true
     });
-    requestAnimationFrame(() => editor.resize(true));
   };
 
   if(data.source) {
