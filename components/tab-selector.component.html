@@ -35,9 +35,11 @@ The component's `value` indicates the currently visible tab.
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    transition: 0.1s ease-out;
   }
 
   .tab-selector-tabs > .tab-selector-tab:hover {
+    flex-shrink: 0;
     background-color: var(--light-accent-color);
   }
 
