@@ -12,18 +12,16 @@
     line-height: 18px;
     padding: 2px;
     cursor: pointer;
-    color: var(--accent-color);
-    background-color: var(--input-bg-color);
+    color: var(--text-color);
+    opacity: 0.5;
   }
 
   ._component_:hover {
-    color: var(--text-color);
-    background-color: var(--light-accent-color);
+    opacity: 0.75;
   }
 
   ._component_:active {
-    color: var(--text-color);
-    background-color: var(--accent-color);
+    opacity: 1;
   }
 
   .maxtoggle-target.fullscreen .maxtoggle-maximize {
@@ -34,8 +32,8 @@
     display: none;
   }
 </style>
-<span title="maximize (alt-space)" class="maxtoggle-maximize icon-enlarge7"></span>
-<span title="reduce (alt-space)" class="maxtoggle-minimize icon-shrink7"></span>
+<span title="maximize" class="maxtoggle-maximize icon-enlarge7"></span>
+<span title="reduce" class="maxtoggle-minimize icon-shrink7"></span>
 <script>
   /* global component, on */
   const target = component.closest('.maxtoggle-target') || document.body;
