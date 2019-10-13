@@ -310,7 +310,7 @@ contains a number, a "smart" optimization might consider the new value to be dif
 
 `b8r` does one more thing to prevent unnecessary refreshes -- tracking the bound values 
 "last seen" during an update and not redrawing if they haven't changed. This can prevent computed 
-bindings from being unnecessarily called (if something is bound to `path.tofoo(path.to.bar, path.to.baz))`, 
+bindings from being unnecessarily called (if something is bound to `path.to.foo(path.to.bar, path.to.baz))`, 
 `b8r` won't call `foo` if `bar` and `baz` haven't changed since it last called `foo`.
 
 #### A final aside on sub-components…
