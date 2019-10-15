@@ -1,5 +1,7 @@
 # React vs b8r
 
+THIS IS A TEST
+
 React and `b8r` deal with the same key problem in different ways. _How to tell when the application's state changes and then correctly update the user interface._ 
 
 If you imagine that state is stored in an object, let's call it `props`, then it's hard to tell when it changes, e.g. somewhere in your program someone writes `props.foo.bar = 17`.
