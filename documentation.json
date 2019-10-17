@@ -557,6 +557,10 @@
       {
         "name": "Layout",
         "path": "layout.component.html"
+      },
+      {
+        "name": "Mapbox",
+        "path": "mapbox.component.html"
       }
     ]
   }

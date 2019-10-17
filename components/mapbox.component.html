@@ -1,0 +1,86 @@
+<!--
+# Mapbox
+
+This is a super-simple integration of [Mapbox](https://www.mapbox.com).
+
+If the map doesn't load then I've probably exceeded my free quota…
+-->
+<label>
+  Map Style
+  <select 
+    data-bind="value=_component_.currentMapStyle"
+    data-event="change:_component_.setMapStyle"
+  >
+    <option 
+      data-list="_component_.mapStyles:_auto_"
+      data-bind="
+        text=.name
+        value=.url
+      "
+    ></option>
+  </select>
+</label>
+<div style='width: 100%; min-height: 60vh;'></div>
+<script>
+  const {viaTag} = await import('../lib/scripts.js')
+  const {viaLink} = await import('../source/b8r.makeStylesheet.js')
+
+  viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
+  await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
+
+  set('currentMapStyle', 'mapbox://styles/mapbox/satellite-v9')
+  set('mapStyles', [
+    {
+      name: 'streets',
+      url: 'mapbox://styles/mapbox/streets-v10'
+    },
+    {
+      name: 'outdoors',
+      url: 'mapbox://styles/mapbox/outdoors-v10'
+    },
+    {
+      name: 'light',
+      url: 'mapbox://styles/mapbox/light-v9'
+    },
+    {
+      name: 'dark',
+      url: 'mapbox://styles/mapbox/dark-v9'
+    },
+    {
+      name: 'satellite',
+      url: 'mapbox://styles/mapbox/satellite-v9'
+    },
+    {
+      name: 'sateliite + streets',
+      url: 'mapbox://styles/mapbox/satellite-streets-v10'
+    },
+    {
+      name: 'preview day',
+      url: 'mapbox://styles/mapbox/navigation-preview-day-v2'
+    },
+    {
+      name: 'preview night',
+      url: 'mapbox://styles/mapbox/navigation-preview-night-v2'
+    },
+    {
+      name: 'guidance day',
+      url: 'mapbox://styles/mapbox/navigation-guidance-day-v2'
+    },
+    {
+      name: 'guidance night',
+      url: 'mapbox://styles/mapbox/navigation-guidance-night-v2'
+    },
+  ])
+
+  mapboxgl.accessToken = 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'
+  const map = new mapboxgl.Map({
+    container: findOne('div'),
+    style: get('currentMapStyle'),
+    zoom: 10,
+    center: [151.1258772,-33.8397585],
+  })
+
+  set('setMapStyle', () => {
+    map.setStyle(get('currentMapStyle'))
+  })
+</script>
