@@ -374,7 +374,7 @@
   var last_component_path;
   function update() {
     var component_path = parseHash().source
-    if(component_path === last_component_path) {
+    if(component_path !== undefined && component_path === last_component_path) {
       // ignoring hash change within component
       return;
     }
