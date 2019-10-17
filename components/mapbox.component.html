@@ -5,6 +5,21 @@ This is a super-simple integration of [Mapbox](https://www.mapbox.com).
 
 If the map doesn't load then I've probably exceeded my free quota…
 -->
+<style>
+  ._component_ > label {
+    display: inline-block;
+    margin: 5px 0;
+  }
+
+  ._component_ > label > select {
+    text-transform: capitalize;
+  }
+
+  ._component_ > .map {
+    width: 100%;
+    min-height: 60vh;
+  }
+</style>
 <label>
   Map Style
   <select 
@@ -20,15 +35,22 @@ If the map doesn't load then I've probably exceeded my free quota…
     ></option>
   </select>
 </label>
-<div style='width: 100%; min-height: 60vh;'></div>
+<div class="map"></div>
 <script>
   const {viaTag} = await import('../lib/scripts.js')
   const {viaLink} = await import('../source/b8r.makeStylesheet.js')
+  const {parseHash, serializeObj} = await import('../lib/hash-utils.js')
 
   viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
   await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
 
-  set('currentMapStyle', 'mapbox://styles/mapbox/satellite-v9')
+  const settings = {
+    '@': '-33.8397585,151.1258772,10'
+  }
+
+  Object.assign(settings, parseHash())
+
+  set('currentMapStyle', 'mapbox://styles/mapbox/outdoors-v10')
   set('mapStyles', [
     {
       name: 'streets',
@@ -72,15 +94,27 @@ If the map doesn't load then I've probably exceeded my free quota…
     },
   ])
 
+  const [long, lat, zoom] = settings['@'].split(',').map(parseFloat)
   mapboxgl.accessToken = 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'
   const map = new mapboxgl.Map({
-    container: findOne('div'),
+    container: findOne('.map'),
     style: get('currentMapStyle'),
-    zoom: 10,
-    center: [151.1258772,-33.8397585],
+    zoom,
+    center: [lat, long],
   })
 
   set('setMapStyle', () => {
     map.setStyle(get('currentMapStyle'))
   })
+
+  window._map = map
+
+  const updateHash = b8r.debounce(() => {
+    const {lng, lat} = map.getCenter()
+    const zoom = map.getZoom()
+    settings['@'] = `${lat},${lng},${zoom}`
+    history.replaceState({}, "map demo", window.location.pathname + '#' + serializeObj(settings));
+  }, 100)
+
+  map.on('render', updateHash)
 </script>

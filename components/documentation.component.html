@@ -246,6 +246,7 @@
 
   const windows = await import('../lib/windows.js');
   const {configuredTest} = await import('../lib/test.js');
+  const {parseHash} = await import('../lib/hash-utils.js');
 
   var content = findOne('.content');
   const nav = findOne('.nav');
@@ -372,21 +373,16 @@
 
   var last_component_path;
   function update() {
-    var component_path = window.location.hash.substr(1).split('?')[0];
+    var component_path = parseHash().source
     if(component_path === last_component_path) {
       // ignoring hash change within component
       return;
     }
     last_component_path = component_path;
-    var pairs = component_path.split('&').map(pair => {
-      var [key, value] = pair.split('=');
-      return {key, value};
-    });
-    var {key, value} = pairs[0];
-    if (key && value) {
+    if (component_path) {
       b8r.component('file-viewer').then(viewer => {
         b8r.removeComponent(content);
-        b8r.insertComponent(viewer, content, {url: value});
+        b8r.insertComponent(viewer, content, {url: component_path});
       });
     } else {
       // FIXME don't do this, behave as though there's a default hash so history behaves nicely
