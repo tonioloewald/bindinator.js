@@ -1,11 +1,6 @@
-# build esm
-rollup source/b8r.js --file dist/b8r.mjs --format esm --inlineDynamicImports true
+rollup -c
+
+# uglify
 uglifyjs dist/b8r.mjs -c -m -cmo dist/b8r.min.mjs --source-map url=dist/b8r.min.mjs.map
-
-# build cjs
-rollup source/b8r.js --file dist/b8r.js --format cjs
 uglifyjs dist/b8r.js -c -m -cmo dist/b8r.min.js --source-map url=dist/b8r.min.js.map
-
-# build iife
-rollup source/b8r.js --file dist/b8r.iife.js --format cjs
 uglifyjs dist/b8r.iife.js -c -m -cmo dist/b8r.iife.min.js --source-map url=dist/b8r.iife.min.js.map
