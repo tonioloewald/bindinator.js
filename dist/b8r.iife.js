@@ -21,7 +21,11 @@ function _interopNamespace(e) {
 
 /**
 # Object Path Methods
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2019 Tonio Loewald
+
+> Note that these are low-level methods that `b8r` does not expose.
+> `b8r.getByPath` and `b8r.setByPath` are deprecated (use `b8r.set` and `b8r.get` instead).
+> See the [Data Registry](#source=source/b8r.registry.js) documentation for more useful information.
 
     getByPath(obj, 'path.to.value')
 
@@ -1705,6 +1709,7 @@ You can specify an enum type simply using a bar-delimited sequence of JSON strin
 ### #int and #number
 
     specificTypeMatch('#int [0,10]', 5)          === true   // 0 ≤ 5 ≤ 10
+    specificTypeMatch('#int [0,∞]', -5)          === false  // -5 is less than 0
     specificTypeMatch('#int [0', -5)             === false  // -5 is less than 0
     specificTypeMatch('#int', Math.PI)           === false  // Math.PI is not a whole number
     specificTypeMatch('#number (0,4)', Math.PI)  === true   // 0 < Math.PI < 4
@@ -1731,6 +1736,8 @@ gives the typeof the value passed unless it's an `Array` (in which case it retur
 
     describe([]) // 'array'
     describe(null) // 'null'
+    describe(NaN) // 'NaN'
+    describe(-Infinity) // 'number'
 
 ~~~~
 const {
@@ -1752,8 +1759,14 @@ Test(() => matchType('#int (-5,5)', -5)).shouldBeJSON(['was -5, expected #int (-
 Test(() => matchType('#int [-5,5]', -6)).shouldBeJSON(['was -6, expected #int [-5,5]'])
 Test(() => matchType('#number (0', 6)).shouldBeJSON([])
 Test(() => matchType('#number (0', -6)).shouldBeJSON(['was -6, expected #number (0'])
+Test(() => matchType('#number (0,∞)', 6)).shouldBeJSON([])
+Test(() => matchType('#number (0,∞)', -6)).shouldBeJSON(['was -6, expected #number (0,∞)'])
+Test(() => matchType('#number (0,∞)', Infinity)).shouldBeJSON(['was Infinity, expected #number (0,∞)'])
+Test(() => matchType('#number [-∞,∞)', -Infinity)).shouldBeJSON([])
 Test(() => matchType('#number 0]', 6)).shouldBeJSON(['was 6, expected #number 0]'])
 Test(() => matchType('#number 0]', -6)).shouldBeJSON([])
+Test(() => matchType('#number [-∞,0]', 6)).shouldBeJSON(['was 6, expected #number [-∞,0]'])
+Test(() => matchType('#number [-∞,0]', -6)).shouldBeJSON([])
 Test(() => matchType('#number [0,5]', Math.PI)).shouldBeJSON([])
 Test(() => matchType('#number [0,2]', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #number [0,2]`])
 Test(() => matchType('#int', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #int`])
@@ -1817,20 +1830,32 @@ Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
 const describe = x => {
   if (x === null) return 'null'
   if (Array.isArray(x)) return 'array'
-  if (typeof x === 'number' && isNaN(x)) return 'NaN'
+  if (typeof x === 'number') {
+    if (isNaN(x)) return 'NaN'
+  }
   if (typeof x === 'string' && x.startsWith('#')) return x
   return typeof x
+};
+
+const parseFloatOrInfinity = x => {
+  if (x === '-∞') {
+    return -Infinity
+  } else if (x[0] === '∞') {
+    return Infinity
+  } else {
+    return parseFloat(x)
+  }
 };
 
 const inRange = (spec, x) => {
   let lower, upper;
   try {
-    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.]+)?,?(-?[\d.]+[\])])?$/);
+    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/);
   } catch (e) {
     throw new Error(`bad range ${spec}`)
   }
   if (lower) {
-    const min = parseFloat(lower.substr(1));
+    const min = parseFloatOrInfinity(lower.substr(1));
     if (lower[0] === '(') {
       if (x <= min) return false
     } else {
@@ -1838,7 +1863,7 @@ const inRange = (spec, x) => {
     }
   }
   if (upper) {
-    const max = parseFloat(upper);
+    const max = parseFloatOrInfinity(upper);
     if (upper.endsWith(')')) {
       if (x >= max) return false
     } else {
@@ -3471,7 +3496,9 @@ const getParsedEventHandlers = element => {
         }
         return { types: [] }
       }
-      const [, model, method] = handler.trim().match(/^([^.]+)\.(.+)$/);
+      const handlerParts = handler.trim().match(/^([^.]+)\.(.+)$/);
+      if (!handlerParts) throw new Error(`bad event handler "${handler}"`)
+      const [, model, method] = handlerParts;
       const types = type.split(',').sort();
       return {
         types: types.map(s => s.split('(')[0].trim()),
@@ -5584,11 +5611,19 @@ const collapse = path => {
 
 /**
 ~~~~
+const {name} = await b8r.component('../test/custom-test.html')
 Test(async () => {
-  const {name} = await b8r.component('../test/custom-test.html')
-  b8r.componentOnce('custom-test')
   return name
 }).shouldBe('custom-test')
+Test(async () => {
+  await b8r.componentOnce('custom-test')
+  b8r.findOne('.custom-test-component').style.display = 'none'
+  return b8r.find('.custom-test-component').length
+}).shouldBe(1)
+Test(async () => {
+  await b8r.componentOnce('custom-test')
+  return b8r.find('.custom-test-component').length
+}).shouldBe(1)
 ~~~~
 */
 
@@ -6731,13 +6766,11 @@ b8r.removeComponent = elt => {
   }
 };
 
-b8r.componentOnce = function (...args) {
-  // may be switched out for relative version
-  this.component(...args).then(c => {
-    if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
-      b8r.insertComponent(c);
-    }
-  });
+b8r.componentOnce = async (...args) => {
+  const c = await b8r.component(...args);
+  if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
+    await b8r.insertComponent(c);
+  }
 };
 
 module.exports = b8r;
