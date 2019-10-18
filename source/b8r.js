@@ -763,13 +763,11 @@ b8r.removeComponent = elt => {
   }
 }
 
-b8r.componentOnce = function (...args) {
-  // may be switched out for relative version
-  this.component(...args).then(c => {
-    if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
-      b8r.insertComponent(c)
-    }
-  })
+b8r.componentOnce = async (...args) => {
+  const c = await b8r.component(...args)
+  if (!b8r.findOne(`[data-component-id*="${c.name}"]`)) {
+    await b8r.insertComponent(c)
+  }
 }
 
 export default b8r

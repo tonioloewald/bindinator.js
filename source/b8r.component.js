@@ -321,11 +321,19 @@ const collapse = path => {
 
 /**
 ~~~~
+const {name} = await b8r.component('../test/custom-test.html')
 Test(async () => {
-  const {name} = await b8r.component('../test/custom-test.html')
-  b8r.componentOnce('custom-test')
   return name
 }).shouldBe('custom-test')
+Test(async () => {
+  await b8r.componentOnce('custom-test')
+  b8r.findOne('.custom-test-component').style.display = 'none'
+  return b8r.find('.custom-test-component').length
+}).shouldBe(1)
+Test(async () => {
+  await b8r.componentOnce('custom-test')
+  return b8r.find('.custom-test-component').length
+}).shouldBe(1)
 ~~~~
 */
 
