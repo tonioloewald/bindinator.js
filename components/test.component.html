@@ -76,13 +76,17 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   .test-component .tab-selector-component {
     margin: 0 -6px;
   }
+
+  ._component_ summary button {
+    float: right;
+    margin: -5px -10px;
+  }
 </style>
 <details data-bind="attr(open)=_component_.show">
-  <summary style="display: flex; align-items: center;">
+  <summary>
     <span>
       Test Results
     </span>
-    <span style="flex: 1 1"></span>
     <button title="run tests" class="iconic icon-loop3" data-event="click:_component_.run"></button>
   </summary>
   <div data-component="tab-selector">
