@@ -1,13 +1,19 @@
-## From `require` to `import`
+# Integrating b8r
+
+## b8r works the way you do
+
+`b8r`'s `/dist` directory includes three builds of `b8r`:
+
+- `b8r.mjs` for ES6 modules
+- `b8r.js` (commonjs) for use with require
+- `b8r.iife.js` for use via `<script src="path/to/b8r.iife.js"></script>` tag
+
+(There are also corresponding minified versions and source maps.)
+
+## Internally, b8r uses import()
 
 `b8r` has migrated from using `require` to `import`. This is a _breaking change_ but
 it had to happen sometime.
-
-> Note that `b8r`'s `/dist` directory includes a .cjs compatible version of b8r.js
-> so you can use it with commonjs-style `require`, but for using `b8r`without any
-> kind of build or transpilation process whatsoever, you need to work with 
-> [modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules),
-> which means `import` and `export` and `<script type="module">`.
 
 - `require` has been abolished in favor of `import`.
 - `require.viaTag`, `require.lazy` and misc. support for legacy libraries has been 
@@ -33,7 +39,7 @@ and [export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
 If you'd prefer a potted summary, read on…
 
-### `import` and `export` in 5 minutes
+# ES6 Modules in 5 Minutes
 
 This is for those of you who don't want to read all the documentation. (I don't blame you.)
 
@@ -109,7 +115,7 @@ module, so if you wanted everything out of `foo.js` inside `const foo` you'd wri
 
     const foo = (await import('./path/to/foo.js')).default;
 
-### Migrating to `import` by Example
+## Migrating to `import` by Example
 
 Old way (**no longer works!**):
 
@@ -131,7 +137,7 @@ New Way:
 Note that _all import paths need to be relative_, so `require('foo/bar.js')` becomes
 `import('./foo/bar.js')`.
 
-### Modernizing Libraries
+## Modernizing Libraries
 
 In libraries, you'll need to replace `module.exports = foo` with `export`
 statements. In general:
@@ -148,7 +154,7 @@ Because:
 
 does not seem to work.
 
-### Inside Component `<script>` Tags
+## Inside Component `<script>` Tags
 
 Component `<script>` tags are inserted into an `AsyncFunction` that fires when a
 component is inserted. So you cannot use static `import` inside a component's script
@@ -165,7 +171,7 @@ To something like this:
 (**Note**: right now, the import base path will be that of the context 
 from which b8r.component was called, rather than the directory the component is in.)
 
-### Legacy Libraries and `viaTag`
+## Legacy Libraries and `viaTag`
 
 `lib/scripts.js` provides a `viaTag` function replaces `require.viaTag` 
 and imports libraries as scripts when they do not support modules 

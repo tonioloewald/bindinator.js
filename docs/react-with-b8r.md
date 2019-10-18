@@ -5,8 +5,8 @@ modify any elements React is managing.
 
 `b8r` isn't designed for server-side rendering, so if you're doing that you'll want
 to wrap calls to `b8r` in `if (__BROWSER__) { ... }` control structures. These issues
-run pretty deep, because nodejs doesn't yet fully support ES6 Modules and `b8r` is all
-in on ES6 modules.
+run pretty deep, because the nodejs/npm ecosystem doesn't yet fully support ES6 Modules 
+and `b8r` is all in on ES6 modules.
 
 Assuming you use pure javascript b8r components, you can turn them into 
 pure React components via (this is .jsx):
