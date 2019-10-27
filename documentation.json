@@ -236,6 +236,10 @@
       {
         "name": "History",
         "path": "lib/history.js"
+      },
+      {
+        "name": "vector",
+        "path": "lib/vector.js"
       }
     ]
   },
@@ -561,6 +565,10 @@
       {
         "name": "Mapbox",
         "path": "mapbox.component.html"
+      },
+      {
+        "name": "Touch Examples",
+        "path": "touch-examples.component.html"
       }
     ]
   }
