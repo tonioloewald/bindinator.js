@@ -4638,11 +4638,7 @@ var b8r = (function () {
         if (!classToToggle) {
           throw new Error('class_unless toTarget requires a class to be specified')
         }
-        if (!value) {
-          element.classList.add(classToToggle);
-        } else {
-          element.classList.remove(classToToggle);
-        }
+        element.classList.toggle(classToToggle, !value);
       },
       class_map: function (element, value, map) {
         const classOptions = parseOptions(map);
