@@ -23,9 +23,9 @@ and "magic at a distance".
 Now, if you view HTML, CSS, and Javascript as the "assembly language of
 the web" then there'd be a strong argument for an abstraction layer
 that allows more expressive or platform-abstracting code than assembler,
-after all, almost applications are written in assembler these days for
-good reasons. But as we have seen `b8r` is actually more compact and
-expressive, and no less platform-abstracting than React, and it's somewhat
+after all, almost no applications are written in assembler these days for
+good reasons. But as we have seen `b8r` is actually *more compact and
+expressive*, and no less platform-abstracting than React, and it's somewhat
 leaner than Angular (although perhaps the advantage is not as marked).
 
 ## Not Quite HTML
