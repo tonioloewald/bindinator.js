@@ -4,6 +4,7 @@
   --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
   --bg-color: aliceblue;
   --content-bg-color: #eee;
+  --faded-bg-color: #ccc;
   --example-bg-color: rgb(229, 229, 241);
   --input-bg-color: #fff;
   --text-color: #222;
@@ -40,6 +41,7 @@
   :root {
     --bg-color: midnightblue;
     --content-bg-color: #222;
+    --faded-bg-color: #444;
     --example-bg-color: rgb(39, 39, 49);
     --input-bg-color: #111;
     --faded-text-color: #ccc;
@@ -134,7 +136,7 @@ h6 { font-size: 14px; }
   color: var(--bright-accent-color);
 }
 
-h1, h2, h3, h4, h5, h6, b, strong, summary {
+h1, h2, h3, h4, h5, h6, b, strong, summary, i, em {
   color: var(--dark-accent-color);
 }
 
