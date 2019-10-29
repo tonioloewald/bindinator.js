@@ -12,8 +12,8 @@ assigned a value. When new options appear, the control is refreshed.)
 ```
     <h2>Note</h2>
     <p>
-      The first select will change to 'a', then two of the three selects 
-      below will populate after 1s and 2s respectively. This is a test of their correctly 
+      The first select will change to 'a', then two of the three selects
+      below will populate after 1s and 2s respectively. This is a test of their correctly
       retaining a value before being populated with the underlying option.
     </p>
     <b8r-select-bar data-bind="value=_component_.option">

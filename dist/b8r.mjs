@@ -5809,18 +5809,21 @@ reference purposes.
 
 ### Styling
 
+In my opinion, the best way to style custom elements in a way that allows easy
+customization is to use [CSS Variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties).
+
 - [Styling a Web Component](https://css-tricks.com/styling-a-web-component/)
 
-The above is more of a "how to" than best practices. I'm still trying to figure
-out best practices myself. Right now, I'd say that **the best way to style
-web-components is as little as possible** -- unless they're actual views
-(and my jury is out on whether building views as web-components is at all a
-good idea).
+The above is more of a "how to" than best practices. Take it with a grain of salt.
+
+I think the jury is out on whether creating complex views as web-components is a good
+idea. So far, creating views with `b8r` components seems much simpler, quicker, and
+more flexible. This may change over time as more people use web-components and the
+rough edges are smoothed.
 
 Creating components with minimal styling and no shadowDOM is another possibility.
 Instead of creating an internal style node, they could simply insert a singleton
 stylesheet in the `<header>` the way `b8r` components do.
-
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
