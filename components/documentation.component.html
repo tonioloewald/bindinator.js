@@ -191,20 +191,21 @@
     height: 10px;
     margin-left: 5px;
     vertical-align: baseline;
+    background-color: var(--error-color);
     animation: error-blink 2s infinite ease-in-out;
   }
 
   @keyframes error-blink {
     0% {
-      background-color: rgba(255,0,0,0);
+      opacity: 0.25;
     }
 
     50% {
-      background-color: rgba(255,0,0,1);
+      opacity: 1;
     }
 
     100% {
-      background-color: rgba(255,0,0,0);
+      opacity: 0.25;
     }
   }
 </style>
