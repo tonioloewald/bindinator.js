@@ -53,7 +53,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       position: 'relative',
       display: 'block',
       background: 'var(--content-bg-color)',
-      border: '1px solid var(--accent-color)',
+      border: '1px solid var(--black-20)',
       borderRadius: '2px',
       flexGrow: 1
     },
@@ -71,7 +71,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       background: 'var(--light-accent-color)',
       padding: '5px 10px',
       borderRadius: '5px 5px 0 0',
-      border: '1px solid var(--accent-color)',
+      border: '1px solid var(--black-20)',
       borderBottom: '1px solid transparent',
       cursor: 'default',
       margin: '-1px',
@@ -93,7 +93,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
     '.tabs > .selected': {
       background: 'var(--content-bg-color)',
       zIndex: '2',
-      border: '1px solid var(--accent-color)',
+      border: '1px solid var(--black-20)',
       borderBottom: '1px solid var(--content-bg-color)',
       transform: 'translateY(1px)'
     }
