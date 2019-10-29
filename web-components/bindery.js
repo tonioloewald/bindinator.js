@@ -7,6 +7,11 @@ You assign an object to the `<b8r-bindery>`'s `value` and then bind to its
 
 Bindery has no styling and does not use a shadow DOM.
 
+> **Note**: this is simply a toy for showing how you could build something like
+> `b8r` (or **Vue**, say) using web-components if you wanted to. `b8r` doesn't
+> need something like `bindery` since `<b8r-component>` effectively wraps all
+> of b8r's functionality.
+
 For example:
 
 ```
