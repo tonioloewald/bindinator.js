@@ -88,7 +88,12 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       background: 'transparent',
       flexGrow: 0,
       flexShrink: 0,
-      margin: '0 -5px'
+      margin: '0 -5px',
+      opacity: 0.5,
+      color: 'var(--text-color)'
+    },
+    '.tabs > span > span+button:hover': {
+      opacity: 1.0
     },
     '.tabs > .selected': {
       background: 'var(--content-bg-color)',

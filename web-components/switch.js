@@ -27,10 +27,10 @@ import {
 
 const CheckboxSwitch = makeWebComponent('b8r-switch', {
   attributes: {
-    color: '#ccc',
-    onColor: '#0f0',
+    color: 'var(--faded-bg-color)',
+    onColor: 'var(--accent-color)',
     transition: '0.125s ease-out',
-    thumbColor: '#eee',
+    thumbColor: 'var(--text-color)',
     width: '36px',
     height: '16px',
     thumbSize: '24px',
