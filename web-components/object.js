@@ -8,12 +8,12 @@ It provides a straightforward value (instead of having to worry about `checked`)
 ```
 <style>
   ._component_ label > span {
-    color: blue;
+    color: var(--dark-accent-color);
   }
   b8r-scalar {
     display: block;
     padding: 2px 5px;
-    border-bottom: 1px solid blue;
+    border-bottom: 1px solid var(--bright-accent-color);
   }
   b8r-object {
     display: block;
