@@ -158,7 +158,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     touch // refresh the component
   }) => {
     component.setAttribute('tabindex', 0)
-    const { value } = data
+    const { value } = get()
     const c = parse(value || 'red')
     const { h, s, v, a } = c.hsv()
     set({

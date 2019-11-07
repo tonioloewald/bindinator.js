@@ -146,10 +146,10 @@ Documentation in markdown format.
 </script>
 ```
 
-or it can be defined in javascript using:
+or it can be defined in javascript using a different syntax:
 
 ```
-const componentName = makeComponentNoEval('component-name', {
+const componentName = makeComponent('component-name', {
   css: '._component_ > div { color: yellow }',
   html: '<div>this text will be yellow</div>',
   load: async ({
@@ -157,7 +157,6 @@ const componentName = makeComponentNoEval('component-name', {
     b8r,       // it's b8r!
     find,      // b8r.findWithin(component, ...)
     findOne,   // b8r.findOneWithin(component, ...)
-    data,      // the component's private data object
     register,  // replace the component's private data object
     get,       // get (within the component's private data)
     set,       // set (within the component's private data)
@@ -166,6 +165,9 @@ const componentName = makeComponentNoEval('component-name', {
   }) => {
     // your javascript goes here
   },
+  initialValue: {}, // initial value for each component instance,
+  // type: { ... }, // component type (by example)
+  // instanceType: { ... }, // instance type (by example)
 })
 ```
 
@@ -179,18 +181,27 @@ You can use a component by `path` (which automatically loads the component if ne
 by `name` if a component is already (or will be) loaded (e.g. via `b8r.component`, as per below, 
 or by another `<b8r-component>`)
 
-E.g.
+E.g. for the new version 2 "pure javascript" components:
+
+```
+<b8r-component path="path/to/some-v2-component.js"></b8r-component>
+```
+
+Here's the [color-picker](#source=components/color-picker.js) component loaded inline using the preceding method:
+
+<b8r-component path="../components/color-picker.js"></b8r-component>
+
+Or for the older `.component.html` components:
 
 ```
 <b8r-component path="path/to/some-component"></b8r-component>
 ```
 
-Or
+Or, if you want to insert a component by name (assuming you've loaded or defined it elsewhere,
+e.g. via `b8r.component('path/to/some-component')`):
 
 ```
 <b8r-component name="some-component"></b8r-component>
-...
-b8r.component('path/to/some-component')
 ```
 
 ### loading components with b8r.component

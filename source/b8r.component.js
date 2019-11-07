@@ -39,7 +39,7 @@ data to the component).
 
     b8r.removeComponent(elt); // removes the component's class and instance and empties the element
 
-If elt has a component in it (i.e. has the attribute data-component-id) removes the
+If elt has a component in it (i.e. has the attribute `data-component-id`) removes the
 element's contents, removes the component-id, and removes any class that ends with '-component'.
 Note that `removeComponent` does not preserve children!
 
@@ -49,14 +49,18 @@ Instead of writing `something.component.html` and loading it using `b8r.componen
 you can make component's programmatically (i.e. using Javascript) and simply `import()`
 the file to load the component.
 
-### Making a Component with Javascript
+### Version 2 Components
+
+Version 2 components are pure Javascript and support type-checking. (The latter is
+work in progress.) They also do not provide you with `data` as a `load` parameter
+(use `get()` instead if you must).
 
 The best way to create components programmatically (and, arguably, the best way to
-create components period) is using makeComponentNoEval. (It's called that because it
-does not use `eval` to construct the component's `load` method. `eval` is widely
-considered a **Bad Thing** and it makes linters say mean things.)
+create components period) is using the new `makeComponent(name, specObject)` syntax.
+Unlike the old method, the new version doesn't use `eval` and lints without needing
+global declarations.
 
-    export default const componentName = makeComponentNoEval('component-name', {
+    export default const componentName = makeComponent('component-name', {
       css: '._component_ > div { color: yellow }',
       html: '<div>this text will be yellow</div>',
       load: async ({
@@ -64,7 +68,6 @@ considered a **Bad Thing** and it makes linters say mean things.)
         b8r,       // it's b8r!
         find,      // b8r.findWithin(component, ...)
         findOne,   // b8r.findOneWithin(component, ...)
-        data,      // the component's private data object
         register,  // replace the component's private data object
         get,       // get (within the component's private data)
         set,       // set (within the component's private data)
@@ -73,7 +76,38 @@ considered a **Bad Thing** and it makes linters say mean things.)
       }) => {
         // your javascript goes here
       },
+      initialValue: {...}, 
+                   // specify the component's initial value
+      type: {...}, // specify the component's type
+      instanceType: {...},
+                   // specify the component's instance type
     })
+
+All of these properties are optional. `type` and `instanceType` are [by example](#source=source/b8r.byExample.js).
+
+```
+<b8r-component name="typed"></b8r-component>
+<script>
+  b8r.makeComponent('typed', {
+    html: `
+      <p data-bind="text=_component_.caption"></p>
+      <button data-event="click:_component_.typeError">Generates Type Error in Console</button>
+      <button data-event="click:_component_.resetCaption">No Type Error</button>
+    `,
+    load({get, set, data}) {
+      console.log(get())
+      set({
+        typeError: () => set('caption', 17),
+        resetCaption: () => set('caption', 'I\'m a string again!')
+      })
+    },
+    initialValue: {
+      caption: 'this is ok',
+    },
+    type: { caption: 'string' }
+  })
+</script>
+```
 
 You only need to destructure the parameters you want to use (to avoid linter complaints
 about unused variables).
@@ -81,7 +115,7 @@ about unused variables).
 ```
 <b8r-component name="no-eval"></b8r-component>
 <script>
-  b8r.makeComponentNoEval('no-eval', {
+  b8r.makeComponent('no-eval', {
     css: '._component_ > span { color: yellow; }',
     html: '<span></span>',
     load: async ({findOne}) => {
@@ -175,6 +209,7 @@ const components = {}
 const componentTimeouts = []
 const componentPromises = {}
 const componentPreloadMap = {}
+const componentTypes = {}
 
 const processComponent = (css, html, name) => {
   const view = create('div')
@@ -190,21 +225,28 @@ const processComponent = (css, html, name) => {
   return { style, view }
 }
 
-const makeComponentNoEval = function (name, { css, html, load }) {
+const makeComponentNoEval = function (name, { css, html, load, initialValue, type, instanceType }) {
   const {
     style,
     view
   } = processComponent(css, html, name)
   const component = {
+    version: 2,
     name,
     style,
     view,
-    path: `inline-${name}`
+    path: `inline-${name}`,
+    initialValue,
+    instanceType,
+  }
+
+  if (type) {
+    componentTypes[name] = type
   }
 
   if (load) {
-    component.load = (component, b8r, find, findOne, data, register, get, set, on, touch) => {
-      load({ component, b8r, find, findOne, data, register, get, set, on, touch })
+    component.load = (component, b8r, find, findOne, _data, register, get, set, on, touch) => {
+      load({ component, b8r, find, findOne, register, get, set, on, touch })
     }
   }
 
@@ -224,6 +266,9 @@ const makeComponentNoEval = function (name, { css, html, load }) {
 }
 
 const makeComponent = (name, source, url, preserveSource) => {
+  if (typeof source === 'object' && url === undefined) {
+    return makeComponentNoEval(name, source);
+  }
   let css = false; let content; let script = false; let parts; let remains
 
   if (!url) url = uuid()
@@ -367,6 +412,7 @@ const component = (name, url, preserveSource = false) => {
 export {
   component,
   components,
+  componentTypes,
   componentTimeouts,
   componentPreloadMap,
   makeComponent,

@@ -323,6 +323,7 @@ import { getByPath, setByPath, deleteByPath } from './b8r.byPath.js'
 import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
 import { playSavedMessages } from './b8r.future.js'
 import { matchType } from './b8r.byExample.js'
+import { componentTypes } from './b8r.component.js'
 
 const registry = {}
 const registeredTypes = {}
@@ -763,8 +764,9 @@ export const offTypeError = () => {
 }
 
 const checkType = (action, name) => {
-  if (!registeredTypes[name] || !registry[name]) return
-  const errors = matchType(registeredTypes[name], registry[name], [], name, true)
+  const referenceType = name.startsWith('c#') ? componentTypes[name.split('#')[1]] : registeredTypes[name]
+  if (!referenceType || !registry[name]) return
+  const errors = matchType(referenceType, registry[name], [], name, true)
   if (errors.length) {
     typeErrorHandler(errors, name)
   }

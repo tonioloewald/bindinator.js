@@ -681,7 +681,12 @@ b8r.insertComponent = async function (component, element, data) {
     element.dataset.path = dataPath
   }
   const register = componentData => b8r.register(componentId, componentData)
-  data = Object.assign({}, data, { dataPath, componentId })
+  data = {
+    ...data,
+    dataPath,
+    ...(component.initialValue ? b8r.deepClone(component.initialValue) : {}),
+    componentId,
+  }
   if (component.load) {
     const get = path => b8r.getByPath(componentId, path)
     const set = (...args) => {

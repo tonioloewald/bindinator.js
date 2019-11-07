@@ -86,10 +86,23 @@ Use parens to indicate exclusive bounds, so '#number [0,1)' indicates a number �
 You can specify just a lower bound or just an upper bound, e.g. '#number (0' specifies a positive
 number.
 
+### #any
+
+You can specify any (non-null, non-undefined) value via '#any'.
+
+### Optional Types
+
+You can denote an optional type using '#?<type>'. Both `null` and `undefined` are acceptable.
+
 > #### More Types and Custom Types
 >
 > This mechanism will likely add new types as the need arises, and similarly may afford a
 > convenient mechanism for defining custom types that require test functions to verify.
+
+### #regex[]
+
+You can specify a regular expression test for a string value by providing the string you'd use 
+to create a `RegExp` instance. E.g. '#regexp \\d+{5,5}' for a simple zipcode type.
 
 ## `describe`
 
@@ -106,11 +119,11 @@ gives the typeof the value passed unless it's an `Array` (in which case it retur
 const {
   matchType,
   describe,
-  exampleAtPath
+  exampleAtPath,
 } = await import('./b8r.byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
-Test(() => matchType(0, 'hello')).shouldBeJSON(['was hello, expected number'])
+Test(() => matchType(0, 'hello')).shouldBeJSON(['was \"hello\", expected number'])
 Test(() => matchType(false, true)).shouldBeJSON([])
 Test(() => matchType(false, null)).shouldBeJSON(["was null, expected boolean"])
 Test(() => matchType('#int', 17)).shouldBeJSON([])
@@ -132,6 +145,12 @@ Test(() => matchType('#number [-∞,0]', 6)).shouldBeJSON(['was 6, expected #num
 Test(() => matchType('#number [-∞,0]', -6)).shouldBeJSON([])
 Test(() => matchType('#number [0,5]', Math.PI)).shouldBeJSON([])
 Test(() => matchType('#number [0,2]', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #number [0,2]`])
+Test(() => matchType('#number', 6.022e+23)).shouldBeJSON([])
+Test(() => matchType('#?number')).shouldBeJSON([])
+Test(() => matchType('#any', {})).shouldBeJSON([])
+Test(() => matchType('#?any', null)).shouldBeJSON([])
+Test(() => matchType('#any', null)).shouldBeJSON(['was null, expected #any'])
+Test(() => matchType('#any')).shouldBeJSON(['was undefined, expected #any'])
 Test(() => matchType('#int', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #int`])
 Test(() => matchType('#enum false|null|17|"hello"', null)).shouldBeJSON([])
 Test(() => matchType('#enum false|null|17|"hello"', 17)).shouldBeJSON([])
@@ -157,13 +176,13 @@ Test(() => matchType([], [1]))
 Test(() => matchType(['hello'], ['world']))
   .shouldBeJSON([])
 Test(() => matchType([false], ['world']))
-  .shouldBeJSON(["[0] was world, expected boolean"])
+  .shouldBeJSON(["[0] was \"world\", expected boolean"])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0, x: 17}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0}]))
   .shouldBeJSON(["[0].x was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}], [{x: 'world'}]))
-  .shouldBeJSON(["[0].x was world, expected number", "[0].y was undefined, expected number"])
+  .shouldBeJSON(["[0].x was \"world\", expected number", "[0].y was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: 'baz'}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: false}]))
@@ -173,7 +192,23 @@ const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
 Test(() => matchType(requestType, 'post'))
   .shouldBeJSON([])
 Test(() => matchType(requestType, 'save'))
-  .shouldBeJSON(['was save, expected #enum "get"|"post"|"put"|"delete"|"head"'])
+  .shouldBeJSON(['was \"save\", expected #enum "get"|"post"|"put"|"delete"|"head"'])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345'),
+  'zipcode type'  
+).shouldBeJSON([])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345-6789'),
+  'zipcode type'  
+).shouldBeJSON([])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '2350'),
+  'australian postcodes are not zipcodes'  
+).shouldBeJSON(['was "2350", expected #regexp ^\\d{5,5}(-\\d{4,4})?$'])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345-679'),
+  'extended zipcodes have a 4-digit extension'  
+).shouldBeJSON(['was "12345-679", expected #regexp ^\\d{5,5}(-\\d{4,4})?$'])
 
 Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
 Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
@@ -212,6 +247,7 @@ const parseFloatOrInfinity = x => {
 
 const inRange = (spec, x) => {
   let lower, upper
+  if (spec === undefined) return true
   try {
     [, lower, upper] = (spec || '').match(/^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/)
   } catch (e) {
@@ -236,10 +272,24 @@ const inRange = (spec, x) => {
   return true
 }
 
+const regExps = {}
+
+const regexpTest = (spec, subject) => {
+  const regexp = regExps[spec] ? regExps[spec] : regExps[spec] = new RegExp(spec)
+  return regexp.test(subject)
+}
+
 export const specificTypeMatch = (type, subject) => {
-  const [, baseType, , spec] = type.match(/^#([^\s]+)(\s(.*))?$/) || []
+  const [, optional, baseType, , spec] = type.match(/^#([?]?)([^\s]+)(\s(.*))?$/) || []
+  if (optional && (subject === null || subject === undefined)) return true
   const subjectType = describe(subject)
   switch (baseType) {
+    case 'any':
+      return subject !== null && subject !== undefined
+    case 'function':
+      if (subjectType !== 'function') return false
+      // todo allow for typeSafe functions with param/result specified by name
+      return true
     case 'number':
       if (subjectType !== 'number') return false
       return inRange(spec, subject)
@@ -252,8 +302,14 @@ export const specificTypeMatch = (type, subject) => {
       } catch (e) {
         throw new Error(`bad enum specification (${spec}), expect JSON strings`)
       }
+    case 'regexp':
+      return subjectType === 'string' && regexpTest(spec, subject)
     default:
-      throw new Error(`unrecognized type specifier ${type}`)
+      if (subjectType !== baseType) {
+        throw new Error(`unrecognized type specifier ${type}`)
+      } else {
+        return true
+      }
   }
 }
 
@@ -276,6 +332,8 @@ export const describeType = (x) => {
 export const typeJSON = (x) => JSON.stringify(describeType(x))
 export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
 
+const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : x
+
 export const matchType = (example, subject, errors = [], path = '') => {
   const exampleType = describe(example)
   const subjectType = describe(subject)
@@ -283,7 +341,7 @@ export const matchType = (example, subject, errors = [], path = '') => {
     ? specificTypeMatch(exampleType, subject)
     : exampleType === subjectType
   if (!typesMatch) {
-    errors.push(`${path ? path + ' ' : ''}was ${subject}, expected ${exampleType}`)
+    errors.push(`${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`)
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
     const count = subject.length
@@ -339,3 +397,124 @@ const matchKeys = (example, subject, errors = [], path = '') => {
   }
   return errors
 }
+
+/**
+## Strongly Typed Functions
+
+To create a function that is type-checked you can use `typeSafe`:
+
+    import {typeSafe} from 'path/to/b8r.js'
+    const safeFunc = typeSafe(func, paramTypes, resultType)
+
+- `func` is the function you're trying to type-check.
+- `paramTypes` is an array of types.
+- `resultType` is the type the function is expected to return (it's optional).
+
+For example:
+
+    const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+
+A typesafe function that is passed an incorrect set of parameters, whose original
+function returns an incorrect set of paramters will return an instance of `TypeError`.
+
+`TypeError` is a simple class to wrap the information associated with a type-check failure.
+Its instances four properties: `isParamFailure` is true if the failure was in the inputs
+to a function, `expected` is what was expected, `found` is what was found, and `errors` is
+the array of type errors. They also have one method, `toString()`.
+
+A typesafe function that is one or more `TypeError` instances in its parameters will return
+the first one without calling the wrapped function. (The goal is for typeSafe functions to 
+behave like monads, so you can combine them however you like and know that errors will
+short-circuit further execution.)
+
+~~~~
+const {
+  matchParamTypes,
+  typeSafe,
+} = await import('./b8r.byExample.js');
+
+Test(() => matchParamTypes([1,2,3], [1,2,3])).shouldBeJSON([])
+Test(() => matchParamTypes([1,'a',{}], [0,'b',{}])).shouldBeJSON([])
+Test(() => matchParamTypes([1,'a'], [0,'b',{}]), 'extra parameters are ok').shouldBeJSON([])
+
+const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+Test(() => safeAdd(1,2), 'typesafe function works when used correctly').shouldBe(3)
+Test(() => safeAdd(1).toString()).shouldBeJSON('bad parameter, [[],["was undefined, expected number"]]')
+
+const badAdd = typeSafe((a, b) => `${a + b}`, [1, 2], 3)
+Test(() => badAdd(1,2).toString(), 'typesafe function fails with wrong return type')
+  .shouldBeJSON('bad result, ["was \\"3\\", expected number"]')
+
+const safeVectorAdd = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3])
+Test(() => safeVectorAdd([1,2],[3,4])).shouldBeJSON([4,6])
+Test(() => safeVectorAdd([1,2],[3,'x']).toString()).shouldBeJSON('bad parameter, [[],["[1] was \\"x\\", expected number"]]')
+Test(() => safeVectorAdd([1,2],[3]).toString()).shouldBeJSON('bad result, ["[1] was NaN, expected number"]')
+~~~~
+ */
+
+export class TypeError {
+  constructor ({
+    isParamFailure,
+    expected,
+    found,
+    errors,
+  }) {
+    Object.assign(this, {
+      isParamFailure,
+      expected,
+      found,
+      errors,
+    })
+  }
+
+  toString () {
+    const {
+      isParamFailure,
+      errors
+    } = this
+    return `bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
+  }
+}
+
+export const matchParamTypes = (types, params) => {
+  for(let i = 0; i < params.length; i++) {
+    if (params[i] instanceof TypeError) {
+      return params[i]
+    }
+  }
+  const errors = types.map((type, i) => matchType(type, params[i]))
+  return errors.flat().length ? errors : []
+}
+
+const _typeSafe = (func, paramTypes, resultType) => {
+  const typeSafeFunc = function(...params) {
+    const paramErrors = matchParamTypes(paramTypes, params)
+    if (paramErrors.length === 0) {
+      const result = func(...params);
+      const resultErrors = matchType(resultType, result)
+      if (resultErrors.length === 0) {
+        return result;
+      } else {
+        return new TypeError({
+          isParamFailure: false,
+          expected: resultType,
+          found: result,
+          errors: resultErrors
+        })
+      }
+    }
+    return new TypeError({
+      isParamFailure: true,
+      expected: paramTypes,
+      found: params,
+      errors: paramErrors
+    })
+  }
+  Object.assign(typeSafeFunc, {
+    paramTypes,
+    resultType
+  })
+  return typeSafeFunc
+}
+
+export const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function')

@@ -19,6 +19,10 @@ Just like `Array.prototype.forEach` except you can interrupt it by returning `fa
 
 Exactly like forEach except it iterates on the object's keys.
 
+    deepClone(anything)
+
+If `anything` is an object, returns a deepClone, otherwise it returns `anything`.
+
     mapKeys(object, (value, key) => {... return ...}) // => [map]
 
 Just like map, except it creates an array from an object (using its keys).
@@ -135,6 +139,17 @@ const forEachKey = (object, method) => {
   for (const key of keys) if (method(object[key], key) === false) break
 }
 
+const deepClone = object => {
+  if (typeof object !== 'object' || object === null) {
+    return object
+  }
+  const clone = {}
+  forEachKey(object, (value, key) => {
+    clone[key] = deepClone(value)
+  })
+  return clone
+}
+
 const mapKeys = (object, method) => {
   const keys = Object.keys(object)
   const map = []
@@ -203,6 +218,7 @@ export {
   last,
   forEach,
   forEachKey,
+  deepClone,
   mapKeys,
   mapEachKey,
   findKey,
