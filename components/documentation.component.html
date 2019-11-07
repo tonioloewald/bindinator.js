@@ -222,7 +222,10 @@
     data-placeholder="search docs"
     path="./components/search-field"
     data-bind="value=_component_.searchFilter"
-    data-event="input,change:_component_.filterDocs"
+    data-event="
+      focus:_component_.buildIndex
+      input,change:_component_.filterDocs
+    "
   ></b8r-component>
   <details
     data-list="_component_.docs:title"
@@ -251,31 +254,6 @@
 
   var content = findOne('.content');
   const nav = findOne('.nav');
-  set({
-    year: new Date().getFullYear(),
-    searchFilter: '',
-    filterDocs: b8r.debounce(() => {
-      const docs = get('docs')
-      const searchField = get('searchFilter').toLocaleLowerCase()
-      const isFiltered = !!searchField
-      docs.forEach(section => {
-        section._hide = isFiltered
-        section.parts.forEach(part => {
-          part._hide = isFiltered 
-            && !part.name.toLocaleLowerCase().includes(searchField)
-            && !(part.keywords || []).find(h => h.includes(searchField))
-          if (!part._hide) section._hide = false
-        })
-        section._open = isFiltered ? !section._hide : section.parts.find(part => part._current)
-      })
-      set({docs})
-    }),
-    toggle (evt, details) {
-      const {title} = b8r.getListInstance(details);
-      get('docs').forEach(doc => doc._open = doc.title === title ? !doc._open : false)
-      touch('docs')
-    }
-  });
 
   function markCurrent() {
     b8r.afterUpdate(() => {
@@ -335,9 +313,10 @@
   }
 
   async function buildIndex() {
+    set('buildIndex', () => {})
     const items = get('docs').map(doc => doc.parts).flat()
     const start = Date.now()
-    items.forEach(async (item) => {
+    await Promise.all(items.map(async (item) => {
       const {path} = item;
 
       if (path.endsWith('.js')) {
@@ -356,7 +335,8 @@
         const headings = (source.match(/^#{1,3}\s*[^\n]+/mg) || [])
         Object.assign(item, {headings, keywords: headings.map(w => w.toLocaleLowerCase())})
       }
-    })
+    }))
+    console.log('Index built', Date.now() - start)
   }
 
   b8r.json(component.dataset.sourceFiles || 'documentation.json')
@@ -368,8 +348,10 @@
         });
         set({docs});
         update();
-        buildIndex();
-        docs.forEach(section => section.parts.forEach((part, idx) => runTests(section.title, idx)))
+        // buildIndex();
+        if (location.hostname === 'localhost') {
+          docs.forEach(section => section.parts.forEach((part, idx) => runTests(section.title, idx)))
+        }
       });
 
   var last_component_path;
@@ -396,8 +378,32 @@
   window.addEventListener('hashchange', update);
 
   set({
+    year: new Date().getFullYear(),
+    searchFilter: '',
+    filterDocs: b8r.debounce(() => {
+      const docs = get('docs')
+      const searchField = get('searchFilter').toLocaleLowerCase()
+      const isFiltered = !!searchField
+      docs.forEach(section => {
+        section._hide = isFiltered
+        section.parts.forEach(part => {
+          part._hide = isFiltered 
+            && !part.name.toLocaleLowerCase().includes(searchField)
+            && !(part.keywords || []).find(h => h.includes(searchField))
+          if (!part._hide) section._hide = false
+        })
+        section._open = isFiltered ? !section._hide : section.parts.find(part => part._current)
+      })
+      set({docs})
+    }),
+    buildIndex,
+    toggle (evt, details) {
+      const {title} = b8r.getListInstance(details);
+      get('docs').forEach(doc => doc._open = doc.title === title ? !doc._open : false)
+      touch('docs')
+    },
     destroy() {
       window.removeEventListener('hashchange', update);
     },
-  })
+  });
 </script>
