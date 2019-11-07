@@ -136,7 +136,22 @@ you want the component's source code kept for debugging purposes.
 `makeComponent` is used internally by component to create components, and by the documentation
 system to create components interactively. In general you won't need to use this method at all.
 
-## Singleton Components
+## `b8r.insertComponent`
+
+You can programmatically insert a component instance thus:
+
+    b8r.insertComponent(component, target, data)
+
+`component` can be a component name or a loaded component definition, while target is
+the element you want to insert the element into, and `data` is the initial value of
+the component. Only the first argument is required.
+
+If `target` is not provided, a new element is appended to document.body and the
+component is inserted into it.
+
+## `b8r.componentOnce`
+
+If you want to make sure there's exactly one instance of a component:
 
     b8r.componentOnce(url [,name]);
 
@@ -146,6 +161,30 @@ in the DOM it creates one. It replaces the pattern:
     b8r.component(url).then(c => b8r.insertComponent(c));
 
 And doesn't run the risk of leaking multiple instances of components into the DOM.
+
+## Composing Components
+
+By default, a component replaces the content of the element it is inserted into.
+If a component has an element with the `data-children` attribute then this element
+will contain the children of the original element.
+
+```
+<b8r-component name="translucent-parent">
+  <h2>Hello</h2>
+  <b8r-component name="translucent-parent">
+    world
+  </b8r-component>
+</b8r-component>
+<script>
+    b8r.makeComponent('translucent-parent', {
+      css: `._component_ {
+        display: block;
+        background: rgba(255,0,0,0.1);
+      }`,
+      html: `<div data-children></div>`
+    })
+</script>
+```
 
 ## Container Components
 
@@ -194,8 +233,8 @@ If you want to force a cleanup, you can call:
 
     b8r.cleanupComponentInstances();
 
-If a component has a property named `destroy` (and it's a method) it will
-be called just before the instance is removed from the registry.
+If a component has a method named `destroy` it will be called just before the instance 
+is removed from the registry.
 */
 
 import { asyncUpdate } from './b8r.update.js'

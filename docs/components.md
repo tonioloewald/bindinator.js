@@ -1,17 +1,18 @@
 # components
 
-## Structure
+## Javascript Components
 
-### Javascript
-
-You can implement a component in javascript as well. 
+You can implement components in javascript. Javascript components are
+recommended over HTML because they are better for static analysis, allow
+you to set up stuff (e.g. controllers) before the first component is 
+instanced, and support type-checking.
 
 Moving forward, this is the preferred method for implementing 
 components.
 
-Using makeComponentNoEval allows you to define and register controllers
+Using `makeComponent` directly allows you to define and register controllers
 before a single instance of the component is inserted in the DOM, 
-and leverage all the  javascript-centric tooling (linters, 
+and leverage all the javascript-centric tooling (linters, 
 transpilers, etc.). You can also easily define multiple components 
 in a single file.
 
@@ -21,7 +22,10 @@ in a single file.
 
 documentation in markdown
 */
-const componentName = makeComponentNoEval('component-name', {
+
+// setup code here (e.g. load sub-components, register controllers)
+
+const componentName = b8r.makeComponent('component-name', {
   css: `
     ._component_ > div { color: yellow }
   `,
@@ -31,24 +35,30 @@ const componentName = makeComponentNoEval('component-name', {
     </div>
   `,
   load: async ({
-    component, // this is the element that the component is inserted into
-    b8r,       // it's b8r!
-    find,      // b8r.findWithin(component, ...)
-    findOne,   // b8r.findOneWithin(component, ...)
-    data,      // the component's private data object
-    register,  // replace the component's private data object
-    get,       // get (within the component's private data)
-    set,       // set (within the component's private data)
-    on,        // b8r.on(component, ...)
-    touch      // refresh the component
+    // only destructure the items you need
+    component,           // this is the element that the component is inserted into
+    b8r,                 // it's b8r!
+    find,                // b8r.findWithin(component, ...)
+    findOne,             // b8r.findOneWithin(component, ...) 
+    register,            // replace the component's private data object
+    get,                 // get (within the component's private data)
+    set,                 // set (within the component's private data)
+    on,                  // b8r.on(component, ...)
+    touch                // refresh the component
   }) => {
     // your javascript goes here
   },
+  initialValue: { ... }, // initial value
+  type: { ... },         // component type,
+  instanceType: { ... }, // instance type,
 })
 ```
 
-### HTML
-A component is, in essence, a reusable self-contained snippet of HTML. It comprises
+Each of the properties of the component specification object are optional.
+
+## HTML Components
+
+HTML components are, in essence, reusable self-contained snippets of HTML. Each comprises
 documentation, CSS (in a `<style>` tag), markup, and the body of the
 component's async `load()` method (inside a `<script>` tag).
 
@@ -75,6 +85,30 @@ write a javascript module?).
 
 A component is saved as a single text file using the naming convention 
 `component-name.component.html`.
+
+## Inserting Components
+
+You can insert components into the DOM by using the `<b8r-component>` custom
+element. E.g. for a javascript component named 'thing' and defined in `thing.js`:
+
+    <b8r-component path="path/to/thing.js"></b8r-component>
+
+For a javascript component named 'foo' and defined in 'bar.js':
+
+    <b8r-component name="foo" path="path/to/bar.js"></b8r-component>
+
+For an html component defined in `thang.component.html`:
+
+    <b8r-component path="path/to/thang"></b8r-component>
+
+For a component named 'baz' defined or loaded elsewhere:
+
+    <b8r-component name="baz"></b8r-component>
+
+Note that `b8r` still supports the use of the `data-component="foobar"` attribute 
+but it is deprecated. (It's equivalent to `<bar-component name="foobar">`)
+
+You can insert components programmatically using `b8r.insertComponent` and `b8r.componentOnce`.
 
 ## Life Cycle
 

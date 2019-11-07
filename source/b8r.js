@@ -726,7 +726,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       const { path, name } = this
       if (path) {
         if (path.endsWith('.js')) {
-          import(path).then(() => {})
+          import(path)
         } else {
           b8r.component(path)
         }
