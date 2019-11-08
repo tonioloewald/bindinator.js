@@ -166,11 +166,10 @@ with:
     </span>
 
 ```
-<span data-bind=
-  "
-    text=${_component_.firstName}
-    ${_component_.lastName}
-  "
+<span data-bind="
+  text=${_component_.firstName}
+  ${_component_.lastName}
+"
 >
   First Last
 </span>
@@ -339,7 +338,7 @@ const parseBinding = binding => {
 
 splitPaths is used to prise apart data-paths in bindings.
 ~~~~
-const {splitPaths} = await import('../source/b8r.bindings.js');
+const {splitPaths, getBindings} = await import('../source/b8r.bindings.js');
 
 Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
 Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
@@ -349,6 +348,18 @@ Test(() => splitPaths('path.to.value,path.to[id=17].value,path.to.method(path.to
   shouldBeJSON(["path.to.value", "path.to[id=17].value", "path.to.method(path.to.value,path[11].to.value)"]);
 Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.value,path.to[id=17].value')).
   shouldBeJSON(["path.to.method(path.to.value,path[11].to.value)", "path.to.value", "path.to[id=17].value"]);
+const div = document.createElement('div')
+div.dataset.bind = `
+  text=$\{_component_.firstName}
+       $\{_component_.lastName}
+  class_map(
+    happy:happy-class
+    |sad:sad-class
+    |indifferent-class
+  )=_component_.emotion
+  show_if=_component_.visible
+`
+Test(() => getBindings(div).length).shouldBe(3)
 ~~~~
 */
 const splitPaths = paths => paths.match(/(([^,(]+\([^)]+\))|([^,()]+))/g)
@@ -359,7 +370,9 @@ const findLists = element => findWithin(element, '[data-list]', true)
 
 const getBindings = element => {
   try {
-    return element.dataset.bind.split(/[;\n]/)
+    return element.dataset.bind
+      .replace(/\n\s*(\w+)(\([^)]*\))?=/g, ';$1$2=')
+      .split(';')
       .filter(s => !!s.trim())
       .map(parseBinding)
   } catch (e) {
