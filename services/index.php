@@ -11,11 +11,13 @@ function cachedFile($url, $max_age_seconds = 3600) {
     mkdir( 'cache');
   }
   $cache_file = 'cache/' . end(explode('/', $url));
-  if (file_exists($cache_file) && (filemtime($cache_file) > (time() - $max_age_seconds ))) {
-     $file = file_get_contents($cache_file);
+  $timestamp = filemtime($cache_file);
+  if (file_exists($cache_file) && ($timestamp > (time() - $max_age_seconds ))) {
+    header('Data-Cached-At: ' . date('c', $timestamp));
+    $file = file_get_contents($cache_file);
   } else {
-     $file = file_get_contents($url);
-     file_put_contents($cache_file, $file, LOCK_EX);
+    $file = file_get_contents($url);
+    file_put_contents($cache_file, $file, LOCK_EX);
   }
   return $file;
 }
