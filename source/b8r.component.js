@@ -76,7 +76,7 @@ global declarations.
       }) => {
         // your javascript goes here
       },
-      initialValue: {...}, 
+      initialValue: {...},
                    // specify the component's initial value
       type: {...}, // specify the component's type
       instanceType: {...},
@@ -233,7 +233,7 @@ If you want to force a cleanup, you can call:
 
     b8r.cleanupComponentInstances();
 
-If a component has a method named `destroy` it will be called just before the instance 
+If a component has a method named `destroy` it will be called just before the instance
 is removed from the registry.
 */
 
@@ -276,7 +276,7 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
     view,
     path: `inline-${name}`,
     initialValue,
-    instanceType,
+    instanceType
   }
 
   if (type) {
@@ -306,7 +306,7 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
 
 const makeComponent = (name, source, url, preserveSource) => {
   if (typeof source === 'object' && url === undefined) {
-    return makeComponentNoEval(name, source);
+    return makeComponentNoEval(name, source)
   }
   let css = false; let content; let script = false; let parts; let remains
 

@@ -409,6 +409,10 @@ Just like `Array.prototype.forEach` except you can interrupt it by returning `fa
 
 Exactly like forEach except it iterates on the object's keys.
 
+    deepClone(anything)
+
+If `anything` is an object, returns a deepClone, otherwise it returns `anything`.
+
     mapKeys(object, (value, key) => {... return ...}) // => [map]
 
 Just like map, except it creates an array from an object (using its keys).
@@ -525,6 +529,17 @@ const forEachKey = (object, method) => {
   for (const key of keys) if (method(object[key], key) === false) break
 };
 
+const deepClone = object => {
+  if (typeof object !== 'object' || object === null) {
+    return object
+  }
+  const clone = {};
+  forEachKey(object, (value, key) => {
+    clone[key] = deepClone(value);
+  });
+  return clone
+};
+
 const mapKeys = (object, method) => {
   const keys = Object.keys(object);
   const map = [];
@@ -593,6 +608,7 @@ var _iterators = /*#__PURE__*/Object.freeze({
   last: last,
   forEach: forEach,
   forEachKey: forEachKey,
+  deepClone: deepClone,
   mapKeys: mapKeys,
   mapEachKey: mapEachKey,
   findKey: findKey,
@@ -1329,11 +1345,10 @@ with:
     </span>
 
 ```
-<span data-bind=
-  "
-    text=${_component_.firstName}
-    ${_component_.lastName}
-  "
+<span data-bind="
+  text=${_component_.firstName}
+  ${_component_.lastName}
+"
 >
   First Last
 </span>
@@ -1498,19 +1513,35 @@ const parseBinding = binding => {
 
 splitPaths is used to prise apart data-paths in bindings.
 ~~~~
-const {splitPaths} = await import('../source/b8r.bindings.js');
+const {splitPaths, getBindings} = await import('../source/b8r.bindings.js');
 
 Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
 Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
 Test(() => splitPaths('foo.bar,foo[path.to.id=this is not a test],path.to.method(foo.bar[id=17])')).
   shouldBeJSON(["foo.bar", "foo[path.to.id=this is not a test]", "path.to.method(foo.bar[id=17])"]);
+Test(() => splitPaths('foo.bar,foo[path.to.id=this is, not a test],path.to.method(foo.bar[id=17])')).
+  shouldBeJSON(["foo.bar", "foo[path.to.id=this is, not a test]", "path.to.method(foo.bar[id=17])"]);
 Test(() => splitPaths('path.to.value,path.to[id=17].value,path.to.method(path.to.value,path[11].to.value)')).
   shouldBeJSON(["path.to.value", "path.to[id=17].value", "path.to.method(path.to.value,path[11].to.value)"]);
 Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.value,path.to[id=17].value')).
   shouldBeJSON(["path.to.method(path.to.value,path[11].to.value)", "path.to.value", "path.to[id=17].value"]);
+
+const div = document.createElement('div')
+div.dataset.bind = `
+  text=$\{_component_.firstName}
+       $\{_component_.lastName}
+  class_map(
+    happy:happy-class
+    |sad:sad-class
+    |indifferent-class
+  )=_component_.emotion
+  show_if=_component_.visible
+`
+Test(() => getBindings(div).length).shouldBe(3)
 ~~~~
 */
-const splitPaths = paths => paths.match(/(([^,(]+\([^)]+\))|([^,()]+))/g);
+
+const splitPaths = paths => paths.match(/(([^,([]+\.?)|(\[[^\]]+\]\.?)|\([^)]+\))+/g);
 
 const findBindables = element => findWithin(element, '[data-bind]', true);
 
@@ -1518,7 +1549,9 @@ const findLists = element => findWithin(element, '[data-list]', true);
 
 const getBindings = element => {
   try {
-    return element.dataset.bind.split(/[;\n]/)
+    return element.dataset.bind
+      .replace(/\n\s*(\w+)(\([^)]*\))?=/g, ';$1$2=')
+      .split(';')
       .filter(s => !!s.trim())
       .map(parseBinding)
   } catch (e) {
@@ -1702,10 +1735,23 @@ Use parens to indicate exclusive bounds, so '#number [0,1)' indicates a number �
 You can specify just a lower bound or just an upper bound, e.g. '#number (0' specifies a positive
 number.
 
+### #any
+
+You can specify any (non-null, non-undefined) value via '#any'.
+
+### Optional Types
+
+You can denote an optional type using '#?<type>'. Both `null` and `undefined` are acceptable.
+
 > #### More Types and Custom Types
 >
 > This mechanism will likely add new types as the need arises, and similarly may afford a
 > convenient mechanism for defining custom types that require test functions to verify.
+
+### #regex[]
+
+You can specify a regular expression test for a string value by providing the string you'd use
+to create a `RegExp` instance. E.g. '#regexp \\d+{5,5}' for a simple zipcode type.
 
 ## `describe`
 
@@ -1722,11 +1768,11 @@ gives the typeof the value passed unless it's an `Array` (in which case it retur
 const {
   matchType,
   describe,
-  exampleAtPath
+  exampleAtPath,
 } = await import('./b8r.byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
-Test(() => matchType(0, 'hello')).shouldBeJSON(['was hello, expected number'])
+Test(() => matchType(0, 'hello')).shouldBeJSON(['was \"hello\", expected number'])
 Test(() => matchType(false, true)).shouldBeJSON([])
 Test(() => matchType(false, null)).shouldBeJSON(["was null, expected boolean"])
 Test(() => matchType('#int', 17)).shouldBeJSON([])
@@ -1748,6 +1794,12 @@ Test(() => matchType('#number [-∞,0]', 6)).shouldBeJSON(['was 6, expected #num
 Test(() => matchType('#number [-∞,0]', -6)).shouldBeJSON([])
 Test(() => matchType('#number [0,5]', Math.PI)).shouldBeJSON([])
 Test(() => matchType('#number [0,2]', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #number [0,2]`])
+Test(() => matchType('#number', 6.022e+23)).shouldBeJSON([])
+Test(() => matchType('#?number')).shouldBeJSON([])
+Test(() => matchType('#any', {})).shouldBeJSON([])
+Test(() => matchType('#?any', null)).shouldBeJSON([])
+Test(() => matchType('#any', null)).shouldBeJSON(['was null, expected #any'])
+Test(() => matchType('#any')).shouldBeJSON(['was undefined, expected #any'])
 Test(() => matchType('#int', Math.PI)).shouldBeJSON([`was ${Math.PI}, expected #int`])
 Test(() => matchType('#enum false|null|17|"hello"', null)).shouldBeJSON([])
 Test(() => matchType('#enum false|null|17|"hello"', 17)).shouldBeJSON([])
@@ -1773,13 +1825,13 @@ Test(() => matchType([], [1]))
 Test(() => matchType(['hello'], ['world']))
   .shouldBeJSON([])
 Test(() => matchType([false], ['world']))
-  .shouldBeJSON(["[0] was world, expected boolean"])
+  .shouldBeJSON(["[0] was \"world\", expected boolean"])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0, x: 17}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}], [{y: 0}]))
   .shouldBeJSON(["[0].x was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}], [{x: 'world'}]))
-  .shouldBeJSON(["[0].x was world, expected number", "[0].y was undefined, expected number"])
+  .shouldBeJSON(["[0].x was \"world\", expected number", "[0].y was undefined, expected number"])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: 'baz'}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: false}]))
@@ -1789,7 +1841,23 @@ const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
 Test(() => matchType(requestType, 'post'))
   .shouldBeJSON([])
 Test(() => matchType(requestType, 'save'))
-  .shouldBeJSON(['was save, expected #enum "get"|"post"|"put"|"delete"|"head"'])
+  .shouldBeJSON(['was \"save\", expected #enum "get"|"post"|"put"|"delete"|"head"'])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345'),
+  'zipcode type'
+).shouldBeJSON([])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345-6789'),
+  'zipcode type'
+).shouldBeJSON([])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '2350'),
+  'australian postcodes are not zipcodes'
+).shouldBeJSON(['was "2350", expected #regexp ^\\d{5,5}(-\\d{4,4})?$'])
+Test(
+  () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345-679'),
+  'extended zipcodes have a 4-digit extension'
+).shouldBeJSON(['was "12345-679", expected #regexp ^\\d{5,5}(-\\d{4,4})?$'])
 
 Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
 Test(() => exampleAtPath({bar: 'hello'}, 'foo')).shouldBe(undefined)
@@ -1828,6 +1896,7 @@ const parseFloatOrInfinity = x => {
 
 const inRange = (spec, x) => {
   let lower, upper;
+  if (spec === undefined) return true
   try {
     [, lower, upper] = (spec || '').match(/^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/);
   } catch (e) {
@@ -1852,10 +1921,24 @@ const inRange = (spec, x) => {
   return true
 };
 
+const regExps = {};
+
+const regexpTest = (spec, subject) => {
+  const regexp = regExps[spec] ? regExps[spec] : regExps[spec] = new RegExp(spec);
+  return regexp.test(subject)
+};
+
 const specificTypeMatch = (type, subject) => {
-  const [, baseType, , spec] = type.match(/^#([^\s]+)(\s(.*))?$/) || [];
+  const [, optional, baseType, , spec] = type.match(/^#([?]?)([^\s]+)(\s(.*))?$/) || [];
+  if (optional && (subject === null || subject === undefined)) return true
   const subjectType = describe(subject);
   switch (baseType) {
+    case 'any':
+      return subject !== null && subject !== undefined
+    case 'function':
+      if (subjectType !== 'function') return false
+      // todo allow for typeSafe functions with param/result specified by name
+      return true
     case 'number':
       if (subjectType !== 'number') return false
       return inRange(spec, subject)
@@ -1868,8 +1951,14 @@ const specificTypeMatch = (type, subject) => {
       } catch (e) {
         throw new Error(`bad enum specification (${spec}), expect JSON strings`)
       }
+    case 'regexp':
+      return subjectType === 'string' && regexpTest(spec, subject)
     default:
-      throw new Error(`unrecognized type specifier ${type}`)
+      if (subjectType !== baseType) {
+        throw new Error(`unrecognized type specifier ${type}`)
+      } else {
+        return true
+      }
   }
 };
 
@@ -1892,6 +1981,8 @@ const describeType = (x) => {
 const typeJSON = (x) => JSON.stringify(describeType(x));
 const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:');
 
+const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : x;
+
 const matchType = (example, subject, errors = [], path = '') => {
   const exampleType = describe(example);
   const subjectType = describe(subject);
@@ -1899,7 +1990,7 @@ const matchType = (example, subject, errors = [], path = '') => {
     ? specificTypeMatch(exampleType, subject)
     : exampleType === subjectType;
   if (!typesMatch) {
-    errors.push(`${path ? path + ' ' : ''}was ${subject}, expected ${exampleType}`);
+    errors.push(`${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`);
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
     const count = subject.length;
@@ -1956,6 +2047,127 @@ const matchKeys = (example, subject, errors = [], path = '') => {
   return errors
 };
 
+/**
+## Strongly Typed Functions
+
+To create a function that is type-checked you can use `typeSafe`:
+
+    import {typeSafe} from 'path/to/b8r.js'
+    const safeFunc = typeSafe(func, paramTypes, resultType)
+
+- `func` is the function you're trying to type-check.
+- `paramTypes` is an array of types.
+- `resultType` is the type the function is expected to return (it's optional).
+
+For example:
+
+    const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+
+A typesafe function that is passed an incorrect set of parameters, whose original
+function returns an incorrect set of paramters will return an instance of `TypeError`.
+
+`TypeError` is a simple class to wrap the information associated with a type-check failure.
+Its instances four properties: `isParamFailure` is true if the failure was in the inputs
+to a function, `expected` is what was expected, `found` is what was found, and `errors` is
+the array of type errors. They also have one method, `toString()`.
+
+A typesafe function that is one or more `TypeError` instances in its parameters will return
+the first one without calling the wrapped function. (The goal is for typeSafe functions to
+behave like monads, so you can combine them however you like and know that errors will
+short-circuit further execution.)
+
+~~~~
+const {
+  matchParamTypes,
+  typeSafe,
+} = await import('./b8r.byExample.js');
+
+Test(() => matchParamTypes([1,2,3], [1,2,3])).shouldBeJSON([])
+Test(() => matchParamTypes([1,'a',{}], [0,'b',{}])).shouldBeJSON([])
+Test(() => matchParamTypes([1,'a'], [0,'b',{}]), 'extra parameters are ok').shouldBeJSON([])
+
+const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+Test(() => safeAdd(1,2), 'typesafe function works when used correctly').shouldBe(3)
+Test(() => safeAdd(1).toString()).shouldBeJSON('bad parameter, [[],["was undefined, expected number"]]')
+
+const badAdd = typeSafe((a, b) => `${a + b}`, [1, 2], 3)
+Test(() => badAdd(1,2).toString(), 'typesafe function fails with wrong return type')
+  .shouldBeJSON('bad result, ["was \\"3\\", expected number"]')
+
+const safeVectorAdd = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3])
+Test(() => safeVectorAdd([1,2],[3,4])).shouldBeJSON([4,6])
+Test(() => safeVectorAdd([1,2],[3,'x']).toString()).shouldBeJSON('bad parameter, [[],["[1] was \\"x\\", expected number"]]')
+Test(() => safeVectorAdd([1,2],[3]).toString()).shouldBeJSON('bad result, ["[1] was NaN, expected number"]')
+~~~~
+ */
+
+class TypeError {
+  constructor ({
+    isParamFailure,
+    expected,
+    found,
+    errors
+  }) {
+    Object.assign(this, {
+      isParamFailure,
+      expected,
+      found,
+      errors
+    });
+  }
+
+  toString () {
+    const {
+      isParamFailure,
+      errors
+    } = this;
+    return `bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
+  }
+}
+
+const matchParamTypes = (types, params) => {
+  for (let i = 0; i < params.length; i++) {
+    if (params[i] instanceof TypeError) {
+      return params[i]
+    }
+  }
+  const errors = types.map((type, i) => matchType(type, params[i]));
+  return errors.flat().length ? errors : []
+};
+
+const _typeSafe = (func, paramTypes, resultType) => {
+  const typeSafeFunc = function (...params) {
+    const paramErrors = matchParamTypes(paramTypes, params);
+    if (paramErrors.length === 0) {
+      const result = func(...params);
+      const resultErrors = matchType(resultType, result);
+      if (resultErrors.length === 0) {
+        return result
+      } else {
+        return new TypeError({
+          isParamFailure: false,
+          expected: resultType,
+          found: result,
+          errors: resultErrors
+        })
+      }
+    }
+    return new TypeError({
+      isParamFailure: true,
+      expected: paramTypes,
+      found: params,
+      errors: paramErrors
+    })
+  };
+  Object.assign(typeSafeFunc, {
+    paramTypes,
+    resultType
+  });
+  return typeSafeFunc
+};
+
+const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function');
+
 var _byExample = /*#__PURE__*/Object.freeze({
   describe: describe,
   specificTypeMatch: specificTypeMatch,
@@ -1963,8 +2175,707 @@ var _byExample = /*#__PURE__*/Object.freeze({
   typeJSON: typeJSON,
   typeJS: typeJS,
   matchType: matchType,
-  exampleAtPath: exampleAtPath
+  exampleAtPath: exampleAtPath,
+  TypeError: TypeError,
+  matchParamTypes: matchParamTypes,
+  typeSafe: typeSafe
 });
+
+/**
+# Ajax Methods
+
+`b8r` provides some simple utilities for interacting with REST/json services.
+
+    ajax(url, method, requestData, config)
+    json(url, method, requestData, config)
+    jsonp(url, method, requestData, config)
+
+All parameters except `url` are optional.
+
+These methods are all async (they return) `promises` of the specified response).
+
+Usage:
+
+    json('path/to/endpoint', 'PUT', {...}).then(response => { ...});
+
+or:
+
+    const myData = await jason('path/to/endpoint', ...)
+
+Also note that these methods are folded into `b8r` by default, so available as
+`b8r.ajax`, etc.
+*/
+
+const _requestsInFlight = [];
+
+const _removeInFlightRequest = request => {
+  const idx = _requestsInFlight.indexOf(request);
+  if (idx > -1) {
+    _requestsInFlight.splice(idx, 1);
+  }
+};
+
+const ajax = (url, method, requestData, config) => {
+  return new Promise(function (resolve, reject) {
+    config = config || {};
+    if (!config.headers) {
+      config.headers = {};
+    }
+    var request = new XMLHttpRequest();
+    _requestsInFlight.push(request);
+    request.open(method || 'GET', url, true);
+    request.onreadystatechange = () => {
+      if (request.readyState === XMLHttpRequest.DONE) {
+        switch (Math.floor(request.status / 100)) {
+          case 0:
+          case 5:
+          case 4:
+            _removeInFlightRequest(request);
+            reject(request);
+            break
+          case 3:
+            // redirect of some kind
+            break
+          case 2:
+            _removeInFlightRequest(request);
+            resolve(request.responseText);
+            break
+        }
+      }
+    };
+    if (typeof requestData === 'object') {
+      if (method === 'GET') {
+        throw new Error('GET requests do not support request body data')
+      }
+      requestData = JSON.stringify(requestData);
+      config.headers['Content-Type'] = 'application/json; charset=utf-8';
+    }
+    for (var prop in config.headers) {
+      request.setRequestHeader(prop, config.headers[prop]);
+    }
+    request.send(requestData);
+  })
+};
+
+const json = (url, method, requestData, config) => {
+  return new Promise(function (resolve, reject) {
+    ajax(url, method, requestData, config).then(data => {
+      try {
+        resolve(JSON.parse(data || 'null'));
+      } catch (e) {
+        console.error('Failed to parse data', data, e);
+        reject(e, data);
+      }
+    }, reject);
+  })
+};
+
+const jsonp = (url, method, requestData, config) => {
+  return new Promise(function (resolve, reject) {
+    ajax(url, method, requestData, config).then(data => {
+      let parsed = 'null';
+      try {
+        parsed = JSON.parse(data);
+      } catch (e) {
+        console.error('Failed to parse data', data, e);
+        reject(e, data);
+      }
+      resolve(parsed);
+    }, reject);
+  })
+};
+
+const ajaxRequestsInFlight = () => _requestsInFlight;
+
+var _ajax = /*#__PURE__*/Object.freeze({
+  ajax: ajax,
+  json: json,
+  jsonp: jsonp,
+  ajaxRequestsInFlight: ajaxRequestsInFlight
+});
+
+/**
+# Stylesheets
+
+Two utilities for dynamically adding style sheets to the document head.
+
+Usage:
+
+    import makeStyleSheet from 'path/to/makeStylesheet.js';
+    makeStylesheet('h1 { font-size: 100px; }', 'my style sheet');
+
+inserts:
+
+    <style title="my style sheet">
+      h1 { font-size: 100px; }
+    </style>
+
+in the document `<head>`.
+
+    import {viaLink} from 'path/to/makeStyleSheet.js';
+    viaLink('path/to/styles.css'); // inserts a <link> tag with appropriate href
+
+inserts:
+
+    <link rel="stylesheet" type="text/css" href="path/to/styles.css">
+
+in the document <head> if (and only if) no such `<link>` tag is already present (it only checks for
+`<link>` tags with the same `href`, so if you're doing something *really weird* with links this
+might lead to duplicate links.)
+*/
+
+const makeStyleSheet = (source, title) => {
+  const style = source ? create('style') : false;
+  if (style) {
+    style.type = 'text/css';
+    style.dataset.title = title;
+    style.appendChild(text(source));
+    document.head.appendChild(style);
+  }
+  return style
+};
+
+/**
+# uuid
+
+A simple method for creading uuids. Usage:
+
+        import {uuid} = from 'path/to/uuid.js';
+        const some_uuid = uuid();
+
+Also provides a simpler `unique` method that returns a unique
+counter every time it's called — for when `uuid()` is overkill.
+
+    import {unique} from 'path/to/uuid.js'
+
+~~~~
+const {uuid, unique} = await import('../source/uuid.js');
+Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
+Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
+Test(() => uuid().length).shouldBe(36);
+Test(() => uuid()).shouldNotBe(uuid());
+Test(() => unique()).shouldNotBe(unique());
+~~~~
+*/
+
+const randomBytes =
+  typeof window === 'undefined'
+    ? () => {
+      const nodeCrypto = require('crypto');
+      return nodeCrypto.randomBytes(16)
+    }
+    : () => {
+      const bs = new Uint8Array(16);
+      window.crypto.getRandomValues(bs);
+      return bs
+    };
+
+const uuid = () => {
+  // RFC 4122 version 4
+  const ud = randomBytes();
+  ud[8] = ud[8] >> 2 | (0b10 << 6); // clock_seq_hi_and_reserved
+  ud[6] = ud[6] >> 4 | (0b0100 << 4); // time_hi_and_version
+  let i = 0;
+  return 'xxxx-xx-xx-xx-xxxxxx'.replace(/x/g, () =>
+    (0xf00 | ud[i++]).toString(16).slice(1)
+  )
+};
+
+/**
+# functions
+
+This module provides convenient access to the `AsyncFunction` constructor.
+
+    const f = new b8r.AsyncFunction(...args, code)
+
+Utility functions for preventing a method from being called too frequently.
+Not recommended for use on methods which take arguments!
+
+    b8r.debounce(method, minInterval_ms) => debounced method
+
+From a function `f`, create a function that will call f after the provided interval has passed,
+the interval being reset if the function is called again.
+
+E.g. you want to call a query "as the user types" but don't want to call until the user pauses
+typing for a while or at least has a chance to type a few keys.
+
+> A debounced method will call the original function at least once after the debounced version is
+called.
+
+    b8r.throttle(method, minInterval_ms) => throttled method
+
+From a function `f`, create a function that will call f if and only if the function hasn't
+been called in the last interval.
+
+> If you call f several times within the specified interval, *only the first call will fire*.
+*/
+
+const debounce = (origFn, minInterval) => {
+  let debounceId;
+  return (...args) => {
+    if (debounceId) clearTimeout(debounceId);
+    debounceId = setTimeout(() => origFn(...args), minInterval);
+  }
+};
+
+const throttle = (origFn, minInterval) => {
+  let previousCall = Date.now() - minInterval;
+  return (...args) => {
+    const now = Date.now();
+    if (now - previousCall > minInterval) {
+      previousCall = now;
+      origFn(...args);
+    }
+  }
+};
+
+const AsyncFunction = async function () {}.constructor;
+
+var _functions = /*#__PURE__*/Object.freeze({
+  AsyncFunction: AsyncFunction,
+  debounce: debounce,
+  throttle: throttle
+});
+
+/**
+# Components
+
+    component(name, url);
+
+Loads component from url registers it as "name". (Components are registered
+separately from other objects.)
+
+Returns a promise of the component once loaded.
+
+    component('path/to/name');
+
+If just a path is provided, the name of the component will be
+inferred.
+
+**Note**: the extension `.component.html` is appended to urls.
+
+Instances of the component will automatically be inserted as expected once
+loaded.
+
+**Also note**: you can usually avoid the pattern:
+
+    component(...).then(c => b8r.insertComponent(c, target))
+
+By simply binding the component to the target and letting nature take its
+course.
+
+    b8r.insertComponent(component, element, data);
+
+insert a component by name or by passing a component record (e.g. promised by
+component() or produced by makeComponent)
+
+If no element is provided, the component will be appended to `document.body`.
+
+Data will be passed to the component's load method and registered as the
+component's private instance data. (Usually data is passed automatically
+from parent components or via binding, e.g. `data-path="path.to.data` binds that
+data to the component).
+
+    b8r.removeComponent(elt); // removes the component's class and instance and empties the element
+
+If elt has a component in it (i.e. has the attribute `data-component-id`) removes the
+element's contents, removes the component-id, and removes any class that ends with '-component'.
+Note that `removeComponent` does not preserve children!
+
+## Creating Components Programmatically
+
+Instead of writing `something.component.html` and loading it using `b8r.component`
+you can make component's programmatically (i.e. using Javascript) and simply `import()`
+the file to load the component.
+
+### Version 2 Components
+
+Version 2 components are pure Javascript and support type-checking. (The latter is
+work in progress.) They also do not provide you with `data` as a `load` parameter
+(use `get()` instead if you must).
+
+The best way to create components programmatically (and, arguably, the best way to
+create components period) is using the new `makeComponent(name, specObject)` syntax.
+Unlike the old method, the new version doesn't use `eval` and lints without needing
+global declarations.
+
+    export default const componentName = makeComponent('component-name', {
+      css: '._component_ > div { color: yellow }',
+      html: '<div>this text will be yellow</div>',
+      load: async ({
+        component, // this is the element that the component is inserted into
+        b8r,       // it's b8r!
+        find,      // b8r.findWithin(component, ...)
+        findOne,   // b8r.findOneWithin(component, ...)
+        register,  // replace the component's private data object
+        get,       // get (within the component's private data)
+        set,       // set (within the component's private data)
+        on,        // b8r.on(component, ...)
+        touch      // force updates of paths inside the component
+      }) => {
+        // your javascript goes here
+      },
+      initialValue: {...},
+                   // specify the component's initial value
+      type: {...}, // specify the component's type
+      instanceType: {...},
+                   // specify the component's instance type
+    })
+
+All of these properties are optional. `type` and `instanceType` are [by example](#source=source/b8r.byExample.js).
+
+```
+<b8r-component name="typed"></b8r-component>
+<script>
+  b8r.makeComponent('typed', {
+    html: `
+      <p data-bind="text=_component_.caption"></p>
+      <button data-event="click:_component_.typeError">Generates Type Error in Console</button>
+      <button data-event="click:_component_.resetCaption">No Type Error</button>
+    `,
+    load({get, set, data}) {
+      console.log(get())
+      set({
+        typeError: () => set('caption', 17),
+        resetCaption: () => set('caption', 'I\'m a string again!')
+      })
+    },
+    initialValue: {
+      caption: 'this is ok',
+    },
+    type: { caption: 'string' }
+  })
+</script>
+```
+
+You only need to destructure the parameters you want to use (to avoid linter complaints
+about unused variables).
+
+```
+<b8r-component name="no-eval"></b8r-component>
+<script>
+  b8r.makeComponent('no-eval', {
+    css: '._component_ > span { color: yellow; }',
+    html: '<span></span>',
+    load: async ({findOne}) => {
+      findOne('span').textContent = 'Hello Pure Component'
+    }
+  })
+</script>
+```
+### Making a Component from HTML Source
+
+This is how `b8r` makes components from `.html` files (and also in its inline "fiddles").
+
+    makeComponent(name, source, url, preserveSource); // preserveSource are optional
+
+Create a component with the specified name, source code, and url. Use preserveSource if
+you want the component's source code kept for debugging purposes.
+
+`makeComponent` is used internally by component to create components, and by the documentation
+system to create components interactively. In general you won't need to use this method at all.
+
+## `b8r.insertComponent`
+
+You can programmatically insert a component instance thus:
+
+    b8r.insertComponent(component, target, data)
+
+`component` can be a component name or a loaded component definition, while target is
+the element you want to insert the element into, and `data` is the initial value of
+the component. Only the first argument is required.
+
+If `target` is not provided, a new element is appended to document.body and the
+component is inserted into it.
+
+## `b8r.componentOnce`
+
+If you want to make sure there's exactly one instance of a component:
+
+    b8r.componentOnce(url [,name]);
+
+This loads the component (if necessary) and then if there is no instance of the component
+in the DOM it creates one. It replaces the pattern:
+
+    b8r.component(url).then(c => b8r.insertComponent(c));
+
+And doesn't run the risk of leaking multiple instances of components into the DOM.
+
+## Composing Components
+
+By default, a component replaces the content of the element it is inserted into.
+If a component has an element with the `data-children` attribute then this element
+will contain the children of the original element.
+
+```
+<b8r-component name="translucent-parent">
+  <h2>Hello</h2>
+  <b8r-component name="translucent-parent">
+    world
+  </b8r-component>
+</b8r-component>
+<script>
+    b8r.makeComponent('translucent-parent', {
+      css: `._component_ {
+        display: block;
+        background: rgba(255,0,0,0.1);
+      }`,
+      html: `<div data-children></div>`
+    })
+</script>
+```
+
+## Container Components
+
+    b8r.wrapWithComponent(component, element [, data_path [, attributes]]);
+
+Sometimes you want a component *outside* an element rather than inside it.
+The most common example is trying to create a specific modal or floater wrapped
+inside a generic modal or floater "wrapper". You could simply use the
+generic component inside the specific component but then the generic component
+has no simple way to "clean itself up".
+
+`b8r.wrapWithComponent()` returns the wrapping element.
+
+    <div
+      class="my-custom-dialog"
+      data-component="modal"
+    >
+      <button
+        data-event="click:_component_.terrific"
+      >Terrific</button>
+    </div>
+    <script>
+      set('terrific', () => alert('This is terrific!'));
+    </script>
+
+In the above example the modal ends up inside the `my-custom-dialog` div. Supposing
+that the modal's behavior includes removing itself on close, it will leave behind the
+component itself (with nothing inside).
+
+Instead with `wrapWithComponent` you could do this (in a component):
+
+    <button>Terrific</button>
+    <script>
+      b8r.component('components/modal');
+      b8r.wrapWithComponent('modal', component);
+      set('terrific', () => alert('This is terrific!'));
+    </script>
+
+(Note that this example doesn't play well with the inline-documentation system!)
+
+## Destructors
+
+Component instances are automatically cleaned up once the component element is
+removed from the DOM or its id changes (e.g. a new component is loaded over it).
+If you want to force a cleanup, you can call:
+
+    b8r.cleanupComponentInstances();
+
+If a component has a method named `destroy` it will be called just before the instance
+is removed from the registry.
+*/
+
+const components = {};
+const componentTimeouts = [];
+const componentPromises = {};
+const componentTypes = {};
+
+const processComponent = (css, html, name) => {
+  const view = create('div');
+  view.innerHTML = html || '';
+  const className = `${name}-component`;
+  const style = css ? makeStyleSheet(css.replace(/_component_/g, className), className) : false;
+  for (const elt of findWithin(view, '[class*="_component_"]')) {
+    elt.setAttribute(
+      'class',
+      elt.getAttribute('class').replace(/_component_/g, className)
+    );
+  }
+  return { style, view }
+};
+
+const makeComponentNoEval = function (name, { css, html, load, initialValue, type, instanceType }) {
+  const {
+    style,
+    view
+  } = processComponent(css, html, name);
+  const component = {
+    version: 2,
+    name,
+    style,
+    view,
+    path: `inline-${name}`,
+    initialValue,
+    instanceType
+  };
+
+  if (type) {
+    componentTypes[name] = type;
+  }
+
+  if (load) {
+    component.load = (component, b8r, find, findOne, _data, register, get, set, on, touch) => {
+      load({ component, b8r, find, findOne, register, get, set, on, touch });
+    };
+  }
+
+  if (componentTimeouts[name]) {
+    clearInterval(componentTimeouts[name]);
+  }
+
+  find(`[data-component="${name}"]`).forEach(element => {
+    // somehow things can happen in between find() and here so the
+    // second check is necessary to prevent race conditions
+    if (!element.closest('[data-list]') && element.dataset.component === name) {
+      asyncUpdate(false, element);
+    }
+  });
+  components[name] = component;
+  return component
+};
+
+const makeComponent = (name, source, url, preserveSource) => {
+  if (typeof source === 'object' && url === undefined) {
+    return makeComponentNoEval(name, source)
+  }
+  let css = false; let content; let script = false; let parts; let remains;
+
+  if (!url) url = uuid();
+
+  // nothing <style> css </style> rest-of-component
+  parts = source.split(/<style>|<\/style>/);
+  if (parts.length === 3) {
+    [, css, remains] = parts;
+  } else {
+    remains = source;
+  }
+
+  // content <script> script </script> nothing
+  parts = remains.split(/<script[^>\n]*>|<\/script>/);
+  if (parts.length >= 3) {
+    [content, script] = parts;
+  } else {
+    content = remains;
+  }
+
+  const {
+    style,
+    view
+  } = processComponent(css, content, name);
+  /* jshint evil: true */
+  let load = () => console.error('component', name, 'cannot load properly');
+  if (script && script.match(/require\s*\(/) && !script.match(/electron-require/)) {
+    console.error(`in component "${name}" replace require with await import()`);
+    script = false;
+  }
+  try {
+    load = script
+      ? new AsyncFunction(
+        'component',
+        'b8r',
+        'find',
+        'findOne',
+        'data',
+        'register',
+        'get',
+        'set',
+        'on',
+        'touch',
+        `${script}\n//# sourceURL=${name}(component)`
+      )
+      : false;
+  } catch (e) {
+    console.error('error creating load method for component', name, e, script);
+    throw new Error(`component ${name} load method could not be created`)
+  }
+  /* jshint evil: false */
+  const component = {
+    name,
+    style,
+    view,
+    load,
+    path: url.split('/').slice(0, -1).join('/')
+  };
+  if (component.path === 'undefined') {
+    debugger // eslint-disable-line no-debugger
+  }
+  if (preserveSource) {
+    component._source = source;
+  }
+  if (componentTimeouts[name]) {
+    clearInterval(componentTimeouts[name]);
+  }
+  if (components[name]) {
+    // don't want to leak stylesheets
+    if (components[name].style) {
+      components[name].style.remove();
+    }
+    console.warn('component %s has been redefined', name);
+  }
+  components[name] = component;
+
+  find(`[data-component="${name}"]`).forEach(element => {
+    // somehow things can happen in between find() and here so the
+    // second check is necessary to prevent race conditions
+    if (!element.closest('[data-list]') && element.dataset.component === name) {
+      asyncUpdate(false, element);
+    }
+  });
+  return component
+};
+
+// path/to/../foo -> path/foo
+const collapse = path => {
+  while (path.match(/([^/]+\/\.\.\/)/)) {
+    path = path.replace(/([^/]+\/\.\.\/)/g, '');
+  }
+  return path
+};
+
+/**
+~~~~
+const {name} = await b8r.component('../test/custom-test.html')
+Test(async () => {
+  return name
+}).shouldBe('custom-test')
+Test(async () => {
+  await b8r.componentOnce('custom-test')
+  b8r.findOne('.custom-test-component').style.display = 'none'
+  return b8r.find('.custom-test-component').length
+}).shouldBe(1)
+Test(async () => {
+  await b8r.componentOnce('custom-test')
+  return b8r.find('.custom-test-component').length
+}).shouldBe(1)
+~~~~
+*/
+
+const component = (name, url, preserveSource = false) => {
+  if (url === undefined) {
+    url = name;
+    name = url.split('/').pop().split('.').shift();
+  }
+  if (!componentPromises[name] || preserveSource) {
+    if (!url) throw new Error(`expected component ${name} to be defined`)
+    url = collapse(url);
+    componentPromises[name] = new Promise(function (resolve, reject) {
+      if (components[name] && !preserveSource) {
+        resolve(components[name]);
+      } else {
+        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
+        ajax(finalUrl)
+          .then(source => resolve(makeComponent(name, source, url, preserveSource)))
+          .catch(err => {
+            delete componentPromises[name];
+            console.error(err, `failed to load component ${url}`);
+            reject(err);
+          });
+      }
+    });
+  }
+  return componentPromises[name]
+};
 
 /**
 # The Registry
@@ -2723,8 +3634,9 @@ const offTypeError = () => {
 };
 
 const checkType = (action, name) => {
-  if (!registeredTypes[name] || !registry[name]) return
-  const errors = matchType(registeredTypes[name], registry[name], [], name);
+  const referenceType = name.startsWith('c#') ? componentTypes[name.split('#')[1]] : registeredTypes[name];
+  if (!referenceType || !registry[name]) return
+  const errors = matchType(referenceType, registry[name], [], name);
   if (errors.length) {
     typeErrorHandler(errors, name);
   }
@@ -3125,62 +4037,6 @@ var _registry = /*#__PURE__*/Object.freeze({
   deregister: deregister,
   resolvePath: resolvePath,
   isValidPath: isValidPath
-});
-
-/**
-# functions
-
-This module provides convenient access to the `AsyncFunction` constructor.
-
-    const f = new b8r.AsyncFunction(...args, code)
-
-Utility functions for preventing a method from being called too frequently.
-Not recommended for use on methods which take arguments!
-
-    b8r.debounce(method, minInterval_ms) => debounced method
-
-From a function `f`, create a function that will call f after the provided interval has passed,
-the interval being reset if the function is called again.
-
-E.g. you want to call a query "as the user types" but don't want to call until the user pauses
-typing for a while or at least has a chance to type a few keys.
-
-> A debounced method will call the original function at least once after the debounced version is
-called.
-
-    b8r.throttle(method, minInterval_ms) => throttled method
-
-From a function `f`, create a function that will call f if and only if the function hasn't
-been called in the last interval.
-
-> If you call f several times within the specified interval, *only the first call will fire*.
-*/
-
-const debounce = (origFn, minInterval) => {
-  let debounceId;
-  return (...args) => {
-    if (debounceId) clearTimeout(debounceId);
-    debounceId = setTimeout(() => origFn(...args), minInterval);
-  }
-};
-
-const throttle = (origFn, minInterval) => {
-  let previousCall = Date.now() - minInterval;
-  return (...args) => {
-    const now = Date.now();
-    if (now - previousCall > minInterval) {
-      previousCall = now;
-      origFn(...args);
-    }
-  }
-};
-
-const AsyncFunction = async function () {}.constructor;
-
-var _functions = /*#__PURE__*/Object.freeze({
-  AsyncFunction: AsyncFunction,
-  debounce: debounce,
-  throttle: throttle
 });
 
 /**
@@ -4742,119 +5598,6 @@ function _toTargets (b8r) {
 }
 
 /**
-# Ajax Methods
-
-`b8r` provides some simple utilities for interacting with REST/json services.
-
-    ajax(url, method, requestData, config)
-    json(url, method, requestData, config)
-    jsonp(url, method, requestData, config)
-
-All parameters except `url` are optional.
-
-These methods are all async (they return) `promises` of the specified response).
-
-Usage:
-
-    json('path/to/endpoint', 'PUT', {...}).then(response => { ...});
-
-or:
-
-    const myData = await jason('path/to/endpoint', ...)
-
-Also note that these methods are folded into `b8r` by default, so available as
-`b8r.ajax`, etc.
-*/
-
-const _requestsInFlight = [];
-
-const _removeInFlightRequest = request => {
-  const idx = _requestsInFlight.indexOf(request);
-  if (idx > -1) {
-    _requestsInFlight.splice(idx, 1);
-  }
-};
-
-const ajax = (url, method, requestData, config) => {
-  return new Promise(function (resolve, reject) {
-    config = config || {};
-    if (!config.headers) {
-      config.headers = {};
-    }
-    var request = new XMLHttpRequest();
-    _requestsInFlight.push(request);
-    request.open(method || 'GET', url, true);
-    request.onreadystatechange = () => {
-      if (request.readyState === XMLHttpRequest.DONE) {
-        switch (Math.floor(request.status / 100)) {
-          case 0:
-          case 5:
-          case 4:
-            _removeInFlightRequest(request);
-            reject(request);
-            break
-          case 3:
-            // redirect of some kind
-            break
-          case 2:
-            _removeInFlightRequest(request);
-            resolve(request.responseText);
-            break
-        }
-      }
-    };
-    if (typeof requestData === 'object') {
-      if (method === 'GET') {
-        throw new Error('GET requests do not support request body data')
-      }
-      requestData = JSON.stringify(requestData);
-      config.headers['Content-Type'] = 'application/json; charset=utf-8';
-    }
-    for (var prop in config.headers) {
-      request.setRequestHeader(prop, config.headers[prop]);
-    }
-    request.send(requestData);
-  })
-};
-
-const json = (url, method, requestData, config) => {
-  return new Promise(function (resolve, reject) {
-    ajax(url, method, requestData, config).then(data => {
-      try {
-        resolve(JSON.parse(data || 'null'));
-      } catch (e) {
-        console.error('Failed to parse data', data, e);
-        reject(e, data);
-      }
-    }, reject);
-  })
-};
-
-const jsonp = (url, method, requestData, config) => {
-  return new Promise(function (resolve, reject) {
-    ajax(url, method, requestData, config).then(data => {
-      let parsed = 'null';
-      try {
-        parsed = JSON.parse(data);
-      } catch (e) {
-        console.error('Failed to parse data', data, e);
-        reject(e, data);
-      }
-      resolve(parsed);
-    }, reject);
-  })
-};
-
-const ajaxRequestsInFlight = () => _requestsInFlight;
-
-var _ajax = /*#__PURE__*/Object.freeze({
-  ajax: ajax,
-  json: json,
-  jsonp: jsonp,
-  ajaxRequestsInFlight: ajaxRequestsInFlight
-});
-
-/**
 # fromTargets
 Copyright ©2016-2017 Tonio Loewald
 
@@ -4947,7 +5690,7 @@ const playbackRate = (element) => element.playbackRate;
 
 const prop = (element, property) => element[property];
 
-const component = (element, path) => {
+const component$1 = (element, path) => {
   const componentId = element.dataset.componentId;
   return _getByPath(componentId, path)
 };
@@ -4966,7 +5709,7 @@ var fromTargets = /*#__PURE__*/Object.freeze({
   currentTime: currentTime,
   playbackRate: playbackRate,
   prop: prop,
-  component: component,
+  component: component$1,
   fromMethod: fromMethod
 });
 
@@ -5183,449 +5926,6 @@ const hide = (element, ...args) => {
     }
     element.style.display = 'none';
   }
-};
-
-/**
-# Stylesheets
-
-Two utilities for dynamically adding style sheets to the document head.
-
-Usage:
-
-    import makeStyleSheet from 'path/to/makeStylesheet.js';
-    makeStylesheet('h1 { font-size: 100px; }', 'my style sheet');
-
-inserts:
-
-    <style title="my style sheet">
-      h1 { font-size: 100px; }
-    </style>
-
-in the document `<head>`.
-
-    import {viaLink} from 'path/to/makeStyleSheet.js';
-    viaLink('path/to/styles.css'); // inserts a <link> tag with appropriate href
-
-inserts:
-
-    <link rel="stylesheet" type="text/css" href="path/to/styles.css">
-
-in the document <head> if (and only if) no such `<link>` tag is already present (it only checks for
-`<link>` tags with the same `href`, so if you're doing something *really weird* with links this
-might lead to duplicate links.)
-*/
-
-const makeStyleSheet = (source, title) => {
-  const style = source ? create('style') : false;
-  if (style) {
-    style.type = 'text/css';
-    style.dataset.title = title;
-    style.appendChild(text(source));
-    document.head.appendChild(style);
-  }
-  return style
-};
-
-/**
-# uuid
-
-A simple method for creading uuids. Usage:
-
-        import {uuid} = from 'path/to/uuid.js';
-        const some_uuid = uuid();
-
-Also provides a simpler `unique` method that returns a unique
-counter every time it's called — for when `uuid()` is overkill.
-
-    import {unique} from 'path/to/uuid.js'
-
-~~~~
-const {uuid, unique} = await import('../source/uuid.js');
-Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
-Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
-Test(() => uuid().length).shouldBe(36);
-Test(() => uuid()).shouldNotBe(uuid());
-Test(() => unique()).shouldNotBe(unique());
-~~~~
-*/
-
-const randomBytes =
-  typeof window === 'undefined'
-    ? () => {
-      const nodeCrypto = require('crypto');
-      return nodeCrypto.randomBytes(16)
-    }
-    : () => {
-      const bs = new Uint8Array(16);
-      window.crypto.getRandomValues(bs);
-      return bs
-    };
-
-const uuid = () => {
-  // RFC 4122 version 4
-  const ud = randomBytes();
-  ud[8] = ud[8] >> 2 | (0b10 << 6); // clock_seq_hi_and_reserved
-  ud[6] = ud[6] >> 4 | (0b0100 << 4); // time_hi_and_version
-  let i = 0;
-  return 'xxxx-xx-xx-xx-xxxxxx'.replace(/x/g, () =>
-    (0xf00 | ud[i++]).toString(16).slice(1)
-  )
-};
-
-/**
-# Components
-
-    component(name, url);
-
-Loads component from url registers it as "name". (Components are registered
-separately from other objects.)
-
-Returns a promise of the component once loaded.
-
-    component('path/to/name');
-
-If just a path is provided, the name of the component will be
-inferred.
-
-**Note**: the extension `.component.html` is appended to urls.
-
-Instances of the component will automatically be inserted as expected once
-loaded.
-
-**Also note**: you can usually avoid the pattern:
-
-    component(...).then(c => b8r.insertComponent(c, target))
-
-By simply binding the component to the target and letting nature take its
-course.
-
-    b8r.insertComponent(component, element, data);
-
-insert a component by name or by passing a component record (e.g. promised by
-component() or produced by makeComponent)
-
-If no element is provided, the component will be appended to `document.body`.
-
-Data will be passed to the component's load method and registered as the
-component's private instance data. (Usually data is passed automatically
-from parent components or via binding, e.g. `data-path="path.to.data` binds that
-data to the component).
-
-    b8r.removeComponent(elt); // removes the component's class and instance and empties the element
-
-If elt has a component in it (i.e. has the attribute data-component-id) removes the
-element's contents, removes the component-id, and removes any class that ends with '-component'.
-Note that `removeComponent` does not preserve children!
-
-## Creating Components Programmatically
-
-Instead of writing `something.component.html` and loading it using `b8r.component`
-you can make component's programmatically (i.e. using Javascript) and simply `import()`
-the file to load the component.
-
-### Making a Component with Javascript
-
-The best way to create components programmatically (and, arguably, the best way to
-create components period) is using makeComponentNoEval. (It's called that because it
-does not use `eval` to construct the component's `load` method. `eval` is widely
-considered a **Bad Thing** and it makes linters say mean things.)
-
-    export default const componentName = makeComponentNoEval('component-name', {
-      css: '._component_ > div { color: yellow }',
-      html: '<div>this text will be yellow</div>',
-      load: async ({
-        component, // this is the element that the component is inserted into
-        b8r,       // it's b8r!
-        find,      // b8r.findWithin(component, ...)
-        findOne,   // b8r.findOneWithin(component, ...)
-        data,      // the component's private data object
-        register,  // replace the component's private data object
-        get,       // get (within the component's private data)
-        set,       // set (within the component's private data)
-        on,        // b8r.on(component, ...)
-        touch      // force updates of paths inside the component
-      }) => {
-        // your javascript goes here
-      },
-    })
-
-You only need to destructure the parameters you want to use (to avoid linter complaints
-about unused variables).
-
-```
-<b8r-component name="no-eval"></b8r-component>
-<script>
-  b8r.makeComponentNoEval('no-eval', {
-    css: '._component_ > span { color: yellow; }',
-    html: '<span></span>',
-    load: async ({findOne}) => {
-      findOne('span').textContent = 'Hello Pure Component'
-    }
-  })
-</script>
-```
-### Making a Component from HTML Source
-
-This is how `b8r` makes components from `.html` files (and also in its inline "fiddles").
-
-    makeComponent(name, source, url, preserveSource); // preserveSource are optional
-
-Create a component with the specified name, source code, and url. Use preserveSource if
-you want the component's source code kept for debugging purposes.
-
-`makeComponent` is used internally by component to create components, and by the documentation
-system to create components interactively. In general you won't need to use this method at all.
-
-## Singleton Components
-
-    b8r.componentOnce(url [,name]);
-
-This loads the component (if necessary) and then if there is no instance of the component
-in the DOM it creates one. It replaces the pattern:
-
-    b8r.component(url).then(c => b8r.insertComponent(c));
-
-And doesn't run the risk of leaking multiple instances of components into the DOM.
-
-## Container Components
-
-    b8r.wrapWithComponent(component, element [, data_path [, attributes]]);
-
-Sometimes you want a component *outside* an element rather than inside it.
-The most common example is trying to create a specific modal or floater wrapped
-inside a generic modal or floater "wrapper". You could simply use the
-generic component inside the specific component but then the generic component
-has no simple way to "clean itself up".
-
-`b8r.wrapWithComponent()` returns the wrapping element.
-
-    <div
-      class="my-custom-dialog"
-      data-component="modal"
-    >
-      <button
-        data-event="click:_component_.terrific"
-      >Terrific</button>
-    </div>
-    <script>
-      set('terrific', () => alert('This is terrific!'));
-    </script>
-
-In the above example the modal ends up inside the `my-custom-dialog` div. Supposing
-that the modal's behavior includes removing itself on close, it will leave behind the
-component itself (with nothing inside).
-
-Instead with `wrapWithComponent` you could do this (in a component):
-
-    <button>Terrific</button>
-    <script>
-      b8r.component('components/modal');
-      b8r.wrapWithComponent('modal', component);
-      set('terrific', () => alert('This is terrific!'));
-    </script>
-
-(Note that this example doesn't play well with the inline-documentation system!)
-
-## Destructors
-
-Component instances are automatically cleaned up once the component element is
-removed from the DOM or its id changes (e.g. a new component is loaded over it).
-If you want to force a cleanup, you can call:
-
-    b8r.cleanupComponentInstances();
-
-If a component has a property named `destroy` (and it's a method) it will
-be called just before the instance is removed from the registry.
-*/
-
-const components = {};
-const componentTimeouts = [];
-const componentPromises = {};
-
-const processComponent = (css, html, name) => {
-  const view = create('div');
-  view.innerHTML = html || '';
-  const className = `${name}-component`;
-  const style = css ? makeStyleSheet(css.replace(/_component_/g, className), className) : false;
-  for (const elt of findWithin(view, '[class*="_component_"]')) {
-    elt.setAttribute(
-      'class',
-      elt.getAttribute('class').replace(/_component_/g, className)
-    );
-  }
-  return { style, view }
-};
-
-const makeComponentNoEval = function (name, { css, html, load }) {
-  const {
-    style,
-    view
-  } = processComponent(css, html, name);
-  const component = {
-    name,
-    style,
-    view,
-    path: `inline-${name}`
-  };
-
-  if (load) {
-    component.load = (component, b8r, find, findOne, data, register, get, set, on, touch) => {
-      load({ component, b8r, find, findOne, data, register, get, set, on, touch });
-    };
-  }
-
-  if (componentTimeouts[name]) {
-    clearInterval(componentTimeouts[name]);
-  }
-
-  find(`[data-component="${name}"]`).forEach(element => {
-    // somehow things can happen in between find() and here so the
-    // second check is necessary to prevent race conditions
-    if (!element.closest('[data-list]') && element.dataset.component === name) {
-      asyncUpdate(false, element);
-    }
-  });
-  components[name] = component;
-  return component
-};
-
-const makeComponent = (name, source, url, preserveSource) => {
-  let css = false; let content; let script = false; let parts; let remains;
-
-  if (!url) url = uuid();
-
-  // nothing <style> css </style> rest-of-component
-  parts = source.split(/<style>|<\/style>/);
-  if (parts.length === 3) {
-    [, css, remains] = parts;
-  } else {
-    remains = source;
-  }
-
-  // content <script> script </script> nothing
-  parts = remains.split(/<script[^>\n]*>|<\/script>/);
-  if (parts.length >= 3) {
-    [content, script] = parts;
-  } else {
-    content = remains;
-  }
-
-  const {
-    style,
-    view
-  } = processComponent(css, content, name);
-  /* jshint evil: true */
-  let load = () => console.error('component', name, 'cannot load properly');
-  if (script && script.match(/require\s*\(/) && !script.match(/electron-require/)) {
-    console.error(`in component "${name}" replace require with await import()`);
-    script = false;
-  }
-  try {
-    load = script
-      ? new AsyncFunction(
-        'component',
-        'b8r',
-        'find',
-        'findOne',
-        'data',
-        'register',
-        'get',
-        'set',
-        'on',
-        'touch',
-        `${script}\n//# sourceURL=${name}(component)`
-      )
-      : false;
-  } catch (e) {
-    console.error('error creating load method for component', name, e, script);
-    throw new Error(`component ${name} load method could not be created`)
-  }
-  /* jshint evil: false */
-  const component = {
-    name,
-    style,
-    view,
-    load,
-    path: url.split('/').slice(0, -1).join('/')
-  };
-  if (component.path === 'undefined') {
-    debugger // eslint-disable-line no-debugger
-  }
-  if (preserveSource) {
-    component._source = source;
-  }
-  if (componentTimeouts[name]) {
-    clearInterval(componentTimeouts[name]);
-  }
-  if (components[name]) {
-    // don't want to leak stylesheets
-    if (components[name].style) {
-      components[name].style.remove();
-    }
-    console.warn('component %s has been redefined', name);
-  }
-  components[name] = component;
-
-  find(`[data-component="${name}"]`).forEach(element => {
-    // somehow things can happen in between find() and here so the
-    // second check is necessary to prevent race conditions
-    if (!element.closest('[data-list]') && element.dataset.component === name) {
-      asyncUpdate(false, element);
-    }
-  });
-  return component
-};
-
-// path/to/../foo -> path/foo
-const collapse = path => {
-  while (path.match(/([^/]+\/\.\.\/)/)) {
-    path = path.replace(/([^/]+\/\.\.\/)/g, '');
-  }
-  return path
-};
-
-/**
-~~~~
-const {name} = await b8r.component('../test/custom-test.html')
-Test(async () => {
-  return name
-}).shouldBe('custom-test')
-Test(async () => {
-  await b8r.componentOnce('custom-test')
-  b8r.findOne('.custom-test-component').style.display = 'none'
-  return b8r.find('.custom-test-component').length
-}).shouldBe(1)
-Test(async () => {
-  await b8r.componentOnce('custom-test')
-  return b8r.find('.custom-test-component').length
-}).shouldBe(1)
-~~~~
-*/
-
-const component$1 = (name, url, preserveSource = false) => {
-  if (url === undefined) {
-    url = name;
-    name = url.split('/').pop().split('.').shift();
-  }
-  if (!componentPromises[name] || preserveSource) {
-    if (!url) throw new Error(`expected component ${name} to be defined`)
-    url = collapse(url);
-    componentPromises[name] = new Promise(function (resolve, reject) {
-      if (components[name] && !preserveSource) {
-        resolve(components[name]);
-      } else {
-        const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
-        ajax(finalUrl)
-          .then(source => resolve(makeComponent(name, source, url, preserveSource)))
-          .catch(err => {
-            delete componentPromises[name];
-            console.error(err, `failed to load component ${url}`);
-            reject(err);
-          });
-      }
-    });
-  }
-  return componentPromises[name]
 };
 
 /**
@@ -6551,7 +6851,7 @@ const _pathRelativeB8r = _path => {
     }
   })
 };
-Object.assign(b8r, { component: component$1, makeComponent, makeComponentNoEval });
+Object.assign(b8r, { component, makeComponent, makeComponentNoEval });
 
 b8r.components = () => Object.keys(components);
 
@@ -6662,7 +6962,12 @@ b8r.insertComponent = async function (component, element, data) {
     element.dataset.path = dataPath;
   }
   const register = componentData => b8r.register(componentId, componentData);
-  data = Object.assign({}, data, { dataPath, componentId });
+  data = {
+    ...data,
+    dataPath,
+    ...(component.initialValue ? b8r.deepClone(component.initialValue) : {}),
+    componentId
+  };
   if (component.load) {
     const get = path => b8r.getByPath(componentId, path);
     const set = (...args) => {
@@ -6702,7 +7007,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       const { path, name } = this;
       if (path) {
         if (path.endsWith('.js')) {
-          import(path).then(() => {});
+          import(path).then(0);
         } else {
           b8r.component(path);
         }

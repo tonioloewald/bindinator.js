@@ -685,7 +685,7 @@ b8r.insertComponent = async function (component, element, data) {
     ...data,
     dataPath,
     ...(component.initialValue ? b8r.deepClone(component.initialValue) : {}),
-    componentId,
+    componentId
   }
   if (component.load) {
     const get = path => b8r.getByPath(componentId, path)
@@ -726,7 +726,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       const { path, name } = this
       if (path) {
         if (path.endsWith('.js')) {
-          import(path)
+          import(path).then(0)
         } else {
           b8r.component(path)
         }

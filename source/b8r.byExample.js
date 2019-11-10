@@ -101,7 +101,7 @@ You can denote an optional type using '#?<type>'. Both `null` and `undefined` ar
 
 ### #regex[]
 
-You can specify a regular expression test for a string value by providing the string you'd use 
+You can specify a regular expression test for a string value by providing the string you'd use
 to create a `RegExp` instance. E.g. '#regexp \\d+{5,5}' for a simple zipcode type.
 
 ## `describe`
@@ -195,19 +195,19 @@ Test(() => matchType(requestType, 'save'))
   .shouldBeJSON(['was \"save\", expected #enum "get"|"post"|"put"|"delete"|"head"'])
 Test(
   () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345'),
-  'zipcode type'  
+  'zipcode type'
 ).shouldBeJSON([])
 Test(
   () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345-6789'),
-  'zipcode type'  
+  'zipcode type'
 ).shouldBeJSON([])
 Test(
   () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '2350'),
-  'australian postcodes are not zipcodes'  
+  'australian postcodes are not zipcodes'
 ).shouldBeJSON(['was "2350", expected #regexp ^\\d{5,5}(-\\d{4,4})?$'])
 Test(
   () => matchType('#regexp ^\\d{5,5}(-\\d{4,4})?$', '12345-679'),
-  'extended zipcodes have a 4-digit extension'  
+  'extended zipcodes have a 4-digit extension'
 ).shouldBeJSON(['was "12345-679", expected #regexp ^\\d{5,5}(-\\d{4,4})?$'])
 
 Test(() => exampleAtPath({foo: 17}, 'foo')).shouldBe(17)
@@ -423,7 +423,7 @@ to a function, `expected` is what was expected, `found` is what was found, and `
 the array of type errors. They also have one method, `toString()`.
 
 A typesafe function that is one or more `TypeError` instances in its parameters will return
-the first one without calling the wrapped function. (The goal is for typeSafe functions to 
+the first one without calling the wrapped function. (The goal is for typeSafe functions to
 behave like monads, so you can combine them however you like and know that errors will
 short-circuit further execution.)
 
@@ -457,13 +457,13 @@ export class TypeError {
     isParamFailure,
     expected,
     found,
-    errors,
+    errors
   }) {
     Object.assign(this, {
       isParamFailure,
       expected,
       found,
-      errors,
+      errors
     })
   }
 
@@ -477,7 +477,7 @@ export class TypeError {
 }
 
 export const matchParamTypes = (types, params) => {
-  for(let i = 0; i < params.length; i++) {
+  for (let i = 0; i < params.length; i++) {
     if (params[i] instanceof TypeError) {
       return params[i]
     }
@@ -487,13 +487,13 @@ export const matchParamTypes = (types, params) => {
 }
 
 const _typeSafe = (func, paramTypes, resultType) => {
-  const typeSafeFunc = function(...params) {
+  const typeSafeFunc = function (...params) {
     const paramErrors = matchParamTypes(paramTypes, params)
     if (paramErrors.length === 0) {
-      const result = func(...params);
+      const result = func(...params)
       const resultErrors = matchType(resultType, result)
       if (resultErrors.length === 0) {
-        return result;
+        return result
       } else {
         return new TypeError({
           isParamFailure: false,

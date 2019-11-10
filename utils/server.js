@@ -4,7 +4,6 @@
 const http = require('http')
 const https = require('https')
 const fs = require('fs')
-const { exec } = require('child_process');
 
 const settings = {
   socket: 8017,
@@ -64,7 +63,7 @@ const mimeTypes = {
   png: 'image/png',
   json: 'application/json',
   js: 'text/javascript',
-  html: 'text/html',
+  html: 'text/html'
 }
 
 const handleStaticRequest = (req, res) => {
