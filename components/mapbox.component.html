@@ -1,9 +1,14 @@
 <!--
-# Mapbox
+# Mapbox &amp; MODIS Fire Data
 
 This is a super-simple integration of [Mapbox](https://www.mapbox.com).
 
 If the map doesn't load then I've probably exceeded my free quota…
+
+The markers show US (and nearby) 
+[fire data from NASA MODIS](https://earthdata.nasa.gov/earth-observation-data/near-real-time/firms/active-fire-data) 
+(originally I tried showing the data for Australia but there were 6000 entries…)
+Red brighter the red, the more confidence (presumably the more likely it's actualy a fire).
 -->
 <style>
   ._component_ > label {
@@ -35,17 +40,20 @@ If the map doesn't load then I've probably exceeded my free quota…
     ></option>
   </select>
 </label>
+<svg width=24 height=24 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M192 0C79.7 101.3 0 220.9 0 300.5 0 425 79 512 192 512s192-87 192-211.5c0-79.9-80.2-199.6-192-300.5zm0 448c-56.5 0-96-39-96-94.8 0-13.5 4.6-61.5 96-161.2 91.4 99.7 96 147.7 96 161.2 0 55.8-39.5 94.8-96 94.8z"></path></svg>
 <div class="map"></div>
 <script>
   const {viaTag} = await import('../lib/scripts.js')
   const {viaLink} = await import('../source/b8r.makeStylesheet.js')
   const {parseHash, serializeObj} = await import('../lib/hash-utils.js')
+  const fireIcon = findOne('svg')
+  fireIcon.remove()
 
   viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
   await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
 
   const settings = {
-    '@': '-33.8397585,151.1258772,10'
+    '@': '38.2641789,-120.5922877,5.8'
   }
 
   Object.assign(settings, parseHash())
@@ -118,4 +126,29 @@ If the map doesn't load then I've probably exceeded my free quota…
   }, 100)
 
   map.on('render', updateHash)
+
+  console.time('load fire data')
+  b8r.ajax('https://bindinator.com/services/?modis').then(csv => {
+    console.timeEnd('load fire data')
+    console.time('render markers')
+    // this is a very simple csv file, so we don't need a "real" csv parser
+    csv = csv.split('\n').filter(line => !!line.trim()).map(line => line.split(','));
+    const columns = csv.shift();
+    const fireData = csv.map(row => row.reduce((obj, value, i) => {
+      obj[columns[i]] = value
+      return obj
+    }, {}))
+    fireData.forEach(obj => {
+      const {longitude, latitude} = obj
+      const element = fireIcon.cloneNode(true)
+      b8r.findOneWithin(fireIcon, 'path').setAttribute('fill', `rgb(${obj.confidence * 2.55}, 0, 0)`)
+      obj.marker = new mapboxgl.Marker({
+        element: fireIcon.cloneNode(true),
+      })
+            .setLngLat([longitude, latitude])
+            .addTo(map);
+    })
+    set({fireData})
+    console.timeEnd('render markers')
+  })
 </script>

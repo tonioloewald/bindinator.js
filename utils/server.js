@@ -4,6 +4,7 @@
 const http = require('http')
 const https = require('https')
 const fs = require('fs')
+const { exec } = require('child_process');
 
 const settings = {
   socket: 8017,
@@ -50,13 +51,20 @@ const on = (methods, endpoint, handler) => {
   handlerMap.push(handler)
 }
 
+// route arbitrary endpoints
+on('GET', '/api', (req, res) => {
+  res.writeHead(200)
+  res.end('hello api\n')
+})
+
 const mimeTypes = {
   svg: 'image/svg+xml',
   css: 'text/css',
   jpg: 'image/jpeg',
   png: 'image/png',
   json: 'application/json',
-  js: 'text/javascript'
+  js: 'text/javascript',
+  html: 'text/html',
 }
 
 const handleStaticRequest = (req, res) => {
@@ -76,24 +84,12 @@ const handleStaticRequest = (req, res) => {
     } else {
       const fileExtension = pathname.split('.').pop()
       const mimeType = mimeTypes[fileExtension]
-      if (mimeType) {
-        res.setHeader('content-type', mimeType)
-      }
+      if (mimeType) res.setHeader('content-type', mimeType)
       res.writeHead(200)
       res.end(data)
     }
   })
 }
-
-on('GET', '/api', (req, res) => {
-  res.writeHead(200)
-  res.end('hello api\n')
-})
-
-on('GET', /\/api\/files\/.*/, (req, res) => {
-  res.writeHead(200)
-  res.end('hello files\n')
-})
 
 // TODO
 // Pass urlObj rather than generate it twice
