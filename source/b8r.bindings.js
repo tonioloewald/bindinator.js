@@ -344,10 +344,13 @@ Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
 Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
 Test(() => splitPaths('foo.bar,foo[path.to.id=this is not a test],path.to.method(foo.bar[id=17])')).
   shouldBeJSON(["foo.bar", "foo[path.to.id=this is not a test]", "path.to.method(foo.bar[id=17])"]);
+Test(() => splitPaths('foo.bar,foo[path.to.id=this is, not a test],path.to.method(foo.bar[id=17])')).
+  shouldBeJSON(["foo.bar", "foo[path.to.id=this is, not a test]", "path.to.method(foo.bar[id=17])"]);
 Test(() => splitPaths('path.to.value,path.to[id=17].value,path.to.method(path.to.value,path[11].to.value)')).
   shouldBeJSON(["path.to.value", "path.to[id=17].value", "path.to.method(path.to.value,path[11].to.value)"]);
 Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.value,path.to[id=17].value')).
   shouldBeJSON(["path.to.method(path.to.value,path[11].to.value)", "path.to.value", "path.to[id=17].value"]);
+
 const div = document.createElement('div')
 div.dataset.bind = `
   text=$\{_component_.firstName}
@@ -362,7 +365,8 @@ div.dataset.bind = `
 Test(() => getBindings(div).length).shouldBe(3)
 ~~~~
 */
-const splitPaths = paths => paths.match(/(([^,(]+\([^)]+\))|([^,()]+))/g)
+
+const splitPaths = paths => paths.match(/(([^,([]+\.?)|(\[[^\]]+\]\.?)|\([^)]+\))+/g)
 
 const findBindables = element => findWithin(element, '[data-bind]', true)
 
