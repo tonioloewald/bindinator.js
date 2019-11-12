@@ -1,3 +1,4 @@
+<script src="//bindinator.com/dist/b8r.min.js"></script>
 <div style="text-align: center">
   <img
     alt="bindinator b∞r logo"
