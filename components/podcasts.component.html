@@ -96,6 +96,7 @@ and a simple reflection for consuming RSS feeds.
   }
 
   ._component_ .description {
+    line-height: 1.4;
     min-height: 100px;
   }
 
@@ -230,7 +231,7 @@ and a simple reflection for consuming RSS feeds.
     <h6 data-bind="text=_component_.selectedEpisode.podcast.collectionName"></h6>
   </div>
   <div class="flexible">
-    <p data-bind="text=_component_.selectedEpisode.item.description"></p>
+    <p class="description" data-bind="text=_component_.selectedEpisode.item.description"></p>
   </div>
   <div class="flexfixed">
     <div class="panel">
