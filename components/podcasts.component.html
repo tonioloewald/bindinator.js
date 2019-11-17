@@ -31,6 +31,7 @@ and a simple reflection for consuming RSS feeds.
     border: 10px solid var(--black-40);
     border-radius: 25px;
     overflow: hidden;
+    box-shadow: 0 10px 20px var(--shadow-50);
   }
 
   body > ._component_ {
@@ -197,24 +198,25 @@ and a simple reflection for consuming RSS feeds.
 </div>
 <div 
   class="podcast"
+  data-list="_component_.filterPodcasts(_component_.podcasts,_component_.selectedPodcast):collectionId"
 >
   <h4>
-    <span class="close icon-arrow-left" data-event="click:_component_.closePodcast"></span>
-    <span data-bind="text=_component_.selectedPodcast.collectionName"></span>
+    <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="search"></span>
+    <span data-bind="text=.collectionName"></span>
   </h4>
   <div>
     <a target="_blank" data-bind="
-      attr(href)=_component_.selectedPodcast.collectionViewUrl
-      text=_component_.selectedPodcast.artistName
+      attr(href)=.collectionViewUrl
+      text=.artistName
     "></a>
   </div>
   <div>
-    <img data-bind="img=_component_.selectedPodcast.artworkUrl100">
-    <p class="description" data-bind="text=_component_.selectedPodcast.feed.description"></p>
+    <img data-bind="img=.artworkUrl100">
+    <p class="description" data-bind="text=.feed.description"></p>
   </div>
   <div 
     class="item"
-    data-list="_component_.selectedPodcast.feed.item:_auto_"
+    data-list=".feed.item:_auto_"
     data-event="click:_component_.selectEpisode"
   >
     <span class="title" data-bind="text=.title"></span>
@@ -225,7 +227,7 @@ and a simple reflection for consuming RSS feeds.
 <div class="player">
   <div class="flexfixed">
     <h4>
-      <span class="close icon-arrow-left" data-event="click:_component_.closeEpisode"></span>
+      <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="podcast"></span>
       <span data-bind="text=_component_.selectedEpisode.item.title"></span>
     </h4>
     <img data-bind="img=_component_.selectedEpisode.podcast.artworkUrl100">
@@ -305,6 +307,13 @@ and a simple reflection for consuming RSS feeds.
     return obj
   }
 
+  const showPanel = (whichPanel, element) => {
+    // allow for list computation to finish
+    requestAnimationFrame(() => {
+      component.dataset.panel = typeof whichPanel === 'string' ? whichPanel : element.dataset.panel
+    })
+  }
+
   const cleanseText = elt => elt.textContent.replace(/<.+?>/g, '')
 
   const rssSpec = {
@@ -336,17 +345,18 @@ and a simple reflection for consuming RSS feeds.
     ],
   }
 
-  const selectPodcast = (evt, elt) => {
-    const podcast = b8r.getListInstance(elt)
-    component.dataset.panel = 'podcast'
-    set('selectedPodcast', podcast)
+  const selectPodcast = async (evt, elt) => {
+    const {collectionId} = b8r.getListInstance(elt)
+    set('selectedPodcast', collectionId)
+    showPanel('podcast')
   }
 
   const selectEpisode = (evt, elt) => {
-    const podcast = get('selectedPodcast')
+    const collectionId = get('selectedPodcast')
+    const podcast = get(`podcasts[collectionId=${collectionId}]`)
     const item = b8r.getListInstance(elt)
-    component.dataset.panel = 'episode'
     set('selectedEpisode', { podcast, item, paused: true, position: 0 })
+    showPanel('episode')
   }
 
   const timeUpdate = (evt, audio) => {
@@ -391,12 +401,10 @@ and a simple reflection for consuming RSS feeds.
     podcasts: [],
     doSearch,
     selectPodcast,
-    closePodcast() {
-      component.dataset.panel = 'search'
-    },
+    showPanel,
     selectedPodcast: null,
-    closeEpisode() {
-      component.dataset.panel = 'podcast'
+    filterPodcasts (podcasts, collectionId) {
+      return podcasts.filter(p => p.collectionId === collectionId)
     },
     selectEpisode,
     selectedEpisode: null,
