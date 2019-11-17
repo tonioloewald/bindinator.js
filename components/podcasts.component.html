@@ -1,0 +1,407 @@
+<!--
+# Podcasts
+
+This is a Podcast application implemented using the iTunes media search API
+and a simple reflection for consuming RSS feeds.
+
+<a target="_blank" href="/#body=components/podcasts">View Standalone</a>
+-->
+<style>
+  ._component_ {
+    overflow: hidden;
+    width: 360px;
+    height: 640px;
+    display: flex;
+  }
+
+  ._component_ h3 {
+    padding: 0;
+    margin: 5px;
+    text-align: center;
+  }
+
+  ._component_ h4 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .example._component_ {
+    border: 10px solid var(--black-40);
+    border-radius: 25px;
+    overflow: hidden;
+  }
+
+  body > ._component_ {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  ._component_ > div {
+    padding: 10px;
+    overflow-x: hidden;
+    overflow-y: overlay;
+    height: 100%;
+    flex: 0 0 100%;
+    transition: 0.2s ease-out;
+  }
+
+  ._component_[data-panel=podcast] > div {
+    transform: translateX(-100%);
+  }
+
+  ._component_[data-panel=episode] > div {
+    transform: translateX(-200%);
+  }
+
+  ._component_ .search {
+    width: 100%;
+    border-radius: 99px;
+    padding: 5px 15px;
+  }
+  ._component_ .tag {
+    display: inline-block;
+    background: var(--dark-accent-color);
+    color: var(--dark-text-color);
+    padding: 2px 10px;
+    margin: 2px;
+    border-radius: 99px;
+  }
+
+  ._component_ .podcast {
+    clear: both;
+  }
+
+  ._component_ .podcast img {
+    float: left;
+    margin: 0 10px 10px 0;
+  }
+
+  ._component_ .item {
+    cursor: default;
+    padding: 5px;
+    display: flex;
+  }
+
+  ._component_ .item:hover {
+    background: var(--black-10);
+  }
+
+  ._component_ .title {
+    flex: 1 1 auto;
+    color: var(--dark-accent-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  ._component_ .description {
+    min-height: 100px;
+  }
+
+  ._component_ .pubDate {
+    flex: 0 0 70px;
+  }
+
+  ._component_ .duration {
+    text-align: right;
+    flex: 0 0 60px;
+  }
+
+  ._component_ .tag-container {
+    padding: 5px 0;
+  }
+
+  ._component_ .panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  ._component_ [title=position] {
+    flex: 0 1 200px;
+  }
+
+  ._component_ [title="playback rate"] {
+    flex: 0 1 100px;
+  }
+
+  ._component_ button {
+    text-align: center;
+    border-radius: 999px;
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  ._component_ .large-button {
+    width: 64px;
+    height: 64px;
+    font-size: 32px;
+  }
+
+  ._component_ .player {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  ._component_ .flexfixed {
+    flex: 0 0 auto;
+  }
+
+  ._component_ .flexible {
+    flex: 1 1 auto;
+    overflow: overlay;
+  }
+
+  ._component_ .close {
+    cursor: default;
+    font-size: 16px;
+    opacity: 0.75;
+  }  
+
+  ._component_ .close:hover {
+    opacity: 1;
+  }
+</style>
+<div 
+  class="podcasts"
+>
+  <h3>Avid Listener</h3>
+  <input
+    class="search"
+    placeholder="enter search terms"
+    data-bind="value=_component_.searchTerms"
+    data-event="keyup(Enter):_component_.doSearch"
+  >
+  <div 
+    class="podcast"
+    data-list="_component_.podcasts:collectionId"
+    data-event="click:_component_.selectPodcast"
+  >
+    <h4 data-bind="text=.collectionName"></h4>
+    <div>
+      <a target="_blank" data-bind="attr(href)=.collectionViewUrl;text=.artistName"></a>
+    </div>
+    <div>
+      <img data-bind="img=.artworkUrl100">
+      <p class="description" data-bind="text=.feed.description"></p>
+    </div>
+    <div class="tag-container">
+      <span class="tag" data-list=".genres" data-bind="text=."></span>
+    </div>
+  </div>
+</div>
+<div 
+  class="podcast"
+>
+  <h4>
+    <span class="close icon-arrow-left" data-event="click:_component_.closePodcast"></span>
+    <span data-bind="text=_component_.selectedPodcast.collectionName"></span>
+  </h4>
+  <div>
+    <a target="_blank" data-bind="
+      attr(href)=_component_.selectedPodcast.collectionViewUrl
+      text=_component_.selectedPodcast.artistName
+    "></a>
+  </div>
+  <div>
+    <img data-bind="img=_component_.selectedPodcast.artworkUrl100">
+    <p class="description" data-bind="text=_component_.selectedPodcast.feed.description"></p>
+  </div>
+  <div 
+    class="item"
+    data-list="_component_.selectedPodcast.feed.item:_auto_"
+    data-event="click:_component_.selectEpisode"
+  >
+    <span class="title" data-bind="text=.title"></span>
+    <span class="pubDate" data-bind="text=.pubDate"></span>
+    <span class="duration" data-bind="text=.itunes_duration"></span>
+  </div>
+</div>
+<div class="player">
+  <div class="flexfixed">
+    <h4>
+      <span class="close icon-arrow-left" data-event="click:_component_.closeEpisode"></span>
+      <span data-bind="text=_component_.selectedEpisode.item.title"></span>
+    </h4>
+    <img data-bind="img=_component_.selectedEpisode.podcast.artworkUrl100">
+    <h6 data-bind="text=_component_.selectedEpisode.podcast.collectionName"></h6>
+  </div>
+  <div class="flexible">
+    <p data-bind="text=_component_.selectedEpisode.item.description"></p>
+  </div>
+  <div class="flexfixed">
+    <div class="panel">
+      <button class="icon-backward2"></button>
+      <button 
+        class="large-button"
+        data-bind="class(icon-play4|icon-pause2)=_component_.selectedEpisode.paused"
+        data-event="click:_component_.play"
+      ></button>
+      <button class="icon-forward3"></button>
+    </div>
+    <div class="panel">
+      <input
+        title="position"
+        type="range" 
+        min="0"
+        max="100"
+        data-bind="
+          attr(max)=_component_.selectedEpisode.duration
+          value=_component_.selectedEpisode.position
+        "
+        data-event="
+          change:_component_.setPosition
+        "
+      >
+      <input
+        title="playback rate"
+        type="range"
+        min="0.5"
+        max="2"
+        step="0.1"
+        data-bind="value=_component_.playbackRate"
+      >
+    </div>
+    <audio 
+      class="hidden"
+      data-bind="
+        attr(src)=_component_.selectedEpisode.item.enclosure
+      "
+      data-event="timeupdate:_component_.timeUpdate"
+    ></audio>
+  </div>
+</div>
+<script>
+  ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
+
+  const childByTagName = (elt, tag) => [...elt.children].find(child => child.tagName === tag)
+  const childrenByTagname = (elt, tag) => [...elt.children].filter(child => child.tagName === tag)
+  const xmlToJson = (doc, spec) => {
+    if (! doc) return null
+    const obj = {}
+    b8r.forEachKey(spec, (val, key) => {
+      const prop = key.split(',')[0].replace(/:/g, '_')
+      const tagName = key.split(',').find(k => childByTagName(doc, k))
+      if (! key) return null
+      if (! prop) return null;
+      if (Array.isArray(val)) {
+        obj[prop] = childrenByTagname(doc, tagName).map(child => xmlToJson(child, val[0]))
+      } else if (typeof val === 'function') {
+        const child = childByTagName(doc, tagName)
+        obj[prop] = child ? val(child) : null
+      } else if (typeof val === 'string') {
+        obj[prop] = (childByTagName(doc, tagName) || {}).textContent 
+      } else if (typeof val === 'object') {
+        obj[prop] = xmlToJson(childByTagName(doc, tagName), val)
+      }
+    })
+    return obj
+  }
+
+  const cleanseText = elt => elt.textContent.replace(/<.+?>/g, '')
+
+  const rssSpec = {
+    title: 'text',
+    'description,itunes:summary': cleanseText,
+    image: {
+      url: 'url',
+      title: 'title'
+    },
+    item: [
+      {
+        title: 'text',
+        description: 'text',
+        'media:content': 'url',
+        link: 'url',
+        'itunes:subtitle': 'text',
+        'description,itunes:summary': cleanseText,
+        'itunes:duration': elt => {
+          if (elt.textContent.includes(':')) {
+            return elt.textContent.replace(/^[0:]+/g, '')
+          }
+          const date = new Date(null)
+          date.setSeconds(parseInt(elt.textContent, 10))
+          return date.toISOString().substr(11, 8).replace(/^[0:]+/g, '')
+        },
+        enclosure: elt => elt.getAttribute('url'),
+        pubDate: elt => (new Date(elt.textContent)).toLocaleDateString(),
+      }
+    ],
+  }
+
+  const selectPodcast = (evt, elt) => {
+    const podcast = b8r.getListInstance(elt)
+    component.dataset.panel = 'podcast'
+    set('selectedPodcast', podcast)
+  }
+
+  const selectEpisode = (evt, elt) => {
+    const podcast = get('selectedPodcast')
+    const item = b8r.getListInstance(elt)
+    component.dataset.panel = 'episode'
+    set('selectedEpisode', { podcast, item, paused: true, position: 0 })
+  }
+
+  const timeUpdate = (evt, audio) => {
+    if (audio.duration > 0) {
+      set('selectedEpisode', {
+        duration: audio.duration,
+        position: audio.currentTime,
+        paused: audio.paused,
+      })
+    }
+  }
+
+  const doSearch = async () => {
+    const terms = get('searchTerms').replace(/\s+/g, '+')
+    const data = await b8r.json(`https://itunes.apple.com/search?term=${terms}&media=podcast`)
+    podcasts = data.results.map(p => ({
+      ...p,
+      genres: p.genres.filter(g => g.toLocaleLowerCase() !== 'podcasts')
+    }))
+    set({podcasts})
+
+    podcasts.forEach(async ({collectionId, feedUrl}) => {
+      const feed = await b8r.xml(`https://bindinator.com/services/?rss=${feedUrl}`)
+      set(`podcasts[collectionId=${collectionId}].feed`, xmlToJson(feed.querySelector('rss > channel'), rssSpec))
+    })
+    // console.log(get('podcasts[0]'))
+  }
+
+  const setPosition = () => {
+    findOne('audio').currentTime = parseFloat(get('selectedEpisode.position'))
+  }
+
+  set({
+    playbackRate: 1,
+    searchTerms: '',
+    podcasts: [],
+    doSearch,
+    selectPodcast,
+    closePodcast() {
+      component.dataset.panel = 'search'
+    },
+    selectedPodcast: null,
+    closeEpisode() {
+      component.dataset.panel = 'podcast'
+    },
+    selectEpisode,
+    selectedEpisode: null,
+    play() {
+      const audio = findOne('audio')
+      if(audio.paused) {
+        audio.play()
+      } else {
+        audio.pause()
+      }
+    },
+    timeUpdate,
+    setPosition,
+  })
+
+  set('searchTerms', 'Blank')
+  doSearch()
+</script>
