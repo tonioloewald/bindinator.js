@@ -359,7 +359,7 @@ and a simple reflection for consuming RSS feeds.
 
   const doSearch = async () => {
     const terms = get('searchTerms').replace(/\s+/g, '+')
-    const data = await b8r.json(`https://itunes.apple.com/search?term=${terms}&media=podcast`)
+    const data = await b8r.jsonp(`https://itunes.apple.com/search?term=${terms}&media=podcast`)
     podcasts = data.results.map(p => ({
       ...p,
       genres: p.genres.filter(g => g.toLocaleLowerCase() !== 'podcasts')
