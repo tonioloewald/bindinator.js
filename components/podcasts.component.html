@@ -236,13 +236,13 @@ and a simple reflection for consuming RSS feeds.
   </div>
   <div class="flexfixed">
     <div class="panel">
-      <button class="icon-backward2"></button>
+      <button class="icon-backward2" data-offset="-30" data-event="click:_component_.offsetPosition"></button>
       <button 
         class="large-button"
         data-bind="class(icon-play4|icon-pause2)=_component_.selectedEpisode.paused"
         data-event="click:_component_.play"
       ></button>
-      <button class="icon-forward3"></button>
+      <button class="icon-forward3" data-offset="30" data-event="click:_component_.offsetPosition"></button>
     </div>
     <div class="panel">
       <input
@@ -255,6 +255,7 @@ and a simple reflection for consuming RSS feeds.
           value=_component_.selectedEpisode.position
         "
         data-event="
+          input:_component_.pause
           change:_component_.setPosition
         "
       >
@@ -265,6 +266,7 @@ and a simple reflection for consuming RSS feeds.
         max="2"
         step="0.1"
         data-bind="value=_component_.playbackRate"
+        data-event="input,change:_component_.setRate"
       >
     </div>
     <audio 
@@ -373,8 +375,14 @@ and a simple reflection for consuming RSS feeds.
     // console.log(get('podcasts[0]'))
   }
 
-  const setPosition = () => {
-    findOne('audio').currentTime = parseFloat(get('selectedEpisode.position'))
+  const setPosition = (position) => {
+    const audio = findOne('audio')
+    audio.currentTime = typeof position === 'number' ? position : parseFloat(get('selectedEpisode.position'))
+    audio.play()
+  }
+
+  const setRate = (rate) => {
+    findOne('audio').playbackRate = typeof rate === 'number' ? rate : parseFloat(get('playbackRate'))
   }
 
   set({
@@ -400,8 +408,16 @@ and a simple reflection for consuming RSS feeds.
         audio.pause()
       }
     },
+    pause () {
+      findOne('audio').pause()
+    },
     timeUpdate,
     setPosition,
+    offsetPosition(evt, elt) {
+      const offset = parseFloat(elt.dataset.offset)
+      setPosition(get('selectedEpisode.position') + offset)
+    },
+    setRate,
   })
 
   set('searchTerms', 'Blank')
