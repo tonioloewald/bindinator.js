@@ -102,7 +102,6 @@ b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceEle
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
 b8r.webComponents = webComponents
-
 Object.assign(b8r, _functions)
 
 b8r.cleanupComponentInstances = b8r.debounce(() => {
@@ -555,6 +554,14 @@ _b8r_(b8r)
 
 Object.assign(b8r, _ajax)
 Object.assign(b8r, _sort)
+
+b8r.onRequest(() => {
+  if (b8r.registered('b8rRequestInFlight')) {
+    b8r.set('b8rRequestInFlight', b8r.ajaxRequestsInFlight())
+  } else {
+    b8r.register('b8rRequestInFlight', b8r.ajaxRequestsInFlight())
+  }
+})
 
 const _pathRelativeB8r = _path => {
   return !_path ? b8r : Object.assign({}, b8r, {

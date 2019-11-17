@@ -835,7 +835,7 @@ const register = (name, obj, blockUpdates) => {
       ', all names starting and ending with a single \'_\' are reserved.')
   }
 
-  _register(name, obj, blockUpdates)
+  _register(name, obj)
 
   if (!blockUpdates) {
     touch(name)

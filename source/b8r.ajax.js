@@ -6,6 +6,7 @@
     ajax(url, method, requestData, config)
     json(url, method, requestData, config)
     jsonp(url, method, requestData, config)
+    xml(url, method, requestData, config)
 
 All parameters except `url` are optional.
 
@@ -21,18 +22,38 @@ or:
 
 Also note that these methods are folded into `b8r` by default, so available as
 `b8r.ajax`, etc.
+
+`b8r` automatically registers all requests while they're in flight in the registry
+entry `b8rRequestsInFlight`. This registry entry is a simple array of the
+[XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) objects.
+
+If you want to add your own observers for requests you can use:
+
+    onRequest(method) // to have method called whenever a request updates
+    offRequest(method) // to remove the observer method
 */
 /* global console, XMLHttpRequest */
 
-'use strict'
-
 const _requestsInFlight = []
+
+const observers = []
+const onRequest = method => {
+  if (observers.indexOf(method) === -1) observers.push(method)
+}
+const offRequest = method => {
+  const index = observers.indexOf(method)
+  if (index > -1) observers.splice(index, 1)
+}
+const triggerObservers = () => {
+  observers.forEach(observer => observer())
+}
 
 const _removeInFlightRequest = request => {
   const idx = _requestsInFlight.indexOf(request)
   if (idx > -1) {
     _requestsInFlight.splice(idx, 1)
   }
+  triggerObservers()
 }
 
 const ajax = (url, method, requestData, config) => {
@@ -43,7 +64,13 @@ const ajax = (url, method, requestData, config) => {
     }
     var request = new XMLHttpRequest()
     _requestsInFlight.push(request)
+    triggerObservers()
     request.open(method || 'GET', url, true)
+    /*
+there's now a better way of tracking XHRs in flight
+https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+This would allow straightforward monitoring of progress for any or all requests in flight
+*/
     request.onreadystatechange = () => {
       if (request.readyState === XMLHttpRequest.DONE) {
         switch (Math.floor(request.status / 100)) {
@@ -77,6 +104,26 @@ const ajax = (url, method, requestData, config) => {
   })
 }
 
+/*
+note that XHR can parse the response directly if you set
+responseType = 'document' before firing trhe request
+https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+*/
+
+/* global DOMParser */
+const xml = (url, method, requestData, config) => {
+  return new Promise(function (resolve, reject) {
+    ajax(url, method, requestData, config).then(data => {
+      try {
+        resolve(new DOMParser().parseFromString(data, 'text/xml'))
+      } catch (e) {
+        console.error('Failed to parse data', data, e)
+        reject(e, data)
+      }
+    }, reject)
+  })
+}
+
 const json = (url, method, requestData, config) => {
   return new Promise(function (resolve, reject) {
     ajax(url, method, requestData, config).then(data => {
@@ -107,4 +154,4 @@ const jsonp = (url, method, requestData, config) => {
 
 const ajaxRequestsInFlight = () => _requestsInFlight
 
-export { ajax, json, jsonp, ajaxRequestsInFlight }
+export { ajax, xml, json, jsonp, ajaxRequestsInFlight, onRequest, offRequest }

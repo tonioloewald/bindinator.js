@@ -2192,6 +2192,7 @@ var b8r = (function () {
       ajax(url, method, requestData, config)
       json(url, method, requestData, config)
       jsonp(url, method, requestData, config)
+      xml(url, method, requestData, config)
 
   All parameters except `url` are optional.
 
@@ -2207,15 +2208,38 @@ var b8r = (function () {
 
   Also note that these methods are folded into `b8r` by default, so available as
   `b8r.ajax`, etc.
+
+  `b8r` automatically registers all requests while they're in flight in the registry
+  entry `b8rRequestsInFlight`. This registry entry is a simple array of the
+  [XMLHttpRequest](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) objects.
+
+  If you want to add your own observers for requests you can use:
+
+      onRequest(method) // to have method called whenever a request updates
+      offRequest(method) // to remove the observer method
   */
+  /* global console, XMLHttpRequest */
 
   const _requestsInFlight = [];
+
+  const observers = [];
+  const onRequest = method => {
+    if (observers.indexOf(method) === -1) observers.push(method);
+  };
+  const offRequest = method => {
+    const index = observers.indexOf(method);
+    if (index > -1) observers.splice(index, 1);
+  };
+  const triggerObservers = () => {
+    observers.forEach(observer => observer());
+  };
 
   const _removeInFlightRequest = request => {
     const idx = _requestsInFlight.indexOf(request);
     if (idx > -1) {
       _requestsInFlight.splice(idx, 1);
     }
+    triggerObservers();
   };
 
   const ajax = (url, method, requestData, config) => {
@@ -2226,7 +2250,13 @@ var b8r = (function () {
       }
       var request = new XMLHttpRequest();
       _requestsInFlight.push(request);
+      triggerObservers();
       request.open(method || 'GET', url, true);
+      /*
+  there's now a better way of tracking XHRs in flight
+  https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+  This would allow straightforward monitoring of progress for any or all requests in flight
+  */
       request.onreadystatechange = () => {
         if (request.readyState === XMLHttpRequest.DONE) {
           switch (Math.floor(request.status / 100)) {
@@ -2257,6 +2287,26 @@ var b8r = (function () {
         request.setRequestHeader(prop, config.headers[prop]);
       }
       request.send(requestData);
+    })
+  };
+
+  /*
+  note that XHR can parse the response directly if you set
+  responseType = 'document' before firing trhe request
+  https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+  */
+
+  /* global DOMParser */
+  const xml = (url, method, requestData, config) => {
+    return new Promise(function (resolve, reject) {
+      ajax(url, method, requestData, config).then(data => {
+        try {
+          resolve(new DOMParser().parseFromString(data, 'text/xml'));
+        } catch (e) {
+          console.error('Failed to parse data', data, e);
+          reject(e, data);
+        }
+      }, reject);
     })
   };
 
@@ -2292,9 +2342,12 @@ var b8r = (function () {
 
   var _ajax = /*#__PURE__*/Object.freeze({
     ajax: ajax,
+    xml: xml,
     json: json,
     jsonp: jsonp,
-    ajaxRequestsInFlight: ajaxRequestsInFlight
+    ajaxRequestsInFlight: ajaxRequestsInFlight,
+    onRequest: onRequest,
+    offRequest: offRequest
   });
 
   /**
@@ -6386,7 +6439,6 @@ var b8r = (function () {
   b8r.keystroke = keystroke;
   b8r.modifierKeys = modifierKeys;
   b8r.webComponents = webComponents;
-
   Object.assign(b8r, _functions);
 
   b8r.cleanupComponentInstances = b8r.debounce(() => {
@@ -6839,6 +6891,14 @@ var b8r = (function () {
 
   Object.assign(b8r, _ajax);
   Object.assign(b8r, _sort);
+
+  b8r.onRequest(() => {
+    if (b8r.registered('b8rRequestInFlight')) {
+      b8r.set('b8rRequestInFlight', b8r.ajaxRequestsInFlight());
+    } else {
+      b8r.register('b8rRequestInFlight', b8r.ajaxRequestsInFlight());
+    }
+  });
 
   const _pathRelativeB8r = _path => {
     return !_path ? b8r : Object.assign({}, b8r, {
