@@ -140,11 +140,10 @@ const json = (url, method, requestData, config) => {
   })
 }
 
-let callbackCount = 0;
-const jsonp = (url, callbackParam='callback', timeout=2000) => {
+let callbackCount = 0
+const jsonp = (url, callbackParam = 'callback', timeout = 2000) => {
   return new Promise(function (resolve, reject) {
     const callbackId = `_b8r_jsonp_callback_${++callbackCount}`
-    console.log(callbackId)
     const script = document.createElement('script')
     const cleanup = () => {
       delete window[callbackId]
@@ -157,7 +156,7 @@ const jsonp = (url, callbackParam='callback', timeout=2000) => {
     }
 
     setTimeout(() => {
-      if(script.parentElement) {
+      if (script.parentElement) {
         cleanup()
         reject(new Error('request timed out'))
       }

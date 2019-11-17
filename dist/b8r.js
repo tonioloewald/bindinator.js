@@ -2209,8 +2209,11 @@ var _byExample = /*#__PURE__*/Object.freeze({
 
     ajax(url, method, requestData, config)
     json(url, method, requestData, config)
-    jsonp(url, method, requestData, config)
     xml(url, method, requestData, config)
+
+`jsonp` is also supported (it's effectively always `GET`):
+
+    jsonp(url, callbackParam='callback', timeout=2000)
 
 All parameters except `url` are optional.
 
@@ -2341,18 +2344,30 @@ const json = (url, method, requestData, config) => {
   })
 };
 
-const jsonp = (url, method, requestData, config) => {
+let callbackCount = 0;
+const jsonp = (url, callbackParam = 'callback', timeout = 2000) => {
   return new Promise(function (resolve, reject) {
-    ajax(url, method, requestData, config).then(data => {
-      let parsed = 'null';
-      try {
-        parsed = JSON.parse(data);
-      } catch (e) {
-        console.error('Failed to parse data', data, e);
-        reject(e, data);
+    const callbackId = `_b8r_jsonp_callback_${++callbackCount}`;
+    const script = document.createElement('script');
+    const cleanup = () => {
+      delete window[callbackId];
+      document.body.removeChild(script);
+    };
+
+    window[callbackId] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    setTimeout(() => {
+      if (script.parentElement) {
+        cleanup();
+        reject(new Error('request timed out'));
       }
-      resolve(parsed);
-    }, reject);
+    }, timeout);
+
+    script.src = url + `&${callbackParam}=${callbackId}`;
+    document.body.appendChild(script);
   })
 };
 
