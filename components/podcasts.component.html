@@ -3,22 +3,35 @@
 
 This is a Podcast application implemented using the iTunes 
 [media search API](https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/)
-and a simple reflection for consuming RSS feeds.
+and a simple reflection service for consuming RSS feeds.
 
 <a target="_blank" href="#body=components/podcasts">View Standalone</a>
 -->
 <style>
   ._component_ {
+    position: relative;
     overflow: hidden;
-    width: 360px;
-    height: 640px;
+    width: 300px;
+    height: 600px;
     display: flex;
   }
 
-  ._component_ h3 {
-    padding: 0;
-    margin: 5px;
-    text-align: center;
+  /* faux phone frame */
+  .example._component_ {
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 0 0 10px #111,
+                -0.5px -1px 1px 10px #eee,
+                0.5px 1px 1px 10px #888,
+                0 2px 20px 20px var(--shadow-50);
+    margin: 40px;
+  }
+
+  /* standalone */
+  body > ._component_ {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
   }
 
   ._component_ h4 {
@@ -27,32 +40,24 @@ and a simple reflection for consuming RSS feeds.
     text-overflow: ellipsis;
   }
 
-  .example._component_ {
-    border: 10px solid var(--black-40);
-    border-radius: 25px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px var(--shadow-50);
+  .podcasts h4 {
+    text-align: center;
   }
 
-  body > ._component_ {
-    width: 100vw;
-    height: 100vh;
-  }
-
-  ._component_ > div {
+  ._component_ > * {
+    position: relative;
     padding: 10px;
     overflow-x: hidden;
     overflow-y: overlay;
-    height: 100%;
     flex: 0 0 100%;
     transition: 0.2s ease-out;
   }
 
-  ._component_[data-panel=podcast] > div {
+  ._component_[data-panel=podcast] > * {
     transform: translateX(-100%);
   }
 
-  ._component_[data-panel=episode] > div {
+  ._component_[data-panel=episode] > * {
     transform: translateX(-200%);
   }
 
@@ -60,103 +65,18 @@ and a simple reflection for consuming RSS feeds.
     width: 100%;
     border-radius: 99px;
     padding: 5px 15px;
-  }
-  ._component_ .tag {
-    display: inline-block;
-    background: var(--dark-accent-color);
-    color: var(--dark-text-color);
-    padding: 2px 10px;
-    margin: 2px;
-    border-radius: 99px;
-  }
-
-  ._component_ .podcast {
-    clear: both;
-  }
-
-  ._component_ .podcast img {
-    float: left;
-    margin: 0 10px 10px 0;
+    margin-bottom: 10px;
   }
 
   ._component_ .item {
     cursor: default;
     padding: 5px;
+    text-align: bottom;
     display: flex;
   }
 
   ._component_ .item:hover {
     background: var(--black-10);
-  }
-
-  ._component_ .title {
-    flex: 1 1 auto;
-    color: var(--dark-accent-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  ._component_ .description {
-    line-height: 1.4;
-    min-height: 100px;
-  }
-
-  ._component_ .pubDate {
-    flex: 0 0 70px;
-  }
-
-  ._component_ .duration {
-    text-align: right;
-    flex: 0 0 60px;
-  }
-
-  ._component_ .tag-container {
-    padding: 5px 0;
-  }
-
-  ._component_ .panel {
-    padding: 5px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  ._component_ [title=position] {
-    flex: 0 1 200px;
-  }
-
-  ._component_ [title="playback rate"] {
-    flex: 0 1 100px;
-  }
-
-  ._component_ button {
-    text-align: center;
-    border-radius: 999px;
-    width: 44px;
-    height: 44px;
-    font-size: 16px;
-  }
-
-  ._component_ .large-button {
-    width: 64px;
-    height: 64px;
-    font-size: 32px;
-  }
-
-  ._component_ .player {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  ._component_ .flexfixed {
-    flex: 0 0 auto;
-  }
-
-  ._component_ .flexible {
-    flex: 1 1 auto;
-    overflow: overlay;
   }
 
   ._component_ .close {
@@ -172,117 +92,299 @@ and a simple reflection for consuming RSS feeds.
 <div 
   class="podcasts"
 >
-  <h3>Avid Listener</h3>
+  <h4>Avid Listener</h4>
   <input
     class="search"
     placeholder="enter search terms"
     data-bind="value=_component_.searchTerms"
-    data-event="keyup(Enter):_component_.doSearch"
+    data-event="change:_component_.doSearch"
   >
-  <div 
-    class="podcast"
+  <b8r-component 
+    name="podcast-summary"
     data-list="_component_.podcasts:collectionId"
     data-event="click:_component_.selectPodcast"
-  >
-    <h4 data-bind="text=.collectionName"></h4>
-    <div>
-      <a target="_blank" data-bind="attr(href)=.collectionViewUrl;text=.artistName"></a>
-    </div>
-    <div>
-      <img data-bind="img=.artworkUrl100">
-      <p class="description" data-bind="text=.feed.description"></p>
-    </div>
-    <div class="tag-container">
-      <span class="tag" data-list=".genres" data-bind="text=."></span>
-    </div>
-  </div>
+  ></b8r-component>
 </div>
-<div 
+<b8r-component
   class="podcast"
   data-list="_component_.filterPodcasts(_component_.podcasts,_component_.selectedPodcast):collectionId"
->
-  <h4>
-    <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="search"></span>
-    <span data-bind="text=.collectionName"></span>
-  </h4>
-  <div>
-    <a target="_blank" data-bind="
-      attr(href)=.collectionViewUrl
-      text=.artistName
-    "></a>
-  </div>
-  <div>
-    <img data-bind="img=.artworkUrl100">
-    <p class="description" data-bind="text=.feed.description"></p>
-  </div>
-  <div 
-    class="item"
-    data-list=".feed.item:_auto_"
-    data-event="click:_component_.selectEpisode"
-  >
-    <span class="title" data-bind="text=.title"></span>
-    <span class="pubDate" data-bind="text=.pubDate"></span>
-    <span class="duration" data-bind="text=.itunes_duration"></span>
-  </div>
-</div>
-<div class="player">
-  <div class="flexfixed">
-    <h4>
-      <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="podcast"></span>
-      <span data-bind="text=_component_.selectedEpisode.item.title"></span>
-    </h4>
-    <img data-bind="img=_component_.selectedEpisode.podcast.artworkUrl100">
-    <h6 data-bind="text=_component_.selectedEpisode.podcast.collectionName"></h6>
-  </div>
-  <div class="flexible">
-    <p class="description" data-bind="text=_component_.selectedEpisode.item.description"></p>
-  </div>
-  <div class="flexfixed">
-    <div class="panel">
-      <button class="icon-backward2" data-offset="-30" data-event="click:_component_.offsetPosition"></button>
-      <button 
-        class="large-button"
-        data-bind="class(icon-play4|icon-pause2)=_component_.selectedEpisode.paused"
-        data-event="click:_component_.play"
-      ></button>
-      <button class="icon-forward3" data-offset="30" data-event="click:_component_.offsetPosition"></button>
-    </div>
-    <div class="panel">
-      <input
-        title="position"
-        type="range" 
-        min="0"
-        max="100"
-        data-bind="
-          attr(max)=_component_.selectedEpisode.duration
-          value=_component_.selectedEpisode.position
-        "
-        data-event="
-          input:_component_.pause
-          change:_component_.setPosition
-        "
-      >
-      <input
-        title="playback rate"
-        type="range"
-        min="0.5"
-        max="2"
-        step="0.1"
-        data-bind="value=_component_.playbackRate"
-        data-event="input,change:_component_.setRate"
-      >
-    </div>
-    <audio 
-      class="hidden"
-      data-bind="
-        attr(src)=_component_.selectedEpisode.item.enclosure
-      "
-      data-event="timeupdate:_component_.timeUpdate"
-    ></audio>
-  </div>
-</div>
+  name="podcast-detail"
+></b8r-component>
+<b8r-component
+  data-bind="value=_component_.selectedEpisode"
+  name="podcast-episode"
+></b8r-component>
 <script>
   ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
+
+  b8r.makeComponent('podcast-summary', {
+    css: `
+      ._component_ {
+        display: flex;
+        height: 100px;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      ._component_:hover {
+        background: var(--black-5);
+      }
+
+      ._component_:active {
+        background: var(--black-10);
+      }
+
+      ._component_ > img {
+        flex: 0 0 100px;
+        margin-right: 10px;
+        height: 100px;
+      }
+
+      ._component_ > div {
+        flex: 1 1 auto;
+        position: relative;
+      }
+
+      ._component_ .title {
+        margin-top: 5px;
+        font-size: 18px;
+        color: var(--accent-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      ._component_ .artist {
+        margin-top: 5px;
+        font-size: 14px;
+      }
+
+      ._component_ .tags {
+        font-size: 12px;
+        margin-top: 20px;
+        white-space: nowrap;
+        overflow-x: overlay;
+      }
+
+      ._component_ .tag {
+        display: inline-block;
+        background: var(--accent-color);
+        color: var(--text-color);
+        padding: 2px 10px;
+        margin: 2px;
+        border-radius: 99px;
+      }`,
+    html: `
+      <img data-bind="img=.artworkUrl100">
+      <div>
+        <div class="title" data-bind="text=.collectionName"></div>
+        <div class="artist">
+          <a target="_blank" data-bind="attr(href)=.collectionViewUrl;text=.artistName"></a>
+        </div>
+        <div class="tags">
+          <span class="tag" data-list=".genres" data-bind="text=." data-event="click:_component_.tagSearch"></span>
+        </div>
+      </div>`,
+  })
+
+  b8r.makeComponent('podcast-detail', {
+    css: `
+      ._component_ > p {
+        margin: 5px;
+      }
+
+      ._component_ .description {
+        line-height: 1.4;
+        min-height: 100px;
+      }
+
+      ._component_ .episode-title {
+        flex: 1 1 auto;
+        color: var(--dark-accent-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      ._component_ .pubDate {
+        flex: 0 0 60px;
+        font-size: 11px;
+      }
+
+      ._component_ .duration {
+        text-align: right;
+        flex: 0 0 45px;
+        font-size: 11px;
+      }
+
+      ._component_ .panel {
+        margin: 10px 0;
+      }
+
+      ._component_ button {
+        border: 0;
+        background: var(--black-5);
+        color: var(--dark-accent-color);
+      }
+
+      ._component_ button:hover {
+        background: var(--black-10);
+      }
+
+      ._component_ button:active {
+        background: var(--black-20);
+      }
+
+      ._component_ .loading-component {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translateX(-50%) translateY(-50%) scale(0.5) ;
+      }`,
+    html: `  
+      <h4>
+        <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="search"></span>
+        <span data-bind="text=.collectionName"></span>
+      </h4>
+      <b8r-component name="podcast-summary"></b8r-component>
+      <div class="panel">
+        <button>Subscribe</button>
+        <button>Unsubscribe</button>
+      </div>
+      <b8r-component data-bind="hide_if=.feed" path="components/loading"></b8r-component>
+      <p data-bind="text=.feed.description"></p>
+      <div 
+        class="item"
+        data-list=".feed.item:_auto_"
+        data-event="click:_component_.selectEpisode"
+      >
+        <span class="episode-title" data-bind="text=.title"></span>
+        <span class="pubDate" data-bind="text=.pubDate"></span>
+        <span class="duration" data-bind="text=.itunes_duration"></span>
+      </div>`,
+  })
+
+  b8r.makeComponent('podcast-episode', {
+    css: `
+      ._component_ {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      ._component_ img {
+        max-width: 100%;
+      }
+
+      ._component_ .flexfixed {
+        flex: 0 0 auto;
+      }
+
+      ._component_ .flexible {
+        flex: 1 1 auto;
+        overflow: overlay;
+      }
+
+      ._component_ [title=position] {
+        flex: 0 1 200px;
+      }
+
+      ._component_ [title="playback rate"] {
+        flex: 0 1 100px;
+      }
+
+      ._component_ .panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      ._component_ button {
+        text-align: center;
+        border-radius: 999px;
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+      }
+
+      ._component_ .large-button {
+        width: 64px;
+        height: 64px;
+        font-size: 32px;
+      }
+
+      ._component_ .player {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      ._component_ .flexfixed {
+        padding: 10px 0;
+        flex: 0 0 auto;
+      }
+
+      ._component_ .flexible {
+        flex: 1 1 auto;
+        overflow: overlay;
+      }`,
+    html: `
+      <div class="flexfixed">
+        <h4>
+          <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="podcast"></span>
+          <span data-bind="text=_component_.value.item.title"></span>
+        </h4>
+      </div>
+      <div class="flexible">
+        <img data-bind="img=_component_.value.podcast.artworkUrl600">
+        <h4 data-bind="text=_component_.value.item.title"></h3>
+        <h5 data-bind="text=_component_.value.podcast.artistName"></h5>
+        <p class="description" data-bind="text=_component_.value.item.description"></p>
+      </div>
+      <div class="flexfixed">
+        <div class="panel">
+          <button class="icon-backward2" data-offset="-30" data-event="click:_component_.offsetPosition"></button>
+          <button 
+            class="large-button"
+            data-bind="class(icon-play4|icon-pause2)=_component_.value.paused"
+            data-event="click:_component_.play"
+          ></button>
+          <button class="icon-forward3" data-offset="30" data-event="click:_component_.offsetPosition"></button>
+        </div>
+        <div class="panel">
+          <input
+            title="position"
+            type="range" 
+            min="0"
+            max="100"
+            data-bind="
+              attr(max)=_component_.value.duration
+              value=_component_.value.position
+            "
+            data-event="
+              input:_component_.pause
+              change:_component_.setPosition
+            "
+          >
+          <input
+            title="playback rate"
+            type="range"
+            min="0.5"
+            max="2"
+            step="0.1"
+            data-bind="value=_component_.playbackRate"
+            data-event="input,change:_component_.setRate"
+          >
+        </div>
+        <audio 
+          class="hidden"
+          data-bind="
+            attr(src)=_component_.value.item.enclosure
+          "
+          data-event="timeupdate:_component_.timeUpdate"
+        ></audio>
+      </div>`,
+  })
 
   const childByTagName = (elt, tag) => [...elt.children].find(child => child.tagName === tag)
   const childrenByTagname = (elt, tag) => [...elt.children].filter(child => child.tagName === tag)
@@ -347,9 +449,16 @@ and a simple reflection for consuming RSS feeds.
   }
 
   const selectPodcast = async (evt, elt) => {
-    const {collectionId} = b8r.getListInstance(elt)
+    const {collectionId, feedUrl} = b8r.getListInstance(elt)
+
     set('selectedPodcast', collectionId)
     showPanel('podcast')
+
+    const feed = await b8r.xml(`https://bindinator.com/services/?rss=${feedUrl}`)
+    set(`podcasts[collectionId=${collectionId}]`, {feed: xmlToJson(feed.querySelector('rss > channel'), rssSpec)})
+    // update bug in b8r
+    // efficient list updates prevent the list instance from being automatically updated by a late change
+    b8r.find('.podcast-detail-component').forEach(b8r.bindAll)
   }
 
   const selectEpisode = (evt, elt) => {
@@ -370,20 +479,19 @@ and a simple reflection for consuming RSS feeds.
     }
   }
 
-  const doSearch = async () => {
-    const terms = get('searchTerms').replace(/\s+/g, '+')
-    const data = await b8r.jsonp(`https://itunes.apple.com/search?term=${terms}&media=podcast`)
+  const doSearch = async (searchTerms = '') => {
+    if (typeof searchTerms === 'string') {
+      set({searchTerms})
+    } else {
+      searchTerms = get('searchTerms')
+    }
+    const terms = searchTerms.replace(/\s+/g, '+')
+    const data = await b8r.jsonp(`https://itunes.apple.com/search?term=${terms}&media=podcast&limit=20`)
     podcasts = data.results.map(p => ({
       ...p,
       genres: p.genres.filter(g => g.toLocaleLowerCase() !== 'podcasts')
     }))
     set({podcasts})
-
-    podcasts.forEach(async ({collectionId, feedUrl}) => {
-      const feed = await b8r.xml(`https://bindinator.com/services/?rss=${feedUrl}`)
-      set(`podcasts[collectionId=${collectionId}].feed`, xmlToJson(feed.querySelector('rss > channel'), rssSpec))
-    })
-    // console.log(get('podcasts[0]'))
   }
 
   const setPosition = (position) => {
@@ -426,9 +534,12 @@ and a simple reflection for consuming RSS feeds.
       const offset = parseFloat(elt.dataset.offset)
       setPosition(get('selectedEpisode.position') + offset)
     },
+    tagSearch (evt, elt) {
+      doSearch(elt.textContent)
+      showPanel('search')
+    },
     setRate,
   })
 
-  set('searchTerms', 'Blank')
-  doSearch()
+  doSearch('NPR')
 </script>
