@@ -795,11 +795,7 @@ const set = (path, value, sourceElement) => {
     } else {
       // we only overlay vanilla objects, not custom classes or arrays
       if (value.constructor === Object && existing && existing.constructor === Object) {
-        // we want the final object to be a reference to value (not existing)
-        // but
-        // - we don’t want to lose values in existing that aren’t in value
-        // - we don’t want to damage the original object in case other references exist
-        setByPath(registry, path, Object.assign(value, Object.assign({}, existing, value)))
+        setByPath(registry, path, Object.assign(value, Object.assign(existing, value)))
       } else {
         setByPath(registry, path, value)
       }

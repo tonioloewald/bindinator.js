@@ -3754,11 +3754,7 @@ const set = (path, value, sourceElement) => {
     } else {
       // we only overlay vanilla objects, not custom classes or arrays
       if (value.constructor === Object && existing && existing.constructor === Object) {
-        // we want the final object to be a reference to value (not existing)
-        // but
-        // - we don’t want to lose values in existing that aren’t in value
-        // - we don’t want to damage the original object in case other references exist
-        setByPath(registry, path, Object.assign(value, Object.assign({}, existing, value)));
+        setByPath(registry, path, Object.assign(value, Object.assign(existing, value)));
       } else {
         setByPath(registry, path, value);
       }
@@ -6495,7 +6491,7 @@ b8r.forceUpdate = () => {
 
   while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
     const lists = b8r.find('[data-list]')
-      .map(elt => { return { elt, listBinding: elt.dataset.list } });
+      .map(elt => ({ elt, listBinding: elt.dataset.list }));
     let binds = false; // avoid collecting elements before big list updates
 
     while (updateList.length) {
@@ -7054,9 +7050,6 @@ b8r.insertComponent = async function (component, element, data) {
     }
   });
   element.classList.add(component.name + '-component');
-  if (dataPath) {
-    element.dataset.path = dataPath;
-  }
   const register = componentData => b8r.register(componentId, componentData);
   data = {
     ...data,

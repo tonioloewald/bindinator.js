@@ -125,7 +125,7 @@ b8r.forceUpdate = () => {
 
   while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
     const lists = b8r.find('[data-list]')
-      .map(elt => { return { elt, listBinding: elt.dataset.list } })
+      .map(elt => ({ elt, listBinding: elt.dataset.list }))
     let binds = false // avoid collecting elements before big list updates
 
     while (updateList.length) {
@@ -684,9 +684,6 @@ b8r.insertComponent = async function (component, element, data) {
     }
   })
   element.classList.add(component.name + '-component')
-  if (dataPath) {
-    element.dataset.path = dataPath
-  }
   const register = componentData => b8r.register(componentId, componentData)
   data = {
     ...data,
