@@ -227,6 +227,15 @@ and a simple reflection service for consuming RSS feeds.
         color: var(--dark-accent-color);
       }
 
+      :disabled {
+        opacity: 0.2;
+        pointer-events: none;
+      }
+
+      ._component_ button {
+        border: 0;
+      }
+
       ._component_ button:hover {
         background: var(--black-10);
       }
@@ -305,6 +314,7 @@ and a simple reflection service for consuming RSS feeds.
         width: 44px;
         height: 44px;
         font-size: 16px;
+        transition: 0.25s ease-out;
       }
 
       ._component_ .large-button {
@@ -326,17 +336,6 @@ and a simple reflection service for consuming RSS feeds.
       ._component_ .flexible {
         flex: 1 1 auto;
         overflow: overlay;
-      }
-
-      ._component_ .controls {
-        height: 90px;
-        opacity: 1;
-        transition: 0.25s ease-out;
-      }
-
-      ._component_ .controls.hide {
-        height: 0;
-        opacity: 0;
       }`,
     html: `
       <div class="flexfixed">
@@ -351,15 +350,28 @@ and a simple reflection service for consuming RSS feeds.
         <h5 data-bind="text=_component_.value.podcast.artistName"></h5>
         <p class="description" data-bind="text=_component_.value.item.description"></p>
       </div>
-      <div data-bind="class_unless(hide)=_component_.canplay" style="margin: 10px 0" class="controls flexfixed">
+      <div style="margin: 10px 0" class="controls flexfixed">
         <div class="panel">
-          <button class="icon-backward2" data-offset="-30" data-event="click:_component_.offsetPosition"></button>
+          <button
+            class="icon-backward2"
+            data-offset="-30"
+            data-bind="enabled_if=_component_.canplay"
+            data-event="click:_component_.offsetPosition"
+          ></button>
           <button 
             class="large-button"
-            data-bind="class(icon-play4|icon-pause2)=_component_.value.paused"
+            data-bind="
+              enabled_if=_component_.canplay
+              class(icon-play4|icon-pause2)=_component_.value.paused
+            "
             data-event="click:_component_.play"
           ></button>
-          <button class="icon-forward3" data-offset="30" data-event="click:_component_.offsetPosition"></button>
+          <button 
+            class="icon-forward3"
+            data-offset="30"
+            data-bind="enabled_if=_component_.canplay"
+            data-event="click:_component_.offsetPosition"
+          ></button>
         </div>
         <div class="panel">
           <input
@@ -368,6 +380,7 @@ and a simple reflection service for consuming RSS feeds.
             min="0"
             max="100"
             data-bind="
+              enabled_if=_component_.canplay
               attr(max)=_component_.value.duration
               value=_component_.value.position
             "
@@ -382,7 +395,10 @@ and a simple reflection service for consuming RSS feeds.
             min="0.5"
             max="2"
             step="0.1"
-            data-bind="value=_component_.playbackRate"
+            data-bind="
+              enabled_if=_component_.canplay
+              value=_component_.playbackRate
+            "
             data-event="input,change:_component_.setRate"
           >
         </div>
