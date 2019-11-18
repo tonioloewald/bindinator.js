@@ -5513,6 +5513,9 @@ var b8r = (function () {
           element.removeAttribute(dest);
         } else {
           element.setAttribute(dest, value);
+          // workaround for iOS bug where canplaythrough does not fire
+          // if load has not been explicitly called after setting src
+          if (dest === 'src' && typeof element.load === 'function') element.load();
         }
       },
       prop: function (element, value, property) {
