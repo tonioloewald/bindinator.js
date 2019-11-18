@@ -115,7 +115,7 @@ and a simple reflection service for consuming RSS feeds.
   name="podcast-episode"
 ></b8r-component>
 <script>
-  ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
+  ['canplaythrough', 'loadstart', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
 
   b8r.makeComponent('podcast-summary', {
     css: `
@@ -320,13 +320,23 @@ and a simple reflection service for consuming RSS feeds.
       }
 
       ._component_ .flexfixed {
-        padding: 10px 0;
         flex: 0 0 auto;
       }
 
       ._component_ .flexible {
         flex: 1 1 auto;
         overflow: overlay;
+      }
+
+      ._component_ .controls {
+        height: 90px;
+        opacity: 1;
+        transition: 0.25s ease-out;
+      }
+
+      ._component_ .controls.hide {
+        height: 0;
+        opacity: 0;
       }`,
     html: `
       <div class="flexfixed">
@@ -341,7 +351,7 @@ and a simple reflection service for consuming RSS feeds.
         <h5 data-bind="text=_component_.value.podcast.artistName"></h5>
         <p class="description" data-bind="text=_component_.value.item.description"></p>
       </div>
-      <div class="flexfixed">
+      <div data-bind="class_unless(hide)=_component_.canplay" style="margin: 10px 0" class="controls flexfixed">
         <div class="panel">
           <button class="icon-backward2" data-offset="-30" data-event="click:_component_.offsetPosition"></button>
           <button 
@@ -376,14 +386,29 @@ and a simple reflection service for consuming RSS feeds.
             data-event="input,change:_component_.setRate"
           >
         </div>
-        <audio 
+        <audio
           class="hidden"
           data-bind="
             attr(src)=_component_.value.item.enclosure
           "
-          data-event="timeupdate:_component_.timeUpdate"
+          data-event="
+            loadstart:_component_.audioLoading
+            canplaythrough:_component_.audioCanplay
+            timeupdate:_component_.timeUpdate
+          "
         ></audio>
       </div>`,
+      load({set}) {
+        set({
+          canplay: false,
+          audioLoading() {
+            set('canplay', false)
+          },
+          audioCanplay() {
+            set('canplay', true)
+          }
+        })
+      }
   })
 
   const childByTagName = (elt, tag) => [...elt.children].find(child => child.tagName === tag)
