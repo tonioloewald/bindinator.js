@@ -21,7 +21,7 @@
   --selection-color: rgba(0,64,255,0.25);
   --focus-color: #FF6A5C;
   --pullquote-bg-color: aliceblue;
-  --black-5: rgba(0,0,0,0.5);
+  --black-5: rgba(0,0,0,0.05);
   --black-10: rgba(0,0,0,0.1);
   --black-20: rgba(0,0,0,0.2);
   --black-40: rgba(0,0,0,0.4);
@@ -30,6 +30,7 @@
   --white-75: rgba(255,255,255,0.75);
   --grey-50: rgba(128,128,128,0.5);
   --grey-75: rgba(128,128,128,0.75);
+  --shadow-50: rgba(0,0,0,0.5);
   --shadow-color: rgba(0,0,0,0.5);
 
   --link-color: rgba(64,0,255,0.5);
@@ -50,7 +51,7 @@
     --text-color: #eee;
     --dark-text-color: #222;
     --dark-accent-color: lightskyblue;
-    --light-accent-color: #444;
+    --light-accent-color: #456;
     --bright-accent-color: #346;
     --pullquote-bg-color: #334;
     --code-text-color: #88f;
@@ -60,7 +61,6 @@
     --default-bg-color: #687;
     --cancel-bg-color: #884;
 
-    --shadow-50: rgba(0,0,0,0.5);
     --black-5: rgba(255,255,255,0.05);
     --black-10: rgba(255,255,255,0.1);
     --black-20: rgba(255,255,255,0.2);
