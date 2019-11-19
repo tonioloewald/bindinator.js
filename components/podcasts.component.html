@@ -11,14 +11,36 @@ and a simple reflection service for consuming RSS feeds.
   ._component_ {
     position: relative;
     overflow: hidden;
-    width: 300px;
-    height: 600px;
+    /* iPhone 11 Pro is 1124 x 2436 @458ppi */
+    width: 353px;    /* 1124 * 144/458 */
+    height: 766px;   /* 2436 * 144/458 */
     display: flex;
+    font-size: 14px;
+  }
+
+  ._component_ a {
+    cursor: default;
+    display: inline-block;
+    border: 0;
+    padding: 2px 10px;
+    border-radius: 99px;
+    background: var(--black-5);
+  }
+
+  ._component_ a:hover {
+    background: var(--black-10);
+  }
+
+  ._component_ a:active {
+    background: var(--black-20);
   }
 
   /* faux phone frame */
   .example._component_ {
-    border-radius: 25px;
+    /* iPhone 11 Pro is 1124 x 2436 @458ppi, corner radius ~40px */
+    border-radius: 40px;
+    width: 353px;    /* 1124 * 144/458 */
+    height: 766px;   /* 2436 * 144/458 */
     overflow: hidden;
     box-shadow: 0 0 0 10px #111,
                 -0.5px -1px 1px 10px #eee,
@@ -35,6 +57,7 @@ and a simple reflection service for consuming RSS feeds.
   }
 
   ._component_ h4 {
+    color: var(--text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -68,22 +91,20 @@ and a simple reflection service for consuming RSS feeds.
     margin-bottom: 10px;
   }
 
-  ._component_ .item {
-    cursor: default;
-    padding: 5px;
-    text-align: bottom;
-    display: flex;
-  }
-
-  ._component_ .item:hover {
-    background: var(--black-10);
-  }
-
   ._component_ .close {
+    color: var(--dark-accent-color);
     cursor: default;
     font-size: 16px;
     opacity: 0.75;
-  }  
+  }
+
+  ._component_ .podcasts > .podcast-summary-component:hover {
+    background: var(--black-5);
+  }
+
+  ._component_ .podcasts > .podcast-summary-component:active {
+    background: var(--black-10);
+  }
 
   ._component_ .close:hover {
     opacity: 1;
@@ -92,7 +113,7 @@ and a simple reflection service for consuming RSS feeds.
 <div 
   class="podcasts"
 >
-  <h4>Avid Listener</h4>
+  <h4>Podcasts</h4>
   <input
     class="search"
     placeholder="enter search terms"
@@ -120,18 +141,11 @@ and a simple reflection service for consuming RSS feeds.
   b8r.makeComponent('podcast-summary', {
     css: `
       ._component_ {
+        cursor: default;
         display: flex;
         height: 100px;
         width: 100%;
         overflow: hidden;
-      }
-
-      ._component_:hover {
-        background: var(--black-5);
-      }
-
-      ._component_:active {
-        background: var(--black-10);
       }
 
       ._component_ > img {
@@ -148,7 +162,6 @@ and a simple reflection service for consuming RSS feeds.
       ._component_ .title {
         margin-top: 5px;
         font-size: 18px;
-        color: var(--accent-color);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -162,8 +175,10 @@ and a simple reflection service for consuming RSS feeds.
       ._component_ .tags {
         font-size: 12px;
         margin-top: 20px;
+        padding-bottom: 5px;
         white-space: nowrap;
         overflow-x: overlay;
+        overflow-y: hidden;
       }
 
       ._component_ .tag {
@@ -179,12 +194,24 @@ and a simple reflection service for consuming RSS feeds.
       <div>
         <div class="title" data-bind="text=.collectionName"></div>
         <div class="artist">
-          <a target="_blank" data-bind="attr(href)=.collectionViewUrl;text=.artistName"></a>
+          <a 
+            data-bind="text=.artistName"
+            data-event="click:_component_.visitSite"
+          ></a>
         </div>
         <div class="tags">
           <span class="tag" data-list=".genres" data-bind="text=." data-event="click:_component_.tagSearch"></span>
         </div>
       </div>`,
+    load({set}) {
+      set({
+        visitSite(evt, elt) {
+          const {collectionViewUrl} = b8r.getListInstance(elt);
+          /* global open */
+          open(collectionViewUrl, '_blank');
+        }
+      })
+    }
   })
 
   b8r.makeComponent('podcast-detail', {
@@ -195,26 +222,13 @@ and a simple reflection service for consuming RSS feeds.
 
       ._component_ .description {
         line-height: 1.4;
-        min-height: 100px;
       }
 
       ._component_ .episode-title {
         flex: 1 1 auto;
-        color: var(--dark-accent-color);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-
-      ._component_ .pubDate {
-        flex: 0 0 60px;
-        font-size: 11px;
-      }
-
-      ._component_ .duration {
-        text-align: right;
-        flex: 0 0 45px;
-        font-size: 11px;
       }
 
       ._component_ .panel {
@@ -244,6 +258,14 @@ and a simple reflection service for consuming RSS feeds.
         background: var(--black-20);
       }
 
+      ._component_ .podcast-episode-summary-component:hover {
+        background: var(--black-5);
+      }
+
+      ._component_ .podcast-episode-summary-component:active {
+        background: var(--black-10);
+      }
+
       ._component_ .loading-component {
         position: absolute;
         left: 50%;
@@ -262,14 +284,53 @@ and a simple reflection service for consuming RSS feeds.
       </div>
       <b8r-component data-bind="hide_if=.feed" path="components/loading"></b8r-component>
       <p data-bind="text=.feed.description"></p>
-      <div 
+      <b8r-component
+        name="podcast-episode-summary" 
         class="item"
         data-list=".feed.item:_auto_"
         data-event="click:_component_.selectEpisode"
-      >
-        <span class="episode-title" data-bind="text=.title"></span>
-        <span class="pubDate" data-bind="text=.pubDate"></span>
-        <span class="duration" data-bind="text=.itunes_duration"></span>
+      ></b8r-component>`,
+  })
+
+  b8r.makeComponent('podcast-episode-summary', {
+    css: `
+      ._component_ {
+        cursor: default;
+        padding: 5px;
+        display: block;
+      }
+
+      ._component_ label {
+        color: var(--dark-accent-color);
+      }
+
+      ._component_ label > * {
+        color: var(--text-color);
+      }
+
+      ._component_ .info {
+        font-size: 11px;
+      }
+
+      ._component_ .pubDate {
+        font-size: 11px;
+      }
+
+      ._component_ .duration {
+        font-size: 11px;
+      }
+    `,
+    html: `
+      <div class="episode-title" data-bind="text=.title"></div>
+      <div class="info">
+        <label>
+          Date
+          <span class="pubDate" data-bind="text=.pubDate"></span>
+        </label>
+        <label>
+          Duration
+          <span class="duration" data-bind="text=.itunes_duration"></span>
+        </label>
       </div>`,
   })
 
@@ -279,10 +340,15 @@ and a simple reflection service for consuming RSS feeds.
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        color: (--text-color);
       }
 
       ._component_ img {
         max-width: 100%;
+      }
+
+      ._component_ .description {
+        line-height: 1.4;
       }
 
       ._component_ .flexfixed {
@@ -291,6 +357,8 @@ and a simple reflection service for consuming RSS feeds.
 
       ._component_ .flexible {
         flex: 1 1 auto;
+        margin: 0 -10px;
+        padding: 0 10px;
         overflow: overlay;
       }
 
@@ -347,7 +415,15 @@ and a simple reflection service for consuming RSS feeds.
       <div class="flexible">
         <img data-bind="img=_component_.value.podcast.artworkUrl600">
         <h4 data-bind="text=_component_.value.item.title"></h3>
-        <h5 data-bind="text=_component_.value.podcast.artistName"></h5>
+        <div>
+          <a
+            target="_blank"
+            data-bind="
+              attr(href)=_component_.value.podcast.collectionViewUrl
+              text=_component_.value.podcast.artistName
+            "
+          ></a>
+        </div>
         <p class="description" data-bind="text=_component_.value.item.description"></p>
       </div>
       <div style="margin: 10px 0" class="controls flexfixed">
