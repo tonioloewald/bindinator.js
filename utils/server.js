@@ -63,7 +63,29 @@ const mimeTypes = {
   png: 'image/png',
   json: 'application/json',
   js: 'text/javascript',
-  html: 'text/html'
+  html: 'text/html',
+  mp4: 'video/mp4',
+  mov: 'video/quicktime'
+}
+
+const getRange = (req, content) => {
+  const range = req.headers.range
+  if (! range) return null
+  const total = content.length
+  const parts = range.replace(/bytes=/, "").split("-")
+  const partialstart = parts[0]
+  const partialend = parts[1]
+
+  const start = parseInt(partialstart, 10)
+  const end = partialend ? parseInt(partialend, 10) : total
+  const chunksize = (end - start)
+
+  return {
+    start,
+    end,
+    total,
+    chunksize
+  }
 }
 
 const handleStaticRequest = (req, res) => {
@@ -76,16 +98,34 @@ const handleStaticRequest = (req, res) => {
   if (pathname === '/') {
     pathname = '/index.html'
   }
+
+  const range = req.headers
   fs.readFile(settings.web_root + pathname, (err, data) => {
     if (err) {
       res.writeHead(404)
       res.end('not found')
     } else {
+      const range = getRange(req, data)
       const fileExtension = pathname.split('.').pop()
       const mimeType = mimeTypes[fileExtension]
       if (mimeType) res.setHeader('content-type', mimeType)
-      res.writeHead(200)
-      res.end(data)
+      if (range) {
+        const {
+          start,
+          end,
+          total,
+          chunksize
+        } = range
+        res.writeHead(206, {
+          "Content-Range": "bytes " + start + "-" + end + "/" + total,
+          "Accept-Ranges": "bytes",
+          "Content-Length": chunksize,
+        })
+        res.end(data.slice(start, end))
+      } else {
+        res.writeHead(200)
+        res.end(data)
+      }
     }
   })
 }
