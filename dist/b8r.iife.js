@@ -1416,7 +1416,19 @@ var b8r = (function () {
 
   The part of the list-binding after the `:` is the *id path* which is used to
   identify list instances and minimize dom updates. Where possible, use an
-  *id path* for list binding.
+  *id path* for list binding. Also, consistently use the same *id-path* for
+  all instances of a given list.
+
+  To update a list instance and have all renderings of that list instance
+  be efficiently updated:
+
+      b8r.setListInstance(elt, (existing) => {
+        ...
+        return modified // the modified instance or a replacement
+      })
+
+  **Note** that you shouldn't modify the id-path of the instance (if
+  you're doing that, rebind the list).
 
   For more information on *id paths* see the `byPath` documentation.
 
@@ -3335,7 +3347,7 @@ var b8r = (function () {
       return _compute(path, element)
     } else if (path.startsWith('.')) {
       const elt = element.closest('[data-list-instance]');
-      return elt ? getByPath(elt._b8rListInstance, path.substr(1)) : undefined
+      return elt ? getByPath(registry, `${elt.dataset.listInstance}${path}`) : undefined
     } else {
       path = resolvePath(path, element);
       if ( !isValidPath(path)) {
@@ -6652,6 +6664,14 @@ var b8r = (function () {
   b8r.getListInstance = elt => {
     const instancePath = b8r.getListInstancePath(elt);
     return instancePath ? b8r.get(instancePath, elt) : null
+  };
+
+  b8r.setListInstance = (elt, mutation) => {
+    const instance = b8r.getListInstance(elt);
+    const path = b8r.getListInstancePath(elt);
+    const mutated = mutation(instance);
+    b8r.set(path, mutated);
+    b8r.find(`[data-list-instance="${path}"]`).forEach(b8r.touchElement);
   };
 
   b8r.getListTemplate = elt => {

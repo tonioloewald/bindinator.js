@@ -303,6 +303,14 @@ b8r.getListInstance = elt => {
   return instancePath ? b8r.get(instancePath, elt) : null
 }
 
+b8r.setListInstance = (elt, mutation) => {
+  const instance = b8r.getListInstance(elt)
+  const path = b8r.getListInstancePath(elt)
+  const mutated = mutation(instance)
+  b8r.set(path, mutated)
+  b8r.find(`[data-list-instance="${path}"]`).forEach(b8r.touchElement)
+}
+
 b8r.getListTemplate = elt => {
   elt = elt.closest('[data-list-instance]')
   do {

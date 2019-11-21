@@ -234,7 +234,19 @@ will be instanced for each element of the list.
 
 The part of the list-binding after the `:` is the *id path* which is used to
 identify list instances and minimize dom updates. Where possible, use an
-*id path* for list binding.
+*id path* for list binding. Also, consistently use the same *id-path* for
+all instances of a given list.
+
+To update a list instance and have all renderings of that list instance
+be efficiently updated:
+
+    b8r.setListInstance(elt, (existing) => {
+      ...
+      return modified // the modified instance or a replacement
+    })
+
+**Note** that you shouldn't modify the id-path of the instance (if
+you're doing that, rebind the list).
 
 For more information on *id paths* see the `byPath` documentation.
 

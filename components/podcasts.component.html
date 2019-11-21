@@ -11,9 +11,6 @@ and a simple reflection service for consuming RSS feeds.
   ._component_ {
     position: relative;
     overflow: hidden;
-    /* iPhone 11 Pro is 1124 x 2436 @458ppi */
-    width: 353px;    /* 1124 * 144/458 */
-    height: 766px;   /* 2436 * 144/458 */
     display: flex;
     font-size: 14px;
   }
@@ -39,14 +36,27 @@ and a simple reflection service for consuming RSS feeds.
   .example._component_ {
     /* iPhone 11 Pro is 1124 x 2436 @458ppi, corner radius ~40px */
     border-radius: 40px;
-    width: 353px;    /* 1124 * 144/458 */
-    height: 766px;   /* 2436 * 144/458 */
+    width: 375px;
+    height: 812px;
     overflow: hidden;
     box-shadow: 0 0 0 10px #111,
                 -0.5px -1px 1px 10px #eee,
                 0.5px 1px 1px 10px #888,
                 0 2px 20px 20px var(--shadow-50);
     margin: 40px;
+  }
+
+  .example._component_:after {
+    background: url(test/iphone-11-pro.svg);
+    content: ' ';
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 100;
+    pointer-events: none;
   }
 
   /* standalone */
@@ -58,6 +68,9 @@ and a simple reflection service for consuming RSS feeds.
 
   ._component_ h4 {
     color: var(--text-color);
+  }
+
+  ._component_ .nowrap {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -69,7 +82,7 @@ and a simple reflection service for consuming RSS feeds.
 
   ._component_ > * {
     position: relative;
-    padding: 20px 10px 30px;
+    padding: 30px 10px;
     overflow-x: hidden;
     overflow-y: overlay;
     flex: 0 0 100%;
@@ -96,8 +109,8 @@ and a simple reflection service for consuming RSS feeds.
     cursor: default;
     font-size: 16px;
     opacity: 0.75;
-    padding-right: 20px;
-    margin-right: -20px;
+    padding: 10px;
+    margin: -10px;
   }
 
   ._component_ .podcasts > .podcast-summary-component:hover {
@@ -115,7 +128,7 @@ and a simple reflection service for consuming RSS feeds.
 <div 
   class="podcasts"
 >
-  <h4>Podcasts</h4>
+  <h4 class="nowrap">Podcasts</h4>
   <input
     class="search"
     placeholder="enter search terms"
@@ -275,14 +288,16 @@ and a simple reflection service for consuming RSS feeds.
         transform: translateX(-50%) translateY(-50%) scale(0.5) ;
       }`,
     html: `  
-      <h4>
+      <h4 class="nowrap">
         <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="search"></span>
         <span data-bind="text=.collectionName"></span>
       </h4>
       <b8r-component name="podcast-summary"></b8r-component>
       <div class="panel">
-        <button>Subscribe</button>
-        <button>Unsubscribe</button>
+        <button data-event="click:_component_.toggleSubscribe">
+          <span data-bind="hide_if=.subscribed">Subscribe</span>
+          <span data-bind="show_if=.subscribed">Unsubscribe</span>
+        </button>
       </div>
       <b8r-component data-bind="hide_if=.feed" path="components/loading"></b8r-component>
       <p data-bind="text=.feed.description"></p>
@@ -310,14 +325,11 @@ and a simple reflection service for consuming RSS feeds.
         color: var(--text-color);
       }
 
-      ._component_ .info {
-        font-size: 11px;
+      ._component_ .episode-title {
+        font-size: 14px;
       }
 
-      ._component_ .pubDate {
-        font-size: 11px;
-      }
-
+      ._component_ .pubDate,
       ._component_ .duration {
         font-size: 11px;
       }
@@ -409,7 +421,7 @@ and a simple reflection service for consuming RSS feeds.
       }`,
     html: `
       <div class="flexfixed">
-        <h4>
+        <h4 class="nowrap">
           <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="podcast"></span>
           <span data-bind="text=_component_.value.item.title"></span>
         </h4>
@@ -658,6 +670,12 @@ and a simple reflection service for consuming RSS feeds.
       showPanel('search')
     },
     setRate,
+    toggleSubscribe (evt, elt) {
+      b8r.setListInstance(elt, instance => ({
+        ...instance,
+        subscribed: !instance.subscribed
+      }))
+    }
   })
 
   doSearch('NPR')

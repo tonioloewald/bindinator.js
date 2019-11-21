@@ -70,9 +70,9 @@ const mimeTypes = {
 
 const getRange = (req, content) => {
   const range = req.headers.range
-  if (! range) return null
+  if (!range) return null
   const total = content.length
-  const parts = range.replace(/bytes=/, "").split("-")
+  const parts = range.replace(/bytes=/, '').split('-')
   const partialstart = parts[0]
   const partialend = parts[1]
 
@@ -99,7 +99,6 @@ const handleStaticRequest = (req, res) => {
     pathname = '/index.html'
   }
 
-  const range = req.headers
   fs.readFile(settings.web_root + pathname, (err, data) => {
     if (err) {
       res.writeHead(404)
@@ -117,9 +116,9 @@ const handleStaticRequest = (req, res) => {
           chunksize
         } = range
         res.writeHead(206, {
-          "Content-Range": "bytes " + start + "-" + end + "/" + total,
-          "Accept-Ranges": "bytes",
-          "Content-Length": chunksize,
+          'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunksize
         })
         res.end(data.slice(start, end))
       } else {

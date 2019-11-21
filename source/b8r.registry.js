@@ -394,7 +394,7 @@ const _get = (path, element) => {
     return _compute(path, element)
   } else if (path.startsWith('.')) {
     const elt = element.closest('[data-list-instance]')
-    return elt ? getByPath(elt._b8rListInstance, path.substr(1)) : undefined
+    return elt ? getByPath(registry, `${elt.dataset.listInstance}${path}`) : undefined
   } else {
     path = resolvePath(path, element)
     if (debugPaths && !isValidPath(path)) {
