@@ -44,6 +44,8 @@ and a simple reflection service for consuming RSS feeds.
                 0.5px 1px 1px 10px #888,
                 0 2px 20px 20px var(--shadow-50);
     margin: 40px;
+    /* fools Safari into less bug rendering path; stops svg clipping error on push-scroll */
+    transform: translateX(0px);
   }
 
   .example._component_:after {
@@ -105,12 +107,12 @@ and a simple reflection service for consuming RSS feeds.
   }
 
   ._component_ .close {
+    cursor: default;
     color: var(--dark-accent-color);
     cursor: default;
     font-size: 16px;
     opacity: 0.75;
-    padding: 10px;
-    margin: -10px;
+    padding: 5px 5px 5px 0;
   }
 
   ._component_ .podcasts > .podcast-summary-component:hover {
@@ -177,9 +179,6 @@ and a simple reflection service for consuming RSS feeds.
       ._component_ .title {
         margin-top: 5px;
         font-size: 18px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       ._component_ .artist {
@@ -207,8 +206,8 @@ and a simple reflection service for consuming RSS feeds.
     html: `
       <img data-bind="img=.artworkUrl100">
       <div>
-        <div class="title" data-bind="text=.collectionName"></div>
-        <div class="artist">
+        <div class="title nowrap" data-bind="text=.collectionName"></div>
+        <div class="artist nowrap">
           <a 
             data-bind="text=.artistName"
             data-event="click:_component_.visitSite"
@@ -263,14 +262,20 @@ and a simple reflection service for consuming RSS feeds.
 
       ._component_ button {
         border: 0;
+        opacity: 0.8;
+      }
+
+      ._component_ .on {
+        background: var(--accent-color);
+        color: var(--text-color);
       }
 
       ._component_ button:hover {
-        background: var(--black-10);
+        opacity: 0.9;
       }
 
       ._component_ button:active {
-        background: var(--black-20);
+        opacity: 1.0;
       }
 
       ._component_ .podcast-episode-summary-component:hover {
@@ -286,21 +291,28 @@ and a simple reflection service for consuming RSS feeds.
         left: 50%;
         top: 50%;
         transform: translateX(-50%) translateY(-50%) scale(0.5) ;
+      }
+
+      ._component_ .description {
+        font-size: 16px;
       }`,
     html: `  
       <h4 class="nowrap">
-        <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="search"></span>
+        <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="library"></span>
         <span data-bind="text=.collectionName"></span>
       </h4>
       <b8r-component name="podcast-summary"></b8r-component>
       <div class="panel">
-        <button data-event="click:_component_.toggleSubscribe">
+        <button 
+          data-event="click:_component_.toggleSubscribe"
+          data-bind="class(on)=.subscribed"
+        >
           <span data-bind="hide_if=.subscribed">Subscribe</span>
-          <span data-bind="show_if=.subscribed">Unsubscribe</span>
+          <span data-bind="show_if=.subscribed">Subscribed</span>
         </button>
       </div>
       <b8r-component data-bind="hide_if=.feed" path="components/loading"></b8r-component>
-      <p data-bind="text=.feed.description"></p>
+      <p class="description" data-bind="text=.feed.description"></p>
       <b8r-component
         name="podcast-episode-summary" 
         class="item"
@@ -313,7 +325,7 @@ and a simple reflection service for consuming RSS feeds.
     css: `
       ._component_ {
         cursor: default;
-        padding: 5px;
+        padding: 5px 5px 10px;
         display: block;
       }
 
@@ -326,7 +338,8 @@ and a simple reflection service for consuming RSS feeds.
       }
 
       ._component_ .episode-title {
-        font-size: 14px;
+        font-size: 16px;
+        margin: 5px 0;
       }
 
       ._component_ .pubDate,
@@ -667,7 +680,7 @@ and a simple reflection service for consuming RSS feeds.
     },
     tagSearch (evt, elt) {
       doSearch(elt.textContent)
-      showPanel('search')
+      showPanel('library')
     },
     setRate,
     toggleSubscribe (evt, elt) {
