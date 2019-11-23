@@ -113,6 +113,10 @@ const list = [
   obj
 ]
 
+const error = console.error; // prevent errors from leaking to console
+errors = []
+console.error = message => errors.push(message)
+
 Test(() => getByPath(obj, '')).shouldBe(obj);
 Test(() => getByPath(obj, '/')).shouldBe(obj);
 Test(() => getByPath(obj, 'foo')).shouldBe(17);
@@ -168,6 +172,14 @@ Test(() => {
   }
   return caught;
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
+Test(() => errors, 'bad list bindings reported').shouldBeJSON([
+  "inconsistent id-path bar.baz used for array, expected id",
+  "inconsistent id-path id used for array, expected id",
+  "inconsistent id-path id used for array, expected id",
+  "inconsistent id-path id used for array, expected id"]
+);
+
+console.error = error
 ~~~~
 */
 /* global console */
@@ -214,7 +226,12 @@ function pathParts (path) {
   }
 }
 
-function buildKeypathValueMap (array, keyPath) {
+function buildIdPathValueMap (array, idPath) {
+  if (array && !array._b8r_id_path) {
+    array._b8r_id_path = idPath
+  } else if (array._b8r_value_path !== idPath) {
+    console.error(`inconsistent id-path ${idPath} used for array, expected ${array._b8r_id_path}`)
+  }
   if (!array._b8r_value_maps) {
     // hide the map of maps in a closure that is returned by a computed property so that
     // the source objects are not "polluted" upon serialization
@@ -223,25 +240,25 @@ function buildKeypathValueMap (array, keyPath) {
   }
   const map = {}
   array.forEach((item, idx) => {
-    map[getByPath(item, keyPath) + ''] = idx
+    map[getByPath(item, idPath) + ''] = idx
   })
-  array._b8r_value_maps[keyPath] = map
+  array._b8r_value_maps[idPath] = map
 
   return map
 }
 
-function getKeypathMap (array, keyPath) {
-  if (!array._b8r_value_maps || !array._b8r_value_maps[keyPath]) {
-    return buildKeypathValueMap(array, keyPath)
+function getIdPathMap (array, idPath) {
+  if (!array._b8r_value_maps || !array._b8r_value_maps[idPath]) {
+    return buildIdPathValueMap(array, idPath)
   } else {
-    return array._b8r_value_maps[keyPath]
+    return array._b8r_value_maps[idPath]
   }
 }
 
-function keyToIndex (array, keyPath, keyValue) {
-  let idx = getKeypathMap(array, keyPath)[keyValue]
-  if (idx === undefined || getByPath(array[idx], keyPath) + '' !== keyValue + '') {
-    idx = buildKeypathValueMap(array, keyPath)[keyValue]
+function keyToIndex (array, idPath, idValue) {
+  let idx = getIdPathMap(array, idPath)[idValue]
+  if (idx === undefined || getByPath(array[idx], idPath) + '' !== idValue + '') {
+    idx = buildIdPathValueMap(array, idPath)[idValue]
   }
   return idx
 }
@@ -253,27 +270,27 @@ function byKey (obj, key, valueToInsert) {
   return obj[key]
 }
 
-function byKeyPath (array, keyPath, keyValue, valueToInsert) {
-  let idx = keyPath ? keyToIndex(array, keyPath, keyValue) : keyValue
+function byIdPath (array, idPath, idValue, valueToInsert) {
+  let idx = idPath ? keyToIndex(array, idPath, idValue) : idValue
   if (valueToInsert === _delete_) {
-    if (!keyPath) {
+    if (!idPath) {
       delete array[idx]
     } else {
       array.splice(idx, 1)
     }
     return null
   } else if (valueToInsert === _newObject_) {
-    if (!keyPath && !array[idx]) {
+    if (!idPath && !array[idx]) {
       array[idx] = {}
     }
   } else if (valueToInsert) {
     if (idx !== undefined) {
       array[idx] = valueToInsert
-    } else if (keyPath && getByPath(valueToInsert, keyPath) + '' === keyValue + '') {
+    } else if (idPath && getByPath(valueToInsert, idPath) + '' === idValue + '') {
       array.push(valueToInsert)
       idx = array.length - 1
     } else {
-      throw new Error(`byKeyPath insert failed at [${keyPath}=${keyValue}]`)
+      throw new Error(`byIdPath insert failed at [${idPath}=${idValue}]`)
     }
   }
   return array[idx]
@@ -312,8 +329,8 @@ function getByPath (obj, path) {
           found = undefined
         }
       } else if (part.indexOf('=') > -1) {
-        const [keyPath, ...tail] = part.split('=')
-        found = byKeyPath(found, keyPath, tail.join('='))
+        const [idPath, ...tail] = part.split('=')
+        found = byIdPath(found, idPath, tail.join('='))
       } else {
         j = parseInt(part, 10)
         found = found[j]
@@ -337,9 +354,9 @@ function setByPath (orig, path, val) {
         } else {
           expectArray(obj)
         }
-        const keyPath = part.substr(0, equalsOffset)
-        const keyValue = part.substr(equalsOffset + 1)
-        obj = byKeyPath(obj, keyPath, keyValue, parts.length ? _newObject_ : val)
+        const idPath = part.substr(0, equalsOffset)
+        const idValue = part.substr(equalsOffset + 1)
+        obj = byIdPath(obj, idPath, idValue, parts.length ? _newObject_ : val)
         if (!parts.length) {
           return true
         }
