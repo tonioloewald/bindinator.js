@@ -42,7 +42,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: midnightblue;
+    --bg-color: #282840;
     --content-bg-color: #222;
     --faded-bg-color: #444;
     --example-bg-color: rgb(39, 39, 49);
