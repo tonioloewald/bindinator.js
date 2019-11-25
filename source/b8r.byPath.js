@@ -229,7 +229,7 @@ function pathParts (path) {
 function buildIdPathValueMap (array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath
-  } else if (array._b8r_value_path !== idPath) {
+  } else if (array._b8r_id_path !== idPath) {
     console.error(`inconsistent id-path ${idPath} used for array, expected ${array._b8r_id_path}`)
   }
   if (!array._b8r_value_maps) {
