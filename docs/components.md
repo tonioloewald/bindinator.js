@@ -106,7 +106,13 @@ For a component named 'baz' defined or loaded elsewhere:
     <b8r-component name="baz"></b8r-component>
 
 Note that `b8r` still supports the use of the `data-component="foobar"` attribute 
-but it is deprecated. (It's equivalent to `<bar-component name="foobar">`)
+but it is *deprecated*. (It's equivalent to `<bar-component name="foobar">`)
+
+> ### Relative Paths
+> Note that when using *relative* paths, the path to a **javascript**
+> component is relative to that of the script which is executing (so, `path/to/b8r.js` 
+> by default), while the path to an **html** component is relative to the component
+> in which it is embedded.
 
 You can insert components programmatically using `b8r.insertComponent` and `b8r.componentOnce`.
 

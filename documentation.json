@@ -551,6 +551,10 @@
         "path": "analog-clock.component.html"
       },
       {
+        "name": "Analog Clock (JS)",
+        "path": "components/analog-clock.component.js"
+      },
+      {
         "name": "Speech",
         "path": "speech.component.html"
       },
