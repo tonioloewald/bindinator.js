@@ -16,7 +16,7 @@ Load component at `path/to/foo.component.html` and name it 'foo':
 Load component at `path/to/foo.component.html` and name it 'bar':
 
     b8r.component('bar', 'path/to/foo')
-  
+
 Load (javascript) component from `path/to/foo.js` and name it 'foo':
 
     b8r.component('path/to/foo.js')
@@ -31,10 +31,10 @@ registry entries.
 
 **Why would you rename a component?** You might be trying to use components from
 different sources that share a name, or you might want to style the same component
-differently in different contexts. Any component instance will be given the 
+differently in different contexts. Any component instance will be given the
 class `<component-name>-component`.
 
-As soon as a component is loaded, instances of the component will automatically be 
+As soon as a component is loaded, instances of the component will automatically be
 inserted where-ever they were specified.
 
     b8r.insertComponent(component, element, data);
