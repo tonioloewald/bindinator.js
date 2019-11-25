@@ -172,12 +172,7 @@ Test(() => {
   }
   return caught;
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
-Test(() => errors, 'bad list bindings reported').shouldBeJSON([
-  "inconsistent id-path bar.baz used for array, expected id",
-  "inconsistent id-path id used for array, expected id",
-  "inconsistent id-path id used for array, expected id",
-  "inconsistent id-path id used for array, expected id"]
-);
+Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path bar.baz used for array, expected id"]);
 
 console.error = error
 ~~~~
