@@ -1,36 +1,48 @@
 /**
 # Components
 
-    component(name, url);
+Load a component from a specified url (and give it the name specified). If no
+name is specified, it will be inferred from the url (the part of the file name
+before the first period).
 
-Loads component from url registers it as "name". (Components are registered
-separately from other objects.)
+    b8r.component([name,] url)
 
-Returns a promise of the component once loaded.
+Load component at `path/to/foo.component.html` and name it 'foo':
 
-    component('path/to/name');
+    b8r.component('path/to/foo')
+    // or
+    b8r.component('path/to/foo.component.html')
 
-If just a path is provided, the name of the component will be
-inferred.
+Load component at `path/to/foo.component.html` and name it 'bar':
 
-**Note**: the extension `.component.html` is appended to urls.
+    b8r.component('bar', 'path/to/foo')
+  
+Load (javascript) component from `path/to/foo.js` and name it 'foo':
 
-Instances of the component will automatically be inserted as expected once
-loaded.
+    b8r.component('path/to/foo.js')
 
-**Also note**: you can usually avoid the pattern:
+Load (javascript) component from `path/to/bar.component.js` and name it 'bar':
 
-    component(...).then(c => b8r.insertComponent(c, target))
+    b8r.component('path/to/bar.component.js')
 
-By simply binding the component to the target and letting nature take its
-course.
+`b8r.component(...)` returns a promise of the component once loaded. Components
+are not stored in the registry so don't worry about their names conflicting with
+registry entries.
+
+**Why would you rename a component?** You might be trying to use components from
+different sources that share a name, or you might want to style the same component
+differently in different contexts. Any component instance will be given the 
+class `<component-name>-component`.
+
+As soon as a component is loaded, instances of the component will automatically be 
+inserted where-ever they were specified.
 
     b8r.insertComponent(component, element, data);
 
-insert a component by name or by passing a component record (e.g. promised by
+Insert a component by name or by passing a component record (e.g. promised by
 component() or produced by makeComponent)
 
-If no element is provided, the component will be appended to `document.body`.
+If no element is provided, insertComponent will be append the instance to `document.body`.
 
 Data will be passed to the component's load method and registered as the
 component's private instance data. (Usually data is passed automatically
@@ -95,7 +107,6 @@ All of these properties are optional. `type` and `instanceType` are [by example]
       <button data-event="click:_component_.resetCaption">No Type Error</button>
     `,
     load({get, set, data}) {
-      console.log(get())
       set({
         typeError: () => set('caption', 17),
         resetCaption: () => set('caption', 'I\'m a string again!')
@@ -432,6 +443,14 @@ const component = (name, url, preserveSource = false) => {
     componentPromises[name] = new Promise(function (resolve, reject) {
       if (components[name] && !preserveSource) {
         resolve(components[name])
+      } else if (url.match(/.m?js$/)) {
+        import(url).then(exports => {
+          resolve(components[name] || makeComponent(name, exports.default))
+        }).catch(err => {
+          delete componentPromises[name]
+          console.error(err, `failed to import component ${url}`)
+          reject(err)
+        })
       } else {
         const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`
         componentPreloadMap[name] = finalUrl
