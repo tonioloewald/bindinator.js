@@ -287,7 +287,6 @@ The simplest way to implement a virtual list is via paging.
         enablePrevious: page > 1,
         enableNext: page < pageCount
       })
-      console.log(filtered.length, pageCount, start)
       return filtered.sort((a, b) => b8r.sortAscending(a.name, b.name)).slice(start, start + pageSize)
     },
     nextPage() {
