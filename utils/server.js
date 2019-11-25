@@ -56,6 +56,7 @@ on('GET', '/api', (req, res) => {
   res.end('hello api\n')
 })
 
+const DEFAULT_MIME_TYPE = 'application/octet-stream'
 const mimeTypes = {
   svg: 'image/svg+xml',
   css: 'text/css',
@@ -63,6 +64,8 @@ const mimeTypes = {
   png: 'image/png',
   json: 'application/json',
   js: 'text/javascript',
+  mjs: 'text/javascript',
+  cjs: 'text/javascript',
   html: 'text/html',
   mp4: 'video/mp4',
   mov: 'video/quicktime'
@@ -106,8 +109,7 @@ const handleStaticRequest = (req, res) => {
     } else {
       const range = getRange(req, data)
       const fileExtension = pathname.split('.').pop()
-      const mimeType = mimeTypes[fileExtension]
-      if (mimeType) res.setHeader('content-type', mimeType)
+      const mimeType = mimeTypes[fileExtension] || DEFAULT_MIME_TYPE
       if (range) {
         const {
           start,
@@ -118,11 +120,14 @@ const handleStaticRequest = (req, res) => {
         res.writeHead(206, {
           'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
           'Accept-Ranges': 'bytes',
+          'Content-Type': mimeType,
           'Content-Length': chunksize
         })
         res.end(data.slice(start, end))
       } else {
-        res.writeHead(200)
+        res.writeHead(200, {
+          'Content-Type': mimeType,
+        })
         res.end(data)
       }
     }
