@@ -11,7 +11,7 @@ const settings = {
   https: false,
   cert_path: 'localhost-ssl/public.pem',
   key_path: 'localhost-ssl/private.pem',
-  verbose: false,
+  verbose: false
 }
 
 process.argv.slice(2).forEach(arg => {
