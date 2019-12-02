@@ -545,6 +545,9 @@ const deepClone = object => {
   if (typeof object !== 'object' || object === null) {
     return object
   }
+  if (Array.isArray(object)) {
+    return object.map(item => deepClone(item))
+  }
   const clone = {};
   forEachKey(object, (value, key) => {
     clone[key] = deepClone(value);
