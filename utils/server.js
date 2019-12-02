@@ -10,7 +10,8 @@ const settings = {
   web_root: __dirname,
   https: false,
   cert_path: 'localhost-ssl/public.pem',
-  key_path: 'localhost-ssl/private.pem'
+  key_path: 'localhost-ssl/private.pem',
+  verbose: false,
 }
 
 process.argv.slice(2).forEach(arg => {
@@ -104,6 +105,7 @@ const handleStaticRequest = (req, res) => {
 
   fs.readFile(settings.web_root + pathname, (err, data) => {
     if (err) {
+      console.error('404', pathname, 'not found')
       res.writeHead(404)
       res.end('not found')
     } else {
@@ -139,7 +141,7 @@ const handleStaticRequest = (req, res) => {
 // Allow request handlers to see the server and subdomain
 const requestHandler = (req, res) => {
   const pathname = req.url.split('?')[0]
-  console.log(pathname, req.url)
+  if (settings.verbose) console.log(pathname, req.url)
   const handler = handlerMap.find(
     handler => handler.test(pathname) && handler.methods.indexOf(req.method) !== -1
   ) || handleStaticRequest

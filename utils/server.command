@@ -25,6 +25,6 @@ fi
 command -v node >/dev/null 2>&1 || { error >&2 "requires nodejs to be installed"; exit 1; }
 
 # we fire up the browser first because the next line halts the script
-open https://localhost:8017/index.html
+echo "https://localhost:8017/index.html"
 
 node server.js
