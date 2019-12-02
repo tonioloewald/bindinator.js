@@ -10,22 +10,12 @@ instanced, and support type-checking.
 Moving forward, this is the preferred method for implementing 
 components.
 
-Using `makeComponent` directly allows you to define and register controllers
-before a single instance of the component is inserted in the DOM, 
-and leverage all the javascript-centric tooling (linters, 
-transpilers, etc.). You can also easily define multiple components 
-in a single file.
+There are two ways to define a pure javascript component.
+
+You can create a Javascript module that exports as `default` a bare object:
 
 ```
-/**
-# component-name
-
-documentation in markdown
-*/
-
-// setup code here (e.g. load sub-components, register controllers)
-
-const componentName = b8r.makeComponent('component-name', {
+export default {
   css: `
     ._component_ > div { color: yellow }
   `,
@@ -51,10 +41,40 @@ const componentName = b8r.makeComponent('component-name', {
   initialValue: { ... }, // initial value
   type: { ... },         // component type,
   instanceType: { ... }, // instance type,
+}
+```
+
+You can then load this component using `b8r.component('path/to/component.js')` or
+load it directly via `<b8r-component path='path/to/component.js'>...</b8r-component>`.
+As usual, you can rename the component by setting a name explicitly.
+
+Each of the properties of the this object are optional.
+
+You can also define components inline using `b8r.makeComponent`.
+
+Using `makeComponent` directly allows you to define and register controllers
+before a single instance of the component is inserted in the DOM, 
+and leverage all the javascript-centric tooling (linters, 
+transpilers, etc.). You can also easily define multiple components 
+in a single file.
+
+```
+/**
+# component-name
+
+documentation in markdown
+*/
+
+// setup code here (e.g. load sub-components, register controllers)
+
+const componentName = b8r.makeComponent('component-name', {
+  // object defined as above
 })
 ```
 
-Each of the properties of the component specification object are optional.
+You can load a module that defines a component inline (using either of the preceding
+methods) and it will just work (and in fact, if the module defines multiple components
+you can specify which component will be loaded using the `name` attribute).
 
 ## HTML Components
 
@@ -106,7 +126,13 @@ For a component named 'baz' defined or loaded elsewhere:
     <b8r-component name="baz"></b8r-component>
 
 Note that `b8r` still supports the use of the `data-component="foobar"` attribute 
-but it is deprecated. (It's equivalent to `<bar-component name="foobar">`)
+but it is *deprecated*. (It's equivalent to `<bar-component name="foobar">`)
+
+> ### Relative Paths
+> Note that when using *relative* paths, the path to a **javascript**
+> component is relative to that of the script which is executing (so, `path/to/b8r.js` 
+> by default), while the path to an **html** component is relative to the component
+> in which it is embedded.
 
 You can insert components programmatically using `b8r.insertComponent` and `b8r.componentOnce`.
 

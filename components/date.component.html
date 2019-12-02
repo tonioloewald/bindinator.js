@@ -178,12 +178,15 @@ const update = date => {
         days
       })
   } else {
-      if (get('days[current=true].date') === currentDate) {
+      const days = get('days')
+      const oldCurrent = days.find(day => day.current)
+      const newCurrent = days.find(day => day.date === currentDate)
+      if (newCurrent === oldCurrent) {
         // our work is done
         return
       }
-      set('days[current=true].current', false)
-      set(`days[date=${currentDate}].current`, true)
+      set(`days[_auto_=${oldCurrent._auto_}].current`, false)
+      set(`days[_auto_=${newCurrent._auto_}].current`, true)
       set({
         value: date.toISOString(),
         month: date.getMonth(),
@@ -216,28 +219,25 @@ const pick = (_, value) => {
 }
 
 const daysInMonth = (month, year) => {
-  return ({
-    0: 31, 
-    1: year % 4 || (! (year % 100) && (year % 400)) ? 28 : 29,
-    2: 31,
-    3: 30,
-    4: 31,
-    5: 30,
-    6: 31,
-    7: 31,
-    8: 30,
-    9: 31,
-    10: 30,
-    11: 31
-  })[month]
+  switch(parseFloat(month,10)) {
+    case 9:
+    case 4:
+    case 6:
+    case 11:
+      return 30
+    case 2:
+      return year % 4 || (! (year % 100) && (year % 400)) ? 28 : 29
+    default:
+      return 31
+  }
 }
 
 const updateMonth = () => {
   const date = new Date(get('value'))
-  const month = get('month');
+  const month = parseInt(get('month'), 10);
   const year = get('year');
   const day = Math.min(date.getUTCDate(), daysInMonth(month, year))
-  date.setUTCFullYear(year, month, day)
+  date.setUTCFullYear(year, month + 1, day)
   update(date)
 }
 

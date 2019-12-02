@@ -735,16 +735,10 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   content: false,
   methods: {
     connectedCallback () {
-      const { path, name } = this
+      const { path } = this
       if (path) {
-        if (path.endsWith('.js')) {
-          import(path).then(0)
-        } else {
-          b8r.component(path)
-        }
-      }
-      if (!name && path) {
-        this.name = path.split('/').pop().split('.').shift()
+        if (!this.name) this.name = path.split('/').pop().split('.').shift()
+        b8r.component(this.name, path)
       }
     },
     render () {

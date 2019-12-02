@@ -172,12 +172,7 @@ Test(() => {
   }
   return caught;
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
-Test(() => errors, 'bad list bindings reported').shouldBeJSON([
-  "inconsistent id-path bar.baz used for array, expected id",
-  "inconsistent id-path id used for array, expected id",
-  "inconsistent id-path id used for array, expected id",
-  "inconsistent id-path id used for array, expected id"]
-);
+Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path bar.baz used for array, expected id"]);
 
 console.error = error
 ~~~~
@@ -229,7 +224,7 @@ function pathParts (path) {
 function buildIdPathValueMap (array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath
-  } else if (array._b8r_value_path !== idPath) {
+  } else if (array._b8r_id_path !== idPath) {
     console.error(`inconsistent id-path ${idPath} used for array, expected ${array._b8r_id_path}`)
   }
   if (!array._b8r_value_maps) {
