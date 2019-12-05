@@ -2968,7 +2968,7 @@ const component = (name, url, preserveSource = false) => {
     componentPromises[name] = new Promise(function (resolve, reject) {
       if (components[name] && !preserveSource) {
         resolve(components[name]);
-      } else if (url.match(/.m?js$/)) {
+      } else if (url.match(/\.m?js$/)) {
         import(url).then(exports => {
           resolve(components[name] || makeComponent(name, exports.default));
         }).catch(err => {

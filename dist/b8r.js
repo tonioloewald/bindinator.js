@@ -2989,7 +2989,7 @@ const component = (name, url, preserveSource = false) => {
     componentPromises[name] = new Promise(function (resolve, reject) {
       if (components[name] && !preserveSource) {
         resolve(components[name]);
-      } else if (url.match(/.m?js$/)) {
+      } else if (url.match(/\.m?js$/)) {
         new Promise(function (resolve) { resolve(_interopNamespace(require(url))); }).then(exports => {
           resolve(components[name] || makeComponent(name, exports.default));
         }).catch(err => {
