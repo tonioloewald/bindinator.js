@@ -5,7 +5,7 @@
   .particles-component > .spawn-area {
     width: 100%;
     height: 400px;
-    background: #ddd;
+    background: var(--content-bg-color);
     padding: 20px;
     text-align: center;
     position: relative;
@@ -73,6 +73,7 @@
 
 
   set({
+    spawnOnMove: false,
     particleCount: 25,
     particleSize: 48,
     mode: 0,
