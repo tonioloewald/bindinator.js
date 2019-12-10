@@ -5526,6 +5526,7 @@ function _toTargets (b8r) {
         element.checked = false;
         element.indeterminate = true;
       } else {
+        element.indeterminate = false;
         element.checked = !!value;
       }
     },

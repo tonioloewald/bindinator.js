@@ -487,6 +487,7 @@ export default function (b8r) {
         element.checked = false
         element.indeterminate = true
       } else {
+        element.indeterminate = false
         element.checked = !!value
       }
     },

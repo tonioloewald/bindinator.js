@@ -5508,6 +5508,7 @@ var b8r = (function () {
           element.checked = false;
           element.indeterminate = true;
         } else {
+          element.indeterminate = false;
           element.checked = !!value;
         }
       },
