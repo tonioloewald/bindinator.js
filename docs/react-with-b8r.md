@@ -12,12 +12,32 @@ Assuming you use pure javascript b8r components, you can turn them into
 pure React components via (this is .jsx):
 
     if (__BROWSER__) {
-      b8r.makeComponentNoEval('some-component', {
+      b8r.makeComponent('some-component', {
         ...
       })
     }
 
     const SomeComponent = () => <b8r-component name="some-component"></b8r-component>
+
+You can run into problems with React gratuitously re-rendering elements it doesn't
+understand so you might want to create a wrapper component that explicitly blocks this:
+
+    // import React from wherever you like...
+
+    class BindinatorComponent extends React.Component {
+      shouldComponentUpdate () {
+        return false
+      }
+
+      render() {
+        const {name, path} = this.props
+        return React.createElement('b8r-component', {name, path});
+      }
+    }
+
+You can use this component by setting the `name` or `path` prop as you see fit. (Note that this simple
+example does not deal with React `children`. Given that React has its own ideas about how children
+are handled, dealing with them might be tricky.)
 
 React can send data to `b8r` the obvious way (`b8r.set` and `b8r.register` for example).
 
