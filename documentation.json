@@ -577,6 +577,10 @@
       {
         "name": "Podcasts",
         "path": "podcasts.component.html"
+      },
+      {
+        "name": "Emoji-Picker",
+        "path": "components/emoji.component.js"
       }
     ]
   }
