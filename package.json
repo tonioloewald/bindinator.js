@@ -91,5 +91,8 @@
       "/third-party/",
       "web-component-test.js"
     ]
+  },
+  "dependencies": {
+    "emoji-metadata": "^1.0.0"
   }
 }
