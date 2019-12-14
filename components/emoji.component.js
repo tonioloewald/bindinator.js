@@ -98,7 +98,7 @@ export default {
       </div>
     </div>`,
   load: async ({ b8r, component, get, set, find, findOne }) => {
-    const emojiPath = component.dataset.emojiPath || '../node_modules/emoji-metadata/emoji-metadata.json'
+    const emojiPath = component.dataset.emojiPath || 'https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json'
 
     b8r.json(emojiPath).then(emoji => {
       const categories = emoji.reduce((c, emoji) => {
