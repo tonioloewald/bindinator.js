@@ -1,21 +1,46 @@
 /**
 # Emoji-Picker Component
 
-**Note**: requires emoji-metadata.json, by default will pull it from github repo.
+This is an emoji picker. Its `value`` will be set to the emoji the user selects.
+The current `value` of the component will be scrolled into view.
 
+You can also call the component's `show` method to scroll a specific emoji into view.
+
+**Note**: uses emoji-metadata.json, by default it will pull it from my github repo,
+pass the url of a better version via `data-emoji-path`.
+
+```
 <b8r-component
   path="../components/emoji.component.js"
+  data-bind="value=_component_.emoji"
 >
 </b8r-component>
+<div
+  style="font-size: 60px; line-height: 60px; padding: 10px; text-align: center"
+  data-bind="text=_component_.emoji"
+></div>
+<script>
+  set('emoji', '🙈')
+</script>
+```
 */
 
 export default {
   css: `
     ._component_ {
+      --emoji-picker-width: 385px;
+      --emoji-picker-height: 280px;
+      --emoji-tile-size: 40px;
+      --emoji-tile-font-size: 32px;
+      --emoji-tile-hover-size: 60px;
+      --emoji-tile-hover-font-size: 48px;
+    }
+
+    ._component_ {
       display: flex;
       flex-direction: column;
-      width: 385px;
-      height: 290px;
+      width: var(--emoji-picker-width);
+      height: var(--emoji-picker-height);
     }
 
     ._component_ > .scroll-region {
@@ -28,14 +53,14 @@ export default {
     }
 
     ._component_ > .scroll-region > .emoji {
-      width: 40px;
-      height: 40px;
+      width: var(--emoji-tile-size);
+      height: var(--emoji-tile-size);
       overflow: hidden;
       display: inline-block;
-      font-size: 32px;
+      font-size: var(--emoji-tile-font-size);
       margin: 0;
       cursor: default;
-      line-height: 40px;
+      line-height: var(--emoji-tile-size);
       text-align: center;
       border-radius: 3px;
       position: relative;
@@ -44,13 +69,12 @@ export default {
     }
 
     ._component_ > .scroll-region > .emoji:hover {
-      font-size: 48px;
-      width: 60px;
-      height: 60px;
-      line-height: 60px;
+      font-size: var(--emoji-tile-hover-font-size);
+      width: var(--emoji-tile-hover-size);
+      height: var(--emoji-tile-hover-size);
+      line-height: var(--emoji-tile-hover-size);
       margin: -10px;
       z-index: 2;
-      background: var(--black-20);
     }
 
     ._component_ > .menu {
@@ -71,8 +95,7 @@ export default {
 
     ._component_ > .menu > *:hover {
       background: var(--black-20);
-    }
-  `,
+    }`,
   html: `
     <div class="menu">
       <div 
@@ -97,24 +120,31 @@ export default {
       >
       </div>
     </div>`,
-  load: async ({ b8r, component, get, set, find, findOne }) => {
+  load: async ({ b8r, component, on, get, set, find, findOne }) => {
     const emojiPath = component.dataset.emojiPath || 'https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json'
-
+    const show = emoji => {
+      const elt = [...find('.emoji')].find(elt => elt._b8rListInstance.chars === emoji)
+      elt.scrollIntoView({ behavior: 'smooth' })
+    }
     b8r.json(emojiPath).then(emoji => {
       const categories = emoji.reduce((c, emoji) => {
-        if (! c.find(e => emoji.category === e.category)) c.push(emoji)
-        return c;
+        if (!c.find(e => emoji.category === e.category)) c.push(emoji)
+        return c
       }, [])
-      console.log(categories)
-      set({emoji, categories})
+      set({ emoji, categories })
+      // after the emoji have been rendered, we should scroll the current value into view
+      b8r.afterUpdate(() => {
+        const value = get('value')
+        if (value) show(value)
+      })
     })
     set({
-      pickCategory(_, target) {
-        const instance = b8r.getListInstance(target);
-        const elt = [...find('.emoji')].find(elt => elt._b8rListInstance === instance)
-        elt.scrollIntoView({behavior: "smooth"});
+      show,
+      pickCategory (_, target) {
+        const instance = b8r.getListInstance(target)
+        show(instance.chars)
       },
-      pick(_, target) {
+      pick (_, target) {
         set('value', b8r.getListInstance(target).chars)
       }
     })
