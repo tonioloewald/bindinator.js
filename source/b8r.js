@@ -730,7 +730,8 @@ b8r.insertComponent = async function (component, element, data) {
 b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
-    path: ''
+    path: '',
+    value: null
   },
   content: false,
   methods: {

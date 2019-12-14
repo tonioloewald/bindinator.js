@@ -5495,8 +5495,6 @@ var b8r = (function () {
                 }
               }
             } else {
-              // <b8r-component> does not support value if it does
-              // not have a loaded component
               if (!element.tagName.includes('-')) {
                 console.error('could not set component value', element, value);
               }
@@ -7128,7 +7126,8 @@ var b8r = (function () {
   b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     attributes: {
       name: '',
-      path: ''
+      path: '',
+      value: null
     },
     content: false,
     methods: {
