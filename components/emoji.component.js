@@ -29,7 +29,7 @@ export default {
   css: `
     ._component_ {
       --emoji-picker-width: 385px;
-      --emoji-picker-height: 310px;
+      --emoji-picker-height: 320px;
       --emoji-tile-size: 40px;
       --emoji-tile-font-size: 32px;
     }
