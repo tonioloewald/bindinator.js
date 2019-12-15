@@ -32,8 +32,6 @@ export default {
       --emoji-picker-height: 310px;
       --emoji-tile-size: 40px;
       --emoji-tile-font-size: 32px;
-      --emoji-tile-hover-size: 60px;
-      --emoji-tile-hover-font-size: 48px;
     }
 
     ._component_ {
@@ -64,17 +62,15 @@ export default {
       text-align: center;
       border-radius: 3px;
       position: relative;
-      border-radius: 99px;
       transition: 0.05s ease-out;
     }
 
     ._component_ > .scroll-region > .emoji:hover {
-      font-size: var(--emoji-tile-hover-font-size);
-      width: var(--emoji-tile-hover-size);
-      height: var(--emoji-tile-hover-size);
-      line-height: var(--emoji-tile-hover-size);
-      margin: -10px;
-      z-index: 2;
+      background: var(--black-10);
+    }
+
+    ._component_ > .scroll-region > .emoji:active {
+      background: var(--black-20);
     }
 
     ._component_ > .menu {
@@ -107,6 +103,10 @@ export default {
     }
 
     ._component_ > .menu > *:hover {
+      background: var(--black-10);
+    }
+
+    ._component_ > .menu > *:active {
       background: var(--black-20);
     }`,
   html: `
@@ -156,8 +156,7 @@ export default {
       set({ emoji, categories })
       // after the emoji have been rendered, we should scroll the current value into view
       emoji.forEach(e => {
-        e.name = e.name.toLocaleLowerCase()
-        e.category = e.category.toLocaleLowerCase()
+        e.searchText = `${e.name} ${e.category} ${e.subcategory}`.toLocaleLowerCase()
       })
       b8r.afterUpdate(() => {
         const value = get('value')
@@ -175,8 +174,8 @@ export default {
       },
       filterText: '',
       filter(emoji, filterText) {
-        filterText = filterText.toLocaleLowerCase()
-        return filterText ? emoji.filter(e => e.name.includes(filterText)) : emoji
+        const words = filterText.toLocaleLowerCase().replace(/\s+/g, ' ').split(' ')
+        return filterText ? emoji.filter(e => words.find(w => e.searchText.includes(w))) : emoji
       }
     })
   }
