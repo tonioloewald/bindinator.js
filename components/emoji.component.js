@@ -2,7 +2,7 @@
 # Emoji-Picker Component
 
 This is an emoji picker. Its `value`` will be set to the emoji the user selects.
-The current `value` of the component will be scrolled into view.
+On initial render, the current `value` of the component will be scrolled into view.
 
 You can also call the component's `show` method to scroll a specific emoji into view.
 
@@ -15,10 +15,10 @@ pass the url of a better version via `data-emoji-path`.
   data-bind="value=_component_.emoji"
 >
 </b8r-component>
-<div
-  style="font-size: 60px; line-height: 60px; padding: 10px; text-align: center"
-  data-bind="text=_component_.emoji"
-></div>
+<input
+  style="font-size: 60px; padding: 10px; margin: 10px; display: inline-block;"
+  data-bind="value=_component_.emoji"
+>
 <script>
   set('emoji', '🙈')
 </script>
