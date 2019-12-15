@@ -62,7 +62,7 @@ export default {
       text-align: center;
       border-radius: 3px;
       position: relative;
-      transition: 0.05s ease-out;
+      transition: 0.1s ease-out;
     }
 
     ._component_ > .scroll-region > .emoji:hover {
@@ -100,13 +100,14 @@ export default {
     ._component_ > .menu > * {
       flex: 1 1 auto;
       text-align: center;
+      transition: 0.1s ease-out;
     }
 
-    ._component_ > .menu > *:hover {
+    ._component_ > .menu > :hover {
       background: var(--black-10);
     }
 
-    ._component_ > .menu > *:active {
+    ._component_ > .menu > :active {
       background: var(--black-20);
     }`,
   html: `
