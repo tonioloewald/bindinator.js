@@ -15,10 +15,10 @@ pass the url of a better version via `data-emoji-path`.
   data-bind="value=_component_.emoji"
 >
 </b8r-component>
-<input
-  style="font-size: 60px; padding: 10px; margin: 10px; display: inline-block;"
-  data-bind="value=_component_.emoji"
->
+<span
+  style="font-size: 60px; margin: 10px;"
+  data-bind="text=_component_.emoji"
+></span>
 <script>
   set('emoji', '🙈')
 </script>
@@ -29,7 +29,7 @@ export default {
   css: `
     ._component_ {
       --emoji-picker-width: 385px;
-      --emoji-picker-height: 280px;
+      --emoji-picker-height: 310px;
       --emoji-tile-size: 40px;
       --emoji-tile-font-size: 32px;
       --emoji-tile-hover-size: 60px;
@@ -88,6 +88,19 @@ export default {
       cursor: default;
     }
 
+    ._component_ > .filter {
+      flex: 0 0 30px;
+    }
+
+    ._component_ > .filter > input {
+      background: var(--black-10);
+      width: 100%;
+      border-radius: 99px;
+      padding: 5px 10px;
+      margin: 1px;
+      border: 0;
+    }
+
     ._component_ > .menu > * {
       flex: 1 1 auto;
       text-align: center;
@@ -111,7 +124,7 @@ export default {
     <div class="scroll-region">
       <div 
         class="emoji"
-        data-list="_component_.emoji:chars"
+        data-list="_component_.filter(_component_.emoji,_component_.filterText):chars"
         data-bind="
           text=.chars
           attr(title)=.name
@@ -119,12 +132,21 @@ export default {
         data-event="click:_component_.pick"
       >
       </div>
+    </div>
+    <div class="filter">
+      <input
+        placeholder="filter text"
+        data-bind="value=_component_.filterText"
+      >
     </div>`,
   load: async ({ b8r, component, on, get, set, find, findOne }) => {
     const emojiPath = component.dataset.emojiPath || 'https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json'
-    const show = emoji => {
-      const elt = [...find('.emoji')].find(elt => elt._b8rListInstance.chars === emoji)
-      elt.scrollIntoView({ behavior: 'smooth' })
+    const show = async (emoji) => {
+      if (get('filterText')) set('filterText', '')
+      await b8r.afterUpdate(() => {
+        const elt = [...find('.emoji')].find(elt => elt._b8rListInstance.chars === emoji)
+        elt.scrollIntoView({ behavior: 'smooth' })
+      })
     }
     b8r.json(emojiPath).then(emoji => {
       const categories = emoji.reduce((c, emoji) => {
@@ -133,6 +155,10 @@ export default {
       }, [])
       set({ emoji, categories })
       // after the emoji have been rendered, we should scroll the current value into view
+      emoji.forEach(e => {
+        e.name = e.name.toLocaleLowerCase()
+        e.category = e.category.toLocaleLowerCase()
+      })
       b8r.afterUpdate(() => {
         const value = get('value')
         if (value) show(value)
@@ -146,6 +172,11 @@ export default {
       },
       pick (_, target) {
         set('value', b8r.getListInstance(target).chars)
+      },
+      filterText: '',
+      filter(emoji, filterText) {
+        filterText = filterText.toLocaleLowerCase()
+        return filterText ? emoji.filter(e => e.name.includes(filterText)) : emoji
       }
     })
   }
