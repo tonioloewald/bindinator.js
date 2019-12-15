@@ -1,7 +1,7 @@
 /**
 # Emoji-Picker Component
 
-This is an emoji picker. Its `value`` will be set to the emoji the user selects.
+This is an emoji picker. Its `value` will be set to the emoji the user selects.
 On initial render, the current `value` of the component will be scrolled into view.
 
 You can also call the component's `show` method to scroll a specific emoji into view.
