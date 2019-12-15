@@ -728,6 +728,8 @@ need to camelcase hypenated settings, so 'font-family' becomes `fontFamily`.
 
     cssVar(name); // obtains the value of a :root css-variable.
     cssVar(name, value); // sets the value of a :root css-variable.
+    cssVar(element, name); // obtains the value of a css-variable at a specified element
+    cssVar(element, name, value); // sets hte value of a css-variable at a specified element
 
 `cssVar` allows you to access and modify css-variables -- really nice for creating themes or
 pushing computed dimensions (e.g. based on window size) through your CSS.
@@ -992,12 +994,16 @@ const within = (element, mouseEvent, margin) => {
 
 const isInBody = (element) => element && document.body.contains(element);
 
-const cssVar = (name, value) => {
+const cssVar = (element, name, value) => {
+  /* global HTMLElement */
+  if (!(element instanceof HTMLElement)) {
+    [element, name, value] = [document.documentElement, element, name];
+  }
   if (value === undefined) {
-    const htmlStyles = getComputedStyle(document.documentElement);
+    const htmlStyles = getComputedStyle(element);
     return htmlStyles.getPropertyValue(name).trim()
   } else {
-    document.documentElement.style.setProperty(name, value);
+    element.style.setProperty(name, value);
   }
 };
 
