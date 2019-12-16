@@ -90,6 +90,8 @@ global declarations.
       },
       initialValue: {...},
                    // specify the component's initial value
+                   // or you can provide an [async] function
+                   // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
       type: {...}, // specify the component's type
       instanceType: {...},
                    // specify the component's instance type
@@ -295,8 +297,8 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
   }
 
   if (load) {
-    component.load = (component, b8r, find, findOne, _data, register, get, set, on, touch) => {
-      load({ component, b8r, find, findOne, register, get, set, on, touch })
+    component.load = async (_component, b8r, find, findOne, _data, register, get, set, on, touch) => {
+      load({ component: _component, b8r, find, findOne, register, get, set, on, touch })
     }
   }
 

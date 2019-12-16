@@ -2633,6 +2633,8 @@ var b8r = (function () {
         },
         initialValue: {...},
                      // specify the component's initial value
+                     // or you can provide an [async] function
+                     // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
         type: {...}, // specify the component's type
         instanceType: {...},
                      // specify the component's instance type
@@ -2830,8 +2832,8 @@ var b8r = (function () {
     }
 
     if (load) {
-      component.load = (component, b8r, find, findOne, _data, register, get, set, on, touch) => {
-        load({ component, b8r, find, findOne, register, get, set, on, touch });
+      component.load = async (_component, b8r, find, findOne, _data, register, get, set, on, touch) => {
+        load({ component: _component, b8r, find, findOne, register, get, set, on, touch });
       };
     }
 
@@ -7095,29 +7097,33 @@ var b8r = (function () {
     });
     element.classList.add(component.name + '-component');
     const register = componentData => b8r.register(componentId, componentData);
+    const get = path => b8r.getByPath(componentId, path);
+    const set = (...args) => {
+      b8r.setByPath(componentId, ...args);
+      // updates value bindings
+      if (args[0] === 'value' || Object.prototype.hasOwnProperty.call(args[0], 'value')) {
+        b8r.trigger('change', element);
+      }
+    };
+    const touch = path => b8r.touchByPath(componentId, path);
+    const on = (...args) => b8r.on(element, ...args);
+    const findOneWithin = selector => b8r.findWithin(element, selector);
+    const findOne = selector => b8r.findOneWithin(element, selector);
+    const initialValue = typeof component.initialValue === 'function'
+      ? component.initialValue({ b8r, get, set, touch, on, component: element, findOne, findOneWithin })
+      : b8r.deepClone(component.initialValue);
     data = {
       ...data,
       dataPath,
-      ...(component.initialValue ? b8r.deepClone(component.initialValue) : {}),
+      ...(initialValue || {}),
       componentId
     };
     if (component.load) {
-      const get = path => b8r.getByPath(componentId, path);
-      const set = (...args) => {
-        b8r.setByPath(componentId, ...args);
-        // updates value bindings
-        if (args[0] === 'value' || Object.prototype.hasOwnProperty.call(args[0], 'value')) {
-          b8r.trigger('change', element);
-        }
-      };
-      const on = (...args) => b8r.on(element, ...args);
-      const touch = path => b8r.touchByPath(componentId, path);
       b8r.register(componentId, data, true);
       try {
         await component.load(
-          element, _pathRelativeB8r(component.path), selector => b8r.findWithin(element, selector),
-          selector => b8r.findOneWithin(element, selector), data, register,
-          get, set, on, touch, component
+          element, _pathRelativeB8r(component.path), findOneWithin, findOne,
+          data, register, get, set, on, touch, component
         );
       } catch (e) {
         debugger // eslint-disable-line no-debugger

@@ -376,6 +376,10 @@
         "path": "image-editor.component.html"
       },
       {
+        "name": "Data Table",
+        "path": "components/data-table.component.js"
+      },
+      {
         "name": "Timeline",
         "path": "timeline.component.html"
       },
