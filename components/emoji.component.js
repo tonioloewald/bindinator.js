@@ -174,7 +174,7 @@ export default {
         set('value', b8r.getListInstance(target).chars)
       },
       filterText: '',
-      filter(emoji, filterText) {
+      filter (emoji, filterText) {
         const words = filterText.toLocaleLowerCase().replace(/\s+/g, ' ').split(' ')
         return filterText ? emoji.filter(e => words.find(w => e.searchText.includes(w))) : emoji
       }
