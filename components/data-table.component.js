@@ -1,6 +1,8 @@
 /**
 # Data Table
 
+Data-table is intended to make quick work of simple tables.
+
 ```
 <b8r-component
   path="../components/data-table.component.js"
@@ -16,7 +18,7 @@
       {
         name: 'emoji',
         path: '.chars',
-        width: 50,
+        width: 60,
       },
       {
         name: 'code',
@@ -146,12 +148,13 @@ export default {
           const edgeIndex = b8r.elementIndex(evt.target) - 1
           const columns = b8r.cssVar(component, '--columns').split(' ')
           columns.pop()
+          const liveResize = get('rows').length <= get('config.maxRowsForLiveColumnResize')
           const widths = columns.map(x => parseInt(x, 10))
           const thead = findOne('.t-head')
           trackDrag(evt, widths[edgeIndex], 0, (w, _y, _dx, _dy, dragEnded) => {
             widths[edgeIndex] = w < 20 ? 20 : w
             const gridSpec = widths.map(w => w + 'px').join(' ') + ' auto'
-            if (dragEnded) {
+            if (liveResize || dragEnded) {
               b8r.cssVar(thead, '--columns', '')
               b8r.cssVar(component, '--columns', gridSpec)
             } else {
@@ -181,6 +184,7 @@ export default {
         b8r.bindAll(rowTemplate)
       },
       config: {
+        maxRowsForLiveColumnResize: 100,
         columns: []
       },
       rows: []
