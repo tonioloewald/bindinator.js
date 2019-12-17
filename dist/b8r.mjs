@@ -7107,12 +7107,11 @@ b8r.insertComponent = async function (component, element, data) {
   const findOneWithin = selector => b8r.findWithin(element, selector);
   const findOne = selector => b8r.findOneWithin(element, selector);
   const initialValue = typeof component.initialValue === 'function'
-    ? component.initialValue({ b8r, get, set, touch, on, component: element, findOne, findOneWithin })
+    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, findOneWithin })
     : b8r.deepClone(component.initialValue);
   data = {
-    ...data,
+    ...(initialValue || data),
     dataPath,
-    ...(initialValue || {}),
     componentId
   };
   if (component.load) {
