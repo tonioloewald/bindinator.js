@@ -87,7 +87,7 @@ and a simple reflection service for consuming RSS feeds.
     overflow-x: hidden;
     overflow-y: overlay;
     flex: 0 0 100%;
-    transition: 0.2s ease-out;
+    transition: var(--hover-transition);
   }
 
   ._component_[data-panel=podcast] > * {
@@ -408,7 +408,7 @@ and a simple reflection service for consuming RSS feeds.
         width: 60px;
         height: 60px;
         font-size: 24px;
-        transition: 0.25s ease-out;
+        transition: var(--hover-transition);
       }
 
       ._component_ .large-button {

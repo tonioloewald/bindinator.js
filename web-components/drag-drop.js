@@ -45,7 +45,7 @@ in the second example.
     padding: 10px 20px;
     margin: 5px;
     border-radius: 5px;
-    transition: 0.25s ease-out;
+    transition: var(--hover-transition);
     border: 0;
     box-shadow: inset 0 0 0 2px rgba(0,0,255,0.1);
   }

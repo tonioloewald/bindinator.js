@@ -46,7 +46,7 @@
 
   ._component_ > * {
     position: absolute;
-    transition: 0.25s ease-out;
+    transition: var(--hover-transition);
   }
 
   ._component_ > .nav {
@@ -122,7 +122,7 @@
   }
 
   ._component_ > .nav details[open] summary ~ * {
-    animation: fade-in 0.25s ease-out;
+    animation: fade-in var(--hover-transition);
   }
 
   .content h1,

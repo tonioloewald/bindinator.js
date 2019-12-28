@@ -55,7 +55,7 @@ export const imgSrc = (img, url, cors = true) => {
   img.style.opacity = 0.1
   imagePromise(url, cors).then(image => {
     if (!getComputedStyle(img).transition) {
-      img.style.transition = '0.25s ease-out'
+      img.style.transition = 'var(--hover-transition)'
     }
     img.style.opacity = ''
     img.classList.add('-b8r-rendered')

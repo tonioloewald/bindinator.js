@@ -147,22 +147,32 @@ export default {
     ._component_ .t-column-sorter {
       margin-left: -10px;
       text-align: center;
-      cursor: pointer;
-      color: var(--black-80);
-      opacity: 0.25;
-      transition: 0.1s ease-out;
-    }
-
-    ._component_ .t-column-sorter:hover {
-      opacity: 0.5;
-    }
-
-    ._component_ .t-column-sorter:not(.icon-sort) {
-      opacity: 1;
     }
 
     ._component_ :not(.t-head).t-row:hover {
       background: var(--black-10);
+    }
+
+    ._component_ > .t-head .clickable {
+      color: var(--black-80);
+      opacity: 0.25;
+      transition: var(--hover-transition);
+      cursor: pointer;
+    }
+
+    ._component_ > .t-head .clickable:hover {
+      opacity: 0.5;
+    }
+
+    ._component_ > .t-head .t-column-sorter:not(.icon-sort) {
+      opacity: 1;
+    }
+
+    ._component_ > .t-head .t-column-selection {
+      position: absolute;
+      top: 0;
+      right: 5px;
+      padding: 8px;
     }`,
   html: `
     <div class="t-head t-row">
@@ -174,7 +184,7 @@ export default {
           data-event="mousedown:_component_.resizeColumn"
         ></span>
         <span
-          class="t-column-sorter icon-sort-ascending"
+          class="t-column-sorter clickable"
           data-bind="
             show_if=.sortable
             class_map(ascending:icon-sort-ascending|descending:icon-sort-descending|icon-sort)=.sortDirection
@@ -183,6 +193,7 @@ export default {
         ></span>
         <span data-bind="text=.name"></span>
       </span>
+      <div class="t-column-selection icon-cog2 clickable"></div>
     </div>
     <div 
       class="t-body" 
