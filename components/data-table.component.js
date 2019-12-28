@@ -168,6 +168,7 @@ export default {
       height: var(--table-height);
       display: flex;
       flex-direction: column;
+      position: relative;
       cursor: default;
     }
 
@@ -241,6 +242,7 @@ export default {
       color: var(--black-80);
       opacity: 0.25;
       transition: var(--hover-transition);
+      background: none;
       cursor: pointer;
     }
 
@@ -249,6 +251,7 @@ export default {
       opacity: 0.5;
     }
 
+    ._component_ > .t-head .clickable:active,
     ._component_ > .t-head .t-column-sorter:not(.icon-sort) {
       opacity: 1;
     }
@@ -286,7 +289,7 @@ export default {
           "
         ></span>
       </span>
-      <div class="t-column-selection icon-cog2 clickable"></div>
+      <div tabindex=0 class="t-column-selection icon-cog2 clickable"></div>
     </div>
     <div 
       class="t-body" 
