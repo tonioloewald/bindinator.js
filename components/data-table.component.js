@@ -39,7 +39,7 @@ The data-table is highly configurable via its `config` property.
       {
         name: 'emoji',
         path: '.chars',
-        width: 60,
+        width: 65,
       },
       {
         name: 'code',
@@ -49,6 +49,7 @@ The data-table is highly configurable via its `config` property.
       {
         name: 'name',
         path: '.name',
+        sortable: true,
         width: 200,
       },
       {
@@ -60,6 +61,7 @@ The data-table is highly configurable via its `config` property.
       {
         name: 'sub-category',
         path: '.subcatory',
+        sortable: true,
         visible: false,
         width: 120,
       },
@@ -125,27 +127,44 @@ export default {
       position: relative;
     }
 
-    ._component_ .t-head > *+*:before {
-      content: ' ';
-      position: absolute;
-      display: block;
-      width: 10px;
-      top: 0;
-      left: -5px;
-      bottom: 0;
-    }
-
-
-    ._component_ .t-head > *+*:after {
+    ._component_ .t-column-resizer {
       content: ' ';
       position: absolute;
       display: block;
       width: 5px;
-      top: 0;
       left: -5px;
+      top: 0;
       height: 100vh;
       border-left: 1px solid var(--black-10);
       cursor: col-resize;
+    }
+
+    ._component_ .t-column-resizer:hover,
+    ._component_ .t-column-resizer:active {
+      border-left: 1px solid var(--black-20);
+    }
+
+    ._component_ .t-column-sorter {
+      position: absolute;
+      display: block;
+      width: 30px;
+      text-align: center;
+      right: 0;
+      top: 0;
+      height: 100%;
+      line-height: 30px;
+      cursor: pointer;
+      color: var(--black-80);
+      opacity: 0.25;
+      transition: 0.1s ease-out;
+    }
+
+    ._component_ .t-column-sorter:hover {
+      opacity: 0.5;
+    }
+
+    ._component_ .t-column-sorter:not(.icon-sort) {
+      opacity: 1;
     }
 
     ._component_ :not(.t-head).t-row:hover {
@@ -154,10 +173,22 @@ export default {
   html: `
     <div class="t-head t-row">
       <span 
-        data-list="_component_.visibleColumns(_component_.config.columns):_auto_"
-        data-bind="text=.name"
-        data-event="mousedown:_component_.resizeColumn"
-      ></span>
+        data-list="_component_.visibleColumns(_component_.config.columns):name"
+      >
+        <span 
+          class="t-column-resizer"
+          data-event="mousedown:_component_.resizeColumn"
+        ></span>
+        <span data-bind="text=.name"></span>
+        <span
+          class="t-column-sorter icon-sort-ascending"
+          data-bind="
+            show_if=.sortable
+            class_map(ascending:icon-sort-ascending|descending:icon-sort-descending|icon-sort)=.sortDirection
+          "
+          data-event="mousedown:_component_.sortColumn"
+        ></span>
+      </span>
     </div>
     <div 
       class="t-body" 
@@ -165,36 +196,46 @@ export default {
     >
       <div 
         class="t-row" 
-        data-list="_component_.rows:_auto_"
+        data-list="_component_.sortAndFilterRows(_component_.rows):_auto_"
       >
       </div>
     </div>`,
-  initialValue: ({ b8r, get, component, on, findOne }) => {
+  load: ({ b8r, component }) => {
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
+  },
+  initialValue: ({ b8r, get, touch, component, on, findOne }) => {
+    const makeSortFunction = column => {
+      const { name, sortDirection } = column
+      let { sortable } = column
+      if (!sortable) throw new Error(`cannot sort by column ${name}`)
+      if (sortable === true) sortable = b8r.sortAscending
+      if (sortDirection === 'ascending') {
+        return (a, b) => sortable(a[name], b[name])
+      } else {
+        return (a, b) => -sortable(a[name], b[name])
+      }
+    }
     return {
       visibleColumns (columns) {
         return columns.filter(({ visible }) => visible !== false)
       },
       resizeColumn (evt) {
-        if (evt.offsetX <= 5) {
-          console.log(evt.target.textContent, b8r.elementIndex(evt.target))
-          const edgeIndex = b8r.elementIndex(evt.target) - 1
-          const columns = b8r.cssVar(component, '--columns').split(' ')
-          columns.pop()
-          const liveResize = get('rows').length <= get('config.maxRowsForLiveColumnResize')
-          const widths = columns.map(x => parseInt(x, 10))
-          const thead = findOne('.t-head')
-          trackDrag(evt, widths[edgeIndex], 0, (w, _y, _dx, _dy, dragEnded) => {
-            widths[edgeIndex] = w < 20 ? 20 : w
-            const gridSpec = widths.map(w => w + 'px').join(' ') + ' auto'
-            if (liveResize || dragEnded) {
-              b8r.cssVar(thead, '--columns', '')
-              b8r.cssVar(component, '--columns', gridSpec)
-            } else {
-              b8r.cssVar(thead, '--columns', gridSpec)
-            }
-          })
-        }
+        const edgeIndex = b8r.elementIndex(evt.target.closest('.t-row > *')) - 1
+        const columns = b8r.cssVar(component, '--columns').split(' ')
+        columns.pop()
+        const liveResize = get('rows').length <= get('config.maxRowsForLiveColumnResize')
+        const widths = columns.map(x => parseInt(x, 10))
+        const thead = findOne('.t-head')
+        trackDrag(evt, widths[edgeIndex], 0, (w, _y, _dx, _dy, dragEnded) => {
+          widths[edgeIndex] = w < 20 ? 20 : w
+          const gridSpec = widths.map(w => w + 'px').join(' ') + ' auto'
+          if (liveResize || dragEnded) {
+            b8r.cssVar(thead, '--columns', '')
+            b8r.cssVar(component, '--columns', gridSpec)
+          } else {
+            b8r.cssVar(thead, '--columns', gridSpec)
+          }
+        })
       },
       renderGrid (table, columns) {
         const widths = get('visibleColumns')(columns).map(col => col.width + 'px')
@@ -215,6 +256,36 @@ export default {
             })
         }
         b8r.bindAll(rowTemplate)
+      },
+      sortColumn (evt) {
+        const { name } = b8r.getListInstance(evt.target)
+        const { config: { columns } } = get()
+        columns.forEach(column => {
+          if (column.name === name) {
+            switch (column.sortDirection) {
+              case 'ascending':
+                column.sortDirection = 'descending'
+                break
+              case 'descending':
+                delete (column.sortDirection)
+                break
+              default:
+                column.sortDirection = 'ascending'
+            }
+          } else {
+            delete (column.sortDirection)
+          }
+        })
+        touch('config')
+      },
+      sortAndFilterRows (rows) {
+        const { config: { columns } } = get()
+        const column = columns.find(col => col.sortDirection)
+        if (column) {
+          return [...rows].sort(makeSortFunction(column))
+        } else {
+          return rows
+        }
       },
       config: {
         maxRowsForLiveColumnResize: 100,
