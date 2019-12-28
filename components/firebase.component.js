@@ -5,12 +5,27 @@ A simple integration with [Google Firebase](https://firebase.google.com).
 The test application only allows authentication using Google and only allows
 you to write documents to your own personal `/users/` document.
 
+I haven't authorized any domains for the app, so it will only work from
+`localhost` (unless you provide your own credentials, of course).
+
 ```
 <b8r-component path="../components/firebase.component.js"></b8r-component>
 ```
 */
 
 export default {
+  css: `
+    ._component_ .user {
+      display: flex;
+      align-items: center;
+    }
+    ._component_ .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 99px;
+      content-fit: cover;
+    }
+  `,
   html: `
     <div>
       <h3>Firebase</h3>
@@ -18,8 +33,14 @@ export default {
     <div data-bind="hide_if=_component_.user">
       <button data-event="click:_component_.signIn">Sign In</button>
     </div>
-    <div data-bind="show_if=_component_.user">
-      Logged in as <span data-bind="text=$\{_component_.user.displayName} <$\{_component_.user.email}>"></span>
+    <div class="user" data-bind="show_if=_component_.user">
+      <img 
+        class="avatar"
+        data-bind="
+          img=_component_.user.photoURL
+          attr(title)=$\{_component_.user.displayName} <$\{_component_.user.email}>
+        "
+      >
       <button data-event="click:_component_.signOut">Sign Out</button>
     </div>
     <div data-bind="show_if=_component_.authError">
@@ -32,6 +53,10 @@ export default {
         data-bind="value=_component_.userDoc.message"
         data-event="input:_component_.markDirty"
       ></textarea>
+      <div>
+        last saved 
+        <span data-bind="timestamp(h:MM:ss TT Z, mmmm d, yyyy)=_component_.userDoc.timestamp">
+      </div>
       <button
         data-bind="enabled_if=_component_.dirty"
         data-event="click:_component_.saveMessage"
@@ -90,7 +115,14 @@ export default {
       saveMessage () {
         set({ dirty: false })
         const db = firebase.firestore()
-        db.collection('users').doc(get('user').uid).set(get('userDoc'))
+        const userDoc = get('userDoc')
+        const timestamp = Date.now()
+        db.collection('users').doc(get('user').uid).set({...userDoc, timestamp}).then((...args) => {
+          set('userDoc.timestamp', timestamp)
+        }).catch((error) => {
+          set({ dirty: true })
+          alert('Save failed!\n\n' + error)
+        })
       },
       signOut () {
         firebase.auth().signOut().then(function () {
