@@ -259,7 +259,7 @@ export default {
     ._component_ > .t-head .t-column-selection {
       position: absolute;
       top: 0;
-      right: 5px;
+      right: 0;
       padding: 8px;
     }`,
   html: `
@@ -273,6 +273,7 @@ export default {
           data-event="mousedown:_component_.resizeColumn"
         ></span>
         <span
+          title="sort"
           tabindex=0
           class="t-column-sorter clickable"
           data-bind="
@@ -289,7 +290,10 @@ export default {
           "
         ></span>
       </span>
-      <div tabindex=0 class="t-column-selection icon-cog2 clickable"></div>
+      <div 
+        title="select visible columns"
+        tabindex=0 class="t-column-selection icon-eye2 clickable"
+      ></div>
     </div>
     <div 
       class="t-body" 
