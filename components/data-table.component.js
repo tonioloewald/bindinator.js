@@ -5,12 +5,27 @@ Data-table is intended to make quick work of simple tables.
 
 The data-table is highly configurable via its `config` property.
 
+### config
+
+The data-table component's config property allows the table to be configured
+very flexibly:
+
+    {
+      columns: [
+        {
+          name: 'column name',
+          path: '.path.to.value',
+          width: 60, // number of pixels
+          sortable: (a, b) => ..., // ascending sort comparison
+          headerCell: domElement,
+          contentCell: domElement, 
+        },
+      ]
+    }
+
 ### To Do
 
 - show/hide columns UI (showing/hiding columns is already supported programmatically)
-- columns can specify custom headerCell component path or renderer (function)
-- columns can specify custom contentCell component path or renderer (function)
-- columns can be `sortable: true` or `sortable: (a, b) => -1 | 0 | 1`
 - table can have selection: { multiple: true|false, path: 'path.to.prop' } (if no path provided, selection is tracked internally)
 - virtual table (minimum number of elements in DOM)
 - state persistence to localStorage / services
@@ -34,12 +49,59 @@ The data-table is highly configurable via its `config` property.
 </b8r-component>
 <b8r-component path="../components/loading" data-bind="show_if=_component_.loading"></b8r-component>
 <script>
+  const selectHeader = b8r.create('input')
+  selectHeader.setAttribute('type', 'checkbox')
+  selectHeader.dataset.event = 'change:_component_.config.updateSelectAll'
+  const selectCell = b8r.create('span')
+  const selectCellInput = b8r.create('input')
+  selectCellInput.setAttribute('type', 'checkbox')
+  selectCellInput.dataset.bind = 'checked=.selected'
+  selectCellInput.dataset.event = 'change:_component_.config.updateSelectAll'
+  selectCell.append(selectCellInput)
+  const emojiCell = b8r.create('span')
+  emojiCell.dataset.bind = 'text=.chars'
+  b8r.styles(emojiCell, {
+    textAlign: 'center',
+    fontSize: '20px'
+  })
   set('config', {
+    updateSelectAll(evt, target) {
+      const {checked} = target
+      const componentId = b8r.getComponentId(target)
+      const rows = b8r.get(`${componentId}.rows`) || []
+      if (target.closest('.t-head')) {
+        if (checked !== null) {
+          rows.forEach(row => row.selected = target.checked)
+        }
+        b8r.touch(`${componentId}.rows`)
+      } else {
+        let selectAll = false
+        if (rows.length) {
+          selectAll = rows[0].selected
+          for(let i = 1; i < rows.length; i++) {
+            if (rows[i].selected !== selectAll) {
+              selectAll = null
+              break
+            }
+          }
+          selectHeader.indeterminate = (selectAll === null)
+          selectHeader.checked = selectAll
+        }
+      }
+    },
     columns: [
+      {
+        name: 'selected',
+        path: '.selected',
+        width: 40,
+        headerCell: selectHeader,
+        contentCell: selectCell
+      },
       {
         name: 'emoji',
         path: '.chars',
         width: 65,
+        contentCell: emojiCell,
       },
       {
         name: 'code',
@@ -49,7 +111,7 @@ The data-table is highly configurable via its `config` property.
       {
         name: 'name',
         path: '.name',
-        sortable: true,
+        sortable: (a, b) => b8r.sortAscending(a.name, b.name),
         width: 200,
       },
       {
@@ -60,8 +122,8 @@ The data-table is highly configurable via its `config` property.
       },
       {
         name: 'sub-category',
-        path: '.subcatory',
-        sortable: true,
+        path: '.subcategory',
+        sortable: (a, b) => b8r.sortAscending(a.subcategory, b.subcategory),
         visible: false,
         width: 120,
       },
@@ -69,6 +131,7 @@ The data-table is highly configurable via its `config` property.
   })
   set({loading: true})
   b8r.json('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json').then(emoji => {
+    emoji.forEach(e => e.selected = false)
     set({emoji})
     set('loading', false)
   })
@@ -77,6 +140,21 @@ The data-table is highly configurable via its `config` property.
 */
 
 import { trackDrag } from '../lib/track-drag.js'
+
+const makeSortFunction = column => {
+  const { sortable, sortDirection } = column
+  if (sortDirection === 'ascending') {
+    return (a, b) => sortable(a, b)
+  } else {
+    return (a, b) => -sortable(a, b)
+  }
+}
+
+const cell = path => {
+  const span = document.createElement('span')
+  span.dataset.bind = `text=${path}`
+  return span
+}
 
 export default {
   css: `
@@ -127,12 +205,17 @@ export default {
       position: relative;
     }
 
+    ._component_ .t-head > *:hover,
+    ._component_ .t-head > *:focus {
+      background: var(--black-10);
+    }
+
     ._component_ .t-column-resizer {
       content: ' ';
       position: absolute;
       display: block;
       width: 5px;
-      left: -5px;
+      left: 0;
       top: 0;
       height: 100vh;
       border-left: 1px solid var(--black-10);
@@ -145,11 +228,12 @@ export default {
     }
 
     ._component_ .t-column-sorter {
-      margin-left: -10px;
+      margin-left: -5px;
       text-align: center;
     }
 
-    ._component_ :not(.t-head).t-row:hover {
+    ._component_ :not(.t-head).t-row:hover,
+    ._component_ :not(.t-head).t-row:focus {
       background: var(--black-10);
     }
 
@@ -160,7 +244,8 @@ export default {
       cursor: pointer;
     }
 
-    ._component_ > .t-head .clickable:hover {
+    ._component_ > .t-head .clickable:hover,
+    ._component_ > .t-head .clickable:focus {
       opacity: 0.5;
     }
 
@@ -176,7 +261,8 @@ export default {
     }`,
   html: `
     <div class="t-head t-row">
-      <span 
+      <span
+        tabindex=0
         data-list="_component_.visibleColumns(_component_.config.columns):name"
       >
         <span 
@@ -184,14 +270,21 @@ export default {
           data-event="mousedown:_component_.resizeColumn"
         ></span>
         <span
+          tabindex=0
           class="t-column-sorter clickable"
           data-bind="
             show_if=.sortable
             class_map(ascending:icon-sort-ascending|descending:icon-sort-descending|icon-sort)=.sortDirection
           "
-          data-event="mousedown:_component_.sortColumn"
+          data-event="keydown(Space),mousedown:_component_.sortColumn"
         ></span>
-        <span data-bind="text=.name"></span>
+        <span 
+          class="t-column-name"
+          data-bind="
+            text=.name
+            method(_component_.replaceElement)=.headerCell
+          "
+        ></span>
       </span>
       <div class="t-column-selection icon-cog2 clickable"></div>
     </div>
@@ -199,7 +292,8 @@ export default {
       class="t-body" 
       data-bind="method(_component_.renderRow)=."
     >
-      <div 
+      <div
+        tabindex=0
         class="t-row" 
         data-list="_component_.sortAndFilterRows(_component_.rows):_auto_"
       >
@@ -209,17 +303,6 @@ export default {
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
   },
   initialValue: ({ b8r, get, touch, component, on, findOne }) => {
-    const makeSortFunction = column => {
-      const { name, sortDirection } = column
-      let { sortable } = column
-      if (!sortable) throw new Error(`cannot sort by column ${name}`)
-      if (sortable === true) sortable = b8r.sortAscending
-      if (sortDirection === 'ascending') {
-        return (a, b) => sortable(a[name], b[name])
-      } else {
-        return (a, b) => -sortable(a[name], b[name])
-      }
-    }
     return {
       visibleColumns (columns) {
         return columns.filter(({ visible }) => visible !== false)
@@ -245,7 +328,8 @@ export default {
       renderGrid (table, columns) {
         const widths = get('visibleColumns')(columns).map(col => col.width + 'px')
         widths[widths.length - 1] = 'auto'
-        b8r.cssVar(table, '--columns', widths.join(' '))
+        const gridSpec = widths.join(' ')
+        b8r.cssVar(component, '--columns', gridSpec)
       },
       renderRow (tableBody, rowData) {
         const { config, visibleColumns } = get()
@@ -254,13 +338,16 @@ export default {
 
         if (config.columns) {
           visibleColumns(config.columns)
-            .forEach(async ({ path }) => {
-              const span = b8r.create('span')
-              span.dataset.bind = `text=${path}`
-              rowTemplate.appendChild(span)
+            .forEach(async ({ path, contentCell }) => {
+              rowTemplate.append(contentCell ? contentCell.cloneNode(true) : cell(path))
             })
         }
         b8r.bindAll(rowTemplate)
+      },
+      replaceElement (element, replacement) {
+        if (replacement instanceof HTMLElement) {
+          element.parentElement.replaceChild(replacement, element)
+        }
       },
       sortColumn (evt) {
         const { name } = b8r.getListInstance(evt.target)
