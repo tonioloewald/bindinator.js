@@ -689,7 +689,6 @@ b8r.insertComponent = async function (component, element, data) {
       element.classList.remove(c)
     }
   })
-  element.classList.add(component.name + '-component')
   const register = componentData => b8r.register(componentId, componentData)
   const get = path => b8r.getByPath(componentId, path)
   const set = (...args) => {
@@ -712,6 +711,7 @@ b8r.insertComponent = async function (component, element, data) {
     componentId
   }
   b8r.register(componentId, data, true)
+  element.classList.add(component.name + '-component')
   element.dataset.componentId = componentId
   _componentInstances[componentId] = element
   if (component.load) {
