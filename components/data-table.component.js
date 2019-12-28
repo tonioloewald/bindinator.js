@@ -3,7 +3,27 @@
 
 Data-table is intended to make quick work of simple tables.
 
+The data-table is highly configurable via its `config` property.
+
+### To Do
+
+- show/hide columns UI (showing/hiding columns is already supported programmatically)
+- columns can specify custom headerCell component path or renderer (function)
+- columns can specify custom contentCell component path or renderer (function)
+- columns can be `sortable: true` or `sortable: (a, b) => -1 | 0 | 1`
+- table can have selection: { multiple: true|false, path: 'path.to.prop' } (if no path provided, selection is tracked internally)
+- virtual table (minimum number of elements in DOM)
+- state persistence to localStorage / services
+
 ```
+<style>
+  ._component_ .loading-component {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+</style>
 <b8r-component
   path="../components/data-table.component.js"
   data-bind="
@@ -12,6 +32,7 @@ Data-table is intended to make quick work of simple tables.
   "
 >
 </b8r-component>
+<b8r-component path="../components/loading" data-bind="show_if=_component_.loading"></b8r-component>
 <script>
   set('config', {
     columns: [
@@ -44,7 +65,11 @@ Data-table is intended to make quick work of simple tables.
       },
     ]
   })
-  b8r.json('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json').then(rows => set({rows}))
+  set({loading: true})
+  b8r.json('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json').then(rows => {
+    set({rows})
+    set('loading', false)
+  })
 </script>
 ```
 */

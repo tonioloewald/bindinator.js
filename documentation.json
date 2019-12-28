@@ -585,6 +585,10 @@
       {
         "name": "Emoji-Picker",
         "path": "components/emoji.component.js"
+      },
+      {
+        "name": "Firebase",
+        "path": "components/firebase.component.js"
       }
     ]
   }

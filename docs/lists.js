@@ -311,91 +311,15 @@ The simplest way to implement a virtual list is via paging.
 </script>
 ```
 
-### Data Table
+## Other Examples
 
-Work in progress.
+- [Data Table](#source=components/data-table.component.js) component
+- [Big Grid](#source=biggrid-test.component.html) is an example of a large virtual grid with fixed-sized elements
+- [Big List](#source=big-list.component.html) is an example of a large virtual table with rows of varying height
 
-```
-<style>
-  ._component_ {
-    --table-height: 400px;
-    --table-width: 100%;
-    --columns: 50px 150px auto;
-    --table-head-font: bold 14px sans-serif;
-    --table-body-font: 14px sans-serif;
-  }
+### More to come…
 
-  ._component_ .table {
-    width: var(--table-width);
-    height: var(--table-height);
-    display: flex;
-    flex-direction: column;
-  }
-
-  ._component_ .t-head {
-    flex: 0 0 auto;
-    background: var(--black-10);
-    font: var(--table-head-font);
-  }
-
-  ._component_ .t-body {
-    flex: 1 1;
-    overflow-y: scroll;
-    overflow-y: overlay;
-    font: var(--table-body-font);
-  }
-
-  ._component_ .t-row {
-    display: grid;
-    grid-template-columns: var(--columns);
-    cursor: default;
-    vertical-align: middle;
-    line-height: 20px;
-  }
-
-  ._component_ .t-row:nth-child(4n+3),
-  ._component_ .t-row:nth-child(4n) {
-    background: var(--black-5);
-  }
-
-  ._component_ .t-row > * {
-    margin: 2px 10px;
-  }
-
-  ._component_ .t-head > * {
-    margin: 5px 10px;
-  }
-
-  ._component_ :not(.t-head).t-row:hover {
-    background: var(--black-10);
-  }
-</style>
-<div class="table">
-  <div class="t-head t-row">
-    <span>emoji</span>
-    <span>code</span>
-    <span>name</span>
-  </div>
-  <div class="t-body">
-    <div class="t-row" data-list="_component_.rows:_auto_">
-      <span data-bind="text=.chars"></span>
-      <span data-bind="text=.code"></span>
-      <span data-bind="text=.name"></span>
-    </div>
-  </div>
-</div>
-<script>
-  b8r.json('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json').then(emoji => {
-    set({rows: emoji})
-  })
-</script>
-```
-
-## More Real World Cases to Come
-
-- virtual lists
-- nested lists (hint: they work exactly like you'd expect)
-- using a computed list to handle detail views (while keeping a "single source of truth")
+- master/detail views (with a "single source of truth")
 - editing lists (adding and removing elements, optimising service calls, etc.)
 - client-side inner joins (compute them from the one of the source lists)
 - client-side outer joins (pick a path, compute the list, stick it in the path)
