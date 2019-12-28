@@ -166,7 +166,7 @@ are in binary "k" (so 1 kB === 1024 B, and so on). Annotation stops at `EB` (exa
 
 Sets the `textContent` of the element to a human readable timestamp, using
 `new Date(...).localString()` by default, but supporting
-[data.format](http://blog.stevenlevithan.com/archives/date-time-format)
+[date.format](http://blog.stevenlevithan.com/archives/date-time-format)
 options if supplied.
 
 ```
