@@ -27,7 +27,7 @@ The data-table is highly configurable via its `config` property.
 <b8r-component
   path="../components/data-table.component.js"
   data-bind="
-    component(rows)=_component_.rows
+    component(rows)=_component_.emoji
     component(config)=_component_.config
   "
 >
@@ -68,8 +68,8 @@ The data-table is highly configurable via its `config` property.
     ]
   })
   set({loading: true})
-  b8r.json('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json').then(rows => {
-    set({rows})
+  b8r.json('https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json').then(emoji => {
+    set({emoji})
     set('loading', false)
   })
 </script>
@@ -145,14 +145,8 @@ export default {
     }
 
     ._component_ .t-column-sorter {
-      position: absolute;
-      display: block;
-      width: 30px;
+      margin-left: -10px;
       text-align: center;
-      right: 0;
-      top: 0;
-      height: 100%;
-      line-height: 30px;
       cursor: pointer;
       color: var(--black-80);
       opacity: 0.25;
@@ -179,7 +173,6 @@ export default {
           class="t-column-resizer"
           data-event="mousedown:_component_.resizeColumn"
         ></span>
-        <span data-bind="text=.name"></span>
         <span
           class="t-column-sorter icon-sort-ascending"
           data-bind="
@@ -188,6 +181,7 @@ export default {
           "
           data-event="mousedown:_component_.sortColumn"
         ></span>
+        <span data-bind="text=.name"></span>
       </span>
     </div>
     <div 
