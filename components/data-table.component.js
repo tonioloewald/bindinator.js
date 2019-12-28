@@ -100,10 +100,6 @@ export default {
       position: relative;
     }
 
-    ._component_ .t-head > *+* {
-      border-left: 1px solid var(--black-10);
-    }
-
     ._component_ .t-head > *+*:before {
       content: ' ';
       position: absolute;
@@ -112,6 +108,18 @@ export default {
       top: 0;
       left: -5px;
       bottom: 0;
+    }
+
+
+    ._component_ .t-head > *+*:after {
+      content: ' ';
+      position: absolute;
+      display: block;
+      width: 5px;
+      top: 0;
+      left: -5px;
+      height: 100vh;
+      border-left: 1px solid var(--black-10);
       cursor: col-resize;
     }
 
