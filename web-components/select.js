@@ -69,10 +69,13 @@ const rectUnion = (r, s) => {
 
 const SelectOption = makeWebComponent('b8r-option', {
   attributes: {
-    value: ''
+    value: '',
+    selected: false,
+    hover: false,
   },
   style: {
     ':host': {
+      transition: 'var(--hover-transition)',
       display: 'inline-block',
       padding: '3px 8px',
       height: '100%',
@@ -80,16 +83,33 @@ const SelectOption = makeWebComponent('b8r-option', {
       borderRadius: '2px',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
+      font: 'var(--ui-font)',
       textOverflow: 'ellipsis'
     }
   },
   eventHandlers: {
     mouseup (evt) {
       this.parentElement.value = this.value
+    },
+    mouseenter (evt) {
+      this.hover = true
+    },
+    mouseleave (evt) {
+      this.hover = false
     }
   },
   methods: {
     render () {
+      if (this.selected) {
+        this.style.background = 'var(--accent-color)'
+        this.color = 'var(--selected-text-color)'
+      } else if (this.hover) {
+        this.style.background = 'var(--light-accent-color)'
+        this.color = ''
+      } else { 
+        this.style.background = ''
+        this.color = ''
+      }
       this.tabIndex = 0
     }
   },
@@ -98,17 +118,13 @@ const SelectOption = makeWebComponent('b8r-option', {
 
 const SelectBar = makeWebComponent('b8r-select-bar', {
   attributes: {
-    background: 'var(--input-bg-color)',
-    color: 'var(--faded-text-color)',
-    selectedBackground: 'var(--accent-color)',
-    selectedColor: 'var(--text-color)',
-    transition: '0.125s ease-out',
     value: ''
   },
   style: {
     ':host': {
+      color: 'var(--faded-text-color)',
+      background: 'var(--input-bg-color)',
       display: 'inline-flex',
-      font: '14px Helvetica, Sans-serif',
       alignItems: 'stretch',
       borderRadius: '99px',
       overflow: 'hidden',
@@ -125,10 +141,7 @@ const SelectBar = makeWebComponent('b8r-select-bar', {
       // x.dataset.list is for b8r list binding support
       const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION')
       options.forEach((option, idx) => {
-        const isOn = `${option.value}` === `${this.value}`
-        option.style.transition = this.transition
-        option.style.color = isOn ? this.selectedColor : this.color
-        option.style.background = isOn ? this.selectedBackground : ''
+        option.selected = `${option.value}` === `${this.value}`
       })
     }
   },
@@ -137,17 +150,15 @@ const SelectBar = makeWebComponent('b8r-select-bar', {
 
 const SelectPop = makeWebComponent('b8r-select', {
   attributes: {
-    background: 'var(--input-bg-color)',
-    color: 'var(--faded-text-color)',
-    selectedBackground: 'var(--accent-color)',
-    selectedColor: 'var(--text-color)',
-    transition: '0.125s ease-out',
+    transition: 'var(--hover-transition)',
     open: false,
     width: '100px',
     value: ''
   },
   style: {
     ':host': {
+      color: 'var(--faded-text-color)',
+      background: 'var(--input-bg-color)',
       display: 'inline-flex',
       position: 'relative',
       cursor: 'default',
@@ -167,13 +178,13 @@ const SelectPop = makeWebComponent('b8r-select', {
       padding: '0 4px'
     },
     '.menu': {
+      background: 'var(--input-bg-color)',
       display: 'flex',
       position: 'fixed',
       top: 0,
       left: '-1000px',
       zIndex: 100,
       flexDirection: 'column',
-      font: '14px Helvetica, Sans-serif',
       alignItems: 'stretch',
       borderRadius: '2px',
       overflow: 'hidden',
@@ -210,7 +221,6 @@ const SelectPop = makeWebComponent('b8r-select', {
     connectedCallback () {
       const select = this
       select._menu = select.shadowRoot.querySelector('.menu')
-      select._menu.style.background = select.background
       select._outer = select.shadowRoot.querySelector('.outer')
       select._outer.addEventListener('mouseleave', (evt) => {
         select.open = evt.relatedTarget === select._menu ||
@@ -221,18 +231,15 @@ const SelectPop = makeWebComponent('b8r-select', {
     },
     render () {
       const selection = this.shadowRoot.querySelector('.selection')
-      selection.innerHTML = []
+      selection.innerHTML = ''
       selection.style.width = this.width
       this.style.background = this.background
       this.style.borderColor = this.background
       // x.dataset.list is for b8r list binding support
       const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION')
       options.forEach((option, idx) => {
-        const selected = `${option.value}` === `${this.value}`
-        option.style.transition = this.transition
-        option.style.color = selected ? this.selectedColor : this.color
-        option.style.background = selected ? this.selectedBackground : ''
-        if (selected) selection.appendChild(option.cloneNode(true))
+        option.selected = `${option.value}` === `${this.value}`
+        if (option.selected) selection.appendChild(option.cloneNode(true))
       })
 
       if (this.open) {
