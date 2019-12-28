@@ -684,8 +684,6 @@ b8r.insertComponent = async function (component, element, data) {
       b8r.moveChildren(children, childrenDest)
     }
   }
-  element.dataset.componentId = componentId
-  _componentInstances[componentId] = element
   b8r.makeArray(element.classList).forEach(c => {
     if (c.substr(-10) === '-component') {
       element.classList.remove(c)
@@ -707,14 +705,16 @@ b8r.insertComponent = async function (component, element, data) {
   const findOne = selector => b8r.findOneWithin(element, selector)
   const initialValue = typeof component.initialValue === 'function'
     ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, findOneWithin })
-    : b8r.deepClone(component.initialValue)
+    : b8r.deepClone(component.initialValue) || data
   data = {
-    ...(initialValue || data),
+    ...initialValue,
     dataPath,
     componentId
   }
+  b8r.register(componentId, data, true)
+  element.dataset.componentId = componentId
+  _componentInstances[componentId] = element
   if (component.load) {
-    b8r.register(componentId, data, true)
     try {
       await component.load(
         element, _pathRelativeB8r(component.path), findOneWithin, findOne,
@@ -724,8 +724,6 @@ b8r.insertComponent = async function (component, element, data) {
       debugger // eslint-disable-line no-debugger
       console.error('component', component.name, 'failed to load', e)
     }
-  } else {
-    b8r.register(componentId, data, true)
   }
   b8r.bindAll(element)
 }
