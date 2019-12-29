@@ -11,24 +11,37 @@ The data-table component's config property allows the table to be configured
 very flexibly:
 
     {
+      userCanEditColumns: true,
+      maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
       columns: [
         {
           name: 'column name',
           path: '.path.to.value',
-          width: 60, // number of pixels
-          sortable: (a, b) => ..., // ascending sort comparison
-          headerCell: domElement,
-          contentCell: domElement, 
+
+          // optional settings (defaults shown)
+          visible: true,
+          minWidth: 40,       // number of pixels
+          width: 80,          // number of pixels
+          maxWidth: 400,      // number of pixels
+          resizable: true,
+          sortable: false     // provide an ascending sort comparison function (a, b) => -1 | 0 | 1
+          headerCell: false,  // domElement,
+          contentCell: false, // domElement,
         },
+        ...
       ]
     }
 
 ### To Do
 
-- show/hide columns UI (showing/hiding columns is already supported programmatically)
-- table can have selection: { multiple: true|false, path: 'path.to.prop' } (if no path provided, selection is tracked internally)
+- table can have selection: { multiple: true|false, path: 'path.to.prop' }
+  (if no path provided, selection is tracked internally)
+- column reordering
 - virtual table (minimum number of elements in DOM)
 - state persistence to localStorage / services
+
+Selection can be implemented by exporting a custom `column` based on the column
+setup in the example.
 
 ```
 <style>
@@ -94,12 +107,14 @@ very flexibly:
         name: 'selected',
         path: '.selected',
         width: 40,
+        resizable: false,
         headerCell: selectHeader,
         contentCell: selectCell
       },
       {
         name: 'emoji',
         path: '.chars',
+        resizable: false,
         width: 65,
         contentCell: emojiCell,
       },
@@ -154,6 +169,21 @@ const cell = path => {
   const span = document.createElement('span')
   span.dataset.bind = `text=${path}`
   return span
+}
+
+const clamp = (min, x, max) => x < min ? min : (x > max ? max : x)
+
+const columnDefaults = {
+  name: '',
+  minWidth: 40,
+  visible: true,
+  width: 80,
+  maxWidth: 400,
+  resizable: true,
+  sortable: false,
+  path: '',
+  headerCell: false,
+  contentCell: false
 }
 
 export default {
@@ -216,11 +246,12 @@ export default {
       position: absolute;
       display: block;
       width: 5px;
-      left: 0;
+      right: -5px;
       top: 0;
       height: 100vh;
       border-left: 1px solid var(--black-10);
       cursor: col-resize;
+      z-index: 2;
     }
 
     ._component_ .t-column-resizer:hover,
@@ -261,7 +292,35 @@ export default {
       top: 0;
       right: 0;
       padding: 8px;
-    }`,
+    }
+
+    ._component_ > .t-visible-columns {
+      display: block;
+      position: absolute;
+      top: 28px;
+      right: 5px;
+      background: var(--white-75);
+      padding: 5px;
+    }
+
+    ._component_ > .t-visible-columns:before {
+      pointer-events: none;
+      content: ' ';
+      display: block;
+      width: 1px;
+      height: 1px;
+      border: 10px solid transparent;
+      border-bottom-color: var(--white-75);
+      position: absolute;
+      top: -21px;
+      right: 0px;
+    }
+
+    ._component_ > .t-visible-columns > label {
+      display: block;
+      padding: 5px 10px;
+    }
+    `,
   html: `
     <div class="t-head t-row">
       <span
@@ -271,6 +330,7 @@ export default {
         <span 
           class="t-column-resizer"
           data-event="mousedown:_component_.resizeColumn"
+          data-bind="pointer_events_if=.resizable"
         ></span>
         <span
           title="sort"
@@ -290,14 +350,17 @@ export default {
           "
         ></span>
       </span>
-      <div 
+      <div
+        tabindex=0
         title="select visible columns"
-        tabindex=0 class="t-column-selection icon-eye2 clickable"
+        class="t-column-selection icon-eye2 clickable"
+        data-bind="show_if=_component_.config.userCanEditColumns"
+        data-event="keydown(Space),click:_component_.toggleEditVisibleColumns"
       ></div>
     </div>
     <div 
       class="t-body" 
-      data-bind="method(_component_.renderRow)=."
+      data-bind="method(_component_.renderRow)=_component_.config.columns"
     >
       <div
         tabindex=0
@@ -305,25 +368,56 @@ export default {
         data-list="_component_.sortAndFilterRows(_component_.rows):_auto_"
       >
       </div>
-    </div>`,
+    </div>
+    <div 
+      class="t-visible-columns"
+      data-bind="show_if=_component_.editVisibleColumns"
+    >
+      <label data-list="_component_.config.columns">
+        <input type="checkbox" data-bind="checked=.visible">
+        <span data-bind="text=.name"></span>
+      </label>
+    </div>
+    `,
   load: ({ b8r, component }) => {
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
   },
-  initialValue: ({ b8r, get, touch, component, on, findOne }) => {
+  initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
     return {
-      visibleColumns (columns) {
-        return columns.filter(({ visible }) => visible !== false)
+      visibleColumns (/* ignore */) {
+        const columns = get().config.columns
+        columns.forEach((column, idx) => {
+          columns[idx] = {
+            ...columnDefaults,
+            ...column
+          }
+        })
+        return columns.filter(({ visible }) => !!visible)
+      },
+      toggleEditVisibleColumns () {
+        const { rows, editVisibleColumns } = get()
+        set({ editVisibleColumns: !editVisibleColumns })
+        if (editVisibleColumns) {
+          // because we're changing the list template (something b8r does not understand)
+          // we're going to blow away all the list instances by setting the list to empty
+          // and then after b8r cleans everything up, putting them back again
+          set({ rows: [] })
+          touch('config.columns')
+          b8r.afterUpdate(() => {
+            set({ rows })
+          })
+        }
       },
       resizeColumn (evt) {
-        const edgeIndex = b8r.elementIndex(evt.target.closest('.t-row > *')) - 1
-        const columns = b8r.cssVar(component, '--columns').split(' ')
+        const edgeIndex = b8r.elementIndex(evt.target.closest('.t-row > *'))
+        const columns = get().visibleColumns()
+        if (columns.length < 1) return
         columns.pop()
         const liveResize = get('rows').length <= get('config.maxRowsForLiveColumnResize')
-        const widths = columns.map(x => parseInt(x, 10))
         const thead = findOne('.t-head')
-        trackDrag(evt, widths[edgeIndex], 0, (w, _y, _dx, _dy, dragEnded) => {
-          widths[edgeIndex] = w < 20 ? 20 : w
-          const gridSpec = widths.map(w => w + 'px').join(' ') + ' auto'
+        trackDrag(evt, columns[edgeIndex].width, 0, (w, _y, _dx, _dy, dragEnded) => {
+          columns[edgeIndex].width = clamp(columns[edgeIndex].minWidth, w, columns[edgeIndex].maxWidth)
+          const gridSpec = columns.map(c => c.width + 'px').join(' ') + ' auto'
           if (liveResize || dragEnded) {
             b8r.cssVar(thead, '--columns', '')
             b8r.cssVar(component, '--columns', gridSpec)
@@ -333,25 +427,21 @@ export default {
         })
       },
       renderGrid (table, columns) {
-        const widths = get('visibleColumns')(columns).map(col => col.width + 'px')
+        const widths = get().visibleColumns().map(col => col.width + 'px')
         widths[widths.length - 1] = 'auto'
         const gridSpec = widths.join(' ')
         b8r.cssVar(component, '--columns', gridSpec)
       },
-      renderRow (tableBody, rowData) {
-        const { config, visibleColumns } = get()
-        const rowTemplate = tableBody.querySelector('[data-list]')
+      renderRow (tableBody) {
+        const rowTemplate = findOne('.t-body > .t-row[data-list]')
         rowTemplate.textContent = ''
-
-        if (config.columns) {
-          visibleColumns(config.columns)
-            .forEach(async ({ path, contentCell }) => {
-              rowTemplate.append(contentCell ? contentCell.cloneNode(true) : cell(path))
-            })
-        }
+        get().visibleColumns().forEach(async ({ path, contentCell }) => {
+          rowTemplate.append(contentCell ? contentCell.cloneNode(true) : cell(path))
+        })
         b8r.bindAll(rowTemplate)
       },
       replaceElement (element, replacement) {
+        /* global HTMLElement */
         if (replacement instanceof HTMLElement) {
           element.parentElement.replaceChild(replacement, element)
         }
@@ -386,7 +476,9 @@ export default {
           return rows
         }
       },
+      editVisibleColumns: false,
       config: {
+        userCanEditColumns: true,
         maxRowsForLiveColumnResize: 100,
         columns: []
       },
