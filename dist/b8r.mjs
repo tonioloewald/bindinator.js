@@ -2829,8 +2829,9 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
   }
 
   if (load) {
-    component.load = async (_component, b8r, find, findOne, _data, register, get, set, on, touch) => {
-      load({ component: _component, b8r, find, findOne, register, get, set, on, touch });
+    // _data and _register are masked because they shouldn't be used any more
+    component.load = async (_component, b8r, find, findOne, _data, _register, get, set, on, touch) => {
+      load({ component: _component, b8r, find, findOne, get, set, on, touch });
     };
   }
 
@@ -4226,7 +4227,7 @@ const imgSrc = (img, url, cors = true) => {
   img.style.opacity = 0.1;
   imagePromise(url, cors).then(image => {
     if (!getComputedStyle(img).transition) {
-      img.style.transition = '0.25s ease-out';
+      img.style.transition = 'var(--hover-transition)';
     }
     img.style.opacity = '';
     img.classList.add('-b8r-rendered');
@@ -7104,7 +7105,7 @@ b8r.insertComponent = async function (component, element, data) {
   const findOneWithin = selector => b8r.findWithin(element, selector);
   const findOne = selector => b8r.findOneWithin(element, selector);
   const initialValue = typeof component.initialValue === 'function'
-    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, findOneWithin })
+    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, find: findOneWithin })
     : b8r.deepClone(component.initialValue) || data;
   data = {
     ...initialValue,
