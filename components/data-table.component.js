@@ -1,7 +1,9 @@
 /**
 # Data Table
 
-Data-table is intended to make quick work of simple tables.
+Data-table is intended to make quick work of most tables — out of the box it supports fixed headers,
+resizable columns, showing/hiding columns. Customizing cells and headers is a matter of providing
+replacement elements, and styling is powered by css-variables.
 
 The data-table is highly configurable via its `config` property.
 
