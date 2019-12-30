@@ -53,6 +53,7 @@ setup in the example.
   }
 </style>
 <b8r-component
+  style="height: 100%;"
   path="../components/data-table.component.js"
   data-bind="
     component(rows)=_component_.emoji
@@ -132,6 +133,7 @@ setup in the example.
       {
         name: 'category',
         path: '.category',
+        sortable: (a, b) => b8r.sortAscending(a.category + ' ' + a.subcategory, b.category + ' ' + b.subcategory),
         visible: false,
         width: 120,
       },
