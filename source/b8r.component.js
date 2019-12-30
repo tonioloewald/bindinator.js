@@ -297,8 +297,9 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
   }
 
   if (load) {
-    component.load = async (_component, b8r, find, findOne, _data, register, get, set, on, touch) => {
-      load({ component: _component, b8r, find, findOne, register, get, set, on, touch })
+    // _data and _register are masked because they shouldn't be used any more
+    component.load = async (_component, b8r, find, findOne, _data, _register, get, set, on, touch) => {
+      load({ component: _component, b8r, find, findOne, get, set, on, touch })
     }
   }
 

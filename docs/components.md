@@ -7,10 +7,23 @@ recommended over HTML because they are better for static analysis, allow
 you to set up stuff (e.g. controllers) before the first component is 
 instanced, and support type-checking.
 
-Moving forward, this is the preferred method for implementing 
-components.
+Relative to the earlier HTML components, Javascript components have several
+specific advantages:
+
+- `initialValue` allows you to set up the component completely before it's inserted in the DOM
+  (eliminating tricky setup to prevent a bound method from being fired before it's available)
+- the signature of `initialValue` and `load` leverage linting tools.
+- `javascript` components are pure standards-compliant javascript, whereas HTML components
+  were slightly hacky HTML.
+- eventually there will be better **automated testing tools** for javascript components.
+- direct access to the component's `data` object was an anti-pattern and is blocked
+
+Moving forward, **Javascript is the preferred method for implementing 
+components**.
 
 There are two ways to define a pure javascript component.
+
+## Components as exported objects
 
 You can create a Javascript module that exports as `default` a bare object:
 
@@ -24,13 +37,28 @@ export default {
       this text will be yellow
     </div>
   `,
+  initialValue: async ({
+    // only destructure the items you need
+    component,           // this is the element that the component is inserted into
+    b8r,                 // it's b8r!
+    find,                // b8r.findWithin(component, ...)
+    findOne,             // b8r.findOneWithin(component, ...) 
+    get,                 // get (within the component's private data)
+    set,                 // set (within the component's private data)
+    on,                  // b8r.on(component, ...)
+    touch                // refresh the component
+  }) => {
+    // your setup code here
+    return {
+      ...                // initial state of component
+    }
+  },
   load: async ({
     // only destructure the items you need
     component,           // this is the element that the component is inserted into
     b8r,                 // it's b8r!
     find,                // b8r.findWithin(component, ...)
     findOne,             // b8r.findOneWithin(component, ...) 
-    register,            // replace the component's private data object
     get,                 // get (within the component's private data)
     set,                 // set (within the component's private data)
     on,                  // b8r.on(component, ...)
@@ -38,7 +66,6 @@ export default {
   }) => {
     // your javascript goes here
   },
-  initialValue: { ... }, // initial value
   type: { ... },         // component type,
   instanceType: { ... }, // instance type,
 }
@@ -50,13 +77,13 @@ As usual, you can rename the component by setting a name explicitly.
 
 Each of the properties of the this object are optional.
 
+## Directly building components in Javascript Modules
+
 You can also define components inline using `b8r.makeComponent`.
 
-Using `makeComponent` directly allows you to define and register controllers
-before a single instance of the component is inserted in the DOM, 
-and leverage all the javascript-centric tooling (linters, 
-transpilers, etc.). You can also easily define multiple components 
-in a single file.
+Using `makeComponent` allows you to pull in dependencies or define multiple components in 
+a single file, which can be useful for creating simple sub-components or families of 
+related components.
 
 ```
 /**
@@ -65,7 +92,7 @@ in a single file.
 documentation in markdown
 */
 
-// setup code here (e.g. load sub-components, register controllers)
+// setup code here (e.g. load dependencies, register controllers)
 
 const componentName = b8r.makeComponent('component-name', {
   // object defined as above

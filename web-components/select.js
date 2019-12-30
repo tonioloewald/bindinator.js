@@ -71,7 +71,7 @@ const SelectOption = makeWebComponent('b8r-option', {
   attributes: {
     value: '',
     selected: false,
-    hover: false,
+    hover: false
   },
   style: {
     ':host': {
@@ -106,7 +106,7 @@ const SelectOption = makeWebComponent('b8r-option', {
       } else if (this.hover) {
         this.style.background = 'var(--light-accent-color)'
         this.color = ''
-      } else { 
+      } else {
         this.style.background = ''
         this.color = ''
       }
