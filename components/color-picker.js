@@ -100,13 +100,14 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     }
 
     ._component_ .diagonal-stripes {
+      padding: 2px;
       background: url(${diagonalStripes});
     }
 
     ._component_ > div {
       margin: 0;
       padding: 0;
-      line-height: 20px;
+      line-height: 16px;
       text-align: center;
     }
 
@@ -134,11 +135,11 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     ._component_:focus canvas,
     ._component_[data-open] canvas {
       opacity: 1;
-      height: 96px;
+      height: 40px;
     }
   `,
   html: `
-    <div class="diagonal-stripes" style="padding: 5px;">
+    <div class="diagonal-stripes">
         <span class="swatch" data-bind="style(background)=_component_.value">&nbsp;</span>
     </div>
     <canvas 
