@@ -129,6 +129,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
       height: 0;
       width: 100%;
       display: block;
+      image-rendering: crisp-edges;
       image-rendering: pixelated;
     }
 
