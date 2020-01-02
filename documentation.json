@@ -15,7 +15,7 @@
         "path": "docs/binding-data.md"
       },
       {
-        "name": "Lists",
+        "name": "Lists, Grids, & Tables",
         "path": "docs/lists.js"
       },
       {
@@ -146,10 +146,6 @@
       {
         "name": "update",
         "path": "source/b8r.update.js"
-      },
-      {
-        "name": "future",
-        "path": "source/b8r.future.js"
       }
     ]
   },
@@ -240,6 +236,28 @@
       {
         "name": "vector",
         "path": "lib/vector.js"
+      }
+    ]
+  },
+  {
+    "title": "Design",
+    "sort": true,
+    "parts": [
+      {
+        "name": "Examples",
+        "path": "design.component.html"
+      },
+      {
+        "name": "Icons",
+        "path": "icomoon/demo.html"
+      },
+      {
+        "name": "Kitchen Sink",
+        "path": "kitchen-sink.component.html"
+      },
+      {
+        "name": "Theme Editor",
+        "path": "theme-editor.component.html"
       }
     ]
   },
@@ -388,10 +406,6 @@
         "path": "range.component.html"
       },
       {
-        "name": "Theme Editor",
-        "path": "theme-editor.component.html"
-      },
-      {
         "name": "Color Picker",
         "path": "components/color-picker.js"
       }
@@ -483,14 +497,6 @@
       {
         "name": "Modal Test",
         "path": "modal-test.component.html"
-      },
-      {
-        "name": "Icons",
-        "path": "icomoon/demo.html"
-      },
-      {
-        "name": "Kitchen Sink",
-        "path": "kitchen-sink.component.html"
       }
     ]
   },

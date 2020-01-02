@@ -35,7 +35,6 @@ import * as _byExample from './b8r.byExample.js'
 import * as _functions from './b8r.functions.js'
 import _toTargets from './b8r.toTargets.js'
 import * as _ajax from './b8r.ajax.js'
-import _b8r_ from './b8r._b8r_.js'
 import * as _sort from './b8r.sort.js'
 import {
   on,
@@ -48,6 +47,8 @@ import {
   implicitlyHandleEventsOfType,
   handleEvent
 } from './b8r.events.js'
+import { _insertSetByPath, _insertFromTargets } from './b8r._b8r_.js'
+import * as fromTargets from './b8r.fromTargets.js'
 import {
   addDataBinding,
   removeDataBinding,
@@ -195,6 +196,9 @@ b8r.setByPath = function (...args) {
     console.error(`setByPath failed; ${name} is not a registered model`)
   }
 }
+
+_insertSetByPath(b8r.setByPath)
+_insertFromTargets(fromTargets)
 
 b8r.pushByPath = function (...args) {
   let name, path, value, callback
@@ -557,8 +561,6 @@ b8r.bindAll = (element, dataPath) => {
   findBindables(element).forEach(elt => bind(elt))
   findLists(element).forEach(elt => bindList(elt, dataPath))
 }
-
-_b8r_(b8r)
 
 Object.assign(b8r, _ajax)
 Object.assign(b8r, _sort)

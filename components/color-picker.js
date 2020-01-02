@@ -94,7 +94,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
   css: `
     ._component_ {
       position: relative;
-      min-width: 240px;
+      min-width: 50px;
       cursor: default;
       user-select: none;
     }
@@ -106,7 +106,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     ._component_ > div {
       margin: 0;
       padding: 0;
-      line-height: 24px;
+      line-height: 20px;
       text-align: center;
     }
 
@@ -114,7 +114,8 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
       display: inline-block;
       margin: 0;
       padding: 0;
-      width: 4%;
+      width: 50%;
+      min-width: 40px;
       height: 100%;
       border-radius: 0;
     }
@@ -138,7 +139,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
   `,
   html: `
     <div class="diagonal-stripes" style="padding: 5px;">
-        <span class="swatch" data-bind="style(background)=_component_.value" style="width: 25%">&nbsp;</span>
+        <span class="swatch" data-bind="style(background)=_component_.value">&nbsp;</span>
     </div>
     <canvas 
       data-bind="method(color-picker-controller.palette)=_component_.h,_component_.s,_component_.v"

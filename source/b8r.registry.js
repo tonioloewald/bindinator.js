@@ -321,11 +321,11 @@ lists).
 
 import { getByPath, setByPath, deleteByPath } from './b8r.byPath.js'
 import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
-import { playSavedMessages } from './b8r.future.js'
 import { matchType } from './b8r.byExample.js'
 import { componentTypes } from './b8r.component.js'
+import { _b8r_ } from './b8r._b8r_.js'
 
-const registry = {}
+const registry = { _b8r_ }
 const registeredTypes = {}
 const listeners = [] // { path_string_or_test, callback }
 const debugPaths = true
@@ -835,7 +835,6 @@ const register = (name, obj, blockUpdates) => {
 
   if (!blockUpdates) {
     touch(name)
-    playSavedMessages(name)
   }
 }
 

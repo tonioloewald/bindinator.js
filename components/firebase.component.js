@@ -117,7 +117,7 @@ export default {
         const db = firebase.firestore()
         const userDoc = get('userDoc')
         const timestamp = Date.now()
-        db.collection('users').doc(get('user').uid).set({...userDoc, timestamp}).then((...args) => {
+        db.collection('users').doc(get('user').uid).set({ ...userDoc, timestamp }).then((...args) => {
           set('userDoc.timestamp', timestamp)
         }).catch((error) => {
           set({ dirty: true })

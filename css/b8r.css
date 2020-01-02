@@ -3,11 +3,11 @@
 :root {
   --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
   --bg-color: aliceblue;
-  --content-bg-color: #eee;
+  --content-bg-color: #ddd;
   --faded-bg-color: #ccc;
   --example-bg-color: rgb(229, 229, 241);
-  --input-bg-color: #fff;
-  --text-color: #222;
+  --input-bg-color: #eee;
+  --text-color: #333;
   --dark-text-color: #eee;
   --code-text-color: #444;
   --faded-text-color: #666;
@@ -51,7 +51,7 @@
     --example-bg-color: rgb(39, 39, 49);
     --input-bg-color: #111;
     --faded-text-color: #ccc;
-    --text-color: #eee;
+    --text-color: #ddd;
     --dark-text-color: #222;
     --dark-accent-color: lightskyblue;
     --light-accent-color: #456;
@@ -216,6 +216,7 @@ input, textarea, [contenteditable="true"] {
   padding: 2px 4px;
   background: var(--input-bg-color);
   border: 1px solid var(--black-10);
+  transition: var(--hover-transition);
   outline: none;
 }
 

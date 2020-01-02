@@ -5,13 +5,12 @@
 /* global console, window, KeyboardEvent, Element */
 
 import { findWithin } from './b8r.dom.js'
-import { get, registered, call } from './b8r.registry.js'
+import { get, call } from './b8r.registry.js'
 import anyElement from './b8r.anyElement.js'
 import * as keys from './b8r.keystroke.js'
 import { pathSplit } from './b8r.byPath.js'
 import implicitEventTypes from './b8r.implicit-event-types.js'
 import { dispatch } from './b8r.dispatch.js'
-import { setPlaySavedMessages } from './b8r.future.js'
 
 const onOffArgs = args => {
   var element; var eventType; var object; var method; var prepend = false
@@ -258,41 +257,17 @@ const getComponentWithMethod = function (element, path) {
 /**
 ## Calling Event Handlers
 
-You can, of course, call any registered method via `b8r.get('path.to.function')(...args)`
-and there's even a convenient method that reduces this to `b8r.call('path.to.function', ...args)`.
-But `b8r.callMethod` is specifically used to call event handlers because it allows for the case
-where the event occurs *before the handler has been registered*. So, in particular, if you
-load component which calls a method that the component's script will register *afterwards* or which
-relies on, say, a library that is being asynchronously loaded, you can still just write the handler
-as normal and, under the hood, it will be saved and executed when the method is registered.
+You can, of course, call any registered function via `b8r.get('path.to.function')(...args)`
+and there's a convenience function that reduces this to `b8r.call('path.to.function', ...args)`.
+Finally, there's `callMethod` which is provided for convenience (e.g. when calling a component's
+methods, given its `componentId`):
 
-    b8r.callMethod(method_path, ...args)
-    b8r.callMethod(model, method, ...args);
+    b8r.callMethod('path', 'to.method', ...args)
 
-Call a method by name from a registered method. If the relevant model has not
-yet been registered (e.g. it's being loaded asynchronously) it will get the
-message when it's registered.
+It also supports the same syntax as `b8r.call(…)`:
+
+    b8r.callMethod('path.to.function', ...args)
 */
-
-var savedMessages = [] // {model, method, evt}
-
-function saveMethodCall (model, method, args) {
-  savedMessages.push({ model, method, args })
-}
-
-setPlaySavedMessages((forModel) => {
-  var playbackQueue = []
-  for (var i = savedMessages.length - 1; i >= 0; i--) {
-    if (savedMessages[i].model === forModel) {
-      playbackQueue.push(savedMessages[i])
-      savedMessages.splice(i, 1)
-    }
-  }
-  while (playbackQueue.length) {
-    var { model, method, args } = playbackQueue.pop()
-    callMethod(model, method, ...args)
-  }
-})
 
 const callMethod = (...args) => {
   var model, method
@@ -304,19 +279,9 @@ const callMethod = (...args) => {
       [model, method, ...args] = args
     }
   } catch (e) {
-    debugger // eslint-disable-line no-debugger
+    throw new Error('callMethod has bad arguments')
   }
-  var result = null
-  if (registered(model)) {
-    result = call(`${model}.${method}`, ...args)
-  } else {
-    // TODO queue if model not available
-    // event is stopped from further propagation
-    // provide global wrappers that can e.g. put up a spinner then call the
-    // method
-    saveMethodCall(model, method, args)
-  }
-  return result
+  return call(`${model}.${method}`, ...args)
 }
 
 const handleEvent = (evt) => {

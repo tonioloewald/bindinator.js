@@ -1652,38 +1652,6 @@ var b8r = (function () {
   };
 
   /**
-  # importing from the future
-
-  Methods in here work around circular references. You shouldn't need to use
-  it yourself!
-  ~~~~
-  const {playSavedMessages} = await import('./b8r.future.js')
-
-  const div = b8r.create('div');
-  div.dataset.event = 'click:future-test.click';
-  document.body.appendChild(div);
-  b8r.trigger('click', div);
-  Test(() => b8r.get('future-test.clickCount')).shouldBe(null)
-  b8r.register('future-test', {
-    click () {
-      b8r.increment('future-test.clickCount')
-    }
-  })
-  await b8r.forceUpdate()
-  Test(() => b8r.get('future-test.clickCount')).shouldBe(1)
-  b8r.remove('future-test')
-  ~~~~
-  */
-
-  let playSavedMessages = () => {
-    throw new Error('playSavedMessages is not ready yet')
-  };
-
-  const setPlaySavedMessages = (fn) => {
-    playSavedMessages = fn;
-  };
-
-  /**
   # Type Checking, Mocks By Example
 
   The goal of this module is to provide simple, effective type-checking "by example" -- i.e. in
@@ -3004,6 +2972,59 @@ var b8r = (function () {
   };
 
   /**
+  ## `_b8r_` — Built-in Event Handlers
+
+  The `_b8r_` object is registered by default as a useful set of always available
+  methods, especially for handling events.
+
+  You can use them the obvious way:
+
+      <button data-event="click:_b8r_.echo">
+        Click Me, I cause console spam
+      </button>
+
+      _b8r_.echo // logs events to the console
+      _b8r_.stopEvent // use this to simply catch an event silently
+      _b8r_._update_ // this is used by b8r to update models automatically
+  */
+  let setByPath$1;
+  const _insertSetByPath = f => { setByPath$1 = f; };
+  let fromTargets;
+  const _insertFromTargets = t => { fromTargets = t; };
+
+  const hasFromTarget = (t) => fromTargets[t.target];
+
+  const _b8r_ = {
+    echo: evt => console.log(evt) || true,
+    stopEvent: () => {},
+    _update_: evt => {
+      let elements = findAbove(evt.target, '[data-bind]', null, true);
+      // update elements with selected fromTarget
+      if (evt.target.tagName === 'SELECT') {
+        const options = findWithin(evt.target, 'option[data-bind]:not([data-list])');
+        elements = elements.concat(options);
+      }
+      elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
+        const bindings = getBindings(elt);
+        for (let i = 0; i < bindings.length; i++) {
+          const { targets, path } = bindings[i];
+          const boundTargets = targets.filter(hasFromTarget);
+          const processFromTargets = t => { // jshint ignore:line
+            // all bets are off on bound values!
+            const value = fromTargets[t.target](elt, t.key);
+            if (value !== undefined) {
+              delete elt._b8rBoundValues;
+              setByPath$1(path, value, elt);
+            }
+          };
+          boundTargets.forEach(processFromTargets);
+        }
+      });
+      return true
+    }
+  };
+
+  /**
   # The Registry
 
   Bindinator is built around the idea of registering objects under unique names
@@ -3322,7 +3343,7 @@ var b8r = (function () {
 
   */
 
-  const registry = {};
+  const registry = { _b8r_ };
   const registeredTypes = {};
   const listeners = []; // { path_string_or_test, callback }
   const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/;
@@ -3831,7 +3852,6 @@ var b8r = (function () {
 
     if (!blockUpdates) {
       touch(name);
-      playSavedMessages(name);
     }
   };
 
@@ -4636,41 +4656,17 @@ var b8r = (function () {
   /**
   ## Calling Event Handlers
 
-  You can, of course, call any registered method via `b8r.get('path.to.function')(...args)`
-  and there's even a convenient method that reduces this to `b8r.call('path.to.function', ...args)`.
-  But `b8r.callMethod` is specifically used to call event handlers because it allows for the case
-  where the event occurs *before the handler has been registered*. So, in particular, if you
-  load component which calls a method that the component's script will register *afterwards* or which
-  relies on, say, a library that is being asynchronously loaded, you can still just write the handler
-  as normal and, under the hood, it will be saved and executed when the method is registered.
+  You can, of course, call any registered function via `b8r.get('path.to.function')(...args)`
+  and there's a convenience function that reduces this to `b8r.call('path.to.function', ...args)`.
+  Finally, there's `callMethod` which is provided for convenience (e.g. when calling a component's
+  methods, given its `componentId`):
 
-      b8r.callMethod(method_path, ...args)
-      b8r.callMethod(model, method, ...args);
+      b8r.callMethod('path', 'to.method', ...args)
 
-  Call a method by name from a registered method. If the relevant model has not
-  yet been registered (e.g. it's being loaded asynchronously) it will get the
-  message when it's registered.
+  It also supports the same syntax as `b8r.call(…)`:
+
+      b8r.callMethod('path.to.function', ...args)
   */
-
-  var savedMessages = []; // {model, method, evt}
-
-  function saveMethodCall (model, method, args) {
-    savedMessages.push({ model, method, args });
-  }
-
-  setPlaySavedMessages((forModel) => {
-    var playbackQueue = [];
-    for (var i = savedMessages.length - 1; i >= 0; i--) {
-      if (savedMessages[i].model === forModel) {
-        playbackQueue.push(savedMessages[i]);
-        savedMessages.splice(i, 1);
-      }
-    }
-    while (playbackQueue.length) {
-      var { model, method, args } = playbackQueue.pop();
-      callMethod(model, method, ...args);
-    }
-  });
 
   const callMethod = (...args) => {
     var model, method;
@@ -4682,19 +4678,9 @@ var b8r = (function () {
         [model, method, ...args] = args;
       }
     } catch (e) {
-      debugger // eslint-disable-line no-debugger
+      throw new Error('callMethod has bad arguments')
     }
-    var result = null;
-    if (registered(model)) {
-      result = call(`${model}.${method}`, ...args);
-    } else {
-      // TODO queue if model not available
-      // event is stopped from further propagation
-      // provide global wrappers that can e.g. put up a spinner then call the
-      // method
-      saveMethodCall(model, method, args);
-    }
-    return result
+    return call(`${model}.${method}`, ...args)
   };
 
   const handleEvent = (evt) => {
@@ -5203,7 +5189,7 @@ var b8r = (function () {
 
   Sets the `textContent` of the element to a human readable timestamp, using
   `new Date(...).localString()` by default, but supporting
-  [data.format](http://blog.stevenlevithan.com/archives/date-time-format)
+  [date.format](http://blog.stevenlevithan.com/archives/date-time-format)
   options if supplied.
 
   ```
@@ -5722,6 +5708,45 @@ var b8r = (function () {
   }
 
   /**
+  # Sort Utilities
+
+  These are convenient methods that behave a bit like the "spaceship" operator in PHP7.
+
+  ### Usage
+
+      import {sortAscending, sortDescending} from 'path/to/b8r.sort.js';
+      const a = ['b', 'a', 'c'];
+      const ascending = a.sort(sortAscending); // ['a', 'b', 'c'];
+      const descending = a.sort(sortDescending); // ['c', 'b', 'a'];
+
+  They're also useful for building custom sort methods:
+
+      // sort an array of objects by title property
+      const sorted = array_of_objs.sort((a, b) => sortAscending(a.title, b.title));
+
+  ~~~~
+  const {sortAscending, sortDescending} = b8r;
+  Test(() => ['c', 'a', 'B'].sort(sortAscending), 'sort strings, ascending').shouldBeJSON(['a','B','c']);
+  Test(() => ['c', 'a', 'B'].sort(sortDescending), 'sort strings, descending').shouldBeJSON(['c','B','a']);
+  Test(() => ['3', 1, 2].sort(sortAscending), 'sort mixed types, ascending').shouldBeJSON([1,2,'3']);
+  Test(() => ['3', 1, 2].sort(sortDescending), 'sort mixed types, descending').shouldBeJSON(['3',2,1]);
+  ~~~~
+  */
+
+  const sortAscending = (a, b) =>
+    typeof a === 'string' || typeof b === 'string'
+      ? `${a}`.localeCompare(b) : a > b ? 1 : b > a ? -1 : 0;
+
+  const sortDescending = (a, b) =>
+    typeof a === 'string' || typeof b === 'string'
+      ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
+
+  var _sort = /*#__PURE__*/Object.freeze({
+    sortAscending: sortAscending,
+    sortDescending: sortDescending
+  });
+
+  /**
   # fromTargets
   Copyright ©2016-2017 Tonio Loewald
 
@@ -5825,7 +5850,7 @@ var b8r = (function () {
     return _getByPath(model, method)(element)
   };
 
-  var fromTargets = /*#__PURE__*/Object.freeze({
+  var fromTargets$1 = /*#__PURE__*/Object.freeze({
     value: value,
     checked: checked,
     selected: selected,
@@ -5835,96 +5860,6 @@ var b8r = (function () {
     prop: prop,
     component: component$1,
     fromMethod: fromMethod
-  });
-
-  /**
-  ## `_b8r_` — Built-in Event Handlers
-
-  The `_b8r_` object is registered by default as a useful set of always available
-  methods, especially for handling events.
-
-  You can use them the obvious way:
-
-      <button data-event="click:_b8r_.echo">
-        Click Me, I cause console spam
-      </button>
-
-      _b8r_.echo // logs events to the console
-      _b8r_.stopEvent // use this to simply catch an event silently
-      _b8r_._update_ // this is used by b8r to update models automatically
-  */
-
-  var _b8r_ = (b8r) => {
-    const hasFromTarget = (t) => fromTargets[t.target];
-
-    b8r._register('_b8r_', {
-      echo: evt => console.log(evt) || true,
-      stopEvent: () => {},
-      _update_: evt => {
-        let elements = b8r.findAbove(evt.target, '[data-bind]', null, true);
-        // update elements with selected fromTarget
-        if (evt.target.tagName === 'SELECT') {
-          const options = b8r.findWithin(evt.target, 'option[data-bind]:not([data-list])');
-          elements = elements.concat(options);
-        }
-        elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
-          const bindings = getBindings(elt);
-          for (let i = 0; i < bindings.length; i++) {
-            const { targets, path } = bindings[i];
-            const boundTargets = targets.filter(hasFromTarget);
-            const processFromTargets = t => { // jshint ignore:line
-              // all bets are off on bound values!
-              const value = fromTargets[t.target](elt, t.key);
-              if (value !== undefined) {
-                delete elt._b8rBoundValues;
-                b8r.setByPath(path, value, elt);
-              }
-            };
-            boundTargets.forEach(processFromTargets);
-          }
-        });
-        return true
-      }
-    });
-  };
-
-  /**
-  # Sort Utilities
-
-  These are convenient methods that behave a bit like the "spaceship" operator in PHP7.
-
-  ### Usage
-
-      import {sortAscending, sortDescending} from 'path/to/b8r.sort.js';
-      const a = ['b', 'a', 'c'];
-      const ascending = a.sort(sortAscending); // ['a', 'b', 'c'];
-      const descending = a.sort(sortDescending); // ['c', 'b', 'a'];
-
-  They're also useful for building custom sort methods:
-
-      // sort an array of objects by title property
-      const sorted = array_of_objs.sort((a, b) => sortAscending(a.title, b.title));
-
-  ~~~~
-  const {sortAscending, sortDescending} = b8r;
-  Test(() => ['c', 'a', 'B'].sort(sortAscending), 'sort strings, ascending').shouldBeJSON(['a','B','c']);
-  Test(() => ['c', 'a', 'B'].sort(sortDescending), 'sort strings, descending').shouldBeJSON(['c','B','a']);
-  Test(() => ['3', 1, 2].sort(sortAscending), 'sort mixed types, ascending').shouldBeJSON([1,2,'3']);
-  Test(() => ['3', 1, 2].sort(sortDescending), 'sort mixed types, descending').shouldBeJSON(['3',2,1]);
-  ~~~~
-  */
-
-  const sortAscending = (a, b) =>
-    typeof a === 'string' || typeof b === 'string'
-      ? `${a}`.localeCompare(b) : a > b ? 1 : b > a ? -1 : 0;
-
-  const sortDescending = (a, b) =>
-    typeof a === 'string' || typeof b === 'string'
-      ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
-
-  var _sort = /*#__PURE__*/Object.freeze({
-    sortAscending: sortAscending,
-    sortDescending: sortDescending
   });
 
   /**
@@ -6601,6 +6536,9 @@ var b8r = (function () {
     }
   };
 
+  _insertSetByPath(b8r.setByPath);
+  _insertFromTargets(fromTargets$1);
+
   b8r.pushByPath = function (...args) {
     let name, path, value, callback;
     if (args.length === 2 || typeof args[2] === 'function') {
@@ -6962,8 +6900,6 @@ var b8r = (function () {
     findBindables(element).forEach(elt => bind(elt));
     findLists(element).forEach(elt => bindList(elt, dataPath));
   };
-
-  _b8r_(b8r);
 
   Object.assign(b8r, _ajax);
   Object.assign(b8r, _sort);

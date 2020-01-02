@@ -3,6 +3,32 @@
 
 A simple tool that finds all the `:root` css-variables currently in the DOM
 and lets you edit them directly.
+
+## css-variable naming conventions
+
+    **Note**: work in progress!
+
+The theme editor is built on **naming conventions** so that designers and programmers
+can tell what "type" a variable is.
+
+- By **default** (i.e. if the variable name doesn't have a specific ending) it will be
+  treated as text. In general, don't use obvious candidates for reserved words
+  as the ending of variable names to avoid issues as new features get added. This
+  covers all the crazy cases that would need a stateful parser,
+  like `content`, `box-shadow`, `filter`, and `transform`.
+- `-color` indicates the variable contains an html color specification, e.g.
+  `#f00` or `#e7e7e7` or `#ffffff22` or `rgb(0,0,255)` or `crimson` or `transparent`.
+- `-font`, `-border` are assumed to be the corresponding shorthand
+- `-corners` are corner dimensions (e.g. `border-radius` shorthand)
+- `-edges` are edge dimensions (e.g. `margin`, `padding`, `border-width`)
+- `-size` are single dimensions (e.g. '100px'
+- `-fontFamily` are a font family
+- `-fontSize` are a font size
+- `-fontWeight` are a font weight
+- `-url` is a `url()` (data or otherwise)
+- `-image` is a `url()` that evaluates to an image (this means that `theme-editor`
+   will one day let you pick an image from a file browser and convert it into a data-url
+   if it's smaller than some size threshold automatically)
 -->
 <style>
   ._component_ label > span {
@@ -24,9 +50,10 @@ and lets you edit them directly.
     flex: 1 1;
   }
 </style>
+<h3>Theme Editor</h3>
 <label>
-  Color Scheme: <b data-bind="text=_component_.darkmode"></b>
-</label><br>
+  Dark Mode: <b data-bind="text=_component_.darkmode"></b>
+</label>
 <div data-list="_component_.cssVars:name">
   <label>
     <span data-bind="text=.name"></span>

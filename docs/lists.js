@@ -1,5 +1,5 @@
 /**
-# List Bindings
+# List Bindings — Lists, Grids, and Tables
 
 `b8r` list bindings are a deceptively simple feature.
 
@@ -28,7 +28,8 @@ e.g.
 
 Note that in a list instance, binding to `.` gets you the thing itself,
 which is useful when binding to arrays of strings or numbers. In general, `b8r` list
-bindings are designed with lists of *objects* in mind.
+bindings are designed with lists of *objects* in mind (which is generally what
+the lists you get from service calls tend to look like).
 
 ## Best Practices — id-paths
 
@@ -74,14 +75,15 @@ Now the corresponding list instance looks like this:
 
 ### `_auto_`
 
-If you have a list of objects without a unique id, you can simply use use
+If you have a list of *objects* without a unique id, you can simply use use
 `_auto_` as your list id-path and `b8r` will automatically generate a unique
-id for each list instance. E.g.
+id for each array element. E.g.
 
 ```
 <div data-list="_component_.jedi:_auto_">
   <span data-bind="text=.name"></span>
 </div>
+<pre data-bind="json=_component_.jedi"></pre>
 <script>
   set('jedi', [
     {name: "Obi Wan Kenobi"},
@@ -93,15 +95,21 @@ id for each list instance. E.g.
 </script>
 ```
 
+If you look at the content of the array after it's bound, you'll see that
+each item in the array now has a *unique* `_auto_` property.
+
 ## Computed Lists
 
 `b8r` provides seamless support for computed lists, and it looks like this:
 
     data-list="path.to.method(path.to.sourceList,to.this,to.that):id"
 
-For computed lists to work, you need to provide an `id-path` and the output
-list must be a filtered subset of the source list. This makes implementing
-**sorted** and/or **filtered** lists easy and efficient.
+**Note**: for computed lists to work, you need to provide an `id-path` and the output
+list must be a *filtered subset* of the source list. This makes implementing
+**sorted** and/or **filtered** lists easy and efficient, but does *not* allow you
+to fabricate lists of new objects on-the-fly without problems. (The solution is
+to build joined lists and register them separately, or to compute additional properties
+on-the-fly.)
 
 ### Filtered List
 
@@ -188,11 +196,11 @@ rerender that specific list.
 You can also see an example of this in the [To Do](#source=todo.component.html) example
 where `touchElement` is used to avoid triggering an unnecessary history entry.
 
-### Virtual Lists
+### Virtual Lists & Grids
 
-A common problem in applications is dealing with very large lists of objects. The usual
+A common problem in applications is dealing with *very large* lists of objects. The usual
 solution to this is to render only the things the user can see, and track the rest of the
-objects elsewhere. This is often referred to as a virtual list.
+objects elsewhere. This is often referred to as a virtual list (or grid)
 
 #### Paging
 
