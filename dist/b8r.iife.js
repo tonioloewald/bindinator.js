@@ -4684,6 +4684,8 @@ var b8r = (function () {
   };
 
   const handleEvent = (evt) => {
+    // early exit for events triggered on elements inside [data-list] template elements and unloaded components
+    if (evt.target.closest('[data-list],b8r-component:not([data-component-id]),[data-component]:not([data-component-id])')) return
     var target = anyElement;
     var args = evt.args || [];
     var keystroke$1 = evt instanceof KeyboardEvent ? keystroke(evt) : {};
@@ -6415,8 +6417,8 @@ var b8r = (function () {
   ## Core Functionality
   - [The Registry](#source=source/b8r.registry.js)
   - [Binding Data](#source=source/b8r.bindings.js)
-    - [toTargets](#source=source/b8r.toTargets.js)
-    - [fromTargets](#source=source/b8r.fromTargets.js)
+    - [sending data to the DOM](#source=source/b8r.toTargets.js)
+    - [capturing data changes from the DOM](#source=source/b8r.fromTargets.js)
   - [Events](#source=source/b8r.events.js)
     - [keystroke](#source=source/b8r.keystroke.js)
   - [Components](#source=source/b8r.component.js)
@@ -6430,6 +6432,8 @@ var b8r = (function () {
   */
 
   const b8r = {};
+  const UNLOADED_COMPONENT_SELECTOR = '[data-component]:not([data-component-id]),b8r-component:not([data-component-id])';
+  const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
 
   Object.assign(b8r, _dom);
   Object.assign(b8r, _iterators);
@@ -6706,7 +6710,7 @@ var b8r = (function () {
       expectCustomElement(element.tagName);
       return // do not attempt to bind to custom components before they are defined
     }
-    if (element.closest('[data-component],[data-list]')) {
+    if (element.closest(UNREADY_SELECTOR)) {
       return
     }
     const bindings = getBindings(element);
@@ -6758,8 +6762,7 @@ var b8r = (function () {
     listTemplate.classList.add('-b8r-empty-list');
     if (
       !listTemplate.parentElement || // skip if disembodied
-      listTemplate.parentElement.closest('[data-component]') || // or it's in an unloaded component
-      listTemplate.parentElement.closest('[data-list]') // or it's in a list template
+      listTemplate.parentElement.closest(UNREADY_SELECTOR)
     ) {
       return
     }
@@ -6931,11 +6934,12 @@ var b8r = (function () {
   b8r.components = () => Object.keys(components);
 
   function loadAvailableComponents (element, dataPath) {
-    b8r.findWithin(element || document.body, '[data-component]', true)
+    b8r.findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
       .forEach(target => {
-        if (!target.closest('[data-list]') &&
-            !target.dataset.componentId) {
-          const name = target.dataset.component;
+        if (!target.closest('[data-list]')) {
+          const name = target.tagName === 'B8R-COMPONENT'
+            ? target.name
+            : target.dataset.component;
           b8r.insertComponent(name, target, dataPath);
         }
       });
@@ -7085,6 +7089,9 @@ var b8r = (function () {
         }
       },
       render () {
+        if (!this.isConnected) return
+        const unready = this.parentElement && this.parentElement.closest(UNREADY_SELECTOR);
+        if (unready) return
         if (this.name) {
           b8r.insertComponent(this.name, this);
         } else {

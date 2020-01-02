@@ -91,6 +91,8 @@ import {
 import * as webComponents from './web-components.js'
 
 const b8r = {}
+const UNLOADED_COMPONENT_SELECTOR = '[data-component]:not([data-component-id]),b8r-component:not([data-component-id])'
+const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
 
 Object.assign(b8r, _dom)
 Object.assign(b8r, _iterators)
@@ -367,7 +369,7 @@ function bind (element) {
     expectCustomElement(element.tagName)
     return // do not attempt to bind to custom components before they are defined
   }
-  if (element.closest('[data-component],[data-list]')) {
+  if (element.closest(UNREADY_SELECTOR)) {
     return
   }
   const bindings = getBindings(element)
@@ -419,8 +421,7 @@ function bindList (listTemplate, dataPath) {
   listTemplate.classList.add('-b8r-empty-list')
   if (
     !listTemplate.parentElement || // skip if disembodied
-    listTemplate.parentElement.closest('[data-component]') || // or it's in an unloaded component
-    listTemplate.parentElement.closest('[data-list]') // or it's in a list template
+    listTemplate.parentElement.closest(UNREADY_SELECTOR)
   ) {
     return
   }
@@ -592,11 +593,12 @@ Object.assign(b8r, { component, makeComponent, makeComponentNoEval })
 b8r.components = () => Object.keys(components)
 
 function loadAvailableComponents (element, dataPath) {
-  b8r.findWithin(element || document.body, '[data-component]', true)
+  b8r.findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
     .forEach(target => {
-      if (!target.closest('[data-list]') &&
-          !target.dataset.componentId) {
-        const name = target.dataset.component
+      if (!target.closest('[data-list]')) {
+        const name = target.tagName === 'B8R-COMPONENT'
+          ? target.name
+          : target.dataset.component
         b8r.insertComponent(name, target, dataPath)
       }
     })
@@ -746,6 +748,9 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       }
     },
     render () {
+      if (!this.isConnected) return
+      const unready = this.parentElement && this.parentElement.closest(UNREADY_SELECTOR)
+      if (unready) return
       if (this.name) {
         b8r.insertComponent(this.name, this)
       } else {

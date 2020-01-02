@@ -285,6 +285,8 @@ const callMethod = (...args) => {
 }
 
 const handleEvent = (evt) => {
+  // early exit for events triggered on elements inside [data-list] template elements and unloaded components
+  if (evt.target.closest('[data-list],b8r-component:not([data-component-id]),[data-component]:not([data-component-id])')) return
   var target = anyElement
   var args = evt.args || []
   var keystroke = evt instanceof KeyboardEvent ? keys.keystroke(evt) : {}
