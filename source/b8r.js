@@ -91,7 +91,7 @@ import {
 import * as webComponents from './web-components.js'
 
 const b8r = {}
-const UNLOADED_COMPONENT_SELECTOR = '[data-component]:not([data-component-id]),b8r-component:not([data-component-id])'
+const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
 
 Object.assign(b8r, _dom)
@@ -646,6 +646,8 @@ b8r.insertComponent = async function (component, element, data) {
     }
     component = components[component]
   }
+  const className = component.name + '-component'
+  if (element.classList.contains(className)) return
   if (element.dataset.component) {
     delete element.dataset.component
   }
@@ -715,7 +717,7 @@ b8r.insertComponent = async function (component, element, data) {
     componentId
   }
   b8r.register(componentId, data, true)
-  element.classList.add(component.name + '-component')
+  element.classList.add(className)
   element.dataset.componentId = componentId
   _componentInstances[componentId] = element
   if (component.load) {
