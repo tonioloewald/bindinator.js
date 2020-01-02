@@ -52,16 +52,14 @@
     <blockquote>
       This is a `&lt;blockquote&gt;`. Do you see any Teletubbies in here? Do you see a slender plastic tag clipped to my shirt with my name printed on it? Do you see a little Asian child with a blank expression on his face sitting outside on a mechanical helicopter that shakes when you put quarters in it? No? Well, that's what you see at a toy store. And you must think you're in a toy store, because you're here shopping for an infant named Jeb.
     </blockquote>
-    <pre>
-      // this is a `&lt;pre&gt;`
-      if (
-        here.find(x => x === Teletubbies) && 
-        shirt.slenderPlasticTag.textContent === myName && 
-        littleAsianChild?.expression === 'blank'
-      ) {
-        return {canSeeToystore: true, shoppingForInfantNamedJeb: true}
-      }
-    </pre>
+<pre>// this is a `&lt;pre&gt;`
+if (
+  here.find(x => x === Teletubbies) && 
+  shirt.slenderPlasticTag.textContent === myName && 
+  littleAsianChild?.expression === 'blank'
+) {
+  return {canSeeToystore: true, shoppingForInfantNamedJeb: true}
+}</pre>
     <div>
       This is a `&lt;div&gt;` with <b>bold</b>, <strong>strong</strong>, <i>italic</i>, <em>emphasis</em>, <del>del</del>, <u>underlined</u> text,
       <code>code</code>, and also an <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a">anchor</a>.
