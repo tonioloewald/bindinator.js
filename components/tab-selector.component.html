@@ -5,8 +5,15 @@ Copyright ©2016-2017 Tonio Loewald
 The component's `value` indicates the currently visible tab.
 -->
 <style>
+  ._component_ {
+    display: flex;
+    flex-direction: column;
+  }
+
   .tab-selector-bodies {
     border: 1px solid var(--bright-accent-color);
+    flex: 1 1;
+    position: relative;
   }
 
   .tab-selector-bodies > * {
@@ -15,6 +22,7 @@ The component's `value` indicates the currently visible tab.
 
   .tab-selector-bodies > .tab-selector-current {
     display: block;
+    height: 100%;
   }
 
   .tab-selector-tabs {
@@ -104,7 +112,7 @@ function select_tab (which) {
 }
 
 set({
-  tabs: bodies().map(element => { return { name: element.getAttribute('name') || element.getAttribute('title') || 'Untitled' } }),
+  tabs: bodies().map(element => { return { name: element.dataset.name || element.getAttribute('name') || element.getAttribute('title') || 'Untitled' } }),
   select_tab,
   next_tab: () => select_tab((get('value') + 1) % get('tabs').length),
   previous_tab: () => select_tab((get('value') + get('tabs').length - 1) % get('tabs').length)

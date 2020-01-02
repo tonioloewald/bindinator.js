@@ -241,15 +241,11 @@
   },
   {
     "title": "Design",
-    "sort": true,
+    "sort": false,
     "parts": [
       {
         "name": "Examples",
         "path": "design.component.html"
-      },
-      {
-        "name": "Icons",
-        "path": "icomoon/demo.html"
       },
       {
         "name": "Kitchen Sink",

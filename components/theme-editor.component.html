@@ -6,7 +6,7 @@ and lets you edit them directly.
 
 ## css-variable naming conventions
 
-    **Note**: work in progress!
+> **Note**: work in progress!
 
 The theme editor is built on **naming conventions** so that designers and programmers
 can tell what "type" a variable is.
@@ -16,17 +16,17 @@ can tell what "type" a variable is.
   as the ending of variable names to avoid issues as new features get added. This
   covers all the crazy cases that would need a stateful parser,
   like `content`, `box-shadow`, `filter`, and `transform`.
-- `-color` indicates the variable contains an html color specification, e.g.
-  `#f00` or `#e7e7e7` or `#ffffff22` or `rgb(0,0,255)` or `crimson` or `transparent`.
-- `-font`, `-border` are assumed to be the corresponding shorthand
-- `-corners` are corner dimensions (e.g. `border-radius` shorthand)
-- `-edges` are edge dimensions (e.g. `margin`, `padding`, `border-width`)
-- `-size` are single dimensions (e.g. '100px'
-- `-fontFamily` are a font family
-- `-fontSize` are a font size
-- `-fontWeight` are a font weight
+- `-color` — an html color specification, e.g. `#f00` or `#e7e7e7` or `#ffffff22` 
+  or `rgb(0,0,255)` or `crimson` or `transparent`.
+- `-font`, `-border` — the corresponding shorthand
+- `-corners` — corner dimensions (e.g. `border-radius` shorthand)
+- `-edges` — edge dimensions (e.g. `margin`, `padding`, `border-width`)
+- `-size` — single dimensions (e.g. 100px, 20%, 50vw)
+- `-fontFamily` — font family (e.g. "Helvetica, Arial, Sans-serif")
+- `-fontSize` — font size (e.g. 20px, 12pt, 120%)
+- `-fontWeight` — font weight (e.g. normal, lighter, bold, 400, 700)
 - `-url` is a `url()` (data or otherwise)
-- `-image` is a `url()` that evaluates to an image (this means that `theme-editor`
+- `-image` is a `url()` that evaluates to an image of some kind (this means that `theme-editor`
    will one day let you pick an image from a file browser and convert it into a data-url
    if it's smaller than some size threshold automatically)
 -->
@@ -38,8 +38,9 @@ can tell what "type" a variable is.
   }
   
   ._component_ label {
+    min-height: 20px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
   }
   
   ._component_ input[type=color] {
@@ -59,7 +60,10 @@ can tell what "type" a variable is.
     <span data-bind="text=.name"></span>
     <b8r-component 
       path="../components/color-picker.js" 
-      data-bind="value=.value;show_if(color)=.type"
+      data-bind="
+        value=.value
+        show_if(color)=.type
+      "
       data-event="change:_component_.setVar"
     ></b8r-component>
     <input data-bind="value=.value;hide_if(color)=.type" data-event="input,change:_component_.setVar">
