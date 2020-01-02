@@ -11,8 +11,8 @@ implement some kind of virtual machine to replace it.
 ## Core Functionality
 - [The Registry](#source=source/b8r.registry.js)
 - [Binding Data](#source=source/b8r.bindings.js)
-  - [toTargets](#source=source/b8r.toTargets.js)
-  - [fromTargets](#source=source/b8r.fromTargets.js)
+  - [sending data to the DOM](#source=source/b8r.toTargets.js)
+  - [capturing data changes from the DOM](#source=source/b8r.fromTargets.js)
 - [Events](#source=source/b8r.events.js)
   - [keystroke](#source=source/b8r.keystroke.js)
 - [Components](#source=source/b8r.component.js)
