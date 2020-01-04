@@ -1,6 +1,10 @@
 /**
 # Ajax Methods
 
+> **Note**: these methods were implemented before `fetch` became available.
+> I would recommend using `fetch` for any new code you write.
+> [`fetch` documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+
 `b8r` provides some simple utilities for interacting with REST/json services.
 
     ajax(url, method, requestData, config)
@@ -13,7 +17,7 @@
 
 All parameters except `url` are optional.
 
-These methods are all async (they return) `promises` of the specified response).
+These methods are all `async` (they return `promises` of the specified response).
 
 Usage:
 
@@ -69,7 +73,7 @@ const ajax = (url, method, requestData, config) => {
     _requestsInFlight.push(request)
     triggerObservers()
     request.open(method || 'GET', url, true)
-    /*
+/*
 there's now a better way of tracking XHRs in flight
 https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
 This would allow straightforward monitoring of progress for any or all requests in flight
