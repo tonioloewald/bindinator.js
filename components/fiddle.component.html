@@ -52,7 +52,7 @@ of awesome that this works at all.
 
   .fiddle-header {
     display: flex;
-    padding: 4px 8px;
+    padding: 0 var(--narrow-spacing-size);
     flex-shrink: 0;
     background: var(--bright-accent-color);
     color: var(--text-color);
@@ -62,7 +62,7 @@ of awesome that this works at all.
 
   .fiddle-component .refresh {
     background: none;
-    border: none;
+    box-shadow: none;
     opacity: 0.5;
     color: var(--text-color);
   }
@@ -144,15 +144,15 @@ of awesome that this works at all.
     <span class="show-after-unchecked icon-eye2"></span>
     &nbsp;
   </label>
-  <div
-    data-component="selector"
+  <b8r-component
+    path="./components/selector"
     data-bind="value=_component_.mode"
     data-event="change:_component_.reveal"
   >
     <span data-value="all">Show All</span>
     <span data-value="example">Example</span>
     <span data-value="source">Source</span>
-  </div>
+  </b8r-component>
   <span style="flex-grow: 1"></span>
   &nbsp;
   <button
@@ -167,17 +167,17 @@ of awesome that this works at all.
 </div>
 <div class="fiddle-bodies">
   <div
-    name="Example"
+    data-title="Example"
     data-bind="hide_if(source)=_component_.mode"
     data-event="show:_component_.run"
     style="width: 50%; margin: 10px"
   ></div>
-  <div
+  <b8r-component
+    path="./components/sizer"
     data-bind="show_if(all)=_component_.mode"
-    data-component="sizer"
-  ></div>
+  ></b8r-component>
   <div
-    name="Source"
+    data-title="Source"
     data-bind="hide_if(example)=_component_.mode"
     class="code"
     style="width: 50%"
@@ -187,7 +187,7 @@ of awesome that this works at all.
     "
   ></div>
 </div>
-<span data-component="resizer"></span>
+<b8r-component path="./components/resizer"></b8r-component>
 <script>
 /* global findOne, set, b8r, on, data, component, register, ace */
 /* jshint latedef:false */
@@ -196,17 +196,12 @@ of awesome that this works at all.
   const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
 
   const code_elt = findOne('.code');
-  const container = findOne('[name="Example"]');
+  const container = findOne('[data-title="Example"]');
   let editor;
 
   component.classList.add('maxtoggle-target')
   const maxToggle = b8r.create('b8r-component')
-  maxToggle.path = './components/maxtoggle'
-  findOne('.fiddle-header').appendChild(maxToggle)
 
-  b8r.component('sizer');
-  b8r.component('resizer');
-  b8r.component('selector');
   component.classList.add('resizer-target');
 
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');

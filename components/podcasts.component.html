@@ -14,6 +14,7 @@ and a simple reflection service for consuming RSS feeds.
     display: flex;
     font-size: 14px;
   }
+
   /* faux phone frame */
   .example._component_ {
     /* iPhone 11 Pro is 1124 x 2436 @458ppi, corner radius ~40px */
@@ -22,10 +23,11 @@ and a simple reflection service for consuming RSS feeds.
     height: 812px;
     overflow: hidden;
     box-shadow: 0 0 0 10px #111,
-                -0.5px -1px 1px 10px #eee,
-                0.5px 1px 1px 10px #888,
-                0 2px 20px 20px var(--shadow-50);
+    -0.5px -1px 1px 10px #eee,
+    0.5px 1px 1px 10px #888,
+    0 2px 20px 20px var(--shadow-50);
     margin: 40px;
+
     /* fools Safari into less bug rendering path; stops svg clipping error on push-scroll */
     transform: translateX(0px);
   }

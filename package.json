@@ -71,14 +71,15 @@
         "em",
         "rem",
         "%",
-        "s"
+        "s",
+        "deg"
       ]
     }
   },
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "rollup": "^1.16.7",
+    "rollup": "^1.28.0",
     "standard": "^14.3.1",
     "stylelint": "^10.1.0",
     "uglify-es": "^3.3.9"
