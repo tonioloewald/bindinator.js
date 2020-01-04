@@ -22,9 +22,8 @@ can tell what "type" a variable is.
 - `-corners` — corner dimensions (e.g. `border-radius` shorthand)
 - `-edges` — edge dimensions (e.g. `margin`, `padding`, `border-width`)
 - `-size` — single dimensions (e.g. 100px, 20%, 50vw)
-- `-fontFamily` — font family (e.g. "Helvetica, Arial, Sans-serif")
-- `-fontSize` — font size (e.g. 20px, 12pt, 120%)
-- `-fontWeight` — font weight (e.g. normal, lighter, bold, 400, 700)
+- `-font-family` — font family (e.g. "Helvetica, Arial, Sans-serif")
+- `-weight` — font weight (e.g. normal, lighter, bold, 400, 700)
 - `-url` is a `url()` (data or otherwise)
 - `-image` is a `url()` that evaluates to an image of some kind (this means that `theme-editor`
    will one day let you pick an image from a file browser and convert it into a data-url
@@ -53,7 +52,7 @@ can tell what "type" a variable is.
 </style>
 <h3>Theme Editor</h3>
 <label>
-  Dark Mode: <b data-bind="text=_component_.darkmode"></b>
+  <span>Dark Mode:</span> <b data-bind="text=_component_.darkmode"></b>
 </label>
 <div data-list="_component_.cssVars:name">
   <label>
