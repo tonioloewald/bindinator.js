@@ -17,6 +17,8 @@
 
   --focus-outline: none;
   --shadow-outline: 0 0 0 1px var(--black-10);
+  --shadow-hover-outline: 0 0 0 1px var(--black-20);
+  --shadow-active-outline: 0 0 0 1px var(--back-40);
 
   --bg-color: aliceblue;
   --content-bg-color: #ddd;
@@ -369,7 +371,7 @@ button:focus, .button:focus,
 button.cancel:focus, .button.cancel:focus,
 button.default:focus, .button.default:focus {
   background-color: var(--light-accent-color);
-  border: 1px solid var(--black-20);
+  box-shadow: var(--shadow-hover-outline);
 }
 
 button:active, .button:active,
@@ -377,7 +379,7 @@ button.cancel:active, .button.cancel:active,
 button.default:active, .button.default:active {
   background-color: var(--accent-color);
   color: var(--content-color);
-  border: 1px solid var(--black-40);
+  box-shadow: var(--shadow-active-outline);
 }
 
 hr {
@@ -497,7 +499,7 @@ progress {
   width: var(--input-size);
   height: var(--body-line-height);
 
-  border: 2px solid var(--light-accent-color);
+  box-shadow: 0 0 0 2px var(--light-accent-color);
   background: var(--content-bg-color);
   border-radius: var(--rounded-radius-size);;
 }
