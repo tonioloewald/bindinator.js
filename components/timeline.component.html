@@ -21,26 +21,30 @@ The component is driven by properties:
   - `color` (optional) if you want to color the item
 -->
 <style>
-  .timeline-component .item { transition: var(--hover-transition); }
+  ._component_ .item { transition: var(--hover-transition); }
 
-  .timeline-component:hover .item { opacity: 0.5; }
+  ._component_:hover .item { opacity: 0.5; }
 
-  .timeline-component:hover .item:hover { opacity: 1; }
+  ._component_:hover .item:hover { opacity: 1; }
 
-  .timeline-component {
+  ._component_ {
     cursor: default;
+  }
+
+  ._component_ .year > tspan {
+    font-size: 24px;
   }
 </style>
 <svg width="100%" viewBox="0 -128 1300 768" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <g class="timeline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 
-    <text id="Heading" text-anchor="middle" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="48" font-weight="bold" fill="var(--text-color)">
+    <text class="Heading" text-anchor="middle" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="48" font-weight="bold" fill="var(--text-color)">
         <tspan x="600" y="-64" data-bind="text=_component_.heading"></tspan>
     </text>
     <g transform="translate(10.000000, 244.000000)" data-bind="attr(fill)=_component_.defaultColor">
-      <rect id="Rectangle" x="24" y="8" width="1024" height="8"></rect>
-      <polygon id="Triangle" points="0 12 24 0 24 24"></polygon>
-      <polygon id="Triangle-Copy" transform="translate(1058.000000, 12.000000) rotate(-180.000000) translate(-1058.000000, -12.000000) " points="1046 12 1070 0 1070 24"></polygon>
+      <rect class="Rectangle" x="24" y="8" width="1024" height="8"></rect>
+      <polygon class="Triangle" points="0 12 24 0 24 24"></polygon>
+      <polygon class="Triangle-Copy" transform="translate(1058.000000, 12.000000) rotate(-180.000000) translate(-1058.000000, -12.000000) " points="1046 12 1070 0 1070 24"></polygon>
     </g>
     <g
       class="item"
@@ -48,34 +52,34 @@ The component is driven by properties:
       data-bind="attr(transform)=translate(${.x}, 72.0)"
     >
       <g transform="translate(108.398755, 280.398755) rotate(-315.000000) translate(-108.398755, -280.398755) translate(-4.101245, 259.398755)" data-bind="show_if=.below;attr(fill)=.color">
-        <rect id="Rectangle-2"  transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
-        <rect id="Rectangle-3" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
-        <text id="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="var(--text-color)">
+        <rect class="Rectangle-2"  transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
+        <rect class="Rectangle-3" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
+        <text class="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="var(--text-color)">
           <tspan x="132" y="24" data-bind="text=.title">Heading</tspan>
         </text>
-        <text id="2004" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="var(--text-color)">
+        <text class="year" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="var(--text-color)">
           <tspan x="62.312" y="24" data-bind="text=.time">2004</tspan>
         </text>
-        <text id="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="var(--text-color)">
+        <text class="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="var(--text-color)">
           <tspan x="133" y="39" data-bind="text=.info">Info</tspan>
         </text>
       </g>
       <g transform="translate(114.398755, 94.398755) rotate(-45.000000) translate(-114.398755, -94.398755) translate(1.898755, 73.398755)" data-bind="hide_if=.below;attr(fill)=.color">
-        <rect id="Rectangle-2" transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
-        <rect id="Rectangle-3" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
-        <text id="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="var(--text-color)">
+        <rect class="Rectangle-2" transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
+        <rect class="Rectangle-3" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
+        <text class="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="var(--text-color)">
           <tspan x="132" y="24" data-bind="text=.title">Heading</tspan>
         </text>
-        <text id="2004" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="var(--text-color)">
+        <text class="year" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="var(--text-color)">
           <tspan x="62.312" y="24" data-bind="text=.time">2004</tspan>
         </text>
-        <text id="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="var(--text-color)">
+        <text class="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="var(--text-color)">
           <tspan x="133" y="39" data-bind="text=.info">Info</tspan>
         </text>
       </g>
       <g transform="translate(0.000000, 164.000000)" data-bind="attr(fill)=.color">
-        <circle id="Oval" cx="20" cy="20" r="20"></circle>
-        <circle id="Oval-Copy" fill="var(--text-color)" cx="20" cy="20" r="12"></circle>
+        <circle class="Oval" cx="20" cy="20" r="20"></circle>
+        <circle class="Oval-Copy" fill="var(--text-color)" cx="20" cy="20" r="12"></circle>
       </g>
     </g>
   </g>
