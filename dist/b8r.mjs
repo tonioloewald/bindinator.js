@@ -172,7 +172,7 @@ Test(() => {
   }
   return caught;
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
-Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path bar.baz used for array, expected id"]);
+Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path 'bar.baz' used for array, expected 'id'"]);
 
 console.error = error
 ~~~~
@@ -225,7 +225,7 @@ function buildIdPathValueMap (array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath;
   } else if (array._b8r_id_path !== idPath) {
-    console.error(`inconsistent id-path ${idPath} used for array, expected ${array._b8r_id_path}`);
+    console.error(`inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`);
   }
   if (!array._b8r_value_maps) {
     // hide the map of maps in a closure that is returned by a computed property so that
@@ -619,6 +619,7 @@ const assignValues = (object, ancestor) => {
 };
 
 var _iterators = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   makeArray: makeArray,
   last: last,
   forEach: forEach,
@@ -1008,6 +1009,7 @@ const cssVar = (element, name, value) => {
 };
 
 var _dom = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   isVisible: isVisible,
   isInView: isInView,
   rectsOverlap: rectsOverlap,
@@ -2170,6 +2172,7 @@ const _typeSafe = (func, paramTypes, resultType) => {
 const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function');
 
 var _byExample = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   describe: describe,
   specificTypeMatch: specificTypeMatch,
   describeType: describeType,
@@ -2185,6 +2188,10 @@ var _byExample = /*#__PURE__*/Object.freeze({
 /**
 # Ajax Methods
 
+> **Note**: these methods were implemented before `fetch` became available.
+> I would recommend using `fetch` for any new code you write.
+> [`fetch` documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+
 `b8r` provides some simple utilities for interacting with REST/json services.
 
     ajax(url, method, requestData, config)
@@ -2197,7 +2204,7 @@ var _byExample = /*#__PURE__*/Object.freeze({
 
 All parameters except `url` are optional.
 
-These methods are all async (they return) `promises` of the specified response).
+These methods are all `async` (they return `promises` of the specified response).
 
 Usage:
 
@@ -2253,7 +2260,7 @@ const ajax = (url, method, requestData, config) => {
     _requestsInFlight.push(request);
     triggerObservers();
     request.open(method || 'GET', url, true);
-    /*
+/*
 there's now a better way of tracking XHRs in flight
 https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
 This would allow straightforward monitoring of progress for any or all requests in flight
@@ -2354,6 +2361,7 @@ const jsonp = (url, callbackParam = 'callback', timeout = 2000) => {
 const ajaxRequestsInFlight = () => _requestsInFlight;
 
 var _ajax = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   ajax: ajax,
   xml: xml,
   json: json,
@@ -2501,6 +2509,7 @@ const throttle = (origFn, minInterval) => {
 const AsyncFunction = async function () {}.constructor;
 
 var _functions = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   AsyncFunction: AsyncFunction,
   debounce: debounce,
   throttle: throttle
@@ -4148,6 +4157,7 @@ const _getByPath = (model, path) =>
   get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
 
 var _registry = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   onTypeError: onTypeError,
   offTypeError: offTypeError,
   get: get,
@@ -5741,6 +5751,7 @@ const sortDescending = (a, b) =>
     ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
 
 var _sort = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   sortAscending: sortAscending,
   sortDescending: sortDescending
 });
@@ -5850,6 +5861,7 @@ const fromMethod = (element, path) => {
 };
 
 var fromTargets$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   value: value,
   checked: checked,
   selected: selected,
@@ -6388,6 +6400,7 @@ const dispatch$1 = (target, type) => {
 };
 
 var webComponents = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   fragment: fragment$1,
   makeElement: makeElement,
   makeWebComponent: makeWebComponent,

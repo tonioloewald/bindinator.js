@@ -175,7 +175,7 @@ var b8r = (function () {
     }
     return caught;
   }, 'item inserted at idPath must satisfy it').shouldBe(1);
-  Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path bar.baz used for array, expected id"]);
+  Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path 'bar.baz' used for array, expected 'id'"]);
 
   console.error = error
   ~~~~
@@ -228,7 +228,7 @@ var b8r = (function () {
     if (array && !array._b8r_id_path) {
       array._b8r_id_path = idPath;
     } else if (array._b8r_id_path !== idPath) {
-      console.error(`inconsistent id-path ${idPath} used for array, expected ${array._b8r_id_path}`);
+      console.error(`inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`);
     }
     if (!array._b8r_value_maps) {
       // hide the map of maps in a closure that is returned by a computed property so that
@@ -622,6 +622,7 @@ var b8r = (function () {
   };
 
   var _iterators = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     makeArray: makeArray,
     last: last,
     forEach: forEach,
@@ -1011,6 +1012,7 @@ var b8r = (function () {
   };
 
   var _dom = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     isVisible: isVisible,
     isInView: isInView,
     rectsOverlap: rectsOverlap,
@@ -2173,6 +2175,7 @@ var b8r = (function () {
   const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function');
 
   var _byExample = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     describe: describe,
     specificTypeMatch: specificTypeMatch,
     describeType: describeType,
@@ -2188,6 +2191,10 @@ var b8r = (function () {
   /**
   # Ajax Methods
 
+  > **Note**: these methods were implemented before `fetch` became available.
+  > I would recommend using `fetch` for any new code you write.
+  > [`fetch` documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+
   `b8r` provides some simple utilities for interacting with REST/json services.
 
       ajax(url, method, requestData, config)
@@ -2200,7 +2207,7 @@ var b8r = (function () {
 
   All parameters except `url` are optional.
 
-  These methods are all async (they return) `promises` of the specified response).
+  These methods are all `async` (they return `promises` of the specified response).
 
   Usage:
 
@@ -2256,7 +2263,7 @@ var b8r = (function () {
       _requestsInFlight.push(request);
       triggerObservers();
       request.open(method || 'GET', url, true);
-      /*
+  /*
   there's now a better way of tracking XHRs in flight
   https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
   This would allow straightforward monitoring of progress for any or all requests in flight
@@ -2357,6 +2364,7 @@ var b8r = (function () {
   const ajaxRequestsInFlight = () => _requestsInFlight;
 
   var _ajax = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     ajax: ajax,
     xml: xml,
     json: json,
@@ -2504,6 +2512,7 @@ var b8r = (function () {
   const AsyncFunction = async function () {}.constructor;
 
   var _functions = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     AsyncFunction: AsyncFunction,
     debounce: debounce,
     throttle: throttle
@@ -4151,6 +4160,7 @@ var b8r = (function () {
     get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
 
   var _registry = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     onTypeError: onTypeError,
     offTypeError: offTypeError,
     get: get,
@@ -5744,6 +5754,7 @@ var b8r = (function () {
       ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
 
   var _sort = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     sortAscending: sortAscending,
     sortDescending: sortDescending
   });
@@ -5853,6 +5864,7 @@ var b8r = (function () {
   };
 
   var fromTargets$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     value: value,
     checked: checked,
     selected: selected,
@@ -6391,6 +6403,7 @@ var b8r = (function () {
   };
 
   var webComponents = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     fragment: fragment$1,
     makeElement: makeElement,
     makeWebComponent: makeWebComponent,
