@@ -14,6 +14,7 @@ very flexibly:
 
     {
       virtual: true,                   // whether to virtualize the list using biggrid
+      sliceModulus: false,             // (if virtual) whether to make the slices stable modulo n
       userCanEditColumns: true,        // can user pick which columns are shown?
       maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
       columns: [
@@ -45,6 +46,9 @@ to turn this off (by setting `virtual: false` in `config` or wait until I've imp
 As an indication of the size of the performance win you get from virtualizing the table, the
 rendering time for this page on my laptop goes down by ~700ms with `virtual: true`.
 
+In the example, the row styles are set to `nth-child(4n+...)` so `sliceModulus: 4` is used to keep
+the column-shading stable.
+
 **Note** that although `biggrid` is stipulated only to work with fixed-size elements, it actually works 
 just fine with variable height rows in a single-column grid (i.e. a table).
 
@@ -53,11 +57,6 @@ just fine with variable height rows in a single-column grid (i.e. a table).
 - table can have selection: { multiple: true|false, path: 'path.to.prop' }
   (if no path provided, selection is tracked internally)
 - column reordering
-- the example table is styled to use nth-child modulo 4 to shade pairs of
-  rows to make it easier for the user to scan horizontally -- this shading changes
-  with slices; would be nice to be able to force biggrid to keep the slices modulo
-  n to preserve shading (even if a few more rows need to be rendered)
-  (Also note that biggrid's top and bottom spacers change the child order)
 
 Selection can be implemented by exporting a custom `column` based on the column
 setup in the example.
@@ -98,6 +97,7 @@ setup in the example.
     fontSize: '20px'
   })
   set('config', {
+    sliceModulus: 4,
     updateSelectAll(evt, target) {
       const {checked} = target
       const componentId = b8r.getComponentId(target)
@@ -491,12 +491,13 @@ export default {
         touch('config')
       },
       sortAndFilterRows (rows, listTemplate) {
-        const { config: { virtual, columns } } = get()
+        const { config: { virtual, sliceModulus, columns } } = get()
         const column = columns.find(col => col.sortDirection)
         const filtered = column ? [...rows].sort(makeSortFunction(column)) : rows
-        return virtual ? slice(filtered, listTemplate, true) : filtered
+        return virtual ? slice(filtered, listTemplate, true, sliceModulus) : filtered
       },
       editVisibleColumns: false,
+      sliceModulus: false,
       config: {
         virtual: true,
         userCanEditColumns: true,

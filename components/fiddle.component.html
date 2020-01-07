@@ -57,7 +57,7 @@ of awesome that this works at all.
     background: var(--bright-accent-color);
     color: var(--text-color);
     align-items: center;
-    padding-right: 28px;
+    padding-right: 30px;
   }
 
   .fiddle-header > * {
@@ -104,7 +104,7 @@ of awesome that this works at all.
     font-family: Menlo, Monaco, monospace;
     background-color: #272822;
     color: #ddd;
-    padding: 4px 8px;
+    padding: var(--narrow-spacing-size) var(--spacing-size);
     white-space: pre-wrap;
     box-sizing: border-box;
   }
@@ -121,6 +121,11 @@ of awesome that this works at all.
 
   .fiddle-header [data-selected] {
     position: relative;
+  }
+
+  .fiddle-component .maxtoggle-component {
+    top: var(--narrow-spacing-size);
+    right: var(--narrow-spacing-size);
   }
 
   .fiddle-component:not(.minimized) .fiddle-header [data-selected]:after {
