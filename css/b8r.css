@@ -265,6 +265,10 @@ input, textarea, [contenteditable="true"] {
   outline: var(--focus-outline);
 }
 
+input[type="date"] {
+  font: var(--ui-font);
+}
+
 select {
   -webkit-appearance: none;
 }
