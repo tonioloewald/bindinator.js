@@ -9,11 +9,12 @@ The data-table is highly configurable via its `config` property.
 
 ### config
 
-The data-table component's config property allows the table to be configured
+The data-table component's `config` property allows the table to be configured
 very flexibly:
 
     {
-      userCanEditColumns: true,
+      virtual: true,                   // whether to virtualize the list using biggrid
+      userCanEditColumns: true,        // can user pick which columns are shown?
       maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
       columns: [
         {
@@ -34,13 +35,29 @@ very flexibly:
       ]
     }
 
+### Virtual
+
+By default, biggrid will display the table *virtually*, i.e. it will only render a minimum
+number of table rows sufficent to fill the provided space. If you want to do something like
+scroll to a specific table row using `HTMLElement.scrollIntoView(...)` then you'll want
+to turn this off (by setting `virtual: false` in `config` or wait until I've implemented that feature.
+
+As an indication of the size of the performance win you get from virtualizing the table, the
+rendering time for this page on my laptop goes down by ~700ms with `virtual: true`.
+
+**Note** that although `biggrid` is stipulated only to work with fixed-size elements, it actually works 
+just fine with variable height rows in a single-column grid (i.e. a table).
+
 ### To Do
 
 - table can have selection: { multiple: true|false, path: 'path.to.prop' }
   (if no path provided, selection is tracked internally)
 - column reordering
-- virtual table (minimum number of elements in DOM)
-- state persistence to localStorage / services
+- the example table is styled to use nth-child modulo 4 to shade pairs of
+  rows to make it easier for the user to scan horizontally -- this shading changes
+  with slices; would be nice to be able to force biggrid to keep the slices modulo
+  n to preserve shading (even if a few more rows need to be rendered)
+  (Also note that biggrid's top and bottom spacers change the child order)
 
 Selection can be implemented by exporting a custom `column` based on the column
 setup in the example.
@@ -159,6 +176,7 @@ setup in the example.
 */
 
 import { trackDrag } from '../lib/track-drag.js'
+import { slice } from '../lib/biggrid.js'
 
 const makeSortFunction = column => {
   const { sortable, sortDirection } = column
@@ -226,8 +244,8 @@ export default {
       line-height: 20px;
     }
 
-    ._component_ .t-row:nth-child(4n+3),
-    ._component_ .t-row:nth-child(4n) {
+    ._component_ .t-row:nth-child(4n),
+    ._component_ .t-row:nth-child(4n+1) {
       background: var(--black-5);
     }
 
@@ -413,11 +431,12 @@ export default {
         }
       },
       resizeColumn (evt) {
+        const { config: { virtual, maxRowsForLiveColumnResize }, rows} = get()
         const edgeIndex = b8r.elementIndex(evt.target.closest('.t-row > *'))
         const columns = get().visibleColumns()
         if (columns.length < 1) return
         columns.pop()
-        const liveResize = get('rows').length <= get('config.maxRowsForLiveColumnResize')
+        const liveResize = virtual || rows.length <= maxRowsForLiveColumnResize
         const thead = findOne('.t-head')
         trackDrag(evt, columns[edgeIndex].width, 0, (w, _y, _dx, _dy, dragEnded) => {
           columns[edgeIndex].width = clamp(columns[edgeIndex].minWidth, w, columns[edgeIndex].maxWidth)
@@ -471,17 +490,15 @@ export default {
         })
         touch('config')
       },
-      sortAndFilterRows (rows) {
-        const { config: { columns } } = get()
+      sortAndFilterRows (rows, listTemplate) {
+        const { config: { virtual, columns } } = get()
         const column = columns.find(col => col.sortDirection)
-        if (column) {
-          return [...rows].sort(makeSortFunction(column))
-        } else {
-          return rows
-        }
+        const filtered = column ? [...rows].sort(makeSortFunction(column)) : rows
+        return virtual ? slice(filtered, listTemplate, true) : filtered
       },
       editVisibleColumns: false,
       config: {
+        virtual: true,
         userCanEditColumns: true,
         maxRowsForLiveColumnResize: 100,
         columns: []
