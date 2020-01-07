@@ -52,7 +52,7 @@ of awesome that this works at all.
 
   .fiddle-header {
     display: flex;
-    padding: 4px 8px;
+    padding: 0 var(--spacing-size);
     flex-shrink: 0;
     background: var(--bright-accent-color);
     color: var(--text-color);
@@ -60,11 +60,16 @@ of awesome that this works at all.
     padding-right: 28px;
   }
 
+  .fiddle-header > * {
+    line-height: var(--body-line-height);
+  }
+
   .fiddle-component .refresh {
     background: none;
     border: none;
     opacity: 0.5;
     color: var(--text-color);
+    box-shadow: none;
   }
 
   .fiddle-component .refresh:hover {
