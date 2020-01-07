@@ -1,10 +1,11 @@
 /* bindinator.js Copyright ©2016-2017 Tonio Loewald */
 
 :root {
-  --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
+  --body-font-size: 14px;
+  --ui-font: var(--body-font-size) system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
+  --code-font: var(--body-font-size) Menlo, Monaco, Monospace;
   --heading-weight: 200;
 
-  --body-font-size: 14px;
   --body-line-height: 20px;
   --narrow-spacing-size: 5px;
   --spacing-size: 10px;
@@ -110,7 +111,6 @@ body {
   box-sizing: border-box;
 
   /* overflow issue */
-  font-size: var(--body-font-size);
   min-height: 0;
   min-width: 0;
 }
@@ -247,7 +247,6 @@ label > * {
 button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {
-  font: var(--ui-font);
   color: var(--text-color);
   padding: var(--input-padding-edges);
   background: var(--input-bg-color);
@@ -404,7 +403,7 @@ fieldset {
 }
 
 pre {
-  font-family: Menlo, Monaco, Monospace;
+  font: var(--code-font);
   padding: var(--input-padding-edges);
   background-color: var(--pullquote-bg-color);
   color: var(--code-text-color);
@@ -413,10 +412,10 @@ pre {
   overflow: overlay;
 }
 
-code {
+code,
+.code {
   color: var(--code-text-color);
-  font-family: Menlo, Monaco, Monospace;
-  font-size: 90%;
+  font: var(--code-font);
 }
 
 pre > code {
