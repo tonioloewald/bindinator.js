@@ -358,6 +358,8 @@ button.cancel, button[type="cancel"] {
 
 .iconic {
   border: none;
+  padding: 0;
+  box-shadow: none;
   background: var(--white-50);
   width: var(--small-target-size);
   height: var(--small-target-size);
@@ -462,6 +464,10 @@ pre > code {
 
 .select > * {
   padding: var(--input-padding-edges);
+}
+
+.select > *,
+.nowrap {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
