@@ -73,7 +73,7 @@ const ajax = (url, method, requestData, config) => {
     _requestsInFlight.push(request)
     triggerObservers()
     request.open(method || 'GET', url, true)
-/*
+    /*
 there's now a better way of tracking XHRs in flight
 https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
 This would allow straightforward monitoring of progress for any or all requests in flight

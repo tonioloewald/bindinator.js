@@ -49,7 +49,7 @@ rendering time for this page on my laptop goes down by ~700ms with `virtual: tru
 In the example, the row styles are set to `nth-child(4n+...)` so `sliceModulus: 4` is used to keep
 the column-shading stable.
 
-**Note** that although `biggrid` is stipulated only to work with fixed-size elements, it actually works 
+**Note** that although `biggrid` is stipulated only to work with fixed-size elements, it actually works
 just fine with variable height rows in a single-column grid (i.e. a table).
 
 ### To Do
@@ -431,7 +431,7 @@ export default {
         }
       },
       resizeColumn (evt) {
-        const { config: { virtual, maxRowsForLiveColumnResize }, rows} = get()
+        const { config: { virtual, maxRowsForLiveColumnResize }, rows } = get()
         const edgeIndex = b8r.elementIndex(evt.target.closest('.t-row > *'))
         const columns = get().visibleColumns()
         if (columns.length < 1) return

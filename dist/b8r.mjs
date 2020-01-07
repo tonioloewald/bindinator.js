@@ -172,7 +172,7 @@ Test(() => {
   }
   return caught;
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
-Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path bar.baz used for array, expected id"]);
+Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path 'bar.baz' used for array, expected 'id'"]);
 
 console.error = error
 ~~~~
@@ -225,7 +225,7 @@ function buildIdPathValueMap (array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath;
   } else if (array._b8r_id_path !== idPath) {
-    console.error(`inconsistent id-path ${idPath} used for array, expected ${array._b8r_id_path}`);
+    console.error(`inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`);
   }
   if (!array._b8r_value_maps) {
     // hide the map of maps in a closure that is returned by a computed property so that
@@ -2185,6 +2185,10 @@ var _byExample = /*#__PURE__*/Object.freeze({
 /**
 # Ajax Methods
 
+> **Note**: these methods were implemented before `fetch` became available.
+> I would recommend using `fetch` for any new code you write.
+> [`fetch` documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+
 `b8r` provides some simple utilities for interacting with REST/json services.
 
     ajax(url, method, requestData, config)
@@ -2197,7 +2201,7 @@ var _byExample = /*#__PURE__*/Object.freeze({
 
 All parameters except `url` are optional.
 
-These methods are all async (they return) `promises` of the specified response).
+These methods are all `async` (they return `promises` of the specified response).
 
 Usage:
 
