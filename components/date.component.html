@@ -26,10 +26,10 @@ them for anything.
   }
 
   .date-component-month {
+    display: flex;
     text-align: center;
     color: var(--dark-text-color);
     background: var(--bright-accent-color);
-    padding: 4px;
   }
 
   .date-component-day-of-week {
@@ -43,7 +43,7 @@ them for anything.
 
   .date-component-body > button {
     padding: 2px;
-    border: 0;
+    box-shadow: none;
     border-radius: 0;
     background: none;
   }
@@ -70,10 +70,14 @@ them for anything.
     background: var(--accent-color);
   }
 
+  .date-component-month > select {
+    flex: 1 1;
+  }
+
   .date-component-month > input,
   .date-component-month > select {
-    background: transparent;
-    border: 0;
+    background-color: transparent;
+    box-shadow: none;
   }
 
   .date-component-current-month {
@@ -103,7 +107,7 @@ them for anything.
   </select>
   <input 
     type="number"
-    style="width: 4em"
+    style="width: 5em"
     data-bind="value=_component_.year"
   >
 </div>
