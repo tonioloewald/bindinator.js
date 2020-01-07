@@ -15,7 +15,7 @@
   --corner-radius-size: 5px;
   --rounded-radius-size: 999px;
   --input-size: 100px;
-  --input-padding-edges: 5px 10px;
+  --input-padding-edges: var(--narrow-spacing-size) var(--spacing-size);
   --small-target-size: 25px;
   --touch-target-size: 45px;
 
@@ -265,6 +265,24 @@ input, textarea, [contenteditable="true"] {
   outline: var(--focus-outline);
 }
 
+select {
+  -webkit-appearance: none;
+}
+
+select:not([multiple]) {
+  background-image: url(select-triangle.svg);
+  background-repeat: no-repeat;
+  background-position: top 12px right 10px;
+}
+
+select[multiple] {
+  padding: 0;
+}
+
+select[multiple] > option {
+  padding: var(--input-padding-edges);
+}
+
 :not(input)[placeholder]:empty:after {
   content: attr(placeholder);
   color: var(--hint-text-color);
@@ -294,13 +312,20 @@ textarea {
 }
 
 input[type=range] {
-  vertical-align: bottom;
+  box-shadow: none;
+  vertical-align: middle;
 }
 
 input[type=color] {
-  border: none;
   width: var(--small-target-size);
   height: var(--small-target-size);
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+input[type=number] {
+  padding-right: var(--narrow-spacing-size);
 }
 
 [currency]:before {
@@ -496,23 +521,22 @@ progress {
   -moz-appearance: none;
   appearance: none;
 
-  vertical-align: baseline;
+  vertical-align: middle;
   width: var(--input-size);
   height: var(--body-line-height);
 
-  box-shadow: 0 0 0 2px var(--light-accent-color);
+  box-shadow: var(--shadow-outline);
   background: var(--content-bg-color);
-  border-radius: var(--rounded-radius-size);;
+  border-radius: var(--rounded-radius-size);
+  overflow: hidden;
 }
 
 progress::-webkit-progress-bar {
-  background: var(--content-bg-color);
-  border-radius: var(--rounded-radius-size);
+  background: var(--input-bg-color);
 }
 
 progress::-webkit-progress-value {
-  background-color: var(--accent-color);
-  border-radius: var(--rounded-radius-size);;
+  background-color: var(--text-color);
 }
 
 /* used by tooltips.js */
