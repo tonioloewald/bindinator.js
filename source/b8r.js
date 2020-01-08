@@ -47,7 +47,7 @@ import {
   implicitlyHandleEventsOfType,
   handleEvent
 } from './b8r.events.js'
-import { _insertSetByPath, _insertFromTargets } from './b8r._b8r_.js'
+import { _insertSet, _insertFromTargets } from './b8r._b8r_.js'
 import * as fromTargets from './b8r.fromTargets.js'
 import {
   addDataBinding,
@@ -199,7 +199,7 @@ b8r.setByPath = function (...args) {
   }
 }
 
-_insertSetByPath(b8r.setByPath)
+_insertSet(b8r.set)
 _insertFromTargets(fromTargets)
 
 b8r.pushByPath = function (...args) {
@@ -457,14 +457,6 @@ function bindList (listTemplate, dataPath) {
   if (methodPath && !idPath) {
     throw new Error(`data-list="${listTemplate.dataset.list}" -- computed list requires id-path`)
   }
-  // assign unique ids if _auto_ id-path is specified
-  if (idPath === '_auto_') {
-    for (let i = 0; i < list.length; i++) {
-      if (!list[i]._auto_) {
-        list[i]._auto_ = ++idCount
-      }
-    }
-  }
   // compute list
   if (methodPath) {
     if (!b8r.get(methodPath)) {
@@ -494,6 +486,14 @@ function bindList (listTemplate, dataPath) {
     })()
     if (!list) {
       throw new Error('could not compute list; async filtered list methods not supported (yet)')
+    }
+  }
+  // assign unique ids if _auto_ id-path is specified
+  if (idPath === '_auto_') {
+    for (let i = 0; i < list.length; i++) {
+      if (!list[i]._auto_) {
+        list[i]._auto_ = ++idCount
+      }
     }
   }
 

@@ -32,11 +32,11 @@ of awesome that this works at all.
 
   .fullscreen > .fiddle-header {
     top: 0;
-    height: 28px;
+    height: 40px;
   }
 
   .fullscreen > .fiddle-bodies {
-    top: 28px;
+    top: 40px;
     bottom: 0;
     overflow-y: scroll;
     overflow-y: overlay;
@@ -57,7 +57,11 @@ of awesome that this works at all.
     background: var(--bright-accent-color);
     color: var(--text-color);
     align-items: center;
-    padding-right: 28px;
+    padding-right: 40px;
+  }
+
+  .fiddle-header > * {
+    line-height: var(--body-line-height);
   }
 
   .fiddle-component .refresh {
@@ -65,6 +69,7 @@ of awesome that this works at all.
     box-shadow: none;
     opacity: 0.5;
     color: var(--text-color);
+    box-shadow: none;
   }
 
   .fiddle-component .refresh:hover {
@@ -85,6 +90,7 @@ of awesome that this works at all.
     display: flex;
     background-color: var(--example-bg-color);
     border: 1px solid var(--bright-accent-color);
+    border-top: 0;
     flex-grow: 1;
   }
 
@@ -99,7 +105,7 @@ of awesome that this works at all.
     font-family: Menlo, Monaco, monospace;
     background-color: #272822;
     color: #ddd;
-    padding: 4px 8px;
+    padding: var(--narrow-spacing-size) var(--spacing-size);
     white-space: pre-wrap;
     box-sizing: border-box;
   }
@@ -118,17 +124,22 @@ of awesome that this works at all.
     position: relative;
   }
 
+  .fiddle-component .maxtoggle-component {
+    top: var(--spacing-size);
+    right: var(--spacing-size);
+  }
+
   .fiddle-component:not(.minimized) .fiddle-header [data-selected]:after {
     content: " ";
     display: block;
     position: absolute;
     left: 50%;
-    bottom: -9px;
+    bottom: -10px;
     width: 0;
     height: 0;
     transform: translateX(-50%);
-    border: 8px solid transparent;
-    border-bottom: 8px solid var(--example-bg-color);
+    border: 9px solid transparent;
+    border-bottom: 9px solid var(--example-bg-color);
     animation: fade-in var(--hover-transition);
   }
 </style>

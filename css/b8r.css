@@ -1,11 +1,13 @@
 /* bindinator.js Copyright ©2016-2017 Tonio Loewald */
 
 :root {
-  --ui-font: 13px system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
+  --body-font-size: 14px;
+  --ui-font: var(--body-font-size) system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
+  --code-font: var(--body-font-size) Menlo, Monaco, Monospace;
   --heading-weight: 200;
 
-  --body-font-size: 14px;
   --body-line-height: 20px;
+  --narrowest-spacing-size: 2px;
   --narrow-spacing-size: 5px;
   --spacing-size: 10px;
   --wide-spacing-size: 20px;
@@ -13,7 +15,9 @@
   --corner-radius-size: 5px;
   --rounded-radius-size: 999px;
   --input-size: 100px;
-  --input-padding-edges: 5px 10px;
+  --input-padding-edges: var(--narrow-spacing-size) var(--spacing-size);
+  --small-target-size: 25px;
+  --touch-target-size: 45px;
 
   --focus-outline: none;
   --shadow-outline: 0 0 0 1px var(--black-10);
@@ -112,7 +116,6 @@ body {
   box-sizing: border-box;
 
   /* overflow issue */
-  font-size: var(--body-font-size);
   min-height: 0;
   min-width: 0;
 }
@@ -249,17 +252,39 @@ label > * {
 button, .button,
 select, .select,
 input, textarea, [contenteditable="true"] {
-  font: var(--ui-font);
+  font-size: var(--body-font-size);
   color: var(--text-color);
   padding: var(--input-padding-edges);
   background: var(--input-bg-color);
-  border: 0;
+  border: none;
   box-shadow: var(--shadow-outline);
   transition: var(--hover-transition);
   margin-block-start: var(--narrow-spacing-size);
   margin-block-end: var(--narrow-spacing-size);
   line-height: var(--body-line-height);
   outline: var(--focus-outline);
+}
+
+input[type="date"] {
+  font: var(--ui-font);
+}
+
+select {
+  -webkit-appearance: none;
+}
+
+select:not([multiple]) {
+  background-image: url(select-triangle.svg);
+  background-repeat: no-repeat;
+  background-position: top 12px right 10px;
+}
+
+select[multiple] {
+  padding: 0;
+}
+
+select[multiple] > option {
+  padding: var(--input-padding-edges);
 }
 
 :not(input)[placeholder]:empty:after {
@@ -291,13 +316,20 @@ textarea {
 }
 
 input[type=range] {
-  vertical-align: bottom;
+  box-shadow: none;
+  vertical-align: middle;
 }
 
 input[type=color] {
-  border: none;
-  width: 24px;
-  height: 24px;
+  width: var(--small-target-size);
+  height: var(--small-target-size);
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+input[type=number] {
+  padding-right: var(--narrow-spacing-size);
 }
 
 [currency]:before {
@@ -306,14 +338,12 @@ input[type=color] {
 }
 
 input.search {
-  border-radius: 50px;
-  padding: 2px 12px;
+  border-radius: var(--rounded-radius-size);
+  padding: var(--narrowest-spacing-size) var(--spacing-size);
 }
 
 button {
-  border-radius: 4px;
-  padding: 2px 5px;
-  font-size: 13px;
+  border-radius: var(--corner-radius-size);
   outline: none;
   vertical-align: bottom;
 }
@@ -327,24 +357,22 @@ button.cancel, button[type="cancel"] {
 }
 
 .iconic {
-  border: 0;
+  padding: 0;
+  box-shadow: none;
   background: var(--white-50);
-  width: 24px;
-  height: 24px;
-  border-radius: 16px;
-  font-size: 14px;
-  line-height: 24px;
+  width: var(--small-target-size);
+  height: var(--small-target-size);
+  border-radius: var(--rounded-radius-size);
+  line-height: var(--small-target-size);
   text-align: center;
 }
 
 .iconic:focus,
 .iconic:hover {
-  border: 0;
   background: var(--white-75);
 }
 
 .iconic:active {
-  border: 0;
   background: var(--content-bg-color);
 }
 
@@ -383,7 +411,7 @@ button.default:active, .button.default:active {
 }
 
 hr {
-  border: 0;
+  border: none;
   border-top: 1px solid var(--black-20);
 }
 
@@ -395,7 +423,8 @@ form {
 }
 
 fieldset {
-  border: 1px solid var(--black-20);
+  border: none;
+  box-shadow: var(--shadow-outline-hover);
   margin-block-start: var(--spacing-size);
   margin-block-end: var(--spacing-size);
   padding: var(--input-padding-edges);
@@ -406,19 +435,19 @@ fieldset {
 }
 
 pre {
-  font-family: Menlo, Monaco, Monospace;
+  font: var(--code-font);
   padding: var(--input-padding-edges);
   background-color: var(--pullquote-bg-color);
   color: var(--code-text-color);
-  border-radius: 4px;
+  border-radius: var(--corner-radius-size);
   overflow: scroll;
   overflow: overlay;
 }
 
-code {
+code,
+.code {
   color: var(--code-text-color);
-  font-family: Menlo, Monaco, Monospace;
-  font-size: 90%;
+  font: var(--code-font);
 }
 
 pre > code {
@@ -432,6 +461,10 @@ pre > code {
 
 .select > * {
   padding: var(--input-padding-edges);
+}
+
+.select > *,
+.nowrap {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -495,23 +528,22 @@ progress {
   -moz-appearance: none;
   appearance: none;
 
-  vertical-align: baseline;
+  vertical-align: middle;
   width: var(--input-size);
   height: var(--body-line-height);
 
-  box-shadow: 0 0 0 2px var(--light-accent-color);
+  box-shadow: var(--shadow-outline);
   background: var(--content-bg-color);
-  border-radius: var(--rounded-radius-size);;
+  border-radius: var(--rounded-radius-size);
+  overflow: hidden;
 }
 
 progress::-webkit-progress-bar {
-  background: var(--content-bg-color);
-  border-radius: var(--rounded-radius-size);
+  background: var(--input-bg-color);
 }
 
 progress::-webkit-progress-value {
-  background-color: var(--accent-color);
-  border-radius: var(--rounded-radius-size);;
+  background-color: var(--text-color);
 }
 
 /* used by tooltips.js */

@@ -7,11 +7,11 @@ The toolbar component merely styles its children and adds shortcut support.
 <style>
   .toolbar-component {
     margin: 0;
-    padding: 4px;
-    height: 32px;
-    background-color: var(--content-bg-color);
+    padding: 0 var(--spacing-size);
+    height: 40px;
+    background-color: var(--black-5);
     box-sizing: border-box;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--black-20);
     display: flex;
   }
 
@@ -23,16 +23,11 @@ The toolbar component merely styles its children and adds shortcut support.
 
   .toolbar-component hr.fixed {
     flex-grow: 0;
-    width: 16px;
-  }
-
-  .toolbar-component > button {
-    height: 24px;
-    min-width: 26px;
+    width: var(--spacing-size);
   }
 
   .toolbar-component > button + button {
-    margin-left: 2px;
+    margin-left: var(--narrowest-spacing-size);
   }
 </style>
 <script>

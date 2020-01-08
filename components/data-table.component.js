@@ -9,12 +9,17 @@ The data-table is highly configurable via its `config` property.
 
 ### config
 
-The data-table component's config property allows the table to be configured
+The data-table component's `config` property allows the table to be configured
 very flexibly:
 
     {
-      userCanEditColumns: true,
+      virtual: true,                   // whether to virtualize the list using biggrid
+      rowHeight: 24,                   // fixes row height (only necessary if virtual)
+      sliceModulus: false,             // (if virtual) whether to make the slices stable modulo n
+      userCanEditColumns: true,        // can user pick which columns are shown?
       maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
+      rowFilter: list => list,         // filter function
+      filter: null,                    // parameter for rowFilter
       columns: [
         {
           name: 'column name',
@@ -34,13 +39,24 @@ very flexibly:
       ]
     }
 
+### Virtual
+
+By default, biggrid will display the table *virtually*, i.e. it will only render a minimum
+number of table rows sufficent to fill the provided space. If you want to do something like
+scroll to a specific table row using `HTMLElement.scrollIntoView(...)` then you'll want
+to turn this off (by setting `virtual: false` in `config` or wait until I've implemented that feature.
+
+As an indication of the size of the performance win you get from virtualizing the table, the
+rendering time for this page on my laptop goes down by ~700ms with `virtual: true`.
+
+In the example, the row styles are set to `nth-child(4n+...)` so `sliceModulus: 4` is used to keep
+the column-shading stable.
+
 ### To Do
 
 - table can have selection: { multiple: true|false, path: 'path.to.prop' }
   (if no path provided, selection is tracked internally)
 - column reordering
-- virtual table (minimum number of elements in DOM)
-- state persistence to localStorage / services
 
 Selection can be implemented by exporting a custom `column` based on the column
 setup in the example.
@@ -81,6 +97,7 @@ setup in the example.
     fontSize: '20px'
   })
   set('config', {
+    sliceModulus: 4,
     updateSelectAll(evt, target) {
       const {checked} = target
       const componentId = b8r.getComponentId(target)
@@ -159,6 +176,7 @@ setup in the example.
 */
 
 import { trackDrag } from '../lib/track-drag.js'
+import { slice } from '../lib/biggrid.js'
 
 const makeSortFunction = column => {
   const { sortable, sortDirection } = column
@@ -169,8 +187,11 @@ const makeSortFunction = column => {
   }
 }
 
+const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+
 const cell = path => {
   const span = document.createElement('span')
+  span.classList.add('nowrap')
   span.dataset.bind = `text=${path}`
   return span
 }
@@ -226,8 +247,8 @@ export default {
       line-height: 20px;
     }
 
-    ._component_ .t-row:nth-child(4n+3),
-    ._component_ .t-row:nth-child(4n) {
+    ._component_ .t-row:nth-child(4n),
+    ._component_ .t-row:nth-child(4n+1) {
       background: var(--black-5);
     }
 
@@ -369,7 +390,7 @@ export default {
       <div
         tabindex=0
         class="t-row" 
-        data-list="_component_.sortAndFilterRows(_component_.rows):_auto_"
+        data-list="_component_.sortAndFilterRows(_component_.rows,_component_.filter):_auto_"
       >
       </div>
     </div>
@@ -383,8 +404,11 @@ export default {
       </label>
     </div>
     `,
-  load: ({ b8r, component }) => {
+  load: ({ b8r, component, findOne, get }) => {
+    const {config: {rowHeight}} = get()
+    const rowTemplate = findOne('.t-body > .t-row[data-list]')
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
+    rowTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
   },
   initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
     return {
@@ -413,11 +437,12 @@ export default {
         }
       },
       resizeColumn (evt) {
+        const { config: { virtual, maxRowsForLiveColumnResize }, rows } = get()
         const edgeIndex = b8r.elementIndex(evt.target.closest('.t-row > *'))
         const columns = get().visibleColumns()
         if (columns.length < 1) return
         columns.pop()
-        const liveResize = get('rows').length <= get('config.maxRowsForLiveColumnResize')
+        const liveResize = virtual || rows.length <= maxRowsForLiveColumnResize
         const thead = findOne('.t-head')
         trackDrag(evt, columns[edgeIndex].width, 0, (w, _y, _dx, _dy, dragEnded) => {
           columns[edgeIndex].width = clamp(columns[edgeIndex].minWidth, w, columns[edgeIndex].maxWidth)
@@ -471,17 +496,47 @@ export default {
         })
         touch('config')
       },
-      sortAndFilterRows (rows) {
-        const { config: { columns } } = get()
+      sortAndFilterRows (rows, filter, listTemplate) {
+        const { config: { virtual, sliceModulus, columns, rowFilter }, _previous } = get()
         const column = columns.find(col => col.sortDirection)
-        if (column) {
-          return [...rows].sort(makeSortFunction(column))
-        } else {
-          return rows
+        if (_previous.rows !== rows || !eq(_previous.filter,filter)) {
+          _previous.filtered = null
         }
+        const filtered = _previous.filtered || rowFilter(rows, filter) || []
+        if (
+          !_previous.filtered || 
+          column !== _previous.column || 
+          column && column.sortDirection !== _previous.column.sortDirection
+        ) {
+          _previous.sorted = null
+        }
+        const sorted = _previous.sorted || (column ? filtered.sort(makeSortFunction(column)) : filtered)
+        if (!virtual) {
+          return sorted
+        }
+        set('_previous', {
+          filtered,
+          sorted,
+          rows,
+          filter,
+          column
+        })
+        return slice(sorted, listTemplate, true, sliceModulus)
       },
       editVisibleColumns: false,
+      _previous: {
+        filtered: null,
+        sorted: null,
+        rows: [],
+        filter: null,
+        column: null
+      },
       config: {
+        rowFilter: list => list,
+        filter: null,
+        virtual: true,
+        rowHeight: 24,
+        sliceModulus: false,
         userCanEditColumns: true,
         maxRowsForLiveColumnResize: 100,
         columns: []
