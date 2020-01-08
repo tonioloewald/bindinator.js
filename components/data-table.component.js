@@ -187,6 +187,8 @@ const makeSortFunction = column => {
   }
 }
 
+const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+
 const cell = path => {
   const span = document.createElement('span')
   span.classList.add('nowrap')
@@ -495,18 +497,40 @@ export default {
         touch('config')
       },
       sortAndFilterRows (rows, filter, listTemplate) {
-        const { config: { virtual, sliceModulus, columns, rowFilter } } = get()
+        const { config: { virtual, sliceModulus, columns, rowFilter }, _previous } = get()
         const column = columns.find(col => col.sortDirection)
-        // TODO for perf, cache last filtered result
-        const filtered = rowFilter(rows, filter) || []
-        // TODO for perf, cache last sorted result
-        const sorted = column ? filtered.sort(makeSortFunction(column)) : filtered
+        if (_previous.rows !== rows || !eq(_previous.filter,filter)) {
+          _previous.filtered = null
+        }
+        const filtered = _previous.filtered || rowFilter(rows, filter) || []
+        if (
+          !_previous.filtered || 
+          column !== _previous.column || 
+          column && column.sortDirection !== _previous.column.sortDirection
+        ) {
+          _previous.sorted = null
+        }
+        const sorted = _previous.sorted || (column ? filtered.sort(makeSortFunction(column)) : filtered)
         if (!virtual) {
           return sorted
         }
+        set('_previous', {
+          filtered,
+          sorted,
+          rows,
+          filter,
+          column
+        })
         return slice(sorted, listTemplate, true, sliceModulus)
       },
       editVisibleColumns: false,
+      _previous: {
+        filtered: null,
+        sorted: null,
+        rows: [],
+        filter: null,
+        column: null
+      },
       config: {
         rowFilter: list => list,
         filter: null,
