@@ -14,6 +14,7 @@ very flexibly:
 
     {
       virtual: true,                   // whether to virtualize the list using biggrid
+      rowHeight: 24,                   // fixes row height (only necessary if virtual)
       sliceModulus: false,             // (if virtual) whether to make the slices stable modulo n
       userCanEditColumns: true,        // can user pick which columns are shown?
       maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
@@ -489,15 +490,20 @@ export default {
         touch('config')
       },
       sortAndFilterRows (rows, listTemplate) {
-        const { config: { virtual, sliceModulus, columns } } = get()
+        const { config: { virtual, sliceModulus, columns, rowHeight } } = get()
         const column = columns.find(col => col.sortDirection)
         const filtered = column ? [...rows].sort(makeSortFunction(column)) : rows
-        return virtual ? slice(filtered, listTemplate, true, sliceModulus) : filtered
+        if (!virtual) {
+          return filtered
+        }
+        listTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
+        return slice(filtered, listTemplate, true, sliceModulus)
       },
       editVisibleColumns: false,
-      sliceModulus: false,
       config: {
         virtual: true,
+        rowHeight: 24,
+        sliceModulus: false,
         userCanEditColumns: true,
         maxRowsForLiveColumnResize: 100,
         columns: []

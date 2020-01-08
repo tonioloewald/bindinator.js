@@ -3009,8 +3009,8 @@ You can use them the obvious way:
     _b8r_.stopEvent // use this to simply catch an event silently
     _b8r_._update_ // this is used by b8r to update models automatically
 */
-let setByPath$1;
-const _insertSetByPath = f => { setByPath$1 = f; };
+let set;
+const _insertSet = f => { set = f; };
 let fromTargets;
 const _insertFromTargets = t => { fromTargets = t; };
 
@@ -3036,7 +3036,7 @@ const _b8r_ = {
           const value = fromTargets[t.target](elt, t.key);
           if (value !== undefined) {
             delete elt._b8rBoundValues;
-            setByPath$1(path, value, elt);
+            set(path, value, elt);
           }
         };
         boundTargets.forEach(processFromTargets);
@@ -3811,7 +3811,7 @@ const checkType = (action, name) => {
   }
 };
 
-const set = (path, value, sourceElement) => {
+const set$1 = (path, value, sourceElement) => {
   if ( !isValidPath(path)) {
     console.error(`setting invalid path ${path}`);
   }
@@ -3850,7 +3850,7 @@ const set = (path, value, sourceElement) => {
 
 const replace = (path, value) => {
   if (typeof value === 'object') setByPath(registry, path, null); // skip type checking
-  set(path, value);
+  set$1(path, value);
   return value
 };
 
@@ -3877,7 +3877,7 @@ const register = (name, obj, blockUpdates) => {
   }
 };
 
-const setJSON = (path, value) => set(path, JSON.parse(value));
+const setJSON = (path, value) => set$1(path, JSON.parse(value));
 
 /**
     push('path.to.array', item [, callback]);
@@ -3906,7 +3906,7 @@ Test(() => get('test-obj.list').length).shouldBe(1);
 */
 
 const push = (path, value, callback) => {
-  const list = get(path) || set(path, []);
+  const list = get(path) || set$1(path, []);
   if (Array.isArray(list)) {
     list.push(value);
     if (callback) {
@@ -3917,7 +3917,7 @@ const push = (path, value, callback) => {
 };
 
 const unshift = (path, value) => {
-  const list = get(path) || set(path, []);
+  const list = get(path) || set$1(path, []);
   if (Array.isArray(list)) {
     list.unshift(value);
     touch(path);
@@ -3966,7 +3966,7 @@ Sorts the array at path using the provided sorting function. (And b8r provides
 */
 
 const sort = (path, comparison) => {
-  const list = get(path) || set(path, []);
+  const list = get(path) || set$1(path, []);
   if (Array.isArray(list)) {
     list.sort(comparison);
     touch(path);
@@ -4158,11 +4158,11 @@ Test(() => get('counter-test.other_count'), 'zero a new path').shouldBe(0);
 ~~~~
 */
 
-const zero = path => set(path, 0);
+const zero = path => set$1(path, 0);
 
-const increment = path => set(path, get(path) + 1);
+const increment = path => set$1(path, get(path) + 1);
 
-const decrement = path => set(path, get(path) - 1);
+const decrement = path => set$1(path, get(path) - 1);
 
 const deregister = path => {
   console.warn('deregister is deprecated, use b8r.remove');
@@ -4178,7 +4178,7 @@ var _registry = /*#__PURE__*/Object.freeze({
   get: get,
   getJSON: getJSON,
   getByPath: _getByPath,
-  set: set,
+  set: set$1,
   replace: replace,
   setJSON: setJSON,
   increment: increment,
@@ -6562,7 +6562,7 @@ b8r.setByPath = function (...args) {
   }
 };
 
-_insertSetByPath(b8r.setByPath);
+_insertSet(b8r.set);
 _insertFromTargets(fromTargets$1);
 
 b8r.pushByPath = function (...args) {
@@ -6820,14 +6820,6 @@ function bindList (listTemplate, dataPath) {
   if (methodPath && !idPath) {
     throw new Error(`data-list="${listTemplate.dataset.list}" -- computed list requires id-path`)
   }
-  // assign unique ids if _auto_ id-path is specified
-  if (idPath === '_auto_') {
-    for (let i = 0; i < list.length; i++) {
-      if (!list[i]._auto_) {
-        list[i]._auto_ = ++idCount;
-      }
-    }
-  }
   // compute list
   if (methodPath) {
     if (!b8r.get(methodPath)) {
@@ -6857,6 +6849,14 @@ function bindList (listTemplate, dataPath) {
     })();
     if (!list) {
       throw new Error('could not compute list; async filtered list methods not supported (yet)')
+    }
+  }
+  // assign unique ids if _auto_ id-path is specified
+  if (idPath === '_auto_') {
+    for (let i = 0; i < list.length; i++) {
+      if (!list[i]._auto_) {
+        list[i]._auto_ = ++idCount;
+      }
     }
   }
 

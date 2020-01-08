@@ -357,7 +357,6 @@ button.cancel, button[type="cancel"] {
 }
 
 .iconic {
-  border: none;
   padding: 0;
   box-shadow: none;
   background: var(--white-50);
@@ -370,12 +369,10 @@ button.cancel, button[type="cancel"] {
 
 .iconic:focus,
 .iconic:hover {
-  border: none;
   background: var(--white-75);
 }
 
 .iconic:active {
-  border: none;
   background: var(--content-bg-color);
 }
 

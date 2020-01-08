@@ -17,8 +17,8 @@ You can use them the obvious way:
 
 import { getBindings } from './b8r.bindings.js'
 import { findAbove, findWithin } from './b8r.dom.js'
-let setByPath
-export const _insertSetByPath = f => { setByPath = f }
+let set
+export const _insertSet = f => { set = f }
 let fromTargets
 export const _insertFromTargets = t => { fromTargets = t }
 export default {}
@@ -45,7 +45,7 @@ export const _b8r_ = {
           const value = fromTargets[t.target](elt, t.key)
           if (value !== undefined) {
             delete elt._b8rBoundValues
-            setByPath(path, value, elt)
+            set(path, value, elt)
           }
         }
         boundTargets.forEach(processFromTargets)
