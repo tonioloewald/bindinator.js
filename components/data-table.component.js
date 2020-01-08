@@ -18,6 +18,8 @@ very flexibly:
       sliceModulus: false,             // (if virtual) whether to make the slices stable modulo n
       userCanEditColumns: true,        // can user pick which columns are shown?
       maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
+      rowFilter: list => list,         // filter function
+      filter: null,                    // parameter for rowFilter
       columns: [
         {
           name: 'column name',
