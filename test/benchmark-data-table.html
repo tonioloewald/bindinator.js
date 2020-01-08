@@ -7,6 +7,9 @@
     body {
       margin: 0;
       padding: 0;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
     }
 
     #main {
@@ -16,15 +19,15 @@
 </head>
 <body>
 <div id="main">
-  <h1>b8r</h1>
+  <h1>b8r — data-table</h1>
   <div>
     <a href="benchmark.html">b8r</a> |
     <a href="benchmark-data-table.html">b8r data-table</a> |
     <a href="benchmark-vanillajs.html">vanillajs</a>
   </div>
   <label>
-    Search
-    <input data-bind="value=benchmark.filterSettings.text">
+    Filter
+    <input data-bind="value=benchmark.filterText" placeholder="enter filter text">
   </label>
   <div>
     <button data-event="click:benchmark.create">Create 1,000 rows</button>
@@ -34,22 +37,33 @@
     <button data-event="click:benchmark.clear">Clear</button>
     <button data-event="click:benchmark.swap">Swap Rows 4 and 7</button>
   </div>
+  <b8r-component 
+    path="../components/data-table.component.js"
+    data-bind="
+      component(rows)=benchmark.data
+      component(config)=config
+      component(filter)=benchmark.filterText
+    "
+    style="flex: 1 1;"
+  ></b8r-component>
+  <!--
   <table class="table table-hover table-striped test-data">
     <tbody id="tbody">
       <tr data-list="benchmark.filter(benchmark.data,benchmark.filterSettings.text):id">
-        <td data-bind="text=.id">1</td>
-        <td>
+        <td class="col-md-1" data-bind="text=.id">1</td>
+        <td class="col-md-4">
           <span class="lbl" data-bind="text=.label">clean blue chair</span>
         </td>
-        <td>
+        <td class="col-md-1">
           <a class="remove">
             <span class="glyphicon glyphicon-remove remove" aria-hidden="true"></span>
           </a>
         </td>
-        <td></td>
+        <td class="col-md-6"></td>
       </tr>
     </tbody>
   </table>
+  -->
 </div>
 <script type="module">
 import b8r from '../source/b8r.js';
@@ -63,6 +77,10 @@ function _random(max) {
 }
 
 b8r.set('config', {
+  rowFilter: (list, filterText) => {
+    filterText = filterText.toLowerCase()
+    return list.filter(item => item.label.toLowerCase().includes(filterText))
+  },
   columns: [
     {
       name: 'id',
@@ -155,12 +173,7 @@ b8r.registerType('benchmark', {
 });
 
 b8r.register('benchmark', {
-  filterSettings: {
-    text: ''
-  },
-  filter: (list, text) => {
-    return list ? list.filter(({label}) => label.includes(text)) : []
-  },
+  filterText: '',
   data: [],
   create: () => {
     console.time('create');

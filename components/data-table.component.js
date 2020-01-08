@@ -386,7 +386,7 @@ export default {
       <div
         tabindex=0
         class="t-row" 
-        data-list="_component_.sortAndFilterRows(_component_.rows):_auto_"
+        data-list="_component_.sortAndFilterRows(_component_.rows,_component_.filter):_auto_"
       >
       </div>
     </div>
@@ -400,8 +400,11 @@ export default {
       </label>
     </div>
     `,
-  load: ({ b8r, component }) => {
+  load: ({ b8r, component, findOne, get }) => {
+    const {config: {rowHeight}} = get()
+    const rowTemplate = findOne('.t-body > .t-row[data-list]')
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
+    rowTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
   },
   initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
     return {
@@ -489,18 +492,22 @@ export default {
         })
         touch('config')
       },
-      sortAndFilterRows (rows, listTemplate) {
-        const { config: { virtual, sliceModulus, columns, rowHeight } } = get()
+      sortAndFilterRows (rows, filter, listTemplate) {
+        const { config: { virtual, sliceModulus, columns, rowFilter } } = get()
         const column = columns.find(col => col.sortDirection)
-        const filtered = column ? [...rows].sort(makeSortFunction(column)) : rows
+        // TODO for perf, cache last filtered result
+        const filtered = rowFilter(rows, filter) || []
+        // TODO for perf, cache last sorted result
+        const sorted = column ? filtered.sort(makeSortFunction(column)) : filtered
         if (!virtual) {
-          return filtered
+          return sorted
         }
-        listTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
-        return slice(filtered, listTemplate, true, sliceModulus)
+        return slice(sorted, listTemplate, true, sliceModulus)
       },
       editVisibleColumns: false,
       config: {
+        rowFilter: list => list,
+        filter: null,
         virtual: true,
         rowHeight: 24,
         sliceModulus: false,
