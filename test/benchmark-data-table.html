@@ -219,7 +219,7 @@ b8r.register('benchmark', {
       let row = data[4];
       data[4] = data[7];
       data[7] = row;
-      b8r.touch(`benchmark.data`);
+      b8r.set(`benchmark.data`, [...data]);
     }
     b8r.afterUpdate(() => console.timeEnd('swap'));
   },
