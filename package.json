@@ -7,7 +7,7 @@
     "start": "echo \"http://localhost:8017/index.html\\n\" & node utils/server.js web_root:.",
     "lint": "node node_modules/standard/bin/cmd.js --fix",
     "stylelint": "./node_modules/stylelint/bin/stylelint.js css/*.css **/*.html --fix",
-    "build": "npm run lint & npm run stylelint & ./utils/build.command"
+    "build": "npm run lint && npm run stylelint && ./utils/build.command"
   },
   "keywords": [
     "javascript",
