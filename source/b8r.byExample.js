@@ -334,6 +334,28 @@ export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
 
 const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : x
 
+// when checking large arrays, only check a maximum of 111 elements
+function* arraySampler (a) {
+  let i = 0
+  // 101 is a prime number so hopefully we'll avoid sampling fixed patterns
+  const increment = Math.ceil(a.length / 101)
+  let sampleCount = 0
+  while(i < a.length) {
+    sampleCount += 1
+    // first five
+    if (i < 5) {
+      yield a[i++]
+    // last five
+    } else if (i > a.length - 5) {
+      yield a[i++]
+    } else {
+    // ~1% of the ones in the middle
+      yield a[i]
+      i = Math.min(i + increment, a.length - 4)
+    }
+  }
+}
+
 export const matchType = (example, subject, errors = [], path = '') => {
   const exampleType = describe(example)
   const subjectType = describe(subject)
@@ -344,18 +366,16 @@ export const matchType = (example, subject, errors = [], path = '') => {
     errors.push(`${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`)
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
-    const count = subject.length
-    if (example.length === 1 && count) {
+    const sampler = subject.length ? arraySampler(subject) : false
+    if (example.length === 1 && sampler) {
       // assume homogenous array
-      for (let i = 0; i < count; i++) {
-        matchType(example[0], subject[i], errors, `${path}[${i}]`)
-      }
-    } else if (example.length > 1 && count) {
+      for(const sample of sampler) matchType(example[0], sample, errors, `${path}[${i}]`)
+    } else if (example.length > 1 && sampler) {
       // assume heterogeneous array
-      for (let i = 0; i < count; i++) {
+      for(const sample of sampler) {
         let foundMatch = false
-        for (const listItem of example) {
-          if (matchType(listItem, subject[i], [], '').length === 0) {
+        for (const specificExample of example) {
+          if (matchType(specificExample, sample, [], '').length === 0) {
             foundMatch = true
             break
           }
