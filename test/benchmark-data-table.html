@@ -37,6 +37,7 @@
     <button data-event="click:benchmark.create">Create 1,000 rows</button>
     <button data-event="click:benchmark.create10k">Create 10,000 rows</button>
     <button data-event="click:benchmark.create100k">Create 100,000 rows</button>
+    <button data-event="click:benchmark.create1M">Create 1,000,000 rows</button>
     <button data-event="click:benchmark.append">Append 1,000 rows</button>
     <button data-event="click:benchmark.update">Update every 10th row</button>
     <button data-event="click:benchmark.clear">Clear</button>
@@ -175,6 +176,11 @@ b8r.register('benchmark', {
     console.time('create 100k');
     b8r.set('benchmark.data', store.buildData(100000));
     b8r.afterUpdate(() => console.timeEnd('create 100k'));
+  },
+  create1M:  () => {
+    console.time('create 1M');
+    b8r.set('benchmark.data', store.buildData(1000000));
+    b8r.afterUpdate(() => console.timeEnd('create 1M'));
   },
   append: () => {
     console.time('append');
