@@ -390,6 +390,10 @@
         "path": "image-editor.component.html"
       },
       {
+        "name": "Filter",
+        "path": "components/filter.component.js"
+      },
+      {
         "name": "Data Table",
         "path": "components/data-table.component.js"
       },
