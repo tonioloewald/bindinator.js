@@ -417,7 +417,7 @@ const forEachItemIn = (obj, idPath, func) => {
 }
 
 let idCount = 0 // used to assign unique ids as required
-function bindList (listTemplate, dataPath) {
+function bindList (listTemplate) {
   listTemplate.classList.add('-b8r-empty-list')
   if (
     !listTemplate.parentElement || // skip if disembodied
@@ -435,9 +435,6 @@ function bindList (listTemplate, dataPath) {
     listPath = argPaths[0]
   } catch (e) {
     console.error('bindList failed; bad source path', sourcePath)
-  }
-  if (dataPath) {
-    listPath = dataPath + listPath
   }
   const resolvedPath = b8r.resolvePath(listPath, listTemplate)
   // rewrite the binding if necessary (otherwise nested list updates fail)
@@ -557,10 +554,10 @@ function bindList (listTemplate, dataPath) {
   b8r.hide(listTemplate)
 }
 
-b8r.bindAll = (element, dataPath) => {
-  loadAvailableComponents(element, dataPath)
-  findBindables(element).forEach(elt => bind(elt))
-  findLists(element).forEach(elt => bindList(elt, dataPath))
+b8r.bindAll = element => {
+  loadAvailableComponents(element)
+  findBindables(element).forEach(bind)
+  findLists(element).forEach(bindList)
 }
 
 Object.assign(b8r, _ajax)
@@ -592,14 +589,14 @@ Object.assign(b8r, { component, makeComponent, makeComponentNoEval })
 
 b8r.components = () => Object.keys(components)
 
-function loadAvailableComponents (element, dataPath) {
+function loadAvailableComponents (element) {
   b8r.findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
     .forEach(target => {
       if (!target.closest('[data-list]')) {
         const name = target.tagName === 'B8R-COMPONENT'
           ? target.name
           : target.dataset.component
-        b8r.insertComponent(name, target, dataPath)
+        b8r.insertComponent(name, target)
       }
     })
 }
