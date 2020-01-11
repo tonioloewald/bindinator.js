@@ -640,7 +640,6 @@ const assignValues = (object, ancestor) => {
 };
 
 var _iterators = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   makeArray: makeArray,
   last: last,
   forEach: forEach,
@@ -1030,7 +1029,6 @@ const cssVar = (element, name, value) => {
 };
 
 var _dom = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   isVisible: isVisible,
   isInView: isInView,
   rectsOverlap: rectsOverlap,
@@ -1260,15 +1258,6 @@ And:
 
 These two functions have variants (mostly used internally) for explicitly passing a path
 for use in dynamically resolved bindings.
-
-    b8r.bindAll(target, 'path.to.data'); // as above, but uses path for dynamic bindings
-
-Or:
-
-    b8r.bindList(target, 'path.to.list'); // as above, but uses path for dynamic bindings
-
-Note (FIXME): bindAll only applies its path to components and lists; it doesn't do it to
-individual elements, which it probably should.
 
 ## Binding Elements with data-bind
 
@@ -2007,6 +1996,28 @@ const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:');
 
 const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : x;
 
+// when checking large arrays, only check a maximum of 111 elements
+function * arraySampler (a) {
+  let i = 0;
+  // 101 is a prime number so hopefully we'll avoid sampling fixed patterns
+  const increment = Math.ceil(a.length / 101);
+  while (i < a.length) {
+    // first five
+    if (i < 5) {
+      yield { sample: a[i], i };
+      i++;
+    // last five
+    } else if (i > a.length - 5) {
+      yield { sample: a[i], i };
+      i++;
+    } else {
+    // ~1% of the ones in the middle
+      yield { sample: a[i], i };
+      i = Math.min(i + increment, a.length - 4);
+    }
+  }
+}
+
 const matchType = (example, subject, errors = [], path = '') => {
   const exampleType = describe(example);
   const subjectType = describe(subject);
@@ -2017,18 +2028,16 @@ const matchType = (example, subject, errors = [], path = '') => {
     errors.push(`${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`);
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
-    const count = subject.length;
-    if (example.length === 1 && count) {
+    const sampler = subject.length ? arraySampler(subject) : false;
+    if (example.length === 1 && sampler) {
       // assume homogenous array
-      for (let i = 0; i < count; i++) {
-        matchType(example[0], subject[i], errors, `${path}[${i}]`);
-      }
-    } else if (example.length > 1 && count) {
+      for (const { sample, i } of sampler) matchType(example[0], sample, errors, `${path}[${i}]`);
+    } else if (example.length > 1 && sampler) {
       // assume heterogeneous array
-      for (let i = 0; i < count; i++) {
+      for (const { sample, i } of sampler) {
         let foundMatch = false;
-        for (const listItem of example) {
-          if (matchType(listItem, subject[i], [], '').length === 0) {
+        for (const specificExample of example) {
+          if (matchType(specificExample, sample, [], '').length === 0) {
             foundMatch = true;
             break
           }
@@ -2193,7 +2202,6 @@ const _typeSafe = (func, paramTypes, resultType) => {
 const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function');
 
 var _byExample = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   describe: describe,
   specificTypeMatch: specificTypeMatch,
   describeType: describeType,
@@ -2382,7 +2390,6 @@ const jsonp = (url, callbackParam = 'callback', timeout = 2000) => {
 const ajaxRequestsInFlight = () => _requestsInFlight;
 
 var _ajax = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   ajax: ajax,
   xml: xml,
   json: json,
@@ -2489,7 +2496,7 @@ This module provides convenient access to the `AsyncFunction` constructor.
 Utility functions for preventing a method from being called too frequently.
 Not recommended for use on methods which take arguments!
 
-    b8r.debounce(method, minInterval_ms) => debounced method
+    b8r.debounce(method, minInterval_ms) => debounced function
 
 From a function `f`, create a function that will call f after the provided interval has passed,
 the interval being reset if the function is called again.
@@ -2500,12 +2507,17 @@ typing for a while or at least has a chance to type a few keys.
 > A debounced method will call the original function at least once after the debounced version is
 called.
 
-    b8r.throttle(method, minInterval_ms) => throttled method
+    b8r.throttle(method, minInterval_ms) => throttled function
 
 From a function `f`, create a function that will call f if and only if the function hasn't
 been called in the last interval.
 
 > If you call f several times within the specified interval, *only the first call will fire*.
+
+    b8r.throttleAndDebounce(method, minInterval_ms) => throttle and debounced function
+
+This combines the two concepts. If called repeatedly, it will not fire more often than once
+per interval, and will fire after the interval has passed since the last call.
 */
 
 const debounce = (origFn, minInterval) => {
@@ -2527,13 +2539,27 @@ const throttle = (origFn, minInterval) => {
   }
 };
 
+const throttleAndDebounce = (origFn, minInterval) => {
+  let debounceId;
+  let previousCall = Date.now() - minInterval;
+  return (...args) => {
+    const now = Date.now();
+    clearTimeout(debounceId);
+    if (now - previousCall > minInterval) {
+      previousCall = now;
+      origFn(...args);
+      debounceId = setTimeout(() => origFn(...args), minInterval);
+    }
+  }
+};
+
 const AsyncFunction = async function () {}.constructor;
 
 var _functions = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   AsyncFunction: AsyncFunction,
   debounce: debounce,
-  throttle: throttle
+  throttle: throttle,
+  throttleAndDebounce: throttleAndDebounce
 });
 
 /**
@@ -4178,7 +4204,6 @@ const _getByPath = (model, path) =>
   get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
 
 var _registry = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   onTypeError: onTypeError,
   offTypeError: offTypeError,
   get: get,
@@ -5772,7 +5797,6 @@ const sortDescending = (a, b) =>
     ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
 
 var _sort = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   sortAscending: sortAscending,
   sortDescending: sortDescending
 });
@@ -5882,7 +5906,6 @@ const fromMethod = (element, path) => {
 };
 
 var fromTargets$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   value: value,
   checked: checked,
   selected: selected,
@@ -6421,7 +6444,6 @@ const dispatch$1 = (target, type) => {
 };
 
 var webComponents = /*#__PURE__*/Object.freeze({
-  __proto__: null,
   fragment: fragment$1,
   makeElement: makeElement,
   makeWebComponent: makeWebComponent,
@@ -6789,7 +6811,7 @@ const forEachItemIn = (obj, idPath, func) => {
 };
 
 let idCount = 0; // used to assign unique ids as required
-function bindList (listTemplate, dataPath) {
+function bindList (listTemplate) {
   listTemplate.classList.add('-b8r-empty-list');
   if (
     !listTemplate.parentElement || // skip if disembodied
@@ -6807,9 +6829,6 @@ function bindList (listTemplate, dataPath) {
     listPath = argPaths[0];
   } catch (e) {
     console.error('bindList failed; bad source path', sourcePath);
-  }
-  if (dataPath) {
-    listPath = dataPath + listPath;
   }
   const resolvedPath = b8r.resolvePath(listPath, listTemplate);
   // rewrite the binding if necessary (otherwise nested list updates fail)
@@ -6929,10 +6948,10 @@ function bindList (listTemplate, dataPath) {
   b8r.hide(listTemplate);
 }
 
-b8r.bindAll = (element, dataPath) => {
-  loadAvailableComponents(element, dataPath);
-  findBindables(element).forEach(elt => bind(elt));
-  findLists(element).forEach(elt => bindList(elt, dataPath));
+b8r.bindAll = element => {
+  loadAvailableComponents(element);
+  findBindables(element).forEach(bind);
+  findLists(element).forEach(bindList);
 };
 
 Object.assign(b8r, _ajax);
@@ -6964,14 +6983,14 @@ Object.assign(b8r, { component, makeComponent, makeComponentNoEval });
 
 b8r.components = () => Object.keys(components);
 
-function loadAvailableComponents (element, dataPath) {
+function loadAvailableComponents (element) {
   b8r.findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
     .forEach(target => {
       if (!target.closest('[data-list]')) {
         const name = target.tagName === 'B8R-COMPONENT'
           ? target.name
           : target.dataset.component;
-        b8r.insertComponent(name, target, dataPath);
+        b8r.insertComponent(name, target);
       }
     });
 }

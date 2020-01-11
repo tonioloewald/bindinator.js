@@ -38,15 +38,6 @@ And:
 These two functions have variants (mostly used internally) for explicitly passing a path
 for use in dynamically resolved bindings.
 
-    b8r.bindAll(target, 'path.to.data'); // as above, but uses path for dynamic bindings
-
-Or:
-
-    b8r.bindList(target, 'path.to.list'); // as above, but uses path for dynamic bindings
-
-Note (FIXME): bindAll only applies its path to components and lists; it doesn't do it to
-individual elements, which it probably should.
-
 ## Binding Elements with data-bind
 
 The simplest way to bind data to DOM elements is by using `data-bind` attributes.

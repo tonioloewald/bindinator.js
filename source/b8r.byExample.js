@@ -335,22 +335,22 @@ export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
 const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : x
 
 // when checking large arrays, only check a maximum of 111 elements
-function* arraySampler (a) {
+function * arraySampler (a) {
   let i = 0
   // 101 is a prime number so hopefully we'll avoid sampling fixed patterns
   const increment = Math.ceil(a.length / 101)
-  let sampleCount = 0
-  while(i < a.length) {
-    sampleCount += 1
+  while (i < a.length) {
     // first five
     if (i < 5) {
-      yield a[i++]
+      yield { sample: a[i], i }
+      i++
     // last five
     } else if (i > a.length - 5) {
-      yield a[i++]
+      yield { sample: a[i], i }
+      i++
     } else {
     // ~1% of the ones in the middle
-      yield a[i]
+      yield { sample: a[i], i }
       i = Math.min(i + increment, a.length - 4)
     }
   }
@@ -369,10 +369,10 @@ export const matchType = (example, subject, errors = [], path = '') => {
     const sampler = subject.length ? arraySampler(subject) : false
     if (example.length === 1 && sampler) {
       // assume homogenous array
-      for(const sample of sampler) matchType(example[0], sample, errors, `${path}[${i}]`)
+      for (const { sample, i } of sampler) matchType(example[0], sample, errors, `${path}[${i}]`)
     } else if (example.length > 1 && sampler) {
       // assume heterogeneous array
-      for(const sample of sampler) {
+      for (const { sample, i } of sampler) {
         let foundMatch = false
         for (const specificExample of example) {
           if (matchType(specificExample, sample, [], '').length === 0) {
