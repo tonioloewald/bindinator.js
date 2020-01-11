@@ -36,9 +36,8 @@
 <span title="reduce" class="maxtoggle-minimize icon-shrink7"></span>
 <script>
   /* global component, on */
-  const target = component.closest('.maxtoggle-target') || document.body;
-  target.classList.add('maxtoggle-target')
   set('fullscreen', () => {
+    const target = component.closest('.maxtoggle-target') || document.body;
     target.classList.toggle('fullscreen')
   })
   on('mouseup', `_component_.fullscreen`)
