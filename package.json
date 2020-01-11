@@ -7,7 +7,7 @@
     "start": "echo \"http://localhost:8017/index.html\\n\" & node utils/server.js web_root:.",
     "lint": "node node_modules/standard/bin/cmd.js --fix",
     "stylelint": "./node_modules/stylelint/bin/stylelint.js css/*.css **/*.html --fix",
-    "build": "./utils/build.command"
+    "build": "npm run lint && npm run stylelint && ./utils/build.command"
   },
   "keywords": [
     "javascript",
@@ -79,7 +79,7 @@
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "rollup": "^1.16.7",
+    "rollup": "^1.28.0",
     "standard": "^14.3.1",
     "stylelint": "^10.1.0",
     "uglify-es": "^3.3.9"

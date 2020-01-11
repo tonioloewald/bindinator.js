@@ -405,7 +405,7 @@ export default {
     </div>
     `,
   load: ({ b8r, component, findOne, get }) => {
-    const {config: {rowHeight}} = get()
+    const { config: { rowHeight } } = get()
     const rowTemplate = findOne('.t-body > .t-row[data-list]')
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
     rowTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
@@ -499,14 +499,14 @@ export default {
       sortAndFilterRows (rows, filter, listTemplate) {
         const { config: { virtual, sliceModulus, columns, rowFilter }, _previous } = get()
         const column = columns.find(col => col.sortDirection)
-        if (_previous.rows !== rows || !eq(_previous.filter,filter)) {
+        if (_previous.rows !== rows || !eq(_previous.filter, filter)) {
           _previous.filtered = null
         }
         const filtered = _previous.filtered || rowFilter(rows, filter) || []
         if (
-          !_previous.filtered || 
-          column !== _previous.column || 
-          column && column.sortDirection !== _previous.column.sortDirection
+          !_previous.filtered ||
+          column !== _previous.column ||
+          (column && column.sortDirection !== _previous.column.sortDirection)
         ) {
           _previous.sorted = null
         }

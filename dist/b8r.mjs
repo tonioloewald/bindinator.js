@@ -619,6 +619,7 @@ const assignValues = (object, ancestor) => {
 };
 
 var _iterators = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   makeArray: makeArray,
   last: last,
   forEach: forEach,
@@ -1008,6 +1009,7 @@ const cssVar = (element, name, value) => {
 };
 
 var _dom = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   isVisible: isVisible,
   isInView: isInView,
   rectsOverlap: rectsOverlap,
@@ -2170,6 +2172,7 @@ const _typeSafe = (func, paramTypes, resultType) => {
 const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function');
 
 var _byExample = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   describe: describe,
   specificTypeMatch: specificTypeMatch,
   describeType: describeType,
@@ -2358,6 +2361,7 @@ const jsonp = (url, callbackParam = 'callback', timeout = 2000) => {
 const ajaxRequestsInFlight = () => _requestsInFlight;
 
 var _ajax = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   ajax: ajax,
   xml: xml,
   json: json,
@@ -2505,6 +2509,7 @@ const throttle = (origFn, minInterval) => {
 const AsyncFunction = async function () {}.constructor;
 
 var _functions = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   AsyncFunction: AsyncFunction,
   debounce: debounce,
   throttle: throttle
@@ -4152,6 +4157,7 @@ const _getByPath = (model, path) =>
   get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
 
 var _registry = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   onTypeError: onTypeError,
   offTypeError: offTypeError,
   get: get,
@@ -5745,6 +5751,7 @@ const sortDescending = (a, b) =>
     ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
 
 var _sort = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   sortAscending: sortAscending,
   sortDescending: sortDescending
 });
@@ -5854,6 +5861,7 @@ const fromMethod = (element, path) => {
 };
 
 var fromTargets$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   value: value,
   checked: checked,
   selected: selected,
@@ -6392,6 +6400,7 @@ const dispatch$1 = (target, type) => {
 };
 
 var webComponents = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   fragment: fragment$1,
   makeElement: makeElement,
   makeWebComponent: makeWebComponent,

@@ -21,8 +21,8 @@
 
   --focus-outline: none;
   --shadow-outline: 0 0 0 1px var(--black-10);
-  --shadow-outline-hover: 0 0 0 1px var(--black-20);
-  --shadow-outline-active: 0 0 0 1px var(--black-40);
+  --shadow-hover-outline: 0 0 0 1px var(--black-20);
+  --shadow-active-outline: 0 0 0 1px var(--back-40);
 
   --bg-color: aliceblue;
   --content-bg-color: #ddd;
@@ -401,7 +401,7 @@ button:focus, .button:focus,
 button.cancel:focus, .button.cancel:focus,
 button.default:focus, .button.default:focus {
   background-color: var(--light-accent-color);
-  box-shadow: var(--shadow-outline-hover);
+  box-shadow: var(--shadow-hover-outline);
 }
 
 button:active, .button:active,
@@ -409,7 +409,7 @@ button.cancel:active, .button.cancel:active,
 button.default:active, .button.default:active {
   background-color: var(--accent-color);
   color: var(--content-color);
-  box-shadow: var(--shadow-outline-active);
+  box-shadow: var(--shadow-active-outline);
 }
 
 hr {

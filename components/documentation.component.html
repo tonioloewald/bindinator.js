@@ -36,11 +36,6 @@
   }
 
   ._component_ {
-    /*
-    display: grid;
-    grid-template-columns: 10px 180px auto auto 180px 0;
-    grid-template-rows: 64px auto 32px;
-    */
     background-color: var(--bg-color);
   }
 
@@ -361,22 +356,16 @@
 
   var last_component_path;
   function update() {
-    var component_path = parseHash().source
+    var component_path = parseHash().source || get('docs')[0].parts[0].path
     if(component_path !== undefined && component_path === last_component_path) {
       // ignoring hash change within component
       return;
     }
     last_component_path = component_path;
-    if (component_path) {
-      b8r.component('file-viewer').then(viewer => {
-        b8r.removeComponent(content);
-        b8r.insertComponent(viewer, content, {url: component_path});
-      });
-    } else {
-      // FIXME don't do this, behave as though there's a default hash so history behaves nicely
-      b8r.trigger('click', b8r.findOne('.loadable'));
-    }
-
+    b8r.component('file-viewer').then(viewer => {
+      b8r.removeComponent(content);
+      b8r.insertComponent(viewer, content, {url: component_path});
+    });
     markCurrent();
   }
 
