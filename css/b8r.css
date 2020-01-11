@@ -369,10 +369,12 @@ button.cancel, button[type="cancel"] {
 
 .iconic:focus,
 .iconic:hover {
+  box-shadow: none;
   background: var(--white-75);
 }
 
 .iconic:active {
+  box-shadow: none;
   background: var(--content-bg-color);
 }
 
