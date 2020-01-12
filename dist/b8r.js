@@ -640,6 +640,7 @@ const assignValues = (object, ancestor) => {
 };
 
 var _iterators = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   makeArray: makeArray,
   last: last,
   forEach: forEach,
@@ -1029,6 +1030,7 @@ const cssVar = (element, name, value) => {
 };
 
 var _dom = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   isVisible: isVisible,
   isInView: isInView,
   rectsOverlap: rectsOverlap,
@@ -2202,6 +2204,7 @@ const _typeSafe = (func, paramTypes, resultType) => {
 const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function');
 
 var _byExample = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   describe: describe,
   specificTypeMatch: specificTypeMatch,
   describeType: describeType,
@@ -2390,6 +2393,7 @@ const jsonp = (url, callbackParam = 'callback', timeout = 2000) => {
 const ajaxRequestsInFlight = () => _requestsInFlight;
 
 var _ajax = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   ajax: ajax,
   xml: xml,
   json: json,
@@ -2514,27 +2518,114 @@ been called in the last interval.
 
 > If you call f several times within the specified interval, *only the first call will fire*.
 
-    b8r.throttleAndDebounce(method, minInterval_ms) => throttle and debounced function
+    b8r.throttleAndDebounce(method, minInterval_ms) => throttled and debounced function
 
 This combines the two concepts. If called repeatedly, it will not fire more often than once
 per interval, and will fire after the interval has passed since the last call.
+
+~~~~
+const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
+
+Test(async () => {
+  const start = Date.now()
+  await delay(100)
+  return Date.now() - start
+}, 'delay works').shouldBe(100, 20)
+
+Test(async () => {
+  const outcomes = []
+  const boing = debounce((x) => { outcomes.push(x) }, 100)
+  let failed = false
+
+  boing(1)
+  boing(2)
+  boing(3)
+  failed = failed || outcomes.length > 0
+  await delay(130)
+  failed = failed || outcomes[0] !== 3
+  boing(4)
+  boing(5)
+  failed = failed || outcomes.length > 1
+  await delay(130)
+  failed = failed || outcomes[1] !== 5
+  await delay(130)
+  await delay(200)
+  failed = failed || outcomes.length > 2
+  return failed
+}, 'debounce works').shouldBe(false)
+
+Test(async () => {
+  const outcomes = []
+  const buzz = throttle((x) => {
+    outcomes.push(x)
+  }, 100)
+  let failed = false
+  buzz(1)
+  buzz(2)
+  buzz(3)
+  failed = failed || (outcomes[0] !== 1 || outcomes.length !== 1)
+  await delay(130)
+  failed = failed || (outcomes.length !== 1)
+  buzz(4)
+  buzz(5)
+  failed = failed || (outcomes[1] !== 4 || outcomes.length !== 2)
+  await delay(130)
+  failed = failed || (outcomes.length > 2)
+  return failed
+}, 'throttle works').shouldBeJSON(false)
+
+Test(async () => {
+  const outcomes = []
+  const buzz = throttleAndDebounce((x) => {
+    outcomes.push(x)
+  }, 100)
+  let failed = false
+  buzz(1)
+  buzz(2)
+  buzz(3)
+  failed = failed || (outcomes[0] !== 1 || outcomes.length !== 1)
+  await delay(130)
+  failed = failed || (outcomes[1] !== 3 || outcomes.length !== 2)
+  buzz(4)
+  failed = failed || (outcomes[2] !== 4 || outcomes.length !== 3)
+  buzz(5)
+  buzz(6)
+  await delay(200)
+  failed = failed || (outcomes[3] !== 6 || outcomes.length !== 4)
+  await delay(200)
+  failed = failed || (outcomes.length !== 4)
+  return failed
+}, 'throttleAndDebounce works').shouldBeJSON(false)
+~~~~
 */
+
+const delay = (delayMs) => new Promise((resolve, reject) => {
+  setTimeout(resolve, delayMs);
+});
 
 const debounce = (origFn, minInterval) => {
   let debounceId;
   return (...args) => {
     if (debounceId) clearTimeout(debounceId);
-    debounceId = setTimeout(() => origFn(...args), minInterval);
+    debounceId = setTimeout(() => {
+      origFn(...args);
+    }, minInterval);
   }
 };
 
 const throttle = (origFn, minInterval) => {
   let previousCall = Date.now() - minInterval;
+  let inFlight = false;
   return (...args) => {
     const now = Date.now();
-    if (now - previousCall > minInterval) {
-      previousCall = now;
-      origFn(...args);
+    if (!inFlight && now - previousCall >= minInterval) {
+      inFlight = true;
+      try {
+        origFn(...args);
+      } finally {
+        previousCall = now;
+        inFlight = false;
+      }
     }
   }
 };
@@ -2542,13 +2633,17 @@ const throttle = (origFn, minInterval) => {
 const throttleAndDebounce = (origFn, minInterval) => {
   let debounceId;
   let previousCall = Date.now() - minInterval;
+  let inFlight = false;
   return (...args) => {
-    const now = Date.now();
     clearTimeout(debounceId);
-    if (now - previousCall > minInterval) {
-      previousCall = now;
-      origFn(...args);
-      debounceId = setTimeout(() => origFn(...args), minInterval);
+    debounceId = setTimeout(() => origFn(...args), minInterval);
+    if (!inFlight && Date.now() - previousCall >= minInterval) {
+      inFlight = true;
+      try {
+        origFn(...args);
+        inFlight = false;
+        previousCall = Date.now();
+      } finally {}
     }
   }
 };
@@ -2556,8 +2651,10 @@ const throttleAndDebounce = (origFn, minInterval) => {
 const AsyncFunction = async function () {}.constructor;
 
 var _functions = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   AsyncFunction: AsyncFunction,
   debounce: debounce,
+  delay: delay,
   throttle: throttle,
   throttleAndDebounce: throttleAndDebounce
 });
@@ -4204,6 +4301,7 @@ const _getByPath = (model, path) =>
   get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
 
 var _registry = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   onTypeError: onTypeError,
   offTypeError: offTypeError,
   get: get,
@@ -5797,6 +5895,7 @@ const sortDescending = (a, b) =>
     ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
 
 var _sort = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   sortAscending: sortAscending,
   sortDescending: sortDescending
 });
@@ -5906,6 +6005,7 @@ const fromMethod = (element, path) => {
 };
 
 var fromTargets$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   value: value,
   checked: checked,
   selected: selected,
@@ -6444,6 +6544,7 @@ const dispatch$1 = (target, type) => {
 };
 
 var webComponents = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   fragment: fragment$1,
   makeElement: makeElement,
   makeWebComponent: makeWebComponent,
