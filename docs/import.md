@@ -110,7 +110,7 @@ It works like this:
 
     const {bar, baz} = await import('./path/to/foo.js');
 
-**Note**: `default` is treated like a named specific symbol in a dynmically imported
+**Note**: `default` is treated like a **specific export named `default`** in a dynmically imported
 module, so if you wanted everything out of `foo.js` inside `const foo` you'd write:
 
     const foo = (await import('./path/to/foo.js')).default;
@@ -121,20 +121,20 @@ Old way (**no longer works!**):
 
     <script src="path/to/require.js"></script>
     <script>
-      const b8r = require('path/to/b8r.js');
       const foo = require('lib/foo.js');
+      const bar = require('lib/bar.js');
       const {baz} = require('path/to/lurman.js');
       ...
 
 New Way:
 
     <script type="module">
-      import b8r from './path/to/b8r.js';
-      import foo from './lib/foo.js';
-      import {baz} from './path/to/lurman.js';
+      import foo from './lib/foo.js';          // foo has a default export
+      import * as bar from './lib/bar.js';     // bar has no default export
+      import {baz} from './path/to/lurman.js'; // lurman exports baz
       ...
 
-Note that _all import paths need to be relative_, so `require('foo/bar.js')` becomes
+Note that _relative import paths need to start with a `.`_, so `require('foo/bar.js')` becomes
 `import('./foo/bar.js')`.
 
 ## Modernizing Libraries
