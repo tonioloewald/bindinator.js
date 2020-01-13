@@ -251,13 +251,14 @@
   const windows = await import('../lib/windows.js');
   const {configuredTest} = await import('../lib/test.js');
   const {parseHash} = await import('../lib/hash-utils.js');
-
-  var content = findOne('.content');
+  
+  const getSource = () => parseHash().source || get('docs')[0].parts[0].path
+  const content = findOne('.content');
   const nav = findOne('.nav');
 
   function markCurrent() {
     b8r.afterUpdate(() => {
-      const path = window.location.hash.split('=').pop();
+      const path = getSource()
       get('docs').forEach(section => {
         section.parts.forEach(part => {
           part._current = part.path === path
@@ -356,7 +357,7 @@
 
   var last_component_path;
   function update() {
-    var component_path = parseHash().source || get('docs')[0].parts[0].path
+    var component_path = getSource()
     if(component_path !== undefined && component_path === last_component_path) {
       // ignoring hash change within component
       return;
