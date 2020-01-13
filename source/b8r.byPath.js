@@ -180,6 +180,9 @@ console.error = error
 /* global console */
 
 // unique tokens passed to set by path to delete or create properties
+
+import { unique } from './uuid.js'
+
 const _delete_ = {}
 const _newObject_ = {}
 
@@ -234,11 +237,17 @@ function buildIdPathValueMap (array, idPath) {
     Object.defineProperty(array, '_b8r_value_maps', { get: () => maps })
   }
   const map = {}
-  array.forEach((item, idx) => {
-    map[getByPath(item, idPath) + ''] = idx
-  })
+  if (idPath === '_auto_') {
+    array.forEach((item, idx) => {
+      if (!item._auto_) item._auto_ = unique()
+      map[item._auto_ + ''] = idx
+    })
+  } else {
+    array.forEach((item, idx) => {
+      map[getByPath(item, idPath) + ''] = idx
+    })
+  }
   array._b8r_value_maps[idPath] = map
-
   return map
 }
 
@@ -251,8 +260,13 @@ function getIdPathMap (array, idPath) {
 }
 
 function keyToIndex (array, idPath, idValue) {
+  idValue = idValue + ''
+  /*
+  if (array.length > 200) {
+    return array.findIndex(a => getByPath(a, idPath) + '' === idValue)
+  } */
   let idx = getIdPathMap(array, idPath)[idValue]
-  if (idx === undefined || getByPath(array[idx], idPath) + '' !== idValue + '') {
+  if (idx === undefined || getByPath(array[idx], idPath) + '' !== idValue) {
     idx = buildIdPathValueMap(array, idPath)[idValue]
   }
   return idx

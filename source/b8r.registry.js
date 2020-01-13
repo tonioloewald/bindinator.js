@@ -199,7 +199,7 @@ Test(
     b8r.set('error-handling-test.number', false)
     b8r.offTypeError(errorHandler)
     return _errors
-  }, 
+  },
   'verify custom handler for type errors works'
 ).shouldBeJSON(["error-handling-test.number was false, expected number"])
 ~~~~

@@ -156,7 +156,7 @@ const throttleAndDebounce = (origFn, minInterval) => {
   let inFlight = false
   return (...args) => {
     clearTimeout(debounceId)
-    debounceId = setTimeout(() => origFn(...args), minInterval)
+    debounceId = setTimeout(async () => origFn(...args), minInterval)
     if (!inFlight && Date.now() - previousCall >= minInterval) {
       inFlight = true
       try {

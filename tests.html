@@ -22,10 +22,11 @@
   .failure {
     background-color: #ffa;
   }
-  .report p {
-    padding: 2px;
+  .report pre {
+    font-family: Menlo, Monaco, monospace;
+    padding: 5px 10px;
     margin: 0;
-    border-bottom: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(128,128,128,0.5);
   }
   [data-bind] {
     display: block;
@@ -211,8 +212,8 @@
       list: [{value: 1}, {value: 2}, {value: 3}],
     }
     b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
-    Test(() => getByPath(obj, '')).shouldBe(obj);
-    Test(() => getByPath(obj, '/')).shouldBe(obj);
+    Test(() => getByPath(obj, '') === obj).shouldBe(true);
+    Test(() => getByPath(obj, '/') === obj).shouldBe(true);
     Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
     Test(() => getByPath(obj, 'sub.prop')).shouldBe(obj.sub.prop);
     Test(() => getByPath(obj, 'sub.list')).shouldBe(obj.sub.list);

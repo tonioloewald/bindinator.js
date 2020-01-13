@@ -90,6 +90,8 @@ import {
 
 import * as webComponents from './web-components.js'
 
+import { unique } from './uuid.js'
+
 const b8r = {}
 const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
@@ -416,7 +418,6 @@ const forEachItemIn = (obj, idPath, func) => {
   }
 }
 
-let idCount = 0 // used to assign unique ids as required
 function bindList (listTemplate) {
   listTemplate.classList.add('-b8r-empty-list')
   if (
@@ -489,7 +490,7 @@ function bindList (listTemplate) {
   if (idPath === '_auto_') {
     for (let i = 0; i < list.length; i++) {
       if (!list[i]._auto_) {
-        list[i]._auto_ = ++idCount
+        list[i]._auto_ = unique()
       }
     }
   }

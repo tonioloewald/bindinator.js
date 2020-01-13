@@ -1,4 +1,56 @@
 /**
+# uuid
+
+A simple method for creading uuids. Usage:
+
+        import {uuid} = from 'path/to/uuid.js';
+        const some_uuid = uuid();
+
+Also provides a simpler `unique` method that returns a unique
+counter every time it's called — for when `uuid()` is overkill.
+
+    import {unique} from 'path/to/uuid.js'
+
+~~~~
+const {uuid, unique} = await import('../source/uuid.js');
+Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
+Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
+Test(() => uuid().length).shouldBe(36);
+Test(() => uuid()).shouldNotBe(uuid());
+Test(() => unique()).shouldNotBe(unique());
+~~~~
+*/
+
+const randomBytes =
+  typeof window === 'undefined'
+    ? () => {
+      const nodeCrypto = require('crypto');
+      return nodeCrypto.randomBytes(16)
+    }
+    : () => {
+      const bs = new Uint8Array(16);
+      window.crypto.getRandomValues(bs);
+      return bs
+    };
+
+const uuid = () => {
+  // RFC 4122 version 4
+  const ud = randomBytes();
+  ud[8] = ud[8] >> 2 | (0b10 << 6); // clock_seq_hi_and_reserved
+  ud[6] = ud[6] >> 4 | (0b0100 << 4); // time_hi_and_version
+  let i = 0;
+  return 'xxxx-xx-xx-xx-xxxxxx'.replace(/x/g, () =>
+    (0xf00 | ud[i++]).toString(16).slice(1)
+  )
+};
+
+let counter = 0;
+const unique = () => {
+  counter += 1;
+  return counter
+};
+
+/**
 # Object Path Methods
 Copyright ©2016-2019 Tonio Loewald
 
@@ -177,9 +229,7 @@ Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-
 console.error = error
 ~~~~
 */
-/* global console */
 
-// unique tokens passed to set by path to delete or create properties
 const _delete_ = {};
 const _newObject_ = {};
 
@@ -234,11 +284,17 @@ function buildIdPathValueMap (array, idPath) {
     Object.defineProperty(array, '_b8r_value_maps', { get: () => maps });
   }
   const map = {};
-  array.forEach((item, idx) => {
-    map[getByPath(item, idPath) + ''] = idx;
-  });
+  if (idPath === '_auto_') {
+    array.forEach((item, idx) => {
+      if (!item._auto_) item._auto_ = unique();
+      map[item._auto_ + ''] = idx;
+    });
+  } else {
+    array.forEach((item, idx) => {
+      map[getByPath(item, idPath) + ''] = idx;
+    });
+  }
   array._b8r_value_maps[idPath] = map;
-
   return map
 }
 
@@ -251,8 +307,13 @@ function getIdPathMap (array, idPath) {
 }
 
 function keyToIndex (array, idPath, idValue) {
+  idValue = idValue + '';
+  /*
+  if (array.length > 200) {
+    return array.findIndex(a => getByPath(a, idPath) + '' === idValue)
+  } */
   let idx = getIdPathMap(array, idPath)[idValue];
-  if (idx === undefined || getByPath(array[idx], idPath) + '' !== idValue + '') {
+  if (idx === undefined || getByPath(array[idx], idPath) + '' !== idValue) {
     idx = buildIdPathValueMap(array, idPath)[idValue];
   }
   return idx
@@ -2424,52 +2485,6 @@ const makeStyleSheet = (source, title) => {
 };
 
 /**
-# uuid
-
-A simple method for creading uuids. Usage:
-
-        import {uuid} = from 'path/to/uuid.js';
-        const some_uuid = uuid();
-
-Also provides a simpler `unique` method that returns a unique
-counter every time it's called — for when `uuid()` is overkill.
-
-    import {unique} from 'path/to/uuid.js'
-
-~~~~
-const {uuid, unique} = await import('../source/uuid.js');
-Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
-Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
-Test(() => uuid().length).shouldBe(36);
-Test(() => uuid()).shouldNotBe(uuid());
-Test(() => unique()).shouldNotBe(unique());
-~~~~
-*/
-
-const randomBytes =
-  typeof window === 'undefined'
-    ? () => {
-      const nodeCrypto = require('crypto');
-      return nodeCrypto.randomBytes(16)
-    }
-    : () => {
-      const bs = new Uint8Array(16);
-      window.crypto.getRandomValues(bs);
-      return bs
-    };
-
-const uuid = () => {
-  // RFC 4122 version 4
-  const ud = randomBytes();
-  ud[8] = ud[8] >> 2 | (0b10 << 6); // clock_seq_hi_and_reserved
-  ud[6] = ud[6] >> 4 | (0b0100 << 4); // time_hi_and_version
-  let i = 0;
-  return 'xxxx-xx-xx-xx-xxxxxx'.replace(/x/g, () =>
-    (0xf00 | ud[i++]).toString(16).slice(1)
-  )
-};
-
-/**
 # functions
 
 This module provides convenient access to the `AsyncFunction` constructor.
@@ -2502,84 +2517,96 @@ been called in the last interval.
 This combines the two concepts. If called repeatedly, it will not fire more often than once
 per interval, and will fire after the interval has passed since the last call.
 
+    await b8r.delay(milliseconds, ...args)
+
+`delay` is a simple utility function that resolves after the specified amount of time to
+the args (if any) passed.
+
 ~~~~
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
 Test(async () => {
+  const failures = []
+  const delayMs = Math.random() * 1000 + 1000
+  let outcome
+  outcome = await delay(delayMs, 'foo')
+  if(outcome !== 'foo') failures.push('expected "foo" to be passed through')
   const start = Date.now()
-  await delay(100)
-  return Date.now() - start
-}, 'delay works').shouldBe(100, 20)
+  outcome = await delay(delayMs)
+  if(Date.now() - start - delayMs > 50) failures.push(`delay should be roughly ${delayMs}ms, was ${Date.now() - start}ms`)
+  return failures
+}, 'delay works').shouldBeJSON([])
 
 Test(async () => {
   const outcomes = []
   const boing = debounce((x) => { outcomes.push(x) }, 100)
-  let failed = false
+  const failures = []
 
   boing(1)
   boing(2)
   boing(3)
-  failed = failed || outcomes.length > 0
-  await delay(130)
-  failed = failed || outcomes[0] !== 3
+  if(outcomes.length > 0) failures.push('no boing should have fired yet')
+  await delay(1000)
+  if(outcomes[0] !== 3) failures.push('boing(3) should have fired first')
   boing(4)
   boing(5)
-  failed = failed || outcomes.length > 1
+  if(outcomes.length > 1) failures.push('only one boing should have fired')
   await delay(130)
-  failed = failed || outcomes[1] !== 5
+  if(outcomes[1] !== 5) failures.push('boing(5) should have fired second')
   await delay(130)
   await delay(200)
-  failed = failed || outcomes.length > 2
-  return failed
-}, 'debounce works').shouldBe(false)
+  if(outcomes.length > 2) failures.push('only two boings should ever fire')
+  return failures
+}, 'debounce works').shouldBeJSON([])
 
 Test(async () => {
   const outcomes = []
   const buzz = throttle((x) => {
     outcomes.push(x)
   }, 100)
-  let failed = false
+  const failures = []
+
   buzz(1)
   buzz(2)
   buzz(3)
-  failed = failed || (outcomes[0] !== 1 || outcomes.length !== 1)
+  if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
   await delay(130)
-  failed = failed || (outcomes.length !== 1)
+  if(outcomes.length !== 1) failures.push('no more buzzes should have fired')
   buzz(4)
   buzz(5)
-  failed = failed || (outcomes[1] !== 4 || outcomes.length !== 2)
-  await delay(130)
-  failed = failed || (outcomes.length > 2)
-  return failed
-}, 'throttle works').shouldBeJSON(false)
+  if(outcomes[1] !== 4 || outcomes.length !== 2) failures.push('buzz(4) should have fired second')
+  await delay(200)
+  if(outcomes.length > 2) failures.push('only two buzzes should ever fire')
+  return failures
+}, 'throttle works').shouldBeJSON([])
 
 Test(async () => {
   const outcomes = []
   const buzz = throttleAndDebounce((x) => {
     outcomes.push(x)
   }, 100)
-  let failed = false
+  const failures = []
   buzz(1)
   buzz(2)
   buzz(3)
-  failed = failed || (outcomes[0] !== 1 || outcomes.length !== 1)
+  if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
   await delay(130)
-  failed = failed || (outcomes[1] !== 3 || outcomes.length !== 2)
+  if(outcomes[1] !== 3 || outcomes.length !== 2) failures.push('buzz(3) should have fired via debounce')
   buzz(4)
-  failed = failed || (outcomes[2] !== 4 || outcomes.length !== 3)
+  if(outcomes[2] !== 4 || outcomes.length !== 3) failures.push('buzz(4) should have fired immediately')
   buzz(5)
   buzz(6)
   await delay(200)
-  failed = failed || (outcomes[3] !== 6 || outcomes.length !== 4)
+  if(outcomes[3] !== 6 || outcomes.length !== 4) failures.push('buzz(6) should have fired via debounce')
   await delay(200)
-  failed = failed || (outcomes.length !== 4)
-  return failed
-}, 'throttleAndDebounce works').shouldBeJSON(false)
+  if(outcomes.length > 4) failures.push('no more buzzes should have fired')
+  return failures
+}, 'throttleAndDebounce works').shouldBeJSON([])
 ~~~~
 */
 
-const delay = (delayMs) => new Promise((resolve, reject) => {
-  setTimeout(resolve, delayMs);
+const delay = (delayMs, value) => new Promise((resolve, reject) => {
+  setTimeout(() => resolve(value), delayMs);
 });
 
 const debounce = (origFn, minInterval) => {
@@ -2615,7 +2642,7 @@ const throttleAndDebounce = (origFn, minInterval) => {
   let inFlight = false;
   return (...args) => {
     clearTimeout(debounceId);
-    debounceId = setTimeout(() => origFn(...args), minInterval);
+    debounceId = setTimeout(async () => origFn(...args), minInterval);
     if (!inFlight && Date.now() - previousCall >= minInterval) {
       inFlight = true;
       try {
@@ -3323,7 +3350,7 @@ THe trick is to deal with (a) `Match` instances in the hierarchy and (b) arrays.
 ### Custom Handling of Type Errors
 
 By default, type errors are simply spammed to the console. You can override
-this behavior by using `b8r.onTypeError()` to set your own handler (e.g. to
+this behavior by using `b8r.onTypeError(callback)` to set your own handler (e.g. to
 log the failure or trigger an alarm.) This handler will receiving two arguments:
 
 - `errors` -- an array of descriptions of type failures, and
@@ -3333,24 +3360,30 @@ describing the operation that failed.
 
 For example:
 
-    b8r.onTypeError((errors, action) => {
+    const typeErrorHandler = (errors, action) => {
       b8r.json('/logerror', 'post', {timestamp: Data.now(), action, errors})
-    })
-    b8r.offTypeError() // restores the default error handler
+    }
+    b8r.onTypeError(typeErrorHandler) // adds your type error handler (returns true on success)
+    b8r.offTypeError(typeErrorHandler) // removes the error handler (returns true on success)
 
 ~~~~
-b8r.registerType('error-handling-test', {
-  number: 17
-})
-b8r.register('error-handling-test', {
-  number: 0
-})
-let _errors
-b8r.onTypeError(errors => _errors = errors)
-b8r.set('error-handling-test.number', false)
-Test(() => _errors, 'verify custom handler for type errors works')
-  .shouldBeJSON(["error-handling-test.number was false, expected number"])
-b8r.offTypeError()
+Test(
+  async () => {
+    let _errors
+    const errorHandler = errors => { _errors = errors }
+    b8r.registerType('error-handling-test', {
+      number: 17
+    })
+    b8r.register('error-handling-test', {
+      number: 0
+    })
+    b8r.onTypeError(errorHandler)
+    b8r.set('error-handling-test.number', false)
+    b8r.offTypeError(errorHandler)
+    return _errors
+  },
+  'verify custom handler for type errors works'
+).shouldBeJSON(["error-handling-test.number was false, expected number"])
 ~~~~
 
 ### Component Type Checks (PLANNED)
@@ -3901,12 +3934,19 @@ const touch = (path, sourceElement) => {
 const _defaultTypeErrorHandler = (errors, action) => {
   console.error(`registry type check(s) failed after ${action}`, errors);
 };
-let typeErrorHandler = _defaultTypeErrorHandler;
+let typeErrorHandlers = [_defaultTypeErrorHandler];
 const onTypeError = (callback) => {
-  typeErrorHandler = callback;
+  offTypeError(_defaultTypeErrorHandler);
+  if (typeErrorHandlers.indexOf(callback) === -1) {
+    typeErrorHandlers.push(callback);
+    return true
+  }
+  return false
 };
-const offTypeError = () => {
-  typeErrorHandler = _defaultTypeErrorHandler;
+const offTypeError = (callback) => {
+  const handlerCount = typeErrorHandlers.length;
+  typeErrorHandlers = typeErrorHandlers.filter(f => f !== callback);
+  return typeErrorHandlers.length !== handlerCount - 1
 };
 
 const checkType = (action, name) => {
@@ -3914,7 +3954,7 @@ const checkType = (action, name) => {
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name);
   if (errors.length) {
-    typeErrorHandler(errors, name);
+    typeErrorHandlers.forEach(f => f(errors, name));
   }
 };
 
@@ -6890,7 +6930,6 @@ const forEachItemIn = (obj, idPath, func) => {
   }
 };
 
-let idCount = 0; // used to assign unique ids as required
 function bindList (listTemplate) {
   listTemplate.classList.add('-b8r-empty-list');
   if (
@@ -6963,7 +7002,7 @@ function bindList (listTemplate) {
   if (idPath === '_auto_') {
     for (let i = 0; i < list.length; i++) {
       if (!list[i]._auto_) {
-        list[i]._auto_ = ++idCount;
+        list[i]._auto_ = unique();
       }
     }
   }
