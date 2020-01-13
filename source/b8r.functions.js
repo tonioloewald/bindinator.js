@@ -31,85 +31,96 @@ been called in the last interval.
 This combines the two concepts. If called repeatedly, it will not fire more often than once
 per interval, and will fire after the interval has passed since the last call.
 
+    await b8r.delay(milliseconds, ...args)
+
+`delay` is a simple utility function that resolves after the specified amount of time to
+the args (if any) passed.
+
 ~~~~
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
 Test(async () => {
-  await delay(Math.random() * 5000 + 2000)
+  const failures = []
+  const delayMs = Math.random() * 1000 + 1000
+  let outcome
+  outcome = await delay(delayMs, 'foo')
+  if(outcome !== 'foo') failures.push('expected "foo" to be passed through')
   const start = Date.now()
-  await delay(1000)
-  return Date.now() - start
-}, 'delay works').shouldBe(1000, 50)
+  outcome = await delay(delayMs)
+  if(Date.now() - start - delayMs > 50) failures.push(`delay should be roughly ${delayMs}ms, was ${Date.now() - start}ms`)
+  return failures
+}, 'delay works').shouldBeJSON([])
 
 Test(async () => {
   const outcomes = []
   const boing = debounce((x) => { outcomes.push(x) }, 100)
-  let failed = false
+  const failures = []
 
   boing(1)
   boing(2)
   boing(3)
-  failed = failed || outcomes.length > 0
-  await delay(130)
-  failed = failed || outcomes[0] !== 3
+  if(outcomes.length > 0) failures.push('no boing should have fired yet')
+  await delay(1000)
+  if(outcomes[0] !== 3) failures.push('boing(3) should have fired first')
   boing(4)
   boing(5)
-  failed = failed || outcomes.length > 1
+  if(outcomes.length > 1) failures.push('only one boing should have fired')
   await delay(130)
-  failed = failed || outcomes[1] !== 5
+  if(outcomes[1] !== 5) failures.push('boing(5) should have fired second')
   await delay(130)
   await delay(200)
-  failed = failed || outcomes.length > 2
-  return failed
-}, 'debounce works').shouldBe(false)
+  if(outcomes.length > 2) failures.push('only two boings should ever fire')
+  return failures
+}, 'debounce works').shouldBeJSON([])
 
 Test(async () => {
   const outcomes = []
   const buzz = throttle((x) => {
     outcomes.push(x)
   }, 100)
-  let failed = false
+  const failures = []
+
   buzz(1)
   buzz(2)
   buzz(3)
-  failed = failed || (outcomes[0] !== 1 || outcomes.length !== 1)
+  if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
   await delay(130)
-  failed = failed || (outcomes.length !== 1)
+  if(outcomes.length !== 1) failures.push('no more buzzes should have fired')
   buzz(4)
   buzz(5)
-  failed = failed || (outcomes[1] !== 4 || outcomes.length !== 2)
-  await delay(130)
-  failed = failed || (outcomes.length > 2)
-  return failed
-}, 'throttle works').shouldBeJSON(false)
+  if(outcomes[1] !== 4 || outcomes.length !== 2) failures.push('buzz(4) should have fired second')
+  await delay(200)
+  if(outcomes.length > 2) failures.push('only two buzzes should ever fire')
+  return failures
+}, 'throttle works').shouldBeJSON([])
 
 Test(async () => {
   const outcomes = []
   const buzz = throttleAndDebounce((x) => {
     outcomes.push(x)
   }, 100)
-  let failed = false
+  const failures = []
   buzz(1)
   buzz(2)
   buzz(3)
-  failed = failed || (outcomes[0] !== 1 || outcomes.length !== 1)
+  if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
   await delay(130)
-  failed = failed || (outcomes[1] !== 3 || outcomes.length !== 2)
+  if(outcomes[1] !== 3 || outcomes.length !== 2) failures.push('buzz(3) should have fired via debounce')
   buzz(4)
-  failed = failed || (outcomes[2] !== 4 || outcomes.length !== 3)
+  if(outcomes[2] !== 4 || outcomes.length !== 3) failures.push('buzz(4) should have fired immediately')
   buzz(5)
   buzz(6)
   await delay(200)
-  failed = failed || (outcomes[3] !== 6 || outcomes.length !== 4)
+  if(outcomes[3] !== 6 || outcomes.length !== 4) failures.push('buzz(6) should have fired via debounce')
   await delay(200)
-  failed = failed || (outcomes.length !== 4)
-  return failed
-}, 'throttleAndDebounce works').shouldBeJSON(false)
+  if(outcomes.length > 4) failures.push('no more buzzes should have fired')
+  return failures
+}, 'throttleAndDebounce works').shouldBeJSON([])
 ~~~~
 */
 
-const delay = (delayMs) => new Promise((resolve, reject) => {
-  setTimeout(resolve, delayMs)
+const delay = (delayMs, value) => new Promise((resolve, reject) => {
+  setTimeout(() => resolve(value), delayMs)
 })
 
 const debounce = (origFn, minInterval) => {

@@ -168,7 +168,7 @@ THe trick is to deal with (a) `Match` instances in the hierarchy and (b) arrays.
 ### Custom Handling of Type Errors
 
 By default, type errors are simply spammed to the console. You can override
-this behavior by using `b8r.onTypeError()` to set your own handler (e.g. to
+this behavior by using `b8r.onTypeError(callback)` to set your own handler (e.g. to
 log the failure or trigger an alarm.) This handler will receiving two arguments:
 
 - `errors` -- an array of descriptions of type failures, and
@@ -178,24 +178,30 @@ describing the operation that failed.
 
 For example:
 
-    b8r.onTypeError((errors, action) => {
+    const typeErrorHandler = (errors, action) => {
       b8r.json('/logerror', 'post', {timestamp: Data.now(), action, errors})
-    })
-    b8r.offTypeError() // restores the default error handler
+    }
+    b8r.onTypeError(typeErrorHandler) // adds your type error handler (returns true on success)
+    b8r.offTypeError(typeErrorHandler) // removes the error handler (returns true on success)
 
 ~~~~
-b8r.registerType('error-handling-test', {
-  number: 17
-})
-b8r.register('error-handling-test', {
-  number: 0
-})
-let _errors
-b8r.onTypeError(errors => _errors = errors)
-b8r.set('error-handling-test.number', false)
-Test(() => _errors, 'verify custom handler for type errors works')
-  .shouldBeJSON(["error-handling-test.number was false, expected number"])
-b8r.offTypeError()
+Test(
+  async () => {
+    let _errors
+    const errorHandler = errors => { _errors = errors }
+    b8r.registerType('error-handling-test', {
+      number: 17
+    })
+    b8r.register('error-handling-test', {
+      number: 0
+    })
+    b8r.onTypeError(errorHandler)
+    b8r.set('error-handling-test.number', false)
+    b8r.offTypeError(errorHandler)
+    return _errors
+  }, 
+  'verify custom handler for type errors works'
+).shouldBeJSON(["error-handling-test.number was false, expected number"])
 ~~~~
 
 ### Component Type Checks (PLANNED)
@@ -755,12 +761,19 @@ const touch = (path, sourceElement) => {
 const _defaultTypeErrorHandler = (errors, action) => {
   console.error(`registry type check(s) failed after ${action}`, errors)
 }
-let typeErrorHandler = _defaultTypeErrorHandler
+let typeErrorHandlers = [_defaultTypeErrorHandler]
 export const onTypeError = (callback) => {
-  typeErrorHandler = callback
+  offTypeError(_defaultTypeErrorHandler)
+  if (typeErrorHandlers.indexOf(callback) === -1) {
+    typeErrorHandlers.push(callback)
+    return true
+  }
+  return false
 }
-export const offTypeError = () => {
-  typeErrorHandler = _defaultTypeErrorHandler
+export const offTypeError = (callback) => {
+  const handlerCount = typeErrorHandlers.length
+  typeErrorHandlers = typeErrorHandlers.filter(f => f !== callback)
+  return typeErrorHandlers.length !== handlerCount - 1
 }
 
 const checkType = (action, name) => {
@@ -768,7 +781,7 @@ const checkType = (action, name) => {
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name, true)
   if (errors.length) {
-    typeErrorHandler(errors, name)
+    typeErrorHandlers.forEach(f => f(errors, name))
   }
 }
 
