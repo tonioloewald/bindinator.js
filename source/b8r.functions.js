@@ -31,15 +31,25 @@ been called in the last interval.
 This combines the two concepts. If called repeatedly, it will not fire more often than once
 per interval, and will fire after the interval has passed since the last call.
 
+    await b8r.delay(milliseconds, ...args)
+
+`delay` is a simple utility function that resolves after the specified amount of time to
+the args (if any) passed.
+
 ~~~~
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
 Test(async () => {
-  await delay(Math.random() * 5000 + 2000)
+  const failures = []
+  const delayMs = Math.random() * 1000 + 1000
+  let outcome
+  outcome = await delay(delayMs, 'foo')
+  if(outcome !== 'foo') failures.push('expected "foo" to be passed through')
   const start = Date.now()
-  await delay(1000)
-  return Date.now() - start
-}, 'delay works').shouldBe(1000, 50)
+  outcome = await delay(delayMs)
+  if(Date.now() - start - delayMs > 50) failures.push(`delay should be roughly ${delayMs}ms, was ${Date.now() - start}ms`)
+  return failures
+}, 'delay works').shouldBeJSON([])
 
 Test(async () => {
   const outcomes = []
@@ -50,7 +60,7 @@ Test(async () => {
   boing(2)
   boing(3)
   if(outcomes.length > 0) failures.push('no boing should have fired yet')
-  await delay(130)
+  await delay(1000)
   if(outcomes[0] !== 3) failures.push('boing(3) should have fired first')
   boing(4)
   boing(5)
@@ -109,8 +119,8 @@ Test(async () => {
 ~~~~
 */
 
-const delay = (delayMs) => new Promise((resolve, reject) => {
-  setTimeout(resolve, delayMs)
+const delay = (delayMs, value) => new Promise((resolve, reject) => {
+  setTimeout(() => resolve(value), delayMs)
 })
 
 const debounce = (origFn, minInterval) => {
