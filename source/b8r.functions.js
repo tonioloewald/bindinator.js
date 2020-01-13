@@ -35,10 +35,11 @@ per interval, and will fire after the interval has passed since the last call.
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
 Test(async () => {
+  await delay(Math.random() * 5000 + 2000)
   const start = Date.now()
-  await delay(100)
+  await delay(1000)
   return Date.now() - start
-}, 'delay works').shouldBe(100, 20)
+}, 'delay works').shouldBe(1000, 50)
 
 Test(async () => {
   const outcomes = []
