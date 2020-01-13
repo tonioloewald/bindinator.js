@@ -90,12 +90,15 @@ Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Sa
 *Laziness drives every design decision in b8r*. 
 
 - Get more done with less code.
-- Don't wait for "compiles"
-- Don't learn new mini-languages.
+- Don't wait for "compiles" or "transpiles"; debug the code you wrote
+- Don't learn new domain-specific languages.
 - Don't learn a templating language.
-- Don't use a special debugger. 
-- Write less boilerplate.
-- Don't tell the left hand what the right hand is doing.
+- Don't use a special debugger.
+- Write less boilerplate (almost none!)
+- Don't worry about state management — `b8r` does that for you
+- Don't write lots of "getters" or "selectors" — `b8r` does that for you
+- Don't worry about code-splitting — `b8r` is deeply async and deeply lazy
+- Don't pass props from element to element
 
 And `b8r` is lazy too.
 
