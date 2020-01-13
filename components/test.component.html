@@ -29,14 +29,6 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     background-color: var(--warning-color);
   }
 
-  ._component_ .pending:after {
-    font-family: 'icomoon' !important;
-    content: "\eb26";
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    animation: spin-clockwise 2s infinite linear;
-  }
 
   ._component_ .test-transcript > pre {
     margin: 0;
@@ -44,6 +36,19 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     filter: brightness(0.8);
     background: transparent;
     max-width: initial;
+  }
+
+  ._component_ .test-transcript > .pending {
+    color: var(--warning-color);
+  }
+
+  ._component_ .test-transcript .pending:after {
+    font-family: 'icomoon' !important;
+    content: "\eb26";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    animation: spin-clockwise 2s infinite linear;
   }
 
   ._component_ .test-transcript > pre:hover {
