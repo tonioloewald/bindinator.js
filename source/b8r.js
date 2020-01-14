@@ -623,8 +623,8 @@ const inheritData = element => {
 let componentCount = 0
 const _componentInstances = {}
 b8r.insertComponent = async function (component, element, data) {
-  if (! component) {
-    throw new Error ('insertComponent requires a component')
+  if (!component) {
+    throw new Error('insertComponent requires a component')
   }
   const dataPath = typeof data === 'string' ? data : b8r.getDataPath(element)
   if (!element) {
