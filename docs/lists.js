@@ -238,41 +238,8 @@ The simplest way to implement a virtual list is via paging.
 </div>
 <script>
   const {NameGenerator} = await import('../lib/name-generator.js')
-  const jediNames = new NameGenerator([
-    "Obi Wan Kenobi",
-    "Luke Skywalker",
-    "Yoda",
-    "Mace Windu",
-    "Qui-Gon Jinn",
-    "Saesee Tiin",
-    "Shaaki Ti",
-    "Plo Koon",
-    "Ki Adi Mundi",
-    "Quinlan Vos",
-    "Yaddle",
-    "Even Piell",
-    "Oppo Rancisis",
-    "Adi Gallia",
-    "Yarael Poof",
-    "Eeth Koth",
-    "Depa Billaba",
-    "Jocasta Nu",
-    "Zett Jukassa",
-    "Aayla Secura",
-    "Dooku",
-    "Bultar Swan",
-    "Agen Kolar",
-    "Stass Allie",
-    "Ahsoka Tano",
-    "Asajj Ventress",
-    "Ima Gun Di",
-    "Nahdar Vebb",
-    "Bolla Ropal",
-    "Ord Enisence",
-    "Eekar Oki",
-    "Tera Sinube",
-    "Ky Narec"
-  ])
+  const examples = await b8r.json('../test/jedi-names.json')
+  const jediNames = new NameGenerator(examples)
 
   set({
     nameFilter: '',
@@ -321,7 +288,7 @@ The simplest way to implement a virtual list is via paging.
 
 ## Other Examples
 
-- [Data Table](#source=components/data-table.component.js) component
+- [Data Table](#source=components/data-table.component.js) is a sortable, customizable virtual data-table (powered by Big Grid)
 - [Big Grid](#source=biggrid-test.component.html) is an example of a large virtual grid with fixed-sized elements
 - [Big List](#source=big-list.component.html) is an example of a large virtual table with rows of varying height
 
