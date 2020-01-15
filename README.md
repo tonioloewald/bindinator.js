@@ -124,10 +124,10 @@ In this example `text` is the **target**, `example.name` is the **data-path**. T
 (`example`) is bound to the path via `b8r.register`.
 
 Note the use of an ES6-*like* interpolated string (it doesn't do `eval`, it just looks up paths).
-If a binding does not include `${...}` it is assumed to be a data-path. You can try to change the
+Usually bindings won't contain `${...}` and are treated as bare data-paths. You can try to change the
 binding to `data-bind="text=example.name"` or `data-bind="text=${example.name} says “hi”"`.
 
-You can update data using `b8r.set`, e.g.
+You can update data directly using `b8r.set`, e.g.
 
 ```
 b8r.set('example.name', 'Trump')
@@ -138,7 +138,7 @@ Try it in the **console**!
 ### Interacting with `b8r` in the console
 
 Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own
-`<iframe>`s -- it's all happily running in the same `body`. By default, b8r doesn't
+`<iframe>`s -- it's all happily running in the same `body`. By default, `b8r` doesn't
 leave anything at all in global namespace.
 
 In the `b8r` documentation app I've exposed `b8r` to let you play around. This is 
@@ -151,9 +151,8 @@ console:
 
 One day you might find this trick useful in a pinch!
 
-Note that you need to point the `import()` at the correct version of `b8r` (e.g. if
-you're using the minified version, point at that) — otherwise you won't be able to see
-the registry.
+Note that you need to point the `import()` at the same exact version of `b8r` you're using
+elsewhere — otherwise you won't be able to see the registry.
 
 ### Bind arrays to the DOM with `data-list`
 
