@@ -323,11 +323,7 @@ You could, of course, encapsulate the list as a sub-component in `b8r` too.
 the React version because by doing this you don't end up re-rendering the list 
 every time you type a keystroke in the input field.)
 
-Because `b8r` doesn't provide a really easy way to write inline subcomponents (I've never found
-a need), you'd need to break out a new file or use `b8r`'s slightly ungainly syntax 
-for defining components in pure javascript.
-
-So you'd end up wanting to define a component that looked like this:
+You might end up wanting to define a component that looked like this:
 ```
 <ul>
   <li data-list="_data_:_auto_" data-bind="text=.text"></li>
@@ -350,11 +346,5 @@ This is quite similar to what's going on in React chiefly because the outer comp
 is sharing its _private_ data with the inner component.
 
 That's it!
-
-> #### Post Script
->
-> Since I wrote this comparison, I've made some changes to the **To Do** component. I've
-> implemented the list sorting in a more elegant way and added HistoryManager support 
-> (so you can undo/redo changes).
 
 
