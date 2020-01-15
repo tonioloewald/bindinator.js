@@ -597,7 +597,7 @@ function loadAvailableComponents (element) {
         const name = target.tagName === 'B8R-COMPONENT'
           ? target.name
           : target.dataset.component
-        b8r.insertComponent(name, target)
+        if (name) b8r.insertComponent(name, target)
       }
     })
 }
@@ -623,6 +623,9 @@ const inheritData = element => {
 let componentCount = 0
 const _componentInstances = {}
 b8r.insertComponent = async function (component, element, data) {
+  if (!component) {
+    throw new Error('insertComponent requires a component')
+  }
   const dataPath = typeof data === 'string' ? data : b8r.getDataPath(element)
   if (!element) {
     element = b8r.create('div')

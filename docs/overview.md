@@ -55,7 +55,7 @@ b8r.get('root.list[id=456].name') // 'Mahatma'
 b8r.get('root.list[name=Mahatma].id)') // 456
 ```
 
-## binding data to DOM elements with data-bind
+## binding data to DOM elements with `data-bind`
 
 You bind data to the DOM by:
 
@@ -76,7 +76,7 @@ b8r is designed for an async world!
 </script>
 ```
 
-## binding methods to events with data-event
+## binding methods to events with `data-event`
 
 You bind an event to a method by:
 
@@ -97,7 +97,7 @@ When the event occurs the method is called and passed the event and the element.
 
 Again, it's not important if the event is triggered (slightly) before the handler has been bound to the path. You can bind a path to an event and then bind the method later (e.g. when the code for it becomes available). In fact, if the user clicks the button before the method has been bound to the path, it will call the method when it becomes available.
 
-## binding lists with data-list
+## binding lists with `data-list`
 
 Arrays are bound to the DOM by:
 
@@ -173,7 +173,7 @@ const componentName = makeComponent('component-name', {
 
 This would be saved as, for example, `example.component.html`.
 
-### loading components with <b8r-component>
+### loading components with `<b8r-component>`
 
 The easiest way to insert a `b8r` component is to use a `<b8r-component>` custom element.
 

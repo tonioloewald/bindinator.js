@@ -3,7 +3,7 @@
 :root {
   --body-font-size: 14px;
   --ui-font: var(--body-font-size) system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
-  --code-font: var(--body-font-size) Menlo, Monaco, Monospace;
+  --code-font: 100% Menlo, Monaco, Monospace;
   --heading-weight: 200;
 
   --body-line-height: 20px;
