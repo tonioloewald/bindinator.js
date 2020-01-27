@@ -11,7 +11,7 @@ other contexts.
 The rect's size and position are constrained by exactly two of left / right / width
 and exactly two of top / bottom / height.
 
-By default, the rect is {left: 0, width: 80, top: 0, height: 40}
+By default, the rect is `{left: 0, width: 80, top: 0, height: 40}`
 
 If the `constraints` attribute is omitted then the locks will be hidden.
 
@@ -24,7 +24,7 @@ To see the constraints working, **resize** the preview pane or the entire fiddle
 ```
 <style>
   b8r-editable-rect {
-    border: 1px solid var(--black-40);
+    box-shadow: 0 0 0 1px var(--black-40);
     background: var(--light-accent-color);
   }
 </style>
@@ -64,9 +64,7 @@ export const LockToggle = makeWebComponent('b8r-lock-toggle', {
   attributes: {
     locked: false
   },
-  style: {
-
-  },
+  style: {},
   content: [
     locked.cloneNode(true),
     unlocked.cloneNode(true)
