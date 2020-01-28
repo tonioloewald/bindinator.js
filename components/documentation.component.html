@@ -15,6 +15,7 @@
       width: 100vw;
       height: 100vh;
     }
+
     ._component_ > .content {
       left: 190px;
       overflow-y: scroll;
@@ -25,17 +26,21 @@
     ._component_ > .nav {
       display: none;
     }
+
     ._component_ > .content {
       left: 0;
     }
   }
+
   ._component_ {
     background-color: var(--bg-color);
   }
+
   ._component_ > * {
     position: absolute;
     transition: var(--hover-transition);
   }
+
   ._component_ > .nav {
     top: 0;
     left: 10px;
@@ -48,6 +53,7 @@
     overflow-y: overlay;
     text-align: right;
   }
+
   ._component_ > .content {
     top: 0;
     right: 0;
@@ -56,30 +62,37 @@
     padding: 0;
     background: var(--content-bg-color);
   }
+
   ._component_ > .content > *,
   ._component_ > .nav > * {
     max-width: 100%;
     margin: 6px 12px;
   }
+
   ._component_ > .content img {
     max-width: 100%;
   }
+
   ._component_ > .nav > * {
     margin-left: auto;
     width: 160px;
     text-align: left;
   }
+
   ._component_ > .nav ::-webkit-details-marker {
     color: var(--accent-color);
   }
+
   ._component_ > .content details {
     border: 1px solid var(--bright-accent-color);
     padding: 0 5px;
   }
+
   ._component_ > .content details > pre {
     margin: 0 -5px;
     border-radius: 0;
   }
+
   ._component_ > .content summary {
     margin: 0 -5px;
     padding: 6px 12px;
@@ -87,9 +100,11 @@
     background: var(--bright-accent-color);
     cursor: pointer;
   }
+
   ._component_ > .nav details[open] summary {
     margin: 0 -5px 5px 0;
   }
+
   ._component_ > .nav summary {
     cursor: pointer;
     font-weight: 500;
@@ -97,9 +112,11 @@
     text-transform: uppercase;
     font-size: 12px;
   }
+
   ._component_ > .nav details[open] summary ~ * {
     animation: fade-in var(--hover-transition);
   }
+
   .content h1,
   .content h2,
   .content h3,
@@ -112,21 +129,25 @@
   .content ol {
     max-width: 600px;
   }
+
   .content pre,
   .content pre code {
     background: #272822;
     color: #eee;
   }
+
   .content h1,
   .content h2,
   .content h3 {
     margin-top: 16px;
   }
+
   .content h4,
   .content h5,
   .content h6 {
     margin-top: 8px;
   }
+
   .content blockquote {
     margin: 8px 0;
     padding: 5px 10px 10px 10px;
@@ -134,24 +155,29 @@
     background: var(--pullquote-bg-color);
     border-radius: 6px;
   }
+
   .content blockquote h2,
   .content blockquote h3,
   .content blockquote p {
     margin-left: 10px;
     padding: 0;
   }
+
   .loadable {
     padding: 3px 8px 3px 8px;
     margin: -1px -12px -1px 5px;
     cursor: pointer;
     transition: background-color ease-out 0.25s;
   }
+
   .loadable:hover {
     background-color: var(--white-25);
   }
+
   .loadable.current {
     background-color: var(--content-bg-color);
   }
+
   ._component_ :not([open]) > summary.hasErrors:after,
   ._component_ .loadable.hasErrors:after {
     content: " ";
@@ -168,9 +194,11 @@
     0% {
       opacity: 0.25;
     }
+
     50% {
       opacity: 1;
     }
+
     100% {
       opacity: 0.25;
     }

@@ -16,33 +16,40 @@ them for anything.
     width: 200px;
     border: 1px solid var(--black-10);
   }
+
   .date-component[data-disabled] {
     pointer-events: none;
   }
+
   .date-component-month {
     display: flex;
     text-align: center;
     color: var(--dark-text-color);
     background: var(--bright-accent-color);
   }
+
   .date-component-day-of-week {
     color: var(--faded-text-color);
     background: var(--light-accent-color);
   }
+
   .date-component-body {
     display: flex;
   }
+
   .date-component-body > button {
     padding: 2px;
     box-shadow: none;
     border-radius: 0;
     background: none;
   }
+
   .date-component-days {
     flex-grow: 1;
     position: relative;
     width: 100%;
   }
+
   .date-component-days > * {
     display: inline-block;
     width: 14.28%;
@@ -50,20 +57,25 @@ them for anything.
     padding: 2px;
     cursor: default;
   }
+
   .date-component-days {
     color: var(--accent-color);
   }
+
   .date-component-current-month.date-component-current {
     background: var(--accent-color);
   }
+
   .date-component-month > select {
     flex: 1 1;
   }
+
   .date-component-month > input,
   .date-component-month > select {
     background-color: transparent;
     box-shadow: none;
   }
+
   .date-component-current-month {
     background: var(--input-bg-color);
     color: var(--text-color);

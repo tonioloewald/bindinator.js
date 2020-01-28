@@ -17,6 +17,7 @@ Copyright ©2016-2017 Tonio Loewald
     position: relative;
     overflow: hidden;
   }
+
   .carousel-item {
     position: absolute;
     top: 50%;
@@ -27,21 +28,26 @@ Copyright ©2016-2017 Tonio Loewald
     animation: 1s ease-out fade-in;
     transition: width var(--hover-transition), height var(--hover-transition);
   }
+
   .carousel-item:not(.carousel-current),
   .carousel-item .carousel-drag-handle,
   .carousel-dragging .carousel-item {
     cursor: -webkit-grab;
     cursor: grab;
   }
+
   .carousel-item:not(.carousel-current) * {
     pointer-events: none;
   }
+
   .carousel-target {
     border: 4px solid rgba(0,0,0,0.25);
   }
+
   .carousel-hidden {
     display: none;
   }
+
   .carousel > .carousel-test {
     text-align: center;
     border-radius: 6px;
@@ -49,11 +55,13 @@ Copyright ©2016-2017 Tonio Loewald
     height: 90%;
     padding: 20px;
   }
+
   .carousel > .carousel-test.carousel-current {
     width: 200px;
     height: 100%;
     border: 4px solid rgba(0,0,0,0.5);
   }
+
   .carousel > .carousel-test > button {
     margin: 10px;
   }

@@ -15,12 +15,15 @@ allow selection.
   display: flex;
   align-items: center;
 }
+
 .selector-component > * {
   cursor: pointer;
 }
+
 .selector-component > [data-children] > :not([data-selected]) {
   opacity: 0.5;
 }
+
 .selector-component > [data-children] > * {
   margin: 0 0.25em;
 }

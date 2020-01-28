@@ -18,6 +18,7 @@ of awesome that this works at all.
     max-height: 80vh;
     visibility: hidden;
   }
+
   .fullscreen > .fiddle-header,
   .fullscreen > .fiddle-bodies {
     position: fixed;
@@ -25,22 +26,27 @@ of awesome that this works at all.
     right: 0;
     z-index: 100;
   }
+
   .fullscreen > .fiddle-header {
     top: 0;
     height: 40px;
   }
+
   .fullscreen > .fiddle-bodies {
     top: 40px;
     bottom: 0;
     overflow-y: scroll;
     overflow-y: overlay;
   }
+
   .fiddle-component:not(.minimized) {
     min-height: 228px;
   }
+
   .fiddle-component .resizer-component {
     z-index: 9;
   }
+
   .fiddle-header {
     display: flex;
     padding: 0 var(--narrow-spacing-size);
@@ -50,9 +56,11 @@ of awesome that this works at all.
     align-items: center;
     padding-right: 40px;
   }
+
   .fiddle-header > * {
     line-height: var(--body-line-height);
   }
+
   .fiddle-component .refresh {
     background: none;
     box-shadow: none;
@@ -60,15 +68,19 @@ of awesome that this works at all.
     color: var(--text-color);
     box-shadow: none;
   }
+
   .fiddle-component .refresh:hover {
     opacity: 0.75;
   }
+
   .fiddle-component .refresh:active {
     opacity: 1;
   }
+
   .fiddle-component .sizer-component {
     background: var(--light-accent-color);
   }
+
   .fiddle-bodies {
     min-height: 200px;
     overflow: hidden;
@@ -78,11 +90,13 @@ of awesome that this works at all.
     border-top: 0;
     flex-grow: 1;
   }
+
   .fiddle-bodies > * {
     position: relative;
     min-width: 20%;
     flex: 1 1 auto;
   }
+
   .code {
     font-size: 13px;
     font-family: Menlo, Monaco, monospace;
@@ -92,21 +106,26 @@ of awesome that this works at all.
     white-space: pre-wrap;
     box-sizing: border-box;
   }
+
   .fiddle-component .fiddle-bodies > .resizer-component {
     background: var(--pullquote-bg-color);
     margin: 1px;
   }
+
   .fiddle-component.minimized .fiddle-bodies,
   .fiddle-component.minimized .resizer-component {
     display: none;
   }
+
   .fiddle-header [data-selected] {
     position: relative;
   }
+
   .fiddle-component .maxtoggle-component {
     top: var(--spacing-size);
     right: var(--spacing-size);
   }
+
   .fiddle-component:not(.minimized) .fiddle-header [data-selected]:after {
     content: " ";
     display: block;

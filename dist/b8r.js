@@ -5608,6 +5608,15 @@ purposes);
 Sets the style rule pointer-events to 'none' as appropriate (very simple way of disabling
 the content of an element)
 
+### data\_path
+
+    data-bind="data_path=path.to.dataPath"
+
+You can use this to-target to set the `data-path` attribute of a DOM element
+to a registered value (presumably a path).
+
+**TO DO**: master-detail implementation with single source of truth as example.
+
 ### component
 
     data-bind="component(options)=path.to.options"

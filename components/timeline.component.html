@@ -17,11 +17,15 @@ The component is driven by properties:
 -->
 <style>
   ._component_ .item { transition: var(--hover-transition); }
+
   ._component_:hover .item { opacity: 0.5; }
+
   ._component_:hover .item:hover { opacity: 1; }
+
   ._component_ {
     cursor: default;
   }
+
   ._component_ .year > tspan {
     font-size: 24px;
   }

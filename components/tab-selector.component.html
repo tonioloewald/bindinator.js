@@ -8,23 +8,28 @@ The component's `value` indicates the currently visible tab.
     display: flex;
     flex-direction: column;
   }
+
   .tab-selector-bodies {
     border: 1px solid var(--bright-accent-color);
     flex: 1 1;
     position: relative;
   }
+
   .tab-selector-bodies > * {
     display: none;
   }
+
   .tab-selector-bodies > .tab-selector-current {
     display: block;
     height: 100%;
   }
+
   .tab-selector-tabs {
     display: flex;
     padding-top: 2px;
     z-index: 1;
   }
+
   .tab-selector-tabs > .tab-selector-tab {
     padding: 3px 8px 2px;
     display: inline-block;
@@ -39,10 +44,12 @@ The component's `value` indicates the currently visible tab.
     overflow: hidden;
     transition: var(--hover-transition);
   }
+
   .tab-selector-tabs > .tab-selector-tab:hover {
     flex-shrink: 0;
     background-color: var(--light-accent-color);
   }
+
   .tab-selector-tabs > .tab-selector-tab.tab-selector-current {
     flex-shrink: 0;
     background-color: var(--content-bg-color);

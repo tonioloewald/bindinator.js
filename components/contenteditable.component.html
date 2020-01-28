@@ -9,12 +9,14 @@ The key point is that you can bind to this component's `value` and it should wor
     display: inline-block;
     vertical-align: middle;
   }
+
   .contenteditable-component > div {
     width: 150px;
     white-space: nowrap;
     overflow: hidden;
     display: inline-block;
   }
+
   .contenteditable-component > div:empty[data-placeholder]:after {
     content: attr(data-placeholder);
     position: absolute;

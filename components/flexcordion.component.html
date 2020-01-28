@@ -7,9 +7,11 @@ Copyright ©2016-2017 Tonio Loewald
     display: flex;
     min-height: 400px;
   }
+
   .flexcordion.column {
     flex-direction: column;
   }
+
   .flexcordion > .sample {
     text-align: center;
     font-size: 128px;
@@ -21,18 +23,22 @@ Copyright ©2016-2017 Tonio Loewald
     box-sizing: border-box;
     cursor: default;
   }
+
   .flexcordion.column > * {
     width: 100%;
     height: 16px;
   }
+
   .flexcordion > * {
     transition: 0.5s ease-out;
     animation: fade-in 1s;
   }
+
   .flexcordion > *:hover {
     width: 64px;
     border-color: yellow;
   }
+
   .flexcordion > .current {
     flex-grow: 1;
   }

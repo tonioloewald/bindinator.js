@@ -9,21 +9,25 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   ._component_ .tab-selector-tabs {
     background: var(--bright-accent-color);
   }
+
   ._component_ .tab-selector-bodies {
     font-family: Menlo, Monaco, monospace;
     font-size: 12px;
     border: 0;
   }
+
   ._component_ > details {
     width: 100%;
     height: 100%;
   }
+
   ._component_ .pending {
     color: var(--dark-text-color);
     background-color: var(--content-bg-color);
     position: relative;
     background-color: var(--warning-color);
   }
+
   ._component_ .test-transcript > pre {
     margin: 0;
     padding: 5px;
@@ -31,9 +35,11 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     background: transparent;
     max-width: initial;
   }
+
   ._component_ .test-transcript > .pending {
     color: var(--warning-color);
   }
+
   ._component_ .test-transcript .pending:after {
     font-family: 'icomoon' !important;
     content: "\eb26";
@@ -42,12 +48,15 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     right: 5px;
     animation: spin-clockwise 2s infinite linear;
   }
+
   ._component_ .test-transcript > pre:hover {
     filter: brightness(1);
   }
+
   ._component_ .test-transcript > .success {
     color: var(--ok-color);
   }
+
   ._component_ .test-transcript > .failure {
     color: var(--text-color);
     background-color: var(--error-color);
@@ -56,17 +65,21 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
   }
+
   ._component_ .tab-selector-bodies > * {
     padding: 5px;
     margin: 0;
   }
+
   ._component_ .tab-selector-component {
     margin: 0 -6px;
   }
+
   ._component_ summary button {
     float: right;
     margin: -4px -10px;

@@ -12,6 +12,7 @@ any given time.
   ._component_ {
     position: relative;
   }
+
   .biglist-viewport {
     overflow-y: scroll;
     position: relative;
@@ -19,19 +20,23 @@ any given time.
     opacity: 1;
     border: 1px solid rgba(0,0,0,0.1);
   }
+
   .fullscreen #example .biglist-viewport {
     height: 100%;
   }
+
   .biglist-visible-items {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
   }
+
   .biglist-visible-items > * {
     border-bottom: 1px solid var(--light-accent-color);
     box-sizing: border-box;
   }
+
   .biglist-info {
     position: absolute;
     bottom: 0;
@@ -40,6 +45,7 @@ any given time.
     background-color: var(--dark-accent-color);
     padding: 2px 6px;
   }
+
   .selected {
     background-color: var(--bright-accent-color);
   }

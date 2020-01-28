@@ -8,6 +8,7 @@
     position: relative;
     color: white;
   }
+
   .joystick-component {
     width: 128px;
     height: 128px;
@@ -17,9 +18,11 @@
     bottom: 16px;
     left: 16px;
   }
+
   .joystick-component:hover {
     background: rgba(255,255,255,0.1);
   }
+
   .joystick-knob {
     position: absolute;
     width: 48px;
@@ -30,17 +33,21 @@
     border-radius: 999px;
     background: rgba(255,255,255,0.1);
   }
+
   .joystick-component:hover .joystick-knob {
     background: rgba(255,255,255,0.2);
   }
+
   .joystick-component:active .joystick-knob {
     background: rgba(255,255,255,0.45);
   }
+
   .joystick-component[title="right"] {
     top: 16px;
     left: auto;
     right: 16px;
   }
+
   .game-button-component {
     width: 64px;
     height: 64px;
@@ -50,34 +57,44 @@
     border-radius: 999px;
     background: rgba(255,255,255,0.05);
   }
+
   .game-button-component:hover {
     background: rgba(255,255,255,0.25);
   }
+
   .game-button-component:active {
     background: rgba(255,255,255,0.5);
   }
+
   .game-button-component[title="alt_fire"] {
     right: 96px;
   }
+
   .game-button-component[title="toggle_test"] {
     bottom: 96px;
   }
+
   .game-button-component[title="toggle_test_2"] {
     right: 96px;
     bottom: 96px;
   }
+
   .game-button-component[title^="justify"] {
     bottom: 176px;
   }
+
   .game-button-component[title="justify_left"] {
     right: 176px;
   }
+
   .game-button-component[title="justify_center"] {
     right: 96px;
   }
+
   .game-button-component[title="justify_right"] {
     right: 16px;
   }
+
   .game-button-component > * {
     position: absolute;
     display: block;
@@ -92,10 +109,12 @@
     transition: 0.1s;
     opacity: 0.25;
   }
+
   .game-button-component:active > *,
   .game-button-component.game-button-toggle-on > * {
     opacity: 0.5;
   }
+
   .game-button-component.game-button-toggle-on:after {
     content: " ";
     display: block;

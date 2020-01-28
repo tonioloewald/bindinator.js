@@ -16,29 +16,35 @@ launches child windows that are synced to `kitchen-sink-demo`.
     border: 1px solid rgba(0,0,0,0.25);
     background: var(--content-bg-color);
   }
+
   body {
     overflow: hidden;
   }
+
   body > .kitchen-sink-component {
     border: 0;
     background-color: var(--content-bg-color);
     display: flex;
     flex-direction: column;
   }
+
   .kitchen-sink-component .menubar-component,
   .kitchen-sink-component .toolbar-component {
     flex-grow: 0;
     flex-shrink: 0;
   }
+
   .kitchen-sink-component .kitchen-sink-content {
     flex: 1 1 auto;
     overflow-y: scroll;
     overflow-y: overlay;
     padding: 8px;
   }
+
   .kitchen-sink-content > hr {
     margin: 8px -8px;
   }
+
   .video-with-still,
   .video-with-still+canvas {
     width: 480px;
@@ -46,9 +52,11 @@ launches child windows that are synced to `kitchen-sink-demo`.
     object-fit: cover;
     position: relative;
   }
+
   .kitchen-sink-component label > a {
     margin-right: 8px;
   }
+
   .kitchen-sink-component .icon-eye-blocked2 {
     opacity: 0.5;
   }

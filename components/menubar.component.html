@@ -9,15 +9,19 @@
     border-bottom: 1px solid var(--black-10);
     box-sizing: border-box;
   }
+
   ul.menubar-component {
     max-width: initial;
   }
+
   .menubar-component a {
     border: none;
   }
+
   .menubar-component [data-shortcut] {
     padding-right: 40px;
   }
+
   .menubar-component [data-shortcut]:after {
     content: attr(title);
     display: block;
@@ -26,10 +30,12 @@
     right: 4px;
     color: var(--accent-color);
   }
+
   .menubar-component * {
     box-sizing: border-box;
     transition: 0.1s;
   }
+
   .menubar-component li {
     position: relative;
     cursor: default;
@@ -41,12 +47,15 @@
     white-space: nowrap;
     min-width: 40px;
   }
+
   .menubar-component li.open {
     background-color: var(--light-accent-color);
   }
+
   .menubar-component li:active {
     background-color: var(--accent-color);
   }
+
   .menubar-component ul {
     position: absolute;
     padding: 0;
@@ -60,26 +69,32 @@
     box-shadow: 1px 3px 4px 0 rgba(0,0,0,0.5);
     opacity: 0;
   }
+
   .menubar-component ul ul {
     z-index: 1;
     left: 40px;
   }
+
   .menubar-component li.open > ul {
     display: block;
     opacity: 1.0;
   }
+
   .menubar-component li.separator {
     background-color: var(--black-20);
     height: 1px;
     padding: 0;
     margin: 4px 0;
   }
+
   .menubar-component ul li {
     display: flex;
   }
+
   .menubar-component ul li > *:first-child {
     flex-grow: 1;
   }
+
   .menubar-component ul li > *:not(:first-child) {
     margin-left: 8px;
   }
