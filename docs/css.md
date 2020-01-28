@@ -20,7 +20,9 @@ If you create a component named `foo` it will automatically have the class `foo-
 write CSS rules inside the component accordingly.
 
 If you're rigorous about using the component's automatic class in every css rule that is intended to be
-scoped to a component, there should be no leakage. In practice, this is overkill.
+scoped to a component, there should be no leakage. (In practice, this is overkill and you can be more
+relaxed about about selectors, and tighten up rules — e.g. using `>` judiciously — only in a small number
+of cases.)
 
 #### `_component_`
 
@@ -30,10 +32,10 @@ or `<h2 class="_component_-heading">`) which will automatically be  replaced wit
 name after initially writing it _and_ loading a component with a name other than the default (e.g. if
 you're using components from two different libraries that happen to have the same name).
 
-This isn't perfect, of course! (No CSS management strategy seems to be.) In particular, when you
-nest components, it follows that if `foo` contains `bar` that `.foo-component` rules may leak into
-`bar`. Thus, it is often useful to carefully scope your CSS rules based on hierarchy and use
-`_component_` inside longer class names for added specificity, e.g. `_component > h1` or `_component_-heading`.
+This isn't perfect, of course! In particular, when you nest components, it follows that if `foo` contains 
+`bar` that `.foo-component` rules may leak into `bar`. Thus, it is often useful to carefully scope your 
+CSS rules based on hierarchy and use `_component_` inside longer class names for added specificity, 
+e.g. `_component > h1` or `_component_-heading`.
 
 ### css-variables
 
