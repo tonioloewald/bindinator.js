@@ -1,4 +1,4 @@
-# css
+# cascading style sheets
 
 Managing CSS is a serious problem with most complex web applications. `b8r` was designed, from the
 start, to make scoping CSS rules easy and (nearly) foolproof.
