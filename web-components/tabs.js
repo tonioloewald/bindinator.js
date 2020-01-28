@@ -68,6 +68,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       flex: '1 1 50%',
       display: 'flex',
       maxWidth: '50%',
+      color: 'var(--faded-text-color)',
       background: 'var(--light-accent-color)',
       padding: '5px 10px',
       borderRadius: '5px 5px 0 0',
@@ -96,6 +97,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       opacity: 1.0
     },
     '.tabs > .selected': {
+      color: 'var(--text-color)',
       background: 'var(--content-bg-color)',
       zIndex: '2',
       border: '1px solid var(--black-20)',
