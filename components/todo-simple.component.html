@@ -1,12 +1,10 @@
 <!--
 # ToDo (Simple)
-
 This example is based on the React "to do" example. It exactly
 mirrors the React example except that instead of rejecting submit
-events if there's no text (which is a UI antipattern), it disables 
+events if there's no text (which is a UI antipattern), it disables
 the submit button if there's no text.
-
-For a comparison of the [ReactJS](https://reactjs.org/) example to this, 
+For a comparison of the [ReactJS](https://reactjs.org/) example to this,
 see [React vs b8r](#source=docs/react.md)
 -->
 <h3>ToDo</h3>
@@ -18,7 +16,7 @@ see [React vs b8r](#source=docs/react.md)
     placeholder="thing to do"
     data-bind="value=_component_.text"
   >
-  <button 
+  <button
     data-bind="enabled_if=_component_.text;text=Add #${_component_.nextItem}"
     data-event="click:_component_.addItem"
   ></button>

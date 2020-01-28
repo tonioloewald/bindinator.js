@@ -1,12 +1,9 @@
 <!--
 # tab-scroller
-
 Tab-scroller is a tab-control for a very big list which keeps the tab selection in sync with
 the scrolling region. It automatically picks up elements with a `data-tab-name` attribute.
-
 Note that it's set up as a vertical scroller. A horizontal equivalent would simply need to check
 scrollLeft and offsetLeft (and, obviously, be styled differently).
-
 The heavy lifting is mostly done by the [animatedScroll](#source=lib/animated-scroll.js) library,
 so making similar components with different attributes should be pretty straightforward.
 -->
@@ -15,32 +12,25 @@ so making similar components with different attributes should be pretty straight
   display: flex;
   overflow: hidden;
 }
-
 .tab-scroller-tabs {
   flex: 0 0 auto;
   position: relative;
-
 }
-
 .tab-scroller-tabs > * {
   cursor: pointer;
 }
-
 .tab-scroller {
   flex: 1 1 auto;
   overflow-y: overlay;
   position: relative;
 }
-
 .tab-scroller-component {
   height: 400px;
 }
-
 .example .tab-scroller {
   padding-left: 10px;
   padding-bottom: 300px;
 }
-
 .example .tab-scroller-tabs {
   background: var(--light-accent-color);
   color: var(--faded-text-color);
@@ -48,29 +38,24 @@ so making similar components with different attributes should be pretty straight
   border-right: 0;
   overflow-y: overlay;
 }
-
 .example .tab-scroller-tabs > * {
   padding: 5px 0 5px 5px;
   transition: var(--hover-transition);
 }
-
 .example .tab-scroller-tabs > *:focus {
   outline: none;
   box-shadow: none;
 }
-
 .example .tab-scroller-tabs > .tab-scroller-active {
   background: var(--content-bg-color);
   color: color(--text-color);
 }
-
 .example .tab-scroller [data-tab-name]:before {
   content: attr(data-tab-name);
   display: block;
   padding: 15px 0 5px;
   font-weight: bold;
 }
-
 .example .tab-scroller-tabs {
   width: 200px;
 }
@@ -103,14 +88,12 @@ so making similar components with different attributes should be pretty straight
 </div>
 <script>
 /* global component, set, get, find, findOne, b8r */
-
   const {
     animatedScroll,
     visible,
     intoView,
   } = await import('../lib/animated-scroll.js');
   const scroller = findOne('.tab-scroller');
-
   if (component.matches('.example')) {
     const dummy_content_list = [];
     for (let i = 0; i < 500; i++) {
@@ -121,11 +104,9 @@ so making similar components with different attributes should be pretty straight
     }
     set({dummy_content_list});
   }
-
   const update_active = () => {
     const tabs = get('tabs');
     if (!tabs.length) return;
-
     let active_index = tabs.length - 1;
     for(let idx = tabs.length - 1; idx >= 0; idx--) {
       const tab = tabs[idx];
@@ -142,7 +123,6 @@ so making similar components with different attributes should be pretty straight
       }
     });
   };
-
   const update_tabs = () => {
     const tabs = find('.tab-scroller [data-tab-name]').map(elt => {
       return {
@@ -155,14 +135,11 @@ so making similar components with different attributes should be pretty straight
     set({tabs});
     update_active();
   };
-
   update_tabs();
-
   const show = (evt, elt) => {
     const tab = b8r.getListInstance(elt);
     animatedScroll(scroller, tab.elt.offsetTop);
   };
-
   set({
     show,
     update_tabs,

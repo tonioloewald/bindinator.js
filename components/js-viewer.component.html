@@ -13,7 +13,6 @@
 /* global findOne, b8r, data */
   const codeElt = findOne('code');
   const {code} = await import('../lib/text-render.js');
-
   if(data.source) {
     code(codeElt, data.source.split('\n').filter(s => s.trim()).join('\n'), 'js');
   } else if (data.url) {

@@ -1,6 +1,5 @@
 <!--
 # Path Browser
-
 A tool for browsing objects.
 -->
 <style>
@@ -8,7 +7,6 @@ A tool for browsing objects.
     margin: 0;
     padding: 0;
   }
-
   .path-browser-component li {
     list-style: none;
     cursor: pointer;
@@ -17,7 +15,6 @@ A tool for browsing objects.
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
   .path-browser-component li:nth-child(2n) {
     background-color: rgba(0,0,0,0.05);
   }
@@ -40,7 +37,6 @@ A tool for browsing objects.
 </ul>
 <script>
 /* global component, b8r, get, set, data, touch */
-
   const {uuid} = await import('../source/uuid.js');
   const {describe} = await import('../source/describe.js');
   const reset = path => {
@@ -50,10 +46,7 @@ A tool for browsing objects.
       list: [],
     });
   };
-
   reset();
-
-
   if (component.matches('.example') && !data.value) {
     b8r.register('object-browser-test', {
       foo: 17,
@@ -75,26 +68,21 @@ A tool for browsing objects.
     });
     set({value: 'object-browser-test'});
   }
-
   set({
     reset,
-
     description: (list, path) => {
       list.splice(0);
       if (!path) { // jshint ignore:line
         return [];
       }
       const obj = b8r.get(path);
-
       if (! get('history').find(item => item.path === path)) {
         get('history').push({path});
         touch('history');
       }
-
       if (obj == null) { // jshint ignore:line
         return [];
       }
-
       if (Array.isArray(obj)) {
         for (let i = 0; i < obj.length; i++) {
           list.push({id: uuid(), key: `[${i}]`, val: describe(obj[i]), path: `${path}[${i}]`});
@@ -107,10 +95,8 @@ A tool for browsing objects.
       } else {
         list.push({id: uuid(), key: typeof obj, val: describe(obj)});
       }
-
       return list;
     },
-
     drill: evt => {
       const obj = b8r.getListInstance(evt.target);
       if (obj.path) set('value', obj.path);

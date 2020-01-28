@@ -1,7 +1,6 @@
 <!--
 # tab-selector
 Copyright ©2016-2017 Tonio Loewald
-
 The component's `value` indicates the currently visible tab.
 -->
 <style>
@@ -9,28 +8,23 @@ The component's `value` indicates the currently visible tab.
     display: flex;
     flex-direction: column;
   }
-
   .tab-selector-bodies {
     border: 1px solid var(--bright-accent-color);
     flex: 1 1;
     position: relative;
   }
-
   .tab-selector-bodies > * {
     display: none;
   }
-
   .tab-selector-bodies > .tab-selector-current {
     display: block;
     height: 100%;
   }
-
   .tab-selector-tabs {
     display: flex;
     padding-top: 2px;
     z-index: 1;
   }
-
   .tab-selector-tabs > .tab-selector-tab {
     padding: 3px 8px 2px;
     display: inline-block;
@@ -45,12 +39,10 @@ The component's `value` indicates the currently visible tab.
     overflow: hidden;
     transition: var(--hover-transition);
   }
-
   .tab-selector-tabs > .tab-selector-tab:hover {
     flex-shrink: 0;
     background-color: var(--light-accent-color);
   }
-
   .tab-selector-tabs > .tab-selector-tab.tab-selector-current {
     flex-shrink: 0;
     background-color: var(--content-bg-color);
@@ -87,18 +79,14 @@ The component's `value` indicates the currently visible tab.
 /* global b8r, findOne, set, get, touch */
 'use strict'
 const bodies = () => b8r.makeArray(findOne('.tab-selector-bodies').children)
-
 function select_tab (which) {
   if (which instanceof Event) {
     which = b8r.listIndex(which.target)
   }
-
   const value = which || 0
-
   set({ value })
   get('tabs').forEach((tab, idx) => tab.active = value === idx)
   touch('tabs')
-
   bodies().forEach((body, idx) => {
     if (value === idx) {
       body.classList.add('tab-selector-current')
@@ -109,13 +97,11 @@ function select_tab (which) {
     }
   })
 }
-
 set({
   tabs: bodies().map(element => { return { name: element.dataset.name || element.getAttribute('name') || element.getAttribute('title') || 'Untitled' } }),
   select_tab,
   next_tab: () => select_tab((get('value') + 1) % get('tabs').length),
   previous_tab: () => select_tab((get('value') + get('tabs').length - 1) % get('tabs').length)
 })
-
 select_tab(get('value'))
 </script>

@@ -1,10 +1,8 @@
 <!--
 # Podcasts
-
-This is a Podcast application implemented using the iTunes 
+This is a Podcast application implemented using the iTunes
 [media search API](https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/)
 and a simple reflection service for consuming RSS feeds.
-
 <a target="_blank" href="#body=components/podcasts">View Standalone</a>
 -->
 <style>
@@ -14,7 +12,6 @@ and a simple reflection service for consuming RSS feeds.
     display: flex;
     font-size: 14px;
   }
-
   /* faux phone frame */
   .example._component_ {
     /* iPhone 11 Pro is 1124 x 2436 @458ppi, corner radius ~40px */
@@ -27,11 +24,9 @@ and a simple reflection service for consuming RSS feeds.
     0.5px 1px 1px 10px #888,
     0 2px 20px 20px var(--shadow-50);
     margin: 40px;
-
     /* fools Safari into less bug rendering path; stops svg clipping error on push-scroll */
     transform: translateX(0px);
   }
-
   .example._component_:after {
     background: url(test/iphone-11-pro.svg);
     content: ' ';
@@ -44,14 +39,12 @@ and a simple reflection service for consuming RSS feeds.
     z-index: 100;
     pointer-events: none;
   }
-
   /* standalone */
   body > ._component_ {
     position: relative;
     width: 100vw;
     height: 100vh;
   }
-
   ._component_ a {
     cursor: default;
     display: inline-block;
@@ -60,29 +53,23 @@ and a simple reflection service for consuming RSS feeds.
     border-radius: 99px;
     background: var(--black-5);
   }
-
   ._component_ a:hover {
     background: var(--black-10);
   }
-
   ._component_ a:active {
     background: var(--black-20);
   }
-
   ._component_ h4 {
     color: var(--text-color);
   }
-
   ._component_ .nowrap {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
   .podcasts h4 {
     text-align: center;
   }
-
   ._component_ > * {
     position: relative;
     padding: 30px 10px;
@@ -91,22 +78,18 @@ and a simple reflection service for consuming RSS feeds.
     flex: 0 0 100%;
     transition: var(--hover-transition);
   }
-
   ._component_[data-panel=podcast] > * {
     transform: translateX(-100%);
   }
-
   ._component_[data-panel=episode] > * {
     transform: translateX(-200%);
   }
-
   ._component_ .search {
     width: 100%;
     border-radius: 99px;
     padding: 5px 15px;
     margin-bottom: 10px;
   }
-
   ._component_ .close {
     cursor: default;
     color: var(--dark-accent-color);
@@ -115,20 +98,17 @@ and a simple reflection service for consuming RSS feeds.
     opacity: 0.75;
     padding: 5px 5px 5px 0;
   }
-
   ._component_ .podcasts > .podcast-summary-component:hover {
     background: var(--black-5);
   }
-
   ._component_ .podcasts > .podcast-summary-component:active {
     background: var(--black-10);
   }
-
   ._component_ .close:hover {
     opacity: 1;
   }
 </style>
-<div 
+<div
   class="podcasts"
 >
   <h4 class="nowrap">Podcasts</h4>
@@ -138,7 +118,7 @@ and a simple reflection service for consuming RSS feeds.
     data-bind="value=_component_.searchTerms"
     data-event="change:_component_.doSearch"
   >
-  <b8r-component 
+  <b8r-component
     name="podcast-summary"
     data-list="_component_.podcasts:collectionId"
     data-event="click:_component_.selectPodcast"
@@ -155,7 +135,6 @@ and a simple reflection service for consuming RSS feeds.
 ></b8r-component>
 <script>
   ['canplaythrough', 'loadstart', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
-
   b8r.makeComponent('podcast-summary', {
     css: `
       ._component_ {
@@ -165,28 +144,23 @@ and a simple reflection service for consuming RSS feeds.
         width: 100%;
         overflow: hidden;
       }
-
       ._component_ > img {
         flex: 0 0 100px;
         margin-right: 10px;
         height: 100px;
       }
-
       ._component_ > div {
         flex: 1 1 auto;
         position: relative;
       }
-
       ._component_ .title {
         margin-top: 5px;
         font-size: 18px;
       }
-
       ._component_ .artist {
         margin-top: 5px;
         font-size: 14px;
       }
-
       ._component_ .tags {
         font-size: 12px;
         margin-top: 20px;
@@ -195,7 +169,6 @@ and a simple reflection service for consuming RSS feeds.
         overflow-x: overlay;
         overflow-y: hidden;
       }
-
       ._component_ .tag {
         display: inline-block;
         background: var(--light-accent-color);
@@ -209,7 +182,7 @@ and a simple reflection service for consuming RSS feeds.
       <div>
         <div class="title nowrap" data-bind="text=.collectionName"></div>
         <div class="artist nowrap">
-          <a 
+          <a
             data-bind="text=.artistName"
             data-event="click:_component_.visitSite"
           ></a>
@@ -228,83 +201,69 @@ and a simple reflection service for consuming RSS feeds.
       })
     }
   })
-
   b8r.makeComponent('podcast-detail', {
     css: `
       ._component_ > p {
         margin: 5px;
       }
-
       ._component_ .description {
         line-height: 1.4;
       }
-
       ._component_ .episode-title {
         flex: 1 1 auto;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
       ._component_ .panel {
         margin: 10px 0;
       }
-
       ._component_ button {
         border: 0;
         background: var(--black-5);
         color: var(--dark-accent-color);
       }
-
       :disabled {
         opacity: 0.2;
         pointer-events: none;
       }
-
       ._component_ button {
         border: 0;
         opacity: 0.8;
       }
-
       ._component_ .on {
         background: var(--accent-color);
         color: var(--text-color);
       }
-
       ._component_ button:hover {
         opacity: 0.9;
       }
-
       ._component_ button:active {
         opacity: 1.0;
       }
-
       ._component_ .podcast-episode-summary-component:hover {
         background: var(--black-5);
       }
-
       ._component_ .podcast-episode-summary-component:active {
         background: var(--black-10);
       }
-
       ._component_ .loading-component {
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translateX(-50%) translateY(-50%) scale(0.5) ;
       }
-
       ._component_ .description {
         font-size: 16px;
       }`,
-    html: `  
+    html: `
       <h4 class="nowrap">
         <span class="close icon-arrow-left" data-event="click:_component_.showPanel" data-panel="library"></span>
         <span data-bind="text=.collectionName"></span>
       </h4>
       <b8r-component name="podcast-summary"></b8r-component>
       <div class="panel">
-        <button 
+        <button
           data-event="click:_component_.toggleSubscribe"
           data-bind="class(on)=.subscribed"
         >
@@ -315,13 +274,12 @@ and a simple reflection service for consuming RSS feeds.
       <b8r-component data-bind="hide_if=.feed" path="components/loading"></b8r-component>
       <p class="description" data-bind="text=.feed.description"></p>
       <b8r-component
-        name="podcast-episode-summary" 
+        name="podcast-episode-summary"
         class="item"
         data-list=".feed.item:_auto_"
         data-event="click:_component_.selectEpisode"
       ></b8r-component>`,
   })
-
   b8r.makeComponent('podcast-episode-summary', {
     css: `
       ._component_ {
@@ -329,20 +287,16 @@ and a simple reflection service for consuming RSS feeds.
         padding: 5px 5px 10px;
         display: block;
       }
-
       ._component_ label {
         color: var(--dark-accent-color);
       }
-
       ._component_ label > * {
         color: var(--text-color);
       }
-
       ._component_ .episode-title {
         font-size: 16px;
         margin: 5px 0;
       }
-
       ._component_ .pubDate,
       ._component_ .duration {
         font-size: 11px;
@@ -361,7 +315,6 @@ and a simple reflection service for consuming RSS feeds.
         </label>
       </div>`,
   })
-
   b8r.makeComponent('podcast-episode', {
     css: `
       ._component_ {
@@ -370,40 +323,32 @@ and a simple reflection service for consuming RSS feeds.
         overflow: hidden;
         color: (--text-color);
       }
-
       ._component_ img {
         max-width: 100%;
       }
-
       ._component_ .description {
         line-height: 1.4;
       }
-
       ._component_ .flexfixed {
         flex: 0 0 auto;
       }
-
       ._component_ .flexible {
         flex: 1 1 auto;
         margin: 0 -10px;
         padding: 0 10px;
         overflow: overlay;
       }
-
       ._component_ [title=position] {
         flex: 0 1 200px;
       }
-
       ._component_ [title="playback rate"] {
         flex: 0 1 100px;
       }
-
       ._component_ .panel {
         display: flex;
         align-items: center;
         justify-content: center;
       }
-
       ._component_ button {
         text-align: center;
         border-radius: 999px;
@@ -412,23 +357,19 @@ and a simple reflection service for consuming RSS feeds.
         font-size: 24px;
         transition: var(--hover-transition);
       }
-
       ._component_ .large-button {
         width: 80px;
         height: 80px;
         font-size: 40px;
       }
-
       ._component_ .player {
         display: flex;
         flex-direction: column;
         overflow: hidden;
       }
-
       ._component_ .flexfixed {
         flex: 0 0 auto;
       }
-
       ._component_ .flexible {
         flex: 1 1 auto;
         overflow: overlay;
@@ -462,7 +403,7 @@ and a simple reflection service for consuming RSS feeds.
             data-bind="enabled_if=_component_.canplay"
             data-event="click:_component_.offsetPosition"
           ></button>
-          <button 
+          <button
             class="large-button"
             data-bind="
               enabled_if=_component_.canplay
@@ -470,7 +411,7 @@ and a simple reflection service for consuming RSS feeds.
             "
             data-event="click:_component_.play"
           ></button>
-          <button 
+          <button
             class="icon-forward3"
             data-offset="30"
             data-bind="enabled_if=_component_.canplay"
@@ -480,7 +421,7 @@ and a simple reflection service for consuming RSS feeds.
         <div class="panel">
           <input
             title="position"
-            type="range" 
+            type="range"
             min="0"
             max="100"
             data-bind="
@@ -530,7 +471,6 @@ and a simple reflection service for consuming RSS feeds.
         })
       }
   })
-
   const childByTagName = (elt, tag) => [...elt.children].find(child => child.tagName === tag)
   const childrenByTagname = (elt, tag) => [...elt.children].filter(child => child.tagName === tag)
   const xmlToJson = (doc, spec) => {
@@ -547,23 +487,20 @@ and a simple reflection service for consuming RSS feeds.
         const child = childByTagName(doc, tagName)
         obj[prop] = child ? val(child) : null
       } else if (typeof val === 'string') {
-        obj[prop] = (childByTagName(doc, tagName) || {}).textContent 
+        obj[prop] = (childByTagName(doc, tagName) || {}).textContent
       } else if (typeof val === 'object') {
         obj[prop] = xmlToJson(childByTagName(doc, tagName), val)
       }
     })
     return obj
   }
-
   const showPanel = (whichPanel, element) => {
     // allow for list computation to finish
     requestAnimationFrame(() => {
       component.dataset.panel = typeof whichPanel === 'string' ? whichPanel : element.dataset.panel
     })
   }
-
   const cleanseText = elt => elt.textContent.replace(/<.+?>/g, '')
-
   const rssSpec = {
     title: 'text',
     'description,itunes:summary': cleanseText,
@@ -592,20 +529,16 @@ and a simple reflection service for consuming RSS feeds.
       }
     ],
   }
-
   const selectPodcast = async (evt, elt) => {
     const {collectionId, feedUrl} = b8r.getListInstance(elt)
-
     set('selectedPodcast', collectionId)
     showPanel('podcast')
-
     const feed = await b8r.xml(`https://bindinator.com/services/?rss=${feedUrl}`)
     set(`podcasts[collectionId=${collectionId}]`, {feed: xmlToJson(feed.querySelector('rss > channel'), rssSpec)})
     // update bug in b8r
     // efficient list updates prevent the list instance from being automatically updated by a late change
     b8r.find('.podcast-detail-component').forEach(b8r.bindAll)
   }
-
   const selectEpisode = (evt, elt) => {
     const collectionId = get('selectedPodcast')
     const podcast = get(`podcasts[collectionId=${collectionId}]`)
@@ -613,7 +546,6 @@ and a simple reflection service for consuming RSS feeds.
     set('selectedEpisode', { podcast, item, paused: true, position: 0 })
     showPanel('episode')
   }
-
   const timeUpdate = (evt, audio) => {
     if (audio.duration > 0) {
       set('selectedEpisode', {
@@ -623,7 +555,6 @@ and a simple reflection service for consuming RSS feeds.
       })
     }
   }
-
   const doSearch = async (searchTerms = '') => {
     if (typeof searchTerms === 'string') {
       set({searchTerms})
@@ -638,17 +569,14 @@ and a simple reflection service for consuming RSS feeds.
     }))
     set({podcasts})
   }
-
   const setPosition = (position) => {
     const audio = findOne('audio')
     audio.currentTime = typeof position === 'number' ? position : parseFloat(get('selectedEpisode.position'))
     audio.play()
   }
-
   const setRate = (rate) => {
     findOne('audio').playbackRate = typeof rate === 'number' ? rate : parseFloat(get('playbackRate'))
   }
-
   set({
     playbackRate: 1,
     searchTerms: '',
@@ -691,6 +619,5 @@ and a simple reflection service for consuming RSS feeds.
       }))
     }
   })
-
   doSearch('NPR')
 </script>

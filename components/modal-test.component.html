@@ -1,7 +1,6 @@
 <!--
 # modal test
 Copyright ©2016-2017 Tonio Loewald
-
 Demonstrates use of modal dialogs.
 -->
 <div>
@@ -47,7 +46,6 @@ register({
       callback: (evt, component, data) => result.textContent = evt.target.matches('.cancel') ? 'user cancelled' : 'user entered: ' + data.text
     }))
   },
-
   custom_dialog: () => {
     b8r.component('reactor-dialog').then(
       (dialog) => b8r.insertComponent(

@@ -5,15 +5,12 @@
     background: var(--black-10);
     max-height: 80vh;
   }
-
   ._component_ > * {
     flex: 1 1 auto;
   }
-
   ._component_ > *+* {
     margin-left: 10px;
   }
-
   ._component_ > :first-child {
     min-width: 300px;
     flex: 0 0 30%;
@@ -21,14 +18,12 @@
     overflow-y: overlay;
     padding-right: 15px;
   }
-
   ._component_ .tab-selector-bodies > * {
     background: var(--content-bg-color);
     margin: 0;
     overflow-y: scroll;
     overflow-y: overlay;
   }
-
   ._component_ .tile {
     display: inline-flex;
     flex-direction: column;
@@ -55,8 +50,8 @@
     </blockquote>
 <pre>// this is a <span>pre</span>
 if (
-  here.find(x => x === Teletubbies) && 
-  shirt.slenderPlasticTag.textContent === myName && 
+  here.find(x =&gt; x === Teletubbies) &amp;&amp;
+  shirt.slenderPlasticTag.textContent === myName &amp;&amp;
   littleAsianChild?.expression === 'blank'
 ) {
   return {canSeeToystore: true, shoppingForInfantNamedJeb: true}
@@ -73,10 +68,10 @@ if (
         </p>
     </details>
     <ol>
-      <li data-list="_component_.list">This is the <span data-bind="text=."> <span>li&gt` in a `&lt;ul</span></li>
+      <li data-list="_component_.list">This is the <span data-bind="text=."> &lt;span&ht;` in a `&lt;ul&ht;</span></li>
     </ol>
     <ol>
-      <li data-list="_component_.list">This is the <span data-bind="text=."> <span>li&gt` in a `&lt;ol</span></li>
+      <li data-list="_component_.list">This is the <span data-bind="text=."> &lt;span&ht;` in a `&lt;ol&ht;</span></li>
     </ol>
   </div>
   <form data-name="Form Controls" style="padding: 10px">
@@ -85,7 +80,7 @@ if (
     <label>a label wrapped around an <span>input</span> <input placeholder="input"></label> <br>
     <label><span>input type="number"</span> <input type="number" min=0 max=100 data-bind="value=_component_.score"></label> <br>
     <label><span>input type="checkbox"</span> <input type="checkbox"></label> <br>
-    <div><span>input type="radio"</span> 
+    <div><span>input type="radio"</span>
       <label data-list="_component_.list">
         <br>
         <input name="selection" type="radio" data-bind="attr(value)=.;value=_component_.selection">
@@ -129,7 +124,6 @@ if (
     date: '1976-04-01',
     color: '#ff0000',
   })
-
   const iconClasses = (await b8r.ajax('icomoon/demo.html'))
     .match(/class="(icon-[^"]+)"/g)
     .map(m => m.match(/"(.*)"/)[1])

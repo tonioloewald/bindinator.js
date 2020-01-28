@@ -15,12 +15,10 @@
   const {domInterval} = await import('../lib/dom-timers.js');
   const {viaTag} = await import('../lib/scripts.js');
   const {Prism} = await viaTag('third-party/prism.min.js');
-
   const code = findOne('code');
   const info = findOne('.info');
   const example = findOne('.example');
   const pre = findOne('pre');
-
   b8r.component('./path-browser');
   b8r.component(data.url, undefined, true).
   then(c => {

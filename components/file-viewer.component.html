@@ -1,10 +1,8 @@
 <!--
 # File-Viewer
 Copyright ©2016-2017 Tonio Loewald
-
 This is a contentless component - in effect it routes to other components
 based on the filename (or specified file_type)
-
 Note that something similar could just as easily be implemented using a component_map
 binding, but for more complex heterogeneous collections, something like this could
 implement a more sophisticated approach
@@ -21,10 +19,8 @@ implement a more sophisticated approach
 <script>
 /* global data, b8r, findOne */
 'use strict'
-
 const { url } = data
 const container = findOne('div')
-
 switch (data.file_type || (data.url.match(/\.(\w+|component\.html)$/) || [])[1]) {
   case 'md':
   case 'markdown':
@@ -32,31 +28,26 @@ switch (data.file_type || (data.url.match(/\.(\w+|component\.html)$/) || [])[1])
       b8r.insertComponent(viewer, container, { url })
     })
     break
-
   case 'html':
     b8r.component('iframe').then(iframe => {
       b8r.insertComponent(iframe, container, { src: url })
     })
     break
-
   case 'component.html':
     b8r.component('component-viewer').then(viewer => {
       b8r.insertComponent(viewer, container, { url: url.match(/^(.*)\.component\.html$/)[1] })
     })
     break
-
   case 'text':
     b8r.component('text-viewer').then(viewer => {
       b8r.insertComponent(viewer, container, { url })
     })
     break
-
   case 'js':
     b8r.component('literate-js-viewer').then(viewer => {
       b8r.insertComponent(viewer, container, { url })
     })
     break
-
   default:
     console.error('unknown file type', { url })
 }

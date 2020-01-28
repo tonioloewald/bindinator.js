@@ -1,15 +1,11 @@
 <!--
 # Mapbox &amp; MODIS Fire Data
-
 This is a super-simple integration of [Mapbox](https://www.mapbox.com).
-
 If the map doesn't load then I've probably exceeded my free quota…
-
-The markers show US (and nearby) 
-[fire data from NASA MODIS](https://earthdata.nasa.gov/earth-observation-data/near-real-time/firms/active-fire-data) 
+The markers show US (and nearby)
+[fire data from NASA MODIS](https://earthdata.nasa.gov/earth-observation-data/near-real-time/firms/active-fire-data)
 (originally I tried showing the data for Australia but there were 6000 entries…)
 Red brighter the red, the more confidence (presumably the more likely it's actualy a fire).
-
 This example also uses the (new) registry entry b8rRequestsInFlight to show when data is loading.
 -->
 <style>
@@ -17,18 +13,15 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
     display: inline-block;
     margin: 5px 0;
   }
-
   ._component_ > label > select {
     text-transform: capitalize;
   }
-
   ._component_ > .map {
     width: 100%;
     min-height: 60vh;
   }
-
   ._component_ > .loading {
-    position: fixed; 
+    position: fixed;
     left: 50%;
     top: 50%;
     transform: translateX(-50%) translateY(-50%);
@@ -38,11 +31,11 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
 </style>
 <label>
   Map Style
-  <select 
+  <select
     data-bind="value=_component_.currentMapStyle"
     data-event="change:_component_.setMapStyle"
   >
-    <option 
+    <option
       data-list="_component_.mapStyles:_auto_"
       data-bind="
         text=.name
@@ -62,16 +55,12 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   const {parseHash, serializeObj} = await import('../lib/hash-utils.js')
   const fireIcon = findOne('svg')
   fireIcon.remove()
-
   viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
   await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
-
   const settings = {
     '@': '38.2641789,-120.5922877,5.8'
   }
-
   Object.assign(settings, parseHash())
-
   set('currentMapStyle', 'mapbox://styles/mapbox/outdoors-v10')
   set('mapStyles', [
     {
@@ -115,7 +104,6 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
       url: 'mapbox://styles/mapbox/navigation-guidance-night-v2'
     },
   ])
-
   const [long, lat, zoom] = settings['@'].split(',').map(parseFloat)
   mapboxgl.accessToken = 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'
   const map = new mapboxgl.Map({
@@ -124,13 +112,10 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
     zoom,
     center: [lat, long],
   })
-
   set('setMapStyle', () => {
     map.setStyle(get('currentMapStyle'))
   })
-
   window._map = map
-
   const updateHash = b8r.debounce(() => {
     const {lng, lat} = map.getCenter()
     const zoom = map.getZoom()
@@ -138,9 +123,7 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
     settings['@'] = `${lat.toFixed(7)},${lng.toFixed(7)},${zoom.toFixed(1)}`
     history.replaceState({}, "map demo", window.location.pathname + '#' + serializeObj(settings));
   }, 100)
-
   map.on('render', updateHash)
-
   console.time('load fire data')
   b8r.ajax('https://bindinator.com/services/?modis').then(csv => {
     console.timeEnd('load fire data')

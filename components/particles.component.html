@@ -10,7 +10,6 @@
     text-align: center;
     position: relative;
   }
-
   canvas.particle-controller {
     z-index: 3;
   }
@@ -43,15 +42,11 @@
 </div>
 <script>
 /* global b8r, get, set, findOne */
-
   const {randomCssColor} = await import('../lib/color.js');
   const {particleController} = await import('../lib/particle-controller.js');
-
   b8r.component('tab-selector');
-
   const canvas = findOne('canvas');
   const g = canvas.getContext('2d');
-
   setInterval(() => {
     g.clearRect(0,0,64,64);
     for(let i = 0; i < 10; i++) {
@@ -70,8 +65,6 @@
       }
     }
   }, 250);
-
-
   set({
     spawnOnMove: false,
     particleCount: 25,

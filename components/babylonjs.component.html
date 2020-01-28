@@ -1,8 +1,6 @@
 <!--
 # babylonjs example
-
 [Babylonjs](http://www.babylonjs.com/) is a 3D engine originally from Microsoft France.
-
 It's an "old school" Javascript library that expects to be included via a script tag.
 -->
 <style>
@@ -18,33 +16,24 @@ It's an "old school" Javascript library that expects to be included via a script
   const {viaTag} = await import('../lib/scripts.js');
   const {BABYLON} = await viaTag('https://cdn.babylonjs.com/babylon.max.js');
   await viaTag('https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js');
-
   const canvas = findOne('canvas');
-
   const engine = new BABYLON.Engine(canvas, true);
-
   const createScene = function () {
     const scene = new BABYLON.Scene(engine);
-
     //Adding a light
     const light = new BABYLON.HemisphericLight();
-
     //Adding an Arc Rotate Camera
     const camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, false);
-
     BABYLON.Mesh.CreateGround("ground1", 0, 0, 0, scene);
-
     // The first parameter can be used to specify which mesh to import. Here we import all meshes
     BABYLON.SceneLoader.Append("./test/", "omnidude.glb", scene, function (newMeshes) {
       scene.activeCamera = null;
       scene.createDefaultCameraOrLight(true);
       scene.activeCamera.attachControl(canvas, false);
     });
-
     return scene;
   }
-
   const scene = createScene();
   engine.runRenderLoop(scene.render.bind(scene));
 </script>

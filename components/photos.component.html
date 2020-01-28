@@ -1,7 +1,6 @@
 <!--
 # photos
 Copyright ©2016-2017 Tonio Loewald
-
 Display a bunch of photos from flickr. Photos are picked based on tags passed via the
 component's "tags" attribute.
 -->
@@ -20,13 +19,11 @@ component's "tags" attribute.
 <script>
   /* global findOne, component, set */
   findOne('img').classList.add(component.getAttribute('img-class') || 'flickr-image')
-
   var feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json'
   if (component.getAttribute('tags')) {
     feed_url += '&tags=fave,' + escape(component.getAttribute('tags'))
   } else {
     feed_url += '&tags=fave,airshow'
   }
-
   b8r.jsonp(feed_url, 'jsoncallback').then(photos => set({photos}))
 </script>

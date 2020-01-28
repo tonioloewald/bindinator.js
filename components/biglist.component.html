@@ -1,13 +1,10 @@
 <!--
 # biglist
 Copyright ©2016-2019 Tonio Loewald
-
 This implements support for arbitrarily large scrolling lists (of items that can be
 constant or variable row height). Only a minimal number of elements are in the DOM at
 any given time.
-
 ## TODO
-
 * fix breakage for efficient list updates (try using :id)
 * efficient list updates should get you nicer selection behavior on scroll
 -->
@@ -15,7 +12,6 @@ any given time.
   ._component_ {
     position: relative;
   }
-
   .biglist-viewport {
     overflow-y: scroll;
     position: relative;
@@ -23,23 +19,19 @@ any given time.
     opacity: 1;
     border: 1px solid rgba(0,0,0,0.1);
   }
-
   .fullscreen #example .biglist-viewport {
     height: 100%;
   }
-
   .biglist-visible-items {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
   }
-
   .biglist-visible-items > * {
     border-bottom: 1px solid var(--light-accent-color);
     box-sizing: border-box;
   }
-
   .biglist-info {
     position: absolute;
     bottom: 0;
@@ -48,7 +40,6 @@ any given time.
     background-color: var(--dark-accent-color);
     padding: 2px 6px;
   }
-
   .selected {
     background-color: var(--bright-accent-color);
   }
@@ -86,19 +77,15 @@ any given time.
   TODO
   - handle items being added to the top/bottom of the list gracefully
 */
-
 /* global findOne, b8r, component, data, set, touch */
 'use strict'
-
 const viewport = findOne('.biglist-viewport')
 const scroller = findOne('.biglist-scroller')
 const visibleItemContainer = findOne('.biglist-visible-items')
-
 set({
   pin: data.pin || component.getAttribute('pin') || 'top',
   minRowHeight: data.minRowHeight || 35
 })
-
 if (!data.list) {
   data.list = []
   for (var i = 0; i < 10000; i++) {
@@ -111,11 +98,9 @@ if (!data.list) {
     })
   }
 }
-
 function clamp (x) {
   return x < 0 ? 0 : (x > 1 ? 1 : x)
 }
-
 function update (specifiedProgress) {
   const rowsToShow = Math.min(data.list.length, Math.floor(viewport.offsetHeight / data.minRowHeight + 2))
   const maxPosition = data.list.length - rowsToShow + 1
@@ -151,12 +136,9 @@ function update (specifiedProgress) {
   const offset = t * pinBottomOffset + (1 - t) * pinTopOffset - (position % 1) * offsetElement.offsetHeight
   visibleItemContainer.style.top = offset + 'px'
 }
-
 function visible (list) {
   return list.slice(data.firstVisibleItem, data.firstVisibleItem + data.rowsToShow)
 }
-
 set({ update, visible })
-
 update(data.pin === 'bottom' ? 1 : 0)
 </script>

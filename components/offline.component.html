@@ -1,8 +1,6 @@
 <!--
 # Offline Component
-
 A simple component for indicating your application is offline.
-
 Ideally it should be loaded as a singleton (e.g. using componentOnce).
 -->
 <style>
@@ -26,20 +24,16 @@ Ideally it should be loaded as a singleton (e.g. using componentOnce).
 <script>
 /* global b8r, component */
 'use strict'
-
 const offline = () => {
   document.body.appendChild(component)
   b8r.show(component)
 }
-
 const online = () => b8r.hide(component)
-
 if (navigator.onLine) {
   online()
 } else {
   offline()
 }
-
 window.addEventListener('offline', offline)
 window.addEventListener('online', online)
 </script>

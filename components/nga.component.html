@@ -1,9 +1,7 @@
 <!--
 # National Gallery of Art
-
-Simple search interface built on the 
+Simple search interface built on the
 [public API for the National Gallery's online collection](https://metmuseum.github.io/).
-
 Try entering "rembrandt" and hitting return (it's a little slow).
 -->
 <style>
@@ -13,14 +11,12 @@ Try entering "rembrandt" and hitting return (it's a little slow).
     border-radius: 4px;
     margin-bottom: 10px;
   }
-
   ._component_ .art-object {
     display: inline-block;
     text-align: center;
     width: 200px;
     margin: 10px;
   }
-
   ._component_ .art-object img {
     max-width: 200px;
     max-height: 200px;
@@ -30,7 +26,7 @@ Try entering "rembrandt" and hitting return (it's a little slow).
   }
 </style>
 <div class="search">
-  <input 
+  <input
     placeholder="Search NGA Collection"
     data-event="change,keyup(Enter):_component_.search"
   >
@@ -39,7 +35,7 @@ Try entering "rembrandt" and hitting return (it's a little slow).
     show_if=_component_.query
   "></span>
   <span data-bind="show_if=_component_.total">
-    <input type="range" 
+    <input type="range"
       min="1"
       data-bind="
         value=_component_.currentPage;
@@ -59,7 +55,6 @@ Try entering "rembrandt" and hitting return (it's a little slow).
 <script>
   const ngaBaseUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/'
   const pageSize = 12
-
   const search = async (evt, target) => {
     const query = escape(target.value)
     if (get('query') === query) return
@@ -77,7 +72,6 @@ Try entering "rembrandt" and hitting return (it's a little slow).
         show()
       })
   }
-  
   const show = async () => {
     const {currentPage, objectIDs} = get()
     const first = (currentPage - 1) * pageSize
@@ -85,7 +79,6 @@ Try entering "rembrandt" and hitting return (it's a little slow).
     objects = await Promise.all(objects).catch(() => set({objects: []}))
     set({objects})
   }
-
   set({
     query: '',
     total: 0,
@@ -94,10 +87,8 @@ Try entering "rembrandt" and hitting return (it's a little slow).
     search,
     show
   })
-
   // const {departments} = await b8r.json(`${ngaBaseUrl}departments`)
   // set ({departments})
-
   // const {objectIDs} = await b8r.json(`${ngaBaseUrl}objects`)
   // set ({objectIDs})
 </script>

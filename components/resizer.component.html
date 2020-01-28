@@ -1,6 +1,5 @@
 <!--
 # resizer
-
 Makes the thing you stick it into resizable.
 -->
 <style>
@@ -17,7 +16,6 @@ Makes the thing you stick it into resizable.
   /* global component */
   const {trackDrag, listenForDragStart} = await import('../lib/track-drag.js')
   const parent = component.parentElement
-
   component.classList.add('icon-dots');
   listenForDragStart(component, (evt) => {
     const style = getComputedStyle(parent)

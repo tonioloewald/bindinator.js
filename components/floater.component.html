@@ -1,9 +1,7 @@
 <!--
 # Floater
 Copyright ©2016-2017 Tonio Loewald
-
 A floating, movable component.
-
 Use the class "floater-title" for the first child to get nice styling.
 -->
 <style>
@@ -14,7 +12,6 @@ Use the class "floater-title" for the first child to get nice styling.
     cursor: move;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)) /* drop shadow for when using corner arrows */;
   }
-
   .floater-close {
     position: absolute;
     top: 4px;
@@ -24,7 +21,6 @@ Use the class "floater-title" for the first child to get nice styling.
     border: 0;
     padding: 0;
   }
-
   .floater-component .floater-title {
     background-color: var(--input-bg-color);
     text-align: center;
@@ -46,15 +42,12 @@ Use the class "floater-title" for the first child to get nice styling.
 </div>
 <script>
 /* global component, on, b8r, console, findOne */
-
   const {removeWithStyle} = await import('../lib/remove-with-style.js');
   on('mousedown', 'floater-controller.start_motion');
   on('close', 'floater-controller.close');
-
   if (component.dataset.hideClose !== undefined) {
     b8r.hide(findOne('.floater-close'));
   }
-
   if(
     !component.style.left && !component.style.right &&
     !component.style.top && !component.style.bottom
@@ -62,15 +55,12 @@ Use the class "floater-title" for the first child to get nice styling.
     component.style.left = '10px';
     component.style.top = '10px';
   }
-
   document.body.appendChild(component);
-
   const remove_menu_arrow = () => {
     for (const c of component.classList)
       if (/^menu-balloon/.test(c))
         component.classList.remove(c);
   };
-
   b8r.set('floater-controller', {
     element: null,
     move: (evt) => {

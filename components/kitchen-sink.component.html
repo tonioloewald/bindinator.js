@@ -1,15 +1,12 @@
 <!--
 # Kitchen Sink Demo
 Copyright ©2016-2019 Tonio Loewald
-
 The big difference between this and most web framework demos is that the majority of the
 "components" are merely standard HTML widgets. The goal is not to fight the browser's
 built-in functionality but augment it.
-
 A number of lightweight components have been provided and "synced" to standard widgets
 to show the ease with which a normal component may be swapped out for a custom component
 when and if the need arises.
-
 Multi-window support is demonstrated by the **spawn window** toolbar button which
 launches child windows that are synced to `kitchen-sink-demo`.
 -->
@@ -19,35 +16,29 @@ launches child windows that are synced to `kitchen-sink-demo`.
     border: 1px solid rgba(0,0,0,0.25);
     background: var(--content-bg-color);
   }
-
   body {
     overflow: hidden;
   }
-
   body > .kitchen-sink-component {
     border: 0;
     background-color: var(--content-bg-color);
     display: flex;
     flex-direction: column;
   }
-
   .kitchen-sink-component .menubar-component,
   .kitchen-sink-component .toolbar-component {
     flex-grow: 0;
     flex-shrink: 0;
   }
-
   .kitchen-sink-component .kitchen-sink-content {
     flex: 1 1 auto;
     overflow-y: scroll;
     overflow-y: overlay;
     padding: 8px;
   }
-
   .kitchen-sink-content > hr {
     margin: 8px -8px;
   }
-
   .video-with-still,
   .video-with-still+canvas {
     width: 480px;
@@ -55,11 +46,9 @@ launches child windows that are synced to `kitchen-sink-demo`.
     object-fit: cover;
     position: relative;
   }
-
   .kitchen-sink-component label > a {
     margin-right: 8px;
   }
-
   .kitchen-sink-component .icon-eye-blocked2 {
     opacity: 0.5;
   }
@@ -325,7 +314,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
   <br>
   <label>
     &lt;b8r-component&gt; loading a slider-numeric
-    <b8r-component 
+    <b8r-component
       name="slider-numeric"
       data-bind="value=kitchen-sink-demo.fuelrods"
     ></b8r-component>
@@ -525,9 +514,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
 </div>
 <script>
 /* global b8r, register, console */
-
   const {isParent, open} = await import('../lib/windows.js');
-
   b8r.component('menubar');
   b8r.component('toolbar');
   b8r.component('slider-numeric');
@@ -541,9 +528,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
   b8r.component('search-field');
   b8r.component('date');
   b8r.component('iso-date');
-
   ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
-
   const video_snapshot = evt => {
     const video = evt.target;
     const canvas = evt.target.nextElementSibling;
@@ -560,9 +545,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
     ctx.drawImage(video, 0, 0, sw, sh, 0, dh * 0.5, dw * 0.5, dh * 0.5);
     ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, dh * 0.5, dw * 0.5, dh * 0.5);
   };
-
   b8r.onAny(['timeupdate'], '_b8r_._update_');
-
   // multi-window support, see windows.js
   if (isParent()) {
     const spawn_window = () => {
@@ -572,10 +555,8 @@ launches child windows that are synced to `kitchen-sink-demo`.
         ['kitchen-sink-demo']
       );
     };
-
     // we only want the parent to be able to spawn new child windows
     register({video_snapshot, spawn_window});
-
     // create a fake dataset once for everyone to share
     b8r.register('kitchen-sink-demo', {
       fuelrods: 17,
@@ -616,7 +597,6 @@ launches child windows that are synced to `kitchen-sink-demo`.
     });
   } else {
     register({video_snapshot});
-
     if (! b8r.get('kitchen-sink-demo')) {
       b8r.register('kitchen-sink-demo', {});
     }

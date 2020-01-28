@@ -14,17 +14,13 @@
   <script type="module">
     import b8r from './source/b8r.js';
     import {isElectron, isNwjs} from './lib/runtime-environment.js';
-
     // for convenience when debugging
     window.b8r = b8r;
-
     // if the # contains 'body=path/to/component' load that
     // othersize load 'components/documentation'
     const component_path = (window.location.hash.match(/\bbody=([^=&]+)/) || [])[1]
                            || 'components/documentation';
-
     const div = b8r.create('div');
-
     requestAnimationFrame(() => {
       // sometimes document.body doesn't exist yet
       document.body.appendChild(div);
@@ -34,7 +30,6 @@
             b8r.insertComponent(c, div);
           });
     });
-
     // debug tools
     b8r.set('_b8r_.toggleDebug', () => {
       if (isNwjs) {

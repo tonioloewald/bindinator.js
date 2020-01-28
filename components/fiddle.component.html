@@ -1,13 +1,10 @@
 <!--
 # Fiddle
 Copyright ©2016-2017 Tonio Loewald
-
 Provides an interactive demo for data.source.
-
 If the source includes an HTML close tag `</....>` then it will be treated as a b8r component,
 otherwise it will be treated as pure javascript, which will be passed a reference to bindinator
 as  `b8r` and the output element as `example`.
-
 This is a simple fiddle-like component editor. It would probably be better (and *easier*) to load the
 component into an iframe (which would isolate it from the documentation app) - it's actually kind
 of awesome that this works at all.
@@ -21,7 +18,6 @@ of awesome that this works at all.
     max-height: 80vh;
     visibility: hidden;
   }
-
   .fullscreen > .fiddle-header,
   .fullscreen > .fiddle-bodies {
     position: fixed;
@@ -29,27 +25,22 @@ of awesome that this works at all.
     right: 0;
     z-index: 100;
   }
-
   .fullscreen > .fiddle-header {
     top: 0;
     height: 40px;
   }
-
   .fullscreen > .fiddle-bodies {
     top: 40px;
     bottom: 0;
     overflow-y: scroll;
     overflow-y: overlay;
   }
-
   .fiddle-component:not(.minimized) {
     min-height: 228px;
   }
-
   .fiddle-component .resizer-component {
     z-index: 9;
   }
-
   .fiddle-header {
     display: flex;
     padding: 0 var(--narrow-spacing-size);
@@ -59,11 +50,9 @@ of awesome that this works at all.
     align-items: center;
     padding-right: 40px;
   }
-
   .fiddle-header > * {
     line-height: var(--body-line-height);
   }
-
   .fiddle-component .refresh {
     background: none;
     box-shadow: none;
@@ -71,19 +60,15 @@ of awesome that this works at all.
     color: var(--text-color);
     box-shadow: none;
   }
-
   .fiddle-component .refresh:hover {
     opacity: 0.75;
   }
-
   .fiddle-component .refresh:active {
     opacity: 1;
   }
-
   .fiddle-component .sizer-component {
     background: var(--light-accent-color);
   }
-
   .fiddle-bodies {
     min-height: 200px;
     overflow: hidden;
@@ -93,13 +78,11 @@ of awesome that this works at all.
     border-top: 0;
     flex-grow: 1;
   }
-
   .fiddle-bodies > * {
     position: relative;
     min-width: 20%;
     flex: 1 1 auto;
   }
-
   .code {
     font-size: 13px;
     font-family: Menlo, Monaco, monospace;
@@ -109,26 +92,21 @@ of awesome that this works at all.
     white-space: pre-wrap;
     box-sizing: border-box;
   }
-
   .fiddle-component .fiddle-bodies > .resizer-component {
     background: var(--pullquote-bg-color);
     margin: 1px;
   }
-
   .fiddle-component.minimized .fiddle-bodies,
   .fiddle-component.minimized .resizer-component {
     display: none;
   }
-
   .fiddle-header [data-selected] {
     position: relative;
   }
-
   .fiddle-component .maxtoggle-component {
     top: var(--spacing-size);
     right: var(--spacing-size);
   }
-
   .fiddle-component:not(.minimized) .fiddle-header [data-selected]:after {
     content: " ";
     display: block;
@@ -206,19 +184,14 @@ of awesome that this works at all.
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
   const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
-
   const code_elt = findOne('.code');
   const container = findOne('[data-title="Example"]');
   let editor;
-
   component.classList.add('maxtoggle-target')
   const maxToggle = b8r.create('b8r-component')
-
   component.classList.add('resizer-target');
-
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
   on('resize', '_component_.resize');
-
   const init_editor = () => {
     editor = ace.edit(code_elt);
     ace.config.set('basePath', '../third-party/ace-src-min-noconflict/');
@@ -229,7 +202,6 @@ of awesome that this works at all.
       useSoftTabs: true
     });
   };
-
   if(data.source) {
     code_elt.textContent = data.source;
     init_editor();
@@ -243,14 +215,12 @@ of awesome that this works at all.
       run();
     });
   }
-
   function indent () {
     if (editor) {
       return true;
     }
     document.execCommand('insertText', false, '  ');
   }
-
   let last_code = '';
   function run() {
     const source = (editor ? editor.getValue() : code_elt.textContent).trim();
@@ -276,7 +246,6 @@ of awesome that this works at all.
     }
     component.style.visibility = 'visible';
   }
-
   function fullscreen() {
     if(component.classList.contains('fullscreen')) {
       component.classList.remove('fullscreen');
@@ -284,7 +253,6 @@ of awesome that this works at all.
       component.classList.add('fullscreen');
     }
   }
-
   register ({
     run,
     fullscreen,

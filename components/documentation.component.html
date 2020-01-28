@@ -1,8 +1,6 @@
 <!--
 # Documentation
-
 `b8r``'s self-hosted documentation used to be a bespoke page. Now it's a component.
-
 ## Features
 - provides a navigation and search interface for all documents in documents.json
 - supports javascript, markdown, and html component files
@@ -17,33 +15,27 @@
       width: 100vw;
       height: 100vh;
     }
-
     ._component_ > .content {
       left: 190px;
       overflow-y: scroll;
       overflow-y: overlay;
     }
   }
-
   @media print {
     ._component_ > .nav {
       display: none;
     }
-
     ._component_ > .content {
       left: 0;
     }
   }
-
   ._component_ {
     background-color: var(--bg-color);
   }
-
   ._component_ > * {
     position: absolute;
     transition: var(--hover-transition);
   }
-
   ._component_ > .nav {
     top: 0;
     left: 10px;
@@ -56,7 +48,6 @@
     overflow-y: overlay;
     text-align: right;
   }
-
   ._component_ > .content {
     top: 0;
     right: 0;
@@ -65,37 +56,30 @@
     padding: 0;
     background: var(--content-bg-color);
   }
-
   ._component_ > .content > *,
   ._component_ > .nav > * {
     max-width: 100%;
     margin: 6px 12px;
   }
-
   ._component_ > .content img {
     max-width: 100%;
   }
-
   ._component_ > .nav > * {
     margin-left: auto;
     width: 160px;
     text-align: left;
   }
-
   ._component_ > .nav ::-webkit-details-marker {
     color: var(--accent-color);
   }
-
   ._component_ > .content details {
     border: 1px solid var(--bright-accent-color);
     padding: 0 5px;
   }
-
   ._component_ > .content details > pre {
     margin: 0 -5px;
     border-radius: 0;
   }
-
   ._component_ > .content summary {
     margin: 0 -5px;
     padding: 6px 12px;
@@ -103,11 +87,9 @@
     background: var(--bright-accent-color);
     cursor: pointer;
   }
-
   ._component_ > .nav details[open] summary {
     margin: 0 -5px 5px 0;
   }
-
   ._component_ > .nav summary {
     cursor: pointer;
     font-weight: 500;
@@ -115,11 +97,9 @@
     text-transform: uppercase;
     font-size: 12px;
   }
-
   ._component_ > .nav details[open] summary ~ * {
     animation: fade-in var(--hover-transition);
   }
-
   .content h1,
   .content h2,
   .content h3,
@@ -132,25 +112,21 @@
   .content ol {
     max-width: 600px;
   }
-
   .content pre,
   .content pre code {
     background: #272822;
     color: #eee;
   }
-
   .content h1,
   .content h2,
   .content h3 {
     margin-top: 16px;
   }
-
   .content h4,
   .content h5,
   .content h6 {
     margin-top: 8px;
   }
-
   .content blockquote {
     margin: 8px 0;
     padding: 5px 10px 10px 10px;
@@ -158,29 +134,24 @@
     background: var(--pullquote-bg-color);
     border-radius: 6px;
   }
-
   .content blockquote h2,
   .content blockquote h3,
   .content blockquote p {
     margin-left: 10px;
     padding: 0;
   }
-
   .loadable {
     padding: 3px 8px 3px 8px;
     margin: -1px -12px -1px 5px;
     cursor: pointer;
     transition: background-color ease-out 0.25s;
   }
-
   .loadable:hover {
     background-color: var(--white-25);
   }
-
   .loadable.current {
     background-color: var(--content-bg-color);
   }
-
   ._component_ :not([open]) > summary.hasErrors:after,
   ._component_ .loadable.hasErrors:after {
     content: " ";
@@ -193,16 +164,13 @@
     background-color: var(--error-color);
     animation: error-blink 2s infinite ease-in-out;
   }
-
   @keyframes error-blink {
     0% {
       opacity: 0.25;
     }
-
     50% {
       opacity: 1;
     }
-
     100% {
       opacity: 0.25;
     }
@@ -218,7 +186,7 @@
       src="images/bindinator-logo-notext-mono.svg"
     >
   </div>
-  <b8r-component 
+  <b8r-component
     data-placeholder="search docs"
     path="./components/search-field"
     data-bind="value=_component_.searchFilter"
@@ -247,15 +215,12 @@
 <script>
 /* jshint latedef:false */
 /* global b8r, alert, component, set, findOne */
-
   const windows = await import('../lib/windows.js');
   const {configuredTest} = await import('../lib/test.js');
   const {parseHash} = await import('../lib/hash-utils.js');
-  
   const getSource = () => parseHash().source || get('docs')[0].parts[0].path
   const content = findOne('.content');
   const nav = findOne('.nav');
-
   function markCurrent() {
     b8r.afterUpdate(() => {
       const path = getSource()
@@ -268,7 +233,6 @@
       touch('docs')
     });
   }
-
   b8r.register('documentation-controller', {
     showDocs: function(evt) {
       if (evt.target.matches('.current')) {
@@ -287,7 +251,6 @@
     },
     alertKeystroke: evt => alert(b8r.keystroke(evt)),
   });
-
   // in the background, we're going to run every test block in every library
   const AsyncFunction = (async () => {}).constructor
   const runTests = async (sectionTitle, partIdx) => {
@@ -310,16 +273,14 @@
           set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
         }
       });
-    }     
+    }
   }
-
   async function buildIndex() {
     set('buildIndex', () => {})
     const items = get('docs').map(doc => doc.parts).flat()
     const start = Date.now()
     await Promise.all(items.map(async (item) => {
       const {path} = item;
-
       if (path.endsWith('.js')) {
         const source = await b8r.ajax(path)
         const headings = (source.match(/^#{1,3}\s*[^\n]+/mg) || [])
@@ -339,7 +300,6 @@
     }))
     console.log('Index built', Date.now() - start)
   }
-
   b8r.json(component.dataset.sourceFiles || 'documentation.json')
      .then(docs => {
         docs.forEach(section => {
@@ -354,7 +314,6 @@
           docs.forEach(section => section.parts.forEach((part, idx) => runTests(section.title, idx)))
         }
       });
-
   var last_component_path;
   function update() {
     var component_path = getSource()
@@ -369,9 +328,7 @@
     });
     markCurrent();
   }
-
   window.addEventListener('hashchange', update);
-
   set({
     year: new Date().getFullYear(),
     searchFilter: '',
@@ -382,7 +339,7 @@
       docs.forEach(section => {
         section._hide = isFiltered
         section.parts.forEach(part => {
-          part._hide = isFiltered 
+          part._hide = isFiltered
             && !part.name.toLocaleLowerCase().includes(searchField)
             && !(part.keywords || []).find(h => h.includes(searchField))
           if (!part._hide) section._hide = false

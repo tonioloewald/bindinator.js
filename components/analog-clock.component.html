@@ -1,7 +1,6 @@
 <!--
 # Analog Clock
-
-Here's an analog version of the clock component. Note that it sets the `aria-label` 
+Here's an analog version of the clock component. Note that it sets the `aria-label`
 and `title` attributes so that it's still accessible.
 -->
 <canvas
@@ -33,7 +32,6 @@ and `title` attributes so that it's still accessible.
     g.lineTo(x1, y1);
     g.stroke();
   };
-
   const update = () => {
     const now = new Date();
     const time_text = now.toLocaleTimeString();

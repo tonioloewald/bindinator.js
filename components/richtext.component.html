@@ -1,14 +1,11 @@
 <!--
 # Rich Text Editor
-
 This is a simple and fairly robust rich text editor. It has all the
 usual issues of contenteditable / execCommand-based rich text editors
 in that it has lots of subtle issues and doesn't accurately reflect
 the selection state in the controls, but at least it's simple.
-
 Adding new commands to it is very easy if you just need to expose
 functionality offered by [document.execCommand](https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand").
-
 > ### To Do
 >
 > - Support dropping images into the document
@@ -21,27 +18,22 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     display: flex;
     flex-direction: column;
   }
-
   .richtext-component .insertion-template {
     display: none;
   }
-
   .richtext-component table {
     border-collapse: collapse;
     width: 100%;
   }
-
   .richtext-component th,
   .richtext-component td {
     min-width: 2em;
     padding: 2px 4px;
   }
-
   .richtext-component table th,
   .richtext-component table td {
     border: 1px dotted var(--black-40);
   }
-
   .fullscreen .richtext-component {
     position: fixed;
     left: 0;
@@ -51,12 +43,10 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     background-color: var(--content-bg-color);
     z-index: 10;
   }
-
   .richtext-component .richtext {
     flex-grow: 1;
     line-height: normal;
   }
-
   .richtext {
     overflow-y: overlay;
     min-height: 200px;
@@ -65,16 +55,13 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     background-color: var(--input-bg-color);
     border: 1px solid var(--black-10);
   }
-
   .richtext:focus {
     box-shadow: none;
   }
-
   .richtext * {
     font-family: Helvetica Neue, Helvetica, Sans-serif;
     color: var(--text-color);
   }
-
   .richtext h1,
   .richtext h2,
   .richtext h3,
@@ -85,14 +72,12 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
   .richtext strong {
     font-weight: bold;
   }
-
   .note {
     display: inline-block;
     border: 0;
     background: var(--light-accent-color);
     padding: 0 4px;
   }
-
   .note:hover:before {
     content: attr(data-note);
     display: block;
@@ -260,20 +245,14 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 <script>
 /* global b8r, findOne, set, get, prompt, on */
 'use strict'
-
 b8r.component('menubar')
 b8r.component('toolbar')
 b8r.component('maxtoggle')
-
 set('filename', 'Untitled.html')
-
 const doc = findOne('.richtext')
 doc.focus()
-
 on('click', '_component_.click')
-
 const new_doc = () => doc.innerHTML = ''
-
 const open_doc = () => {
   const input = b8r.create('input')
   input.setAttribute('type', 'file')
@@ -294,11 +273,9 @@ const open_doc = () => {
   input.click()
   b8r.callMethod('menubar.close')
 }
-
 const all = evt => {
   evt.target.select()
 }
-
 const save_doc = () => {
   const a = b8r.create('a')
   a.setAttribute('download', get('filename') || 'Untitled.html')
@@ -307,7 +284,6 @@ const save_doc = () => {
   a.click()
   b8r.callMethod('menubar.close')
 }
-
 const exec = evt => {
   doc.focus()
   const args = evt.target.closest('[data-command]').dataset.command.split(',')
@@ -317,33 +293,28 @@ const exec = evt => {
     document.execCommand(args[0])
   }
 }
-
 const insert = evt => {
   const template = evt.target.querySelector('.insertion-template').cloneNode(true)
   template.classList.remove('insertion-template')
   const html = template.outerHTML
   document.execCommand('insertHTML', false, html)
 }
-
 const link = () => {
   const url = prompt('Please enter URL')
   if (url) {
     document.execCommand('createLink', false, url)
   }
 }
-
 const note = () => {
   const note = prompt('Please enter note')
   if (note) {
     document.execCommand('insertHTML', false, `<span class="note" contenteditable="false" data-note="${note}">*</span>`)
   }
 }
-
 const passThru = () => {
   doc.focus()
   return true
 }
-
 const select = element => {
   element.normalize()
   const selection = window.getSelection()
@@ -352,10 +323,8 @@ const select = element => {
   selection.removeAllRanges()
   selection.addRange(range)
 }
-
 const tab_key = evt => {
   const selection = document.getSelection()
-
   const cell = selection.anchorNode.closest
     ? selection.anchorNode.closest('td,th')
     : selection.anchorNode.parentElement.closest('td,th')
@@ -369,7 +338,6 @@ const tab_key = evt => {
     }
   }
 }
-
 const click = evt => {
   if (evt.target.matches('.note')) {
     const edited = prompt('Edit Note', evt.target.dataset.note)
@@ -380,6 +348,5 @@ const click = evt => {
     return true
   }
 }
-
 set({ new_doc, open_doc, save_doc, exec, insert, link, all, note, click, tab_key, passThru })
 </script>

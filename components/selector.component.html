@@ -1,17 +1,12 @@
 <!--
 # selector
-
 This is a simple replacement for `<select>` elements.
-
 It lets you select between any children you provide it, and figures
 out their "value" based on the child element's
-
 - value
 - data-value (attribute)
 - textContent
-
 …in that order.
-
 If the children have keyboard navigation set up, hitting space should also
 allow selection.
 -->
@@ -20,15 +15,12 @@ allow selection.
   display: flex;
   align-items: center;
 }
-
 .selector-component > * {
   cursor: pointer;
 }
-
 .selector-component > [data-children] > :not([data-selected]) {
   opacity: 0.5;
 }
-
 .selector-component > [data-children] > * {
   margin: 0 0.25em;
 }
@@ -52,7 +44,6 @@ allow selection.
 const _value = element => element.value !== undefined ? element.value
   : element.dataset.value !== undefined ? element.dataset.value
     : element.textContent
-
     const pick = (_, value) => {
   if (_ instanceof Event) {
     value = get('value')
@@ -75,9 +66,7 @@ const select = evt => {
   const value = _value(evt.target.closest('[data-children] > *'))
   pick(null, value)
 }
-
 const selected = findOne('[data-selected]')
 if (selected && get('value') !== _value(selected)) set('value', _value(selected))
-
 set({ select, pick })
 </script>

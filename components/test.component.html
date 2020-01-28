@@ -1,7 +1,6 @@
 <!--
 # test
 Copyright ©2016-2017 Tonio Loewald
-
 Part of the integrated documentation system. It expects its be passed the module
 being tested (as `_required_`) and the test code. The test code will be executed
 in a private context with `_required_` and `Test` (the test.js module) passed as local variables.
@@ -10,26 +9,21 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   ._component_ .tab-selector-tabs {
     background: var(--bright-accent-color);
   }
-
   ._component_ .tab-selector-bodies {
     font-family: Menlo, Monaco, monospace;
     font-size: 12px;
     border: 0;
   }
-
   ._component_ > details {
     width: 100%;
     height: 100%;
   }
-
   ._component_ .pending {
     color: var(--dark-text-color);
     background-color: var(--content-bg-color);
     position: relative;
     background-color: var(--warning-color);
   }
-
-
   ._component_ .test-transcript > pre {
     margin: 0;
     padding: 5px;
@@ -37,11 +31,9 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     background: transparent;
     max-width: initial;
   }
-
   ._component_ .test-transcript > .pending {
     color: var(--warning-color);
   }
-
   ._component_ .test-transcript .pending:after {
     font-family: 'icomoon' !important;
     content: "\eb26";
@@ -50,39 +42,31 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     right: 5px;
     animation: spin-clockwise 2s infinite linear;
   }
-
   ._component_ .test-transcript > pre:hover {
     filter: brightness(1);
   }
-
   ._component_ .test-transcript > .success {
     color: var(--ok-color);
   }
-
   ._component_ .test-transcript > .failure {
     color: var(--text-color);
     background-color: var(--error-color);
   }
-
   @keyframes test-report-appear {
     from {
       opacity: 0;
     }
-
     to {
       opacity: 1;
     }
   }
-
   ._component_ .tab-selector-bodies > * {
     padding: 5px;
     margin: 0;
   }
-
   ._component_ .tab-selector-component {
     margin: 0 -6px;
   }
-
   ._component_ summary button {
     float: right;
     margin: -4px -10px;
@@ -102,24 +86,19 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
 </details>
 <script>
   /* global findOne, b8r, data, set, component */
-
   const {AsyncFunction} = await import('../source/b8r.functions.js')
   const {code} = await import('../lib/text-render.js')
   const {configuredTest} = await import('../lib/test.js')
-
   b8r.component('tab-selector')
   b8r.component('resizer')
-
   set({
     show: false,
     js: (elt, source) => code(elt, source, 'js'),
   });
-
   const notify_errors = () => {
     b8r.findOne('.literate-errors').style.display = 'block'
     set({show: true})
   };
-
  const onError = () => {
     const test_error = b8r.findOne('.literate-errors')
     if(test_error) notify_errors()
@@ -128,7 +107,6 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     onError,
     reportContainer: findOne('.test-transcript')
   })
-
   const run = async () => {
     try {
       const reportContainer = findOne('.test-transcript')
@@ -140,8 +118,6 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
       Test.report(`test runner threw exception: ${e}`, 'failure')
     }
   }
-
   set({run})
-
   run()
 </script>

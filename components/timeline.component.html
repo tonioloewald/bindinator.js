@@ -1,17 +1,12 @@
 <!--
 # Timeline
-
 A simple example which shows how you can turn an SVG into a dynamic visualization component with
 a few bindings.
-
 In this case a [Sketch](https://www.sketchapp.com/) document was exported as SVG and a few
 attributes added to groups in the exported document. (A few unnecessary tags were removed as well.)
-
 You can extract SVGs from web pages in Chrome using the
 [SVG Crowbar](http://nytimes.github.io/svg-crowbar/) bookmarklet (use the v2).
-
 The component is driven by properties:
-
 - `defaultColor` colors the timeline itself and each item not otherwise colored
 - `heading` (optional) is the heading
 - `history` is a list of items with properties:
@@ -22,22 +17,17 @@ The component is driven by properties:
 -->
 <style>
   ._component_ .item { transition: var(--hover-transition); }
-
   ._component_:hover .item { opacity: 0.5; }
-
   ._component_:hover .item:hover { opacity: 1; }
-
   ._component_ {
     cursor: default;
   }
-
   ._component_ .year > tspan {
     font-size: 24px;
   }
 </style>
 <svg width="100%" viewBox="0 -128 1300 768" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <g class="timeline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-
     <text class="Heading" text-anchor="middle" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="48" font-weight="bold" fill="var(--text-color)">
         <tspan x="600" y="-64" data-bind="text=_component_.heading"></tspan>
     </text>
@@ -98,7 +88,6 @@ The component is driven by properties:
       { time: 2011, below: false, color: 'orange', title: 'Teleportation', info: 'Chinese scientists demonstrate macro teleportation' },
       { time: 2016, below: false, color: 'orange', title: 'Practical', info: 'First reprogrammable quantum computer' },
       { time: 2018, below: false, color: 'orange', title: 'Advancement', info: 'Google BristleCone 72 qubit processor' },
-
       { time: 1960, below: true, color: 'green', title: 'Project Xanadu', info: 'Ted Nelson founds ultimate hypertext project' },
       { time: 1991, below: true, color: 'blue', title: 'Web Invented', info: 'Sir Tim Berners-Lee' },
       { time: 1993, below: true, color: 'purple', title: '<H1> is centered', info: 'HTML 1.2 Internal Draft' },

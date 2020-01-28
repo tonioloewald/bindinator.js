@@ -1,6 +1,5 @@
 <!--
 # mondrian
-
 A component for messing around with the `mondrian.js` layout library.
 -->
 <style>
@@ -9,14 +8,12 @@ A component for messing around with the `mondrian.js` layout library.
     position: relative;
     overflow: hidden;
   }
-
   .mondrian > * {
     object-fit: cover;
     border-radius: 0.5px; /* without this, object-fit is broken in Chrome */
     position: absolute;
     transition: 0.5s ease-out;
   }
-
   .mondrian-label {
     padding: 4px;
     display: inline-block;
@@ -91,17 +88,13 @@ A component for messing around with the `mondrian.js` layout library.
 <script>
 /* jshint latedef:false */
 /* global find, findOne, register, b8r, on, get */
-
   const mondrian = await import('../lib/mondrian.js');
   const resize = await import('../lib/resize.js');
-
   const visible = () => find('.mondrian > *').filter(div => !div.matches('.hidden'));
   const hidden = () => find('.mondrian > .hidden');
   const randomChanges = findOne('.randomChanges');
   const canvas = findOne('canvas');
-
   on('change,update,resize', '_component_.update');
-
   /* test canvas */
   const g = canvas.getContext('2d');
   g.fillStyle = 'red';
@@ -112,7 +105,6 @@ A component for messing around with the `mondrian.js` layout library.
   g.fillRect(0,64,64,64);
   g.fillStyle = 'yellow';
   g.fillRect(64,64,64,64);
-
   const update = () => requestAnimationFrame(() => {
     mondrian.arrangeWithFocus(
       visible(),
@@ -122,14 +114,11 @@ A component for messing around with the `mondrian.js` layout library.
       }
     );
   });
-
   const container = findOne('.mondrian');
   resize.relayTo(container);
-
   function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
-
   function randomBehavior () {
     if(randomChanges.checked) {
       if(hidden().length === 0) {
@@ -151,10 +140,8 @@ A component for messing around with the `mondrian.js` layout library.
       }
     }
   }
-
   const {domInterval} = await import('../lib/dom-timers.js');
   domInterval(container, randomBehavior, 2000);
-
   function hideRandom () {
     const elt = pickRandom(visible());
     if (elt) {
@@ -162,7 +149,6 @@ A component for messing around with the `mondrian.js` layout library.
       b8r.trigger('change', container);
     }
   }
-
   function showRandom () {
     const elt = pickRandom(hidden());
     if (elt) {
@@ -170,7 +156,6 @@ A component for messing around with the `mondrian.js` layout library.
       b8r.trigger('change', container);
     }
   }
-
   register ({
     hideRandom,
     showRandom,
@@ -200,6 +185,5 @@ A component for messing around with the `mondrian.js` layout library.
       update();
     }
   });
-
   update();
 </script>

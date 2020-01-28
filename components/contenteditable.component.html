@@ -1,10 +1,7 @@
 <!--
 # Input Replacement using contenteditable="true"
-
 This is a simple example of a component that can directly replace a typical text `<input>`.
-
 The key point is that you can bind to this component's `value` and it should work as expected.
-
 **Note** that it does not synthesize submit events (although it does prevent newlines from being entered)
 -->
 <style>
@@ -12,14 +9,12 @@ The key point is that you can bind to this component's `value` and it should wor
     display: inline-block;
     vertical-align: middle;
   }
-
   .contenteditable-component > div {
     width: 150px;
     white-space: nowrap;
     overflow: hidden;
     display: inline-block;
   }
-
   .contenteditable-component > div:empty[data-placeholder]:after {
     content: attr(data-placeholder);
     position: absolute;
@@ -36,11 +31,9 @@ The key point is that you can bind to this component's `value` and it should wor
 ></div>
 <script>
 /* global component, findOne, set */
-
   const {setSelection} = await import('../lib/selection.js');
   const placeholder = component.getAttribute('placeholder');
   const field = findOne('div');
-
   if (placeholder) {
     field.dataset.placeholder = placeholder;
   }

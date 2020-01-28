@@ -9,19 +9,15 @@
     border-bottom: 1px solid var(--black-10);
     box-sizing: border-box;
   }
-
   ul.menubar-component {
     max-width: initial;
   }
-
   .menubar-component a {
     border: none;
   }
-
   .menubar-component [data-shortcut] {
     padding-right: 40px;
   }
-
   .menubar-component [data-shortcut]:after {
     content: attr(title);
     display: block;
@@ -30,12 +26,10 @@
     right: 4px;
     color: var(--accent-color);
   }
-
   .menubar-component * {
     box-sizing: border-box;
     transition: 0.1s;
   }
-
   .menubar-component li {
     position: relative;
     cursor: default;
@@ -47,15 +41,12 @@
     white-space: nowrap;
     min-width: 40px;
   }
-
   .menubar-component li.open {
     background-color: var(--light-accent-color);
   }
-
   .menubar-component li:active {
     background-color: var(--accent-color);
   }
-
   .menubar-component ul {
     position: absolute;
     padding: 0;
@@ -69,32 +60,26 @@
     box-shadow: 1px 3px 4px 0 rgba(0,0,0,0.5);
     opacity: 0;
   }
-
   .menubar-component ul ul {
     z-index: 1;
     left: 40px;
   }
-
   .menubar-component li.open > ul {
     display: block;
     opacity: 1.0;
   }
-
   .menubar-component li.separator {
     background-color: var(--black-20);
     height: 1px;
     padding: 0;
     margin: 4px 0;
   }
-
   .menubar-component ul li {
     display: flex;
   }
-
   .menubar-component ul li > *:first-child {
     flex-grow: 1;
   }
-
   .menubar-component ul li > *:not(:first-child) {
     margin-left: 8px;
   }
@@ -105,7 +90,6 @@
   b8r.on(component, ['mouseup', 'keydown(Space)'], 'menubar', 'action');
   b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open');
   b8r.on(component, ['blur', 'keydown(Escape)'], 'menubar', 'close');
-
   find('[data-event]').forEach(elt => {
     var handler_def = elt.dataset.event;
     if (elt.dataset.shortcut) {
@@ -122,17 +106,13 @@
       }
     }
   });
-
   // keyboard navigation
   b8r.makeArray(component.querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0));
-
   update();
-
   function close_all_menus() {
     b8r.off(document.body, 'mousedown', 'menubar', 'close');
     b8r.find('.menubar-component.open,.menubar-component .open').forEach(elt => elt.classList.remove('open'));
   }
-
   b8r.register('menubar', {
     action(evt){
       if(!evt.target.matches('.menubar-component') && !evt.target.parentElement.matches('.menubar-component')) {

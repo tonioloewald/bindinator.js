@@ -1,11 +1,7 @@
 <!--
 # image editor
-
 A simple image editor using [glfx.js](http://evanw.github.io/glfx.js/) for image-processing.
-
-
 ## To Do
-
 - UI
 - Load / Save image
 - Multiple Filters
@@ -13,7 +9,6 @@ A simple image editor using [glfx.js](http://evanw.github.io/glfx.js/) for image
 - Undo with editable undo queue
 - Simple Editing tools (crop, line, text)
 - Curves
-
 -->
 <style>
   .image-editor-component > canvas {
@@ -24,14 +19,12 @@ A simple image editor using [glfx.js](http://evanw.github.io/glfx.js/) for image
   /* global component */
   const {fx} = await import('../third-party/glfx.js');
   const canvas = fx.canvas();
-
   const img = new Image();
   img.src = 'test/portraits/weasel.png';
   img.onload = () => {
     component.appendChild(canvas);
     console.time('glfs');
     const texture = canvas.texture(img);
-
     canvas.draw(texture).noise(0.5).sepia(0.75).update();
     // canvas.draw(texture).bulgePinch(cx, cy, 200, 0.8).update();
     // canvas.draw(texture).ink(0.5).colorHalftone(0,0,Math.PI/4,8).update();

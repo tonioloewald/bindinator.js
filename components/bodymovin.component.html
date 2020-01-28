@@ -1,18 +1,13 @@
 <!--
 # bodymovin
-
 Set the component's `data-src` to specify an animation
-
 [bodymovin is documented in its README](https://github.com/bodymovin/bodymovin).
-
 *Motorcycle* animation by [Mohammed Zourob](https://www.lottiefiles.com/mzourob)
 -->
 <script>
 /* global set, component */
-
   const {viaTag} = await import('../lib/scripts.js');
   const {bodymovin} = await viaTag('third-party/bodymovin.min.js');
-
   const animation = bodymovin.loadAnimation({
       container: component,
       renderer: 'svg',
@@ -21,6 +16,5 @@ Set the component's `data-src` to specify an animation
       path: component.dataset.src || 'test/motorcycle.json'
     });
   set({animation});
-
   animation.addEventListener('DOMLoaded', () => component.classList.add('bodymovin-loaded'));
 </script>

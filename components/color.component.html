@@ -1,17 +1,16 @@
-<input 
-  type="color" 
+<input
+  type="color"
   data-bind="method(_component_.opaqueColor)=_component_.value"
   data-event="input,change:_component_.update"
 >
 <input data-bind="value=_component_.value">
-<input 
-  type="range" min=0 max=1 step=0.05 
+<input
+  type="range" min=0 max=1 step=0.05
   data-bind="method(_component_.opacity)=_component_.value"
   data-event="input,change:_component_.update"
 >
 <script>
-  /* global set */  
-
+  /* global set */
   set({
     async update() {
       const {parse} = await import('../lib/color.js')

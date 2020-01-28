@@ -7,11 +7,9 @@
     position: relative;
     display: flex;
   }
-
   .documentation-component ._component_ {
     border: 1px solid rgba(0,0,0,0.1);
   }
-
   ._component_ .editor {
     padding: 10px;
     font-size: 14px;
@@ -19,12 +17,10 @@
     color: white;
     font-family: Menlo, Monaco, monospace;
   }
-
   ._component_ .preview {
     padding: 10px;
     font-family: Helvetica Neue, Helvetica, Arial, Sans-serif;
   }
-
   ._component_ .sizable {
     flex: 1 1 auto;
     width: 50%;
@@ -40,27 +36,17 @@
 <div class="preview sizable"></div>
 <script>
   /* global b8r, get, set, findOne */
-
   const {md} = await import('../lib/text-render.js');
-  
   b8r.component('sizer');
-
   const source = `# Heading
-
 ![b8r logo](images/bindinator-logo-notext.svg)
-
 Here is some text
-
     // and here is some code
     let x = x;
 `;
-
   const preview = findOne('.preview');
-
   const update = b8r.debounce(() => md(preview, get('source')), 250);
-
   update();
-
   set ({
     update,
     source

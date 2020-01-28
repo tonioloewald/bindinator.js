@@ -1,13 +1,9 @@
 <!--
 # Date
-
 This is a calendar-style date display / picker.
-
 Aside from binding its value you can also initialize it via ISOString to
 its data-date. To initialise it to the current date, use `data-date="today"`.
-
 To disable it (make it read-only) give it a `data-disabled` attribute.
-
 **Note** that right now the date component assumes its value will be an
 **ISO string** or a `Date` object or UNIX timestamp (milliseconds since epoch)
 and not a `yyyy-mm-dd` formatted string  the way standard inputs work because
@@ -20,40 +16,33 @@ them for anything.
     width: 200px;
     border: 1px solid var(--black-10);
   }
-
   .date-component[data-disabled] {
     pointer-events: none;
   }
-
   .date-component-month {
     display: flex;
     text-align: center;
     color: var(--dark-text-color);
     background: var(--bright-accent-color);
   }
-
   .date-component-day-of-week {
     color: var(--faded-text-color);
     background: var(--light-accent-color);
   }
-
   .date-component-body {
     display: flex;
   }
-
   .date-component-body > button {
     padding: 2px;
     box-shadow: none;
     border-radius: 0;
     background: none;
   }
-
   .date-component-days {
     flex-grow: 1;
     position: relative;
     width: 100%;
   }
-
   .date-component-days > * {
     display: inline-block;
     width: 14.28%;
@@ -61,25 +50,20 @@ them for anything.
     padding: 2px;
     cursor: default;
   }
-
   .date-component-days {
     color: var(--accent-color);
   }
-
   .date-component-current-month.date-component-current {
     background: var(--accent-color);
   }
-
   .date-component-month > select {
     flex: 1 1;
   }
-
   .date-component-month > input,
   .date-component-month > select {
     background-color: transparent;
     box-shadow: none;
   }
-
   .date-component-current-month {
     background: var(--input-bg-color);
     color: var(--text-color);
@@ -105,7 +89,7 @@ them for anything.
     <option value="10">November</option>
     <option value="11">December</option>
   </select>
-  <input 
+  <input
     type="number"
     style="width: 5em"
     data-bind="value=_component_.year"
@@ -134,7 +118,6 @@ them for anything.
 /* global b8r, get, set, component, findOne, touch */
 const DAY_IN_MS = 24 * 3600 * 1000
 const days = []
-
 const update = date => {
   const currentMonth = date.getMonth()
   const currentDate = date.toLocaleDateString()
@@ -145,7 +128,6 @@ const update = date => {
   const firstDay = firstDayOfMonth - firstDayOfMonth.getDay() * DAY_IN_MS
   const firstDayOfMonthISO = firstDayOfMonth.toISOString().split('T')[0]
   if (get('firstDayOfMonthISO') !== firstDayOfMonthISO) days.splice(0)
-
   // do we need to [re]build days?
   if (!days.length) {
       let timestamp
@@ -200,18 +182,14 @@ const update = date => {
       touch('days')
   }
   }
-
 if (component.dataset.date) {
   update(component.dataset.date === 'today' ? new Date() : new Date(component.dataset.date))
 }
-
 const pick = (_, value) => {
   const had_focus = component.contains(document.activeElement)
-
   if (typeof value === 'string' && value.match(/^\d{4,4}\-\d{2,2}\-\d{2,2}$/)) {
     value += 'T' + new Date().toISOString().split('T')[1]
   }
-
   update(new Date(value))
   // focus the (new) current day once we've rendered the update
   if (had_focus) {
@@ -221,7 +199,6 @@ const pick = (_, value) => {
     })
   }
 }
-
 const daysInMonth = (month, year) => {
   switch(parseFloat(month,10)) {
     case 9:
@@ -235,7 +212,6 @@ const daysInMonth = (month, year) => {
       return 31
   }
 }
-
 const updateMonth = () => {
   const date = new Date(get('value'))
   const month = parseInt(get('month'), 10);
@@ -244,10 +220,8 @@ const updateMonth = () => {
   date.setUTCFullYear(year, month + 1, day)
   update(date)
 }
-
 const select = evt => {
   pick(null, b8r.getListInstance(evt.target).timestamp)
 }
-
 set({ pick, select, updateMonth })
 </script>

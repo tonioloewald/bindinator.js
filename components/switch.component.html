@@ -1,7 +1,6 @@
 <!--
 # switch
 Copyright ©2016-2017 Tonio Loewald
-
 This is an input checkbox disguised as a sliding on/off switch.
 It uses a pair of nested `<span>` nodes to render the switch.
 -->
@@ -14,14 +13,12 @@ It uses a pair of nested `<span>` nodes to render the switch.
     min-height: 16px;
     overflow: visible;
   }
-
   .switch-component input {
     -webkit-appearance: none;
     background: none;
     padding: 0;
     box-shadow: none;
   }
-
   .switch-component input + span {
     vertical-align: bottom;
     position: relative;
@@ -33,15 +30,12 @@ It uses a pair of nested `<span>` nodes to render the switch.
     transition-duration: 0.25s;
     box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
   }
-
   .switch-component input:not(:checked) + span {
     background-color: var(--black-20);
   }
-
   .switch-component input:checked + span {
     background-color: var(--accent-color);
   }
-
   .switch-component input + span > span {
     content: " ";
     display: block;
@@ -54,11 +48,9 @@ It uses a pair of nested `<span>` nodes to render the switch.
     box-shadow: inset 0 -0.5px 0.5px rgba(0,0,0,0.5);
     transition-duration: 0.25s;
   }
-
   .switch-component input:not(:checked) + span > span {
     left: 0;
   }
-
   .switch-component input:checked + span > span {
     left: 12px;
   }

@@ -1,6 +1,5 @@
 <!--
 # Center Scroller Test Harness
-
 Tests a center scroller component with a bunch of things that can change size and number to scroll.
 -->
 <style>
@@ -14,7 +13,6 @@ Tests a center scroller component with a bunch of things that can change size an
     transform: translateY(10px);
     transition: opacity var(--hover-transition);
   }
-
   .center-scroller-test-item.big {
     width: 36px;
     height: 36px;
@@ -57,12 +55,9 @@ Tests a center scroller component with a bunch of things that can change size an
 <script>
 'use strict';
 /* global b8r, data, get, set */
-
   const {uuid} = await import('../source/uuid.js');
   b8r.component('center-scroller');
-
   const portraits = ['snail', 'robot', 'tentacle'];
-
   const random_item = () => {
     return {
       id: uuid(),
@@ -70,7 +65,6 @@ Tests a center scroller component with a bunch of things that can change size an
       image_url: `test/portraits/${portraits[Math.floor(Math.random() * portraits.length)]}.png`,
     };
   };
-
   if (!data.list) {
     const size = Math.floor(Math.random() * 20 + 5);
     const list = [];
@@ -79,7 +73,6 @@ Tests a center scroller component with a bunch of things that can change size an
     }
     set({list});
   }
-
   set('dragging', null);
   set({
     toggle: evt => {

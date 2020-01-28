@@ -6,14 +6,12 @@
     height: 600px;
     position: relative;
   }
-
   .biggrid-test-scroller {
     overflow-y: scroll;
     width: 100%;
     height: 100%;
     border: 1px solid rgba(0,0,0,0.25);
   }
-
   .biggrid-test-item {
     width: 120px;
     height: 80px;
@@ -23,7 +21,6 @@
     line-height: 80px;
     text-align: center;
   }
-
   .biggrid-test-info {
     position: absolute;
     background: #444;
@@ -50,14 +47,11 @@
 ></div>
 <script>
   /* global b8r, component, find */
-
   await import('../lib/biggrid.js');
   const {domInterval} = await import('../lib/dom-timers.js');
   const {cssColorNames} = await import('../lib/color.js');
-
   const colors = cssColorNames();
   const list = [];
-
   b8r.component('resizer');
   for (let i = 0; i < 100000; i++) {
     list.push({
@@ -65,10 +59,8 @@
       color: colors[Math.floor(Math.random() * colors.length)],
     });
   }
-
   domInterval(component, () => {
     b8r.set('biggrid-test.dom.items', find('[data-list-instance]').length);
   }, 1000);
-
   b8r.register('biggrid-test', {list, dom: {items: 0}});
 </script>

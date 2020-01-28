@@ -1,8 +1,7 @@
 <!--
 # Unaligned Grid
-
 A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid which allows
- arbitrary numbers of elements to be packed into an arbitrary width and never gets ragged.
+arbitrary numbers of elements to be packed into an arbitrary width and never gets ragged.
 -->
 <style>
   .example._component_ {
@@ -10,7 +9,6 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
     height: 512px;
     position: relative;
   }
-
   ._component_ > [data-children] {
     position: relative;
     display: flex;
@@ -23,7 +21,6 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
     padding-top: 20px;
     margin-top: -20px;
   }
-
   ._component_-item {
     display: inline-block;
     font-size: 60px;
@@ -32,21 +29,17 @@ A quick CSS experiment to produce a tidy, uniformly spaced, but irregular grid w
     text-align: center;
     border: 1px solid rgba(0,0,0,0.05);
     flex: 1 0 150px;
-
     color: white;
     transition: var(--hover-transition);
     text-shadow: 0 1px 1px black;
     max-width: 400px;
   }
-
   ._component_-item:nth-child(2n) {
     flex-basis: 250px;
   }
-
   ._component_-item:nth-child(3n) {
     flex-basis: 225px;
   }
-
   ._component_-item:nth-child(5n) {
     flex-basis: 200px;
   }

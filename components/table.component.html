@@ -1,29 +1,22 @@
 <!--
 # Table Example
-
 The point of this example is to show the interaction of data-list and data-component
 and how to handle components that hold the content of an element (such as the `<td>` elements
 in tables) which cannot exist in an arbitrary context (e.g. a `<div>`).
-
 ## Binding Resolution Order
-
 A `data-list` attribute blocks the resolving of other bindings. Only when the element is
 cloned and made into a `data-list-instance` are other bindings resolved. So for a table,
 the `<tr data-list=...>` element is not populated until it is turned into instances.
-
 ## [data-parent]
-
 The table-row component "lives" inside a minimal table so that the contents do not disappear
 when the HTML is first parsed. The `data-parent` attribute tells b8r that only the contents
 of the `<tr>` element constitute the view itself.
-
 Also see the `table-row` component.
 -->
 <style>
   .table-component table {
     border-collapse: collapse
   }
-
   .table-component th,
   .table-component td {
     padding: 4px 8px;
@@ -45,7 +38,6 @@ Also see the `table-row` component.
   /* global b8r, set */
   'use strict'
 b8r.component('table-row')
-
 set('list', [
     { id: 0, name: 'Tom' },
     { id: 1, name: 'Dick' },

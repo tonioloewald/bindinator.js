@@ -1,31 +1,25 @@
 <!--
 # Speech Component
-
 Simple demonstration of SpeechSynthesis support in modern browsers.
 -->
 <style>
   .speech-component {
     width: 400px;
   }
-
   .speech-component > * {
     display: block;
     margin: 5px 0;
   }
-
   .speech-component > label > span {
     min-width: 100px;
   }
-
   .speech-component > label > * {
     margin-right: 10px;
   }
-
   .speech-component textarea {
     width: 100%;
     height: 200px;
   }
-
   .speech-component input[type="range"] {
     width: 200px;
   }
@@ -67,7 +61,6 @@ Simple demonstration of SpeechSynthesis support in modern browsers.
   /* global get, set */
   const {speak, stop, voicesPromise} = await import('../lib/speech.js')
   const voices = await voicesPromise
-
   set({
     text: 'the rain in spain stays mainly in the plain',
     voice: voices.find(v => v.lang === 'en-AU').name,

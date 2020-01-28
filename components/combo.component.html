@@ -1,29 +1,21 @@
 <!--
 # Combo
-
 A combo is a progressively disclosed user-interface element associated with an input field.
-
 It generalizes out the concept of things like:
-
 * list-combo boxes
 * date controls
 * auto-complete
-
 The idea is that the input triggers the combo's appearance and disappearance, and that
 some keyboard operators (as well as mouse operations) manipulate the combo without
 the input field's behavior being interfered with.
-
 Setting up the combo:
-
     <div
       data-component="combo"
       data-combo-id="autocomplete"
     >
       <div data-list="automcomplete.options" data-bind="text=.text">Item</div>
     </div>
-
 Using the combo:
-
     <input
       data-combo="autocomplete"
       data-combo-position="below"
@@ -31,36 +23,25 @@ Using the combo:
         focus,keydown,keyup:combo-controller.update;
       "
     >
-
 ## Attributes
-
 Several custom attributes affect the behavior of combos. These attributes can be
 on the element that uses the combo, or the combo itself (the elemenet overrides
 the combo).
-
 By default, `combo-controller.show_filtered` will match all the text in the
 element. If you want to only match the current word or the a notated substring,
 read on…
-
     data-combo-filter-start="@"
-
 IF `data-combo-filter-start` is set then only a sequence of characters starting
 with the specified character(s) and ending at the insertion point will be matched.
-
     data-combo-filter-split=" "
-
 If `data-combo-filter-split` is as above, but can also start at the beginning of
 the string.
-
 -->
 <script>
 /* global component, b8r */
-
   const {getSelection, setSelection} = await import('../lib/selection.js');
-
   if (!b8r.registered('combo-controller')) {
     const combos = {};
-
     const register = combo => {
       const name = combo.dataset.comboId;
       if (!name) {
@@ -76,7 +57,6 @@ the string.
       b8r.on(combo, 'mouseup', 'combo-controller.click');
       document.body.appendChild(combo);
     };
-
     const get_combo = element => {
       const combo_root = element.closest('[data-combo]');
       const target = element.closest('.combo-target') || combo_root;
@@ -98,7 +78,6 @@ the string.
                            combo.dataset.comboFilterStart;
       return {combo, position, rect, filter_split, filter_start};
     };
-
     const show = (evt, element, do_not_hide) => {
       const {combo, position, rect} = get_combo(element);
       if(position === 'below') {
@@ -123,7 +102,6 @@ the string.
       combo._targetElement = element;
       return true;
     };
-
     const hide = () => {
       b8r.forEachKey(combos, combo => {
         combo._targetElement = null;
@@ -132,7 +110,6 @@ the string.
       });
       return true;
     };
-
     const show_filtered = (evt, element) => {
       const {combo, filter_split, filter_start} = get_combo(element);
       const {match} = partial_match(element, filter_split, filter_start);
@@ -159,11 +136,9 @@ the string.
         show(evt, element, true);
       }
     };
-
     const partial_match = (element, filter_split, filter_start) => {
       const {text, selEnd} = getSelection(element);
       let match = text.toLowerCase();
-
       let start = 0;
       let end = match.length;
       if (filter_split || filter_start) {
@@ -179,17 +154,14 @@ the string.
           }
         }
       }
-
       match = match.substr(start, end - start);
       return {match, start, end};
     };
-
     const click = (evt, element) => {
       element.querySelectorAll('.selected').forEach(elt => elt.classList.remove('selected'));
       evt.target.closest('.combo-component > *').classList.add('selected');
       insert(evt, element._targetElement);
     };
-
     const insert = (evt, element) => {
       const {combo, filter_start, filter_split} = get_combo(element);
       const {match, start, end} = partial_match(element, filter_split, filter_start);
@@ -211,7 +183,6 @@ the string.
       }
       hide();
     };
-
     const update = (evt, element) => {
       const {combo} = get_combo(element);
       const current = combo.querySelector('.selected');
@@ -275,17 +246,14 @@ the string.
       }
       return true;
     };
-
     const hide_on_click = evt => {
       if (!evt.target.closest('[data-combo-id]')) {
         hide();
       }
       return true;
     };
-
     b8r.onAny('mousedown,scroll', 'combo-controller.hide_on_click');
     window.addEventListener('resize', hide);
-
     b8r.register('combo-controller', {
       register,
       hide_on_click,
@@ -294,6 +262,5 @@ the string.
       click,
     });
   }
-
   b8r.call('combo-controller.register', component);
 </script>

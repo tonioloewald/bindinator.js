@@ -1,10 +1,7 @@
 <!--
 # animated switch
-
 This is an example of implementing an animated control using bodymovin.
-
 [bodymovin is documented in its README](https://github.com/bodymovin/bodymovin).
-
 *toggle_switch* animation by [Shafiu Hussain](https://www.lottiefiles.com/s)
 -->
 <style>
@@ -21,12 +18,9 @@ This is an example of implementing an animated control using bodymovin.
 <script>
 /* global b8r, set, component, data, get, on */
 'use strict';
-
   const {viaTag} = await import('../lib/scripts.js');
   const {bodymovin} = await viaTag('third-party/bodymovin.min.js');
-
   const input = findOne('input');
-
   const animation = bodymovin.loadAnimation({
     container: component,
     renderer: 'svg',
@@ -34,12 +28,10 @@ This is an example of implementing an animated control using bodymovin.
     autoplay: false,
     path: component.dataset.src || 'test/toggle_switch.json'
   });
-
   const toggle = () => {
     set({value: ! get('value')});
     b8r.trigger('change', component);
   };
-
   const update = () => {
     if (animation) {
       animation.setSpeed(4);
@@ -50,15 +42,11 @@ This is an example of implementing an animated control using bodymovin.
       }
     }
   };
-
   set({
     toggle,
     update,
   });
-
   b8r.addDataBinding(input, 'method(_component_.update)', '_component_.value');
-
   animation.addEventListener('DOMLoaded', update, {once: true});
-
   on('mouseup,touchend', '_component_.toggle');
 </script>

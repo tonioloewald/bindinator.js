@@ -1,14 +1,10 @@
 <!--
 # instance test
 Copyright ©2016-2017 Tonio Loewald
-
 This component nests a bunch of instances of the hello component, showing
 their private scopes in action, and also component composition.
-
 These elements have different child elements and execute their scripts in unique contexts.
-
 One of the components is nested in a component of the same type, and the two are still mutually independent.
-
 One of the components has had its default `greeting` overridden using a `data` attribute.
 -->
 <style>
@@ -16,7 +12,6 @@ One of the components has had its default `greeting` overridden using a `data` a
     position: relative;
     display: inline-block;
   }
-
   [data-id]:after {
     position: absolute;
     top: 4px;
@@ -40,8 +35,8 @@ One of the components has had its default `greeting` overridden using a `data` a
           And I am a child of another instance of myself
         </p>
       </b8r-component>
-    </div>
-  </b8r-component>
+    </b8r-component>
+  </div>
   <b8r-component path="components/hello" data-id="d" style="flex-grow: 1">
     <p>Amongst our weaponry are such diverse elements as</p>
     <ul>

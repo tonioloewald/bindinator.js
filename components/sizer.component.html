@@ -1,7 +1,6 @@
 <!--
 # Sizer
 Copyright ©2016-2017 Tonio Loewald
-
 This is a horizontal sizer component. Place it between two elements in a flex (row)
 and it lets the user dynamically resize them.
 -->
@@ -12,7 +11,6 @@ and it lets the user dynamically resize them.
     overflow: hidden;
     flex-grow: 0 !important;
   }
-
   .ew-sizer {
     width: 6px;
     border-style: solid;
@@ -23,11 +21,9 @@ and it lets the user dynamically resize them.
     margin: 0 0 -10000px;
     padding: 0 0 10000px;
   }
-
   .ew-sizer:hover {
     background-color: rgba(0,0,0,0.15);
   }
-
   .ew-sizer.active {
     background-color: rgba(0,0,0,0.25);
   }
@@ -35,11 +31,8 @@ and it lets the user dynamically resize them.
 <div class="ew-sizer"></div>
 <script>
 /* global findOne, b8r */
-
 const {trackDrag, listenForDragStart} = await import('../lib/track-drag.js')
-
 const sizer = findOne('.ew-sizer')
-
 listenForDragStart(sizer, (evt) => {
   const style = getComputedStyle(sizer)
   const prevElt = component.previousElementSibling

@@ -1,8 +1,6 @@
 <!--
 # Center Scroller
-
 Allows horizontal scrolling of arbitrary elements of varying size leaving space in the center.
-
 -->
 <style>
   .center-scroller-component {
@@ -11,7 +9,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     width: 100%;
     overflow: hidden;
   }
-
   .center-scroller {
     position: absolute;
     white-space: nowrap;
@@ -20,7 +17,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     left: 50%;
     transform: translateX(-50%);
   }
-
   .center-scroller.drag-in-progress {
     cursor: -webkit-grabbing;
     cursor: grabbing;
@@ -37,29 +33,22 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
 </div>
 <script>
 /* global findOne, data, component, set, get, b8r */
-
   const {resize} = await import('../lib/resize.js');
-
   const scroller = findOne('.center-scroller');
   const container = findOne('[data-children]');
   const clamp = (x, min, max) => x < min ? min : (x > max ? max : x);
-
   const center_gap = parseInt(data.center_gap || component.dataset.centerGap || 64, 10);
   const min_item_width = parseInt(data.min_item_width || component.dataset.minimumItemWidth || 28, 10);
   const item_spacing = parseInt(data.item_spacing || component.dataset.itemSpacing || 2, 10);
   set({center_gap, min_item_width, item_spacing});
   const componentId = b8r.getComponentId(component);
-
   if (getComputedStyle(component).position !== 'absolute') {
     component.style.position = 'relative';
   }
-
   resize(scroller, '_component_.update');
-
   let position = null;
   let items;
   let item_count;
-
   const update = () => {
     items = b8r.makeArray(container.children).filter(e => !e.matches('[data-list]'));
     if (item_count !== items.length) {
@@ -95,7 +84,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
       });
     }
   };
-
   const dragStart = evt => {
     set('dragging', {x0: evt.pageX, position});
     b8r.onAny('mousemove', `${componentId}.drag`);
@@ -122,7 +110,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     }
     return true;
   };
-
   set({
     dragging: null,
     update,
@@ -130,8 +117,6 @@ Allows horizontal scrolling of arbitrary elements of varying size leaving space 
     drag,
     dragEnd,
   });
-
   on('change,click', '_component_.update');
-
   update();
 </script>
