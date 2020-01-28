@@ -111,9 +111,13 @@ It works like this:
     const {bar, baz} = await import('./path/to/foo.js');
 
 **Note**: `default` is treated like a **specific export named `default`** in a dynmically imported
-module, so if you wanted everything out of `foo.js` inside `const foo` you'd write:
+module, so the equivalent of `import foo from "./foo.js"` is:
 
-    const foo = (await import('./path/to/foo.js')).default;
+    const foo = (await import('./foo.js')).default
+
+While the equivalent of `import * as foo from "./foo.js"` is:
+
+    const foo = await import('./foo.js')
 
 ## Migrating to `import` by Example
 
@@ -175,7 +179,7 @@ from which b8r.component was called, rather than the directory the component is 
 
 `lib/scripts.js` provides a `viaTag` function replaces `require.viaTag` 
 and imports libraries as scripts when they do not support modules 
-(which is most of them).
+(which is most of them as of 2019).
 
 E.g. to use `three.js`:
 
