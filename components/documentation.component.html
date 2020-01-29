@@ -245,8 +245,8 @@
 /* global b8r, alert, component, set, findOne */
   const windows = await import('../lib/windows.js');
   const {configuredTest} = await import('../lib/test.js');
-  const {parseHash} = await import('../lib/hash-utils.js');
-  const getSource = () => parseHash().source || get('docs')[0].parts[0].path
+  const {parseSearch} = await import('../lib/url-utils.js');
+  const getSource = () => parseSearch().source || get('docs')[0].parts[0].path
   const content = findOne('.content');
   const nav = findOne('.nav');
   function markCurrent() {
@@ -270,11 +270,13 @@
       if (evt.metaKey && part.path.endsWith('.component.html')) {
         const component_name = part.path.split('.').shift();
         const {origin, pathname} = window.location;
-        const url = `${origin}${pathname}#body=components/${component_name}`;
+        const url = `${origin}${pathname}?body=components/${component_name}`;
         const w = windows.open(url, {width: 800, height: 450});
         w.window.addEventListener('load', () => w.window.document.body.classList.add('fullscreen'))
       } else {
-        window.location.hash = 'source=' + part.path;
+        const newUrl = window.location.href.split('?')[0] + '?' + 'source=' + part.path
+        window.history.pushState({}, part.name, newUrl)
+        update()
       }
     },
     alertKeystroke: evt => alert(b8r.keystroke(evt)),
@@ -356,7 +358,7 @@
     });
     markCurrent();
   }
-  window.addEventListener('hashchange', update);
+  window.addEventListener('popstate', update);
   set({
     year: new Date().getFullYear(),
     searchFilter: '',
@@ -383,7 +385,7 @@
       touch('docs')
     },
     destroy() {
-      window.removeEventListener('hashchange', update);
+      window.removeEventListener('popstate', update);
     },
   });
 </script>

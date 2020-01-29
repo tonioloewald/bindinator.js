@@ -18,7 +18,7 @@
     window.b8r = b8r;
     // if the # contains 'body=path/to/component' load that
     // othersize load 'components/documentation'
-    const component_path = (window.location.hash.match(/\bbody=([^=&]+)/) || [])[1]
+    const component_path = (window.location.search.match(/\bbody=([^=&]+)/) || [])[1]
                            || 'components/documentation';
     const div = b8r.create('div');
     requestAnimationFrame(() => {
