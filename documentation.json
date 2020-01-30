@@ -484,7 +484,7 @@
     "parts": [
       {
         "name": "Unit Tests",
-        "path": "tests.html"
+        "path": "test/unit-tests.html"
       },
       {
         "name": "JS Viewer",

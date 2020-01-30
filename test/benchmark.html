@@ -5,8 +5,9 @@
   <title>Benchmark</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
+      font-family: Helvetica, Sans-serif;
+      font-size: 14px;
+      background: #eee;
     }
 
     #main {
@@ -17,11 +18,7 @@
 <body>
 <div id="main">
   <h1>b8r</h1>
-  <div>
-    <a href="benchmark.html">b8r</a> |
-    <a href="benchmark-data-table.html">b8r data-table</a> |
-    <a href="benchmark-vanillajs.html">vanillajs</a>
-  </div>
+  <b8r-component path="../test/test-nav.component.js"></b8r-component>
   <label>
     Search
     <input data-bind="value=benchmark.filterSettings.text">

@@ -40,6 +40,7 @@
 </style>
 <body>
   <h2>b8r Tests</h2>
+  <b8r-component path="../test/test-nav.component.js"></b8r-component>
   <div class="test_widgets">
     <div>
       <span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
@@ -126,9 +127,9 @@
   </div>
   <div class="report"></div>
   <script type="module">
-    import b8r from './source/b8r.js';
-    import {configuredTest, trigger} from './lib/test.js';
-    import {getByPath, setByPath} from './source/b8r.byPath.js';
+    import b8r from '../source/b8r.js';
+    import {configuredTest, trigger} from '../lib/test.js';
+    import {getByPath, setByPath} from '../source/b8r.byPath.js';
 
     window.b8r = b8r
 

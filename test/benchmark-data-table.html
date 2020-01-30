@@ -5,6 +5,9 @@
   <title>Benchmark</title>
   <style>
     body {
+      font-family: Helvetica, Sans-serif;
+      font-size: 14px;
+      background: #eee;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -24,11 +27,7 @@
     This benchmark replaces a simple bound &lt;table&gt; element with b8r's 
     <a href="/#source=components/data-table.component.js">data-table component</a>
   </p>
-  <div>
-    <a href="benchmark.html">b8r</a> |
-    <a href="benchmark-data-table.html">b8r data-table</a> |
-    <a href="benchmark-vanillajs.html">vanillajs</a>
-  </div>
+  <b8r-component path="../test/test-nav.component.js"></b8r-component>
   <label>
     Filter
     <input data-bind="value=benchmark.filterText" placeholder="enter filter text">
