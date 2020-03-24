@@ -218,7 +218,12 @@ data rather than just current figures in a variety of ways.
   set('pickRow', (evt, target) => {
     if(!evt.target.closest('[data-list-instance]')) return
     const {latitude, longitude} = b8r.getListInstance(evt.target)
-    map.panTo([longitude, latitude])
+    map.flyTo({
+      center: [longitude, latitude],
+      curve: 1.42,
+      speed: 0.7,
+      zoom: 4.5,
+    })
   });
   
   Promise
