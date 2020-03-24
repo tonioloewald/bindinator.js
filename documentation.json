@@ -577,6 +577,10 @@
         "path": "layout.component.html"
       },
       {
+        "name": "COVID-19",
+        "path": "covid-19.component.html"
+      },
+      {
         "name": "Mapbox",
         "path": "mapbox.component.html"
       },

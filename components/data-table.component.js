@@ -259,6 +259,9 @@ export default {
     ._component_ .t-head > * {
       padding: 5px 10px;
       position: relative;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     ._component_ .t-head > *:hover,
@@ -326,6 +329,7 @@ export default {
       right: 5px;
       background: var(--white-75);
       padding: 5px;
+      z-index: 3;
     }
 
     ._component_ > .t-visible-columns:before {
@@ -413,6 +417,7 @@ export default {
   initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
     return {
       visibleColumns (/* ignore */) {
+        if (!get().config) return []
         const columns = get().config.columns
         columns.forEach((column, idx) => {
           columns[idx] = {
