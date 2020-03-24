@@ -1107,6 +1107,7 @@ Synthesizes a native event. Don't use it for custom events. Use `trigger` instea
 */
 /* global Event */
 
+// TODO -- provide better support for keyboard, mouse, touch events
 const dispatch = (type, target, ...args) => {
   const event = new Event(type);
   event.args = args;
@@ -4497,10 +4498,9 @@ const keycode = evt => {
   if (evt.code) {
     return evt.code.replace(/Key|Digit/, '')
   } else {
-    let syntheticCode = evt.keyIdentifier;
+    let syntheticCode = evt.key;
     if (syntheticCode.substr(0, 2) === 'U+') {
-      syntheticCode =
-          String.fromCharCode(parseInt(evt.keyIdentifier.substr(2), 16));
+      syntheticCode = String.fromCharCode(parseInt(evt.key.substr(2), 16));
     }
     return syntheticCode
   }
@@ -4531,6 +4531,40 @@ const modifierKeys = {
   escape: '⎋',
   shift: '⇧'
 };
+
+/**
+~~~~
+function dispatch(target, eventType, key) {
+  const evt = new KeyboardEvent({
+    key
+  })
+  target.dispatchEvent(evt)
+}
+const input = document.createElement('input')
+document.body.append(input)
+const results = []
+b8r.register('_keystroke_test_', {
+  first(evt){
+    console.log('first', evt)
+    results.push({first: input.vaue})
+  },
+  second(evt){ results.push({second: input.vaue}) },
+  third(evt){ results.push({third: input.vaue}) },
+})
+b8r.on(input, 'keydown(A)', '_keystroke_test_.first')
+b8r.on(input, 'keydown(0,1)', '_keystroke_test_.second')
+b8r.on(input, 'keydown(C,D,E)', '_keystroke_test_.third')
+dispatch(input, 'keydown', 'C')
+dispatch(input, 'keydown', 'D')
+dispatch(input, 'keydown', 'E')
+dispatch(input, 'keydown', '1')
+dispatch(input, 'keydown', '0')
+dispatch(input, 'keydown', '\n')
+dispatch(input, 'keydown', '\t')
+input.remove()
+// b8r.remove('_keystroke_test_')
+~~~~
+*/
 
 /**
 # event type b8r handles implicitly
@@ -4917,10 +4951,10 @@ naturally the goal is for them to be handled exactly as if they were "real".
 const trigger = (type, target, ...args) => {
   if (
     typeof type !== 'string' ||
-    (target && !(target.dispatchEvent instanceof Function))
+    (!(target instanceof Element))
   ) {
     console.error(
-      'expected trigger(eventType, target_element)',
+      'expected trigger(eventType, targetElement)',
       type,
       target
     );
