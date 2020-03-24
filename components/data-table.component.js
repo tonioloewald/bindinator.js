@@ -257,11 +257,17 @@ export default {
     }
 
     ._component_ .t-head > * {
+      align-items: center;
+      display: flex;
       padding: 5px 10px;
       position: relative;
+    }
+    
+    ._component_ .t-column-name {
       white-space: nowrap;
-      overflow: hidden;
       text-overflow: ellipsis;
+      overflow: hidden;
+      flex: 1 1 auto;
     }
 
     ._component_ .t-head > *:hover,
@@ -279,7 +285,7 @@ export default {
       height: 100vh;
       border-left: 1px solid var(--black-10);
       cursor: col-resize;
-      z-index: 2;
+      z-index: 10;
     }
 
     ._component_ .t-column-resizer:hover,
@@ -290,6 +296,7 @@ export default {
     ._component_ .t-column-sorter {
       margin-left: -5px;
       text-align: center;
+      flex: 0 0 auto;
     }
 
     ._component_ :not(.t-head).t-row:hover,
@@ -329,7 +336,7 @@ export default {
       right: 5px;
       background: var(--white-75);
       padding: 5px;
-      z-index: 3;
+      z-index: 11;
     }
 
     ._component_ > .t-visible-columns:before {

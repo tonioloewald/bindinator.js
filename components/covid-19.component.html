@@ -52,17 +52,38 @@ data rather than just current figures in a variety of ways.
   }
   
   ._component_ .data-table {
-    --table-height: 100vh;
+    opacity: 0.4;
+    transition: ease-out 0.5s;
+    --table-height: 100%;
     position: absolute;
     top: 0;
-    left: 0;
-    width: 30vw;
+    right: 0;
+    width: 40vw;
     bottom: 0;
     background: rgba(0,0,0,0.75);
     z-index: 3;
+    overflow: hidden;
+  }
+  
+  ._component_ .data-table:hover {
+    opacity: 1;
+    transform: translateX(0%) translateX(0px);
+  }
+  
+  ._component_ header {
+    background: rgba(0,0,0,0.3);
+    border-radius: 2px;
+    padding: 0 10px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
   }
 </style>
 <div class="map"></div>
+<header>
+  <h2>COVID-19 Data</h2>
+  <p>Data obtained from <a href="https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases">humdata.org</a>
+</header>
 <b8r-component 
   path="../components/data-table.component.js" 
   class="data-table"
@@ -169,29 +190,33 @@ data rather than just current figures in a variety of ways.
       {
         name: 'Province',
         path: '.province',
+        width: 160,
         visible: false,
         sortable: (a, b) => b8r.sortAscending(a.province, b.province),
       },
       {
         name: 'Cases',
         path: '.confirmed',
+        width: 100,
         sortable: (a, b) => b8r.sortAscending(a.confirmed, b.confirmed),
       },
       {
         name: 'Recovered',
         path: '.recovered',
+        width: 100,
         sortable: (a, b) => b8r.sortAscending(a.recovered, b.recovered),
       },
       {
         name: 'Dead',
         path: '.dead',
+        width: 100,
         sortable: (a, b) => b8r.sortAscending(a.dead, b.dead),
       },
     ]
   })
   
   set('pickRow', (evt, target) => {
-    if(!evt.target.matches('[data-list-instance]')) return
+    if(!evt.target.closest('[data-list-instance]')) return
     const {latitude, longitude} = b8r.getListInstance(evt.target)
     map.panTo([longitude, latitude])
   });
