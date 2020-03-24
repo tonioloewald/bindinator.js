@@ -7,7 +7,7 @@
     "start": "echo \"http://localhost:8017/index.html\\n\" & node utils/server.js web_root:.",
     "lint": "node node_modules/standard/bin/cmd.js --fix",
     "stylelint": "./node_modules/stylelint/bin/stylelint.js css/*.css **/*.html --fix",
-    "htmllint": "htmllint index.html components/**/*.html # requires npm install htmllint -g",
+    "linthtml": "npx linthtml index.html components/**/*.html",
     "build": "npm run lint && npm run stylelint && ./utils/build.command"
   },
   "keywords": [
@@ -80,6 +80,7 @@
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
   "devDependencies": {
+    "@linthtml/linthtml": "^0.3.2",
     "rollup": "^1.28.0",
     "standard": "^14.3.1",
     "stylelint": "^10.1.0",
