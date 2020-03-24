@@ -216,7 +216,8 @@ data rather than just current figures in a variety of ways.
   })
   
   set('pickRow', (evt, target) => {
-    if(!evt.target.closest('[data-list-instance]')) return
+    // ignore clicks that aren't on a row
+    if(!evt.target.closest('.t-row')) return true
     const {latitude, longitude} = b8r.getListInstance(evt.target)
     map.flyTo({
       center: [longitude, latitude],
