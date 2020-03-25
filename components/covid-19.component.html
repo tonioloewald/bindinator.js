@@ -79,18 +79,38 @@ data rather than just current figures in a variety of ways.
     left: 20px;
   }
   
-  ._component_ .chart {
+  ._component_ .graph {
+    transition: ease-out 0.2s;
     position: absolute;
+    background: rgba(0,0,0,0.75);
     left: 0;
     bottom: 0;
-    width: 40vw;
+    width: 50vw;
     height: 30vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px 20px;
     z-index: 3;
+    transform: translateX(-100%);
+  }
+
+  ._component_ .graph.active {
+    transform: none;
+  }
+
+  ._component_ .graph > div {
+    flex: 1 1 auto;
+  }
+
+  ._component_ .graph > .graph-labels {
+    position: absolute;
+    top: 60px;
+    left: 100px;
   }
 </style>
 <div class="map"></div>
 <header>
-  <h2>COVID-19 Data</h2>
+  <h4>COVID-19 Data</h4>
   <p>Data obtained from <a href="https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases">humdata.org</a>
 </header>
 <b8r-component 
@@ -102,15 +122,12 @@ data rather than just current figures in a variety of ways.
   "
   data-event="click:_component_.pickRow"
 ></b8r-component>
-<canvas class="chart"></canvas>
-<div 
-  class="point-data"
->
-  <div class="circle"></div>
-  <span class="confirmed"></span>
-  <span class="recovered"></span>
-  <span class="dead"></span>
+<div class="graph">
+  <h4></h4>
+  <div></div>
+  <div class="graph-labels"></div>
 </div>
+<div class="point-data"></div>
 <div class="loading" data-bind="show_if=b8rRequestsInFlight.length">
   LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
 </div>
@@ -122,8 +139,10 @@ data rather than just current figures in a variety of ways.
   const {viaLink} = await import('../source/b8r.makeStylesheet.js')
   const {parseHash, serializeObj} = await import('../lib/url-utils.js')
   viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
+  //viaLink('https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.min.css')
   await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
   await viaTag('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js')
+  await viaTag('https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.min.js')
   const settings = {
     '@': '14.5242641,149.4408625,1.0'
   }
@@ -224,6 +243,14 @@ data rather than just current figures in a variety of ways.
       },
     ]
   })
+
+  const graphOptions = {
+    logscale: true,
+    colors: ['white', 'red', 'lime'],
+    labels: ['date', 'confirmed', 'dead', 'recovered'],
+    labelsSeparateLines: true,
+    labelsDiv: findOne('.graph-labels'),
+  }
   
   set('pickRow', (evt, target) => {
     // ignore clicks that aren't on a row
@@ -232,11 +259,17 @@ data rather than just current figures in a variety of ways.
     const { consolidated: {dates}} = get();
     
     firstColumn = series.confirmed.findIndex(x => x > 0)
-    const labels = dates.slice(firstColumn)
+    const _dates = dates.slice(firstColumn)
     const confirmed = series.confirmed.slice(firstColumn)
     const dead = series.dead.slice(firstColumn)
     const recovered = series.recovered.slice(firstColumn)
-    console.table([labels, confirmed, dead, recovered])
+    const csv = _dates.map((date, idx) => {
+      return `${new Date(date).toJSON().split('T')[0].replace(/\-/g, '/')},${confirmed[idx]},${dead[idx]},${recovered[idx]}`
+    }).join('\n')
+
+    findOne('.graph').classList.add('active')
+    findOne('.graph > h4').textContent = caption
+    new Dygraph(findOne('.graph > div'), csv, graphOptions)
     
     map.flyTo({
       center: [longitude, latitude],
