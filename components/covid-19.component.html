@@ -127,7 +127,7 @@ data rather than just current figures in a variety of ways.
   <div></div>
   <div class="graph-labels"></div>
 </div>
-<div class="point-data"></div>
+<div class="point-data" data-event="click:_component_.pickRow"></div>
 <div class="loading" data-bind="show_if=b8rRequestsInFlight.length">
   LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
 </div>
@@ -254,8 +254,14 @@ data rather than just current figures in a variety of ways.
   
   set('pickRow', (evt, target) => {
     // ignore clicks that aren't on a row
-    if(!evt.target.closest('.t-row')) return true
-    const {latitude, longitude, caption, series} = b8r.getListInstance(evt.target)
+    let row
+    if(target.matches('.point-data')) {
+      row = get().consolidated.points.find(row => row.caption === target.dataset.caption)
+    } else {
+      if(!evt.target.closest('.t-row')) return true
+      row = b8r.getListInstance(evt.target)
+    }
+    const {latitude, longitude, caption, series} = row
     const { consolidated: {dates}} = get();
     
     firstColumn = series.confirmed.findIndex(x => x > 0)
@@ -316,6 +322,7 @@ data rather than just current figures in a variety of ways.
           let summary = `${point.confirmed} cases`
           if (point.dead) summary += `, ${point.dead} deaths`
           if (point.recovered) summary += `, ${point.recovered} recovered`
+          element.dataset.caption = caption
           element.setAttribute('title', `${caption}: ${summary}`)
           element.style.width = element.style.height = diameter
           point.marker = new mapboxgl.Marker({ element })
