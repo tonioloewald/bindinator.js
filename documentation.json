@@ -505,6 +505,10 @@
     "sort": true,
     "parts": [
       {
+        "name": "Alphaville",
+        "path": "components/alphaville.component.js"
+      },
+      {
         "name": "Photo Carousel",
         "path": "photo-carousel.component.html"
       },
