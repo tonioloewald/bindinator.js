@@ -121,6 +121,15 @@ data rather than just current figures in a variety of ways.
     top: 60px;
     left: 100px;
   }
+  
+  .graph-labels[data-footnote]:after {
+    position: relative;
+    background: rgba(0,0,0,0.5);
+    color: yellow;
+    content: attr(data-footnote);
+    padding: 5px 10px;
+    display: block;
+  }
 </style>
 <div class="map"></div>
 <header>
@@ -139,7 +148,7 @@ data rather than just current figures in a variety of ways.
 <div class="graph">
   <h4></h4>
   <div></div>
-  <div class="graph-labels"></div>
+  <div class="graph-labels" data-footnote="inferred = dead[day + 7]/0.0.013"></div>
 </div>
 <div class="point-data" data-event="click:_component_.pickRow"></div>
 <div class="loading" data-bind="show_if=b8rRequestsInFlight.length">
@@ -211,7 +220,7 @@ data rather than just current figures in a variety of ways.
   set('dataTableConfig', {  
     virtual: true,                   // whether to virtualize the list using biggrid
     rowHeight: 24,                   // fixes row height (only necessary if virtual)
-    sliceModulus: 4,             // (if virtual) whether to make the slices stable modulo n
+    sliceModulus: 4,                 // (if virtual) whether to make the slices stable modulo n
     userCanEditColumns: true,        // can user pick which columns are shown?
     maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
     rowFilter: list => list,         // filter function
@@ -260,31 +269,44 @@ data rather than just current figures in a variety of ways.
 
   const graphOptions = {
     logscale: false,
-    colors: ['white', 'red', 'lime'],
-    labels: ['date', 'confirmed', 'dead', 'recovered'],
+    colors: ['white', 'red', 'lime', 'orange'],
+    labels: ['date', 'confirmed', 'dead', 'recovered', 'inferred'],
     labelsSeparateLines: true,
     labelsDiv: findOne('.graph-labels'),
+  }
+  
+  const inferFromDead = (dead) => {
+    const mortality = 0.02
+    let daysToDie = 7
+    const inferred = dead.map(x => x / mortality).slice(daysToDie)
+    // const last = b8r.last(inferred)
+    // while(daysToDie--) inferred.push(last)
+    return inferred
   }
   
   set('pickRow', (evt, target) => {
     // ignore clicks that aren't on a row
     let row
+    
     if(target.matches('.point-data')) {
+      // handle click on circle
       row = get().consolidated.points.find(row => row.caption === target.dataset.caption)
     } else {
+      // handle click on table row
       if(!evt.target.closest('.t-row')) return true
       row = b8r.getListInstance(evt.target)
     }
     const {latitude, longitude, caption, series} = row
-    const { consolidated: {dates}} = get();
+    const {consolidated: {dates}} = get()
     
-    firstColumn = 0 // series.confirmed.findIndex(x => x > 0)
+    const firstColumn = 0 // series.confirmed.findIndex(x => x > 0)
     const _dates = dates.slice(firstColumn)
     const confirmed = series.confirmed.slice(firstColumn)
     const dead = series.dead.slice(firstColumn)
     const recovered = series.recovered.slice(firstColumn)
+    const inferred = inferFromDead(series.dead).slice(firstColumn)
     const csv = _dates.map((date, idx) => {
-      return `${new Date(date).toJSON().split('T')[0].replace(/\-/g, '/')},${confirmed[idx]},${dead[idx]},${recovered[idx]}`
+      return `${new Date(date).toJSON().split('T')[0].replace(/\-/g, '/')},${confirmed[idx]},${dead[idx]},${recovered[idx]},${inferred[idx]}`
     }).join('\n')
 
     findOne('.graph').classList.add('active')
