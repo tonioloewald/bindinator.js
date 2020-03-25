@@ -49,6 +49,16 @@ data rather than just current figures in a variety of ways.
     font-size: 14px;
     text-align: center;
     white-space: nowrap;
+    transition: border ease-out 0.2s;
+    border: 0px solid rgba(255,0,0,0.3);
+  }
+
+  ._component_ .point-data:hover {
+    border: 1px solid rgba(255,0,0,0.4);
+  }
+
+  ._component_ .point-data:active {
+    border: 2px solid rgba(255,0,0,0.5);
   }
   
   ._component_ .data-table {
