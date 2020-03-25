@@ -278,7 +278,7 @@ data rather than just current figures in a variety of ways.
     const {latitude, longitude, caption, series} = row
     const { consolidated: {dates}} = get();
     
-    firstColumn = series.confirmed.findIndex(x => x > 0)
+    firstColumn = 0 // series.confirmed.findIndex(x => x > 0)
     const _dates = dates.slice(firstColumn)
     const confirmed = series.confirmed.slice(firstColumn)
     const dead = series.dead.slice(firstColumn)
@@ -295,7 +295,7 @@ data rather than just current figures in a variety of ways.
       center: [longitude, latitude],
       curve: 1.42,
       speed: 0.7,
-      zoom: 4.5,
+      // zoom: 4.5,
     })
   });
   
