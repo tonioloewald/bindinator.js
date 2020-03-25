@@ -31,19 +31,18 @@ export default {
       <input type="file" accept="image/*" data-event="change:_component_.handleFile">
     </div>
   `,
-  initialValue({set, findOne}) {
+  initialValue ({ set, findOne }) {
     const fileActions = {
       image (img) {
         const canvas = document.createElement('canvas')
-        const image = findOne('div[title="image"] > img')
         const rgb = findOne('div[title="rgb"] > img')
         const alpha = findOne('div[title="alpha"] > img')
         const w = canvas.width = img.naturalWidth
         const h = canvas.height = img.naturalHeight
         const ctx = canvas.getContext('2d')
         ctx.drawImage(img, 0, 0)
-        const {data} = ctx.getImageData(0, 0, w, h);
-        ctx.clearRect(0,0,512,512)
+        const { data } = ctx.getImageData(0, 0, w, h)
+        ctx.clearRect(0, 0, 512, 512)
         for (let y = 0; y < h; y++) {
           for (let x = 0; x < w; x++) {
             const offset = (y * h + x) * 4
@@ -52,8 +51,8 @@ export default {
             ctx.fillRect(x, y, 1, 1)
           }
         }
-        alpha.src = canvas.toDataURL("image/png")
-        ctx.clearRect(0,0,512,512)
+        alpha.src = canvas.toDataURL('image/png')
+        ctx.clearRect(0, 0, 512, 512)
         for (let y = 0; y < h; y++) {
           for (let x = 0; x < w; x++) {
             const offset = (y * h + x) * 4
@@ -64,7 +63,7 @@ export default {
             ctx.fillRect(x, y, 1, 1)
           }
         }
-        rgb.src = canvas.toDataURL("image/png")
+        rgb.src = canvas.toDataURL('image/png')
       },
       imageRGB () {
 
@@ -78,18 +77,18 @@ export default {
       image: null,
       imageRGB: null,
       imageAlpha: null,
-      handleFile(evt) {
-        const {files} = evt.target
-        const {title} = evt.target.closest('div[title]')
+      handleFile (evt) {
+        const { files } = evt.target
+        const { title } = evt.target.closest('div[title]')
         const img = findOne('div[title="' + title + '"] > img')
-        if (FileReader && files && files.length) {
-          const fr = new FileReader();
+        if (window.FileReader && files && files.length) {
+          const fr = new window.FileReader()
           fr.onload = () => {
             // set(title, fr.result)
             img.src = fr.result
             img.onload = () => fileActions[title](img)
           }
-          fr.readAsDataURL(files[0]);
+          fr.readAsDataURL(files[0])
         }
       }
     }
