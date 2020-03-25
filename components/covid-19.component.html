@@ -78,6 +78,15 @@ data rather than just current figures in a variety of ways.
     top: 20px;
     left: 20px;
   }
+  
+  ._component_ .chart {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40vw;
+    height: 30vh;
+    z-index: 3;
+  }
 </style>
 <div class="map"></div>
 <header>
@@ -93,6 +102,7 @@ data rather than just current figures in a variety of ways.
   "
   data-event="click:_component_.pickRow"
 ></b8r-component>
+<canvas class="chart"></canvas>
 <div 
   class="point-data"
 >
@@ -218,7 +228,16 @@ data rather than just current figures in a variety of ways.
   set('pickRow', (evt, target) => {
     // ignore clicks that aren't on a row
     if(!evt.target.closest('.t-row')) return true
-    const {latitude, longitude} = b8r.getListInstance(evt.target)
+    const {latitude, longitude, caption, series} = b8r.getListInstance(evt.target)
+    const { consolidated: {dates}} = get();
+    
+    firstColumn = series.confirmed.findIndex(x => x > 0)
+    const labels = dates.slice(firstColumn)
+    const confirmed = series.confirmed.slice(firstColumn)
+    const dead = series.dead.slice(firstColumn)
+    const recovered = series.recovered.slice(firstColumn)
+    console.table([labels, confirmed, dead, recovered])
+    
     map.flyTo({
       center: [longitude, latitude],
       curve: 1.42,
