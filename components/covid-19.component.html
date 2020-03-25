@@ -1,0 +1,283 @@
+<!--
+# COVID-19 Data Visualization
+
+This scratches an itch I've felt for several days — to be able to show time-series 
+data rather than just current figures in a variety of ways.
+
+[View Fullscreen](.?body=components/covid-19)
+-->
+<style>
+  body > ._component_ {
+    height: 100%;
+  }
+  
+  ._component_ {
+    position: relative;
+  }
+  
+  body > ._component_ > .map {
+    height: 100vh;
+  }
+  
+  ._component_ > label {
+    display: inline-block;
+    margin: 5px 0;
+  }
+
+  ._component_ > label > select {
+    text-transform: capitalize;
+  }
+
+  ._component_ > .map {
+    width: 100%;
+    min-height: 60vh;
+  }
+
+  ._component_ > .loading {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    padding: 20px 30px;
+    background: rgba(0,0,0,0.5);
+  }
+  
+  ._component_ .point-data {
+    cursor: default;
+    border-radius: 999px;
+    background: rgba(255,0,0,0.25);
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  ._component_ .data-table {
+    opacity: 0.4;
+    transition: ease-out 0.5s;
+    --table-height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40vw;
+    bottom: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 3;
+    overflow: hidden;
+  }
+  
+  ._component_ .data-table:hover {
+    opacity: 1;
+    transform: translateX(0%) translateX(0px);
+  }
+  
+  ._component_ header {
+    background: rgba(0,0,0,0.3);
+    border-radius: 2px;
+    padding: 0 10px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
+</style>
+<div class="map"></div>
+<header>
+  <h2>COVID-19 Data</h2>
+  <p>Data obtained from <a href="https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases">humdata.org</a>
+</header>
+<b8r-component 
+  path="../components/data-table.component.js" 
+  class="data-table"
+  data-bind="
+    component(rows)=_component_.consolidated.points
+    component(config)=_component_.dataTableConfig
+  "
+  data-event="click:_component_.pickRow"
+></b8r-component>
+<div 
+  class="point-data"
+>
+  <div class="circle"></div>
+  <span class="confirmed"></span>
+  <span class="recovered"></span>
+  <span class="dead"></span>
+</div>
+<div class="loading" data-bind="show_if=b8rRequestsInFlight.length">
+  LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
+</div>
+<script>
+  const confirmedUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv'
+  const recoveredUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv'
+  const deathsUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
+  const {viaTag} = await import('../lib/scripts.js')
+  const {viaLink} = await import('../source/b8r.makeStylesheet.js')
+  const {parseHash, serializeObj} = await import('../lib/url-utils.js')
+  viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
+  await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
+  await viaTag('https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js')
+  const settings = {
+    '@': '14.5242641,149.4408625,1.0'
+  }
+  Object.assign(settings, parseHash())
+  set('currentMapStyle', 'mapbox://styles/mapbox/light-v9')
+  const [long, lat, zoom] = settings['@'].split(',').map(parseFloat)
+  mapboxgl.accessToken = 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'
+  const map = new mapboxgl.Map({
+    container: findOne('.map'),
+    style: get('currentMapStyle'),
+    zoom,
+    center: [lat, long],
+  })
+  set('setMapStyle', () => {
+    map.setStyle(get('currentMapStyle'))
+  })
+  window._map = map
+  const updateHash = b8r.debounce(() => {
+    const {lng, lat} = map.getCenter()
+    const zoom = map.getZoom()
+    // limit precision to keep url shorter
+    settings['@'] = `${lat.toFixed(7)},${lng.toFixed(7)},${zoom.toFixed(1)}`
+    history.replaceState({}, "map demo", window.location.href.split('#')[0] + '#' + serializeObj(settings));
+  }, 100)
+  map.on('render', updateHash)
+  
+  const dataElement = findOne('.point-data')
+  dataElement.remove()
+  
+  const getData = async (url, path) => {
+    const csv = await b8r.ajax(url)
+    const rows = Papa.parse(csv).data
+    const dates = rows.shift().slice(4)
+    const data = rows
+      .filter(row => row[1])
+      .map(row => {
+        const [province, country, latitude, longitude, ...cells] = row
+        return {
+          province,
+          country,
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+          cells: cells.map(x => parseInt(x, 10) || 0),
+        }
+      })
+    return {
+      dates,
+      data
+    }
+  }
+  
+  set('dataTableConfig', {  
+    virtual: true,                   // whether to virtualize the list using biggrid
+    rowHeight: 24,                   // fixes row height (only necessary if virtual)
+    sliceModulus: false,             // (if virtual) whether to make the slices stable modulo n
+    userCanEditColumns: true,        // can user pick which columns are shown?
+    maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
+    rowFilter: list => list,         // filter function
+    filter: null,                    // parameter for rowFilter
+    columns: [
+      {
+        name: 'Location',
+        path: '.caption',
+        width: 200,
+        sortable: (a, b) => b8r.sortAscending(a.caption, b.caption),
+      },
+      {
+        name: 'Country',
+        path: '.country',
+        width: 160,
+        visible: false,
+        sortable: (a, b) => b8r.sortAscending(a.country, b.country),
+      },
+      {
+        name: 'Province',
+        path: '.province',
+        width: 160,
+        visible: false,
+        sortable: (a, b) => b8r.sortAscending(a.province, b.province),
+      },
+      {
+        name: 'Cases',
+        path: '.confirmed',
+        width: 100,
+        sortable: (a, b) => b8r.sortAscending(a.confirmed, b.confirmed),
+      },
+      {
+        name: 'Recovered',
+        path: '.recovered',
+        width: 100,
+        sortable: (a, b) => b8r.sortAscending(a.recovered, b.recovered),
+      },
+      {
+        name: 'Dead',
+        path: '.dead',
+        width: 100,
+        sortable: (a, b) => b8r.sortAscending(a.dead, b.dead),
+      },
+    ]
+  })
+  
+  set('pickRow', (evt, target) => {
+    // ignore clicks that aren't on a row
+    if(!evt.target.closest('.t-row')) return true
+    const {latitude, longitude} = b8r.getListInstance(evt.target)
+    map.flyTo({
+      center: [longitude, latitude],
+      curve: 1.42,
+      speed: 0.7,
+      zoom: 4.5,
+    })
+  });
+  
+  Promise
+    .all([getData(confirmedUrl), getData(recoveredUrl), getData(deathsUrl)])
+    .then(([confirmed, recovered, dead]) => {
+      const consolidated = {
+        dates: confirmed.dates,
+        points: []
+      }
+      confirmed.data.forEach((datum, idx) => {
+        const {province, country, longitude, latitude, cells} = datum
+        
+        const caption = province && province !== country ? `${province}, ${country}` : country
+        const point = {
+          caption,
+          province,
+          country,
+          longitude,
+          latitude,
+          confirmed: b8r.last(cells),
+          recovered: b8r.last(recovered.data[idx].cells),
+          dead: b8r.last(dead.data[idx].cells),
+          series: {
+            confirmed: cells,
+            recovered: recovered.data[idx].cells,
+            dead: dead.data[idx].cells
+          }
+        }
+        
+        if (point.confirmed === 0) {
+          return
+        }
+      
+        if (!isNaN(longitude) && !isNaN(latitude)) {
+          const element = dataElement.cloneNode(true)
+          const diameter = Math.sqrt(point.confirmed * .25) + 2 + 'px'
+          let summary = `${point.confirmed} cases`
+          if (point.dead) summary += `, ${point.dead} deaths`
+          if (point.recovered) summary += `, ${point.recovered} recovered`
+          element.setAttribute('title', `${caption}: ${summary}`)
+          element.style.width = element.style.height = diameter
+          point.marker = new mapboxgl.Marker({ element })
+            .setLngLat([longitude, latitude])
+            .addTo(map);
+        } else {
+          console.error('bad location', point)
+        }
+        
+        consolidated.points.push(point)
+      })
+      
+      consolidated.points.sort((a, b) => b8r.sortDescending(a.confirmed, b.confirmed))
+      
+      set({consolidated})
+    })
+</script>

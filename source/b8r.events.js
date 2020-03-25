@@ -348,10 +348,10 @@ naturally the goal is for them to be handled exactly as if they were "real".
 const trigger = (type, target, ...args) => {
   if (
     typeof type !== 'string' ||
-    (target && !(target.dispatchEvent instanceof Function))
+    (!(target instanceof Element))
   ) {
     console.error(
-      'expected trigger(eventType, target_element)',
+      'expected trigger(eventType, targetElement)',
       type,
       target
     )

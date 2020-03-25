@@ -1,57 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <!-- bindinator.js Copyright ©2016-2020 Tonio Loewald -->
-  <meta charset="utf-8">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="viewport" content="initial-scale=1, user-scalable=no, width=device-width, viewport-fit=cover">
-  <title>b8r | the lazy JavaScript framework</title>
-  <link rel="icon" href="./favicon-96x96.png" />
-  <link rel="apple-touch-icon" href="./favicon-256x256.png" />
-  <link rel="stylesheet" type="text/css" href="css/b8r.css">
-  <link rel="stylesheet" type="text/css" href="icomoon/style.css">
-  <script type="module">
-    import b8r from './source/b8r.js';
-    import {isElectron, isNwjs} from './lib/runtime-environment.js';
-    // for convenience when debugging
-    window.b8r = b8r;
-    // if the # contains 'body=path/to/component' load that
-    // othersize load 'components/documentation'
-    const component_path = (window.location.search.match(/\bbody=([^=&]+)/) || [])[1]
-                           || 'components/documentation';
-    const div = b8r.create('div');
-    requestAnimationFrame(() => {
-      // sometimes document.body doesn't exist yet
-      document.body.appendChild(div);
-      b8r.component(component_path).
-          then(c => {
-            if (c.name !== 'documentation') document.title = c.name;
-            b8r.insertComponent(c, div);
-          });
-    });
-    // debug tools
-    b8r.set('_b8r_.toggleDebug', () => {
-      if (isNwjs) {
-        const win = window.nw.Window.get();
-        // bizarrely, isDevToolsOpen requires the SDK build of nwjs but show/close does not
-        const show_dev_tools = !(win.isDevToolsOpen && win.isDevToolsOpen());
-        if (show_dev_tools) win.showDevTools(); else win.closeDevTools();
-      } else if (isElectron) {
-        import('./lib/electron-debug.js');
-        electron.remote.getCurrentWindow().toggleDevTools();
+  <head>
+    <!-- bindinator.js Copyright ©2016-2020 Tonio Loewald -->
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="initial-scale=1, user-scalable=no, width=device-width, viewport-fit=cover">
+    <title>b8r | the lazy JavaScript framework</title>
+    <link rel="icon" href="./favicon-96x96.png" />
+    <link rel="apple-touch-icon" href="./favicon-256x256.png" />
+    <link rel="stylesheet" type="text/css" href="css/b8r.css">
+    <link rel="stylesheet" type="text/css" href="icomoon/style.css">
+    <script type="module">
+      import b8r from './source/b8r.js';
+      import {isElectron, isNwjs} from './lib/runtime-environment.js';
+      // for convenience when debugging
+      window.b8r = b8r;
+      // if the # contains 'body=path/to/component' load that
+      // othersize load 'components/documentation'
+      const component_path = (window.location.search.match(/\bbody=([^=&]+)/) || [])[1]
+                            || 'components/documentation';
+      const div = b8r.create('div');
+      requestAnimationFrame(() => {
+        // sometimes document.body doesn't exist yet
+        document.body.appendChild(div);
+        b8r.component(component_path).
+            then(c => {
+              if (c.name !== 'documentation') document.title = c.name;
+              b8r.insertComponent(c, div);
+            });
+      });
+      // debug tools
+      b8r.set('_b8r_.toggleDebug', () => {
+        if (isNwjs) {
+          const win = window.nw.Window.get();
+          // bizarrely, isDevToolsOpen requires the SDK build of nwjs but show/close does not
+          const show_dev_tools = !(win.isDevToolsOpen && win.isDevToolsOpen());
+          if (show_dev_tools) win.showDevTools(); else win.closeDevTools();
+        } else if (isElectron) {
+          import('./lib/electron-debug.js');
+          electron.remote.getCurrentWindow().toggleDevTools();
+        }
+      });
+      b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
+    </script>
+    <script>
+      try {
+        eval(`import('').catch(() => {})`)
+      } catch(e) {
+        window.location = 'import.html'
       }
-    });
-    b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
-  </script>
-  <script>
-    try {
-      eval(`import('').catch(() => {})`)
-    } catch(e) {
-      window.location = 'import.html'
-    }
-  </script>
-</head>
-<body>
-</body>
+    </script>
+  </head>
+  <body>
+  </body>
 </html>

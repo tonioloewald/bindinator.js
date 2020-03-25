@@ -5,41 +5,51 @@
     font-size: 14px;
     background: #eee;
   }
+
   h2, p, ul, li {
     margin: 0;
     padding: 0;
   }
+
   .test_widgets {
     display: flex;
   }
+
   .test_widgets > div {
     flex-grow: 1;
     padding: 8px;
   }
+
   .success {
     background-color: #bfb;
   }
+
   .failure {
     background-color: #ffa;
   }
+
   .report pre {
     font-family: Menlo, Monaco, monospace;
     padding: 5px 10px;
     margin: 0;
     border-bottom: 1px solid rgba(128,128,128,0.5);
   }
+
   [data-bind] {
     display: block;
   }
+
   input[type=radio] {
     display: inline-block;
   }
+
   [data-list] {
     display: none;
   }
 </style>
 <body>
   <h2>b8r Tests</h2>
+  <b8r-component path="../test/test-nav.component.js"></b8r-component>
   <div class="test_widgets">
     <div>
       <span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
@@ -126,9 +136,9 @@
   </div>
   <div class="report"></div>
   <script type="module">
-    import b8r from './source/b8r.js';
-    import {configuredTest, trigger} from './lib/test.js';
-    import {getByPath, setByPath} from './source/b8r.byPath.js';
+    import b8r from '../source/b8r.js';
+    import {configuredTest, trigger} from '../lib/test.js';
+    import {getByPath, setByPath} from '../source/b8r.byPath.js';
 
     window.b8r = b8r
 
