@@ -7,6 +7,22 @@ data rather than just current figures in a variety of ways.
 [View Fullscreen](.?body=components/covid-19)
 -->
 <style>
+  :root {
+    --bg-30: rgba(255,255,255,0.3);
+    --bg-50: rgba(255,255,255,0.5);
+    --bg-70: rgba(255,255,255,0.7);
+    --red-25: rgba(255,0,0,0.25);
+    --red-30: rgba(255,0,0,0.3);
+    --red-50: rgba(255,0,0,0.5);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+    --bg-30: rgba(0,0,0,0.3);
+    --bg-50: rgba(0,0,0,0.5);
+    --bg-70: rgba(0,0,0,0.7);
+    }
+  }
+
   body > ._component_ {
     height: 100%;
   }
@@ -39,26 +55,26 @@ data rather than just current figures in a variety of ways.
     top: 50%;
     transform: translateX(-50%) translateY(-50%);
     padding: 20px 30px;
-    background: rgba(0,0,0,0.5);
+    background: var(--bg-50);
   }
   
   ._component_ .point-data {
     cursor: default;
     border-radius: 999px;
-    background: rgba(255,0,0,0.25);
+    background: var(--red-25);
     font-size: 14px;
     text-align: center;
     white-space: nowrap;
     transition: border ease-out 0.2s;
-    border: 0px solid rgba(255,0,0,0.3);
+    border: 0px solid var(--red-25);
   }
 
   ._component_ .point-data:hover {
-    border: 1px solid rgba(255,0,0,0.4);
+    border: 1px solid var(--red-30);
   }
 
   ._component_ .point-data:active {
-    border: 2px solid rgba(255,0,0,0.5);
+    border: 2px solid var(--red-50);
   }
   
   ._component_ .data-table {
@@ -70,7 +86,7 @@ data rather than just current figures in a variety of ways.
     right: 0;
     width: 40vw;
     bottom: 0;
-    background: rgba(0,0,0,0.75);
+    background: var(--bg-70);
     z-index: 3;
     overflow: hidden;
   }
@@ -81,7 +97,7 @@ data rather than just current figures in a variety of ways.
   }
   
   ._component_ header {
-    background: rgba(0,0,0,0.3);
+    background: var(--bg-30);
     border-radius: 2px;
     padding: 0 10px;
     position: absolute;
@@ -92,7 +108,7 @@ data rather than just current figures in a variety of ways.
   ._component_ .graph {
     transition: ease-out 0.2s;
     position: absolute;
-    background: rgba(0,0,0,0.75);
+    background: var(--bg-70);
     left: 0;
     bottom: 0;
     width: 50vw;
@@ -124,7 +140,7 @@ data rather than just current figures in a variety of ways.
   
   .graph-labels[data-footnote]:after {
     position: relative;
-    background: rgba(0,0,0,0.5);
+    background: var(--bg-50);
     color: yellow;
     content: attr(data-footnote);
     padding: 5px 10px;
@@ -155,6 +171,7 @@ data rather than just current figures in a variety of ways.
   LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
 </div>
 <script>
+  const darkmode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   const confirmedUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
   const recoveredUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv'
   const deathsUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
@@ -170,7 +187,7 @@ data rather than just current figures in a variety of ways.
     '@': '14.5242641,149.4408625,1.0'
   }
   Object.assign(settings, parseHash())
-  set('currentMapStyle', 'mapbox://styles/mapbox/light-v9')
+  set('currentMapStyle', darkmode ? 'mapbox://styles/mapbox/dark-v9' : 'mapbox://styles/mapbox/light-v9')
   const [long, lat, zoom] = settings['@'].split(',').map(parseFloat)
   mapboxgl.accessToken = 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'
   const map = new mapboxgl.Map({
