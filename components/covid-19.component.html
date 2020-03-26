@@ -155,9 +155,9 @@ data rather than just current figures in a variety of ways.
   LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
 </div>
 <script>
-  const confirmedUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv'
-  const recoveredUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv'
-  const deathsUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
+  const confirmedUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
+  const recoveredUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv'
+  const deathsUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
   const {viaTag} = await import('../lib/scripts.js')
   const {viaLink} = await import('../source/b8r.makeStylesheet.js')
   const {parseHash, serializeObj} = await import('../lib/url-utils.js')
@@ -208,7 +208,7 @@ data rather than just current figures in a variety of ways.
           country,
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
-          cells: cells.map(x => parseInt(x, 10) || 0),
+          cells: cells.map(x => x ? parseInt(x, 10) : 0),
         }
       })
     return {
@@ -278,7 +278,7 @@ data rather than just current figures in a variety of ways.
   const inferFromDead = (dead) => {
     const mortality = 0.02
     let daysToDie = 7
-    const inferred = dead.map(x => x / mortality).slice(daysToDie)
+    const inferred = dead.map(x => x ? x / mortality : 0).slice(daysToDie)
     // const last = b8r.last(inferred)
     // while(daysToDie--) inferred.push(last)
     return inferred
@@ -306,7 +306,12 @@ data rather than just current figures in a variety of ways.
     const recovered = series.recovered.slice(firstColumn)
     const inferred = inferFromDead(series.dead).slice(firstColumn)
     const csv = _dates.map((date, idx) => {
-      return `${new Date(date).toJSON().split('T')[0].replace(/\-/g, '/')},${confirmed[idx]},${dead[idx]},${recovered[idx]},${inferred[idx]}`
+      const _date = new Date(date).toJSON().split('T')[0].replace(/\-/g, '/')
+      const _confirmed = confirmed[idx] || ''
+      const _dead = dead[idx] || ''
+      const _recovered = recovered[idx] || ''
+      const _inferred = inferred[idx] || ''
+      return `${_date},${_confirmed},${_dead},${_recovered},${_inferred}`
     }).join('\n')
 
     findOne('.graph').classList.add('active')
@@ -320,6 +325,8 @@ data rather than just current figures in a variety of ways.
       // zoom: 4.5,
     })
   });
+
+  const getCells = obj => obj && obj.cells || [0]
   
   Promise
     .all([getData(confirmedUrl), getData(recoveredUrl), getData(deathsUrl)])
@@ -330,22 +337,27 @@ data rather than just current figures in a variety of ways.
       }
       confirmed.data.forEach((datum, idx) => {
         const {province, country, longitude, latitude, cells} = datum
-        
         const caption = province && province !== country ? `${province}, ${country}` : country
-        const point = {
-          caption,
-          province,
-          country,
-          longitude,
-          latitude,
-          confirmed: b8r.last(cells),
-          recovered: b8r.last(recovered.data[idx].cells),
-          dead: b8r.last(dead.data[idx].cells),
-          series: {
-            confirmed: cells,
-            recovered: recovered.data[idx].cells,
-            dead: dead.data[idx].cells
+        let point
+        try {
+          point = {
+            caption,
+            province,
+            country,
+            longitude,
+            latitude,
+            confirmed: b8r.last(cells),
+            recovered: b8r.last(getCells(recovered.data[idx])),
+            dead: b8r.last(getCells(dead.data[idx])),
+            series: {
+              confirmed: cells,
+              recovered: getCells(recovered.data[idx]),
+              dead: getCells(dead.data[idx]),
+            }
           }
+        } catch(e) {
+          console.error('bad error for', datum, dead.data[idx], recovered.data[idx], province, country)
+          return
         }
         
         if (point.confirmed === 0) {
