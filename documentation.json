@@ -408,6 +408,10 @@
       {
         "name": "Color Picker",
         "path": "components/color-picker.js"
+      },
+      {
+        "name": "Graph",
+        "path": "components/graph.component.js"
       }
     ]
   },
