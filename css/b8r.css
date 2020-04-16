@@ -63,7 +63,7 @@
   --ok-color: green;
 
   --hover-transition: 0.15s ease-out;
-  --fade-transition: 0.3s ease-out;
+  --fade-transition: opacity 0.3s ease-out;
 }
 
 @media (prefers-color-scheme: dark) {
