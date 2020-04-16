@@ -57,10 +57,29 @@ export default {
     html: `
     <h4 data-bind="text=_component_.title"></h4>
     <h5 data-bind="text=_component_.scale"></h5>
-    <svg data-bind="method(_component_.viewbox)=_component_.width,_component_.height" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-        <g fill="var(--marking-color)" data-bind="method(_component_.markLines)=_component_.marks"></g>
-        <g data-list="_component_.data" fill="var(--bar-color)" data-bind="show_if(bar)=_component_.type;method(_component_.bars)=."></g>
-        <g data-bind="show_if(line)=_component_.type" data-list="_component_.data" fill="none" stroke="var(--bar-color)" stroke-width="var(--line-width)">
+    <svg 
+        version="1.1" xmlns="http://www.w3.org/2000/svg" 
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        data-bind="method(_component_.viewbox)=_component_.width,_component_.height" 
+    >
+        <g 
+            fill="var(--marking-color)"
+            data-bind="method(_component_.markLines)=_component_.marks"
+        ></g>
+        <g 
+            fill="var(--bar-color)" 
+            data-bind="
+                show_if(bar)=_component_.type
+                method(_component_.bars)=_component_.data
+            "
+        ></g>
+        <g 
+            data-bind="show_if(line)=_component_.type"
+            data-list="_component_.data" 
+            fill="none" 
+            stroke="var(--bar-color)" 
+            stroke-width="var(--line-width)"
+        >
             <polyline data-bind="method(_component_.polyline)=."></polyline>
         </g>
     </svg>`,
@@ -75,6 +94,7 @@ export default {
         axis: [ 2016, 2017, 2018, 2019, 2020 ],
         logarithmic: false,
         marks: [0, 25, 50],
+        barOffset: 20,
         data: [
             {
                 name: 'widgets',
@@ -128,22 +148,26 @@ export default {
                 element.append(text)
             })
         },
-        bars(element, {name, cells, color}) {
+        bars(element, data) {
             element.textContent = ''
-            const {type, width, height, barSpacing, axis, calculateY} = get()
-            const max = get().maxValue()
-            const min = get().minValue()
-            const barWidth = (width + barSpacing)/cells.length
-            cells.forEach((value, idx) => {
-                const bar = makeRect()
-                const barHeight = calculateY(value, min, max)
-                bar.setAttribute('y', height - barHeight)
-                bar.setAttribute('x', idx * barWidth)
-                bar.setAttribute('height', barHeight)
-                bar.setAttribute('width', barWidth - barSpacing)
-                if (color) bar.setAttribute('fill', color)
-                bar.setAttribute('aria-label', `${name}: ${value} at ${axis[idx]}`)
-                element.append(bar)
+            const {type, width, height, barSpacing, barOffset, axis, calculateY} = get()
+            const rowCount = data.length
+            data.forEach(({name, cells, color}, rowIndex) => {
+                const max = get().maxValue()
+                const min = get().minValue()
+                const barSpace = (width + barSpacing)/cells.length
+                cells.forEach((value, idx) => {
+                    const bar = makeRect()
+                    const barHeight = calculateY(value, min, max)
+                    const barWidth = barSpace - barSpacing - (rowCount - 1) * barOffset
+                    bar.setAttribute('y', height - barHeight)
+                    bar.setAttribute('x', idx * barSpace + rowIndex * barOffset)
+                    bar.setAttribute('height', barHeight)
+                    bar.setAttribute('width', barWidth)
+                    if (color) bar.setAttribute('fill', color)
+                    bar.setAttribute('aria-label', `${name}: ${value} at ${axis[idx]}`)
+                    element.append(bar)
+                })
             })
         },
         polyline (element, {cells, color, strokeWidth, name}) {
