@@ -4,7 +4,9 @@
 When I was working on my [COVID-19 example](./?source=covid-19.component.html), I was flummoxed
 by how bad all the graph libraries I tried were. E.g. chart.js just mysteriously didn't work.
 This seemed like an opportunity to leverage some of the SVG binding trickery that I had used
-for more [frivolous purposes](./?source=timeline.component.html).
+for less [frivolous purposes](./?source=timeline.component.html).
+
+Currently supports `line` and `bar` graphs, with linear (by default) or `logarithmic = true` scales.
 
 ```
 <label>
@@ -56,7 +58,7 @@ export default {
     }`,
     html: `
     <h4 data-bind="text=_component_.title"></h4>
-    <h5 data-bind="text=_component_.scale"></h5>
+    <h5 data-bind="text=_component_.subtitle"></h5>
     <svg 
         version="1.1" xmlns="http://www.w3.org/2000/svg" 
         xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -86,7 +88,7 @@ export default {
     initialValue ({ get, findOne }) {  
       return {
         title: 'Widgets v. Sprockets',
-        scale: 'Units (1000s)',
+        subtitle: 'Units (1000s)',
         width: 300,
         height: 200,
         barSpacing: 10,
