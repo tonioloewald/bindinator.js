@@ -383,7 +383,7 @@ data rather than just current figures in a variety of ways.
       
         if (!isNaN(longitude) && !isNaN(latitude)) {
           const element = dataElement.cloneNode(true)
-          const diameter = Math.sqrt(point.confirmed * .05) + 2 + 'px'
+          const diameter = Math.min(Math.sqrt(point.confirmed * .05), 200) + 2 + 'px'
           let summary = `${point.confirmed} cases`
           if (point.dead) summary += `, ${point.dead} deaths`
           if (point.recovered) summary += `, ${point.recovered} recovered`
