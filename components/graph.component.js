@@ -24,14 +24,15 @@ Currently supports `line` and `bar` graphs, with linear (by default) or `logarit
 ```
 */
 
+// eslint-disable-next-line
 import('../web-components/select.js')
 
-const svgns = "http://www.w3.org/2000/svg"
+const svgns = 'http://www.w3.org/2000/svg'
 const makeRect = () => document.createElementNS(svgns, 'rect')
 const makeText = () => document.createElementNS(svgns, 'text')
 
 export default {
-    css: `
+  css: `
     ._component_ {
         --background-color: rgba(255,255,255,0.75);
         --marking-color: rgba(0,0,0,0.5);
@@ -56,7 +57,7 @@ export default {
         color: var(--text-color);
         margin: 0;
     }`,
-    html: `
+  html: `
     <h4 data-bind="text=_component_.title"></h4>
     <h5 data-bind="text=_component_.subtitle"></h5>
     <svg 
@@ -85,105 +86,105 @@ export default {
             <polyline data-bind="method(_component_.polyline)=."></polyline>
         </g>
     </svg>`,
-    initialValue ({ get, findOne }) {  
-      return {
-        title: 'Widgets v. Sprockets',
-        subtitle: 'Units (1000s)',
-        width: 300,
-        height: 200,
-        barSpacing: 10,
-        type: 'line',
-        axis: [ 2016, 2017, 2018, 2019, 2020 ],
-        logarithmic: false,
-        marks: [0, 25, 50],
-        barOffset: 20,
-        data: [
-            {
-                name: 'widgets',
-                strokeWidth: 4,
-                cells: [ 10, 30, 25, 40, 45 ],
-            },
-            {
-                name: 'sprockets',
-                color: 'rgba(0,0,255,0.25)',
-                cells: [ 15, 20, 23, 20, 22 ],
-            }
-        ],
-        calculateY(value, min, max) {
-            const {height, logarithmic} = get()
-            return logarithmic
-                ? height * (Math.log10(value) - Math.log10(min)) / (Math.log10(max) - Math.log10(min))
-                : height * (value - min) / (max - min)
+  initialValue ({ get, findOne }) {
+    return {
+      title: 'Widgets v. Sprockets',
+      subtitle: 'Units (1000s)',
+      width: 300,
+      height: 200,
+      barSpacing: 10,
+      type: 'line',
+      axis: [2016, 2017, 2018, 2019, 2020],
+      logarithmic: false,
+      marks: [0, 25, 50],
+      barOffset: 20,
+      data: [
+        {
+          name: 'widgets',
+          strokeWidth: 4,
+          cells: [10, 30, 25, 40, 45]
         },
-        maxValue() {
-            const {marks, data} = get()
-            return Math.max(...marks, ...data.map(datum => datum.cells).flat())
-        },
-        minValue() {
-            const {marks, data, logarithmic} = get()
-            return logarithmic ? 1 : Math.min(...marks, ...data.map(datum => datum.cells).flat())
-        },
-        viewbox(elt, [width, height]) {
-            // offsets to prevent clipping at edges; TODO make them configurable
-            elt.setAttribute('viewBox', `${-20} ${-20} ${width + 40} ${height + 40}`)
-            elt.style.margin = '-5px'
-            elt.setAttribute('width', width + 'px')
-        },
-        markLines(element, marks) {
-            element.textContent = ''
-            const {width, height, calculateY} = get()
-            const max = get().maxValue()
-            const min = get().minValue()
-            marks.forEach(value => {
-                const y = height - calculateY(value, min, max)
-                const mark = makeRect()
-                mark.setAttribute('x', 0)
-                mark.setAttribute('y', y)
-                mark.setAttribute('height', 1)
-                mark.setAttribute('width', width)
-                element.append(mark)
+        {
+          name: 'sprockets',
+          color: 'rgba(0,0,255,0.25)',
+          cells: [15, 20, 23, 20, 22]
+        }
+      ],
+      calculateY (value, min, max) {
+        const { height, logarithmic } = get()
+        return logarithmic
+          ? height * (Math.log10(value) - Math.log10(min)) / (Math.log10(max) - Math.log10(min))
+          : height * (value - min) / (max - min)
+      },
+      maxValue () {
+        const { marks, data } = get()
+        return Math.max(...marks, ...data.map(datum => datum.cells).flat())
+      },
+      minValue () {
+        const { marks, data, logarithmic } = get()
+        return logarithmic ? 1 : Math.min(...marks, ...data.map(datum => datum.cells).flat())
+      },
+      viewbox (elt, [width, height]) {
+        // offsets to prevent clipping at edges; TODO make them configurable
+        elt.setAttribute('viewBox', `${-20} ${-20} ${width + 40} ${height + 40}`)
+        elt.style.margin = '-5px'
+        elt.setAttribute('width', width + 'px')
+      },
+      markLines (element, marks) {
+        element.textContent = ''
+        const { width, height, calculateY } = get()
+        const max = get().maxValue()
+        const min = get().minValue()
+        marks.forEach(value => {
+          const y = height - calculateY(value, min, max)
+          const mark = makeRect()
+          mark.setAttribute('x', 0)
+          mark.setAttribute('y', y)
+          mark.setAttribute('height', 1)
+          mark.setAttribute('width', width)
+          element.append(mark)
 
-                const text = makeText()
-                text.textContent = value
-                text.setAttribute('x', width + 5)
-                text.setAttribute('y', y + 5)
-                element.append(text)
-            })
-        },
-        bars(element, data) {
-            element.textContent = ''
-            const {type, width, height, barSpacing, barOffset, axis, calculateY} = get()
-            const rowCount = data.length
-            data.forEach(({name, cells, color}, rowIndex) => {
-                const max = get().maxValue()
-                const min = get().minValue()
-                const barSpace = (width + barSpacing)/cells.length
-                cells.forEach((value, idx) => {
-                    const bar = makeRect()
-                    const barHeight = calculateY(value, min, max)
-                    const barWidth = barSpace - barSpacing - (rowCount - 1) * barOffset
-                    bar.setAttribute('y', height - barHeight)
-                    bar.setAttribute('x', idx * barSpace + rowIndex * barOffset)
-                    bar.setAttribute('height', barHeight)
-                    bar.setAttribute('width', barWidth)
-                    if (color) bar.setAttribute('fill', color)
-                    bar.setAttribute('aria-label', `${name}: ${value} at ${axis[idx]}`)
-                    element.append(bar)
-                })
-            })
-        },
-        polyline (element, {cells, color, strokeWidth, name}) {
-            if (cells.length < 2) return
-            const {width, height, calculateY} = get()
-            const max = get().maxValue()
-            const min = get().minValue()
-            const size = cells.length - 1
-            const points = cells.map(v => height - calculateY(v, min, max)).map((y, idx) => `${idx / size * width},${y}`).join(' ')
-            element.setAttribute('points', points)
-            element.setAttribute('aria-label', name)
-            if(color) element.setAttribute('stroke', color)
-            if(strokeWidth) element.setAttribute('stroke-width', strokeWidth)
-        },
+          const text = makeText()
+          text.textContent = value
+          text.setAttribute('x', width + 5)
+          text.setAttribute('y', y + 5)
+          element.append(text)
+        })
+      },
+      bars (element, data) {
+        element.textContent = ''
+        const { width, height, barSpacing, barOffset, axis, calculateY } = get()
+        const rowCount = data.length
+        data.forEach(({ name, cells, color }, rowIndex) => {
+          const max = get().maxValue()
+          const min = get().minValue()
+          const barSpace = (width + barSpacing) / cells.length
+          cells.forEach((value, idx) => {
+            const bar = makeRect()
+            const barHeight = calculateY(value, min, max)
+            const barWidth = barSpace - barSpacing - (rowCount - 1) * barOffset
+            bar.setAttribute('y', height - barHeight)
+            bar.setAttribute('x', idx * barSpace + rowIndex * barOffset)
+            bar.setAttribute('height', barHeight)
+            bar.setAttribute('width', barWidth)
+            if (color) bar.setAttribute('fill', color)
+            bar.setAttribute('aria-label', `${name}: ${value} at ${axis[idx]}`)
+            element.append(bar)
+          })
+        })
+      },
+      polyline (element, { cells, color, strokeWidth, name }) {
+        if (cells.length < 2) return
+        const { width, height, calculateY } = get()
+        const max = get().maxValue()
+        const min = get().minValue()
+        const size = cells.length - 1
+        const points = cells.map(v => height - calculateY(v, min, max)).map((y, idx) => `${idx / size * width},${y}`).join(' ')
+        element.setAttribute('points', points)
+        element.setAttribute('aria-label', name)
+        if (color) element.setAttribute('stroke', color)
+        if (strokeWidth) element.setAttribute('stroke-width', strokeWidth)
       }
     }
   }
+}
