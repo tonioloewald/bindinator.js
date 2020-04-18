@@ -193,7 +193,7 @@ Usually this isn't a problem, but to avoid it you can instead use `touchElement`
 `bindAll` on the list *template*  (the element with the `data-list` binding) to simply
 rerender that specific list.
 
-You can also see an example of this in the [To Do](#source=todo.component.html) example
+You can also see an example of this in the [To Do](?source=todo.component.html) example
 where `touchElement` is used to avoid triggering an unnecessary history entry.
 
 ### Virtual Lists & Grids
@@ -288,9 +288,9 @@ The simplest way to implement a virtual list is via paging.
 
 ## Other Examples
 
-- [Data Table](#source=components/data-table.component.js) is a sortable, customizable virtual data-table (powered by Big Grid)
-- [Big Grid](#source=biggrid-test.component.html) is an example of a large virtual grid with fixed-sized elements
-- [Big List](#source=big-list.component.html) is an example of a large virtual table with rows of varying height
+- [Data Table](?source=components/data-table.component.js) is a sortable, customizable virtual data-table (powered by Big Grid)
+- [Big Grid](?source=biggrid-test.component.html) is an example of a large virtual grid with fixed-sized elements
+- [Big List](?source=big-list.component.html) is an example of a large virtual table with rows of varying height
 
 ### More to come…
 

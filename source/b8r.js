@@ -9,20 +9,20 @@ b8r leverages your understanding of the DOM and the browser rather than trying t
 implement some kind of virtual machine to replace it.
 
 ## Core Functionality
-- [The Registry](#source=source/b8r.registry.js)
-- [Binding Data](#source=source/b8r.bindings.js)
-  - [sending data to the DOM](#source=source/b8r.toTargets.js)
-  - [capturing data changes from the DOM](#source=source/b8r.fromTargets.js)
-- [Events](#source=source/b8r.events.js)
-  - [keystroke](#source=source/b8r.keystroke.js)
-- [Components](#source=source/b8r.component.js)
+- [The Registry](?source=source/b8r.registry.js)
+- [Binding Data](?source=source/b8r.bindings.js)
+  - [sending data to the DOM](?source=source/b8r.toTargets.js)
+  - [capturing data changes from the DOM](?source=source/b8r.fromTargets.js)
+- [Events](?source=source/b8r.events.js)
+  - [keystroke](?source=source/b8r.keystroke.js)
+- [Components](?source=source/b8r.component.js)
 
 ## Utilities
-- [AJAX](#source=source/b8r.ajax.js)
-- [DOM Utilities](#source=source/b8r.dom.js)
-- [Functions](#source=source/b8r.functions.js)
-- [Iterators](#source=source/b8r.iterators.js)
-- [Showing and Hiding](#source=source/b8r.show.js)
+- [AJAX](?source=source/b8r.ajax.js)
+- [DOM Utilities](?source=source/b8r.dom.js)
+- [Functions](?source=source/b8r.functions.js)
+- [Iterators](?source=source/b8r.iterators.js)
+- [Showing and Hiding](?source=source/b8r.show.js)
 */
 /* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
 /* global console, Element, HTMLElement */

@@ -43,7 +43,7 @@ If you don't know about css-variables you need to stop what you're doing and
 [read up how to use CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_variables)
 right now.
 
-`b8r.css` makes extensive use of css-variables (so look there for some examples) and [b8r.dom.js](#source=source/b8r.dom.js)
+`b8r.css` makes extensive use of css-variables (so look there for some examples) and [b8r.dom.js](?source=source/b8r.dom.js)
 provides `cssVar()` for conveniently setting and getting `:root` css variables. If you want to do common things
 like support color themes (e.g. 'dark mode') or globally toggle visible focus, css-variables are 
 a very efficient way to do it.
@@ -54,7 +54,7 @@ settings to change the rendering of different custom-element's shadow-DOMs).
 ### Themes and "Dark Mode"
 
 If you want to see the power (and grace) of css-variables, you should look at the
-[Theme Editor](#source=theme-editor.component.html) component, and at how
+[Theme Editor](?source=theme-editor.component.html) component, and at how
 __Dark Mode__ is implemented in `b8r.css`. (And, assuming you can, try switching between
 normal and dark mode while you have the page open.)
 

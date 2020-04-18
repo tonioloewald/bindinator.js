@@ -97,7 +97,7 @@ global declarations.
                    // specify the component's instance type
     })
 
-All of these properties are optional. `type` and `instanceType` are [by example](#source=source/b8r.byExample.js).
+All of these properties are optional. `type` and `instanceType` are [by example](?source=source/b8r.byExample.js).
 
 ```
 <b8r-component name="typed"></b8r-component>

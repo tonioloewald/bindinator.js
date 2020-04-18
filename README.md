@@ -202,7 +202,7 @@ Components can be nested exactly as you would expect.
 
 ### Supports Web-Components
 
-`b8r` provides [convenience methods](#source=source/web-components) for creating 
+`b8r` provides [convenience methods](?source=source/web-components) for creating 
 [Web Components](https://www.webcomponents.org/), a.k.a. Custom Elements, and its bindings 
 play nice with them (e.g. waiting for a custom-element's  definition before attempting to bind 
 values to it).
@@ -213,8 +213,8 @@ Each of these little inline examples is a component written in HTML. (`b8r` expe
 components to be in files named `some-name.component.html`.)
 
 When you want to get into the details of building components, there are sections on
-[components](#source=docs/components.md) and on 
-[`b8r`'s component API](#source=source/b8r.component.js).
+[components](?source=docs/components.md) and on 
+[`b8r`'s component API](?source=source/b8r.component.js).
 
 ### Add components with `<b8r-component>`
 
@@ -260,7 +260,7 @@ tab for each child.
 
 [bindinator.com](https://bindinator.com) is built using `b8r` (along with numerous third-party 
 libraries, none of which are global dependencies). The inline 
-[fiddle component](#source=fiddle.component.html) used
+[fiddle component](?source=fiddle.component.html) used
 to display interactive examples is 272 lines including comments, styles, markup, and code.
 `b8r` isolates component internals so cleanly from the rest of the page that the fiddle doesn't
 need to use an iframe.

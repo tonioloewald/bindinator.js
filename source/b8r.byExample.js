@@ -11,7 +11,7 @@ you shouldn't use strings starting with '#' as examples of strings.)
 ## Work in Progress
 
 Ultimately, this module is intended to afford both static analysis of `b8r` code and components and efficient
-run-time checking of application state -- see [The Registry](#source=source/b8r.registry.js)
+run-time checking of application state -- see [The Registry](?source=source/b8r.registry.js)
 documentation for more information.
 
 As a side-benefit, it is also capable of driving mock-data and optimistic rendering.

@@ -187,7 +187,7 @@ E.g. for the new version 2 "pure javascript" components:
 <b8r-component path="path/to/some-v2-component.js"></b8r-component>
 ```
 
-Here's the [color-picker](#source=components/color-picker.js) component loaded inline using the preceding method:
+Here's the [color-picker](?source=components/color-picker.js) component loaded inline using the preceding method:
 
 <b8r-component path="../components/color-picker.js"></b8r-component>
 

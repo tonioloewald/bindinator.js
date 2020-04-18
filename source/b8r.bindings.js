@@ -2,7 +2,7 @@
 # Data Bindings
 
 Data binding is implemented via the `data-bind` and `data-list` attributes. Bindings tie
-[registered data](#source=source/b8r.registry.js) to and from view (DOM) elements.
+[registered data](?source=source/b8r.registry.js) to and from view (DOM) elements.
 
 ```
 <h3 data-bind="text=binding-example.text"></h3>

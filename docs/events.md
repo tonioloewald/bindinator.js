@@ -49,7 +49,7 @@ I hope you find this tradeoff to be worthwhile. It is borrowed from the way even
 behaved in *HyperCard* which I continue to regard as the most productive and robust 
 development environment I have ever used.
 
-Also see [b8r.events.js](#source=source/b8r.anyEvent.js).
+Also see [b8r.events.js](?source=source/b8r.anyEvent.js).
 
 ## Keyboard Events
 
@@ -61,8 +61,8 @@ specialize a keyboard event (e.g. `keyup`) by adding specific keys in parenthese
 ```
 
 To find out how to specify keys, you can use the 
-[keyboard event utility](#source=keycodes.component.html), which is also
-embedded in the [keystroke library](#source=source/b8r.keystroke.js) documentation.
+[keyboard event utility](?source=keycodes.component.html), which is also
+embedded in the [keystroke library](?source=source/b8r.keystroke.js) documentation.
 
 ## Catching Events Early
 
@@ -73,7 +73,7 @@ else can get at it.
 you explicitly `return true` from them. This is incredibly useful but can get you in 
 trouble if you're careless.
 
-Also see [b8r.anyEvent.js](#source=source/b8r.anyEvent.js).
+Also see [b8r.anyEvent.js](?source=source/b8r.anyEvent.js).
 
 ```
 // handle an event before anything else gets a look at it

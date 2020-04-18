@@ -18,7 +18,7 @@ value.
 
 > ### Two-Way Bindings
 >
-> `value` is also a ["from"-binding](#source=source/b8r.fromTargets.js). which means that
+> `value` is also a ["from"-binding](?source=source/b8r.fromTargets.js). which means that
 > if the user changes the value of an element (that normally has a value) the change will
 > automatically be picked up by b8r and the bound data updated -- per the example below.
 
@@ -290,7 +290,7 @@ matches the provided parameter.
     <img data-bind="img=path.to.imageUrl">
 
 The `<img>` element will have its src attribute set after the image has been preloaded
-(and it will fade in). Leverage's b8r's [imgSrc library](#source=source/b8r.imgSrc.js)
+(and it will fade in). Leverage's b8r's [imgSrc library](?source=source/b8r.imgSrc.js)
 
 **Note**: This can cause problems with cross-domain policies. If you just want to set the src
 to the specified string, you can use a simple `attr()` binding:

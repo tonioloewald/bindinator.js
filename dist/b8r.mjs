@@ -56,7 +56,7 @@ Copyright ©2016-2019 Tonio Loewald
 
 > Note that these are low-level methods that `b8r` does not expose.
 > `b8r.getByPath` and `b8r.setByPath` are deprecated (use `b8r.set` and `b8r.get` instead).
-> See the [Data Registry](#source=source/b8r.registry.js) documentation for more useful information.
+> See the [Data Registry](?source=source/b8r.registry.js) documentation for more useful information.
 
     getByPath(obj, 'path.to.value')
 
@@ -1124,7 +1124,7 @@ const dispatch = (type, target, ...args) => {
 # Async Update Queue
 
 `b8r` queues DOM updates and then performs them at the next animation frame. Generally,
-you don't need to worry about how this works. Just use [registry](#source=source/b8r.register.js)
+you don't need to worry about how this works. Just use [registry](?source=source/b8r.register.js)
 methods such as `b8r.set` (and `set` inside components) to change bound values and
 everything *should just work*.
 
@@ -1266,7 +1266,7 @@ const expectCustomElement = async tagName => {
 # Data Bindings
 
 Data binding is implemented via the `data-bind` and `data-list` attributes. Bindings tie
-[registered data](#source=source/b8r.registry.js) to and from view (DOM) elements.
+[registered data](?source=source/b8r.registry.js) to and from view (DOM) elements.
 
 ```
 <h3 data-bind="text=binding-example.text"></h3>
@@ -1716,7 +1716,7 @@ you shouldn't use strings starting with '#' as examples of strings.)
 ## Work in Progress
 
 Ultimately, this module is intended to afford both static analysis of `b8r` code and components and efficient
-run-time checking of application state -- see [The Registry](#source=source/b8r.registry.js)
+run-time checking of application state -- see [The Registry](?source=source/b8r.registry.js)
 documentation for more information.
 
 As a side-benefit, it is also capable of driving mock-data and optimistic rendering.
@@ -2765,7 +2765,7 @@ global declarations.
                    // specify the component's instance type
     })
 
-All of these properties are optional. `type` and `instanceType` are [by example](#source=source/b8r.byExample.js).
+All of these properties are optional. `type` and `instanceType` are [by example](?source=source/b8r.byExample.js).
 
 ```
 <b8r-component name="typed"></b8r-component>
@@ -3243,7 +3243,7 @@ for components no longer in the DOM.
 
 ## Paths
 
-Data inside the registry is [accessed by path](#source=source/b8r.byPath.js).
+Data inside the registry is [accessed by path](?source=source/b8r.byPath.js).
 A path is a text string that resembles javascript object references, e.g.
 
     const foo = {
@@ -3328,7 +3328,7 @@ You can enforce type checking on registry entries using `registerType`.
 
     b8r.registerType('foo', {bar: 17})
 
-This will use `matchType` (see [Type Checking by Example](#source=source/b8r.byExample.js))
+This will use `matchType` (see [Type Checking by Example](?source=source/b8r.byExample.js))
 to compare the specified registry entry when that entry is initialized or changed. So, if you
 registered the type of 'foo' as above, then:
 
@@ -4080,7 +4080,7 @@ For example:
     sort('file-list', (a, b) => b8r.sortAscending(a.name, b.name));
 
 Sorts the array at path using the provided sorting function. (And b8r provides
-[two convenience methods for creating sort functions](#source=source/b8r.sort.js).)
+[two convenience methods for creating sort functions](?source=source/b8r.sort.js).)
 
 ```
 <table>
@@ -5247,7 +5247,7 @@ value.
 
 > ### Two-Way Bindings
 >
-> `value` is also a ["from"-binding](#source=source/b8r.fromTargets.js). which means that
+> `value` is also a ["from"-binding](?source=source/b8r.fromTargets.js). which means that
 > if the user changes the value of an element (that normally has a value) the change will
 > automatically be picked up by b8r and the bound data updated -- per the example below.
 
@@ -5519,7 +5519,7 @@ matches the provided parameter.
     <img data-bind="img=path.to.imageUrl">
 
 The `<img>` element will have its src attribute set after the image has been preloaded
-(and it will fade in). Leverage's b8r's [imgSrc library](#source=source/b8r.imgSrc.js)
+(and it will fade in). Leverage's b8r's [imgSrc library](?source=source/b8r.imgSrc.js)
 
 **Note**: This can cause problems with cross-domain policies. If you just want to set the src
 to the specified string, you can use a simple `attr()` binding:
@@ -5987,7 +5987,7 @@ value.
 
 > ### Two-Way Bindings
 >
-> `value` and most "from"-bindings are also ["to"-bindings](#source=source/b8r.toTargets.js).
+> `value` and most "from"-bindings are also ["to"-bindings](?source=source/b8r.toTargets.js).
 > which means that an element will automatically be populated with bound data, and updated
 > when it is set or changed *by path* (e.g. `set('path.to.data', newValue)`) or the path to that
 > data is `touch()`ed (e.g. `touch('path.to.data'))`).
@@ -6631,20 +6631,20 @@ b8r leverages your understanding of the DOM and the browser rather than trying t
 implement some kind of virtual machine to replace it.
 
 ## Core Functionality
-- [The Registry](#source=source/b8r.registry.js)
-- [Binding Data](#source=source/b8r.bindings.js)
-  - [sending data to the DOM](#source=source/b8r.toTargets.js)
-  - [capturing data changes from the DOM](#source=source/b8r.fromTargets.js)
-- [Events](#source=source/b8r.events.js)
-  - [keystroke](#source=source/b8r.keystroke.js)
-- [Components](#source=source/b8r.component.js)
+- [The Registry](?source=source/b8r.registry.js)
+- [Binding Data](?source=source/b8r.bindings.js)
+  - [sending data to the DOM](?source=source/b8r.toTargets.js)
+  - [capturing data changes from the DOM](?source=source/b8r.fromTargets.js)
+- [Events](?source=source/b8r.events.js)
+  - [keystroke](?source=source/b8r.keystroke.js)
+- [Components](?source=source/b8r.component.js)
 
 ## Utilities
-- [AJAX](#source=source/b8r.ajax.js)
-- [DOM Utilities](#source=source/b8r.dom.js)
-- [Functions](#source=source/b8r.functions.js)
-- [Iterators](#source=source/b8r.iterators.js)
-- [Showing and Hiding](#source=source/b8r.show.js)
+- [AJAX](?source=source/b8r.ajax.js)
+- [DOM Utilities](?source=source/b8r.dom.js)
+- [Functions](?source=source/b8r.functions.js)
+- [Iterators](?source=source/b8r.iterators.js)
+- [Showing and Hiding](?source=source/b8r.show.js)
 */
 
 const b8r = {};

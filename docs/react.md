@@ -18,7 +18,7 @@ I imagine a lot of potential users of `b8r` will be familiar with [ReactJS](http
 Below I've included the React __ToDo__ example along with the same thing implemented using `b8r`.
 
 To see the ReactJS version in action, go to the [ReactJS home page](https://reactjs.org/). It's
-one of the interactive examples. The `b8r` version is [here](#source=todo-simple.component.html)
+one of the interactive examples. The `b8r` version is [here](?source=todo-simple.component.html)
 (this link won't work if you're reading this in github).
 
 ### React Version
@@ -46,7 +46,7 @@ within a component. (Some toolchains allow you to declare instance methods as ar
 effectively doing this for you. This is an example of React solving problems with tooling.) More on this below.
 
 (It's worth noting that __custom elements__ are also created via subclassing and
-run into similar issues. As a result of this, [web-components.js](#source=source/web-components)
+run into similar issues. As a result of this, [web-components.js](?source=source/web-components)
 automatically attaches event handlers to the component _instance_ in its constructor.
 The difference is that `b8r` doesn't assume the constructor needs to be overridden
 if the component does anything interesting, and handles the boilerplate function binding
@@ -197,7 +197,7 @@ The equivalent `b8r` ToDo list would looks like:
 ```
 Note the use of `_auto_` to get `b8r` to auto-generate _unique_ ids for the array elements.
 (Not "probably" unique. Guaranteed unique.) If we wanted to do it the same was as React 
-did, we'd generate `id` in some way, e.g. [uuid](#source=source/uuid.js), and have 
+did, we'd generate `id` in some way, e.g. [uuid](?source=source/uuid.js), and have 
 `data-list="_component_.list:id"` here.
 
 A more realistic scenario would be to:

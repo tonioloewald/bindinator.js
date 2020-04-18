@@ -60,7 +60,7 @@ for components no longer in the DOM.
 
 ## Paths
 
-Data inside the registry is [accessed by path](#source=source/b8r.byPath.js).
+Data inside the registry is [accessed by path](?source=source/b8r.byPath.js).
 A path is a text string that resembles javascript object references, e.g.
 
     const foo = {
@@ -145,7 +145,7 @@ You can enforce type checking on registry entries using `registerType`.
 
     b8r.registerType('foo', {bar: 17})
 
-This will use `matchType` (see [Type Checking by Example](#source=source/b8r.byExample.js))
+This will use `matchType` (see [Type Checking by Example](?source=source/b8r.byExample.js))
 to compare the specified registry entry when that entry is initialized or changed. So, if you
 registered the type of 'foo' as above, then:
 
@@ -906,7 +906,7 @@ For example:
     sort('file-list', (a, b) => b8r.sortAscending(a.name, b.name));
 
 Sorts the array at path using the provided sorting function. (And b8r provides
-[two convenience methods for creating sort functions](#source=source/b8r.sort.js).)
+[two convenience methods for creating sort functions](?source=source/b8r.sort.js).)
 
 ```
 <table>

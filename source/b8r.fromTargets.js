@@ -23,7 +23,7 @@ value.
 
 > ### Two-Way Bindings
 >
-> `value` and most "from"-bindings are also ["to"-bindings](#source=source/b8r.toTargets.js).
+> `value` and most "from"-bindings are also ["to"-bindings](?source=source/b8r.toTargets.js).
 > which means that an element will automatically be populated with bound data, and updated
 > when it is set or changed *by path* (e.g. `set('path.to.data', newValue)`) or the path to that
 > data is `touch()`ed (e.g. `touch('path.to.data'))`).
