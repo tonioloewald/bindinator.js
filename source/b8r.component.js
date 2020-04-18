@@ -314,6 +314,7 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
       asyncUpdate(false, element)
     }
   })
+  if (components[name]) console.warn('component %s has been redefined', name)
   components[name] = component
   return component
 }
