@@ -322,12 +322,14 @@ const parseBinding = binding => {
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim())
   const targets = targetsRaw.split(',').map(target => {
-    var parts = target.match(/(\w+)(\(([^)]+)\))?/)
+    var parts = target.match(/(\w+(\.\w+)*)(\(([^)]+)\))?/)
     if (!parts) {
       console.error('bad target', target, 'in binding', binding)
       return
     }
-    return parts ? { target: parts[1], key: parts[3] } : null
+    if (!parts) return null
+    if (parts[1].includes('.')) return { target: 'method', key: parts[1] }
+    return { target: parts[1], key: parts[4] }
   })
   if (!path) {
     console.error('binding does not specify source', binding)
@@ -365,7 +367,24 @@ div.dataset.bind = `
   )=_component_.emotion
   show_if=_component_.visible
 `
-Test(() => getBindings(div).length).shouldBe(3)
+Test(() => getBindings(div).length, 'newlines can separate bindings').shouldBe(3)
+
+const bindings =  [
+  {
+    "targets": [
+      {
+        "target": "method",
+        "key": "path.to.foo"
+      }
+    ],
+    "path": "path.to.bar"
+  }
+]
+div.dataset.bind = 'method(path.to.foo)=path.to.bar'
+Test(() => getBindings(div), 'method binding is parsed correctly').shouldBeJSON(bindings)
+
+div.dataset.bind = 'path.to.foo=path.to.bar'
+Test(() => getBindings(div), 'implicit method binding is parsed correctly').shouldBeJSON(bindings)
 ~~~~
 */
 
