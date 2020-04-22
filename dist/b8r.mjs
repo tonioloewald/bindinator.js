@@ -1582,12 +1582,14 @@ const parseBinding = binding => {
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim());
   const targets = targetsRaw.split(',').map(target => {
-    var parts = target.match(/(\w+)(\(([^)]+)\))?/);
+    var parts = target.match(/(\w+(\.\w+)*)(\(([^)]+)\))?/);
     if (!parts) {
       console.error('bad target', target, 'in binding', binding);
       return
     }
-    return parts ? { target: parts[1], key: parts[3] } : null
+    if (!parts) return null
+    if (parts[1].includes('.')) return { target: 'method', key: parts[1] }
+    return { target: parts[1], key: parts[4] }
   });
   if (!path) {
     console.error('binding does not specify source', binding);
@@ -1625,7 +1627,24 @@ div.dataset.bind = `
   )=_component_.emotion
   show_if=_component_.visible
 `
-Test(() => getBindings(div).length).shouldBe(3)
+Test(() => getBindings(div).length, 'newlines can separate bindings').shouldBe(3)
+
+const bindings =  [
+  {
+    "targets": [
+      {
+        "target": "method",
+        "key": "path.to.foo"
+      }
+    ],
+    "path": "path.to.bar"
+  }
+]
+div.dataset.bind = 'method(path.to.foo)=path.to.bar'
+Test(() => getBindings(div), 'method binding is parsed correctly').shouldBeJSON(bindings)
+
+div.dataset.bind = 'path.to.foo=path.to.bar'
+Test(() => getBindings(div), 'implicit method binding is parsed correctly').shouldBeJSON(bindings)
 ~~~~
 */
 
@@ -2974,6 +2993,7 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
       asyncUpdate(false, element);
     }
   });
+  if (components[name]) console.warn('component %s has been redefined', name);
   components[name] = component;
   return component
 };
@@ -5541,6 +5561,40 @@ Calls the specified method, passing it the bound value. The method will receive
 the **element**, **value**, and **data source** as parameters. (This means that methods
 also registered as event handlers will need to deal with being passed a naked
 element instead of an event).
+
+If you just include a method path as the target and it includes a period,
+`b8r` will implicitly treat the target as a method-path. So you could write
+the previous example as just:
+
+    data-bind="model.notify=message.priority"
+
+~~~~
+const span = b8r.create('span')
+let callCount = 0
+b8r.register('test_', {
+  method: (element, x) => {
+    element.textContent = x
+    callCount++
+  },
+  value: 'hello',
+})
+span.dataset.bind = 'test_.method=test_.value'
+document.body.append(span)
+b8r.forceUpdate()
+Test(() => span.textContent, 'implicit method binding works').shouldBe('hello')
+Test(() => callCount, 'method called once').shouldBe(1)
+b8r.set('test_.value', 'hello')
+b8r.forceUpdate()
+b8r.set('test_.value', 'hello')
+b8r.forceUpdate()
+Test(() => callCount, 'no unnecessary call to method').shouldBe(1)
+b8r.set('test_.value', 'good-bye')
+b8r.forceUpdate()
+Test(() => span.textContent, 'update works').shouldBe('good-bye')
+Test(() => callCount, 'exactly one more call to method').shouldBe(2)
+span.remove()
+b8r.deregister('test_')
+~~~~
 
 ```
 <input type="range" data-bind="value=_component_.num">
