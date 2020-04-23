@@ -11,8 +11,11 @@
 
 ## Yet More DSLs
 
+If you work with Angular, you're going to need to learn some new DSLs
+(domain-specific languages). E.g. you'll need to:
+
 - write templates in Angular's template language (they say it's HTML
-  but this is *just not true*. `*ngFor` is not a legitimate attribute.)
+  but this is *just not true*. `*ngFor` is not a valid attribute.)
 - write your code in Angular's version of Typescript. (`@Component`!)
 
 To be a good web-developer you need to be proficient in HTML, CSS, and
@@ -59,9 +62,9 @@ templating language at that.
       </button>
     </div>
 
-Why not `const product of products`? Why does `ngFor` need a `*`? Is
-`trackUuid` a function or a property? Why is `product.name` ok but `addToCard`
-needs `()`? What happens if you omit the `()`? Why `(click)`?
+(Incidentally: why not `const product of products`? Why does `ngFor` need a `*`?
+Is `trackUuid` a function or a property? Why is `product.name` ok but `addToCard`
+needs `()`? What happens if you omit the `()`? Why `(click)`?)
 
 vs:
 
@@ -120,18 +123,22 @@ Angular template:
 - If you're not familiar with Angular, try to figure out what the rules
   are for the syntax allowed inside `" ... "`, or `{{ ... }}`, how `*ngFor`
   works, or what the semantics of `( ... )`, `[ ... ]`, and `[( ... )]`
-  are. Why is it `trackFn` and `share()`? If you are, try to explain 
-  them simply. Then give that explanation to the Angular team... please!
+  are. Why is it `trackFn` and `share()`? And, if you are familiar with
+  Angular, please try to explain them simply. Then give that explanation 
+  to the Angular team... please!
 
 > **Note**: while I dislike the microDSLs that Angular proliferates
 > (e.g. in `ngFor` bodies, or pipes), it occurs to me that for nested lists, the
 > `ngFor="let foo of fooList"` syntax lets an inner element refer
 > to an ancestral property in a way that isn't as easy in `b8r`. (This
-> hasn't ever been a problem for me, or I'd have fixed it.)
+> hasn't ever been a problem for me, or I'd have fixed it, but it is 
+> interesting.)
 >
-> Thinking about this did inspire me to finally implement implicit
-> method bindings, so you can write `data-bind="path.to.method=path.to.value"`
-> instead of `data-bind="method(path.to.method)=path.to.value"`. I think
+> Thinking about this did inspire me to finally implement *implicit
+> method bindings*, so you can write 
+> `data-bind="path.to.method=path.to.param1,path.to.param2"`
+> instead of 
+> `data-bind="method(path.to.method)=path.to.param1,path.to.param2"`. I think
 > this simplification makes method bindings much more "first class" and 
 > eliminates any temptation I feel to add something like Angular's "pipes" or
 > complicate `b8r`'s bindings in any other way.
@@ -155,14 +162,25 @@ Let's look at `b8r` HTML:
 
 Of course, `b8r` supports web-components too, so you could also do:
 
-    <app-product-alerts
+    <app-product-alert
       data-list="path.to.products:id"
       data-bind="prop(product)=."
     >
-    </app-product-alerts>
+    </app-product-alert>
 
-Note that the `b8r` snippets are self-contained. The Angular examples need supporting 
-logic in the surrounding code. They're just the "template" piece.
+Note that the `b8r` snippets are self-contained (aside from not defining
+the internals of the product-alert component). The Angular examples need 
+supporting logic in the surrounding code, even if the product array and
+the share method already exist. They're *just* the "template" piece.
+
+To put it even more starkly: there is nothing code-like in the `b8r`
+template (e.g. `share()` or `let product of products`) yet it does *everything 
+it has to*. The Angular template has code embedded in the HTML and yet 
+requires more code elsewhere (without a supporting `class` with `products`
+and `share` properties, it doesn't do anything (except throw errors).
+
+Every line of code you don't have to write takes no time, costs nothing
+to store, doesn't need to be reviewed, causes no errors, and lints perfectly.
 
 ## Not Quite Typescript
 
@@ -181,8 +199,11 @@ logic in the surrounding code. They're just the "template" piece.
 
     }
 
-By the looks of things, a simple component can easily end up being four different
-source files.
+By the looks of things, a simple component can easily end up being *four different
+source files*. And, in practice, this isn't quite true -- there will likely be
+1-3 extra files for each subcomponent, and in many cases you'll find you need
+to create subcomponents where you wouldn't need to in `b8r` (e.g. to prevent
+unnecessary redraws).
 
 Also, on top of needing to learn and read Angular's template syntax inside
 your HTMLish code, you now need to code in some kind of weird declarative
@@ -200,16 +221,22 @@ a piece) supports obfuscation from end-to-end (e.g. protobuf code
 compiles query requests and responses down to arrays with no labels, 
 unlike GraphQL which uses plaintext labels for queries and returns 
 vanilla JSON). This saves bandwidth (and gives you a little
-"security by obscurity").
+"security by obscurity"), although gzip eliminates the bandwidth
+difference.
 
 `b8r` simply won't obfuscate the DOM or your data structures (the
 registry is really easy to understand — a huge advantage during
-development and debugging).
+development and debugging, but maybe a problem when trying to deal
+with bad actors).
 
 Of course, nothing is stopping you using protobuf over the wire
 for the performance win, and obfuscation (including minification)
 will give you little or no advantage for gzipped code (and `b8r` 
-code will typically be far smaller than Angular.)
+code will typically be far smaller than Angular because of all
+the glue and dom-rendering code you don't end up writing, compiling,
+and packaging. Also, `b8r` supports non-blocking, lazy-loading all 
+the way down so even if it weren't smaller and faster you wouldn't
+care so much.)
 
 ## Angular makes dynamic stuff hard
 
@@ -236,6 +263,9 @@ What if you dynamically add the tag to the DOM?
 It. just. works.
 
 What happens if you do the second thing first and the first thing second?
+What if you do the first thing. Wait a random amount of time. Then do the second?
+Or the other way around. Or accidentally do one of them twice?!
+
 It still works.
 
 Want to do the same thing in Angular? Well you *could* try to wrap your Angular component as
@@ -258,7 +288,8 @@ By the way, I couldn't get these approaches to work.
 
 The Angular documentation argues that `ngIf` is justified because it's cheaper in
 resources to exclude DOM elements that aren't needed and put them in when they
-are. This manifests in HTML comments appearing *everywhere* in the DOM as placeholders. 
+are. (Versus, say, putting them in and hiding/showing them -- the `b8r` way.)
+This manifests in HTML comments appearing *everywhere* in the DOM as placeholders. 
 (I assume the Angular runtime has to keep links to them to know where to put the 
 conditional elements when needed.)
 
@@ -281,7 +312,7 @@ will reorder the comments.
    necessary to keep the two things in sync,
 2. Comments are DOM nodes that slow down CSS selectors, etc.
 3. It seems apparent from looking at Angular apps that the perception that `ngIf` is
-   "free" leads to some very bad practices. Imagine a table with 1M rows filtered by
+   "free" leads to some very bad practices. Imagine a table with many rows filtered by
    setting `ngIf`.
 
 ## Angular paves the wrong paths
@@ -295,7 +326,7 @@ head around its various weird syntaxes:
 But it turns out that the default "Change Detection strategy" (Angular is full
 of idiosyncratic terminology) is not performant so you're steered towards `RxJs`
 (or `ngRx`, which is Angular's version and not quite the same) and `changeDetection.onPush`
-which requires you to label class properties with `@Input` directives (or decorators or
+which requires (?) you to label class properties with `@Input` directives (or decorators or
 whatever they're called).
 
 It turns out `onPush` isn't great either (kind of the way React manages not to be very
@@ -304,6 +335,7 @@ good at not needlessly redrawing static DOM nodes despite maintaining a "virtual
 ## It's Big and Complicated
 
 Angular's ["cheat sheet" is more lke a novel](https://angular.io/guide/cheatsheet).
+If it's this complex to summarize…
 
 ## Verbosity
 
