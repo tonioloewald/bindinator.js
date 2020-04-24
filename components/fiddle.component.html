@@ -186,6 +186,7 @@ of awesome that this works at all.
     data-bind="show_if(all)=_component_.mode"
   ></b8r-component>
   <div
+    data-children
     data-title="Source"
     data-bind="hide_if(example)=_component_.mode"
     class="code"
@@ -211,12 +212,12 @@ of awesome that this works at all.
   component.classList.add('resizer-target');
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
   on('resize', '_component_.resize');
-  const init_editor = () => {
+  const init_editor = (mode = 'ace/mode/html') => {
     editor = ace.edit(code_elt);
     ace.config.set('basePath', '../third-party/ace-src-min-noconflict/');
     editor.setTheme('ace/theme/monokai');
     editor.session.setOptions({
-      mode: 'ace/mode/html',
+      mode,
       tabSize: 2,
       useSoftTabs: true
     });
@@ -224,6 +225,10 @@ of awesome that this works at all.
   if(data.source) {
     code_elt.textContent = data.source;
     init_editor();
+    setTimeout(run);
+  } else if (code_elt.textContent.trim()) {
+    code_elt.textContent = code_elt.textContent.trim();
+    init_editor('ace/mode/javascript');
     setTimeout(run);
   } else {
     const path = component.dataset.path || 'hello';
@@ -254,14 +259,13 @@ of awesome that this works at all.
         container
       );
     } else {
-      const msg = b8r.create('div');
       try {
         const f = new Function('b8r', 'example', source); // jshint ignore:line
-        msg.textContent = f(b8r, container) || 'no error';
+        const output = f(b8r, container);
+        if (output) container.append(output);
       } catch(e) {
-        msg.textContent = '(exception) ' + e;
+        container.append('(exception) ' + e);
       }
-      container.appendChild(msg);
     }
     component.style.visibility = 'visible';
   }
