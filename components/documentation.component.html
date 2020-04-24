@@ -215,6 +215,7 @@
     width: 320px;
     max-height: 30px;
     overflow: hidden;
+    z-index: 10;
   }
 
   .in-page-nav:hover {
@@ -236,7 +237,11 @@
   }
 
   .in-page-nav > div:hover {
-    background: var(--content-bg-color);
+    background: var(--black-10);
+  }
+
+  .in-page-nav > div:active {
+    background: var(--black-20);
   }
 </style>
 <div class="content" data-event="md-render:_component_.updateNav"></div>
@@ -285,7 +290,7 @@
   <div 
     data-list="_component_.pageLinks"
     data-bind="text=.title;style(padding-left)=calc(10px + ${.indent}0px)"
-    data-event="mousedown:_component_.showLink"
+    data-event="mousedown:_b8r_.stopEvent;click:_component_.showLink"
   ></div>
 </b8r-float>
 <script>
