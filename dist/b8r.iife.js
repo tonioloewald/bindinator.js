@@ -7291,6 +7291,7 @@ var b8r = (function () {
       } else {
         b8r.moveChildren(element, children);
       }
+      // [data-parent] supports DOM elements such as <tr> that can only "live" in a specific context
       const source = component.view.querySelector('[data-parent]') || component.view;
       b8r.copyChildren(source, element);
       replaceInBindings(element, '_component_', componentId);
