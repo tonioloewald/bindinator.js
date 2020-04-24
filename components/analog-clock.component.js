@@ -17,8 +17,7 @@ export default {
   html: `
     <canvas
       data-bind="
-        attr(aria-label)
-        attr(title)=clock showing $\{_component_.time}
+        attr(aria-label),attr(title)=clock showing $\{_component_.time}
       "
       width="256" height="256"
     ></canvas>`,
