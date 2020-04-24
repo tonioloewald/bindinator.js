@@ -399,7 +399,10 @@ const _get = (path, element) => {
   if (path.substr(-1) === ')') {
     return _compute(path, element)
   } else if (path.startsWith('.')) {
-    const elt = element.closest('[data-list-instance]')
+    const elt = element && element.closest('[data-list-instance]')
+    if (! elt) {
+      console.error(`relative data-path ${path} used without list instance`, element)
+    }
     return elt ? getByPath(registry, `${elt.dataset.listInstance}${path}`) : undefined
   } else {
     path = resolvePath(path, element)
