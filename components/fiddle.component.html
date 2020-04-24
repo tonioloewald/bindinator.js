@@ -209,7 +209,7 @@ of awesome that this works at all.
 /* jshint latedef:false */
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
-  const {ace} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.min.js');
+  const {ace} = await viaTag('../third-party/ace-src-min-noconflict/ace.js');
   const code_elt = findOne('.code');
   const container = findOne('[data-title="Example"]');
   let last_code = '';
@@ -220,14 +220,14 @@ of awesome that this works at all.
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
   on('resize', '_component_.resize');
   const init_editor = (mode = 'ace/mode/html') => {
-    editor = ace.edit(code_elt);
-    ace.config.set('basePath', '../third-party/ace-src-min-noconflict/');
-    editor.setTheme('ace/theme/monokai');
-    editor.session.setOptions({
+    editor = ace.edit(code_elt, {
       mode,
       tabSize: 2,
-      useSoftTabs: true
+      useSoftTabs: true,
+      useWorker: false,
     });
+    ace.config.set('basePath', '../third-party/ace-src-min-noconflict/');
+    editor.setTheme('ace/theme/monokai');
   };
   if(data.source) {
     code_elt.textContent = data.source;
@@ -265,6 +265,7 @@ of awesome that this works at all.
     }
     b8r.empty(container);
     last_code = source;
+    if (source === '') return;
     if (source.match(/^\s*<\w+[^<>]*>/)) {
       // html component
       b8r.insertComponent(
