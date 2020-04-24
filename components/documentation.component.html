@@ -203,8 +203,43 @@
       opacity: 0.25;
     }
   }
+
+  .in-page-nav {
+    z-index: 3;
+    background: var(--faded-bg-color);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    border-radius: 5px;
+    opacity: 0.25;
+    transition: opacity ease-out 0.1s;
+    padding: 0 0 5px;
+    width: 320px;
+    max-height: 30px;
+    overflow: hidden;
+  }
+
+  .in-page-nav:hover {
+    opacity: 1;
+    max-height: 100%;
+  }
+
+  .in-page-nav > h5 {
+    margin: 0;
+    padding: 5px 10px;
+  }
+
+  .in-page-nav > * {
+    padding: 2px 10px;
+  }
+
+  .in-page-nav > div {
+    cursor: default;
+  }
+
+  .in-page-nav > div:hover {
+    background: var(--content-bg-color);
+  }
 </style>
-<div class="content"></div>
+<div class="content" data-event="md-render:_component_.updateNav"></div>
 <div class="nav">
   <div style="text-align: center; padding-bottom: 10px">
     <img
@@ -240,12 +275,26 @@
     </div>
   </details>
 </div>
+<b8r-float
+  drag="true"
+  class="in-page-nav" 
+  data-bind="show_if=_component_.pageLinks.length" 
+  style="top: 10px; right: 10px;"
+>
+  <h5 class="floater-title">Contents</h5>
+  <div 
+    data-list="_component_.pageLinks"
+    data-bind="text=.title;style(padding-left)=calc(10px + ${.indent}0px)"
+    data-event="mousedown:_component_.showLink"
+  ></div>
+</b8r-float>
 <script>
 /* jshint latedef:false */
 /* global b8r, alert, component, set, findOne */
   const windows = await import('../lib/windows.js');
   const {configuredTest} = await import('../lib/test.js');
   const {parseSearch} = await import('../lib/url-utils.js');
+  import('../web-components/float.js');
   const getSource = () => parseSearch().source || get('docs')[0].parts[0].path
   const content = findOne('.content');
   const nav = findOne('.nav');
@@ -330,6 +379,17 @@
     }))
     console.log('Index built', Date.now() - start)
   }
+  const updateNav = b8r.debounce(() => {
+    const pageLinks = b8r.findWithin(content, '.markdown-viewer-component > h1,.markdown-viewer-component > h2,.markdown-viewer-component > h3,[name=fiddle],[data-component=fiddle]').map(element => {
+      return {
+        title: element.dataset.componentId ? `example: ${element.dataset.path}` : element.textContent,
+        indent: element.dataset.componentId ? 4 : parseInt(element.tagName[1] - 1),
+        element,
+      }
+    })
+    console.log(pageLinks)
+    set({pageLinks})
+  }, 100);
   b8r.json(component.dataset.sourceFiles || 'documentation.json')
      .then(docs => {
         docs.forEach(section => {
@@ -344,9 +404,9 @@
           docs.forEach(section => section.parts.forEach((part, idx) => runTests(section.title, idx)))
         }
       });
-  var last_component_path;
+  let last_component_path;
   function update() {
-    var component_path = getSource()
+    let component_path = getSource()
     if(component_path !== undefined && component_path === last_component_path) {
       // ignoring hash change within component
       return;
@@ -379,6 +439,12 @@
       set({docs})
     }),
     buildIndex,
+    updateNav,
+    pageLinks: [],
+    showLink: (evt) => {
+      const {element} = b8r.getListInstance(evt.target)
+      element.scrollIntoView({behavior: 'smooth'})
+    },
     toggle (evt, details) {
       const {title} = b8r.getListInstance(details);
       get('docs').forEach(doc => doc._open = doc.title === title ? !doc._open : false)
