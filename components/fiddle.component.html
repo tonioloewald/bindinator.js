@@ -19,6 +19,10 @@ of awesome that this works at all.
     visibility: hidden;
   }
 
+  .fiddle-header {
+    height: 35px;
+  }
+
   .fullscreen > .fiddle-header,
   .fullscreen > .fiddle-bodies {
     position: fixed;
@@ -29,11 +33,10 @@ of awesome that this works at all.
 
   .fullscreen > .fiddle-header {
     top: 0;
-    height: 40px;
   }
 
   .fullscreen > .fiddle-bodies {
-    top: 40px;
+    top: 35px;
     bottom: 0;
     overflow-y: scroll;
     overflow-y: overlay;
@@ -49,7 +52,7 @@ of awesome that this works at all.
 
   .fiddle-header {
     display: flex;
-    padding: 0 var(--narrow-spacing-size);
+    padding: 0 var(--spacing-size);
     flex-shrink: 0;
     background: var(--bright-accent-color);
     color: var(--text-color);
@@ -67,6 +70,9 @@ of awesome that this works at all.
     opacity: 0.5;
     color: var(--text-color);
     box-shadow: none;
+    padding: 0 var(--spacing-size);
+    margin: 0;
+    cursor: default;
   }
 
   .fiddle-component .refresh:hover {
@@ -122,7 +128,7 @@ of awesome that this works at all.
   }
 
   .fiddle-component .maxtoggle-component {
-    top: var(--spacing-size);
+    top: var(--narrow-spacing-size);
     right: var(--spacing-size);
   }
 
@@ -163,14 +169,14 @@ of awesome that this works at all.
   </b8r-component>
   <span style="flex-grow: 1"></span>
   &nbsp;
-  <button
+  <span
     data-event="click:_component_.run"
     class="refresh"
     title="refresh"
   >
-    <span class="icon-wrench"></span>
+    <span class="icon-loop3"></span>
     Refresh
-  </button>
+</span>
   <span data-bind="text=_component_.title"></span>
   <b8r-component path="./components/maxtoggle"></b8r-component>
 </div>

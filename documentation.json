@@ -501,6 +501,10 @@
       {
         "name": "Modal Test",
         "path": "modal-test.component.html"
+      },
+      {
+        "name": "Icons",
+        "path": "icomoon/demo.html"
       }
     ]
   },
