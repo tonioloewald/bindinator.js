@@ -6,7 +6,7 @@
 
 *The* key idea in `b8r` is of binding **things** (dom elements, events, values) to **paths**.
 
-A **path** serves as the cut-out between concept and concrete values, allowing view elements and
+A **path** serves as the cut-out between a logical address and a concrete value, allowing view elements and
 the data you intend to populate them or the events you intend them to trigger to be decoupled cleanly.
 
 ## register, set, get, and replace — binding data to names
@@ -152,6 +152,7 @@ The general form is `data-list="path.to.array"` or, optionally `data-list="path.
 ```
 
 Within the list template, you can use **relative paths** (e.g. `.name`) which reference paths within the list element.
+
 The relative path `.` is treated by `b8r` as referring to the entire list item, which is especially useful for
 binding arrays of bare values (e.g. arrays of strings or numbers)
 
