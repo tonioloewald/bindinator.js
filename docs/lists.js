@@ -238,7 +238,7 @@ The simplest way to implement a virtual list is via paging.
 </div>
 <script>
   const {NameGenerator} = await import('../lib/name-generator.js')
-  const examples = await b8r.json('../test/jedi-names.json')
+  const examples = await b8r.json('./test/jedi-names.json')
   const jediNames = new NameGenerator(examples)
 
   set({
