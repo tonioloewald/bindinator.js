@@ -1,27 +1,39 @@
 # b8r overview
 
+<img src="./docs/images/binding.svg">
+
 ## paths
 
-The key idea in `b8r` is of binding **things** (dom elements, events, data) to **paths**. A path looks like `path.to.value` where `path` is the **root** name.
+*The* key idea in `b8r` is of binding **things** (dom elements, events, values) to **paths**.
 
-## register, set, and get — binding data to names
+A **path** serves as the cut-out between concept and concrete values, allowing view elements and
+the data you intend to populate them or the events you intend them to trigger to be decoupled cleanly.
 
-You bind data to names by **registering** objects to root **names**.
+## register, set, get, and replace — binding data to names
+
+You bind values to names by **registering** objects to root **names**.
 
 ```
 b8r.register('root', { test: 17 });
 ```
 
-You can now access the value 17 by using its **path** which is `root.test`.
+You can now *retrieve* the value 17 by using its **path** which is `root.test`.
 
 ```
 b8r.get('root.test') // 17
 ```
 
-You can update the value at the path:
+You can *update* the value at the path:
 
 ```
 b8r.set('root.test', Math.PI)
+```
+
+And you can *replace* an object inside the registry using `replace`:
+
+```
+b8r.set('root.infinity', Infinity)  // b8r.get('root.test') is still Math.PI
+b8r.replace('root', {bar: 'baz'})   // b8r.get('root.test') and b8r.get('root.infinity') are gone
 ```
 
 ### register, set, and get — inside a component
@@ -34,6 +46,20 @@ which are local to the component.
   b8r.set('someRoot.to.foo', 'hello') // sets the registry entry for "someRoot.to.foo" to "hello"
   set('to.foo', 'good-bye') // sets the registry entry for `\`${component.dataset.id}.to.foo\`` to "good-bye"
 </script>
+```
+
+### touch
+
+Sometimes you simply need to make changes directly. It might be for efficiency or convenience. Also, if
+you change the order of elements in an array, there may be no other way around it.
+
+In such cases you can simply tell `b8r` that you've changed something by calling `touch` on the path containing
+the changes. E.g.
+
+```
+const bigArray = b8r.get('app.bigArray')
+bigArray.sort(complexSortingFunction)
+b8r.touch('app.bigArray')
 ```
 
 ### paths for array items
@@ -95,6 +121,14 @@ When the event occurs the method is called and passed the event and the element.
 </script>
 ```
 
+<b8r-component name="fiddle">
+const button = b8r.create('button')
+button.dataset.event = 'click:event-binding-example.click'
+button.textContent = 'click me!'
+example.appendChild(button)
+b8r.register('event-binding-example', {click: () => alert('it works!')})
+</b8r-component>
+
 Again, it's not important if the event is triggered (slightly) before the handler has been bound to the path. You can bind a path to an event and then bind the method later (e.g. when the code for it becomes available). In fact, if the user clicks the button before the method has been bound to the path, it will call the method when it becomes available.
 
 ## binding lists with `data-list`
@@ -118,6 +152,18 @@ The general form is `data-list="path.to.array"` or, optionally `data-list="path.
 ```
 
 Within the list template, you can use **relative paths** (e.g. `.name`) which reference paths within the list element.
+The relative path `.` is treated by `b8r` as referring to the entire list item, which is especially useful for
+binding arrays of bare values (e.g. arrays of strings or numbers)
+
+<b8r-component name="fiddle">
+const div = b8r.create('div')
+div.dataset.list = "simple-list-example.array"
+div.dataset.bind = "text=."
+example.append(div)
+b8r.register('simple-list-example', {
+  array: ['a', 'simple', 'array', 17, Math.PI]
+})
+</b8r-component>
 
 ## components
 
