@@ -385,13 +385,15 @@
     console.log('Index built', Date.now() - start)
   }
   const updateNav = b8r.debounce(() => {
-    const pageLinks = b8r.findWithin(content, '.markdown-viewer-component > h1,.markdown-viewer-component > h2,.markdown-viewer-component > h3,[name=fiddle],[data-component=fiddle]').map(element => {
-      return {
-        title: element.dataset.componentId ? `example: ${element.dataset.path}` : element.textContent,
-        indent: element.dataset.componentId ? 4 : parseInt(element.tagName[1] - 1),
-        element,
-      }
-    })
+    const pageLinks = b8r.findWithin(content, 'h1,h2,h3,[name=fiddle],[data-component=fiddle]')
+      .filter(element => !element.parentElement.closest('fiddle-component'))
+      .map(element => {
+          return {
+          title: element.dataset.componentId ? `example: ${element.dataset.path}` : element.textContent,
+          indent: element.dataset.componentId ? 4 : parseInt(element.tagName[1] - 1),
+          element,
+        }
+      })
     console.log(pageLinks)
     set({pageLinks})
   }, 100);
