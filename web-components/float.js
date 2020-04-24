@@ -6,9 +6,6 @@ Provides a custom `<b8r-float>` element.
 Supports some useful attributes:
 
 - `drag=false` -- whether the element can be dragged around
-- `x=50%` -- position in pixels or percentage (0 is 0 either way)
-- `y=50%` -- position in pixels or percentage
-- `pin="NW"` -- where to pin the element's position (e.g. "NW", "E", "" == center)
 
 ```
 <style>
@@ -90,8 +87,6 @@ const Float = makeWebComponent('b8r-float', {
     ':host': {
       display: 'block',
       position: 'fixed',
-      top: 0,
-      left: 0
     },
     '.drag-region': {
       display: 'none',
@@ -103,9 +98,6 @@ const Float = makeWebComponent('b8r-float', {
     }
   },
   attributes: {
-    x: '50%',
-    y: '50%',
-    pin: 'center',
     drag: false
   },
   content: fragment(
@@ -126,8 +118,8 @@ const Float = makeWebComponent('b8r-float', {
         this.shadowRoot.querySelector('.drag-region').style.display = 'block'
         const { clientX, clientY } = evt
         target._dragging = {
-          x: clientX - parseFloat(target.style.left),
-          y: clientY - parseFloat(target.style.top)
+          x: clientX - parseFloat(target.offsetLeft),
+          y: clientY - parseFloat(target.offsetTop)
         }
         evt.preventDefault()
         evt.stopPropagation()
@@ -142,16 +134,6 @@ const Float = makeWebComponent('b8r-float', {
         dragRegion.addEventListener('mousemove', mousemove)
         dragRegion.addEventListener('mouseup', mouseup)
       }
-      const x = this.pin.toLowerCase().includes('n') ? 0
-        : this.pin.toLowerCase().includes('s') ? -1 : 0.5
-      const y = this.pin.toLowerCase().includes('w') ? 0
-        : this.pin.toLowerCase().includes('e') ? -1 : 0.5
-      const w = window.innerWidth
-      const h = window.innerHeight
-      const left = this.x.endsWith('%') ? w * parseFloat(this.x) * 0.01 : parseFloat(this.x)
-      const top = this.y.endsWith('%') ? h * parseFloat(this.y) * 0.01 : parseFloat(this.y)
-      this.style.left = (left + x * this.offsetWidth) + 'px'
-      this.style.top = (top + y * this.offsetHeight) + 'px'
     },
     close () {
       this.remove()
