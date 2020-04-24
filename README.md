@@ -118,7 +118,7 @@ you bind **javascript objects to paths** using `b8r.set`, and `b8r` does the res
 
 This is all asynchronous. Do it in whatever order makes sense.
 
-<b8r-component path="components/fiddle" data-path="drumpf"></b8r-component>
+<b8r-component path="components/fiddle" data-source="components/drumpf"></b8r-component>
 
 In this example `text` is the **target**, `example.name` is the **data-path**. The root **name**
 (`example`) is bound to the path via `b8r.register`.
@@ -158,7 +158,7 @@ elsewhere — otherwise you won't be able to see the registry.
 
 Binding **arrays** is just as simple, using the `data-list` attribute:
 
-<b8r-component path="components/fiddle" data-path="list"></b8r-component>
+<b8r-component path="components/fiddle" data-source="components/list"></b8r-component>
 
 Within a list binding, paths beginning with a period are relative to the list instance. (Look at
 the `<li>` tags in the preceding example.)
@@ -178,11 +178,11 @@ bind to a list of bare strings then `data-bind="text=."` will get the string,
 
 Most **updates** are handled automatically:
 
-<b8r-component path="components/fiddle" data-path="update"></b8r-component>
+<b8r-component path="components/fiddle" data-source="components/update"></b8r-component>
 
 ### Bind events to methods with `data-event`
 
-<b8r-component path="components/fiddle" data-path="events"></b8r-component>
+<b8r-component path="components/fiddle" data-source="components/events"></b8r-component>
 
 Events are bound via data-paths as just like data. In this example `click` is the event type and
 `example4.click` is the path to the event.
@@ -220,7 +220,7 @@ When you want to get into the details of building components, there are sections
 
 A **stateful component** looks like this:
 
-<b8r-component path="components/fiddle" data-path="clock"></b8r-component>
+<b8r-component path="components/fiddle" data-source="components/clock"></b8r-component>
 
 And to use the preceding component, you'd write something like this:
 
@@ -230,7 +230,7 @@ And to use the preceding component, you'd write something like this:
 
 You can build a **To Do List** app like this:
 
-<b8r-component path="components/fiddle" data-path="todo"></b8r-component>
+<b8r-component path="components/fiddle" data-source="components/todo"></b8r-component>
 
 > **Note**: the to-do list component in the preceding example is bound to a global path,
 > as is the one below. So the two share data automatically. This is *not* an accident.
@@ -254,7 +254,7 @@ If the `parent` component has an element with the `data-children` attribute, whe
 child will be moved into it. In the example below, the `tab-selector` component creates one
 tab for each child.
 
-<b8r-component name="fiddle" data-path="compose-example"></b8r-component>
+<b8r-component name="fiddle" data-source="components/compose-example"></b8r-component>
 
 ### Dog Food!
 

@@ -218,6 +218,8 @@ const componentName = makeComponent('component-name', {
 })
 ```
 
+<b8r-component name="fiddle" data-source="components/analog-clock.component.js"></b8r-component>
+
 This would be saved as, for example, `example.component.html`.
 
 ### loading components with `<b8r-component>`

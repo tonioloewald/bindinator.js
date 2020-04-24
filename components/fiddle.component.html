@@ -209,9 +209,10 @@ of awesome that this works at all.
 /* jshint latedef:false */
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
-  const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
+  const {ace} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.min.js');
   const code_elt = findOne('.code');
   const container = findOne('[data-title="Example"]');
+  let last_code = '';
   let editor;
   component.classList.add('maxtoggle-target')
   const maxToggle = b8r.create('b8r-component')
@@ -236,14 +237,20 @@ of awesome that this works at all.
     code_elt.textContent = code_elt.textContent.trim();
     init_editor('ace/mode/javascript');
     setTimeout(run);
-  } else {
-    const path = component.dataset.path || 'hello';
-    b8r.component('fiddle-' + unique(), path, true).then(c => {
-      set('title', path);
-      code_elt.textContent = c._source.replace(/\t/g, '  ');
+  } else if (component.dataset.source) {
+    const source_path = component.dataset.source;
+    const code = source_path.endsWith('js') 
+      ? await b8r.ajax(source_path)
+      : await b8r.ajax(source_path + '.component.html');
+    code_elt.textContent = code.replace(/\t/g, '  ');
+    if (source_path.endsWith('.js')) {
+      init_editor('ace/mode/javascript');
+    } else {
       init_editor();
-      run();
-    });
+    }
+    run();
+  } else {
+    code_elt.textContent = '// enter code here'
   }
   function indent () {
     if (editor) {
@@ -251,7 +258,6 @@ of awesome that this works at all.
     }
     document.execCommand('insertText', false, '  ');
   }
-  let last_code = '';
   function run() {
     const source = (editor ? editor.getValue() : code_elt.textContent).trim();
     if (last_code === source) {
@@ -259,12 +265,27 @@ of awesome that this works at all.
     }
     b8r.empty(container);
     last_code = source;
-    if (source.match(/<\w+[^<>]*>/)) {
+    if (source.match(/^\s*<\w+[^<>]*>/)) {
+      // html component
       b8r.insertComponent(
         b8r.makeComponent('fiddle-' + unique(), source, b8r._path ? `${b8r._path}/` : ''),
         container
       );
+    } else if (source.match(/\bexport default\b/)) {
+      // javascript component
+      if (source.match(/\bimport\('./)) {
+        container.textContent = 'fiddle does not support transitive import of relative paths'
+      } else {
+        const data_uri = 'data:text/javascript;charset=utf-8,' + encodeURIComponent(source)
+        import(data_uri).then(exports => {
+          b8r.insertComponent(
+            b8r.makeComponent('fiddle-' + unique(), exports.default),
+            container
+          );
+        });
+      }
     } else {
+      // javascript
       try {
         const f = new Function('b8r', 'example', source); // jshint ignore:line
         const output = f(b8r, container);

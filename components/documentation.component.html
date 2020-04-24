@@ -388,9 +388,12 @@
     const pageLinks = b8r.findWithin(content, 'h1,h2,h3,[name=fiddle],[data-component=fiddle]')
       .filter(element => !element.parentElement.closest('fiddle-component'))
       .map(element => {
-          return {
-          title: element.dataset.componentId ? `example: ${element.dataset.path}` : element.textContent,
-          indent: element.dataset.componentId ? 4 : parseInt(element.tagName[1] - 1),
+        const title = element.dataset.componentId 
+          ? (element.dataset.source ? `“${element.dataset.source.split('/').pop().split('.').shift()}” example` : 'inline example')
+          : element.textContent
+        return {
+          title,
+          indent: element.tagName[0] === 'H' ? parseInt(element.tagName[1] - 1) : 4,
           element,
         }
       })
