@@ -209,7 +209,7 @@ of awesome that this works at all.
 /* jshint latedef:false */
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
-  const {ace} = await viaTag('../third-party/ace-src-min-noconflict/ace.js');
+  const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
   const code_elt = findOne('.code');
   const container = findOne('[data-title="Example"]');
   let last_code = '';
