@@ -1039,7 +1039,7 @@ You can also remove a listener using the test parameter, but it will remove _all
 listeners which use that test.
 
 Finally, you can have an observer **remove itself** by returning
-`b8r.constants.observeShouldBeRemoved` from either the test method (if you use one)
+`b8r.constants.observerShouldBeRemoved` from either the test method (if you use one)
 or the callback.
 
 ~~~~
