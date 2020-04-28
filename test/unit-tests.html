@@ -295,28 +295,15 @@
 
     // ajax methods
     b8r.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
-    {
-      var failures = 0;
-      b8r.ajax('test/does-not-exist.txt', 'GET')
-        .then(() => {}, () => failures++)
-        .then(() => Test(() => failures).shouldBe(1));
-    }
-    b8r.json('test/test.json', 'GET')
-      .then(data => Test(() => data.bar.baz[1].foo).shouldBe('BAZ'));
-    {
-      // loads malformed response, should reject with error
-      let failures = 0;
-      b8r.json('test/malformed.json', 'GET')
-        .then(() => {}, () => failures++)
-        .then(() => Test(() => failures).shouldBe(1));
-    }
-    {
-      // loads empty response, resolves with valid JSON "null" string
-      let failures = 0;
-      b8r.json('test/empty.json', 'GET')
-        .then(() => {}, () => failures++)
-        .then(() => Test(() => failures).shouldBe(0));
-    }
+    Test(async () => b8r.ajax('test/does-not-exist.txt', 'GET'), 'endpoint 404 throws error').shouldThrow();
+
+    Test(async () => {
+      const data = await b8r.json('/test/test.json', 'GET')
+      return data.bar.baz[1].foo
+    }, 'b8r.json works').shouldBe('BAZ')
+    Test(async () => b8r.json('/test/malformed.json', 'GET'), 'malformed json throws error')
+      .shouldThrow()
+    Test(async () => b8r.json('/test/empty.json', 'GET'), 'empty json returns null').shouldBeJSON(null)
 
     // method to and from targets
     b8r.register('method_binding', {

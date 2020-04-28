@@ -449,7 +449,15 @@ const component = (name, url, preserveSource = false) => {
         resolve(components[name])
       } else if (url.match(/\.m?js$/)) {
         import(url).then(exports => {
-          resolve(components[name] || makeComponent(name, exports.default))
+          if (components[name]) {
+            resolve(components[name])
+          } else if (exports.default && typeof exports.default === 'object') {
+            resolve(makeComponent(name, exports.default))
+          } else {
+            const err = `cannot define component "${name}", ${url} does not export a component definition as default`
+            console.error(err)
+            reject(err)
+          }
         }).catch(err => {
           delete componentPromises[name]
           console.error(err, `failed to import component ${url}`)

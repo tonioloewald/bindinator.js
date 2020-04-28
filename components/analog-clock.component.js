@@ -24,14 +24,14 @@ export default {
   load: async ({ get, set, findOne }) => {
     /* global Image */
     // const { domInterval } = await import( '../lib/dom-timers.js' )
-    const domInterval = (elt, cb, interval_ms) => {
+    const domInterval = (elt, cb, intervalMs) => {
       const interval = setInterval(() => {
-        if (! document.body.contains(elt)) {
+        if (!document.body.contains(elt)) {
           clearInterval(interval)
         } else {
           cb()
         }
-      }, interval_ms)
+      }, intervalMs)
     }
 
     const clock = findOne('canvas')

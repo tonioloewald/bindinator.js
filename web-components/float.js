@@ -86,7 +86,7 @@ const Float = makeWebComponent('b8r-float', {
   style: {
     ':host': {
       display: 'block',
-      position: 'fixed',
+      position: 'fixed'
     },
     '.drag-region': {
       display: 'none',

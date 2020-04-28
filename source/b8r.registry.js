@@ -330,6 +330,7 @@ import { getDataPath, getComponentId, splitPaths } from './b8r.bindings.js'
 import { matchType } from './b8r.byExample.js'
 import { componentTypes } from './b8r.component.js'
 import { _b8r_ } from './b8r._b8r_.js'
+import { observerShouldBeRemoved } from './b8r.constants.js'
 
 const registry = { _b8r_ }
 const registeredTypes = {}
@@ -400,7 +401,7 @@ const _get = (path, element) => {
     return _compute(path, element)
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]')
-    if (! elt) {
+    if (!elt && element.closest('body')) {
       console.error(`relative data-path ${path} used without list instance`, element)
     }
     return elt ? getByPath(registry, `${elt.dataset.listInstance}${path}`) : undefined
@@ -757,8 +758,28 @@ const getJSON = (path, element, pretty) => {
 }
 
 const touch = (path, sourceElement) => {
-  listeners.filter(listener => listener.test(path))
-    .forEach(listener => listener.callback(path, sourceElement))
+  listeners.filter(listener => {
+    let heard
+    try {
+      heard = listener.test(path)
+    } catch (e) {
+      console.error(listener, 'test threw exception', e)
+    }
+    if (heard === observerShouldBeRemoved) {
+      unobserve(listener)
+      return false
+    }
+    return !!heard
+  })
+    .forEach(listener => {
+      try {
+        if (listener.callback(path, sourceElement) === observerShouldBeRemoved) {
+          unobserve(listener)
+        }
+      } catch (e) {
+        console.error(listener, 'callback threw exception', e)
+      }
+    })
 }
 
 const _defaultTypeErrorHandler = (errors, action) => {
@@ -1016,6 +1037,10 @@ You can remove a listener (if you kept the reference handy).
 
 You can also remove a listener using the test parameter, but it will remove _all_
 listeners which use that test.
+
+Finally, you can have an observer **remove itself** by returning
+`b8r.constants.observeShouldBeRemoved` from either the test method (if you use one)
+or the callback.
 
 ~~~~
 b8r.register('listener_test1', {

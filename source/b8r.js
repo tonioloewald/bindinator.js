@@ -27,6 +27,7 @@ implement some kind of virtual machine to replace it.
 /* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
 /* global console, Element, HTMLElement */
 
+import * as constants from './b8r.constants.js'
 import { getByPath, pathSplit } from './b8r.byPath.js'
 import * as _dom from './b8r.dom.js'
 import * as _iterators from './b8r.iterators.js'
@@ -92,7 +93,7 @@ import * as webComponents from './web-components.js'
 
 import { unique } from './uuid.js'
 
-const b8r = {}
+const b8r = { constants }
 const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
 

@@ -168,62 +168,112 @@ You can insert components programmatically using `b8r.insertComponent` and `b8r.
 You load a component *asynchronously* using `b8r.component('path/to/name-of-component')`. This returns a
 *promise* of the component. Once the component is loaded, `b8r` will automatically
 insert an instance of the component into every element that has been given the attribute
-`data-component="name-of-component"`.
+`data-component="name-of-component"` (and the promise will resolve).
 
-Components are used by specifying a component to be inserted in an element (e.g. a `<div>`)
-using the `data-component` attribute.
+To insert a component in the DOM you can use a `<b8r-component>` customElement specifying
+the component `name` and/or `path` or you can directly insert the component using the
+`insertComponent` method.
 
-### Birth
+If you specify a `path` then the component will automatically be loaded from the path specified
+and named based on the name of the file. (`path` can omit `.component.html` for older `html`
+components.)
 
-When a component instance is inserted into the DOM:
+If you specify a `name` (only) then the component must be loaded elsewhere.
 
-1. The `data-component` attribute (if any) will be removed and replaced with a unique `data-component-id`.
-2. Component data will be registered with the component's id.
-3. The element will also be given the class `name-component` (and any previous `...-component` class will be stripped).
-4. `_component_` will be replaced in data-bindings with the component's id
-4. Any already available sub-components will be inserted.
-6. The component's contents (including the containing element) will be bound to data as appropriate.
+If you specify a `name` and a `path` then, if after importing a specified javascript
+module, a component with that name has been defined, it will be inserted. If not, and
+the module has a default export, that will be defined as the component and inserted.
+For an `html` module, the component will be loaded and assigned that name and inserted.
 
-And finally, the component's `<script>` will be run as the body of a function that is passed several useful parameters:
+**Deprecated** you can also use the `data-component` attribute to specify the `name` of
+a component to be inserted in an element.
 
-* `require` -- a local instance of require scoped to the local path
+### The First Time…
+
+The **first time** a given component is inserted into the DOM, its `<style>` sheet (if any) is
+inserted into the document `head`. Inside that stylesheet, `_component_` will have been
+replaced with `<name>-component` where `name` is the `name` of the component.
+
+A component's `<style>` sheet will have a `data-title` set to the component's name, to make
+debugging CSS issues easier.
+
+**Note** that this takes place the first time a given component is instanced and inserted, not
+when the component is imported or loaded. So if you grab a component but never use it, its
+styles will never get inserted into the DOM.
+
+### Construction (`initialValue`)
+
+When a component instance created (i.e. `clone`d from its view template), it is assigned a 
+unique `componentId` that looks like `c#<name>#<number>` where `<name>` is the name assigned to 
+that component and `<number>` is a unique integer (assigned in order, so #14 is the 14th component
+instance of any kind).
+
+As soon as a component is instantiated (i.e. `clone`ed from its view template), and prior to
+being inserted into the DOM, its `initialValue` is computed and registered as its `componentId`.
+
+The `initialValue` object will be assigned the component's `componentId` and `dataPath` (if any).
+
+### Birth (`load`)
+
+1. If the target `element` has a `data-component` attribute, it is removed.
+2. The target `element` is assigned a `data-component-id` equal to the component's unique `componentId`.
+3. The `element` will also be given the class `<name>-component` (and any previous `...-component` class will be stripped).
+4. `_component_` will be replaced in data-bindings with the `componentId`.
+5. Any children of the target `element` will be removed; if the component has a `[data-children]` element, those children
+   will be moved there. (Otherwise, they are gone.)
+6. Any currently available sub-components will be inserted.
+7. The component's contents (including the containing element) will be bound to data as appropriate.
+
+And finally, the component's `<script>` (or Javascript components `load` method) will be run as the body of a 
+function that is passed several useful parameters:
+
 * `component` -- the element into which the component was loaded
 * `b8r` -- a reference to b8r
 * `find` -- find(selector) => b8r.findWithin(component, selector)
 * `findOne` -- findOne(selector) => b8r.findOneWithin(component, selector)
-* `data` -- the component's private data object, i.e. the output of b8r.get(componentId)
 * `register` -- replace the component's private data, i.e. register(obj) => b8r.set(componentId, obj)
 * `get` -- gets paths within the component object; get(path) => b8r.getByPath(componentId, path)
 * `set` -- sets paths within the component object; set(path, val) => b8r.setByPath(componentId, path, val)
 * `on` -- adds event listeners to the component element; on(type, path) => b8r.on(component, type, path)
 * `touch` -- touches paths within the component object; touch(...args) => b8r.touchByPath(componentId, ...args)
 
+#### Deprecated
+
+`html` components still receive the `data` parameter as one of the arguments to the `load` method.
+It's better to use `get()`, which is your only option for Javascript components.
+
+* `data` -- the component's private data object, i.e. the output of b8r.get(componentId)
+
 > ### Components with special needs… (`load` race condition)
 >
-> One annoying detail that has emerged as b8r has been used for more complex projects is 
-> that sometimes you want a component to have a private event handler that will be 
-> triggered before the load script executes, and the load script is where that private 
+> One annoying detail that has emerged as `b8r` has been used for more complex projects is 
+> that sometimes you want a component to have an event handler that will be 
+> triggered *before the load script executes*, and the load `<script>` is where that private 
 > event handler is created.
 >
-> #### Define your component in Javascript
+> Typically this problem manifests as console error spam rather than misbehavior.
+>
+> #### [Re]define your component in Javascript
 >
 > The best way to avoid this issue is to define the component as a Javascript module instead
 > of an HTML file. (See [Making a Component with Javascript](source=source/b8r.component.js).)
-> This allows you to define methods, register controllers, etc. before the component itself
-> is defined.
+> This allows you to define your component's `initialValue` before the component is inserted
+> into the DOM.
+>
+> Because *a Javascript component is just a Javascript module*, you can also register a (global)
+> controller object in the module that defines the component.
 >
 > #### Workarounds for HTML components
 >
-> For HTML components are two workarounds. One is to insert the event-bindings in the 
-> load script and the other is to register a controller object (by convention named 
-> *component-name*-controller) before loading the component and bind to that.
->
-> Another option, which makes sense for very simple components or components where each 
-> private handler is likely to have very specific behavior (i.e. unique to the component 
-> instance) is to add the event handler in the load script (i.e. add the attribute and 
-> explicitly construct the paths using the `componentId`).
+> For HTML components there are two workarounds we've used in production.
 
-### Death
+> One is to add the event-bindings in the load script (so that they won't fire until
+> the relevant methods have been defined). 
+>
+> The second option is to register a controller object (by convention named *component-name*-controller) 
+> before loading the component and bind to that.
+
+### Death (`destroy`)
 
 When a component is removed from the DOM it will quickly be "garbage collected". Its private data will be
 removed, and if that data includes a `destroy` method, that method will be called.
@@ -326,7 +376,7 @@ The event flow is dynamic (the event handler is looked for when the event occurs
 - `_component_`
   - will be changed to the component's instance path in bindings.
   - will be changed into the component's name inside `<style>` rules and classes in the markup.
-- the `script` tag becomes the component's `load(require, component, b8r, find, findOne, get, set, on, touch)` method.
+- the `script` tag becomes the component's `load(component, b8r, find, findOne, get, set, on, touch)` method.
   - `component` is a reference to the element the component was loaded into
   - `data` is the component's instance data
   - `register` lets you completely replace the component's instance data

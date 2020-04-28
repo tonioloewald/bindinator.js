@@ -1,6 +1,13 @@
 var b8r = (function () {
   'use strict';
 
+  const observerShouldBeRemoved = {};
+
+  var constants = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    observerShouldBeRemoved: observerShouldBeRemoved
+  });
+
   /**
   # uuid
 
@@ -3130,7 +3137,15 @@ var b8r = (function () {
           resolve(components[name]);
         } else if (url.match(/\.m?js$/)) {
           import(url).then(exports => {
-            resolve(components[name] || makeComponent(name, exports.default));
+            if (components[name]) {
+              resolve(components[name]);
+            } else if (exports.default && typeof exports.default === 'object') {
+              resolve(makeComponent(name, exports.default));
+            } else {
+              const err = `cannot define component "${name}", ${url} does not export a component definition as default`;
+              console.error(err);
+              reject(err);
+            }
           }).catch(err => {
             delete componentPromises[name];
             console.error(err, `failed to import component ${url}`);
@@ -3596,7 +3611,10 @@ var b8r = (function () {
     if (path.substr(-1) === ')') {
       return _compute(path, element)
     } else if (path.startsWith('.')) {
-      const elt = element.closest('[data-list-instance]');
+      const elt = element && element.closest('[data-list-instance]');
+      if (!elt && element.closest('body')) {
+        console.error(`relative data-path ${path} used without list instance`, element);
+      }
       return elt ? getByPath(registry, `${elt.dataset.listInstance}${path}`) : undefined
     } else {
       path = resolvePath(path, element);
@@ -3951,8 +3969,28 @@ var b8r = (function () {
   };
 
   const touch = (path, sourceElement) => {
-    listeners.filter(listener => listener.test(path))
-      .forEach(listener => listener.callback(path, sourceElement));
+    listeners.filter(listener => {
+      let heard;
+      try {
+        heard = listener.test(path);
+      } catch (e) {
+        console.error(listener, 'test threw exception', e);
+      }
+      if (heard === observerShouldBeRemoved) {
+        unobserve(listener);
+        return false
+      }
+      return !!heard
+    })
+      .forEach(listener => {
+        try {
+          if (listener.callback(path, sourceElement) === observerShouldBeRemoved) {
+            unobserve(listener);
+          }
+        } catch (e) {
+          console.error(listener, 'callback threw exception', e);
+        }
+      });
   };
 
   const _defaultTypeErrorHandler = (errors, action) => {
@@ -4210,6 +4248,10 @@ var b8r = (function () {
 
   You can also remove a listener using the test parameter, but it will remove _all_
   listeners which use that test.
+
+  Finally, you can have an observer **remove itself** by returning
+  `b8r.constants.observeShouldBeRemoved` from either the test method (if you use one)
+  or the callback.
 
   ~~~~
   b8r.register('listener_test1', {
@@ -6704,7 +6746,7 @@ var b8r = (function () {
   - [Showing and Hiding](?source=source/b8r.show.js)
   */
 
-  const b8r = {};
+  const b8r = { constants };
   const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])';
   const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
 
