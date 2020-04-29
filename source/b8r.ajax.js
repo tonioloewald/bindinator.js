@@ -98,9 +98,6 @@ This would allow straightforward monitoring of progress for any or all requests 
       }
     }
     if (typeof requestData === 'object') {
-      if (method === 'GET') {
-        throw new Error('GET requests do not support request body data')
-      }
       requestData = JSON.stringify(requestData)
       config.headers['Content-Type'] = 'application/json; charset=utf-8'
     }
