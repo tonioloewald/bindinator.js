@@ -7,7 +7,7 @@ and providing robust state management.
 Unlike similarly capable frameworks, it doesn't require transpilation, domain-specific languages, 
 templating languages, boilerplate, or pretty much anything else.
 
-<b8r-component name="fiddle" data-source="../components/overview-example.component.js"></b8r-component>
+<b8r-component name="fiddle" data-source="./components/overview-example.component.js"></b8r-component>
 
 The preceding example is a self-contained reusable component implemented as a simple ES6 module.
 
