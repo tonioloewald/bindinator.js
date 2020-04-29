@@ -1,13 +1,50 @@
 # b8r overview
 
-<img src="./docs/images/binding.svg">
+`b8r` is a lightweight framework written entirely in modern vanilla Javascript that lets you 
+build web applications out of reusable, composable components (including web-components),
+and providing robust state management. 
+
+Unlike similarly capable frameworks, it doesn't require transpilation, domain-specific languages, 
+templating languages, boilerplate, or pretty much anything else.
+
+<b8r-component name="fiddle" data-source="../components/overview-example.component.js"></b8r-component>
+
+The preceding example is a self-contained reusable component implemented as a simple ES6 module.
 
 ## paths
 
-*The* key idea in `b8r` is of binding **things** (dom elements, events, values) to **paths**.
+*The* central idea in `b8r` is of binding **things** (dom elements, events, values) to **paths**.
+
+```
+<input data-bind="value=path.to.value">
+<button data-event="click:path.to.function">Click Me</button>
+```
+
+The `<input>`'s `value` is bound to the path `path.to.value` by a standard HTML attribute.
+
+The `<button>`'s `click` event is bound to the path `path.to.fn` similarly.
 
 A **path** serves as the cut-out between a logical address and a concrete value, allowing view elements and
 the data you intend to populate them or the events you intend them to trigger to be decoupled cleanly.
+
+Paths mostly look like javascript object references (e.g. `foo.bar`) by intention, with the
+key additional feature of supporting **id-paths** to specify items in arrays of objects
+more precisely than by their index, e.g.
+
+```
+b8r.set('foo', [{bar: 11}, {bar: 16}])
+b8r.get('foo[bar=16]') // will get you the second element of the array
+```
+
+When you `set` a value (functions are values) at a path, the binding does the work. So, if you
+were to `b8r.set({path: {to: {value: 17, fn(){ alert('hello')}}}})`, it would *just work*.
+That's the central concept — but there are lots of useful details to handle binding arrays,
+composing components, and handling updates.
+
+To give you one pithy example, `b8r`'s bindings work "both ways" for DOM properties that can
+be directly changed by the user, e.g. the `value` of an `<input>`. `b8r` handles the corner
+cases (e.g. if multiple elements are bound to the same value, `b8r` doesn't update the element
+that is the source of a change).
 
 ## register, set, get, and replace — binding data to names
 
