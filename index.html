@@ -12,6 +12,9 @@
     <link rel="stylesheet" type="text/css" href="css/b8r.css">
     <link rel="stylesheet" type="text/css" href="icomoon/style.css">
     <script type="module">
+      // do this immediately so the page refresh occurs seamlessly
+      import {vfs} from './vfs.js';
+      
       import b8r from './source/b8r.js';
       import {isElectron, isNwjs} from './lib/runtime-environment.js';
       // for convenience when debugging

@@ -207,6 +207,9 @@ of awesome that this works at all.
 <script>
 /* global findOne, set, b8r, on, data, component, register, ace */
 /* jshint latedef:false */
+
+  const {vfs} = await import('../vfs.js');
+  await vfs;
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
   const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
@@ -274,17 +277,17 @@ of awesome that this works at all.
       );
     } else if (source.match(/\bexport default\b/)) {
       // javascript component
-      if (source.match(/\bimport\('./)) {
-        container.textContent = 'fiddle does not support transitive import of relative paths'
-      } else {
-        const data_uri = 'data:text/javascript;charset=utf-8,' + encodeURIComponent(source)
-        import(data_uri).then(exports => {
+      (async () => {
+        const componentName = `fiddle-${unique()}`;
+        const vfsPath = `/vfs/${componentName}.js`;
+        await b8r.ajax(vfsPath, 'POST', source)
+        import(vfsPath).then(exports => {
           b8r.insertComponent(
-            b8r.makeComponent('fiddle-' + unique(), exports.default),
+            b8r.makeComponent(componentName, exports.default),
             container
           );
-        });
-      }
+        })
+      })()
     } else {
       // javascript
       try {
