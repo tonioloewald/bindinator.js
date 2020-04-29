@@ -21,11 +21,13 @@ It follows that if you want to use `vfs` you should load it as soon as
 possible to avoid rendering the user interface twice.
 */
 
+const serviceWorkerUrl = location.hostname === 'tonioloewald.github.io' ? '/bindinator.js/vfs.worker.js' : '/vfs.worker.js'
+
 export const vfs = (async () => {
   const {navigator} = window
-  if (navigator.serviceWorker.controller === null) window.location.reload()
   if ('serviceWorker' in navigator) {
-    return navigator.serviceWorker.register('/vfs.worker.js').then(registration => {
+    return navigator.serviceWorker.register(serviceWorkerUrl).then(registration => {
+      if (navigator.serviceWorker.controller === null) window.location.reload()
       // Registration was successful
       console.log('vfs service worker registration successful with scope: ' + registration.scope)
       return 'ok'
