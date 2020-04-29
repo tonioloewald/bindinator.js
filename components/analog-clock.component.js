@@ -23,16 +23,7 @@ export default {
     ></canvas>`,
   load: async ({ get, set, findOne }) => {
     /* global Image */
-    // const { domInterval } = await import( '../lib/dom-timers.js' )
-    const domInterval = (elt, cb, intervalMs) => {
-      const interval = setInterval(() => {
-        if (!document.body.contains(elt)) {
-          clearInterval(interval)
-        } else {
-          cb()
-        }
-      }, intervalMs)
-    }
+    const { domInterval } = await import('../lib/dom-timers.js')
 
     const clock = findOne('canvas')
     const g = clock.getContext('2d')
