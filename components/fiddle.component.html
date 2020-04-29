@@ -215,6 +215,7 @@ of awesome that this works at all.
   const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
   const code_elt = findOne('.code');
   const container = findOne('[data-title="Example"]');
+  const vfsRoot = window.location.hostname === 'tonioloewald.github.io' ? 'bindinator.js/vfs' : 'vfs'
   let last_code = '';
   let editor;
   component.classList.add('maxtoggle-target')
@@ -279,7 +280,7 @@ of awesome that this works at all.
       // javascript component
       (async () => {
         const componentName = `fiddle-${unique()}`;
-        const vfsPath = `/vfs/${componentName}.js`;
+        const vfsPath = `/${vfsRoot}/${componentName}.js`;
         await b8r.ajax(vfsPath, 'POST', source)
         import(vfsPath).then(exports => {
           b8r.insertComponent(
