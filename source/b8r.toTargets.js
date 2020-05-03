@@ -544,6 +544,7 @@ export default function (b8r) {
         throw new Error('format only accepts strings or falsy values')
       }
       let template = false
+      // only honor formatting if there's no change it's code
       if (content.match(/[*_]/) && !content.match(/<|>/)) {
         template = true
         content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
