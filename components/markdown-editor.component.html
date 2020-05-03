@@ -1,5 +1,7 @@
 <!--
 # markdown-editor
+
+This is a simple markdown editor that uses the [text-render](.?source=lib/text-render.js) library.
 -->
 <style>
   ._component_ {
@@ -30,6 +32,23 @@
     width: 50%;
     min-width: 100px;
   }
+
+  ._component_ table {
+    border-collapse: collapse;
+  }
+
+  ._component_ tr {
+    border-bottom: 1px solid var(--black-10);
+  }
+
+  ._component_ th,
+  ._component_ td {
+    padding: 5px 10px;
+  }
+
+  ._component_ th {
+    background: var(--black-10);
+  }
 </style>
 <textarea
   class="editor sizable"
@@ -45,11 +64,19 @@
   const source = `# Heading
 ![b8r logo](images/bindinator-logo-notext.svg)
 Here is some text
+
     // and here is some code
     let x = x;
+
+And here is a table:
+
+|| Binding Target || Description
+|  value          |  value property of a user-editable element
+|  text           |  textContent of an element
+|  attr(foo)      |  specified attribute of an element
 `;
   const preview = findOne('.preview');
-  const update = b8r.debounce(() => md(preview, get('source')), 250);
+  const update = b8r.debounce(() => md(preview, get('source'), {renderTables: true}), 250);
   update();
   set ({
     update,
