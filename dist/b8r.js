@@ -2405,9 +2405,6 @@ This would allow straightforward monitoring of progress for any or all requests 
       }
     };
     if (typeof requestData === 'object') {
-      if (method === 'GET') {
-        throw new Error('GET requests do not support request body data')
-      }
       requestData = JSON.stringify(requestData);
       config.headers['Content-Type'] = 'application/json; charset=utf-8';
     }
@@ -4268,7 +4265,7 @@ You can also remove a listener using the test parameter, but it will remove _all
 listeners which use that test.
 
 Finally, you can have an observer **remove itself** by returning
-`b8r.constants.observeShouldBeRemoved` from either the test method (if you use one)
+`b8r.constants.observerShouldBeRemoved` from either the test method (if you use one)
 or the callback.
 
 ~~~~
@@ -5849,6 +5846,7 @@ function _toTargets (b8r) {
         throw new Error('format only accepts strings or falsy values')
       }
       let template = false;
+      // only honor formatting if there's no change it's code
       if (content.match(/[*_]/) && !content.match(/<|>/)) {
         template = true;
         content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')

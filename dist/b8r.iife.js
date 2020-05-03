@@ -2387,9 +2387,6 @@ var b8r = (function () {
         }
       };
       if (typeof requestData === 'object') {
-        if (method === 'GET') {
-          throw new Error('GET requests do not support request body data')
-        }
         requestData = JSON.stringify(requestData);
         config.headers['Content-Type'] = 'application/json; charset=utf-8';
       }
@@ -4250,7 +4247,7 @@ var b8r = (function () {
   listeners which use that test.
 
   Finally, you can have an observer **remove itself** by returning
-  `b8r.constants.observeShouldBeRemoved` from either the test method (if you use one)
+  `b8r.constants.observerShouldBeRemoved` from either the test method (if you use one)
   or the callback.
 
   ~~~~
@@ -5831,6 +5828,7 @@ var b8r = (function () {
           throw new Error('format only accepts strings or falsy values')
         }
         let template = false;
+        // only honor formatting if there's no change it's code
         if (content.match(/[*_]/) && !content.match(/<|>/)) {
           template = true;
           content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
