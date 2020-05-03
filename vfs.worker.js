@@ -1,10 +1,8 @@
 /* global clients, self, Response, fetch */
 
-const vfs = {
-  'readme.txt': 'hello world',
-  'dir/foo.txt': 'i am in a subdirectory',
-  'dir/bar.txt': 'so am i'
-}
+const version = '0.1'
+
+const vfs = {}
 
 const mimeTypes = {
   svg: 'image/svg+xml',
@@ -35,7 +33,18 @@ self.addEventListener('fetch', (event) => {
   const { method, url } = event.request
   if (url && url.match(/^.*\/vfs\//)) {
     console.log('vfs', method, url)
+
     const vfsPath = url.replace(/^.*\/vfs\//, '')
+
+    if (vfsPath === 'version') {
+      if (method === 'GET') {
+        event.respondWith(new Response(version, { status: 200 }))
+      } else {
+        event.respondWith(new Response('method not allowed', { status: 405 }))
+      }
+      return
+    }
+
     switch (method) {
       case 'GET':
         {
@@ -44,7 +53,14 @@ self.addEventListener('fetch', (event) => {
             const basePath = vfsPath.substr(0, vfsPath.length - 1)
             found = Object.keys(vfs).filter(path => path.startsWith(basePath))
           } else if (vfsPath === '' || vfsPath.endsWith('/')) {
-            found = Object.keys(vfs).filter(path => path.startsWith(vfsPath)).filter(path => path.indexOf('/', vfsPath.length) === -1)
+            const offset = vfsPath.length
+            found = Object.keys(vfs).filter(path => path.startsWith(vfsPath))
+              .map(path => path.substr(offset).match(/[^/]+($|\/)/))
+              .reduce((uniques, [a]) => {
+                if (!uniques.includes(a)) uniques.push(a)
+                return uniques
+              }, [])
+              // .filter(path => path.indexOf('/', vfsPath.length) === -1)
           } else {
             found = vfs[vfsPath]
           }
@@ -67,7 +83,7 @@ self.addEventListener('fetch', (event) => {
         } else {
           event.respondWith((async () => {
             vfs[vfsPath] = await event.request.text()
-            return new Response('OK', { status: 200 })
+            return new Response('ok', { status: 200 })
           })())
         }
         break
@@ -75,6 +91,7 @@ self.addEventListener('fetch', (event) => {
         if (vfsPath.endsWith('/') || vfsPath.endsWith('/..')) {
           Object.keys(vfs).forEach(path => {
             if (path.startsWith(vfsPath)) {
+              console.log('vfs deleting', path)
               delete vfs[path]
             }
           })
