@@ -236,6 +236,18 @@
       {
         "name": "vector",
         "path": "lib/vector.js"
+      },
+      {
+        "name": "virtual file system",
+        "path": "vfs.js"
+      },
+      {
+        "name": "markdown tables",
+        "path": "lib/markdown-tables.js"
+      },
+      {
+        "name": "text-render",
+        "path": "lib/text-render.js"
       }
     ]
   },

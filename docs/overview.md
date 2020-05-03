@@ -5,11 +5,13 @@ build web applications out of reusable, composable components (including web-com
 and providing robust state management. 
 
 Unlike similarly capable frameworks, it doesn't require transpilation, domain-specific languages, 
-templating languages, boilerplate, or pretty much anything else.
+templating languages, boilerplate, or pretty much anything else. On the other hand, it plays
+nicely with most third-party libraries, including legacy libraries that expect to be imported
+by tag.
 
 <b8r-component name="fiddle" data-source="./components/overview-example.component.js"></b8r-component>
 
-The preceding example is a self-contained reusable component implemented as a simple ES6 module.
+The preceding example is a self-contained reusable component implemented as an ES6 module.
 
 ## paths
 
