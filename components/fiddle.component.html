@@ -216,6 +216,7 @@ of awesome that this works at all.
   const code_elt = findOne('.code');
   const container = findOne('[data-title="Example"]');
   const vfsRoot = window.location.hostname === 'tonioloewald.github.io' ? 'bindinator.js/vfs' : 'vfs'
+  const AsyncFunction = (async () => {}).constructor
   let last_code = '';
   let editor;
   component.classList.add('maxtoggle-target')
@@ -254,7 +255,8 @@ of awesome that this works at all.
     }
     run();
   } else {
-    code_elt.textContent = '// enter code here'
+    code_elt.textContent = '// enter code here\nreturn 6 * 7\n'
+    init_editor('ace/mode/javascript');
   }
   function indent () {
     if (editor) {
@@ -262,7 +264,7 @@ of awesome that this works at all.
     }
     document.execCommand('insertText', false, '  ');
   }
-  function run() {
+  async function run() {
     const source = (editor ? editor.getValue() : code_elt.textContent).trim();
     if (last_code === source) {
       return;
@@ -292,8 +294,8 @@ of awesome that this works at all.
     } else {
       // javascript
       try {
-        const f = new Function('b8r', 'example', source); // jshint ignore:line
-        const output = f(b8r, container);
+        const f = new AsyncFunction('b8r', 'example', source); // jshint ignore:line
+        const output = await f(b8r, container);
         if (output) container.append(output);
       } catch(e) {
         container.append('(exception) ' + e);
