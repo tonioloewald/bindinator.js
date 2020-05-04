@@ -23,6 +23,12 @@ of awesome that this works at all.
     height: 35px;
   }
 
+  .fiddle-bodies > .example,
+  .fiddle-bodies > .code {
+    width: 50%;
+    margin: 10px;
+  }
+
   .fullscreen > .fiddle-header,
   .fullscreen > .fiddle-bodies {
     position: fixed;
@@ -182,21 +188,20 @@ of awesome that this works at all.
 </div>
 <div class="fiddle-bodies">
   <div
+    class="example"
     data-title="Example"
     data-bind="hide_if(source)=_component_.mode"
     data-event="show:_component_.run"
-    style="width: 50%; margin: 10px"
   ></div>
   <b8r-component
     path="./components/sizer"
     data-bind="show_if(all)=_component_.mode"
   ></b8r-component>
   <div
+    class="code"
     data-children
     data-title="Source"
     data-bind="hide_if(example)=_component_.mode"
-    class="code"
-    style="width: 50%"
     data-event="
       keydown(Tab):_component_.indent
       mouseenter:_component_.resize
