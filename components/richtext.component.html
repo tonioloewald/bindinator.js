@@ -253,13 +253,11 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     This is jsut a <b>test</b><span class="note" contenteditable="false" data-note="this is an annotation">*</span>
   </p>
 </div>
-<div data-component="maxtoggle"></div>
 <script>
 /* global b8r, findOne, set, get, prompt, on */
 'use strict'
 b8r.component('menubar')
 b8r.component('toolbar')
-b8r.component('maxtoggle')
 set('filename', 'Untitled.html')
 const doc = findOne('.richtext')
 doc.focus()

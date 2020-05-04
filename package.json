@@ -81,9 +81,12 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@linthtml/linthtml": "^0.3.2",
-    "rollup": "^1.28.0",
-    "standard": "^14.3.1",
-    "stylelint": "^10.1.0",
+    "pixelmatch": "^5.2.0",
+    "pngjs": "^5.0.0",
+    "puppeteer": "^3.0.2",
+    "rollup": "^1.32.1",
+    "standard": "^14.3.3",
+    "stylelint": "^13.3.3",
     "uglify-es": "^3.3.9"
   },
   "standard": {
@@ -95,7 +98,5 @@
       "web-component-test.js"
     ]
   },
-  "dependencies": {
-    "emoji-metadata": "^1.0.0"
-  }
+  "dependencies": {}
 }

@@ -15,10 +15,10 @@ GET /vsf/* returns the whole virtual tree.
 
 ## Why?!
 
-This all started because I wanted the [fiddle](.?source=fiddle.component.html) 
-component to handle the new ES6-based Javascript components, which are 
-`export`ed from an ES6 module as an object constant. You can't `import()` 
-code programmatically without some kind of 
+This all started because I wanted the [fiddle](.?source=fiddle.component.html)
+component to handle the new ES6-based Javascript components, which are
+`export`ed from an ES6 module as an object constant. You can't `import()`
+code programmatically without some kind of
 [glorious hack](https://2ality.com/2019/10/eval-via-import.html).
 
 However, it's still a hack. It doesn't handle transitive relative dependencies
@@ -29,7 +29,7 @@ This allows fiddles to create virtual files in a local service layer (i.e. `./vf
 and then `import()` them as though they were "out there". In order for this to work
 properly, `vfs` even gives the files appropriate mime-types, and so forth.
 
-Ultimately, it would allow you to mount a file system inferred from a service 
+Ultimately, it would allow you to mount a file system inferred from a service
 layer (e.g. github) and, for example, allow a web-based IDE to virtually serve
 itself a project from a web-based repository with no actual file-system.
 

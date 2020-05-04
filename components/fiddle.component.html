@@ -1,13 +1,17 @@
 <!--
 # Fiddle
-Copyright ©2016-2017 Tonio Loewald
+
 Provides an interactive demo for data.source.
-If the source includes an HTML close tag `</…>` then it will be treated as a b8r component,
+
+![puppetteer screenshot](/screencap/?body=components/richtext)
+
+> This is a simple interactive example tool, inspited by [js-fiddle](https://jsfiddle.net) et al. 
+> It runs examples inside the page (no iframes) and this hasn't run into problems in four years!
+
+If the source includes an HTML close tag `</…>` then it will be treated as a `b8r` component,
+if the source includes `export default` it will be treated as a `b8r` javascript component,
 otherwise it will be treated as pure javascript, which will be passed a reference to bindinator
 as  `b8r` and the output element as `example`.
-This is a simple fiddle-like component editor. It would probably be better (and *easier*) to load the
-component into an iframe (which would isolate it from the documentation app) - it's actually kind
-of awesome that this works at all.
 -->
 <style>
   .fiddle-component {

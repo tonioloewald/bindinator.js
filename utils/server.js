@@ -4,9 +4,10 @@
 const http = require('http')
 const https = require('https')
 const fs = require('fs')
+const puppeteer = require('puppeteer')
 
 const settings = {
-  socket: 8017,
+  port: 8017,
   web_root: __dirname,
   https: false,
   cert_path: 'localhost-ssl/public.pem',
@@ -30,7 +31,7 @@ const options = settings.https
   }
   : {}
 
-const handlerMap = [] // { handler },
+const handlers = [] // { handler },
 // handler is a function;
 // handler.test is an endpoint test,
 // handler.methods is array of methods
@@ -48,13 +49,29 @@ const on = (methods, endpoint, handler) => {
     throw new Error('expect endpoint to be a string, RegExp, or test function')
   }
 
-  handlerMap.push(handler)
+  handlers.push(handler)
 }
 
 // route arbitrary endpoints
 on('GET', '/api', (req, res) => {
   res.writeHead(200)
   res.end('hello api\n')
+})
+
+const screencapRegexp = /^\/screencap(\/.*)/
+on('GET', screencapRegexp, async (req, res) => {
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
+  const capturePath = req.url.match(screencapRegexp)[1]
+  const url = `${settings.https ? 'https' : 'http'}://localhost:${settings.port}${capturePath}`
+  console.log('/screencap', url)
+  const path = `/tmp/puppeteer.png`
+  await page.goto(url)
+  await page.waitFor(250)
+  const imageData = await page.screenshot()
+  res.writeHead(200, {'Content-Type': 'image/png'})
+  res.end(imageData)
+  await browser.close()
 })
 
 const DEFAULT_MIME_TYPE = 'application/octet-stream'
@@ -142,14 +159,14 @@ const handleStaticRequest = (req, res) => {
 const requestHandler = (req, res) => {
   const pathname = req.url.split('?')[0]
   if (settings.verbose) console.log(pathname, req.url)
-  const handler = handlerMap.find(
+  const handler = handlers.find(
     handler => handler.test(pathname) && handler.methods.indexOf(req.method) !== -1
   ) || handleStaticRequest
   handler(req, res)
 }
 
 if (settings.https) {
-  https.createServer(options, requestHandler).listen(settings.socket)
+  https.createServer(options, requestHandler).listen(settings.port)
 } else {
-  http.createServer({}, requestHandler).listen(settings.socket)
+  http.createServer({}, requestHandler).listen(settings.port)
 }

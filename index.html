@@ -23,16 +23,15 @@
       // othersize load 'components/documentation'
       const component_path = (window.location.search.match(/\bbody=([^=&]+)/) || [])[1]
                             || 'components/documentation';
-      const div = b8r.create('div');
+      const root = b8r.create('b8r-component');
+
+      // sometimes document.body doesn't exist yet
       requestAnimationFrame(() => {
-        // sometimes document.body doesn't exist yet
-        document.body.appendChild(div);
-        b8r.component(component_path).
-            then(c => {
-              if (c.name !== 'documentation') document.title = c.name;
-              b8r.insertComponent(c, div);
-            });
+        root.path = component_path
+        if (component_path !== 'components/documentation') document.body.classList.add('fullscreen')
+        document.body.append(root)
       });
+
       // debug tools
       b8r.set('_b8r_.toggleDebug', () => {
         if (isNwjs) {
