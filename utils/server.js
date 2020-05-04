@@ -5,6 +5,8 @@ const http = require('http')
 const https = require('https')
 const fs = require('fs')
 const puppeteer = require('puppeteer')
+const { exec } = require('child_process')
+const { platform } = require('os')
 
 const settings = {
   port: 8017,
@@ -58,6 +60,22 @@ on('GET', '/api', (req, res) => {
   res.end('hello api\n')
 })
 
+// getting / setting darkmode via applescript
+// https://brettterpstra.com/2018/09/26/shell-tricks-toggling-dark-mode-from-terminal/
+const getDarkmode = () => new Promise((resolve, reject) => {
+  if (platform() !== 'darwin') return false
+  exec('osascript -e \'tell app "System Events" to tell appearance preferences to get dark mode\'', (err, stdout, stderr) => {
+    err ? reject(err) : resolve(stdout === 'true\n')
+  })
+})
+
+const setDarkmode = dark => new Promise((resolve, reject) => {
+  if (platform() !== 'darwin') return
+  exec(`osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to ${dark}'`, (err, stdout, stderr) => {
+    err ? reject(err) : resolve()
+  })
+})
+
 const screencapRegexp = /^\/screencap(\/.*)/
 on('GET', screencapRegexp, async (req, res) => {
   const browser = await puppeteer.launch()
@@ -65,12 +83,14 @@ on('GET', screencapRegexp, async (req, res) => {
   const capturePath = req.url.match(screencapRegexp)[1]
   const url = `${settings.https ? 'https' : 'http'}://localhost:${settings.port}${capturePath}`
   console.log('/screencap', url)
-  const path = `/tmp/puppeteer.png`
+  const savedDarkmode = await getDarkmode()
+  setDarkmode(false)
   await page.goto(url)
   await page.waitFor(250)
   const imageData = await page.screenshot()
-  res.writeHead(200, {'Content-Type': 'image/png'})
+  res.writeHead(200, { 'Content-Type': 'image/png' })
   res.end(imageData)
+  setDarkmode(savedDarkmode)
   await browser.close()
 })
 
