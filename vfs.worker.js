@@ -32,8 +32,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { method, url } = event.request
   if (url && url.match(/^.*\/vfs\//)) {
-    console.log('vfs', method, url)
-
     const vfsPath = url.replace(/^.*\/vfs\//, '')
 
     if (vfsPath === 'version') {
@@ -91,7 +89,6 @@ self.addEventListener('fetch', (event) => {
         if (vfsPath.endsWith('/') || vfsPath.endsWith('/..')) {
           Object.keys(vfs).forEach(path => {
             if (path.startsWith(vfsPath)) {
-              console.log('vfs deleting', path)
               delete vfs[path]
             }
           })
