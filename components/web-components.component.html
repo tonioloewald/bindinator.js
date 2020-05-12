@@ -98,10 +98,16 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
 <script>
   /* global b8r */
   // we need to load web-components before we bind to them (unlike b8r components)
-  import('../web-components/switch.js');
-  import('../web-components/select.js');
-  import('../web-components/markdown.js');
-  import('../web-components/tabs.js');
+  await Promise.all(
+    [
+      import('../web-components/switch.js'),
+      import('../web-components/select.js'),
+      import('../web-components/markdown.js'),
+      import('../web-components/tabs.js')
+    ]
+  )
+
+  // retain values across navigation, just for fun
   if (! b8r.get('web-component-demo')) {
     b8r.register('web-component-demo', {
       toggle: false,
@@ -116,6 +122,6 @@ Note that none of these examples have any dependency on `b8r`. The only provisio
         {value: 3, label: 'The Fourth Item', body: 'I am the fourth body'},
       ],
       markdown: "#### Markdown Support\n> Here's some simple [markdown](https://daringfireball.net/projects/markdown/syntax).",
-    });
+    })
   }
 </script>
