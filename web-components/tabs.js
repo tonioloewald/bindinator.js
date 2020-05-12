@@ -181,7 +181,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
     div({ classes: ['tabs'] }),
     slot()
   ),
-  ariaRole: 'rich text'
+  role: 'rich text'
 })
 
 export {

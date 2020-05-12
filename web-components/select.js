@@ -113,7 +113,7 @@ const SelectOption = makeWebComponent('b8r-option', {
       this.tabIndex = 0
     }
   },
-  ariaRole: 'select'
+  role: 'select'
 })
 
 const SelectBar = makeWebComponent('b8r-select-bar', {
@@ -145,7 +145,7 @@ const SelectBar = makeWebComponent('b8r-select-bar', {
       })
     }
   },
-  ariaRole: 'select'
+  role: 'select'
 })
 
 const SelectPop = makeWebComponent('b8r-select', {
@@ -271,7 +271,7 @@ const SelectPop = makeWebComponent('b8r-select', {
     div({ classes: ['outer'] }),
     div({ classes: ['menu'], content: slot() })
   ),
-  ariaRole: 'select'
+  role: 'select'
 })
 
 export {

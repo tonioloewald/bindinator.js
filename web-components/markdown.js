@@ -37,7 +37,7 @@ const MarkdownArea = makeWebComponent('b8r-markdown', {
       md(this, this.value)
     }
   },
-  ariaRole: 'rich text'
+  role: 'rich text'
 })
 
 export {

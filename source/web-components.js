@@ -14,7 +14,7 @@ Helper methods for creating Web Components.
       eventHandlers={},       // map eventTypes to event handlers
       attributes={},          // map attributes to default values
       content=slot(),         // HTMLElement or DocumentFragment or falsy
-      ariaRole=false,         // expect string
+      role=false,         // expect string
     })                        // returns the class
 
 Defines a new [Web Component](https://www.webcomponents.org/)).
@@ -48,7 +48,7 @@ Returns the component class (in case you want to subclass it).
   - you can be lazy and pass a string to content (it will become a `TextNode`) or
     an array of `HTMLElement` and (you can wrap them in a `DocumentFragment` but
     you don't have to).
-- `ariaRole` will do the expected thing
+- `role` will do the expected thing
 - by default, setting the `hidden` attribute will hide a styled component (this is
   implemented via styles), not attributes, so there's no MutationObserver oberhead.
 
@@ -61,7 +61,9 @@ a given custom element has).
 
 makeComponent copies all methods provided into the component's prototype, so the
 standard lifecycle methods `connectedCallback`, `disconnectedCallback`,
-`adoptedCallback`, and `attributeChangedCallback` work as normal.
+`adoptedCallback`, and `attributeChangedCallback` work as normal, with one minor
+caveat — this library creates component classes with a default `connectedCallback`
+that will call any `connectedCallback` passed as a method afterwards.
 
 #### Performance Notes
 
@@ -269,7 +271,7 @@ const makeWebComponent = (tagName, {
   props = {}, // map of instance properties to defaults
   attributes = {}, // map attributes to default values
   content = slot(), // HTMLElement or DocumentFragment
-  ariaRole = false // expect string
+  role = false // expect string
 }) => {
   let styleNode = null
   if (style) {
@@ -309,12 +311,11 @@ const makeWebComponent = (tagName, {
       Object.keys(eventHandlers).forEach(eventType => {
         this.addEventListener(eventType, eventHandlers[eventType].bind(this))
       })
-      if (ariaRole) this.setAttribute('aria-role', ariaRole)
-      const attributeNames = Object.keys(attributes)
       if (eventHandlers.childListChange) {
         const observer = new MutationObserver(eventHandlers.childListChange.bind(this))
         observer.observe(this, { childList: true })
       }
+      const attributeNames = Object.keys(attributes)
       if (attributeNames.length) {
         const attributeValues = {}
         const observer = new MutationObserver((mutationsList) => {
@@ -379,13 +380,21 @@ const makeWebComponent = (tagName, {
       if (this.queueRender) this.queueRender()
     }
 
+    connectedCallback () {
+      // super annoyingly, chrome loses its shit if you set *any* attributes in the constructor
+      if (role) this.setAttribute('role', role)
+      if (methods.connectedCallback) methods.connectedCallback.call(this)
+    }
+
     static defaultAttributes () {
       return { ...attributes }
     }
   }
 
   Object.keys(methods).forEach(methodName => {
-    componentClass.prototype[methodName] = methods[methodName]
+    if(methodName !== 'connectedCallback') {
+      componentClass.prototype[methodName] = methods[methodName]
+    }
   })
 
   // if-statement is to prevent some node-based "browser" tests from breaking
