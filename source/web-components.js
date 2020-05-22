@@ -309,7 +309,8 @@ const makeWebComponent = (tagName, {
         appendContentToElement(this, content)
       }
       Object.keys(eventHandlers).forEach(eventType => {
-        this.addEventListener(eventType, eventHandlers[eventType].bind(this))
+        const passive = eventType.startsWith('touch') ? {passive: true} : false
+        this.addEventListener(eventType, eventHandlers[eventType].bind(this), passive)
       })
       if (eventHandlers.childListChange) {
         const observer = new MutationObserver(eventHandlers.childListChange.bind(this))
