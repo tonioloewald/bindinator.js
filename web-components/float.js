@@ -7,6 +7,9 @@ Supports some useful attributes:
 
 - `drag=false` -- whether the element can be dragged around
 
+Try creating multiple floats and verifying that you can bring each to
+the front.
+
 ```
 <style>
   b8r-float {
@@ -21,6 +24,7 @@ Supports some useful attributes:
     position: absolute;
     top: 5px;
     right: 5px;
+    margin: 0;
   }
 </style>
 <button
@@ -86,7 +90,11 @@ const Float = makeWebComponent('b8r-float', {
   style: {
     ':host': {
       display: 'block',
-      position: 'fixed'
+      position: 'fixed',
+      cursor: 'grab'
+    },
+    '.dragging': {
+      cursor: 'grabbing'
     },
     '.drag-region': {
       display: 'none',
@@ -94,7 +102,7 @@ const Float = makeWebComponent('b8r-float', {
       top: 0,
       left: 0,
       right: 0,
-      bottom: 0
+      bottom: 0,
     }
   },
   attributes: {
