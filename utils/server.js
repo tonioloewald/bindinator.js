@@ -63,14 +63,14 @@ on('GET', '/api', (req, res) => {
 // getting / setting darkmode via applescript
 // https://brettterpstra.com/2018/09/26/shell-tricks-toggling-dark-mode-from-terminal/
 const getDarkmode = () => new Promise((resolve, reject) => {
-  if (platform() !== 'darwin') return false
+  if (platform() !== 'darwin') return resolve(false)
   exec('osascript -e \'tell app "System Events" to tell appearance preferences to get dark mode\'', (err, stdout, stderr) => {
     err ? reject(err) : resolve(stdout === 'true\n')
   })
 })
 
 const setDarkmode = dark => new Promise((resolve, reject) => {
-  if (platform() !== 'darwin') return
+  if (platform() !== 'darwin') resolve()
   exec(`osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to ${dark}'`, (err, stdout, stderr) => {
     err ? reject(err) : resolve()
   })
@@ -82,16 +82,22 @@ on('GET', screencapRegexp, async (req, res) => {
   const page = await browser.newPage()
   const capturePath = req.url.match(screencapRegexp)[1]
   const url = `${settings.https ? 'https' : 'http'}://localhost:${settings.port}${capturePath}`
-  console.log('/screencap', url)
   const savedDarkmode = await getDarkmode()
   setDarkmode(false)
   await page.goto(url)
   await page.waitFor(250)
-  const imageData = await page.screenshot()
-  res.writeHead(200, { 'Content-Type': 'image/png' })
-  res.end(imageData)
-  setDarkmode(savedDarkmode)
-  await browser.close()
+  try {
+    console.log('/screencap', url)
+    const imageData = await page.screenshot()
+    res.writeHead(200, { 'Content-Type': 'image/png' })
+    res.end(imageData)
+    setDarkmode(savedDarkmode)
+    await browser.close()
+  } catch(e) {
+    console.error('/screencap', url, 'failed!')
+    res.writeHead(500)
+    res.end('screen capture failed')
+  }
 })
 
 const DEFAULT_MIME_TYPE = 'application/octet-stream'
