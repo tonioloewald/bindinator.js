@@ -62,41 +62,70 @@ on('GET', '/api', (req, res) => {
 
 // getting / setting darkmode via applescript
 // https://brettterpstra.com/2018/09/26/shell-tricks-toggling-dark-mode-from-terminal/
+// TODO: Windows 10 -- obtain current value
+// const regkey = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'
+// exec(`reg query ${regkey} /v AppsUseLightTheme`, (err, stdout, stderr) => {console.log(stdout.includes('0x1'))})
+// force specific value
+// reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v AppsUseLightTheme /t REG_DWORD /d 0x0 /f
+const WIN32_DARKMODE_KEY = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'
 const getDarkmode = () => new Promise((resolve, reject) => {
-  if (platform() !== 'darwin') return resolve(false)
-  exec('osascript -e \'tell app "System Events" to tell appearance preferences to get dark mode\'', (err, stdout, stderr) => {
-    err ? reject(err) : resolve(stdout === 'true\n')
-  })
+  switch(platform()) {
+    case 'darwin':
+      exec('osascript -e \'tell app "System Events" to tell appearance preferences to get dark mode\'', (err, stdout, stderr) => {
+        err ? reject(err) : resolve(stdout === 'true\n')
+      })
+      break
+    case 'win32':
+      exec(`reg query ${WIN32_DARKMODE_KEY} /v AppsUseLightTheme`, (err, stdout, stderr) => {
+        err ? reject(err) : resolve(stdout.includes('0x0'))
+      })
+      break
+    default:
+      resolve(false)
+  }
 })
 
 const setDarkmode = dark => new Promise((resolve, reject) => {
-  if (platform() !== 'darwin') resolve()
-  exec(`osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to ${dark}'`, (err, stdout, stderr) => {
-    err ? reject(err) : resolve()
-  })
+  switch(platform()) {
+    case 'darwin':
+      exec(`osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to ${dark}'`, (err, stdout, stderr) => {
+        err ? reject(err) : resolve()
+      })
+      break;
+    case 'win32':
+      const dword = dark ? '0x0' : '0x1'
+      exec(`reg add ${WIN32_DARKMODE_KEY} /v AppsUseLightTheme /t REG_DWORD /d ${dword} /f`, (err, stdout, stderr) => {
+        err ? reject(err) : resolve()
+      })
+      break;
+    default:
+  }
 })
 
-const screencapRegexp = /^\/screencap(\/.*)/
+// TODO this needs to be some kind of queue to the OS isn't switched to dark mode
+// by one task while another is running
+const screencapRegexp = /^\/screencap(\/.*?)$/
 on('GET', screencapRegexp, async (req, res) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
-  const capturePath = req.url.match(screencapRegexp)[1]
+  const [,capturePath] = req.url.match(screencapRegexp)
   const url = `${settings.https ? 'https' : 'http'}://localhost:${settings.port}${capturePath}`
   const savedDarkmode = await getDarkmode()
   setDarkmode(false)
   await page.goto(url)
   await page.waitFor(250)
   try {
-    console.log('/screencap', url)
+    console.log('/screencap', url, savedDarkmode)
     const imageData = await page.screenshot()
     res.writeHead(200, { 'Content-Type': 'image/png' })
     res.end(imageData)
-    setDarkmode(savedDarkmode)
     await browser.close()
+    setDarkmode(savedDarkmode)
   } catch(e) {
     console.error('/screencap', url, 'failed!')
     res.writeHead(500)
     res.end('screen capture failed')
+    setDarkmode(savedDarkmode)
   }
 })
 
