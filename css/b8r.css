@@ -66,36 +66,34 @@
   --fade-transition: opacity 0.3s ease-out;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #282840;
-    --content-bg-color: #222;
-    --faded-bg-color: #444;
-    --example-bg-color: rgb(39, 39, 49);
-    --input-bg-color: #111;
-    --faded-text-color: #bbb;
-    --text-color: #ddd;
-    --dark-text-color: #222;
-    --dark-accent-color: lightskyblue;
-    --light-accent-color: #456;
-    --bright-accent-color: #346;
-    --pullquote-bg-color: #334;
-    --code-text-color: #88f;
-    --ok-color: lime;
-    --link-color: #88f;
-    --link-active-color: #64f;
-    --default-bg-color: #687;
-    --cancel-bg-color: #884;
+.darkmode {
+  --bg-color: #282840;
+  --content-bg-color: #222;
+  --faded-bg-color: #444;
+  --example-bg-color: rgb(69, 69, 112);
+  --input-bg-color: #111;
+  --faded-text-color: #bbb;
+  --text-color: #ddd;
+  --dark-text-color: #222;
+  --dark-accent-color: lightskyblue;
+  --light-accent-color: #456;
+  --bright-accent-color: #346;
+  --pullquote-bg-color: #334;
+  --code-text-color: #88f;
+  --ok-color: lime;
+  --link-color: #88f;
+  --link-active-color: #64f;
+  --default-bg-color: #687;
+  --cancel-bg-color: #884;
 
-    --black-5: rgba(255,255,255,0.05);
-    --black-10: rgba(255,255,255,0.1);
-    --black-20: rgba(255,255,255,0.2);
-    --black-40: rgba(255,255,255,0.4);
-    --black-80: rgba(255,255,255,0.8);
-    --white-25: rgba(0,0,0,0.25);
-    --white-50: rgba(0,0,0,0.5);
-    --white-75: rgba(0,0,0,0.75);
-  }
+  --black-5: rgba(255,255,255,0.05);
+  --black-10: rgba(255,255,255,0.1);
+  --black-20: rgba(255,255,255,0.2);
+  --black-40: rgba(255,255,255,0.4);
+  --black-80: rgba(255,255,255,0.8);
+  --white-25: rgba(0,0,0,0.25);
+  --white-50: rgba(0,0,0,0.5);
+  --white-75: rgba(0,0,0,0.75);
 }
 
 body {

@@ -60,13 +60,7 @@ on('GET', '/api', (req, res) => {
   res.end('hello api\n')
 })
 
-// getting / setting darkmode via applescript
-// https://brettterpstra.com/2018/09/26/shell-tricks-toggling-dark-mode-from-terminal/
-// TODO: Windows 10 -- obtain current value
-// const regkey = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'
-// exec(`reg query ${regkey} /v AppsUseLightTheme`, (err, stdout, stderr) => {console.log(stdout.includes('0x1'))})
-// force specific value
-// reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v AppsUseLightTheme /t REG_DWORD /d 0x0 /f
+// getting / setting darkmode via applescript / reg.exe
 const WIN32_DARKMODE_KEY = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'
 const getDarkmode = () => new Promise((resolve, reject) => {
   switch(platform()) {
@@ -102,30 +96,25 @@ const setDarkmode = dark => new Promise((resolve, reject) => {
   }
 })
 
-// TODO this needs to be some kind of queue to the OS isn't switched to dark mode
-// by one task while another is running
 const screencapRegexp = /^\/screencap(\/.*?)$/
 on('GET', screencapRegexp, async (req, res) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
   const [,capturePath] = req.url.match(screencapRegexp)
   const url = `${settings.https ? 'https' : 'http'}://localhost:${settings.port}${capturePath}`
-  const savedDarkmode = await getDarkmode()
-  setDarkmode(false)
+
   await page.goto(url)
   await page.waitFor(250)
   try {
-    console.log('/screencap', url, savedDarkmode)
+    console.log('/screencap', url)
     const imageData = await page.screenshot()
     res.writeHead(200, { 'Content-Type': 'image/png' })
     res.end(imageData)
     await browser.close()
-    setDarkmode(savedDarkmode)
   } catch(e) {
     console.error('/screencap', url, 'failed!')
     res.writeHead(500)
     res.end('screen capture failed')
-    setDarkmode(savedDarkmode)
   }
 })
 
