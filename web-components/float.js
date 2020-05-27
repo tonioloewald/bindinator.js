@@ -68,6 +68,7 @@ import {
   fragment,
   slot
 } from '../source/web-components.js'
+import {listenForDragStart, trackDrag, moveEventDiv} from '../lib/track-drag.js'
 
 const mousemove = (evt) => {
   const target = evt.target._target
@@ -93,25 +94,11 @@ const Float = makeWebComponent('b8r-float', {
       position: 'fixed',
       cursor: 'grab'
     },
-    '.dragging': {
-      cursor: 'grabbing'
-    },
-    '.drag-region': {
-      display: 'none',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-    }
   },
   attributes: {
     drag: false
   },
-  content: fragment(
-    slot(),
-    div({ classes: ['drag-region'] })
-  ),
+  content: slot(),
   eventHandlers: {
     mousedown (evt) {
       const target = evt.target.closest('b8r-float')
@@ -121,27 +108,24 @@ const Float = makeWebComponent('b8r-float', {
         .map(elt => parseInt(getComputedStyle(elt).zIndex, 10))
         .reduce((zIndex, max) => zIndex > max ? zIndex : max, 0)
       target.style.zIndex = topMost + 1
-
-      if (target.drag) {
-        this.shadowRoot.querySelector('.drag-region').style.display = 'block'
-        const { clientX, clientY } = evt
-        target._dragging = {
-          x: clientX - parseFloat(target.offsetLeft),
-          y: clientY - parseFloat(target.offsetTop)
-        }
-        evt.preventDefault()
-        evt.stopPropagation()
-      }
     }
   },
   methods: {
-    render () {
-      const dragRegion = this.shadowRoot.querySelector('.drag-region')
-      if (!dragRegion._target) {
-        dragRegion._target = this
-        dragRegion.addEventListener('mousemove', mousemove)
-        dragRegion.addEventListener('mouseup', mouseup)
-      }
+    connectedCallback () {
+      const float = this
+      listenForDragStart(float, (evt) => {
+        const rect = float.getBoundingClientRect()
+        const left = rect.x
+        const top = rect.y
+        moveEventDiv.style.cursor = 'grabbing'
+        trackDrag(evt, left, top, (x, y, dx, dy, dragEnd) => {
+          if (x < 0) x = 0
+          if (y < 0) y = 0
+          float.style.left = x + 'px'
+          float.style.top = y + 'px'
+          if(dragEnd) moveEventDiv.style.cursor = ''
+        })
+      })
     },
     close () {
       this.remove()
