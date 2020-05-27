@@ -424,10 +424,6 @@
       {
         "name": "Graph",
         "path": "components/graph.component.js"
-      },
-      {
-        "name": "Showcase",
-        "path": "components/showcase.component.js"
       }
     ]
   },
