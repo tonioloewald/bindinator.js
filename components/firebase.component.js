@@ -5,8 +5,8 @@ A simple integration with [Google Firebase](https://firebase.google.com).
 The test application only allows authentication using Google and only allows
 you to write documents to your own personal `/users/` document.
 
-I haven't authorized any domains for the app, so it will only work from
-`localhost` (unless you provide your own credentials, of course).
+The test applicaton is authorized to run from `localhost`,
+`tonioloewald.github.io`, and `bindinator.com`.
 
 ```
 <b8r-component path="../components/firebase.component.js"></b8r-component>
