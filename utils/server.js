@@ -6,7 +6,6 @@ const https = require('https')
 const fs = require('fs')
 const puppeteer = require('puppeteer')
 const { exec } = require('child_process')
-const { platform } = require('os')
 
 const settings = {
   port: 8017,
@@ -60,42 +59,6 @@ on('GET', '/api', (req, res) => {
   res.end('hello api\n')
 })
 
-// getting / setting darkmode via applescript / reg.exe
-const WIN32_DARKMODE_KEY = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'
-const getDarkmode = () => new Promise((resolve, reject) => {
-  switch(platform()) {
-    case 'darwin':
-      exec('osascript -e \'tell app "System Events" to tell appearance preferences to get dark mode\'', (err, stdout, stderr) => {
-        err ? reject(err) : resolve(stdout === 'true\n')
-      })
-      break
-    case 'win32':
-      exec(`reg query ${WIN32_DARKMODE_KEY} /v AppsUseLightTheme`, (err, stdout, stderr) => {
-        err ? reject(err) : resolve(stdout.includes('0x0'))
-      })
-      break
-    default:
-      resolve(false)
-  }
-})
-
-const setDarkmode = dark => new Promise((resolve, reject) => {
-  switch(platform()) {
-    case 'darwin':
-      exec(`osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to ${dark}'`, (err, stdout, stderr) => {
-        err ? reject(err) : resolve()
-      })
-      break;
-    case 'win32':
-      const dword = dark ? '0x0' : '0x1'
-      exec(`reg add ${WIN32_DARKMODE_KEY} /v AppsUseLightTheme /t REG_DWORD /d ${dword} /f`, (err, stdout, stderr) => {
-        err ? reject(err) : resolve()
-      })
-      break;
-    default:
-  }
-})
-
 const screencapRegexp = /^\/screencap(\/.*?)$/
 on('GET', screencapRegexp, async (req, res) => {
   const browser = await puppeteer.launch()
@@ -104,7 +67,7 @@ on('GET', screencapRegexp, async (req, res) => {
   const url = `${settings.https ? 'https' : 'http'}://localhost:${settings.port}${capturePath}`
 
   await page.goto(url)
-  await page.waitFor(250)
+  await page.waitFor(500)
   try {
     console.log('/screencap', url)
     const imageData = await page.screenshot()
