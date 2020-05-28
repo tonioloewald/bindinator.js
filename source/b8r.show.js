@@ -11,6 +11,12 @@ passing any additional arguments.
 
 Hides the element (storing its original `display` value in an attribute). Triggers a synthetic
 `hide` event on any elements with `hide` event handlers passing any additional arguments.
+
+## `data-orig-display`
+
+If you're wondering what `data-orig-display` is, it's an artifact of `show` and `hide`. When
+an element is hidden, `hide` sets `.style.display = "none"` and records its previous value as
+the `data-orig-display` attribute.
 */
 
 import { findWithin, isVisible } from './b8r.dom.js'
