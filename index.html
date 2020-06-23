@@ -47,6 +47,7 @@
       b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
 
       // iOS body size fix
+      // https://stackoverflow.com/questions/43575363/css-100vh-is-too-tall-on-mobile-due-to-browser-ui
       const fixBodySize = b8r.debounce(() => { 
         document.body.style.height = window.innerHeight + 'px' 
       }, 100)
