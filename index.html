@@ -45,6 +45,13 @@
         }
       });
       b8r.onAny('keydown(alt-meta-I)', '_b8r_.toggleDebug');
+
+      // iOS body size fix
+      const fixBodySize = b8r.debounce(() => { 
+        document.body.style.height = window.innerHeight + 'px' 
+      }, 100)
+      window.addEventListener('resize', fixBodySize)
+      fixBodySize()
     </script>
     <script>
       try {
@@ -54,7 +61,7 @@
       }
     </script>
   </head>
-  <body>
+  <body style="position: relative; height: 100vh;">
     <b8r-component style="position: absolute; bottom: 5px; right: 5px; z-index: 5;" path="../components/darkmode.js"></b8r-component>
   </body>
 </html>
