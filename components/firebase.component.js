@@ -30,40 +30,42 @@ export default {
     <div>
       <h3>Firebase</h3>
     </div>
-    <div data-bind="hide_if=_component_.user">
-      <button data-event="click:_component_.signIn">Sign In</button>
+    <div data-bind="show_if=firebase.canSignIn">
+      <button data-event="click:firebase.signIn">Sign In</button>
     </div>
-    <div class="user" data-bind="show_if=_component_.user">
+    <div class="user" data-bind="show_if=firebase.user">
       <img 
         class="avatar"
         data-bind="
-          img=_component_.user.photoURL
-          attr(title)=$\{_component_.user.displayName} <$\{_component_.user.email}>
+          img=firebase.user.photoURL
+          attr(title)=$\{firebase.user.displayName} <$\{firebase.user.email}>
         "
       >
-      <button data-event="click:_component_.signOut">Sign Out</button>
+      <button data-event="click:firebase.signOut">Sign Out</button>
     </div>
-    <div data-bind="show_if=_component_.authError">
+    <div data-bind="show_if=firebase.authError">
       <h4>Authentication Error</h4>
-      <pre data-bind="json=_component_.authError"></pre>
+      <pre data-bind="json=firebase.authError"></pre>
     </div>
-    <div data-bind="show_if=_component_.user">
+    <div data-bind="show_if=firebase.user">
       <h4>Stored Message</h4>
       <textarea 
-        data-bind="value=_component_.userDoc.message"
-        data-event="input:_component_.markDirty"
+        data-bind="value=firebase.userDoc.message"
+        data-event="input:firebase.markDirty"
       ></textarea>
       <div>
         last saved 
-        <span data-bind="timestamp(h:MM:ss TT Z, mmmm d, yyyy)=_component_.userDoc.timestamp">
+        <span data-bind="timestamp(h:MM:ss TT Z, mmmm d, yyyy)=firebase.userDoc.timestamp">
       </div>
       <button
-        data-bind="enabled_if=_component_.dirty"
-        data-event="click:_component_.saveMessage"
+        data-bind="enabled_if=firebase.dirty"
+        data-event="click:firebase.saveMessage"
       >Save Message</button>
     </div>
   `,
-  async initialValue ({ b8r, get, set }) {
+  async load ({ b8r }) {
+    if (b8r.registered('firebase')) return
+
     const { viaTag } = await import('../lib/scripts.js')
     await viaTag('https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js')
     await viaTag('https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js')
@@ -86,49 +88,55 @@ export default {
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
-        set({ user })
+        b8r.set('firebase', {
+          user,
+          canSignIn: false,
+        })
         const db = firebase.firestore()
         db.collection('teams').where('assistant_coach', '==', 'Rosanna').get().then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             console.log(doc.id, doc.data())
           })
         })
-        const userDoc = await db.collection('users').doc(get('user').uid).get()
-        set({ userDoc: userDoc.data() })
+        const userDoc = await db.collection('users').doc(user.uid).get()
+        b8r.set('firebase.userDoc', userDoc.data())
       } else {
-        set({
+        b8r.set('firebase', {
           token: null,
-          user: null
+          user: null,
+          canSignIn: true,
         })
       }
     })
 
-    return {
+    b8r.register('firebase', {
       token: null,
       user: null,
       authError: null,
       dirty: false,
+      canSignIn: false,
       markDirty () {
-        set({ dirty: true })
+        b8r.set('firebase.dirty', true)
         return true
       },
       saveMessage () {
-        set({ dirty: false })
+        b8r.set('firebase.dirty', false)
         const db = firebase.firestore()
-        const userDoc = get('userDoc')
+        const {user, userDoc} = b8r.get('firebase')
         const timestamp = Date.now()
-        db.collection('users').doc(get('user').uid).set({ ...userDoc, timestamp }).then((...args) => {
-          set('userDoc.timestamp', timestamp)
+        db.collection('users').doc(user.uid).set({ ...userDoc, timestamp }).then((...args) => {
+          b8r.set('firebase.userDoc.timestamp', timestamp)
         }).catch((error) => {
-          set({ dirty: true })
+          b8r.set('firebase.dirty', true)
           alert('Save failed!\n\n' + error)
         })
       },
       signOut () {
         firebase.auth().signOut().then(function () {
-          set({
+          b8r.set('firebase', {
             token: null,
-            user: null
+            user: null,
+            canSignIn: true,
           })
         }).catch((error) => {
           /* global alert */
@@ -138,17 +146,18 @@ export default {
       signIn () {
         const provider = new firebase.auth.GoogleAuthProvider()
         firebase.auth().signInWithPopup(provider).then(function (result) {
-          set({
+          b8r.set('firebase', {
             authError: null,
             token: result.credential.accessToken,
-            user: result.user
+            user: result.user,
+            canSignIn: false,
           })
         }).catch(function (error) {
-          set({
+          b8r.set('firebase', {
             authError: error
           })
         })
       }
-    }
+    })
   }
 }
