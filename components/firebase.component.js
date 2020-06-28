@@ -34,7 +34,7 @@ export default {
       <button data-event="click:firebase.signIn">Sign In</button>
     </div>
     <div class="user" data-bind="show_if=firebase.user">
-      <img 
+      <img
         class="avatar"
         data-bind="
           img=firebase.user.photoURL
@@ -49,7 +49,7 @@ export default {
     </div>
     <div data-bind="show_if=firebase.user">
       <h4>Stored Message</h4>
-      <textarea 
+      <textarea
         data-bind="value=firebase.userDoc.message"
         data-event="input:firebase.markDirty"
       ></textarea>
@@ -67,6 +67,7 @@ export default {
     if (b8r.registered('firebase')) return
 
     const { viaTag } = await import('../lib/scripts.js')
+    // FIXME: some of these are preventing the example running in iOS
     await viaTag('https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js')
     await viaTag('https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js')
     await viaTag('https://www.gstatic.com/firebasejs/7.6.0/firebase-analytics.js')
@@ -93,11 +94,8 @@ export default {
           canSignIn: false,
         })
         const db = firebase.firestore()
-        db.collection('teams').where('assistant_coach', '==', 'Rosanna').get().then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            console.log(doc.id, doc.data())
-          })
-        })
+
+        // fetching data from Firebase
         const userDoc = await db.collection('users').doc(user.uid).get()
         b8r.set('firebase.userDoc', userDoc.data())
       } else {
@@ -123,6 +121,7 @@ export default {
         b8r.set('firebase.dirty', false)
         const db = firebase.firestore()
         const {user, userDoc} = b8r.get('firebase')
+        // saving data to firebase
         const timestamp = Date.now()
         db.collection('users').doc(user.uid).set({ ...userDoc, timestamp }).then((...args) => {
           b8r.set('firebase.userDoc.timestamp', timestamp)
