@@ -91,7 +91,7 @@ export default {
       if (user) {
         b8r.set('firebase', {
           user,
-          canSignIn: false,
+          canSignIn: false
         })
         const db = firebase.firestore()
 
@@ -102,7 +102,7 @@ export default {
         b8r.set('firebase', {
           token: null,
           user: null,
-          canSignIn: true,
+          canSignIn: true
         })
       }
     })
@@ -120,7 +120,7 @@ export default {
       saveMessage () {
         b8r.set('firebase.dirty', false)
         const db = firebase.firestore()
-        const {user, userDoc} = b8r.get('firebase')
+        const { user, userDoc } = b8r.get('firebase')
         // saving data to firebase
         const timestamp = Date.now()
         db.collection('users').doc(user.uid).set({ ...userDoc, timestamp }).then((...args) => {
@@ -135,7 +135,7 @@ export default {
           b8r.set('firebase', {
             token: null,
             user: null,
-            canSignIn: true,
+            canSignIn: true
           })
         }).catch((error) => {
           /* global alert */
@@ -149,7 +149,7 @@ export default {
             authError: null,
             token: result.credential.accessToken,
             user: result.user,
-            canSignIn: false,
+            canSignIn: false
           })
         }).catch(function (error) {
           b8r.set('firebase', {

@@ -7,7 +7,7 @@ the new javascript components.
 
 Usage:
 
-    <b8r-component 
+    <b8r-component
       path="path/to/component-test.component.js"
       data-module="./path/to/foo.component.js"
     ></b8r-component>
@@ -85,7 +85,7 @@ or fix your code.
 
 On macOS, the snapshot tests will test both "light" and "dark" modes.
 
-## a11y Tests 
+## a11y Tests
 ### (NOT IMPLEMENTED)
 
 `component-test` performs `ally` testing using [aXe](https://github.com/dequelabs/axe-core)
@@ -94,7 +94,7 @@ on each example and interactively displays any issues it discovers.
 Your module can export an `a11yException` object to selectively suppress a11y errors.
 
 You can examine a list of accessibility issues and mark those you wish to ignore
-for the component as a whole or any specific case, and you will be provided with 
+for the component as a whole or any specific case, and you will be provided with
 an `a11yExceptions` object to add to your component source file.
 
 `component-test` will flag if you are passing tests you have opted to ignore (so it
@@ -110,7 +110,7 @@ in its default state.
 
 You can specify a helper javascript module using the `data-helper` attribute,
 which will attempt to load `configuration`, `examples`, and `a11yExceptions`.
- 
+
 In order to derive the most benefit from component-test
 */
 export default {

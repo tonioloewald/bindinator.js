@@ -309,7 +309,7 @@ const makeWebComponent = (tagName, {
         appendContentToElement(this, content)
       }
       Object.keys(eventHandlers).forEach(eventType => {
-        const passive = eventType.startsWith('touch') ? {passive: true} : false
+        const passive = eventType.startsWith('touch') ? { passive: true } : false
         this.addEventListener(eventType, eventHandlers[eventType].bind(this), passive)
       })
       if (eventHandlers.childListChange) {
@@ -393,7 +393,7 @@ const makeWebComponent = (tagName, {
   }
 
   Object.keys(methods).forEach(methodName => {
-    if(methodName !== 'connectedCallback') {
+    if (methodName !== 'connectedCallback') {
       componentClass.prototype[methodName] = methods[methodName]
     }
   })

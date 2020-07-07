@@ -5,7 +5,6 @@ const http = require('http')
 const https = require('https')
 const fs = require('fs')
 const puppeteer = require('puppeteer')
-const { exec } = require('child_process')
 
 const settings = {
   port: 8017,
@@ -63,7 +62,7 @@ const screencapRegexp = /^\/screencap(\/.*?)$/
 on('GET', screencapRegexp, async (req, res) => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
-  const [,capturePath] = req.url.match(screencapRegexp)
+  const [, capturePath] = req.url.match(screencapRegexp)
   const url = `${settings.https ? 'https' : 'http'}://localhost:${settings.port}${capturePath}`
 
   await page.goto(url)
@@ -74,7 +73,7 @@ on('GET', screencapRegexp, async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'image/png' })
     res.end(imageData)
     await browser.close()
-  } catch(e) {
+  } catch (e) {
     console.error('/screencap', url, 'failed!')
     res.writeHead(500)
     res.end('screen capture failed')

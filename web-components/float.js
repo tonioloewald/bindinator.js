@@ -62,30 +62,8 @@ webComponentTest(Test, '../web-components/float.js', 'b8r-float')
 */
 /* global getComputedStyle */
 
-import {
-  makeWebComponent,
-  div,
-  fragment,
-  slot
-} from '../source/web-components.js'
-import {listenForDragStart, trackDrag, moveEventDiv} from '../lib/track-drag.js'
-
-const mousemove = (evt) => {
-  const target = evt.target._target
-  const { clientX, clientY } = evt
-  target.style.left = (clientX - target._dragging.x) + 'px'
-  target.style.top = (clientY - target._dragging.y) + 'px'
-  evt.preventDefault()
-  evt.stopPropagation()
-}
-
-const mouseup = (evt) => {
-  evt.target.style.display = 'none'
-  const target = evt.target._target
-  delete (target._dragging)
-  evt.preventDefault()
-  evt.stopPropagation()
-}
+import { makeWebComponent, slot } from '../source/web-components.js'
+import { listenForDragStart, trackDrag, moveEventDiv } from '../lib/track-drag.js'
 
 const Float = makeWebComponent('b8r-float', {
   style: {
@@ -93,7 +71,7 @@ const Float = makeWebComponent('b8r-float', {
       display: 'block',
       position: 'fixed',
       cursor: 'grab'
-    },
+    }
   },
   attributes: {
     drag: false
@@ -123,7 +101,7 @@ const Float = makeWebComponent('b8r-float', {
           if (y < 0) y = 0
           float.style.left = x + 'px'
           float.style.top = y + 'px'
-          if(dragEnd) moveEventDiv.style.cursor = ''
+          if (dragEnd) moveEventDiv.style.cursor = ''
         })
       })
     },

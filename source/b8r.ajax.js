@@ -7,15 +7,12 @@
 
 `b8r` provides some simple utilities for interacting with REST/json services.
 
-    ajax(url, method, requestData, config)
-    json(url, method, requestData, config)
-    xml(url, method, requestData, config)
+    ajax(url, method='GET', requestData, config)
+    json(url, method='GET', requestData, config)
+    jsonp(url, callbackParam='callback', timeout=200)
+    xml(url, method='GET', requestData, config)
 
-`jsonp` is also supported (it's effectively always `GET`):
-
-    jsonp(url, callbackParam='callback', timeout=2000)
-
-All parameters except `url` are optional.
+`url` is required; other parameters are optional.
 
 These methods are all `async` (they return `promises` of the specified response).
 
@@ -25,7 +22,7 @@ Usage:
 
 or:
 
-    const myData = await jason('path/to/endpoint', ...)
+    const myData = await json('path/to/endpoint', ...)
 
 Also note that these methods are folded into `b8r` by default, so available as
 `b8r.ajax`, etc.

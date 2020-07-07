@@ -1,4 +1,4 @@
-import('../web-components/select.js')
+import('../web-components/select.js') // eslint-disable-line
 
 export default {
   html: `
@@ -11,10 +11,10 @@ export default {
       <b8r-option value="dark" title="dark theme">🌒</b8r-option>
     </b8r-select-bar>
   `,
-  initialValue: ({get}) => {
+  initialValue: ({ get }) => {
     const darkmodeQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const setDarkmode = () => {
-      const {preference} = get()
+      const { preference } = get()
       const darkmode = preference === 'dark' || (darkmodeQuery.matches && preference === 'auto')
       document.body.classList.toggle('darkmode', darkmode)
     }
@@ -27,7 +27,7 @@ export default {
       setDarkmode
     }
   },
-  load: ({get}) => {
+  load: ({ get }) => {
     get().setDarkmode()
   }
 }
