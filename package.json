@@ -80,7 +80,7 @@
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@linthtml/linthtml": "^0.3.2",
+    "@linthtml/linthtml": "^0.4.2",
     "pixelmatch": "^5.2.1",
     "pngjs": "^5.0.0",
     "puppeteer": "^3.3.0",
