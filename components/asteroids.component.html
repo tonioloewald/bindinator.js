@@ -134,8 +134,8 @@ Uses game-controller.js which relies on presence of a connected gamepad.
       ships.forEach(update);
       touch('asteroids');
       touch('ships');
-      requestAnimationFrame(render);
+      setTimeout(render, 1000/60);
     }
   };
-  requestAnimationFrame(render);
+  setTimeout(render, 1000/60);
 </script>
