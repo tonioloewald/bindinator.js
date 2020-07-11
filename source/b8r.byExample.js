@@ -99,7 +99,7 @@ You can denote an optional type using '#?<type>'. Both `null` and `undefined` ar
 > This mechanism will likely add new types as the need arises, and similarly may afford a
 > convenient mechanism for defining custom types that require test functions to verify.
 
-### #regex[]
+### #regexp
 
 You can specify a regular expression test for a string value by providing the string you'd use
 to create a `RegExp` instance. E.g. '#regexp \\d+{5,5}' for a simple zipcode type.
@@ -421,65 +421,92 @@ const matchKeys = (example, subject, errors = [], path = '') => {
 /**
 ## Strongly Typed Functions
 
-To create a function that is type-checked you can use `typeSafe`:
+`typeSafe` adds run-time type-checking to functions, verifying the type of both
+their inputs and outputs:
 
     import {typeSafe} from 'path/to/b8r.js'
-    const safeFunc = typeSafe(func, paramTypes, resultType)
+    const safeFunc = typeSafe(func, paramTypes, resultType, name)
 
 - `func` is the function you're trying to type-check.
 - `paramTypes` is an array of types.
 - `resultType` is the type the function is expected to return (it's optional).
+- `name` is optional (defaults to func.name || 'anonymous')
 
 For example:
 
-    const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+    const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3, 'add')
 
-A typesafe function that is passed an incorrect set of parameters, whose original
+A typeSafe function that is passed an incorrect set of parameters, whose original
 function returns an incorrect set of paramters will return an instance of `TypeError`.
 
 `TypeError` is a simple class to wrap the information associated with a type-check failure.
-Its instances four properties: `isParamFailure` is true if the failure was in the inputs
-to a function, `expected` is what was expected, `found` is what was found, and `errors` is
-the array of type errors. They also have one method, `toString()`.
+Its instances five properties and one method: 
+- `functionName` is the name of the function (or 'anonymous' if none was provided)
+- `isParamFailure` is true if the failure was in the inputs to a function,
+- `expected` is what was expected, 
+- `found` is what was found, 
+- `errors` is the array of type errors. 
+- `toString()` renders the `TypeError` as a string
 
-A typesafe function that is one or more `TypeError` instances in its parameters will return
-the first one without calling the wrapped function. (The goal is for typeSafe functions to
-behave like monads, so you can combine them however you like and know that errors will
-short-circuit further execution.)
+A typeSafe function that is passed or more `TypeError` instances in its parameters will return
+the first error it sees without calling the wrapped function.
+
+typeSafe functions are self-documenting. They have two read-only properties `paramTypes` and
+`resultType`.
+
+typeSafe functions are intended to operate like 
+[monads](https://en.wikipedia.org/wiki/Monad_(functional_programming)), 
+so if you call `safe_f(safe_g(...))` and `safe_g` fails, `safe_f` will _short-circuit_ execution and 
+return the error directly -- which should help with debugging and prevent code executing
+on data known to be bad.
 
 ~~~~
 const {
   matchParamTypes,
   typeSafe,
+  TypeError,
 } = await import('./b8r.byExample.js');
 
 Test(() => matchParamTypes([1,2,3], [1,2,3])).shouldBeJSON([])
 Test(() => matchParamTypes([1,'a',{}], [0,'b',{}])).shouldBeJSON([])
 Test(() => matchParamTypes([1,'a'], [0,'b',{}]), 'extra parameters are ok').shouldBeJSON([])
 
-const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3, 'add')
 Test(() => safeAdd(1,2), 'typesafe function works when used correctly').shouldBe(3)
-Test(() => safeAdd(1).toString()).shouldBeJSON('bad parameter, [[],["was undefined, expected number"]]')
+Test(() => safeAdd(1).toString()).shouldBeJSON('add failed: bad parameter, [[],["was undefined, expected number"]]')
 
-const badAdd = typeSafe((a, b) => `${a + b}`, [1, 2], 3)
+const badAdd = typeSafe((a, b) => `${a + b}`, [1, 2], 3, 'badAdd')
 Test(() => badAdd(1,2).toString(), 'typesafe function fails with wrong return type')
-  .shouldBeJSON('bad result, ["was \\"3\\", expected number"]')
+  .shouldBeJSON('badAdd failed: bad result, ["was \\"3\\", expected number"]')
 
-const safeVectorAdd = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3])
+const labeller = typeSafe((label, number) => `${label}: ${number}`, ['label', 0], 'label: 17', 'labeller')
+Test(() => labeller.paramTypes, 'typeSafe function has paramTypes').shouldBeJSON(['label',0])
+Test(() => labeller.resultType, 'typeSafe function has resultType').shouldBe('label: 17')
+Test(() => labeller.resultType = 'foo', 'typeSafe function props are read-only').shouldThrow()
+
+const safeVectorAdd = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3], 'vectorAdd')
 Test(() => safeVectorAdd([1,2],[3,4])).shouldBeJSON([4,6])
-Test(() => safeVectorAdd([1,2],[3,'x']).toString()).shouldBeJSON('bad parameter, [[],["[1] was \\"x\\", expected number"]]')
-Test(() => safeVectorAdd([1,2],[3]).toString()).shouldBeJSON('bad result, ["[1] was NaN, expected number"]')
+Test(() => safeVectorAdd([1,2],[3,'x']).toString()).shouldBeJSON('vectorAdd failed: bad parameter, [[],["[1] was \\"x\\", expected number"]]')
+Test(() => safeVectorAdd([1,2],[3]).toString()).shouldBeJSON('vectorAdd failed: bad result, ["[1] was NaN, expected number"]')
+Test(() => safeVectorAdd([1,2], safeVectorAdd([1,2],[1,1])), 'chaining works').shouldBeJSON([3,5])
+Test(() => safeVectorAdd([1,2],[1]) instanceof TypeError, 'failed function returns TypeError').shouldBe(true)
+const inner = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3], 'inner')
+Test(() => inner([1,2],[1]) instanceof TypeError, 'failed function returns TypeError').shouldBe(true)
+Test(() => inner([1,2],[1]).functionName, 'failed function returns name').shouldBe('inner')
+Test(() => safeVectorAdd([1,2], inner([1,2],[1])).toString(), 'short circuit works').shouldBeJSON('inner failed: bad result, ["[1] was NaN, expected number"]')
 ~~~~
  */
 
 export class TypeError {
   constructor ({
+    functionName,
     isParamFailure,
     expected,
     found,
     errors
   }) {
     Object.assign(this, {
+      functionName,
       isParamFailure,
       expected,
       found,
@@ -489,10 +516,27 @@ export class TypeError {
 
   toString () {
     const {
+      functionName,
       isParamFailure,
       errors
     } = this
-    return `bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
+    return `${functionName} failed: bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
+  }
+}
+
+const assignReadOnly = (obj, propMap) => {
+  propMap = {...propMap}
+  for(const key of Object.keys(propMap)) {
+    Object.defineProperty(obj, key, {
+      writeable: false,
+      enumerable: true,
+      get () {
+        return propMap[key]
+      },
+      set (value) {
+        throw new Error(`${key} is read-only`)
+      }
+    })
   }
 }
 
@@ -506,9 +550,15 @@ export const matchParamTypes = (types, params) => {
   return errors.flat().length ? errors : []
 }
 
-const _typeSafe = (func, paramTypes, resultType) => {
+// TODO async function support
+
+const _typeSafe = (func, paramTypes, resultType, functionName) => {
+  if (! functionName) functionName = func.name || 'anonymous' 
   const typeSafeFunc = function (...params) {
     const paramErrors = matchParamTypes(paramTypes, params)
+    // short circuit failures
+    if (paramErrors instanceof TypeError) return paramErrors
+
     if (paramErrors.length === 0) {
       const result = func(...params)
       const resultErrors = matchType(resultType, result)
@@ -516,6 +566,7 @@ const _typeSafe = (func, paramTypes, resultType) => {
         return result
       } else {
         return new TypeError({
+          functionName,
           isParamFailure: false,
           expected: resultType,
           found: result,
@@ -524,13 +575,14 @@ const _typeSafe = (func, paramTypes, resultType) => {
       }
     }
     return new TypeError({
+      functionName,
       isParamFailure: true,
       expected: paramTypes,
       found: params,
       errors: paramErrors
     })
   }
-  Object.assign(typeSafeFunc, {
+  assignReadOnly(typeSafeFunc, {
     paramTypes,
     resultType
   })
