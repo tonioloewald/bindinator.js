@@ -248,6 +248,10 @@
       {
         "name": "text-render",
         "path": "lib/text-render.js"
+      },
+      {
+        "name": "resize",
+        "path": "lib/resize.js"
       }
     ]
   },
