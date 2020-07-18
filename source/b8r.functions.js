@@ -31,6 +31,10 @@ been called in the last interval.
 This combines the two concepts. If called repeatedly, it will not fire more often than once
 per interval, and will fire after the interval has passed since the last call.
 
+E.g. if you want to respond 'live' to a user dragging something around or resizing an object, 
+but you don't want to do it 60 times per second, `throttleAndDebounce` will ensure that it 
+updates throughout the operation and fires one last time after the operation stops.
+
     await b8r.delay(milliseconds, ...args)
 
 `delay` is a simple utility function that resolves after the specified amount of time to
