@@ -30,6 +30,7 @@
   --example-bg-color: rgb(229, 229, 241);
   --input-bg-color: #eee;
   --text-color: #333;
+  --tooltip-bg-color: #ff8;
   --dark-text-color: #eee;
   --code-text-color: #444;
   --faded-text-color: #666;
@@ -68,6 +69,7 @@
 
 .darkmode {
   --bg-color: #282840;
+  --tooltip-bg-color: #55a;
   --content-bg-color: #222;
   --faded-bg-color: #444;
   --example-bg-color: rgb(39, 39, 49);
@@ -549,7 +551,7 @@ progress::-webkit-progress-value {
 /* used by tooltips.js */
 .tooltips-tooltip {
   position: fixed;
-  background: var(--white-75);
+  background: var(--tooltip-bg-color);
   padding: var(--input-padding-edges);
   border-radius: var(--tiny-radius-size);
   color: var(--text-color);
