@@ -83,7 +83,7 @@ Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Sa
 
     b8r.get('app.message') // should print "hello world"
     b8r.set('app.message', 'laziness rules!')
-    b8r.call('app.message')
+    b8r.call('app.speak')
 
 ## The lazy JavaScript framework.
 
