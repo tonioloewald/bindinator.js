@@ -219,6 +219,7 @@ as  `b8r` and the output element as `example`.
 /* jshint latedef:false */
 
   const {vfs} = await import('../vfs.js');
+  const {relayTo} = await import('../lib/resize.js');
   await vfs;
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
@@ -234,6 +235,7 @@ as  `b8r` and the output element as `example`.
   component.classList.add('resizer-target');
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
   on('resize', '_component_.resize');
+  relayTo(code_elt);
   const init_editor = (mode = 'ace/mode/html') => {
     editor = ace.edit(code_elt, {
       mode,
