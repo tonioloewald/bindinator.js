@@ -258,9 +258,13 @@
     margin-left: 10px;
     font-family: Monaco, monospace;
   }
+
+  ._component_ .localhost {
+    border-left: 2px solid var(--warning-color);
+  }
 </style>
 <div class="content" data-event="md-render:_component_.updateNav"></div>
-<div class="nav">
+<div class="nav" data-bind="class(localhost)=_component_.localhost">
   <div style="text-align: center; padding-bottom: 10px">
     <img
       class="nav-logo"
@@ -448,6 +452,7 @@
   set({
     year: new Date().getFullYear(),
     searchFilter: '',
+    localhost: window.location.hostname === 'localhost',
     filterDocs: b8r.debounce(() => {
       const docs = get('docs')
       const searchField = get('searchFilter').toLocaleLowerCase()
