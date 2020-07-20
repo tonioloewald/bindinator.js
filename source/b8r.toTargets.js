@@ -344,7 +344,7 @@ b8r.forceUpdate()
 Test(() => span.textContent, 'update works').shouldBe('good-bye')
 Test(() => callCount, 'exactly one more call to method').shouldBe(2)
 span.remove()
-b8r.deregister('test_')
+b8r.remove('test_')
 ~~~~
 
 ```
