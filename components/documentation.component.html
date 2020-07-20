@@ -262,6 +262,19 @@
   ._component_ .localhost {
     border-left: 2px solid var(--warning-color);
   }
+
+  ._component_ .errors {
+    background: var(--error-color);
+    text-align: center;
+    padding: 2.5px 5px;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+  }
+  
+  ._component_ .errors::after {
+    content: ' test(s) failed';
+  }
 </style>
 <div class="content" data-event="md-render:_component_.updateNav"></div>
 <div class="nav" data-bind="class(localhost)=_component_.localhost">
@@ -299,6 +312,7 @@
     </div>
   </details>
 </div>
+<div class="errors" data-bind="show_if,text=_component_.testErrors"></div>
 <b8r-float
   drag="true"
   class="in-page-nav" 
@@ -359,7 +373,15 @@
   const runTests = async (sectionTitle, partIdx) => {
     const path = get(`docs[title=${sectionTitle}].parts[${partIdx}].path`)
     if (path.endsWith('.js')) {
-      const source = await b8r.ajax(path)
+      let source;
+      try {
+        source = await b8r.ajax(path);
+      } catch(e) {
+        console.error('could not load source file', path);
+        set(`docs[title=${sectionTitle}].hasErrors`, true);
+        set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
+        set('testErrors', get().testErrors + 1);
+      }
       const tests = source.split('~~~~').filter((_, idx) => idx % 2)
       tests.forEach(testSource => {
         const t = new AsyncFunction('Test', 'b8r', testSource + `////# sourceURL=${path}`)
@@ -368,12 +390,14 @@
             onError: () => {
               set(`docs[title=${sectionTitle}].hasErrors`, true);
               set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
+              set('testErrors', get().testErrors + 1);
             },
             reportContainer: document.createElement('div'),
           }), b8r);
         } catch (_) {
           set(`docs[title=${sectionTitle}].hasErrors`, true);
           set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
+          set('testErrors', get().testErrors + 1);
         }
       });
     }
@@ -453,6 +477,7 @@
     year: new Date().getFullYear(),
     searchFilter: '',
     localhost: window.location.hostname === 'localhost',
+    testErrors: 0,
     filterDocs: b8r.debounce(() => {
       const docs = get('docs')
       const searchField = get('searchFilter').toLocaleLowerCase()
