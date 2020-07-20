@@ -230,12 +230,11 @@ as  `b8r` and the output element as `example`.
   const AsyncFunction = (async () => {}).constructor
   let last_code = '';
   let editor;
-  component.classList.add('maxtoggle-target')
-  const maxToggle = b8r.create('b8r-component')
+  component.classList.add('maxtoggle-target');
+  const maxToggle = b8r.create('b8r-component');
   component.classList.add('resizer-target');
   b8r.addDataBinding(component, 'class(minimized)', '_component_.minimized');
-  on('resize', '_component_.resize');
-  relayTo(code_elt);
+
   const init_editor = (mode = 'ace/mode/html') => {
     editor = ace.edit(code_elt, {
       mode,
@@ -270,12 +269,14 @@ as  `b8r` and the output element as `example`.
     code_elt.textContent = '// enter code here\nreturn 6 * 7\n'
     init_editor('ace/mode/javascript');
   }
+
   function indent () {
     if (editor) {
       return true;
     }
     document.execCommand('insertText', false, '  ');
   }
+
   async function run() {
     const source = (editor ? editor.getValue() : code_elt.textContent).trim();
     if (last_code === source) {
@@ -315,6 +316,7 @@ as  `b8r` and the output element as `example`.
     }
     component.style.visibility = 'visible';
   }
+
   function fullscreen() {
     if(component.classList.contains('fullscreen')) {
       component.classList.remove('fullscreen');
@@ -322,6 +324,7 @@ as  `b8r` and the output element as `example`.
       component.classList.add('fullscreen');
     }
   }
+
   register ({
     run,
     fullscreen,
@@ -334,4 +337,7 @@ as  `b8r` and the output element as `example`.
     mode: component.dataset.mode || data.mode || 'all',
     title: 'inline',
   });
+
+  on('resize', '_component_.resize');
+  relayTo(code_elt);
 </script>
