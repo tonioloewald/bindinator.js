@@ -237,12 +237,11 @@ h1, h2, h3, h4, h5, h6, b, strong, i, em {
 
 label {
   vertical-align: baseline;
+  padding: var(--narrow-spacing-size) 0;
 }
 
 label > * {
   line-height: var(--body-line-height);
-  margin-block-start: var(--spacing-size);
-  margin-block-end: var(--spacing-size);
 }
 
 :disabled {
@@ -259,8 +258,6 @@ input, textarea, [contenteditable="true"] {
   border: none;
   box-shadow: var(--shadow-outline);
   transition: var(--hover-transition);
-  margin-block-start: var(--narrow-spacing-size);
-  margin-block-end: var(--narrow-spacing-size);
   line-height: var(--body-line-height);
   outline: var(--focus-outline);
 }

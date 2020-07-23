@@ -37,6 +37,21 @@
     justify-items: center;
     align-items: center;
   }
+
+  form label {
+    display: flex;
+    align-items: center;
+  }
+
+  form label > *:not(:first-child),
+  button:not(:first-child),
+  input:not(:first-child) {
+    margin-left: 10px;
+  }
+
+  input, button {
+    transform: translateY(1px);
+  }
 </style>
 <b8r-component path="components/theme-editor"></b8r-component>
 <b8r-component path="components/tab-selector">
@@ -80,36 +95,37 @@ if (
     </ol>
   </div>
   <form data-name="Form Controls" style="padding: 10px">
-    This is a <span>form</span> with standard controls on it including: <br>
-    <button>button</button> <br>
-    <label>a label wrapped around an <span>input</span> <input placeholder="input"></label> <br>
-    <label><span>input type="number"</span> <input type="number" min=0 max=100 data-bind="value=_component_.score"></label> <br>
-    <label><span>input type="checkbox"</span> <input type="checkbox"></label> <br>
-    <div><span>input type="radio"</span>
-      <label data-list="_component_.list">
-        <br>
-        <input name="selection" type="radio" data-bind="attr(value)=.;value=_component_.selection">
-        <span data-bind="text=."></span>
-      </label>
-      <div data-bind="text=You picked ”${_component_.selection}”"></div>
-    </div>
-    <label><span>input type="date"</span> <input type="date" data-bind="value=_component_.date"></label> <br>
-    <label><span>input type="range"</span> <input type="range" min=0 max=100 data-bind="value=_component_.score"></label> <br>
-    <label><span>input type="color"</span> <input type="color" data-bind="value=_component_.color"></label> <br>
-    <label><span>progress min=0 max=100 value=25</span> <progress min=0 max=100 data-bind="value=_component_.score"></progress></label> <br>
-    <label><span>textarea</span> <textarea>textarea</textarea></label> <br>
+    <p>
+      <span>Span</span> <button>Button</button><input value="input">
+    </p>
+    <label><span>a label wrapped around an input</span> <input placeholder="input"></label>
+    <label><span>input type="number"</span> <input type="number" min=0 max=100 data-bind="value=_component_.score"></label>
+    <label><span>input type="checkbox"</span> <input type="checkbox"></label>
+    <p>
+      Pick an option:
+    </p>
+    <label data-list="_component_.list">
+      <input name="selection" type="radio" data-bind="attr(value)=.;value=_component_.selection">
+      <span data-bind="text=."></span>
+    </label>
+    <p data-bind="text=You picked ”${_component_.selection}”"></p>
+    <label><span>input type="date"</span> <input type="date" data-bind="value=_component_.date"></label>
+    <label><span>input type="range"</span> <input type="range" min=0 max=100 data-bind="value=_component_.score"></label>
+    <label><span>input type="color"</span> <input type="color" data-bind="value=_component_.color"></label>
+    <label><span>progress min=0 max=100 value=25</span> <progress min=0 max=100 data-bind="value=_component_.score"></progress></label>
+    <label><span>textarea</span> <textarea>textarea</textarea></label>
     <label>
       <span>select</span>
       <select data-bind="value=_component_.selection">
         <option data-list="_component_.list" data-bind="text=."></option>
       </select>
-    </label> <br>
+    </label>
     <label>
       <span>select multiple</span>
       <select multiple>
         <option data-list="_component_.list" data-bind="text=."></option>
       </select>
-    </label> <br>
+    </label>
   </form>
   <div data-name="Icons">
     <div class="tile" data-list="_component_.iconClasses">
