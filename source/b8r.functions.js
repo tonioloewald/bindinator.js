@@ -35,10 +35,10 @@ E.g. if you want to respond 'live' to a user dragging something around or resizi
 but you don't want to do it 60 times per second, `throttleAndDebounce` will ensure that it 
 updates throughout the operation and fires one last time after the operation stops.
 
-    await b8r.delay(milliseconds, ...args)
+    await b8r.delay(milliseconds, value=null)
 
 `delay` is a simple utility function that resolves after the specified amount of time to
-the args (if any) passed.
+the value specified (null by default).
 
 ~~~~
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
@@ -123,7 +123,7 @@ Test(async () => {
 ~~~~
 */
 
-const delay = (delayMs, value) => new Promise((resolve, reject) => {
+const delay = (delayMs, value = null) => new Promise((resolve, reject) => {
   setTimeout(() => resolve(value), delayMs)
 })
 
