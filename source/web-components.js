@@ -10,11 +10,12 @@ Helper methods for creating Web Components.
     makeWebComponent(tagName, {
       superClass=HTMLElement, // the class you're extending
       style=false,            // expect object
+      props={},               // map names to default values / functions
       methods={},             // map names to class methods
       eventHandlers={},       // map eventTypes to event handlers
       attributes={},          // map attributes to default values
       content=slot(),         // HTMLElement or DocumentFragment or falsy
-      role=false,         // expect string
+      role=false,             // expect string
     })                        // returns the class
 
 Defines a new [Web Component](https://www.webcomponents.org/)).
@@ -23,6 +24,11 @@ Returns the component class (in case you want to subclass it).
 
 - `style` can be CSS source or a map of selector rules to maps of css rules.
   If no style is passed, no shadowRoot will be created
+- `props` are direct properties added to the element; if you pass a function
+  then if it takes no parameters a computed read-only property of that name
+  will map to the function. If the function takes a parameter, it will
+  be treated as a computed setter as well. Unlike attributes, props don't
+  appear in the DOM.
 - `methods` will become class methods, notably `render` and `childListChange`
   - `render` is where the widget gets expressed in the DOM, based on its state
   - `childListChange` indicates that children of the (original) DOM node have changed
@@ -300,7 +306,23 @@ const makeWebComponent = (tagName, {
   const componentClass = class extends superClass {
     constructor () {
       super()
-      Object.assign(this, props)
+      for(const prop of Object.keys(props)) {
+        const value = props[prop]
+        if (typeof value !== 'function') {
+          this[prop] = value
+        } else {
+          Object.defineProperty(this, prop, {
+            writeable: value.length > 0,
+            enumerable: false,
+            get() {
+              return value.call(this)
+            },
+            set(newValue) {
+              value.call(this, newValue)
+            }
+          })
+        }
+      }
       if (styleNode) {
         const shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(styleNode.cloneNode(true))
