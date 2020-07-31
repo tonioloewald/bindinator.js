@@ -177,6 +177,7 @@ setup in the example.
 
 import { trackDrag } from '../lib/track-drag.js'
 import { slice } from '../lib/biggrid.js'
+import { resize } from '../lib/resize.js'
 
 const makeSortFunction = column => {
   const { sortable, sortDirection } = column
@@ -408,6 +409,7 @@ export default {
     <div 
       class="t-visible-columns"
       data-bind="show_if=_component_.editVisibleColumns"
+      data-event="change:_component_.updateVisibleColumns"
     >
       <label data-list="_component_.config.columns">
         <input type="checkbox" data-bind="checked=.visible">
@@ -420,6 +422,7 @@ export default {
     const rowTemplate = findOne('.t-body > .t-row[data-list]')
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
     rowTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
+    resize(component, '_component_.onResize')
   },
   initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
     return {
@@ -435,18 +438,19 @@ export default {
         return columns.filter(({ visible }) => !!visible)
       },
       toggleEditVisibleColumns () {
-        const { rows, editVisibleColumns } = get()
-        set({ editVisibleColumns: !editVisibleColumns })
-        if (editVisibleColumns) {
-          // because we're changing the list template (something b8r does not understand)
-          // we're going to blow away all the list instances by setting the list to empty
-          // and then after b8r cleans everything up, putting them back again
-          set({ rows: [] })
-          touch('config.columns')
-          b8r.afterUpdate(() => {
-            set({ rows })
-          })
-        }
+        set({ editVisibleColumns: !get().editVisibleColumns })
+      },
+      updateVisibleColumns () {
+        // because we're changing the list template (something b8r does not understand)
+        // we're going to blow away all the list instances by setting the list to empty
+        // and then after b8r cleans everything up, putting them back again
+
+        const { rows } = get()
+        set({ rows: [] })
+        touch('config.columns')
+        b8r.afterUpdate(() => {
+          set({ rows })
+        })
       },
       resizeColumn (evt) {
         const { config: { virtual, maxRowsForLiveColumnResize }, rows } = get()
@@ -486,6 +490,9 @@ export default {
         if (replacement instanceof HTMLElement) {
           element.parentElement.replaceChild(replacement, element)
         }
+      },
+      onResize () {
+        touch(component)
       },
       sortColumn (evt) {
         const { name } = b8r.getListInstance(evt.target)
