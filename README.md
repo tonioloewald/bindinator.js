@@ -93,19 +93,19 @@ Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Sa
 - Don't wait for "compiles" or "transpiles"; debug the code you wrote
 - Don't learn new domain-specific languages.
 - Don't learn a templating language.
-- Don't use a special debugger.
+- Don't instal and learn a new debugger, use the existing one you know.
 - Write less boilerplate (almost none!)
 - Don't worry about state management — `b8r` does that for you
 - Don't write lots of "getters" or "selectors" — `b8r` does that for you
 - Don't worry about code-splitting — `b8r` is deeply async and deeply lazy
-- Don't pass props from element to element
+- Don't pass values through hierarchies, send them direct (where appropriate)
 
 And `b8r` is lazy too.
 
 - Don't do things for the browser that the browser knows how to do (like
 parse HTML).
 - Don't implement a new templating language.
-- Don't require special debugging tools. 
+- Don't require special debugging tools, leverage the existing debug tools. 
 - Don't add zillions of runtime dependencies.
 
 ### Bind Data to the DOM with `data-bind`
