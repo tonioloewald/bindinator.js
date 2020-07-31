@@ -306,7 +306,7 @@ const makeWebComponent = (tagName, {
   const componentClass = class extends superClass {
     constructor () {
       super()
-      for(const prop of Object.keys(props)) {
+      for (const prop of Object.keys(props)) {
         const value = props[prop]
         if (typeof value !== 'function') {
           this[prop] = value
@@ -314,10 +314,10 @@ const makeWebComponent = (tagName, {
           Object.defineProperty(this, prop, {
             writeable: value.length > 0,
             enumerable: false,
-            get() {
+            get () {
               return value.call(this)
             },
-            set(newValue) {
+            set (newValue) {
               value.call(this, newValue)
             }
           })
