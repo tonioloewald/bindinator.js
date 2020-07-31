@@ -750,7 +750,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     },
     data: function () {
       return b8r.get(this.componentId)
-    },
+    }
   },
   methods: {
     connectedCallback () {

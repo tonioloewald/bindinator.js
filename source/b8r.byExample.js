@@ -440,12 +440,12 @@ A typeSafe function that is passed an incorrect set of parameters, whose origina
 function returns an incorrect set of paramters will return an instance of `TypeError`.
 
 `TypeError` is a simple class to wrap the information associated with a type-check failure.
-Its instances five properties and one method: 
+Its instances five properties and one method:
 - `functionName` is the name of the function (or 'anonymous' if none was provided)
 - `isParamFailure` is true if the failure was in the inputs to a function,
-- `expected` is what was expected, 
-- `found` is what was found, 
-- `errors` is the array of type errors. 
+- `expected` is what was expected,
+- `found` is what was found,
+- `errors` is the array of type errors.
 - `toString()` renders the `TypeError` as a string
 
 A typeSafe function that is passed or more `TypeError` instances in its parameters will return
@@ -454,9 +454,9 @@ the first error it sees without calling the wrapped function.
 typeSafe functions are self-documenting. They have two read-only properties `paramTypes` and
 `resultType`.
 
-typeSafe functions are intended to operate like 
-[monads](https://en.wikipedia.org/wiki/Monad_(functional_programming)), 
-so if you call `safe_f(safe_g(...))` and `safe_g` fails, `safe_f` will _short-circuit_ execution and 
+typeSafe functions are intended to operate like
+[monads](https://en.wikipedia.org/wiki/Monad_(functional_programming)),
+so if you call `safe_f(safe_g(...))` and `safe_g` fails, `safe_f` will _short-circuit_ execution and
 return the error directly -- which should help with debugging and prevent code executing
 on data known to be bad.
 
@@ -525,8 +525,8 @@ export class TypeError {
 }
 
 const assignReadOnly = (obj, propMap) => {
-  propMap = {...propMap}
-  for(const key of Object.keys(propMap)) {
+  propMap = { ...propMap }
+  for (const key of Object.keys(propMap)) {
     Object.defineProperty(obj, key, {
       writeable: false,
       enumerable: true,
@@ -553,7 +553,7 @@ export const matchParamTypes = (types, params) => {
 // TODO async function support
 
 const _typeSafe = (func, paramTypes, resultType, functionName) => {
-  if (! functionName) functionName = func.name || 'anonymous' 
+  if (!functionName) functionName = func.name || 'anonymous'
   const typeSafeFunc = function (...params) {
     const paramErrors = matchParamTypes(paramTypes, params)
     // short circuit failures
