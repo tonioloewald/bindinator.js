@@ -177,7 +177,6 @@ setup in the example.
 
 import { trackDrag } from '../lib/track-drag.js'
 import { slice } from '../lib/biggrid.js'
-import { resize } from '../lib/resize.js'
 
 const makeSortFunction = column => {
   const { sortable, sortDirection } = column
@@ -422,7 +421,6 @@ export default {
     const rowTemplate = findOne('.t-body > .t-row[data-list]')
     b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
     rowTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
-    resize(component, '_component_.onResize')
   },
   initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
     return {
@@ -490,9 +488,6 @@ export default {
         if (replacement instanceof HTMLElement) {
           element.parentElement.replaceChild(replacement, element)
         }
-      },
-      onResize () {
-        touch(component)
       },
       sortColumn (evt) {
         const { name } = b8r.getListInstance(evt.target)
