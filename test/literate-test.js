@@ -5,7 +5,7 @@ Copyright ©2016-2017 Tonio Loewald
 This file exists for the sole purpose of testing the b8r *literate programming* component.
 
 > **Note** that one test deliberately throws an error so you can see the
-> red notifier displayed at the bottom-right of the page.
+> red notifier displayed at the bottom-left of the component.
 */
 
 /**
