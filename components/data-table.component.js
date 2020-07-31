@@ -13,13 +13,13 @@ The data-table component's `config` property allows the table to be configured
 very flexibly:
 
     {
-      virtual: true,                   // whether to virtualize the list using biggrid
-      rowHeight: 24,                   // fixes row height (only necessary if virtual)
-      sliceModulus: false,             // (if virtual) whether to make the slices stable modulo n
-      userCanEditColumns: true,        // can user pick which columns are shown?
-      maxRowsForLiveColumnResize: 100, // maximum number of rows before columns stop live resizing
-      rowFilter: list => list,         // filter function
-      filter: null,                    // parameter for rowFilter
+      virtual: true,                     // whether to virtualize the list using biggrid
+      rowHeight: 24,                     // fixes row height (only necessary if virtual)
+      sliceModulus: false,               // (if virtual) whether to make the slices stable modulo n
+      userCanEditColumns: true,          // can user pick which columns are shown?
+      maxRowsForLiveColumnResize: 100,   // maximum number of rows before columns stop live resizing
+      rowFilter: (list, filter) => list, // filter function
+      filter: null,                      // second parameter passed to rowFilter
       columns: [
         {
           name: 'column name',
