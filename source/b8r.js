@@ -744,6 +744,14 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     value: null
   },
   content: false,
+  props: {
+    componentId: function () {
+      return this.dataset.componentId
+    },
+    data: function () {
+      return b8r.get(this.componentId)
+    },
+  },
   methods: {
     connectedCallback () {
       const { path } = this
@@ -751,6 +759,9 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
         if (!this.name) this.name = path.split('/').pop().split('.').shift()
         b8r.component(this.name, path)
       }
+    },
+    set (...args) {
+      b8r.setByPath(this.componentId, ...args)
     },
     render () {
       if (!this.isConnected) return
