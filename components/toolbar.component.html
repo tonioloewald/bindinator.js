@@ -6,11 +6,10 @@ The toolbar component merely styles its children and adds shortcut support.
 <style>
   .toolbar-component {
     margin: 0;
-    padding: var(--spacing-size);
+    padding: var(--spacing-size) calc(var(--spacing-size) - var(--narrowest-spacing-size));
     height: calc(40px + var(--spacing-size));
     background-color: var(--black-5);
     box-sizing: border-box;
-    border-bottom: 1px solid var(--black-20);
     display: flex;
   }
 
@@ -25,8 +24,10 @@ The toolbar component merely styles its children and adds shortcut support.
     width: var(--spacing-size);
   }
 
-  .toolbar-component > button + button {
-    margin-left: var(--narrow-spacing-size);
+  .toolbar-component > button {
+    margin: 0 var(--narrowest-spacing-size);
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 </style>
 <script>
