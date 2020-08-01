@@ -22,18 +22,18 @@ very flexibly:
       filter: null,                      // second parameter passed to rowFilter
       columns: [
         {
-          name: 'column name',
           path: '.path.to.value',
 
           // optional settings (defaults shown)
+          name: null,           // if not set, will be derived from path
           visible: true,
-          minWidth: 40,       // number of pixels
-          width: 80,          // number of pixels
-          maxWidth: 400,      // number of pixels
+          minWidth: 40,         // number of pixels
+          width: 80,            // number of pixels
+          maxWidth: 400,        // number of pixels
           resizable: true,
-          sortable: false     // provide an ascending sort comparison function (a, b) => -1 | 0 | 1
-          headerCell: false,  // domElement,
-          contentCell: false, // domElement,
+          sortable: false       // provide an ascending sort comparison function (a, b) => -1 | 0 | 1
+          headerCell: false,    // domElement,
+          contentCell: false,   // domElement,
         },
         ...
       ]
@@ -52,10 +52,27 @@ rendering time for this page on my laptop goes down by ~700ms with `virtual: tru
 In the example, the row styles are set to `nth-child(4n+...)` so `sliceModulus: 4` is used to keep
 the column-shading stable.
 
+### Scrolling to Items
+
+`scrollToItem` is a handy function for scrolling a `data-table` to a specified row
+(if that row is "visible"). This only works for virtual tables, the whole point
+being that if the row is actually not in the DOM (because it's off screen),
+`data-table` will figure out where it would be if it were visible, and scroll there.
+
+    scrollToItem(item, durationMs=1000)
+
+If the table is not virtual, `scrollToItem` will log an error to the console. If
+the item is not among the visible rows of the table, `scrollToItem` will log
+a warning to console.
+
+> Why aren't non-virtual tables supported? Scrolling to an item in the DOM
+> is [perfectly easy](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView),
+> and why isn't the table virtual???
+
 ### To Do
 
-- table can have selection: { multiple: true|false, path: 'path.to.prop' }
-  (if no path provided, selection is tracked internally)
+- provide simpler support for selection:{ multiple: true|false, path: 'path.to.prop' }
+  (if no path provided, selection will be tracked internally)
 - column reordering
 
 Selection can be implemented by exporting a custom `column` based on the column
@@ -63,6 +80,27 @@ setup in the example.
 
 ```
 <style>
+  ._component_ {
+    display: flex;
+    flex-direction: column;
+    min-height: 512px;
+  }
+
+  ._component_ .toolbar {
+    flex: 0 0 auto;
+    padding: 5px;
+    position: relative;
+  }
+
+  ._component_ .data-table-component {
+    flex: 1 1 auto;
+  }
+
+  ._component_ .toolbar > * {
+    margin: 0 5px;
+    line-height: 100%;
+  }
+
   ._component_ .loading-component {
     position: absolute;
     top: 50%;
@@ -70,12 +108,17 @@ setup in the example.
     transform: translateX(-50%) translateY(-50%);
   }
 </style>
+<div class="toolbar">
+  <input placeholder="filter by name" data-bind="value=_component_.filterText" class="search">
+  <button data-event="click:_component_.scrollToRocket">Scroll to Rocket</button>
+</div>
 <b8r-component
   style="height: 100%;"
   path="../components/data-table.component.js"
   data-bind="
     component(rows)=_component_.emoji
     component(config)=_component_.config
+    component(filter)=_component_.filterText
   "
 >
 </b8r-component>
@@ -96,8 +139,19 @@ setup in the example.
     textAlign: 'center',
     fontSize: '20px'
   })
+  set({
+    scrollToRocket() {
+      const rocket = get().emoji.find(e => e.name === 'rocket')
+      findOne('.data-table-component').data.scrollToItem(rocket)
+    }
+  })
   set('config', {
     sliceModulus: 4,
+    rowFilter: (list, needle) => {
+      if (! needle) return list
+      needle = needle.toLocaleLowerCase()
+      return list.filter(item => item.name.toLocaleLowerCase().includes(needle))
+    },
     updateSelectAll(evt, target) {
       const {checked} = target
       const componentId = b8r.getComponentId(target)
@@ -124,7 +178,6 @@ setup in the example.
     },
     columns: [
       {
-        name: 'selected',
         path: '.selected',
         width: 40,
         resizable: false,
@@ -139,12 +192,10 @@ setup in the example.
         contentCell: emojiCell,
       },
       {
-        name: 'code',
         path: '.code',
         width: 100,
       },
       {
-        name: 'name',
         path: '.name',
         sortable: (a, b) => b8r.sortAscending(a.name, b.name),
         width: 200,
@@ -176,7 +227,7 @@ setup in the example.
 */
 
 import { trackDrag } from '../lib/track-drag.js'
-import { slice } from '../lib/biggrid.js'
+import { slice, scrollToIndex } from '../lib/biggrid.js'
 
 const makeSortFunction = column => {
   const { sortable, sortDirection } = column
@@ -199,7 +250,7 @@ const cell = path => {
 const clamp = (min, x, max) => x < min ? min : (x > max ? max : x)
 
 const columnDefaults = {
-  name: '',
+  name: null,
   minWidth: 40,
   visible: true,
   width: 80,
@@ -225,6 +276,7 @@ export default {
       flex-direction: column;
       position: relative;
       cursor: default;
+      overflow: hidden;
     }
 
     ._component_ .t-head {
@@ -361,7 +413,7 @@ export default {
     <div class="t-head t-row">
       <span
         tabindex=0
-        data-list="_component_.visibleColumns(_component_.config.columns):name"
+        data-list="_component_.visibleColumns(_component_.config.columns):_auto_"
       >
         <span 
           class="t-column-resizer"
@@ -381,7 +433,7 @@ export default {
         <span 
           class="t-column-name"
           data-bind="
-            text=.name
+            text=_component_.columnName(.)
             method(_component_.replaceElement)=.headerCell
           "
         ></span>
@@ -400,7 +452,7 @@ export default {
     >
       <div
         tabindex=0
-        class="t-row" 
+        class="t-row data-cell" 
         data-list="_component_.sortAndFilterRows(_component_.rows,_component_.filter):_auto_"
       >
       </div>
@@ -412,7 +464,7 @@ export default {
     >
       <label data-list="_component_.config.columns">
         <input type="checkbox" data-bind="checked=.visible">
-        <span data-bind="text=.name"></span>
+        <span data-bind="text=_component_.columnName(.)"></span>
       </label>
     </div>
     `,
@@ -424,6 +476,9 @@ export default {
   },
   initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
     return {
+      columnName: (column) => {
+        return column.name !== null ? column.name : column.path.split('.').pop()
+      },
       visibleColumns (/* ignore */) {
         if (!get().config) return []
         const columns = get().config.columns
@@ -434,6 +489,18 @@ export default {
           }
         })
         return columns.filter(({ visible }) => !!visible)
+      },
+      scrollToItem (item, durationMs=1000) {
+        const {config: {virtual}, _previous: {sorted}} = get()
+        if (!virtual) {
+          console.error('scrollToRocket only works for virtual tables')
+        }
+        const index = sorted.indexOf(item)
+        if(index > -1) {
+          scrollToIndex(findOne('.data-cell[data-list]'), index, durationMs)
+        } else {
+          console.warn('scrollToItem failed (not visible)', item)
+        }
       },
       toggleEditVisibleColumns () {
         set({ editVisibleColumns: !get().editVisibleColumns })
@@ -490,10 +557,10 @@ export default {
         }
       },
       sortColumn (evt) {
-        const { name } = b8r.getListInstance(evt.target)
+        const { _auto_ } = b8r.getListInstance(evt.target)
         const { config: { columns } } = get()
         columns.forEach(column => {
-          if (column.name === name) {
+          if (column._auto_ === _auto_) {
             switch (column.sortDirection) {
               case 'ascending':
                 column.sortDirection = 'descending'
