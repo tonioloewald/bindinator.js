@@ -449,7 +449,7 @@
     console.log('Index built', Date.now() - start)
   }
   const updateNav = b8r.debounce(() => {
-    const pageLinks = b8r.findWithin(content, 'h1,h2,h3,[name=fiddle],[data-component=fiddle]')
+    const pageLinks = b8r.findWithin(content, 'h1,h2,h3,.fiddle-component,.test-component [role=heading]')
       .filter(element => !element.parentElement.closest('fiddle-component'))
       .map(element => {
         const title = element.dataset.componentId 
