@@ -182,11 +182,6 @@ const memoize = f => {
   const memoized = function (...args) {
     const newArgs = [this, ...args]
     const differences = previousResult === undefined || newArgs.filter((item, index) => item !== previousArgs[index]).length
-    console.log({
-      previousArgs,
-      newArgs,
-      differences
-    })
     if (differences) {
       previousArgs = newArgs
       previousResult = f.call(this, ...args)
