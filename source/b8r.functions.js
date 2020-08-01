@@ -178,7 +178,7 @@ const AsyncFunction = async function () {}.constructor
 const memoize = f => {
   if (f._isMemoized) return f
   let previousArgs = []
-  let previousResult = undefined
+  let previousResult
   const memoized = function (...args) {
     const newArgs = [this, ...args]
     const differences = previousResult === undefined || newArgs.filter((item, index) => item !== previousArgs[index]).length

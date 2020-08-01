@@ -490,13 +490,13 @@ export default {
         })
         return columns.filter(({ visible }) => !!visible)
       },
-      scrollToItem (item, durationMs=1000) {
-        const {config: {virtual}, _previous: {sorted}} = get()
+      scrollToItem (item, durationMs = 1000) {
+        const { config: { virtual }, _previous: { sorted } } = get()
         if (!virtual) {
           console.error('scrollToRocket only works for virtual tables')
         }
         const index = sorted.indexOf(item)
-        if(index > -1) {
+        if (index > -1) {
           scrollToIndex(findOne('.data-cell[data-list]'), index, durationMs)
         } else {
           console.warn('scrollToItem failed (not visible)', item)
