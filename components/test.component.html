@@ -87,9 +87,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
 </style>
 <details data-bind="attr(open)=_component_.show">
   <summary>
-    <span>
-      Test Results
-    </span>
+    <span role="heading" data-bind="text=_component_.title"></span>
     <button title="(re)run tests" class="iconic icon-loop3" data-event="click:_component_.run"></button>
   </summary>
   <div data-component="tab-selector">
@@ -105,6 +103,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   b8r.component('tab-selector')
   b8r.component('resizer')
   set({
+    title: 'Test Results',
     show: false,
     js: (elt, source) => code(elt, source, 'js'),
   });
@@ -124,11 +123,15 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     try {
       const reportContainer = findOne('.test-transcript')
       reportContainer.textContent = ''
+      const specifiedTitle = data.source.match(/\/\/ *title: *([ \w]+)/)
+      if (specifiedTitle) {
+        set('title', specifiedTitle[1].trim())
+      }
       const test_runner = new AsyncFunction('Test', 'b8r', data.source + `////# sourceURL=${component.dataset.componentId}`) // jshint ignore:line
       await test_runner.call(null, Test, b8r)
     } catch(e) {
       notify_errors()
-      Test.report(`test runner threw exception: ${e}`, 'failure')
+      console.error(`test runner threw exception: ${e}`, 'failure')
     }
   }
   set({run})
