@@ -123,7 +123,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     try {
       const reportContainer = findOne('.test-transcript')
       reportContainer.textContent = ''
-      const specifiedTitle = data.source.match(/\/\/ *title: *([ \w]+)/)
+      const specifiedTitle = data.source.match(/\/\/ *title: *([^\n]+)/)
       if (specifiedTitle) {
         set('title', specifiedTitle[1].trim())
       }
