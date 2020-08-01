@@ -40,6 +40,8 @@ minimize calls to `getBoundingClientRect` (which isn't cheap). Note that it uses
 many cases) these will not agree.
 
 ~~~~
+// title: create, isInView, rectsOverlap tests
+
 div = b8r.create('div');
 div.style.position = 'absolute';
 div.style.top = '-200px';

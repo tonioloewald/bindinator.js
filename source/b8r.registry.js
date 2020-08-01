@@ -35,6 +35,8 @@ Under the hood, `replace('path.to.object', obj)` is simply `b8r.set('path.to.obj
 followed by `b8r.set('path.to.object', obj)`.
 
 ~~~~
+// title: register, set, replace tests
+
 b8r.register('replace-test', {})
 b8r.set('replace-test.foo', 17)
 b8r.set('replace-test', {bar: 'baz'})

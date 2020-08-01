@@ -85,6 +85,8 @@ export { keystroke, keycode, modifierKeys }
 
 /**
 ~~~~
+// title: dispatch tests
+
 function dispatch(target, eventType, key) {
   const evt = new KeyboardEvent({
     key

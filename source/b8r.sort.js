@@ -16,6 +16,7 @@ They're also useful for building custom sort methods:
     const sorted = array_of_objs.sort((a, b) => sortAscending(a.title, b.title));
 
 ~~~~
+// title: sortAscending & sortDescending tests
 const {sortAscending, sortDescending} = b8r;
 Test(() => ['c', 'a', 'B'].sort(sortAscending), 'sort strings, ascending').shouldBeJSON(['a','B','c']);
 Test(() => ['c', 'a', 'B'].sort(sortDescending), 'sort strings, descending').shouldBeJSON(['c','B','a']);

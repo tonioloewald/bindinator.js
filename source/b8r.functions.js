@@ -42,6 +42,7 @@ the value specified (null by default).
 
 ~~~~
 // title: throttle and debounce tests
+
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
 Test(async () => {

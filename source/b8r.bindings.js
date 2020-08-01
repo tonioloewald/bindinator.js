@@ -342,7 +342,10 @@ const parseBinding = binding => {
       // returns ['foo.bar.baz', 'foo[id=17].bar.baz', 'path.to.method(foo.bar,foo[id=17].baz)']
 
 splitPaths is used to prise apart data-paths in bindings.
+
 ~~~~
+// title: splitpaths tests
+
 const {splitPaths, getBindings} = await import('../source/b8r.bindings.js');
 
 Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);

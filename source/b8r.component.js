@@ -420,6 +420,7 @@ const collapse = path => {
 
 /**
 ~~~~
+// title: component (v1) loading tests
 const {name} = await b8r.component('../test/custom-test.html')
 Test(async () => {
   return name

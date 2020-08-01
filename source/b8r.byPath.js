@@ -95,6 +95,8 @@ In this case, you want the absence of an object to be either undefined
     setByPath(obj, {bar: 17}); // {bar: 17} will not be converted
 
 ~~~~
+// title: getByPath, setByPath, and pathParts tests
+
 const {getByPath, setByPath, pathParts} = await import('../source/b8r.byPath.js');
 const obj = {
   foo: 17,

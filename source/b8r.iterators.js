@@ -65,6 +65,8 @@ This works like object.assign but skips the functions. (It does this
 recursively, except for class instances.)
 
 ~~~~
+// title: iterator tests
+
 Test(() => document.querySelectorAll('div') instanceof Array).shouldBe(false);
 Test(() => b8r.makeArray(document.querySelectorAll('div')) instanceof
 Array).shouldBe(true);

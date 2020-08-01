@@ -116,6 +116,7 @@ gives the typeof the value passed unless it's an `Array` (in which case it retur
     describe(-Infinity) // 'number'
 
 ~~~~
+// title: matchType tests
 const {
   matchType,
   describe,
