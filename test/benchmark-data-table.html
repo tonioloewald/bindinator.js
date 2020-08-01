@@ -41,6 +41,16 @@
     <button data-event="click:benchmark.update">Update every 10th row</button>
     <button data-event="click:benchmark.clear">Clear</button>
     <button data-event="click:benchmark.swap">Swap Rows 4 and 7</button>
+    <label>
+      Updates per second
+      <input type="range" min="0" max="30" value="0" data-bind="value=benchmark.updateRate">
+      <span data-bind="text=benchmark.updateRate"></span>
+    </label>
+    <label>
+      Percentage rows to change
+      <input type="range" min="0" max="50" value="10" data-bind="value=benchmark.updatePercentage">
+      <span data-bind="text=benchmark.updatePercentage"></span>%
+    </label>
   </div>
   <b8r-component 
     path="../components/data-table.component.js"
@@ -80,6 +90,26 @@ b8r.set('config', {
   ]
 })
 
+const adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"];
+const colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"];
+const nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
+
+const randomLabel = () => adjectives[_random(adjectives.length)] + " " + colours[_random(colours.length)] + " " + nouns[_random(nouns.length)]
+
+setInterval(() => {
+  const rate = b8r.get('benchmark.updateRate') / 30;
+  if(Math.random() > rate) {
+    return
+  }
+  const data = b8r.get('benchmark.data');
+  const total = b8r.get('benchmark.updatePercentage') * data.length * 0.01
+  for(let i = 0; i < total; i++) {
+    const index = Math.floor(Math.random() * data.length)
+    data[index].label = randomLabel()
+  }
+  b8r.touch('benchmark.data');
+}, 33)
+
 class Store {
   constructor() {
     this.data = [];
@@ -88,12 +118,9 @@ class Store {
     this.id = 1;
   }
   buildData(count = 1000) {
-    var adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"];
-    var colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"];
-    var nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
     var data = [];
     for (var i = 0; i < count; i++)
-      data.push({id: this.id++, label: adjectives[_random(adjectives.length)] + " " + colours[_random(colours.length)] + " " + nouns[_random(nouns.length)] });
+      data.push({id: this.id++, label: randomLabel() });
     return data;
   }
   updateData(mod = 10) {
@@ -159,6 +186,8 @@ b8r.registerType('benchmark', {
 });
 
 b8r.register('benchmark', {
+  updateRate: 0,
+  updatePercentage: 10,
   filterText: '',
   data: [],
   create: () => {
