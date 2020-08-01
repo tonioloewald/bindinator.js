@@ -41,6 +41,7 @@ updates throughout the operation and fires one last time after the operation sto
 the value specified (null by default).
 
 ~~~~
+// title: throttle and debounce tests
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
 Test(async () => {
@@ -174,4 +175,68 @@ const throttleAndDebounce = (origFn, minInterval) => {
 
 const AsyncFunction = async function () {}.constructor
 
-export { AsyncFunction, debounce, delay, throttle, throttleAndDebounce }
+const memoize = f => {
+  if (f._isMemoized) return f
+  let previousArgs = []
+  let previousResult = undefined
+  const memoized = function (...args) {
+    const newArgs = [this, ...args]
+    const differences = previousResult === undefined || newArgs.filter((item, index) => item !== previousArgs[index]).length
+    console.log({
+      previousArgs,
+      newArgs,
+      differences
+    })
+    if (differences) {
+      previousArgs = newArgs
+      previousResult = f.call(this, ...args)
+    }
+    return previousResult
+  }
+  memoized._isMemoized = true
+  return memoized
+}
+
+/**
+## Memoize
+
+`memoize` is a function that turns any function into a function that short circuits sequences of
+identical calls
+~~~~
+// title: memoize tests
+const {memoize} = await import('../source/b8r.functions.js')
+let callCount = 0
+const results = []
+
+const box = {
+  add(a, b) {
+    callCount += 1
+    return a + b;
+  }
+}
+box.add = memoize(box.add)
+const {add} = box;
+
+Test(() => memoize(box.add) === box.add, 'memoizing a memoized function is a no-op').shouldBe(true)
+
+results.push(add(1,2))
+results.push(add(1,2))
+Test(callCount, 'memoize shortcuts duplicate invocations').shouldBe(1)
+results.push(add(2,2))
+Test(callCount, 'memoize shortcuts duplicate invocations').shouldBe(2)
+results.push(box.add(2,2))
+results.push(box.add(2,2))
+Test(callCount, 'this changing triggers recalc').shouldBe(3)
+results.push(add(2,2))
+Test(callCount, 'this changing to undefined triggers recalc').shouldBe(4)
+results.push(box.add(2,3))
+Test(callCount, 'changes trigger recalc').shouldBe(5)
+results.push(box.add(3,2))
+Test(callCount, 'same parameters in different order still trigger recalc').shouldBe(6)
+
+Test(17).shouldBe(17)
+Test(results, 'memoize does not corrupt output').shouldBeJSON([3, 3, 4, 4, 4, 4, 5, 5])
+~~~~
+*/
+
+export { AsyncFunction, debounce, delay, throttle, throttleAndDebounce, memoize }
