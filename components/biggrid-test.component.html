@@ -2,15 +2,28 @@
 # biggrid test
 -->
 <style>
-  .biggrid-test-component {
+  ._component_ {
+    display: flex;
+    flex-direction: column;
     height: 600px;
     position: relative;
   }
 
+  ._component_ .toolbar {
+    display: flex;
+    flex: 0 0 auto;
+    position: relative;
+    align-items: baseline;
+    margin: 5px;
+  }
+
+  ._component_ .toolbar > * {
+    margin: 0 5px;
+  }
+
   .biggrid-test-scroller {
     overflow-y: scroll;
-    width: 100%;
-    height: 100%;
+    flex: 1 1 auto;
     border: 1px solid rgba(0,0,0,0.25);
   }
 
@@ -33,6 +46,17 @@
     left: 0;
   }
 </style>
+<div class="toolbar">
+  <span>Scroll to specified index:</span>
+  <button data-event="click:biggrid-test.scrollToIndex">0</button>
+  <button data-event="click:biggrid-test.scrollToIndex">1000</button>
+  <button data-event="click:biggrid-test.scrollToIndex">49999</button>
+  <button data-event="click:biggrid-test.scrollToIndex">50003</button>
+  <button data-event="click:biggrid-test.scrollToIndex">50004</button>
+  <button data-event="click:biggrid-test.scrollToIndex">50005</button>
+  <button data-event="click:biggrid-test.scrollToIndex">99970</button>
+  <button data-event="click:biggrid-test.scrollToIndex">100000</button>
+</div>
 <div class="biggrid-test-scroller resizer-target">
   <div
     class="biggrid-test-item"
@@ -50,7 +74,7 @@
 ></div>
 <script>
   /* global b8r, component, find */
-  await import('../lib/biggrid.js');
+  const {scrollToIndex} = await import('../lib/biggrid.js');
   const {domInterval} = await import('../lib/dom-timers.js');
   const {cssColorNames} = await import('../lib/color.js');
   const colors = cssColorNames();
@@ -62,8 +86,11 @@
       color: colors[Math.floor(Math.random() * colors.length)],
     });
   }
+  const listTemplate = findOne('[data-list]')
   domInterval(component, () => {
     b8r.set('biggrid-test.dom.items', find('[data-list-instance]').length);
   }, 1000);
-  b8r.register('biggrid-test', {list, dom: {items: 0}});
+  b8r.register('biggrid-test', {list, dom: {items: 0}, scrollToIndex: (event, element) => {
+    scrollToIndex(listTemplate, Number(element.textContent))
+  }});
 </script>
