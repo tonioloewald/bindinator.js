@@ -1,9 +1,15 @@
 <!--
 # biglist
-Copyright ©2016-2019 Tonio Loewald
-This implements support for arbitrarily large scrolling lists (of items that can be
-constant or variable row height). Only a minimal number of elements are in the DOM at
-any given time.
+
+This implements support for *virtual scrolling lists* of rows of *varying height*. It does 
+this would tracking the heights of individual rows, but requires a "minimum height" per
+row.
+
+Only a minimal number of elements are in the DOM at any given time.
+
+IF, as is more common, you want to scroll lots of things of uniform height,
+use [biggrid.js](./?source=biggrid-test.component.html) instead.
+
 ## TODO
 * fix breakage for efficient list updates (try using :id)
 * efficient list updates should get you nicer selection behavior on scroll
