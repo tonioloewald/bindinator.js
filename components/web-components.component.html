@@ -1,20 +1,11 @@
 <!--
-# Web Components
-This shows b8r working with custom elements (see [web components](https://www.webcomponents.org/)).
+# Custom Elements
+
+This demo shows `b8r` working with custom elements (see [web components](https://www.webcomponents.org/)).
 `b8r` provides a [simple convenience library](?source=source/web-components) for creating web components.
 The custom elements used on this page are `b8r-switch`, `b8r-select-bar`, `b8r-select`, and
 `b8r-option`, all created using the helper functions from [web-components.js](?source=source/web-components).
-Note that none of these examples have any dependency on `b8r`. The only provision any of them makes for b8r is that some filter out `data-list` templates (so that if you dynamically generate options in a `<select>`-like component, it doesn't display the template as an option -- the way Safari, for example, does.)
-> **Note**: it's my current intention to move `b8r` towards `web-components` and away from the original HTML components. Even though I think the idea of HTML components is sound, there are advantages to a "pure javascript" architecture:
->
-> - Static analysis of code and dependencies (also autocomplete, etc.)
-> - Doubling down on standards:
->   - Replacing `require` with `import` where possible
->   - Web-components have no dependency on `b8r` at all
-> - It will be possible to build a `<b8r-context>` component that neatly encapsulates all (almost! -- see below) of b8r's virtues in a web-component, allowing `b8r` to "live" anywhere -- inside, outside, or without other frameworks.
-> - It should be possible to provide a neat way to migrate old HTML components to the new model (wrap them in web-components).
->
-> The one thing a `<b8r-context>` component wouldn't be able to do is intercepting all events (see [b8r.anyEvent.js](?source=source/b8r.anyEvent.js)), but pretty close.
+Note that none of these examples have any dependency on `b8r`.
 -->
 <div>
   <h2>Bound to Different Paths</h2>
