@@ -235,7 +235,9 @@ Documentation in markdown format.
 or it can be defined in javascript using a different syntax:
 
 ```
-const componentName = makeComponent('component-name', {
+import {webComponent} from 'path/to/web-components.js'
+
+export const componentName = makeWebComponent('component-name', {
   css: '._component_ > div { color: yellow }',
   html: '<div>this text will be yellow</div>',
   load: async ({
@@ -253,7 +255,6 @@ const componentName = makeComponent('component-name', {
   },
   initialValue: {}, // initial value for each component instance,
   // type: { ... }, // component type (by example)
-  // instanceType: { ... }, // instance type (by example)
 })
 ```
 

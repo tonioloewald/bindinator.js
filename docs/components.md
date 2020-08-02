@@ -67,7 +67,6 @@ export default {
     // your javascript goes here
   },
   type: { ... },         // component type,
-  instanceType: { ... }, // instance type,
 }
 ```
 

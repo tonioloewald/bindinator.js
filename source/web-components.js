@@ -1,26 +1,40 @@
 /**
 # web-components.js
+<h2 style="margin-top: -10px">a.k.a custom elements</h2>
 
-Helper methods for creating Web Components.
+> ## Confused?
+>
+> This document has been retitled _Custom Elements_ to make a clearer distinction between
+> documentation on `b8r` _components_ and _web-components_. Nothing has changed under the
+> hood. The terms "web-component" and "custom element" are used interchangeably here, and
+> everywhere else.
+>
+> Just to add to the confusion, `b8r` components are themselves instances of a custom
+> element `<b8r-component>`.
+
+This library provides helper functions for creating [Custom Elements](https://www.webcomponents.org/).
+The terms "web-component" and "custom element" are used interchangeably everywhere.
 
 ## Methods
 
 ### makeWebComponent
 
-    makeWebComponent(tagName, {
-      superClass=HTMLElement, // the class you're extending
-      style=false,            // expect object
-      props={},               // map names to default values / functions
-      methods={},             // map names to class methods
-      eventHandlers={},       // map eventTypes to event handlers
-      attributes={},          // map attributes to default values
-      content=slot(),         // HTMLElement or DocumentFragment or falsy
-      role=false,             // expect string
+    // where appropriate, default values are shown
+    makeWebComponent('tag-name', {
+      superClass: undefined,   // the class you're extending, if any
+      style: false,            // expect object
+      props: {},               // map names to default values / functions
+      methods: {},             // map names to class methods
+      eventHandlers: {},       // map eventTypes to event handlers
+      attributes: {},          // map attributes to default values
+      content: slot(),         // HTMLElement or DocumentFragment or falsy
+      role: false,             // expect string
     })                        // returns the class
 
-Defines a new [Web Component](https://www.webcomponents.org/)).
+Defines a new _custom element_.
 
-Returns the component class (in case you want to subclass it).
+Returns the component `class` (in case you want to subclass it, use the constructor
+for comparison, or whatever).
 
 - `style` can be CSS source or a map of selector rules to maps of css rules.
   If no style is passed, no shadowRoot will be created
@@ -63,7 +77,7 @@ the a clone of the `atrributes` array used to construct the component. This is u
 for introspection (e.g. if you're building a UI builder that needs to know what attributes
 a given custom element has).
 
-#### Component Lifecycle
+### Component Lifecycle
 
 makeComponent copies all methods provided into the component's prototype, so the
 standard lifecycle methods `connectedCallback`, `disconnectedCallback`,
@@ -71,24 +85,33 @@ standard lifecycle methods `connectedCallback`, `disconnectedCallback`,
 caveat — this library creates component classes with a default `connectedCallback`
 that will call any `connectedCallback` passed as a method afterwards.
 
-#### Performance Notes
+### Performance Notes
 
-The "lightest" web-components have no `style` (and hence no shadowDOM) or `attributes`.
-- supporting attributes involves creating a MutationObserver, which has an overhead.
+The "lightest" web-components have no `style` (and hence **no shadowDOM**) or `attributes`.
+- supporting attributes involves creating a `MutationObserver`, which has an overhead.
 - adding a `style` object has a larger perf overhead.
 
 Even so, in general web-components should perform better than components implemented using
-Javascript frameworks (including `b8r` components).
+Javascript frameworks. Well, not `b8r` components, at least at time of writing, but
+the great thing about using native browser functionality is that it generally just
+gets _faster_. Which gets us to...
+
+### The Shadow DOM
+
+You've heard of it, right? It can be fantastically useful (it's useful for creating
+structural behavior that is immune to the outside world, such as dialog boxes and
+floating elements) but it's also a huge performance issue if you have too many of
+them around (I imagine that the overhead is some fraction of an `<iframe>`...).
 
 More information is provided in [this blog entry](http://loewald.com/blog/2019/01/more-on-web-components-and-perf/).
 
 ### makeElement
 
     const makeElement = (tagType, {
-      content=false,  // text, or something that can be appended to an HTMLElement
-      attributes={},  // attribute map
-      styles={},      // style object
-      classes=[],     // list of classes
+      content: false,  // text, or something that can be appended to an HTMLElement
+      attributes: {},  // attribute map
+      styles: {},      // style object
+      classes: [],     // list of classes
     })                // returns the element
 
 A handy method for creating a DOM element with specified properties. Content can
@@ -152,7 +175,7 @@ You can write:
 
 Creates a document fragment containing the elements passed to it.
 
-### Example
+#### Example
 
 This is from an older version of the `<b8r-select>` control:
 
@@ -170,10 +193,36 @@ Convenience methods allow this to be simplified to:
       div({classes: ['menu'], content: slot()}),
     )
 
+If you build multiple similar elements and want to reuse them, don't forget
+to `cloneNode(true)` something you want another copy of.
+
 ## TODO
 
-- Resize events
-- Component styling scope (see below)
+- Implement resize events (per [resize.js](./?source=./lib/resize.js) but _ideally_
+  first eliminate the `b8r` dependency so that web-components.js does not create a transitive dependency.)
+- Provide the option of inserting a stylesheet when the first component instance is inserted
+  into the DOM (see below) as an alternative to using the shadow DOM or being unstyled.
+- Migrate all style customization in library components to css-variables with sane defaults.
+
+### Styling
+
+In my opinion, the best way to style custom elements in a way that allows easy
+customization is to use [CSS Variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties).
+(**Note**: this was controversial when I wrote it, and now seems to be accepted wisdom. Yay!)
+
+- [Styling a Web Component](https://css-tricks.com/styling-a-web-component/)
+
+The above is more of a "how to" than best practices. Take it with a grain of salt.
+
+I think the jury is out on whether creating _complex views_ as web-components is a good
+idea. (Angular does this under the hood and it's torpid, but that might just be Angular.)
+So far, creating views with `b8r` components seems much simpler, quicker, and
+more flexible. This may change over time as more people use web-components and the
+rough edges are smoothed.
+
+Creating components with minimal styling and no shadowDOM is another possibility.
+Instead of creating an internal style node, they could simply insert a singleton
+stylesheet in the `<header>` the way `b8r` components do.
 
 ## Recommended Reading
 
@@ -184,24 +233,6 @@ reference purposes.
 
 - [Custom Elements Best Practices](https://developers.google.com/web/fundamentals/web-components/best-practices)
 - [Web Components Best Practices](https://www.webcomponents.org/community/articles/web-components-best-practices)
-
-### Styling
-
-In my opinion, the best way to style custom elements in a way that allows easy
-customization is to use [CSS Variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties).
-
-- [Styling a Web Component](https://css-tricks.com/styling-a-web-component/)
-
-The above is more of a "how to" than best practices. Take it with a grain of salt.
-
-I think the jury is out on whether creating complex views as web-components is a good
-idea. So far, creating views with `b8r` components seems much simpler, quicker, and
-more flexible. This may change over time as more people use web-components and the
-rough edges are smoothed.
-
-Creating components with minimal styling and no shadowDOM is another possibility.
-Instead of creating an internal style node, they could simply insert a singleton
-stylesheet in the `<header>` the way `b8r` components do.
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
