@@ -807,7 +807,11 @@ const checkType = (action, name) => {
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name, true)
   if (errors.length) {
-    typeErrorHandlers.forEach(f => f(errors, name))
+    if (typeErrorHandlers.length) {
+      typeErrorHandlers.forEach(f => f(errors, name))
+    } else {
+      console.error(action, 'caused type error[s]', errors)
+    }
   }
 }
 
@@ -853,6 +857,11 @@ const replace = (path, value) => {
   set(path, value)
   return value
 }
+
+const types = () => JSON.parse(JSON.stringify({
+  registeredTypes,
+  componentTypes
+}))
 
 const registerType = (name, example) => {
   registeredTypes[name] = example
@@ -1191,7 +1200,9 @@ export {
   unobserve,
   models,
   _register,
+  checkType,
   registerType,
+  types,
   register,
   registered,
   remove,
