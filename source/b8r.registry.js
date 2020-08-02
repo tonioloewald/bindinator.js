@@ -183,8 +183,9 @@ For example:
     const typeErrorHandler = (errors, action) => {
       b8r.json('/logerror', 'post', {timestamp: Data.now(), action, errors})
     }
-    b8r.onTypeError(typeErrorHandler) // adds your type error handler (returns true on success)
-    b8r.offTypeError(typeErrorHandler) // removes the error handler (returns true on success)
+    b8r.onTypeError(typeErrorHandler)   // adds your type error handler (returns true on success)
+                                        // also removes the default typeErrorHandler (which simply prints to console)
+    b8r.offTypeError(typeErrorHandler)  // removes the error handler (returns true on success)
 
 ~~~~
 Test(
@@ -199,7 +200,7 @@ Test(
     })
     b8r.onTypeError(errorHandler)
     b8r.set('error-handling-test.number', false)
-    b8r.offTypeError(errorHandler)
+    b8r.offTypeError(errorHandler, true)
     return _errors
   },
   'verify custom handler for type errors works'
@@ -796,9 +797,10 @@ export const onTypeError = (callback) => {
   }
   return false
 }
-export const offTypeError = (callback) => {
+export const offTypeError = (callback, restoreDefault = false) => {
   const handlerCount = typeErrorHandlers.length
   typeErrorHandlers = typeErrorHandlers.filter(f => f !== callback)
+  if (restoreDefault) onTypeError(_defaultTypeErrorHandler)
   return typeErrorHandlers.length !== handlerCount - 1
 }
 
@@ -807,11 +809,7 @@ const checkType = (action, name) => {
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name, true)
   if (errors.length) {
-    if (typeErrorHandlers.length) {
-      typeErrorHandlers.forEach(f => f(errors, name))
-    } else {
-      console.error(action, 'caused type error[s]', errors)
-    }
+    typeErrorHandlers.forEach(f => f(errors, action))
   }
 }
 

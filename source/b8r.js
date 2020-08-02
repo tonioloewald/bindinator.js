@@ -183,14 +183,9 @@ b8r.setByPath = function (...args) {
     [name, path, value, sourceElement] = args
   }
   if (b8r.registered(name)) {
-    // const model = b8r.get(name);
     if (typeof path === 'object') {
-      // Object.assign(model, path);
-      // b8r.touchByPath(name, '/', sourceElement);
       b8r.set(name, path, sourceElement)
     } else {
-      // setByPath(model, path, value);
-      // b8r.touchByPath(name, path, sourceElement);
       b8r.set(
         path[0] === '[' || !path
           ? `${name}${path}`
@@ -709,12 +704,13 @@ b8r.insertComponent = async function (component, element, data) {
   }
   const touch = path => b8r.touchByPath(componentId, path)
   const on = (...args) => b8r.on(element, ...args)
-  const findOneWithin = selector => b8r.findWithin(element, selector)
+  const find = selector => b8r.findWithin(element, selector)
   const findOne = selector => b8r.findOneWithin(element, selector)
   const initialValue = typeof component.initialValue === 'function'
-    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, find: findOneWithin })
+    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, find })
     : b8r.deepClone(component.initialValue) || data
   data = {
+    ...(component.type ? b8r.deepClone(component.type) : {}),
     ...initialValue,
     dataPath,
     componentId
@@ -726,7 +722,7 @@ b8r.insertComponent = async function (component, element, data) {
   if (component.load) {
     try {
       await component.load(
-        element, _pathRelativeB8r(component.path), findOneWithin, findOne,
+        element, _pathRelativeB8r(component.path), find, findOne,
         data, register, get, set, on, touch, component
       )
     } catch (e) {
