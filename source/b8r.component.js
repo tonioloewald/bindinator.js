@@ -75,6 +75,10 @@ global declarations.
     export default const componentName = makeComponent('component-name', {
       css: '._component_ > div { color: yellow }',
       html: '<div>this text will be yellow</div>',
+      initialValue: {...},
+                   // specify the component's initial value
+                   // or you can provide an [async] function
+                   // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
       load: async ({
         component, // this is the element that the component is inserted into
         b8r,       // it's b8r!
@@ -88,16 +92,10 @@ global declarations.
       }) => {
         // your javascript goes here
       },
-      initialValue: {...},
-                   // specify the component's initial value
-                   // or you can provide an [async] function
-                   // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
       type: {...}, // specify the component's type
-      instanceType: {...},
-                   // specify the component's instance type
     })
 
-All of these properties are optional. `type` and `instanceType` are [by example](?source=source/b8r.byExample.js).
+All of these properties are optional. `type` is [by example](?source=source/b8r.byExample.js).
 
 ```
 <b8r-component name="typed"></b8r-component>
@@ -277,7 +275,7 @@ const processComponent = (css, html, name) => {
   return { style, view }
 }
 
-const makeComponentNoEval = function (name, { css, html, load, initialValue, type, instanceType }) {
+const makeComponentNoEval = function (name, { css, html, load, initialValue, type }) {
   const {
     style,
     view
@@ -289,10 +287,13 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
     view,
     path: `inline-${name}`,
     initialValue,
-    instanceType
+    type
   }
 
   if (type) {
+    if (!type || typeof type !== 'object') {
+      throw new Error(`component ${name} has bad type, object expected`);
+    }
     componentTypes[name] = type
   }
 
