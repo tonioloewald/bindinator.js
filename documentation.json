@@ -23,12 +23,12 @@
         "path": "docs/events.md"
       },
       {
-        "name": "Components",
+        "name": "b8r Components",
         "path": "docs/components.md"
       },
       {
-        "name": "Web Components",
-        "path": "web-components.component.html"
+        "name": "Custom Elements",
+        "path": "source/web-components.js"
       },
       {
         "name": "Styling",
@@ -49,6 +49,10 @@
       {
         "name": "Angular vs. b8r",
         "path": "docs/angular.md"
+      },
+      {
+        "name": "TODO",
+        "path": "TODO.md"
       },
       {
         "name": "License",
@@ -166,10 +170,6 @@
         "path": "source/uuid.js"
       },
       {
-        "name": "Web Components",
-        "path": "source/web-components.js"
-      },
-      {
         "name": "catPath",
         "path": "lib/cat-path.js"
       },
@@ -250,6 +250,10 @@
         "path": "lib/text-render.js"
       },
       {
+        "name": "biggrid",
+        "path": "lib/biggrid.js"
+      },
+      {
         "name": "resize",
         "path": "lib/resize.js"
       }
@@ -316,10 +320,6 @@
       {
         "name": "Fiddle",
         "path": "fiddle.component.html"
-      },
-      {
-        "name": "Big Grid",
-        "path": "biggrid-test.component.html"
       },
       {
         "name": "Big List",
@@ -436,7 +436,7 @@
     ]
   },
   {
-    "title": "web components",
+    "title": "custom elements",
     "sort": true,
     "parts": [
       {
@@ -517,6 +517,10 @@
       {
         "name": "Instance Test",
         "path": "instance-test.component.html"
+      },
+      {
+        "name": "Big Grid",
+        "path": "biggrid-test.component.html"
       },
       {
         "name": "Modal Test",
@@ -631,6 +635,24 @@
       {
         "name": "Firebase",
         "path": "components/firebase.component.js"
+      },
+      {
+        "name": "Custom Components",
+        "path": "web-components.component.html"
+      }
+    ]
+  },
+  {
+    "title": "Templates",
+    "sort": true,
+    "parts": [
+      {
+        "name": "Custom Element",
+        "path": "templates/custom-element.js"
+      },
+      {
+        "name": "b8r Component",
+        "path": "templates/b8r-component.js"
       }
     ]
   }
