@@ -1,6 +1,6 @@
 /**
-# web-components.js
-<h2 style="margin-top: -10px">a.k.a custom elements</h2>
+# Custom Elements
+<h2 style="margin-top: -10px">a.k.a web-components</h2>
 
 > ## Confused?
 >
