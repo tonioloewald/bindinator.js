@@ -1,15 +1,87 @@
 # Angular vs. b8r
 
-> #### Caution
->
-> I'm still getting to grips with Angular.
-> About 75% of the time when I describe `b8r` or point someone at the docs
-> they'll say "oh, it looks like Angular". I think there are superficial
-> similarities, but `b8r` seems to me to be much simpler, use far less
-> boilerplate, and not involve learning an ill-defined superset of
-> HTML and another of Typescript.
+A lot of the coders I've shown b8r too say something like "it looks a
+lot like Angular" (which I think they often mean as an insult). While `b8r`
+may bear some superficial similarity to `Angular` in that it uses HTML
+"properties" to bind your `model` to the DOM, that's both superficial, 
+and where the similarity ends.
+
+## b8r is Javascript, Angular isn't
+
+`b8r` is really, truly "just javascript". You don't need to compile,
+transpile, or rollup. You don't render serverside. There are no
+magic execution contexts. Your application "model" is just a javascript
+object, and `b8r` doesn't monkey with it.
+
+## Transpilation Not Required
+
+Angular has its own HTML dialect with non-standard attributes and a
+"micro-syntax" (e.g. `*ngFor="let foo of bar"` or `(click)="click()"` 
+that **must be compiled** in order to work because they aren't standard
+HTML.
 
 ## Yet More DSLs
+
+React can be written in plain Javascript, but prefers to be written in
+`jsx`. I don't like it, but it's not the end of the world. Angular (well
+Angular2).
+
+Angular has to be written in TypeScript, but it's a weird dialect of
+TypeScript that supports all kinds of funky Angularisms like `@Component`
+and `@ViewChild` and `@Input` which have magic-action-at-a-distance
+effects.
+
+All this means that Angular "fiddle" equivalents need to spin up a server
+to let you do simple tinkering, and Angular components are hideously 
+difficult to do anything even vaguely dynamic with.
+
+By contrast, `b8r` is javascript. It binds to standard HTML. It doesn't
+care how you do css. You don't need to do any "build" cycle. You can
+just stick a `<script>` tag in `index.html` if you want to.
+
+## Angular's Change Detection is a Shit Show
+
+Angular tries to detect changes to your model and update the rendered
+view automagically, but the cases in which it fails are hardly "weird
+edge cases". Worse, the original architecture tried to re-render the
+entire DOM every time anything changed, which was not performant. This
+is called `ChangeDetectionStrategy.default`.
+
+Which gets us to another issue with Angular. There's too many ways
+to do anything and the common or default way is often the bad way.
+
+You're now strongly encouraged to override this with `ChangeDetectionStrategy.onPush`
+which requires you to flag component properties as `@Input` so that
+...magic happens and... when the property changes, the component gets
+re-rendered. Except that if a property is an object it only detects
+new objects, so you're required to follow the React anti-pattern
+of shallow-cloning everything all the time: `foo = {...foo, myNewValue}`
+and this of course triggers over-rendering.
+
+But if you want to touch properties in vanilla javascript (e.g. using
+a library of async functions, then all this doesn't work at all, and
+you need to obtain a reference to an `NgZone` (which is, I assume,
+part of the "magic" of Change Detection) by magically obtaining it
+via you component's `constructor()` and then wrap the thing in an
+`ngZone.runOutsideOfAngular()` call.
+
+All of this is so complicated that there are, of course, lots of 
+Medium articles, blog posts, and Stack Overflow answers that painfully
+fail to explain any of it clearly.
+
+By contrast, `b8r`'s change detection is simple, no magic involved,
+and can be explained thus. You register your state. `b8r` then provides
+means to unambiguously and intuitively refer to anything in the state
+by a `path`. If you set a value at a path, `b8r` "knows" about it and
+can update stuff accordingly. If you don't, it doesn't, but you can
+tell it to look for changes by calling `b8r.touch()`.
+
+## Angular is hard to Google (ironically)
+
+Because angular is a word in common use, it can be very hard to google
+stuff on Angular. Worse, because Angular is very different (and incompatible
+with) Angular2, but both are in wide use, you often run into articles
+where you get advice for the wrong version. Oops.
 
 If you work with Angular, you're going to need to learn some new DSLs
 (domain-specific languages). E.g. you'll need to:
@@ -314,23 +386,6 @@ will reorder the comments.
 3. It seems apparent from looking at Angular apps that the perception that `ngIf` is
    "free" leads to some very bad practices. Imagine a table with many rows filtered by
    setting `ngIf`.
-
-## Angular paves the wrong paths
-
-The default method of binding in Angular is automatic, once you wrap your
-head around its various weird syntaxes:
-
-- `[(foo)]="inline javascript in quotation marks | with | pipes"`
-- `*ngWhatever="I'm not quite sure exactly what can go here`
-
-But it turns out that the default "Change Detection strategy" (Angular is full
-of idiosyncratic terminology) is not performant so you're steered towards `RxJs`
-(or `ngRx`, which is Angular's version and not quite the same) and `changeDetection.onPush`
-which requires (?) you to label class properties with `@Input` directives (or decorators or
-whatever they're called).
-
-It turns out `onPush` isn't great either (kind of the way React manages not to be very
-good at not needlessly redrawing static DOM nodes despite maintaining a "virtual DOM").
 
 ## It's Big and Complicated
 
