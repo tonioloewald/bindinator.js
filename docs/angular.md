@@ -1,43 +1,39 @@
 # Angular vs. b8r
 
-A lot of the coders I've shown b8r too say something like "it looks a
+A lot of the coders I've shown `b8r` to say something like "it looks a
 lot like Angular" (which I think they often mean as an insult). While `b8r`
 may bear some superficial similarity to `Angular` in that it uses HTML
 "properties" to bind your `model` to the DOM, that's both superficial, 
 and where the similarity ends.
 
-## b8r is Javascript, Angular isn't
+## Here's an overview of the differences:
 
-`b8r` is really, truly "just javascript". You don't need to compile,
-transpile, or rollup. You don't render serverside. There are no
-magic execution contexts. Your application "model" is just a javascript
-object, and `b8r` doesn't monkey with it.
+| Feature          | Angular2           | b8r            |
+|------------------|--------------------|----------------|
+| data binding     | [style.width.px]="publicProperty" | data-bind="style(width)=${path.to.property}px" |
+| two-way binding | [(publicProperty)]="publicProperty" | data-bind="value=path.to.property" |
+| event binding    | (click)="publicMethod()"          | data-event="click:path.to.method" |
+| array binding    | \*ngFor="let foo of foos"         | data-list="path.to.array" |
+| efficient array binding | \*ngFor="let foo of foos; trackBy: getId"<br>You'll need to implement getId, much like generating a key in React | data-list="path.to.array:id"<br>if id is unique property of each element, otherwise<br>data-list="path.to.array:_auto_" |
+| array element binding | [something]="foo.prop"       | data-bind=".prop" |
+| conditional element | \*ngIf="booleanVar == true"    | data-bind="show_if=path.to.booleanVar" |
+| component lifecycle | ngOnChanges, ngOnInit, ngDoCheck, ngAfterContentInit, ngAfterContentChecked, ngAfterViewInit
+| intercept property changes | use a setter | use a setter |
+| handle real-time data | use RxJs observeable and async pipe | use b8r.set() or b8r.touch() |
+| subscribe to property changes | use a setter | b8r.observe('path.to.observed', 'path.to.callback') |
+| what does conditional `<div>,,,</div>` look like, if condition not met? | `<!-- commment -->` | `<div style="display: none"></div>` |
+| reference child element within component | @ViewChild('foo')<br>foo: ElementRef;<br>// available after view initialized | findOne('.foo') // just works |
+| access DOM | this.elementRef.nativeElement // discouraged | it's just javascript |
+| change detection | default is horribly slow so use ChangeDetectionStrategy.onPush and mark properties as @Input() | use b8r.set() or b8r.touch() |
+| detect changes outside Angular | need reference to NgZone and then perform changes inside ngZone.runOutsideAngular()<br>If this doesn't work, call this.changeDetector.detectChanges() in the affected component(s) | use b8r.set() or b8r.touch() |
+| detect change within object property | replace the object with a shallow clone | use b8r.set() or b8r.touch() |
+| language | TypeScript | Javascript |
+| DSLs | templating language<br>"structural directives" \*ngFor, \*ngIf etc. each have a "micro syntax" and themselves form an extensible micro-syntax that has control and loop structures | data-bind, data-list, and data-event each have a very simple syntax |
+| requires build/compile/transpile | yes | no |
+| supports deep obfuscation | yes | no |
+| components use shadow DOM | yes (by default) | no |
 
-## Transpilation Not Required
-
-Angular has its own HTML dialect with non-standard attributes and a
-"micro-syntax" (e.g. `*ngFor="let foo of bar"` or `(click)="click()"` 
-that **must be compiled** in order to work because they aren't standard
-HTML.
-
-## Yet More DSLs
-
-React can be written in plain Javascript, but prefers to be written in
-`jsx`. I don't like it, but it's not the end of the world. Angular (well
-Angular2).
-
-Angular has to be written in TypeScript, but it's a weird dialect of
-TypeScript that supports all kinds of funky Angularisms like `@Component`
-and `@ViewChild` and `@Input` which have magic-action-at-a-distance
-effects.
-
-All this means that Angular "fiddle" equivalents need to spin up a server
-to let you do simple tinkering, and Angular components are hideously 
-difficult to do anything even vaguely dynamic with.
-
-By contrast, `b8r` is javascript. It binds to standard HTML. It doesn't
-care how you do css. You don't need to do any "build" cycle. You can
-just stick a `<script>` tag in `index.html` if you want to.
+Then there are the deeper differences...
 
 ## Angular's Change Detection is a Shit Show
 
@@ -72,7 +68,7 @@ fail to explain any of it clearly.
 By contrast, `b8r`'s change detection is simple, no magic involved,
 and can be explained thus. You register your state. `b8r` then provides
 means to unambiguously and intuitively refer to anything in the state
-by a `path`. If you set a value at a path, `b8r` "knows" about it and
+by a `path`. If you `set` a value at a path, `b8r` "knows" about it and
 can update stuff accordingly. If you don't, it doesn't, but you can
 tell it to look for changes by calling `b8r.touch()`.
 
@@ -83,12 +79,22 @@ stuff on Angular. Worse, because Angular is very different (and incompatible
 with) Angular2, but both are in wide use, you often run into articles
 where you get advice for the wrong version. Oops.
 
+Worse, the quality of both the Angular documentation and the numerous
+blog posts "explaining" bread-and-butter topics are wildly uneven in quality
+and often contradictory (combine this with the confusion between Angular and
+Angular2).
+
+## Learning Angular teaches you Angular
+
 If you work with Angular, you're going to need to learn some new DSLs
 (domain-specific languages). E.g. you'll need to:
 
 - write templates in Angular's template language (they say it's HTML
   but this is *just not true*. `*ngFor` is not a valid attribute.)
 - write your code in Angular's version of Typescript. (`@Component`!)
+- understand "structural directives" and their associated syntaxes.
+
+## `b8r` leverages knowledge you either already have or will need anyway
 
 To be a good web-developer you need to be proficient in HTML, CSS, and
 Javascript (or some language that gets transpiled into Javascript). 
