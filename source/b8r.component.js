@@ -292,7 +292,7 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
 
   if (type) {
     if (!type || typeof type !== 'object') {
-      throw new Error(`component ${name} has bad type, object expected`);
+      throw new Error(`component ${name} has bad type, object expected`)
     }
     componentTypes[name] = type
   }

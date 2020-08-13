@@ -154,6 +154,8 @@ In this case, you want the absence of an object to be either undefined
     setByPath(obj, {bar: 17}); // {bar: 17} will not be converted
 
 ~~~~
+// title: getByPath, setByPath, and pathParts tests
+
 const {getByPath, setByPath, pathParts} = await import('../source/b8r.byPath.js');
 const obj = {
   foo: 17,
@@ -535,6 +537,8 @@ This works like object.assign but skips the functions. (It does this
 recursively, except for class instances.)
 
 ~~~~
+// title: iterator tests
+
 Test(() => document.querySelectorAll('div') instanceof Array).shouldBe(false);
 Test(() => b8r.makeArray(document.querySelectorAll('div')) instanceof
 Array).shouldBe(true);
@@ -746,6 +750,8 @@ minimize calls to `getBoundingClientRect` (which isn't cheap). Note that it uses
 many cases) these will not agree.
 
 ~~~~
+// title: create, isInView, rectsOverlap tests
+
 div = b8r.create('div');
 div.style.position = 'absolute';
 div.style.top = '-200px';
@@ -1609,7 +1615,10 @@ const parseBinding = binding => {
       // returns ['foo.bar.baz', 'foo[id=17].bar.baz', 'path.to.method(foo.bar,foo[id=17].baz)']
 
 splitPaths is used to prise apart data-paths in bindings.
+
 ~~~~
+// title: splitpaths tests
+
 const {splitPaths, getBindings} = await import('../source/b8r.bindings.js');
 
 Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
@@ -1830,7 +1839,7 @@ You can denote an optional type using '#?<type>'. Both `null` and `undefined` ar
 > This mechanism will likely add new types as the need arises, and similarly may afford a
 > convenient mechanism for defining custom types that require test functions to verify.
 
-### #regex[]
+### #regexp
 
 You can specify a regular expression test for a string value by providing the string you'd use
 to create a `RegExp` instance. E.g. '#regexp \\d+{5,5}' for a simple zipcode type.
@@ -1847,6 +1856,7 @@ gives the typeof the value passed unless it's an `Array` (in which case it retur
     describe(-Infinity) // 'number'
 
 ~~~~
+// title: matchType tests
 const {
   matchType,
   describe,
@@ -2152,65 +2162,92 @@ const matchKeys = (example, subject, errors = [], path = '') => {
 /**
 ## Strongly Typed Functions
 
-To create a function that is type-checked you can use `typeSafe`:
+`typeSafe` adds run-time type-checking to functions, verifying the type of both
+their inputs and outputs:
 
     import {typeSafe} from 'path/to/b8r.js'
-    const safeFunc = typeSafe(func, paramTypes, resultType)
+    const safeFunc = typeSafe(func, paramTypes, resultType, name)
 
 - `func` is the function you're trying to type-check.
 - `paramTypes` is an array of types.
 - `resultType` is the type the function is expected to return (it's optional).
+- `name` is optional (defaults to func.name || 'anonymous')
 
 For example:
 
-    const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+    const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3, 'add')
 
-A typesafe function that is passed an incorrect set of parameters, whose original
+A typeSafe function that is passed an incorrect set of parameters, whose original
 function returns an incorrect set of paramters will return an instance of `TypeError`.
 
 `TypeError` is a simple class to wrap the information associated with a type-check failure.
-Its instances four properties: `isParamFailure` is true if the failure was in the inputs
-to a function, `expected` is what was expected, `found` is what was found, and `errors` is
-the array of type errors. They also have one method, `toString()`.
+Its instances five properties and one method:
+- `functionName` is the name of the function (or 'anonymous' if none was provided)
+- `isParamFailure` is true if the failure was in the inputs to a function,
+- `expected` is what was expected,
+- `found` is what was found,
+- `errors` is the array of type errors.
+- `toString()` renders the `TypeError` as a string
 
-A typesafe function that is one or more `TypeError` instances in its parameters will return
-the first one without calling the wrapped function. (The goal is for typeSafe functions to
-behave like monads, so you can combine them however you like and know that errors will
-short-circuit further execution.)
+A typeSafe function that is passed or more `TypeError` instances in its parameters will return
+the first error it sees without calling the wrapped function.
+
+typeSafe functions are self-documenting. They have two read-only properties `paramTypes` and
+`resultType`.
+
+typeSafe functions are intended to operate like
+[monads](https://en.wikipedia.org/wiki/Monad_(functional_programming)),
+so if you call `safe_f(safe_g(...))` and `safe_g` fails, `safe_f` will _short-circuit_ execution and
+return the error directly -- which should help with debugging and prevent code executing
+on data known to be bad.
 
 ~~~~
 const {
   matchParamTypes,
   typeSafe,
+  TypeError,
 } = await import('./b8r.byExample.js');
 
 Test(() => matchParamTypes([1,2,3], [1,2,3])).shouldBeJSON([])
 Test(() => matchParamTypes([1,'a',{}], [0,'b',{}])).shouldBeJSON([])
 Test(() => matchParamTypes([1,'a'], [0,'b',{}]), 'extra parameters are ok').shouldBeJSON([])
 
-const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3)
+const safeAdd = typeSafe((a, b) => a + b, [1, 2], 3, 'add')
 Test(() => safeAdd(1,2), 'typesafe function works when used correctly').shouldBe(3)
-Test(() => safeAdd(1).toString()).shouldBeJSON('bad parameter, [[],["was undefined, expected number"]]')
+Test(() => safeAdd(1).toString()).shouldBeJSON('add failed: bad parameter, [[],["was undefined, expected number"]]')
 
-const badAdd = typeSafe((a, b) => `${a + b}`, [1, 2], 3)
+const badAdd = typeSafe((a, b) => `${a + b}`, [1, 2], 3, 'badAdd')
 Test(() => badAdd(1,2).toString(), 'typesafe function fails with wrong return type')
-  .shouldBeJSON('bad result, ["was \\"3\\", expected number"]')
+  .shouldBeJSON('badAdd failed: bad result, ["was \\"3\\", expected number"]')
 
-const safeVectorAdd = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3])
+const labeller = typeSafe((label, number) => `${label}: ${number}`, ['label', 0], 'label: 17', 'labeller')
+Test(() => labeller.paramTypes, 'typeSafe function has paramTypes').shouldBeJSON(['label',0])
+Test(() => labeller.resultType, 'typeSafe function has resultType').shouldBe('label: 17')
+Test(() => labeller.resultType = 'foo', 'typeSafe function props are read-only').shouldThrow()
+
+const safeVectorAdd = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3], 'vectorAdd')
 Test(() => safeVectorAdd([1,2],[3,4])).shouldBeJSON([4,6])
-Test(() => safeVectorAdd([1,2],[3,'x']).toString()).shouldBeJSON('bad parameter, [[],["[1] was \\"x\\", expected number"]]')
-Test(() => safeVectorAdd([1,2],[3]).toString()).shouldBeJSON('bad result, ["[1] was NaN, expected number"]')
+Test(() => safeVectorAdd([1,2],[3,'x']).toString()).shouldBeJSON('vectorAdd failed: bad parameter, [[],["[1] was \\"x\\", expected number"]]')
+Test(() => safeVectorAdd([1,2],[3]).toString()).shouldBeJSON('vectorAdd failed: bad result, ["[1] was NaN, expected number"]')
+Test(() => safeVectorAdd([1,2], safeVectorAdd([1,2],[1,1])), 'chaining works').shouldBeJSON([3,5])
+Test(() => safeVectorAdd([1,2],[1]) instanceof TypeError, 'failed function returns TypeError').shouldBe(true)
+const inner = typeSafe((a, b) => a.map((x, i) => x + b[i]), [[1], [2]], [3], 'inner')
+Test(() => inner([1,2],[1]) instanceof TypeError, 'failed function returns TypeError').shouldBe(true)
+Test(() => inner([1,2],[1]).functionName, 'failed function returns name').shouldBe('inner')
+Test(() => safeVectorAdd([1,2], inner([1,2],[1])).toString(), 'short circuit works').shouldBeJSON('inner failed: bad result, ["[1] was NaN, expected number"]')
 ~~~~
  */
 
 class TypeError {
   constructor ({
+    functionName,
     isParamFailure,
     expected,
     found,
     errors
   }) {
     Object.assign(this, {
+      functionName,
       isParamFailure,
       expected,
       found,
@@ -2220,12 +2257,29 @@ class TypeError {
 
   toString () {
     const {
+      functionName,
       isParamFailure,
       errors
     } = this;
-    return `bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
+    return `${functionName} failed: bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
   }
 }
+
+const assignReadOnly = (obj, propMap) => {
+  propMap = { ...propMap };
+  for (const key of Object.keys(propMap)) {
+    Object.defineProperty(obj, key, {
+      writeable: false,
+      enumerable: true,
+      get () {
+        return propMap[key]
+      },
+      set (value) {
+        throw new Error(`${key} is read-only`)
+      }
+    });
+  }
+};
 
 const matchParamTypes = (types, params) => {
   for (let i = 0; i < params.length; i++) {
@@ -2237,9 +2291,15 @@ const matchParamTypes = (types, params) => {
   return errors.flat().length ? errors : []
 };
 
-const _typeSafe = (func, paramTypes, resultType) => {
+// TODO async function support
+
+const _typeSafe = (func, paramTypes, resultType, functionName) => {
+  if (!functionName) functionName = func.name || 'anonymous';
   const typeSafeFunc = function (...params) {
     const paramErrors = matchParamTypes(paramTypes, params);
+    // short circuit failures
+    if (paramErrors instanceof TypeError) return paramErrors
+
     if (paramErrors.length === 0) {
       const result = func(...params);
       const resultErrors = matchType(resultType, result);
@@ -2247,6 +2307,7 @@ const _typeSafe = (func, paramTypes, resultType) => {
         return result
       } else {
         return new TypeError({
+          functionName,
           isParamFailure: false,
           expected: resultType,
           found: result,
@@ -2255,13 +2316,14 @@ const _typeSafe = (func, paramTypes, resultType) => {
       }
     }
     return new TypeError({
+      functionName,
       isParamFailure: true,
       expected: paramTypes,
       found: params,
       errors: paramErrors
     })
   };
-  Object.assign(typeSafeFunc, {
+  assignReadOnly(typeSafeFunc, {
     paramTypes,
     resultType
   });
@@ -2293,15 +2355,12 @@ var _byExample = /*#__PURE__*/Object.freeze({
 
 `b8r` provides some simple utilities for interacting with REST/json services.
 
-    ajax(url, method, requestData, config)
-    json(url, method, requestData, config)
-    xml(url, method, requestData, config)
+    ajax(url, method='GET', requestData, config)
+    json(url, method='GET', requestData, config)
+    jsonp(url, callbackParam='callback', timeout=200)
+    xml(url, method='GET', requestData, config)
 
-`jsonp` is also supported (it's effectively always `GET`):
-
-    jsonp(url, callbackParam='callback', timeout=2000)
-
-All parameters except `url` are optional.
+`url` is required; other parameters are optional.
 
 These methods are all `async` (they return `promises` of the specified response).
 
@@ -2311,7 +2370,7 @@ Usage:
 
 or:
 
-    const myData = await jason('path/to/endpoint', ...)
+    const myData = await json('path/to/endpoint', ...)
 
 Also note that these methods are folded into `b8r` by default, so available as
 `b8r.ajax`, etc.
@@ -2541,12 +2600,18 @@ been called in the last interval.
 This combines the two concepts. If called repeatedly, it will not fire more often than once
 per interval, and will fire after the interval has passed since the last call.
 
-    await b8r.delay(milliseconds, ...args)
+E.g. if you want to respond 'live' to a user dragging something around or resizing an object,
+but you don't want to do it 60 times per second, `throttleAndDebounce` will ensure that it
+updates throughout the operation and fires one last time after the operation stops.
+
+    await b8r.delay(milliseconds, value=null)
 
 `delay` is a simple utility function that resolves after the specified amount of time to
-the args (if any) passed.
+the value specified (null by default).
 
 ~~~~
+// title: throttle and debounce tests
+
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
 Test(async () => {
@@ -2629,7 +2694,7 @@ Test(async () => {
 ~~~~
 */
 
-const delay = (delayMs, value) => new Promise((resolve, reject) => {
+const delay = (delayMs, value = null) => new Promise((resolve, reject) => {
   setTimeout(() => resolve(value), delayMs);
 });
 
@@ -2680,13 +2745,31 @@ const throttleAndDebounce = (origFn, minInterval) => {
 
 const AsyncFunction = async function () {}.constructor;
 
+const memoize = f => {
+  if (f._isMemoized) return f
+  let previousArgs = [];
+  let previousResult;
+  const memoized = function (...args) {
+    const newArgs = [this, ...args];
+    const differences = previousResult === undefined || newArgs.filter((item, index) => item !== previousArgs[index]).length;
+    if (differences) {
+      previousArgs = newArgs;
+      previousResult = f.call(this, ...args);
+    }
+    return previousResult
+  };
+  memoized._isMemoized = true;
+  return memoized
+};
+
 var _functions = /*#__PURE__*/Object.freeze({
   __proto__: null,
   AsyncFunction: AsyncFunction,
   debounce: debounce,
   delay: delay,
   throttle: throttle,
-  throttleAndDebounce: throttleAndDebounce
+  throttleAndDebounce: throttleAndDebounce,
+  memoize: memoize
 });
 
 /**
@@ -2766,6 +2849,10 @@ global declarations.
     export default const componentName = makeComponent('component-name', {
       css: '._component_ > div { color: yellow }',
       html: '<div>this text will be yellow</div>',
+      initialValue: {...},
+                   // specify the component's initial value
+                   // or you can provide an [async] function
+                   // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
       load: async ({
         component, // this is the element that the component is inserted into
         b8r,       // it's b8r!
@@ -2779,16 +2866,10 @@ global declarations.
       }) => {
         // your javascript goes here
       },
-      initialValue: {...},
-                   // specify the component's initial value
-                   // or you can provide an [async] function
-                   // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
       type: {...}, // specify the component's type
-      instanceType: {...},
-                   // specify the component's instance type
     })
 
-All of these properties are optional. `type` and `instanceType` are [by example](?source=source/b8r.byExample.js).
+All of these properties are optional. `type` is [by example](?source=source/b8r.byExample.js).
 
 ```
 <b8r-component name="typed"></b8r-component>
@@ -2960,7 +3041,7 @@ const processComponent = (css, html, name) => {
   return { style, view }
 };
 
-const makeComponentNoEval = function (name, { css, html, load, initialValue, type, instanceType }) {
+const makeComponentNoEval = function (name, { css, html, load, initialValue, type }) {
   const {
     style,
     view
@@ -2972,10 +3053,13 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
     view,
     path: `inline-${name}`,
     initialValue,
-    instanceType
+    type
   };
 
   if (type) {
+    if (!type || typeof type !== 'object') {
+      throw new Error(`component ${name} has bad type, object expected`)
+    }
     componentTypes[name] = type;
   }
 
@@ -3102,6 +3186,7 @@ const collapse = path => {
 
 /**
 ~~~~
+// title: component (v1) loading tests
 const {name} = await b8r.component('../test/custom-test.html')
 Test(async () => {
   return name
@@ -3250,6 +3335,8 @@ Under the hood, `replace('path.to.object', obj)` is simply `b8r.set('path.to.obj
 followed by `b8r.set('path.to.object', obj)`.
 
 ~~~~
+// title: register, set, replace tests
+
 b8r.register('replace-test', {})
 b8r.set('replace-test.foo', 17)
 b8r.set('replace-test', {bar: 'baz'})
@@ -3396,8 +3483,9 @@ For example:
     const typeErrorHandler = (errors, action) => {
       b8r.json('/logerror', 'post', {timestamp: Data.now(), action, errors})
     }
-    b8r.onTypeError(typeErrorHandler) // adds your type error handler (returns true on success)
-    b8r.offTypeError(typeErrorHandler) // removes the error handler (returns true on success)
+    b8r.onTypeError(typeErrorHandler)   // adds your type error handler (returns true on success)
+                                        // also removes the default typeErrorHandler (which simply prints to console)
+    b8r.offTypeError(typeErrorHandler)  // removes the error handler (returns true on success)
 
 ~~~~
 Test(
@@ -3412,7 +3500,7 @@ Test(
     })
     b8r.onTypeError(errorHandler)
     b8r.set('error-handling-test.number', false)
-    b8r.offTypeError(errorHandler)
+    b8r.offTypeError(errorHandler, true)
     return _errors
   },
   'verify custom handler for type errors works'
@@ -3999,9 +4087,10 @@ const onTypeError = (callback) => {
   }
   return false
 };
-const offTypeError = (callback) => {
+const offTypeError = (callback, restoreDefault = false) => {
   const handlerCount = typeErrorHandlers.length;
   typeErrorHandlers = typeErrorHandlers.filter(f => f !== callback);
+  if (restoreDefault) onTypeError(_defaultTypeErrorHandler);
   return typeErrorHandlers.length !== handlerCount - 1
 };
 
@@ -4010,7 +4099,7 @@ const checkType = (action, name) => {
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name);
   if (errors.length) {
-    typeErrorHandlers.forEach(f => f(errors, name));
+    typeErrorHandlers.forEach(f => f(errors, action));
   }
 };
 
@@ -4056,6 +4145,11 @@ const replace = (path, value) => {
   set$1(path, value);
   return value
 };
+
+const types = () => JSON.parse(JSON.stringify({
+  registeredTypes,
+  componentTypes
+}));
 
 const registerType = (name, example) => {
   registeredTypes[name] = example;
@@ -4402,7 +4496,9 @@ var _registry = /*#__PURE__*/Object.freeze({
   unobserve: unobserve,
   models: models,
   _register: _register,
+  checkType: checkType,
   registerType: registerType,
+  types: types,
   register: register,
   registered: registered,
   remove: remove,
@@ -4593,6 +4689,8 @@ const modifierKeys = {
 
 /**
 ~~~~
+// title: dispatch tests
+
 function dispatch(target, eventType, key) {
   const evt = new KeyboardEvent({
     key
@@ -5632,7 +5730,7 @@ b8r.forceUpdate()
 Test(() => span.textContent, 'update works').shouldBe('good-bye')
 Test(() => callCount, 'exactly one more call to method').shouldBe(2)
 span.remove()
-b8r.deregister('test_')
+b8r.remove('test_')
 ~~~~
 
 ```
@@ -6034,6 +6132,7 @@ They're also useful for building custom sort methods:
     const sorted = array_of_objs.sort((a, b) => sortAscending(a.title, b.title));
 
 ~~~~
+// title: sortAscending & sortDescending tests
 const {sortAscending, sortDescending} = b8r;
 Test(() => ['c', 'a', 'B'].sort(sortAscending), 'sort strings, ascending').shouldBeJSON(['a','B','c']);
 Test(() => ['c', 'a', 'B'].sort(sortDescending), 'sort strings, descending').shouldBeJSON(['c','B','a']);
@@ -6274,6 +6373,12 @@ passing any additional arguments.
 
 Hides the element (storing its original `display` value in an attribute). Triggers a synthetic
 `hide` event on any elements with `hide` event handlers passing any additional arguments.
+
+## `data-orig-display`
+
+If you're wondering what `data-orig-display` is, it's an artifact of `show` and `hide`. When
+an element is hidden, `hide` sets `.style.display = "none"` and records its previous value as
+the `data-orig-display` attribute.
 */
 
 const show = (element, ...args) => {
@@ -6299,30 +6404,50 @@ const hide = (element, ...args) => {
 };
 
 /**
-# web-components.js
+# Custom Elements
+<h2 style="margin-top: -10px">a.k.a web-components</h2>
 
-Helper methods for creating Web Components.
+> ## Confused?
+>
+> This document has been retitled _Custom Elements_ to make a clearer distinction between
+> documentation on `b8r` _components_ and _web-components_. Nothing has changed under the
+> hood. The terms "web-component" and "custom element" are used interchangeably here, and
+> everywhere else.
+>
+> Just to add to the confusion, `b8r` components are themselves instances of a custom
+> element `<b8r-component>`.
+
+This library provides helper functions for creating [Custom Elements](https://www.webcomponents.org/).
+The terms "web-component" and "custom element" are used interchangeably everywhere.
 
 ## Methods
 
 ### makeWebComponent
 
-    makeWebComponent(tagName, {
-      superClass=HTMLElement, // the class you're extending
-      style=false,            // expect object
-      methods={},             // map names to class methods
-      eventHandlers={},       // map eventTypes to event handlers
-      attributes={},          // map attributes to default values
-      content=slot(),         // HTMLElement or DocumentFragment or falsy
-      ariaRole=false,         // expect string
+    // where appropriate, default values are shown
+    makeWebComponent('tag-name', {
+      superClass: undefined,   // the class you're extending, if any
+      style: false,            // expect object
+      props: {},               // map names to default values / functions
+      methods: {},             // map names to class methods
+      eventHandlers: {},       // map eventTypes to event handlers
+      attributes: {},          // map attributes to default values
+      content: slot(),         // HTMLElement or DocumentFragment or falsy
+      role: false,             // expect string
     })                        // returns the class
 
-Defines a new [Web Component](https://www.webcomponents.org/)).
+Defines a new _custom element_.
 
-Returns the component class (in case you want to subclass it).
+Returns the component `class` (in case you want to subclass it, use the constructor
+for comparison, or whatever).
 
 - `style` can be CSS source or a map of selector rules to maps of css rules.
   If no style is passed, no shadowRoot will be created
+- `props` are direct properties added to the element; if you pass a function
+  then if it takes no parameters a computed read-only property of that name
+  will map to the function. If the function takes a parameter, it will
+  be treated as a computed setter as well. Unlike attributes, props don't
+  appear in the DOM.
 - `methods` will become class methods, notably `render` and `childListChange`
   - `render` is where the widget gets expressed in the DOM, based on its state
   - `childListChange` indicates that children of the (original) DOM node have changed
@@ -6348,7 +6473,7 @@ Returns the component class (in case you want to subclass it).
   - you can be lazy and pass a string to content (it will become a `TextNode`) or
     an array of `HTMLElement` and (you can wrap them in a `DocumentFragment` but
     you don't have to).
-- `ariaRole` will do the expected thing
+- `role` will do the expected thing
 - by default, setting the `hidden` attribute will hide a styled component (this is
   implemented via styles), not attributes, so there's no MutationObserver oberhead.
 
@@ -6357,30 +6482,41 @@ the a clone of the `atrributes` array used to construct the component. This is u
 for introspection (e.g. if you're building a UI builder that needs to know what attributes
 a given custom element has).
 
-#### Component Lifecycle
+### Component Lifecycle
 
 makeComponent copies all methods provided into the component's prototype, so the
 standard lifecycle methods `connectedCallback`, `disconnectedCallback`,
-`adoptedCallback`, and `attributeChangedCallback` work as normal.
+`adoptedCallback`, and `attributeChangedCallback` work as normal, with one minor
+caveat — this library creates component classes with a default `connectedCallback`
+that will call any `connectedCallback` passed as a method afterwards.
 
-#### Performance Notes
+### Performance Notes
 
-The "lightest" web-components have no `style` (and hence no shadowDOM) or `attributes`.
-- supporting attributes involves creating a MutationObserver, which has an overhead.
+The "lightest" web-components have no `style` (and hence **no shadowDOM**) or `attributes`.
+- supporting attributes involves creating a `MutationObserver`, which has an overhead.
 - adding a `style` object has a larger perf overhead.
 
 Even so, in general web-components should perform better than components implemented using
-Javascript frameworks (including `b8r` components).
+Javascript frameworks. Well, not `b8r` components, at least at time of writing, but
+the great thing about using native browser functionality is that it generally just
+gets _faster_. Which gets us to...
+
+### The Shadow DOM
+
+You've heard of it, right? It can be fantastically useful (it's useful for creating
+structural behavior that is immune to the outside world, such as dialog boxes and
+floating elements) but it's also a huge performance issue if you have too many of
+them around (I imagine that the overhead is some fraction of an `<iframe>`...).
 
 More information is provided in [this blog entry](http://loewald.com/blog/2019/01/more-on-web-components-and-perf/).
 
 ### makeElement
 
     const makeElement = (tagType, {
-      content=false,  // text, or something that can be appended to an HTMLElement
-      attributes={},  // attribute map
-      styles={},      // style object
-      classes=[],     // list of classes
+      content: false,  // text, or something that can be appended to an HTMLElement
+      attributes: {},  // attribute map
+      styles: {},      // style object
+      classes: [],     // list of classes
     })                // returns the element
 
 A handy method for creating a DOM element with specified properties. Content can
@@ -6444,7 +6580,7 @@ You can write:
 
 Creates a document fragment containing the elements passed to it.
 
-### Example
+#### Example
 
 This is from an older version of the `<b8r-select>` control:
 
@@ -6462,10 +6598,36 @@ Convenience methods allow this to be simplified to:
       div({classes: ['menu'], content: slot()}),
     )
 
+If you build multiple similar elements and want to reuse them, don't forget
+to `cloneNode(true)` something you want another copy of.
+
 ## TODO
 
-- Resize events
-- Component styling scope (see below)
+- Implement resize events (per [resize.js](./?source=./lib/resize.js) but _ideally_
+  first eliminate the `b8r` dependency so that web-components.js does not create a transitive dependency.)
+- Provide the option of inserting a stylesheet when the first component instance is inserted
+  into the DOM (see below) as an alternative to using the shadow DOM or being unstyled.
+- Migrate all style customization in library components to css-variables with sane defaults.
+
+### Styling
+
+In my opinion, the best way to style custom elements in a way that allows easy
+customization is to use [CSS Variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties).
+(**Note**: this was controversial when I wrote it, and now seems to be accepted wisdom. Yay!)
+
+- [Styling a Web Component](https://css-tricks.com/styling-a-web-component/)
+
+The above is more of a "how to" than best practices. Take it with a grain of salt.
+
+I think the jury is out on whether creating _complex views_ as web-components is a good
+idea. (Angular does this under the hood and it's torpid, but that might just be Angular.)
+So far, creating views with `b8r` components seems much simpler, quicker, and
+more flexible. This may change over time as more people use web-components and the
+rough edges are smoothed.
+
+Creating components with minimal styling and no shadowDOM is another possibility.
+Instead of creating an internal style node, they could simply insert a singleton
+stylesheet in the `<header>` the way `b8r` components do.
 
 ## Recommended Reading
 
@@ -6476,24 +6638,6 @@ reference purposes.
 
 - [Custom Elements Best Practices](https://developers.google.com/web/fundamentals/web-components/best-practices)
 - [Web Components Best Practices](https://www.webcomponents.org/community/articles/web-components-best-practices)
-
-### Styling
-
-In my opinion, the best way to style custom elements in a way that allows easy
-customization is to use [CSS Variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties).
-
-- [Styling a Web Component](https://css-tricks.com/styling-a-web-component/)
-
-The above is more of a "how to" than best practices. Take it with a grain of salt.
-
-I think the jury is out on whether creating complex views as web-components is a good
-idea. So far, creating views with `b8r` components seems much simpler, quicker, and
-more flexible. This may change over time as more people use web-components and the
-rough edges are smoothed.
-
-Creating components with minimal styling and no shadowDOM is another possibility.
-Instead of creating an internal style node, they could simply insert a singleton
-stylesheet in the `<header>` the way `b8r` components do.
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
@@ -6569,7 +6713,7 @@ const makeWebComponent = (tagName, {
   props = {}, // map of instance properties to defaults
   attributes = {}, // map attributes to default values
   content = slot(), // HTMLElement or DocumentFragment
-  ariaRole = false // expect string
+  role = false // expect string
 }) => {
   let styleNode = null;
   if (style) {
@@ -6598,7 +6742,23 @@ const makeWebComponent = (tagName, {
   const componentClass = class extends superClass {
     constructor () {
       super();
-      Object.assign(this, props);
+      for (const prop of Object.keys(props)) {
+        const value = props[prop];
+        if (typeof value !== 'function') {
+          this[prop] = value;
+        } else {
+          Object.defineProperty(this, prop, {
+            writeable: value.length > 0,
+            enumerable: false,
+            get () {
+              return value.call(this)
+            },
+            set (newValue) {
+              value.call(this, newValue);
+            }
+          });
+        }
+      }
       if (styleNode) {
         const shadow = this.attachShadow({ mode: 'open' });
         shadow.appendChild(styleNode.cloneNode(true));
@@ -6607,14 +6767,14 @@ const makeWebComponent = (tagName, {
         appendContentToElement(this, content);
       }
       Object.keys(eventHandlers).forEach(eventType => {
-        this.addEventListener(eventType, eventHandlers[eventType].bind(this));
+        const passive = eventType.startsWith('touch') ? { passive: true } : false;
+        this.addEventListener(eventType, eventHandlers[eventType].bind(this), passive);
       });
-      if (ariaRole) this.setAttribute('aria-role', ariaRole);
-      const attributeNames = Object.keys(attributes);
       if (eventHandlers.childListChange) {
         const observer = new MutationObserver(eventHandlers.childListChange.bind(this));
         observer.observe(this, { childList: true });
       }
+      const attributeNames = Object.keys(attributes);
       if (attributeNames.length) {
         const attributeValues = {};
         const observer = new MutationObserver((mutationsList) => {
@@ -6679,13 +6839,21 @@ const makeWebComponent = (tagName, {
       if (this.queueRender) this.queueRender();
     }
 
+    connectedCallback () {
+      // super annoyingly, chrome loses its shit if you set *any* attributes in the constructor
+      if (role) this.setAttribute('role', role);
+      if (methods.connectedCallback) methods.connectedCallback.call(this);
+    }
+
     static defaultAttributes () {
       return { ...attributes }
     }
   };
 
   Object.keys(methods).forEach(methodName => {
-    componentClass.prototype[methodName] = methods[methodName];
+    if (methodName !== 'connectedCallback') {
+      componentClass.prototype[methodName] = methods[methodName];
+    }
   });
 
   // if-statement is to prevent some node-based "browser" tests from breaking
@@ -6831,14 +6999,9 @@ b8r.setByPath = function (...args) {
     [name, path, value, sourceElement] = args;
   }
   if (b8r.registered(name)) {
-    // const model = b8r.get(name);
     if (typeof path === 'object') {
-      // Object.assign(model, path);
-      // b8r.touchByPath(name, '/', sourceElement);
       b8r.set(name, path, sourceElement);
     } else {
-      // setByPath(model, path, value);
-      // b8r.touchByPath(name, path, sourceElement);
       b8r.set(
         path[0] === '[' || !path
           ? `${name}${path}`
@@ -7357,12 +7520,13 @@ b8r.insertComponent = async function (component, element, data) {
   };
   const touch = path => b8r.touchByPath(componentId, path);
   const on = (...args) => b8r.on(element, ...args);
-  const findOneWithin = selector => b8r.findWithin(element, selector);
+  const find = selector => b8r.findWithin(element, selector);
   const findOne = selector => b8r.findOneWithin(element, selector);
   const initialValue = typeof component.initialValue === 'function'
-    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, find: findOneWithin })
+    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, find })
     : b8r.deepClone(component.initialValue) || data;
   data = {
+    ...(component.type ? b8r.deepClone(component.type) : {}),
     ...initialValue,
     dataPath,
     componentId
@@ -7374,7 +7538,7 @@ b8r.insertComponent = async function (component, element, data) {
   if (component.load) {
     try {
       await component.load(
-        element, _pathRelativeB8r(component.path), findOneWithin, findOne,
+        element, _pathRelativeB8r(component.path), find, findOne,
         data, register, get, set, on, touch, component
       );
     } catch (e) {
@@ -7392,6 +7556,14 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     value: null
   },
   content: false,
+  props: {
+    componentId: function () {
+      return this.dataset.componentId
+    },
+    data: function () {
+      return b8r.get(this.componentId)
+    }
+  },
   methods: {
     connectedCallback () {
       const { path } = this;
@@ -7399,6 +7571,9 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
         if (!this.name) this.name = path.split('/').pop().split('.').shift();
         b8r.component(this.name, path);
       }
+    },
+    set (...args) {
+      b8r.setByPath(this.componentId, ...args);
     },
     render () {
       if (!this.isConnected) return
