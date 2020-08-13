@@ -125,8 +125,27 @@
   .content p,
   .content blockquote,
   .content ul,
-  .content ol {
+  .content ol,
+  .content table {
     max-width: 600px;
+  }
+
+  .content table {
+    border-collapse: collapse;
+  }
+
+  .content tr:nth-child(2n+1) {
+    background: var(--black-5);
+  }
+
+  .content th {
+    background: var(--black-10);
+  }
+
+  .content td,
+  .content th {
+    vertical-align: top;
+    padding: 5px 10px;
   }
 
   .content pre,

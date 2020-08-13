@@ -8,30 +8,30 @@ and where the similarity ends.
 
 ## Here's an overview of the differences:
 
-| Feature          | Angular2           | b8r            |
-|------------------|--------------------|----------------|
-| data binding     | [style.width.px]="publicProperty" | data-bind="style(width)=${path.to.property}px" |
-| two-way binding | [(publicProperty)]="publicProperty" | data-bind="value=path.to.property" |
-| event binding    | (click)="publicMethod()"          | data-event="click:path.to.method" |
-| array binding    | \*ngFor="let foo of foos"         | data-list="path.to.array" |
-| efficient array binding | \*ngFor="let foo of foos; trackBy: getId"<br>You'll need to implement getId, much like generating a key in React | data-list="path.to.array:id"<br>if id is unique property of each element, otherwise<br>data-list="path.to.array:_auto_" |
-| array element binding | [something]="foo.prop"       | data-bind=".prop" |
-| conditional element | \*ngIf="booleanVar == true"    | data-bind="show_if=path.to.booleanVar" |
-| component lifecycle | ngOnChanges, ngOnInit, ngDoCheck, ngAfterContentInit, ngAfterContentChecked, ngAfterViewInit
-| intercept property changes | use a setter | use a setter |
-| handle real-time data | use RxJs observeable and async pipe | use b8r.set() or b8r.touch() |
-| subscribe to property changes | use a setter | b8r.observe('path.to.observed', 'path.to.callback') |
-| what does conditional `<div>,,,</div>` look like, if condition not met? | `<!-- commment -->` | `<div style="display: none"></div>` |
-| reference child element within component | @ViewChild('foo')<br>foo: ElementRef;<br>// available after view initialized | findOne('.foo') // just works |
-| access DOM | this.elementRef.nativeElement // discouraged | it's just javascript |
-| change detection | default is horribly slow so use ChangeDetectionStrategy.onPush and mark properties as @Input() | use b8r.set() or b8r.touch() |
-| detect changes outside Angular | need reference to NgZone and then perform changes inside ngZone.runOutsideAngular()<br>If this doesn't work, call this.changeDetector.detectChanges() in the affected component(s) | use b8r.set() or b8r.touch() |
-| detect change within object property | replace the object with a shallow clone | use b8r.set() or b8r.touch() |
-| language | TypeScript | Javascript |
-| DSLs | templating language<br>"structural directives" \*ngFor, \*ngIf etc. each have a "micro syntax" and themselves form an extensible micro-syntax that has control and loop structures | data-bind, data-list, and data-event each have a very simple syntax |
-| requires build/compile/transpile | yes | no |
-| supports deep obfuscation | yes | no |
-| components use shadow DOM | yes (by default) | no |
+| Feature          | Angular2           | b8r
+|--|--|--
+| data binding     | [style.width.px]="publicProperty" | data-bind="style(width)=${path.to.property}px"
+| two-way binding | [(publicProperty)]="publicProperty" | data-bind="value=path.to.property"
+| event binding    | (click)="publicMethod()"          | data-event="click:path.to.method"
+| array binding    | \*ngFor="let foo of foos"         | data-list="path.to.array"
+| efficient array binding | \*ngFor="let foo of foos; trackBy: getId"<br>You'll need to implement getId, much like generating a key in React | data-list="path.to.array:id"<br> if id is unique property of each element
+| array element binding | [something]="foo.prop"       | data-bind=".prop"
+| conditional element | \*ngIf="booleanVar == true"    | data-bind="show_if=path.to.booleanVar"
+| component lifecycle | ngOnChanges, ngOnInit, ngDoCheck, ngAfterContentInit, ngAfterContentChecked, ngAfterViewInit, ngAfterViewChecked, ngOnDestroy | initialValue, load, destroy
+| intercept property changes | use a setter | use a setter
+| handle real-time data | use RxJs observeable and async pipe | use b8r.set() or b8r.touch()
+| subscribe to property changes | use a setter | b8r.observe('path.to.observed', 'path.to.callback')
+| what does conditional `&lt;div>...&lt;/div>` look like, if condition not met? | `&lt;!-- commment -->` | `&lt;div style="display: none"></div>`
+| reference child element within component | @ViewChild('foo')<br>foo: ElementRef;<br>// available after view initialized | findOne('.foo')
+| access DOM | this.elementRef.nativeElement // discouraged | it's just javascript
+| change detection | default is horribly slow so use ChangeDetectionStrategy.onPush and mark properties as @Input() | use b8r.set() or b8r.touch()
+| detect changes outside Angular | need reference to NgZone and then perform changes inside ngZone.runOutsideAngular()<br>If this doesn't work, call this.changeDetector.detectChanges() in the affected component(s) | use b8r.set() or b8r.touch()
+| detect change within object property | replace the object with a shallow clone | use b8r.set() or b8r.touch()
+| language | TypeScript | Javascript
+| DSLs | templating language<br>"structural directives" \*ngFor, \*ngIf etc. each have a "micro syntax" and themselves form an extensible micro-syntax that has control and loop structures | data-bind, data-list, and data-event each have a very simple syntax
+| requires build/compile/transpile | yes | no
+| supports deep obfuscation | yes | no
+| components use shadow DOM | yes (by default) | no
 
 Then there are the deeper differences...
 
