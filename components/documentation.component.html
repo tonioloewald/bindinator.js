@@ -296,23 +296,21 @@
   }
 
   ._component_ .glow {
+    transform-origin: 50% 50%;
     animation: fading-glow 2s ease-in-out;
   }
 
   @keyframes fading-glow {
     0% {
-      filter: contrast(150%) drop-shadow(0 0 4px var(--bright-accent-color));
-      box-shadow: 0 4px 0 0 var(--bright-accent-color);
+      transform: scale(0.5);
     }
     
     50% {
-      filter: contrast(200%) drop-shadow(0 0 4px var(--text-color));
-      box-shadow: 0 4px 0 0 var(--text-color);
+      transform: scale(1.02);
     }
 
     100% {
-      filter: contrast(100%) drop-shadow(0 0 2px transparent);
-      box-shadow: 0 4px 0 0 transparent;
+      transform: scale(1);
     }
   }
 </style>
