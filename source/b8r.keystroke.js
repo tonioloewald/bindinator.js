@@ -43,6 +43,8 @@ Also provides `modifierKeys`, a map from the modifier strings (e.g. alt) to
 the relevant unicode glyphs (e.g. '⌥').
 */
 
+import { isMacOS } from './b8r.constants.js'
+
 const keycode = evt => {
   if (evt.code) {
     return evt.code.replace(/Key|Digit/, '')
@@ -73,12 +75,18 @@ const keystroke = evt => {
   return code.join('-')
 }
 
-const modifierKeys = {
+const modifierKeys = isMacOS ? {
   meta: '⌘',
   ctrl: '⌃',
   alt: '⌥',
   escape: '⎋',
   shift: '⇧'
+} : {
+  meta: 'Meta',
+  ctrl: 'Ctrl',
+  alt: 'Alt',
+  escape: 'Esc',
+  shift: 'Shift'
 }
 
 export { keystroke, keycode, modifierKeys }

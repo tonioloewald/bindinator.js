@@ -19,15 +19,15 @@
   }
 
   .menubar-component [data-shortcut] {
-    padding-right: 40px;
+    display: flex;
+    width: 100%;
   }
 
   .menubar-component [data-shortcut]:after {
     content: attr(title);
-    display: block;
-    position: absolute;
-    top: 2px;
-    right: 4px;
+    text-align: right;
+    width: 100%;
+    margin-left: 10px;
     color: var(--accent-color);
   }
 
@@ -41,7 +41,7 @@
     cursor: default;
     margin: 0;
     padding: 2px 8px;
-    display: inline-block;
+    display: inline-flex;
     height: 24px;
     line-height: 20px;
     white-space: nowrap;

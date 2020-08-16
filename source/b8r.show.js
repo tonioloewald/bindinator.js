@@ -23,14 +23,14 @@ import { findWithin, isVisible } from './b8r.dom.js'
 import { trigger } from './b8r.events.js'
 
 const show = (element, ...args) => {
-  if (!isVisible(element)) {
-    if (element.dataset.origDisplay === undefined) {
-      element.dataset.origDisplay = element.style.display === 'none' ? '' : element.style.display
-    }
-    element.style.display = element.dataset.origDisplay
-    findWithin(element, '[data-event*="show"]', true)
-      .forEach(elt => trigger('show', elt, ...args))
+  // used to check if the element was in fact hidden, but that turns out to be expensive
+  // probably because of the cost of getComputedStyle
+  if (element.dataset.origDisplay === undefined) {
+    element.dataset.origDisplay = element.style.display === 'none' ? '' : element.style.display
   }
+  element.style.display = element.dataset.origDisplay
+  findWithin(element, '[data-event*="show"]', true)
+    .forEach(elt => trigger('show', elt, ...args))
 }
 
 const hide = (element, ...args) => {
