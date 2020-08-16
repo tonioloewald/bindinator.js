@@ -20,10 +20,12 @@ function _interopNamespace(e) {
 }
 
 const observerShouldBeRemoved = {};
+const isMacOS = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 
 var constants = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  observerShouldBeRemoved: observerShouldBeRemoved
+  observerShouldBeRemoved: observerShouldBeRemoved,
+  isMacOS: isMacOS
 });
 
 /**
@@ -4700,12 +4702,18 @@ const keystroke = evt => {
   return code.join('-')
 };
 
-const modifierKeys = {
+const modifierKeys = isMacOS ? {
   meta: '⌘',
   ctrl: '⌃',
   alt: '⌥',
   escape: '⎋',
   shift: '⇧'
+} : {
+  meta: 'Meta',
+  ctrl: 'Ctrl',
+  alt: 'Alt',
+  escape: 'Esc',
+  shift: 'Shift'
 };
 
 /**
@@ -6403,14 +6411,14 @@ the `data-orig-display` attribute.
 */
 
 const show = (element, ...args) => {
-  if (!isVisible(element)) {
-    if (element.dataset.origDisplay === undefined) {
-      element.dataset.origDisplay = element.style.display === 'none' ? '' : element.style.display;
-    }
-    element.style.display = element.dataset.origDisplay;
-    findWithin(element, '[data-event*="show"]', true)
-      .forEach(elt => trigger('show', elt, ...args));
+  // used to check if the element was in fact hidden, but that turns out to be expensive
+  // probably because of the cost of getComputedStyle
+  if (element.dataset.origDisplay === undefined) {
+    element.dataset.origDisplay = element.style.display === 'none' ? '' : element.style.display;
   }
+  element.style.display = element.dataset.origDisplay;
+  findWithin(element, '[data-event*="show"]', true)
+    .forEach(elt => trigger('show', elt, ...args));
 };
 
 const hide = (element, ...args) => {
