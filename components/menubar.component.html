@@ -1,13 +1,15 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
 <style>
   .menubar-component {
-    height: 24px;
+    height: 30px;
     background-color: var(--input-bg-color);
     list-style: none;
     margin: 0;
     padding: 0 4px;
     border-bottom: 1px solid var(--black-10);
     box-sizing: border-box;
+    z-index: 1;
+    position: relative;
   }
 
   ul.menubar-component {
@@ -24,10 +26,10 @@
   }
 
   .menubar-component [data-shortcut]:after {
-    content: attr(title);
+    content: attr(data-shortcut-description);
     text-align: right;
     width: 100%;
-    margin-left: 10px;
+    margin-left: 30px;
     color: var(--accent-color);
   }
 
@@ -40,10 +42,10 @@
     position: relative;
     cursor: default;
     margin: 0;
-    padding: 2px 8px;
+    padding: 2px 10px;
     display: inline-flex;
-    height: 24px;
-    line-height: 20px;
+    height: 30px;
+    line-height: 26px;
     white-space: nowrap;
     min-width: 40px;
   }
@@ -60,7 +62,7 @@
     position: absolute;
     padding: 0;
     margin: 0 -8px;
-    top: 23px;
+    top: 29px;
     background-color: var(--content-bg-color);
     border: 1px solid var(--black-20);
     display: flex;
@@ -72,7 +74,8 @@
 
   .menubar-component ul ul {
     z-index: 1;
-    left: 40px;
+    top: 0;
+    left: calc(90%);
   }
 
   .menubar-component li.open > ul {
@@ -89,6 +92,11 @@
 
   .menubar-component ul li {
     display: flex;
+  }
+
+  .menubar-component ul li > a {
+    color: inherit;
+    background: none;
   }
 
   .menubar-component ul li > *:first-child {
