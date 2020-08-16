@@ -35,42 +35,64 @@ and where the similarity ends.
 
 Then there are the deeper differences...
 
-## Angular's Change Detection is a Shit Show
+## Angular's Change Detection is a Weird and Complicated
+
+To implement change detection, Angular overrides core DOM methods such as
+addEventListener() and setTimeout(). `b8r` does no such thing.
 
 Angular tries to detect changes to your model and update the rendered
-view automagically, but the cases in which it fails are hardly "weird
-edge cases". Worse, the original architecture tried to re-render the
-entire DOM every time anything changed, which was not performant. This
-is called `ChangeDetectionStrategy.default`.
+view automagically, but the cases in which it fails are hardly "rare
+edge cases". Also, originally Angular handled anything it thought might
+be a change by re-rendering the entire DOM, which was _slow_. This
+is `ChangeDetectionStrategy.default` and using it is generally considered
+bad practice.
 
-Which gets us to another issue with Angular. There's too many ways
-to do anything and the common or default way is often the bad way.
+(Which gets us to another issue with Angular. There's too many ways
+to do anything and the common or default way is often the bad way.)
 
-You're now strongly encouraged to override this with `ChangeDetectionStrategy.onPush`
+So, we're now strongly encouraged to override this with `ChangeDetectionStrategy.onPush`
 which requires you to flag component properties as `@Input` so that
 ...magic happens and... when the property changes, the component gets
-re-rendered. Except that if a property is an object it only detects
-new objects, so you're required to follow the React anti-pattern
+re-rendered. Except that if a property is an object it may miss changes
+inside objects, so you're required to follow the React anti-pattern
 of shallow-cloning everything all the time: `foo = {...foo, myNewValue}`
-and this of course triggers over-rendering.
+(or using `immutable.js`) and this of course adds complexity and
+can trigger over-rendering.
 
 But if you want to touch properties in vanilla javascript (e.g. using
-a library of async functions, then all this doesn't work at all, and
-you need to obtain a reference to an `NgZone` (which is, I assume,
-part of the "magic" of Change Detection) by magically obtaining it
-via you component's `constructor()` and then wrap the thing in an
+a library of async functions) then all this doesn't work at all, and
+you need to obtain a reference to an `NgZone` (which is a magical
+context in which change detection occurs) by magically obtaining it
+via your component's `constructor()` and then wrap the thing in an
 `ngZone.runOutsideOfAngular()` call.
 
 All of this is so complicated that there are, of course, lots of 
-Medium articles, blog posts, and Stack Overflow answers that painfully
-fail to explain any of it clearly.
+[Medium articles](https://blog.angular-university.io/how-does-angular-2-change-detection-really-work/),
+blog posts, and Stack Overflow answers that attempt to explain it
+at length.
 
-By contrast, `b8r`'s change detection is simple, no magic involved,
-and can be explained thus. You register your state. `b8r` then provides
-means to unambiguously and intuitively refer to anything in the state
-by a `path`. If you `set` a value at a path, `b8r` "knows" about it and
-can update stuff accordingly. If you don't, it doesn't, but you can
-tell it to look for changes by calling `b8r.touch()`.
+## `b8r`'s change detection is simple and robust
+
+Here is how `b8r` manages change.
+
+`b8r.register('name', object)` registers an object as having the specified
+name. You can refer to properties anywhere in the object unambiguously
+using paths.
+
+`b8r.get('path.to.value')` returns the value at the path (or null if nothing
+is there).
+
+`b8r.set('path.to.value', newValue)` updates the registered object and
+queues anything bound to the path to be updated.
+
+`b8r.touch('path.to.value')` flags anything bound to the path to be updated
+(if, for example, you changed it directly).
+
+The most complicated aspect of all this is paths to items in arrays,
+because there's more than one way to refer to an element in an array
+with a path. It follows you should only refer to items in a specific
+array using one approach in bindings (and `b8r` will warn you if you
+use more than one approach).
 
 ## Angular is hard to Google (ironically)
 
@@ -262,6 +284,9 @@ to store, doesn't need to be reviewed, causes no errors, and lints perfectly.
 
 ## Not Quite Typescript
 
+Angular makes extensive use of [Decorators](https://www.typescriptlang.org/docs/handbook/decorators.html).
+It's up to you to decide whether you like this (it's something that may change in future).
+
     import { Component, OnInit } from '@angular/core';
 
     @Component({
@@ -270,18 +295,19 @@ to store, doesn't need to be reviewed, causes no errors, and lints perfectly.
       styleUrls: ['./product-alerts.component.css']
     })
     export class ProductAlertsComponent implements OnInit {
+      @Input() value: string = '';
       constructor() { }
-
       ngOnInit() {
       }
-
     }
 
-By the looks of things, a simple component can easily end up being *four different
-source files*. And, in practice, this isn't quite true -- there will likely be
+## Lots of Files
+
+A simple component can easily end up being *four different source files*. (This
+has the advantage of better leveraging code quality tools than `b8r`'s single
+file approach. I may add it as an option in future.) There will likely be
 1-3 extra files for each subcomponent, and in many cases you'll find you need
-to create subcomponents where you wouldn't need to in `b8r` (e.g. to prevent
-unnecessary redraws).
+to create subcomponents where you wouldn't need to in `b8r`.
 
 Also, on top of needing to learn and read Angular's template syntax inside
 your HTMLish code, you now need to code in some kind of weird declarative
@@ -362,7 +388,7 @@ Or maybe read one of the many Medium articles that try to explain said API, e.g.
 
 By the way, I couldn't get these approaches to work.
 
-## So. Many. &lt;!----&gt;s.
+## So. Many. &lt;!-- comments --&gt;s.
 
 The Angular documentation argues that `ngIf` is justified because it's cheaper in
 resources to exclude DOM elements that aren't needed and put them in when they
