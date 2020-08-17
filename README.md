@@ -261,7 +261,7 @@ tab for each child.
 [bindinator.com](https://bindinator.com) is built using `b8r` (along with numerous third-party 
 libraries, none of which are global dependencies). The inline 
 [fiddle component](?source=fiddle.component.html) used
-to display interactive examples is 272 lines including comments, styles, markup, and code.
+to display interactive examples is 343 lines including comments, styles, markup, and code.
 `b8r` isolates component internals so cleanly from the rest of the page that the fiddle doesn't
 need to use an iframe.
 
