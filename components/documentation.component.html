@@ -100,16 +100,17 @@
     cursor: pointer;
   }
 
-  ._component_ > .nav details[open] summary {
-    margin: 0 -5px 5px 0;
-  }
-
   ._component_ > .nav summary {
     cursor: pointer;
     font-weight: 500;
     color: var(--faded-text-color);
     text-transform: uppercase;
     font-size: 12px;
+    margin: 8px 0 0 0;
+  }
+
+  ._component_ > .nav details[open] summary {
+    margin: 8px -5px 5px 0;
   }
 
   ._component_ > .nav details[open] summary ~ * {
