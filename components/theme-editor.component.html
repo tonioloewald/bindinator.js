@@ -80,7 +80,7 @@ can tell what "type" a variable is.
       value,
       type
     }
-  })).flat()
+  })).flat().sort((a, b) => b8r.sortAscending(a.name, b.name))
   const darkmode = window.matchMedia('(prefers-color-scheme: dark)')
   darkmode.addListener((e) => set('darkmode', e.matches))
   set({
