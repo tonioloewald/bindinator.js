@@ -351,9 +351,15 @@ const makeComponent = (name, source, url, preserveSource) => {
   } = processComponent(css, content, name)
   /* jshint evil: true */
   let load = () => console.error('component', name, 'cannot load properly')
-  if (script && script.match(/require\s*\(/) && !script.match(/electron-require/)) {
+  // check for legacy components
+  if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
     console.error(`in component "${name}" replace require with await import()`)
     script = false
+  }
+  // deprecate access to data, which we look for in global declarations since lint will
+  // pick up undeclared or unused data declarations
+  if (script && script.match(/\/\*\s*global[^*]*\bdata\b/)) {
+    console.log('%c%s', 'background: #ffa; color: black;', `component "${name}" references data (deprecated); use get() instead`)
   }
   try {
     load = script
