@@ -217,8 +217,11 @@ The above is more of a "how to" than best practices. Take it with a grain of sal
 I think the jury is out on whether creating _complex views_ as web-components is a good
 idea. (Angular does this under the hood and it's torpid, but that might just be Angular.)
 So far, creating views with `b8r` components seems much simpler, quicker, and
-more flexible. This may change over time as more people use web-components and the
-rough edges are smoothed.
+more flexible. `b8r` components themselves are implemented as instances of the 
+`<b8r-component>` custom element. That said, creating complex views using
+precompilers (e.g. [TypeScript with .jsx support](https://www.typescriptlang.org/docs/handbook/jsx.html))
+the way Google's [litElement](https://lit-element.polymer-project.org/)
+does may potentially make web-components easier to write.
 
 Creating components with minimal styling and no shadowDOM is another possibility.
 Instead of creating an internal style node, they could simply insert a singleton
@@ -233,6 +236,14 @@ reference purposes.
 
 - [Custom Elements Best Practices](https://developers.google.com/web/fundamentals/web-components/best-practices)
 - [Web Components Best Practices](https://www.webcomponents.org/community/articles/web-components-best-practices)
+
+### Other Resources
+
+- [Polymer Project](https://www.polymer-project.org/), the source of 
+  [litElement](https://lit-element.polymer-project.org/) et al
+- [webcomponents.org](https://www.webcomponents.org/libraries) strives to be a portal to
+  the world of custom-elements, but so far is not inspiring.
+
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
