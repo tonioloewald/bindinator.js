@@ -1,9 +1,9 @@
 # Angular vs. b8r
 
 A lot of the coders I've shown `b8r` to say something like "it looks a
-lot like Angular" (which I think they often mean as an insult). While `b8r`
-may bear some superficial similarity to `Angular` in that it uses HTML
-"properties" to bind your `model` to the DOM, that's both superficial, 
+lot like Angular" (which I think they often [intend as an insult](http://codeofrob.com/entries/you-have-ruined-javascript.html)).
+While `b8r` may bear some superficial similarity to `Angular` in that it uses HTML
+"properties" to bind your `model` to the DOM, that's almost entirely coincidental, 
 and where the similarity ends.
 
 ## Here's an overview of the differences:
