@@ -236,11 +236,9 @@ You can build a **To Do List** app like this:
 > as is the one below. So the two share data automatically. This is *not* an accident.
 > If you want a component to have its own unique data, you can bind to `_component_`.
 
-### Composing Components
+### Composing Components [data-children]
 
-You can create _composable_ components by using `data-children` inside a component. The element
-inside a component with the `data-children` attribute (if any) will receive the children
-of the element bound to the component.
+You can create _composable_ components by using `data-children` inside a component. Within a component, the element with the `data-children` attribute (if any) will receive the children of the element bound to the component.
 
 E.g. in the snippet below:
 
