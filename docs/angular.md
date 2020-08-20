@@ -13,10 +13,10 @@ and where the similarity ends.
 | data binding     | [style.width.px]="publicProperty" | data-bind="style(width)=${path.to.property}px"
 | two-way binding | [(publicProperty)]="publicProperty" | data-bind="value=path.to.property"
 | event binding    | (click)="publicMethod()"          | data-event="click:path.to.method"
-| array binding    | \*ngFor="let foo of foos"         | data-list="path.to.array"
-| efficient array binding | \*ngFor="let foo of foos; trackBy: getId"<br>You'll need to implement getId, much like generating a key in React | data-list="path.to.array:id"<br> if id is unique property of each element
+| array binding    | *ngFor="let foo of foos"         | data-list="path.to.array"
+| efficient array binding | *ngFor="let foo of foos; trackBy: getId"<br>You'll need to implement getId, much like generating a key in React | data-list="path.to.array:id"<br> if id is unique property of each element
 | array element binding | [something]="foo.prop"       | data-bind=".prop"
-| conditional element | \*ngIf="booleanVar == true"    | data-bind="show_if=path.to.booleanVar"
+| conditional element | *ngIf="booleanVar == true"    | data-bind="show_if=path.to.booleanVar"
 | component lifecycle | ngOnChanges, ngOnInit, ngDoCheck, ngAfterContentInit, ngAfterContentChecked, ngAfterViewInit, ngAfterViewChecked, ngOnDestroy | initialValue, load, destroy
 | intercept property changes | use a setter | use a setter
 | handle real-time data | use RxJs observeable and async pipe | use b8r.set() or b8r.touch()
