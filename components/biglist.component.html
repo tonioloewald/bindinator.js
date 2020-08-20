@@ -89,19 +89,19 @@ use [biggrid.js](./?source=biggrid-test.component.html) instead.
   TODO
   - handle items being added to the top/bottom of the list gracefully
 */
-/* global findOne, b8r, component, data, set, touch */
+/* global findOne, b8r, component, get, set, touch */
 'use strict'
 const viewport = findOne('.biglist-viewport')
 const scroller = findOne('.biglist-scroller')
 const visibleItemContainer = findOne('.biglist-visible-items')
 set({
-  pin: data.pin || component.getAttribute('pin') || 'top',
-  minRowHeight: data.minRowHeight || 35
+  pin: get().pin || component.getAttribute('pin') || 'top',
+  minRowHeight: get().minRowHeight || 35
 })
-if (!data.list) {
-  data.list = []
+if (!get().list) {
+  get().list = []
   for (var i = 0; i < 10000; i++) {
-    data.list.push({
+    get().list.push({
       caption: 'Item ' + i,
       fontSize: (Math.random() * 36 + 12) + 'px',
       color: '#eeeeee',
@@ -114,13 +114,13 @@ function clamp (x) {
   return x < 0 ? 0 : (x > 1 ? 1 : x)
 }
 function update (specifiedProgress) {
-  const rowsToShow = Math.min(data.list.length, Math.floor(viewport.offsetHeight / data.minRowHeight + 2))
-  const maxPosition = data.list.length - rowsToShow + 1
-  const scrollerHeight = data.list.length * data.minRowHeight
+  const rowsToShow = Math.min(get().list.length, Math.floor(viewport.offsetHeight / get().minRowHeight + 2))
+  const maxPosition = get().list.length - rowsToShow + 1
+  const scrollerHeight = get().list.length * get().minRowHeight
   const maxScroll = scrollerHeight - viewport.offsetHeight
   scroller.style.height = scrollerHeight + 'px'
   var t, position
-  if (rowsToShow >= data.list.length || rowsToShow === 0) {
+  if (rowsToShow >= get().list.length || rowsToShow === 0) {
     t = 0
     position = 0
     viewport.scrollTop = 0
@@ -131,7 +131,7 @@ function update (specifiedProgress) {
     t = clamp(viewport.scrollTop / maxScroll)
   }
   position = t * maxPosition
-  const firstVisibleItem = Math.max(Math.min(Math.floor(position), data.list.length - rowsToShow), 0)
+  const firstVisibleItem = Math.max(Math.min(Math.floor(position), get().list.length - rowsToShow), 0)
   set('position', position.toFixed(2))
   set('rowsToShow', rowsToShow)
   set('t', (t * 100).toFixed(2) + '%')
@@ -149,8 +149,8 @@ function update (specifiedProgress) {
   visibleItemContainer.style.top = offset + 'px'
 }
 function visible (list) {
-  return list.slice(data.firstVisibleItem, data.firstVisibleItem + data.rowsToShow)
+  return list.slice(get().firstVisibleItem, get().firstVisibleItem + get().rowsToShow)
 }
 set({ update, visible })
-update(data.pin === 'bottom' ? 1 : 0)
+update(get().pin === 'bottom' ? 1 : 0)
 </script>

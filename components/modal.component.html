@@ -81,22 +81,22 @@ Copyright ©2016-2017 Tonio Loewald
   </div>
 </div>
 <script>
-/* global data, findOne, component, b8r */
+/* global get, findOne, component, b8r */
 'use strict'
 const dialog = findOne('.modal-dialog')
-if (data.className) {
+if (get().className) {
   dialog.classList.remove('modal-dialog')
-  dialog.className += data.className
+  dialog.className += get().className
 }
-if (data.needsClose) {
+if (get().needsClose) {
   b8r.findOneWithin(dialog, 'button.dialog-cancel').classList.remove('hidden')
 }
-if (data.backdropColor) {
-  findOne('.modal-dialog-backdrop').style.backgroundColor = data.backdropColor
+if (get().backdropColor) {
+  findOne('.modal-dialog-backdrop').style.backgroundColor = get().backdropColor
 }
 dialog.focus()
-if (!data.buttons) {
-  data.buttons = [{
+if (!get().buttons) {
+  get().buttons = [{
     caption: 'Cancel',
     cancel: true
   },
@@ -105,14 +105,14 @@ if (!data.buttons) {
     default: true
   }]
 }
-data.cancel = () => b8r.trigger('click',
+get().cancel = () => b8r.trigger('click',
   findOne('[data-children] button.cancel') ||
     findOne('button.cancel') ||
     findOne('button.default'))
-data.default = () => b8r.trigger('click', findOne('button.default'))
-data.button = evt => {
-  if (data && data.callback) {
-    data.callback(evt, component, data)
+get().default = () => b8r.trigger('click', findOne('button.default'))
+get().button = evt => {
+  if (data && get().callback) {
+    get().callback(evt, component, data)
   }
   if (
     evt.target instanceof HTMLButtonElement && evt.target.matches('.default,.cancel,.close') ||
@@ -123,9 +123,9 @@ data.button = evt => {
     return true
   }
 }
-data.dismiss = (evt) => {
+get().dismiss = (evt) => {
   if (evt.target.classList.value.indexOf('modal-dialog-backdrop') >= 0) {
-    data.cancel()
+    get().cancel()
   }
   return true
 }
@@ -134,7 +134,7 @@ const startTime = new Date().getTime()
 // timeout to give the dialog a change to get in the DOM.
 const setFocus = () => {
   let defaultWidget
-  if (typeof data.text === 'string') {
+  if (typeof get().text === 'string') {
     defaultWidget = findOne('input')
   } else {
     defaultWidget = findOne('.default')

@@ -55,7 +55,7 @@ Tests a center scroller component with a bunch of things that can change size an
 </div>
 <script>
 'use strict';
-/* global b8r, data, get, set */
+/* global b8r, get, set */
   const {uuid} = await import('../source/uuid.js');
   b8r.component('center-scroller');
   const portraits = ['snail', 'robot', 'tentacle'];
@@ -66,7 +66,7 @@ Tests a center scroller component with a bunch of things that can change size an
       image_url: `test/portraits/${portraits[Math.floor(Math.random() * portraits.length)]}.png`,
     };
   };
-  if (!data.list) {
+  if (!get().list) {
     const size = Math.floor(Math.random() * 20 + 5);
     const list = [];
     for(let i = 0; i < size; i++) {

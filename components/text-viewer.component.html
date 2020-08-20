@@ -5,6 +5,6 @@ Shows text loaded from the provided url.
 -->
 <div style="font-family: Menlo, Monaco, monospace;"></div>
 <script>
-  /* global b8r, data, findOne */
-  b8r.ajax(data.url).then(content => findOne('pre').textContent = content)
+  /* global b8r, get, findOne */
+  b8r.ajax(get().url).then(content => findOne('pre').textContent = content)
 </script>

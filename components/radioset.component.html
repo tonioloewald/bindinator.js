@@ -22,7 +22,7 @@ This component attempts to deal with the annoyances for you.
   <span data-bind="text=.text"></span>
 </label>
 <script>
-/* global data, find, get, set, on */
+/* global find, get, set, on */
 'use strict'
 const example = {
   value: '2',
@@ -32,8 +32,8 @@ const example = {
     { text: 'third', value: 3 }
   ]
 }
-if (!data.name) {
-  data.name = 'test'
+if (!get().name) {
+  get().name = 'test'
 }
 const update = () => {
   find('input').forEach(radio => {
@@ -44,7 +44,7 @@ const update = () => {
 }
 set({ update })
 on('change', '_component_.update')
-if (!data.options) {
-  Object.assign(data, example)
+if (!get().options) {
+  Object.assign(get(), example)
 }
 </script>

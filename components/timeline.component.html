@@ -29,10 +29,14 @@ The component is driven by properties:
   ._component_ .year > tspan {
     font-size: 24px;
   }
+
+  ._component_ text {
+    font-family: Helvetica, Arial, Sans-serif;
+  }
 </style>
 <svg width="100%" viewBox="0 -128 1300 768" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <g class="timeline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-    <text class="Heading" text-anchor="middle" font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="48" font-weight="bold" fill="var(--text-color)">
+    <text class="Heading" text-anchor="middle" font-size="48" font-weight="bold" fill="var(--text-color)">
         <tspan x="600" y="-64" data-bind="text=_component_.heading"></tspan>
     </text>
     <g transform="translate(10.000000, 244.000000)" data-bind="attr(fill)=_component_.defaultColor">
@@ -48,26 +52,26 @@ The component is driven by properties:
       <g transform="translate(108.398755, 280.398755) rotate(-315.000000) translate(-108.398755, -280.398755) translate(-4.101245, 259.398755)" data-bind="show_if=.below;attr(fill)=.color">
         <rect class="Rectangle-2"  transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
         <rect class="Rectangle-3" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
-        <text class="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="var(--text-color)">
+        <text class="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-size="24" font-weight="400" fill="var(--text-color)">
           <tspan x="132" y="24" data-bind="text=.title">Heading</tspan>
         </text>
-        <text class="year" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="var(--text-color)">
+        <text class="year" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-size="24" font-weight="bold" fill="var(--text-color)">
           <tspan x="62.312" y="24" data-bind="text=.time">2004</tspan>
         </text>
-        <text class="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="var(--text-color)">
+        <text class="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-size="12" font-weight="300" fill="var(--text-color)">
           <tspan x="133" y="39" data-bind="text=.info">Info</tspan>
         </text>
       </g>
       <g transform="translate(114.398755, 94.398755) rotate(-45.000000) translate(-114.398755, -94.398755) translate(1.898755, 73.398755)" data-bind="hide_if=.below;attr(fill)=.color">
         <rect class="Rectangle-2" transform="translate(26.297944, 16.251263) rotate(-360.000000) translate(-26.297944, -16.251263) " x="0.297943853" y="12.2512627" width="52" height="8"></rect>
         <rect class="Rectangle-3" transform="translate(88.000000, 16.000000) rotate(-360.000000) translate(-88.000000, -16.000000) " x="52" y="0" width="72" height="32" rx="4"></rect>
-        <text class="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="24" font-weight="400" fill="var(--text-color)">
+        <text class="Heading" transform="translate(178.500000, 15.000000) rotate(-360.000000) translate(-178.500000, -15.000000) " font-size="24" font-weight="400" fill="var(--text-color)">
           <tspan x="132" y="24" data-bind="text=.title">Heading</tspan>
         </text>
-        <text class="year" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-family="HelveticaNeue-Bold, Helvetica Neue" font-size="24" font-weight="bold" fill="var(--text-color)">
+        <text class="year" transform="translate(89.000000, 15.000000) rotate(-360.000000) translate(-89.000000, -15.000000) " font-size="24" font-weight="bold" fill="var(--text-color)">
           <tspan x="62.312" y="24" data-bind="text=.time">2004</tspan>
         </text>
-        <text class="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-family="HelveticaNeue-Light, Helvetica Neue" font-size="12" font-weight="300" fill="var(--text-color)">
+        <text class="Info" transform="translate(142.500000, 34.500000) rotate(-360.000000) translate(-142.500000, -34.500000) " font-size="12" font-weight="300" fill="var(--text-color)">
           <tspan x="133" y="39" data-bind="text=.info">Info</tspan>
         </text>
       </g>
@@ -79,8 +83,8 @@ The component is driven by properties:
   </g>
 </svg>
 <script>
-  /* global data, get, set */
-  if (!data.history) {
+  /* global get, set */
+  if (!get().history) {
     set('heading', 'Quantum Computing vs HTML Centering')
     set('history', [
       { time: 1980, below: false, color: 'orange', title: 'Proposal', info: 'Yuri Manin Proposes Quantum Computing' },
@@ -103,10 +107,10 @@ The component is driven by properties:
       { time: 2015, below: true, color: 'crimson', title: 'justify-content: middle', info: 'CSS 4, Flexbox' }
     ])
   }
-  if (!data.defaultColor) {
+  if (!get().defaultColor) {
     set('defaultColor', 'var(--accent-color)')
   }
-  const history = get('history')
+  const history = get().history
   history.sort((a, b) => a.time - b.time)
   const start = history[0].time
   const finish = history[history.length - 1].time

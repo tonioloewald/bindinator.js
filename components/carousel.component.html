@@ -93,7 +93,7 @@ Copyright ©2016-2017 Tonio Loewald
   </div>
 </div>
 <script>
-/* global b8r, findOne, find, component, set, data */
+/* global b8r, findOne, find, component, get, set */
 'use strict'
 let position = -1
 const max_rotation = parseFloat(component.dataset.carouselRotation || 0)
@@ -159,7 +159,7 @@ function setItemPosition (element, offset) {
 const child_selector = component.getAttribute('child-selector') || '.carousel > div'
 const items = () => find(child_selector).filter(elt => !elt.matches('[data-list]'))
 const carousel = findOne('.carousel')
-const { componentId } = data
+const { componentId } = get()
 const clamp = (x, min, max) => x < min ? min : (x > max ? max : x)
 function updateItems () {
   const item_list = items()
