@@ -214,9 +214,10 @@ as  `b8r` and the output element as `example`.
 </div>
 <b8r-component path="./components/resizer"></b8r-component>
 <script>
-/* global findOne, set, b8r, on, data, component, register, ace */
+/* global findOne, get, set, b8r, on, component, register, ace */
 /* jshint latedef:false */
 
+  const {source, mode} = get();
   const {vfs} = await import('../vfs.js');
   const {relayTo} = await import('../lib/resize.js');
   await vfs;
@@ -244,8 +245,8 @@ as  `b8r` and the output element as `example`.
     ace.config.set('basePath', '../third-party/ace-src-min-noconflict/');
     editor.setTheme('ace/theme/monokai');
   };
-  if(data.source) {
-    code_elt.textContent = data.source;
+  if(source) {
+    code_elt.textContent = source;
     init_editor();
     setTimeout(run);
   } else if (code_elt.textContent.trim()) {
@@ -333,7 +334,7 @@ as  `b8r` and the output element as `example`.
       run();
     },
     resize: () => editor && editor.resize(true),
-    mode: component.dataset.mode || data.mode || 'all',
+    mode: component.dataset.mode || mode || 'all',
     title: 'inline',
   });
 

@@ -17,11 +17,11 @@ implement a more sophisticated approach
 </style>
 <div></div>
 <script>
-/* global data, b8r, findOne */
+/* global get, b8r, findOne */
 'use strict'
-const { url } = data
+const { url, file_type } = get()
 const container = findOne('div')
-switch (data.file_type || (data.url.match(/\.(\w+|component\.html)$/) || [])[1]) {
+switch (file_type || (url.match(/\.(\w+|component\.html)$/) || [])[1]) {
   case 'md':
   case 'markdown':
     b8r.component('markdown-viewer').then(viewer => {

@@ -10,14 +10,15 @@
   </pre>
 </details>
 <script>
-/* global findOne, b8r, data */
+/* global findOne, b8r, get */
+  const {source, url} = get();
   const codeElt = findOne('code');
   const {code} = await import('../lib/text-render.js');
-  if(data.source) {
-    code(codeElt, data.source.split('\n').filter(s => s.trim()).join('\n'), 'js');
-  } else if (data.url) {
+  if(source) {
+    code(codeElt, source.split('\n').filter(s => s.trim()).join('\n'), 'js');
+  } else if (url) {
     b8r.component('loading').
-    then(() => b8r.ajax(data.url)).
-    then(source => code(codeElt, source, 'js'));
+    then(() => b8r.ajax(url)).
+    then(loadedSource => code(codeElt, loadedSource, 'js'));
   }
 </script>

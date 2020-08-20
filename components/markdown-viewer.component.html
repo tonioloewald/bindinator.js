@@ -1,14 +1,15 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
   <div data-component="loading"></div>
 <script>
-/*global component, data, b8r */
+/*global component, get, b8r */
+  const {content, url} = get();
   const {md} = await import('../lib/text-render.js');
   const loading = await b8r.component('loading');
   await b8r.component('fiddle');
-  if (data.content) {
-    md(component, data.content, {renderTables: true});
-  } else if (data.url) {
-    const content = await b8r.ajax(data.url);
+  if (content) {
+    md(component, content, {renderTables: true});
+  } else if (url) {
+    const content = await b8r.ajax(url);
     md(component, content, {renderTables: true});
   }
 </script>

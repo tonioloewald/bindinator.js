@@ -25,12 +25,13 @@
   <div data-component="loading"></div>
 </div>
 <script>
-  /* global b8r, set, data, console, findOne */
+  /* global b8r, get, set, console, findOne */
   const loading = b8r.component('loading');
   b8r.component('js-viewer');
   b8r.component('markdown-viewer');
   b8r.component('fiddle');
   b8r.component('test');
+  const {url, source} = get();
   function process(complete_source) {
     b8r.hide(findOne('.literate-errors'));
     try {
@@ -86,15 +87,15 @@
       });
       set({parts});
     } catch(e) {
-      console.error(data.url, `threw error when processed: ${e}`);
+      console.error(url, `threw error when processed: ${e}`);
     }
   }
-  if(data.source) {
-    process(data.source);
-  } else if (data.url) {
+  if(source) {
+    process(source);
+  } else if (url) {
     loading.
-    then(() => b8r.ajax(data.url)).
-    then(source => process(source));
+      then(() => b8r.ajax(url)).
+      then(source => process(source));
   }
   set({show_error: () => b8r.findOne('.test-transcript .failure').scrollIntoViewIfNeeded()});
 </script>

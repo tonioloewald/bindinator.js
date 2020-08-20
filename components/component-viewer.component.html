@@ -10,7 +10,7 @@
   </pre>
 </div>
 <script>
-/* global b8r, data, findOne */
+/* global b8r, get, findOne */
   const {md} = await import('../lib/text-render.js');
   const {domInterval} = await import('../lib/dom-timers.js');
   const {viaTag} = await import('../lib/scripts.js');
@@ -20,7 +20,7 @@
   const example = findOne('.example');
   const pre = findOne('pre');
   b8r.component('./path-browser');
-  b8r.component(data.url, undefined, true).
+  b8r.component(get().url, undefined, true).
   then(c => {
     b8r.insertComponent(c, example).then(() => {
       b8r.addDataBinding(pre, 'json', example.dataset.componentId);
@@ -30,7 +30,7 @@
     if (c._source.indexOf('<!--') === 0) {
       [docs_md, source] = c._source.substr(4).split('-->');
     } else {
-      docs_md = `# ${data.url}`;
+      docs_md = `# ${get().url}`;
       source = c._source;
     }
     if(docs_md) {

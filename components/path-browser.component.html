@@ -38,7 +38,8 @@ A tool for browsing objects.
   </li>
 </ul>
 <script>
-/* global component, b8r, get, set, data, touch */
+/* global component, b8r, get, set, touch */
+  const {value} = get();
   const {uuid} = await import('../source/uuid.js');
   const {describe} = await import('../source/describe.js');
   const reset = path => {
@@ -49,7 +50,7 @@ A tool for browsing objects.
     });
   };
   reset();
-  if (component.matches('.example') && !data.value) {
+  if (component.matches('.example') && !value) {
     b8r.register('object-browser-test', {
       foo: 17,
       bar: 'hello world',
