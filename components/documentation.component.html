@@ -92,6 +92,16 @@
     border-radius: 0;
   }
 
+  ._component_ > .nav summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--faded-text-color);
+    text-transform: uppercase;
+    font-size: 12px;
+    padding: 6px 0;
+    margin: 2px -5px -6px 0;
+  }
+
   ._component_ > .content summary {
     margin: 0 -5px;
     padding: 6px 12px;
@@ -100,17 +110,8 @@
     cursor: pointer;
   }
 
-  ._component_ > .nav summary {
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--faded-text-color);
-    text-transform: uppercase;
-    font-size: 12px;
-    margin: 8px 0 0 0;
-  }
-
   ._component_ > .nav details[open] summary {
-    margin: 8px -5px 5px 0;
+    margin: 2px -5px -1px 0;
   }
 
   ._component_ > .nav details[open] summary ~ * {
@@ -190,6 +191,11 @@
   }
 
   .loadable:hover {
+    background-color: var(--white-25);
+  }
+
+  .loadable:focus,
+  summary:focus {
     background-color: var(--white-25);
   }
 
@@ -339,7 +345,7 @@
     data-bind="hide_if=._hide;prop(open)=._open"
     data-event="click:_component_.toggle"
   >
-    <summary data-bind="text=.title;class(hasErrors)=.hasErrors">Title</summary>
+    <summary data-bind="text=.title;class(hasErrors)=.hasErrors" tabindex="0">Title</summary>
     <div
       class="loadable"
       data-list=".parts"
