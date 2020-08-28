@@ -174,6 +174,14 @@ Test(() => matchType([1], []))
   .shouldBeJSON([])
 Test(() => matchType([], [1]))
   .shouldBeJSON([])
+Test(() => matchType([], []))
+  .shouldBeJSON([])
+Test(() => matchType([], {}))
+  .shouldBeJSON(["was object, expected array"])
+Test(() => matchType({}, {}))
+  .shouldBeJSON([])
+Test(() => matchType({}, []))
+  .shouldBeJSON(["was array, expected object"])
 Test(() => matchType(['hello'], ['world']))
   .shouldBeJSON([])
 Test(() => matchType([false], ['world']))
@@ -224,6 +232,26 @@ Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].baz'))
 Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
   .shouldBe(undefined)
 ~~~~
+
+## Notes on Performance
+
+I've done some rough performance testing of `typeSafe` and added a simple
+optimization. The test code simply performed an add operation 1,000,000
+times inline, wrapped in a function, wrapped in a trivial wrapper function, and
+using a `typeSafe` function.
+
+In essence, the cost per trial (on my recent, pretty fast, Windows laptop)
+is about 400ms/million calls checked by typeSafe. I added an optimization
+to bypass type checking after the first 100 calls, except for every 997th
+call thereafter. The overhead for just using a function is insignificant,
+while the cost of using a wrapped function is ~5ms/million calls.
+
+With the optimization, the overhead drops to 20ms/million calls.
+
+Note that many frameworks end up wrapping all your functions several times
+for various reasons, doing non-trivial work in the wrapper. And if even _this_
+much of an overhead is abhorrent, simply don't use typeSafe in performance
+critical situations, or call it outside a loop rather than inside.
 */
 
 export const describe = x => {
@@ -305,6 +333,10 @@ export const specificTypeMatch = (type, subject) => {
       }
     case 'regexp':
       return subjectType === 'string' && regexpTest(spec, subject)
+    case 'array':
+      return Array.isArray(subject)
+    case 'object':
+      return !!object && typeof subject === 'object' && !Array.isArray(subject)
     default:
       if (subjectType !== baseType) {
         throw new Error(`unrecognized type specifier ${type}`)
@@ -333,7 +365,7 @@ export const describeType = (x) => {
 export const typeJSON = (x) => JSON.stringify(describeType(x))
 export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
 
-const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : x
+const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : (typeof x === 'object' ? describe(x) : x)
 
 // when checking large arrays, only check a maximum of 111 elements
 function * arraySampler (a) {
@@ -555,7 +587,14 @@ export const matchParamTypes = (types, params) => {
 
 const _typeSafe = (func, paramTypes, resultType, functionName) => {
   if (!functionName) functionName = func.name || 'anonymous'
+  let callCount = 0
   const typeSafeFunc = function (...params) {
+    callCount += 1
+    // bypass typecheck after first 100 calls except for every 997th call
+    // 997 is the largest prime number < 1000
+    if (callCount > 100 && callCount % 997) {
+      return func(...params)
+    }
     const paramErrors = matchParamTypes(paramTypes, params)
     // short circuit failures
     if (paramErrors instanceof TypeError) return paramErrors
@@ -590,4 +629,4 @@ const _typeSafe = (func, paramTypes, resultType, functionName) => {
   return typeSafeFunc
 }
 
-export const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function')
+export const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any', '#?string'], '#function')
