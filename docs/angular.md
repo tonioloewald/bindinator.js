@@ -21,14 +21,14 @@ and where the similarity ends.
 | intercept property changes | use a setter | use a setter
 | handle real-time data | use RxJs observeable and async pipe | use b8r.set() or b8r.touch()
 | subscribe to property changes | use a setter | b8r.observe('path.to.observed', 'path.to.callback')
-| what does conditional `&lt;div>...&lt;/div>` look like, if condition not met? | `&lt;!-- commment -->` | `&lt;div style="display: none"></div>`
+| what does conditional `&lt;div>...&lt;/div>` look like, if condition not met? | `&lt;!-- -->` | `&lt;div style="display: none">...&lt;/div>`
 | reference child element within component | @ViewChild('foo')<br>foo: ElementRef;<br>// available after view initialized | findOne('.foo')
-| access DOM | this.elementRef.nativeElement // discouraged | it's just javascript
+| access DOM | this.elementRef.nativeElement // discouraged | findOne('.foo') is an HTMLElement
 | change detection | default is horribly slow so use ChangeDetectionStrategy.onPush and mark properties as @Input() | use b8r.set() or b8r.touch()
 | detect changes outside Angular | need reference to NgZone and then perform changes inside ngZone.runOutsideAngular()<br>If this doesn't work, call this.changeDetector.detectChanges() in the affected component(s) | use b8r.set() or b8r.touch()
 | detect change within object property | replace the object with a shallow clone | use b8r.set() or b8r.touch()
 | language | TypeScript | Javascript
-| DSLs | templating language<br>"structural directives" \*ngFor, \*ngIf etc. each have a "micro syntax" and themselves form an extensible micro-syntax that has control and loop structures | data-bind, data-list, and data-event each have a very simple syntax
+| DSLs | templating language<br>"structural directives": &ast;ngFor, &ast;ngIf, etc. each have a "micro syntax" and themselves form an extensible micro-syntax that has control and loop structures; an uncharitable person might suggest it's a bit like .jsp | data-bind, data-list, and data-event each have a very simple syntax
 | requires build/compile/transpile | yes | no
 | supports deep obfuscation | yes | no
 | components use shadow DOM | yes (by default) | no
@@ -318,14 +318,14 @@ syntax (`@Component`, `@Input`) in your source files.
 A major practical difference between Angular and `b8r` is that the
 latter is *not* designed to live inside and rely on a complex build system 
 which compiles your "HTML" into Javascript which can then be obfuscated.
-If you want to obfuscate your code, `b8r` is going to be a problem.
+So, if you want to obfuscate your code, `b8r` is going to be a problem.
 
 This runs deep. Google's entire stack (of which Angular is
 a piece) supports obfuscation from end-to-end (e.g. protobuf code 
 compiles query requests and responses down to arrays with no labels, 
 unlike GraphQL which uses plaintext labels for queries and returns 
 vanilla JSON). This saves bandwidth (and gives you a little
-"security by obscurity"), although gzip eliminates the bandwidth
+"security by obscurity"), although gzip more-or-less eliminates the bandwidth
 difference.
 
 `b8r` simply won't obfuscate the DOM or your data structures (the
@@ -338,7 +338,7 @@ for the performance win, and obfuscation (including minification)
 will give you little or no advantage for gzipped code (and `b8r` 
 code will typically be far smaller than Angular because of all
 the glue and dom-rendering code you don't end up writing, compiling,
-and packaging. Also, `b8r` supports non-blocking, lazy-loading all 
+and packaging). Also, `b8r` supports non-blocking, lazy-loading all 
 the way down so even if it weren't smaller and faster you wouldn't
 care so much.)
 
