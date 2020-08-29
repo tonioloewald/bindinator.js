@@ -240,18 +240,20 @@ optimization. The test code simply performed an add operation 1,000,000
 times inline, wrapped in a function, wrapped in a trivial wrapper function, and
 using a `typeSafe` function.
 
-In essence, the cost per trial (on my recent, pretty fast, Windows laptop)
-is about 400ms/million calls checked by typeSafe. I added an optimization
-to bypass type checking after the first 100 calls, except for every 997th
-call thereafter. The overhead for just using a function is insignificant,
-while the cost of using a wrapped function is ~5ms/million calls.
-
-With the optimization, the overhead drops to 20ms/million calls.
+In essence, the overhead for typeSafe functions (on my recent, pretty fast, 
+Windows laptop) is about 350ms/million calls checked by typeSafe.
 
 Note that many frameworks end up wrapping all your functions several times
-for various reasons, doing non-trivial work in the wrapper. And if even _this_
-much of an overhead is abhorrent, simply don't use typeSafe in performance
-critical situations, or call it outside a loop rather than inside.
+for various reasons, doing non-trivial work in the wrapper. In any event,
+if even _this_ much of an overhead is abhorrent, simply don't use typeSafe 
+in performance critical situations, or call it outside a loop rather than inside.
+
+(E.g. if you're iterating across a lot of data in an array, typecheck a function
+that takes the array, not a function that processes all the elements -- matchType
+does not check every element of a large array.)
+
+The obvious place to use typeSafe functions is when communicating with services,
+and here any overhead is insignificant compared with network or I/O.
 */
 
 export const describe = x => {
@@ -336,7 +338,7 @@ export const specificTypeMatch = (type, subject) => {
     case 'array':
       return Array.isArray(subject)
     case 'object':
-      return !!object && typeof subject === 'object' && !Array.isArray(subject)
+      return !!subject && typeof subject === 'object' && !Array.isArray(subject)
     default:
       if (subjectType !== baseType) {
         throw new Error(`unrecognized type specifier ${type}`)
@@ -571,6 +573,7 @@ const assignReadOnly = (obj, propMap) => {
       }
     })
   }
+  return obj
 }
 
 export const matchParamTypes = (types, params) => {
@@ -585,16 +588,11 @@ export const matchParamTypes = (types, params) => {
 
 // TODO async function support
 
-const _typeSafe = (func, paramTypes, resultType, functionName) => {
+const _typeSafe = (func, paramTypes = [], resultType = undefined, functionName = undefined) => {
   if (!functionName) functionName = func.name || 'anonymous'
   let callCount = 0
-  const typeSafeFunc = function (...params) {
+  return assignReadOnly(function (...params) {
     callCount += 1
-    // bypass typecheck after first 100 calls except for every 997th call
-    // 997 is the largest prime number < 1000
-    if (callCount > 100 && callCount % 997) {
-      return func(...params)
-    }
     const paramErrors = matchParamTypes(paramTypes, params)
     // short circuit failures
     if (paramErrors instanceof TypeError) return paramErrors
@@ -621,12 +619,11 @@ const _typeSafe = (func, paramTypes, resultType, functionName) => {
       found: params,
       errors: paramErrors
     })
-  }
-  assignReadOnly(typeSafeFunc, {
+  }, {
     paramTypes,
-    resultType
+    resultType,
+    getCallCount: () => callCount,
   })
-  return typeSafeFunc
 }
 
-export const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any', '#?string'], '#function')
+export const typeSafe = _typeSafe(_typeSafe, ['#function', '#?array', '#?any', '#?string'], '#function')

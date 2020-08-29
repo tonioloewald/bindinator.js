@@ -217,7 +217,7 @@ The above is more of a "how to" than best practices. Take it with a grain of sal
 I think the jury is out on whether creating _complex views_ as web-components is a good
 idea. (Angular does this under the hood and it's torpid, but that might just be Angular.)
 So far, creating views with `b8r` components seems much simpler, quicker, and
-more flexible. `b8r` components themselves are implemented as instances of the 
+more flexible. `b8r` components themselves are implemented as instances of the
 `<b8r-component>` custom element. That said, creating complex views using
 precompilers (e.g. [TypeScript with .jsx support](https://www.typescriptlang.org/docs/handbook/jsx.html))
 the way Google's [litElement](https://lit-element.polymer-project.org/)
@@ -239,7 +239,7 @@ reference purposes.
 
 ### Other Resources
 
-- [Polymer Project](https://www.polymer-project.org/), the source of 
+- [Polymer Project](https://www.polymer-project.org/), the source of
   [litElement](https://lit-element.polymer-project.org/) et al
 - [webcomponents.org](https://www.webcomponents.org/libraries) strives to be a portal to
   the world of custom-elements, but so far is not inspiring.
