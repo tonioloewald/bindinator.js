@@ -20,15 +20,33 @@ It's an "old school" Javascript library that expects to be included via a script
   const engine = new BABYLON.Engine(canvas, true);
   const createScene = function () {
     const scene = new BABYLON.Scene(engine);
-    //Adding a light
-    const light = new BABYLON.HemisphericLight();
+    const hemi = new BABYLON.HemisphericLight();
+    hemi.intensity = 0.25;
+    hemi.diffuse = hemi.specular = new BABYLON.Color3(0.3, 0.3, 1);
+    const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(0.5, -0.5, -1), scene);
+    const shadowGenerator = new BABYLON.ShadowGenerator(1024, sun);
+    shadowGenerator.bias = 0.001;
+    shadowGenerator.normalBias = 0.02;
+    sun.shadowMaxZ = 5;
+    sun.shadowMinZ = 0.1;
+    shadowGenerator.useContactHardeningShadow = true;
+    shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;
+    shadowGenerator.setDarkness(0.25);
+
     //Adding an Arc Rotate Camera
     const camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, false);
-    BABYLON.Mesh.CreateGround("ground1", 0, 0, 0, scene);
+    const ground = BABYLON.Mesh.CreateGround("ground", 0, 0, 0, scene);
+    const groundMaterial = new BABYLON.StandardMaterial("ground", scene);	
+    groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    ground.material = groundMaterial;
+    ground.receiveShadows = true;
     // The first parameter can be used to specify which mesh to import. Here we import all meshes
     BABYLON.SceneLoader.Append("./test/", "omnidude.glb", scene, function (newMeshes) {
       scene.activeCamera = null;
+      for(const mesh of newMeshes.meshes) {
+        shadowGenerator.addShadowCaster(mesh);
+      }
       scene.createDefaultCameraOrLight(true);
       scene.activeCamera.attachControl(canvas, false);
     });
