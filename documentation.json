@@ -482,6 +482,10 @@
       {
         "name": "Web Component Test",
         "path": "web-components/web-component-test.js"
+      },
+      {
+        "name": "Code Editor",
+        "path": "web-components/code-editor.js"
       }
     ]
   },
@@ -622,6 +626,10 @@
       {
         "name": "Custom Components",
         "path": "web-components.component.html"
+      },
+      {
+        "name": "Scriplet Editor",
+        "path": "components/scriptlet-editor.component.js"
       }
     ]
   },
