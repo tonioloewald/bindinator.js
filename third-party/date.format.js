@@ -14,7 +14,10 @@
  * The mask defaults to dateFormat.masks.default.
  */
 
-var dateFormat = (function () {
+// modified to ES6 module form by sticking it against a board and banging nails through it
+// Tonio Loewald 2020
+
+export const dateFormat = (function () {
   var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g
 
   var timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g
