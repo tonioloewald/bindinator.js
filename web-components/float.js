@@ -64,6 +64,7 @@ webComponentTest(Test, '../web-components/float.js', 'b8r-float')
 
 import { makeWebComponent, slot } from '../source/web-components.js'
 import { listenForDragStart, trackDrag, moveEventDiv } from '../lib/track-drag.js'
+import { findHighestZ } from '../source/b8r.dom.js'
 
 const Float = makeWebComponent('b8r-float', {
   style: {
@@ -80,17 +81,13 @@ const Float = makeWebComponent('b8r-float', {
   eventHandlers: {
     mousedown (evt) {
       const target = evt.target.closest('b8r-float')
-
-      // move clicked floater on top of all its siblings
-      const topMost = [...document.querySelectorAll('b8r-float')]
-        .map(elt => parseInt(getComputedStyle(elt).zIndex, 10))
-        .reduce((zIndex, max) => zIndex > max ? zIndex : max, 0)
-      target.style.zIndex = topMost + 1
+      target.style.zIndex = findHighestZ() + 1
     }
   },
   methods: {
     connectedCallback () {
       const float = this
+      float.style.zIndex = findHighestZ() + 1
       listenForDragStart(float, (evt) => {
         const rect = float.getBoundingClientRect()
         const left = rect.x
