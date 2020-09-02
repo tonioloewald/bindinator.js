@@ -90,7 +90,14 @@ number.
 
 You can specify any (non-null, non-undefined) value via '#any'.
 
-### Optional Types
+### #instance — built-in types
+
+You can specify a built-in type, e.g. `HTMLElement` value via '#instance ConstructorName', in
+this example '#instance HTMLElement'.
+
+    matchType('#instance HTMLElement', document.body) // returns [] (no errors)
+
+### #?... — optional types
 
 You can denote an optional type using '#?<type>'. Both `null` and `undefined` are acceptable.
 
@@ -99,10 +106,13 @@ You can denote an optional type using '#?<type>'. Both `null` and `undefined` ar
 > This mechanism will likely add new types as the need arises, and similarly may afford a
 > convenient mechanism for defining custom types that require test functions to verify.
 
-### #regexp
+### #regexp — string tests
 
 You can specify a regular expression test for a string value by providing the string you'd use
-to create a `RegExp` instance. E.g. '#regexp \\d+{5,5}' for a simple zipcode type.
+to create a `RegExp` instance. E.g. '#regexp ^\\d{5,5}$' for a simple zipcode type.
+
+    matchType('#regexp ^\\d{5,5}$', '90210') // returns [] (no errors)
+    matchType('#regexp ^\\d{5,5}$', '2350') // returns ["was "2350", expected #regexp \d{5,5}"]
 
 ## `describe`
 
@@ -196,6 +206,10 @@ Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: 'baz'}]))
   .shouldBeJSON([])
 Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: false}]))
   .shouldBeJSON(["[0] had no matching type"])
+Test(() => matchType('#instance HTMLElement', document.body))
+  .shouldBeJSON([])
+Test(() => matchType('#instance HTMLElement', {}))
+  .shouldBeJSON(["was object, expected #instance HTMLElement"])
 
 const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
 Test(() => matchType(requestType, 'post'))
@@ -337,6 +351,8 @@ export const specificTypeMatch = (type, subject) => {
       return subjectType === 'string' && regexpTest(spec, subject)
     case 'array':
       return Array.isArray(subject)
+    case 'instance':
+      return subject instanceof window[spec]
     case 'object':
       return !!subject && typeof subject === 'object' && !Array.isArray(subject)
     default:
