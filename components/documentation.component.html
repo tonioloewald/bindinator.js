@@ -277,11 +277,10 @@
 
   .in-page-nav > .h3 {
     margin-left: 10px;
-    font-style: italic;
   }
 
   .in-page-nav > .example {
-    margin-left: 10px;
+    margin-left: 20px;
     font-family: Monaco, monospace;
   }
 
@@ -481,7 +480,7 @@
           : element.textContent
         return {
           title,
-          className: element.tagName[0] === 'H' ? element.tagName.toLowerCase : 'example',
+          className: element.tagName[0] === 'H' ? element.tagName.toLowerCase() : 'example',
           element,
         }
       })
