@@ -25,35 +25,35 @@ webComponentTest(Test, '../web-components/code-editor.js', 'b8r-code-editor')
 
 import { makeWebComponent } from '../source/web-components.js'
 
-const make_code_editor = async (code_elt, mode = 'html') => {
-  const {viaTag} = await import('../lib/scripts.js')
-  const {ace} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.min.js')
+const makeCodeEditor = async (codeElement, mode = 'html') => {
+  const { viaTag } = await import('../lib/scripts.js')
+  const { ace } = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.min.js')
   ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/')
-  const editor = ace.edit(code_elt, {
+  const editor = ace.edit(codeElement, {
     mode: `ace/mode/${mode}`,
     tabSize: 2,
     useSoftTabs: true,
-    useWorker: false,
+    useWorker: false
   })
   editor.setTheme('ace/theme/monokai')
   return editor
 }
 
-export const codeEditor = makeWebComponent ('b8r-code-editor', {
+export const codeEditor = makeWebComponent('b8r-code-editor', {
   attributes: {
     value: '',
     mode: 'javascript',
-    pendingChange: 0,
+    pendingChange: 0
   },
   style: {
     ':host': {
       display: 'block',
-      position: 'relative',
-    },
+      position: 'relative'
+    }
   },
   eventHandlers: {
     input () {
-      if(this.pendingChange === 0) {
+      if (this.pendingChange === 0) {
         this.pendingChange = setTimeout(() => {
           this._editor.then(editor => {
             this.value = editor.getValue()
@@ -70,8 +70,8 @@ export const codeEditor = makeWebComponent ('b8r-code-editor', {
   },
   methods: {
     connectedCallback () {
-      this._editor = make_code_editor(this, this.mode)
-      if(!this.value) {
+      this._editor = makeCodeEditor(this, this.mode)
+      if (!this.value) {
         this.value = this.innerText
       }
     },
@@ -83,11 +83,11 @@ export const codeEditor = makeWebComponent ('b8r-code-editor', {
       // note that there is a race condition if the user types something and while
       // the change is pending the value of the element is set programmatically
       this._editor.then(editor => {
-        if(this.pendingChange === 0 && editor.getValue() !== this.value) {
+        if (this.pendingChange === 0 && editor.getValue() !== this.value) {
           editor.setValue(this.value, 1)
         }
       })
-    },
+    }
   },
   role: 'code editor'
 })

@@ -254,12 +254,12 @@ optimization. The test code simply performed an add operation 1,000,000
 times inline, wrapped in a function, wrapped in a trivial wrapper function, and
 using a `typeSafe` function.
 
-In essence, the overhead for typeSafe functions (on my recent, pretty fast, 
+In essence, the overhead for typeSafe functions (on my recent, pretty fast,
 Windows laptop) is about 350ms/million calls checked by typeSafe.
 
 Note that many frameworks end up wrapping all your functions several times
 for various reasons, doing non-trivial work in the wrapper. In any event,
-if even _this_ much of an overhead is abhorrent, simply don't use typeSafe 
+if even _this_ much of an overhead is abhorrent, simply don't use typeSafe
 in performance critical situations, or call it outside a loop rather than inside.
 
 (E.g. if you're iterating across a lot of data in an array, typecheck a function
@@ -638,7 +638,7 @@ const _typeSafe = (func, paramTypes = [], resultType = undefined, functionName =
   }, {
     paramTypes,
     resultType,
-    getCallCount: () => callCount,
+    getCallCount: () => callCount
   })
 }
 

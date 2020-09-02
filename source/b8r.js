@@ -379,8 +379,8 @@ function bind (element) {
     const existing = boundValues[path]
     if (_unequal(existing, value)) {
       if (typeof value === 'function') {
-        console.error(element, path, 'received value', value);
-        throw new Error(`path "${path}" from "${element.dataset.bind}" received "${value}"`);
+        console.error(element, path, 'received value', value)
+        throw new Error(`path "${path}" from "${element.dataset.bind}" received "${value}"`)
       }
       newValues[path] = value
       const _toTargets = targets.filter(t => toTargets[t.target])

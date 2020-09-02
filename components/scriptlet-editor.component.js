@@ -40,9 +40,9 @@ export default {
     </div>
     <b8r-code-editor data-bind="value=scriptlet.script"></b8r-code-editor>
   `,
-  async initialValue ({b8r, findOne}) {
-    await import('../web-components/code-editor.js');
-    await import('../web-components/drag-drop.js');
+  async initialValue ({ b8r, findOne }) {
+    await import('../web-components/code-editor.js')
+    await import('../web-components/drag-drop.js')
 
     findOne('b8r-dropzone').handleDrop = evt => {
       const text = evt.dataTransfer.getData('text/plain')
@@ -51,7 +51,7 @@ export default {
       }
       return true
     }
-    
+
     b8r.register('scriptlet', {
       name: 'scriptlet',
       script: 'alert("it works")',
@@ -60,5 +60,5 @@ export default {
       }
     })
     return {}
-  },
+  }
 }

@@ -60,7 +60,6 @@ const {webComponentTest} = await import('../web-components/web-component-test.js
 webComponentTest(Test, '../web-components/float.js', 'b8r-float')
 ~~~~
 */
-/* global getComputedStyle */
 
 import { makeWebComponent, slot } from '../source/web-components.js'
 import { listenForDragStart, trackDrag, moveEventDiv } from '../lib/track-drag.js'

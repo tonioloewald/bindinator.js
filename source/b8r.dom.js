@@ -380,6 +380,6 @@ export const cssVar = (element, name, value) => {
 */
 export const findHighestZ = (selector = 'body *') => [...document.querySelectorAll(selector)]
   .map(elt => parseFloat(getComputedStyle(elt).zIndex))
-  .reduce((z, highest=Number.MIN_SAFE_INTEGER) => 
+  .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
     isNaN(z) || z < highest ? highest : z
   )
