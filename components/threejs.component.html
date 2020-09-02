@@ -8,8 +8,9 @@ The test model was created using [Cheetah 3D](http://cheetah3d.com), and animate
 <script>
 /* global component, b8r, findOne, THREE */
 const {viaTag} = await import('../lib/scripts.js');
-const {THREE} = await viaTag('third-party/threejs/three.min.js');
-await viaTag('third-party/threejs/GLTFLoader.js');
+// not the latest versions, but can't find GLTFLoader that's compatible with r120 on a CDN
+const {THREE} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/three.js/92/three.min.js');
+await viaTag('https://cdn.jsdelivr.net/gh/mrdoob/three.js@r92/examples/js/loaders/GLTFLoader.js');
 const canvas = findOne('canvas');
 const walktree = (node, f) => {
   f(node);
