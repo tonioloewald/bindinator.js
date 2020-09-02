@@ -14,7 +14,7 @@
   const {md} = await import('../lib/text-render.js');
   const {domInterval} = await import('../lib/dom-timers.js');
   const {viaTag} = await import('../lib/scripts.js');
-  const {Prism} = await viaTag('third-party/prism.min.js');
+  const {Prism} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/prism.min.js');
   const code = findOne('code');
   const info = findOne('.info');
   const example = findOne('.example');
