@@ -7,7 +7,7 @@ Set the component's `data-src` to specify an animation
 <script>
 /* global set, component */
   const {viaTag} = await import('../lib/scripts.js');
-  const {bodymovin} = await viaTag('third-party/bodymovin.min.js');
+  const {bodymovin} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.3/lottie.min.js');
   const animation = bodymovin.loadAnimation({
       container: component,
       renderer: 'svg',
