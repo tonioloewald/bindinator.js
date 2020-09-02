@@ -208,7 +208,6 @@ as  `b8r` and the output element as `example`.
     data-bind="hide_if(example)=_component_.mode"
     data-event="
       keydown(Tab):_component_.indent
-      mouseenter:_component_.resize
     "
   ></div>
 </div>
@@ -218,12 +217,11 @@ as  `b8r` and the output element as `example`.
 /* jshint latedef:false */
 
   const {source, mode} = get();
-  const {vfs} = await import('../vfs.js');
+  await import('../vfs.js');
   const {relayTo} = await import('../lib/resize.js');
-  await vfs;
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
-  const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js');
+  const {ace} = await viaTag('../third-party/ace-src-min-noconflict/ace.js');
   const code_elt = findOne('.code');
   const container = findOne('.example');
   const vfsRoot = window.location.hostname === 'tonioloewald.github.io' ? 'bindinator.js/vfs' : 'vfs'
