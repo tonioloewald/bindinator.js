@@ -94,9 +94,11 @@ in the second example.
   const customDropZone = findOne('.custom-drop-handler');
   customDropZone.handleDrop = (evt) => {
     target = evt.target.closest('b8r-dropzone');
-    const html = evt.dataTransfer.getData('text/html') ||
-                 evt.dataTransfer.getData('text/plain');
+    const content = evt.dataTransfer.getData('text/html') ||
+                    evt.dataTransfer.getData('text/plain') ||
+                    evt.dataTransfer.getData('text/uri-list')
     const types = [...evt.dataTransfer.items].map(item => item.type).join();
+    console.log('drop handler received', content);
     target.innerHTML = `Custom drop handler received: <blockquote>${types}</blockquote>`;
     return true;
   };
