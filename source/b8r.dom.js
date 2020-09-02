@@ -374,3 +374,12 @@ export const cssVar = (element, name, value) => {
     element.style.setProperty(name, value)
   }
 }
+
+/**
+    findHighestZ(selector = 'body *') // returns highest z-index of elements matching selector
+*/
+export const findHighestZ = (selector = 'body *') => [...document.querySelectorAll(selector)]
+  .map(elt => parseFloat(getComputedStyle(elt).zIndex))
+  .reduce((z, highest=Number.MIN_SAFE_INTEGER) => 
+    isNaN(z) || z < highest ? highest : z
+  )
