@@ -628,8 +628,8 @@
         "path": "web-components.component.html"
       },
       {
-        "name": "Scriplet Editor",
-        "path": "components/scriptlet-editor.component.js"
+        "name": "Bookmarklet Editor",
+        "path": "components/bookmarklet-editor.component.js"
       }
     ]
   },
