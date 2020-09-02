@@ -30,8 +30,8 @@ import {Test} from '../lib/test.js'
 
 export const webComponentTest = (test, source, ...tags) => {
   import(source).then(() => {
+    const div = document.createElement('div')
     tags.forEach(tag => {
-      const div = document.createElement('div')
       div.innerHTML = `<${tag}></${tag}}`
       const elt = div.children[0]
       const _test = test(
