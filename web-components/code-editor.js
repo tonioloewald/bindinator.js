@@ -27,7 +27,7 @@ import { makeWebComponent } from '../source/web-components.js'
 
 const make_code_editor = async (code_elt, mode = 'html') => {
   const {viaTag} = await import('../lib/scripts.js')
-  const {ace} = await viaTag('../third-party/ace-src-min-noconflict/ace.js')
+  const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js')
   const editor = ace.edit(code_elt, {
     mode: `ace/mode/${mode}`,
     tabSize: 2,
