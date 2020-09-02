@@ -43,11 +43,16 @@ for comparison, or whatever).
   will map to the function. If the function takes a parameter, it will
   be treated as a computed setter as well. Unlike attributes, props don't
   appear in the DOM.
-- `methods` will become class methods, notably `render` and `childListChange`
+- `methods` will become class methods, notably `render`
   - `render` is where the widget gets expressed in the DOM, based on its state
-  - `childListChange` indicates that children of the (original) DOM node have changed
+    it will fire automatically when a value or attribute changes
 - `eventHandlers` will be bound to the DOM element (i.e. `this` will refer to the
   expected instance)
+  - the usual events work as expected (e.g. `click`, `mouseleave`)
+  - `onConnectedCallback` will be called by the parent class at the right time
+  - `childListChange` will be called when something inside the element is changed
+  - `resize` will be called when the element changes size (which is triggered by a
+    ResizeObserver) -- you may want to throttle your handler
 - `attributes` will be converted into object setters and getters.
   - the default value is assumed to be the correct type (if string or number);
     for any other type (e.g. null or an object) the value is preserved as an element
@@ -198,8 +203,6 @@ to `cloneNode(true)` something you want another copy of.
 
 ## TODO
 
-- Implement resize events (per [resize.js](./?source=./lib/resize.js) but _ideally_
-  first eliminate the `b8r` dependency so that web-components.js does not create a transitive dependency.)
 - Provide the option of inserting a stylesheet when the first component instance is inserted
   into the DOM (see below) as an alternative to using the shadow DOM or being unstyled.
 - Migrate all style customization in library components to css-variables with sane defaults.
@@ -262,6 +265,19 @@ const makeElement = (tagType, {
   classes.forEach((className) => elt.classList.add(className))
   return elt
 }
+
+const dispatch = (target, type) => {
+  const event = new Event(type)
+  target.dispatchEvent(event)
+}
+
+/* global ResizeObserver */
+const observer = new ResizeObserver(entries => {
+  for (const entry of entries) {
+    const element = entry.target
+    dispatch(element, 'resize')
+  }
+})
 
 const button = (settings = {}) => makeElement('button', settings)
 const div = (settings = {}) => makeElement('div', settings)
@@ -448,7 +464,14 @@ const makeWebComponent = (tagName, {
     connectedCallback () {
       // super annoyingly, chrome loses its shit if you set *any* attributes in the constructor
       if (role) this.setAttribute('role', role)
+      if (eventHandlers.resize) {
+        observer.observe(this)
+      }
       if (methods.connectedCallback) methods.connectedCallback.call(this)
+    }
+
+    disconnectedCallback () {
+      observer.unobserve(this)
     }
 
     static defaultAttributes () {
@@ -466,11 +489,6 @@ const makeWebComponent = (tagName, {
   if (window.customElements) window.customElements.define(tagName, componentClass)
 
   return componentClass
-}
-
-const dispatch = (target, type) => {
-  const event = new Event(type)
-  target.dispatchEvent(event)
 }
 
 export {
