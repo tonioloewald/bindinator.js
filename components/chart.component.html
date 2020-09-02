@@ -12,7 +12,7 @@ Chart.js integration
 <script>
 /* global findOne */
 const {viaTag} = await import('../lib/scripts.js');
-await viaTag('./third-party/Chart.min.js');
+await viaTag('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js');
 const _data = {
   labels: ["January", "February", "March", "April", "May", "June", "July"],
   datasets: [
