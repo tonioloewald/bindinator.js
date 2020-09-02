@@ -1087,6 +1087,15 @@ var b8r = (function () {
     }
   };
 
+  /**
+      findHighestZ(selector = 'body *') // returns highest z-index of elements matching selector
+  */
+  const findHighestZ = (selector = 'body *') => [...document.querySelectorAll(selector)]
+    .map(elt => parseFloat(getComputedStyle(elt).zIndex))
+    .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
+      isNaN(z) || z < highest ? highest : z
+    );
+
   var _dom = /*#__PURE__*/Object.freeze({
     __proto__: null,
     isVisible: isVisible,
@@ -1113,7 +1122,8 @@ var b8r = (function () {
     unwrap: unwrap,
     within: within,
     isInBody: isInBody,
-    cssVar: cssVar
+    cssVar: cssVar,
+    findHighestZ: findHighestZ
   });
 
   /**
@@ -1835,7 +1845,14 @@ var b8r = (function () {
 
   You can specify any (non-null, non-undefined) value via '#any'.
 
-  ### Optional Types
+  ### #instance — built-in types
+
+  You can specify a built-in type, e.g. `HTMLElement` value via '#instance ConstructorName', in
+  this example '#instance HTMLElement'.
+
+      matchType('#instance HTMLElement', document.body) // returns [] (no errors)
+
+  ### #?... — optional types
 
   You can denote an optional type using '#?<type>'. Both `null` and `undefined` are acceptable.
 
@@ -1844,10 +1861,13 @@ var b8r = (function () {
   > This mechanism will likely add new types as the need arises, and similarly may afford a
   > convenient mechanism for defining custom types that require test functions to verify.
 
-  ### #regexp
+  ### #regexp — string tests
 
   You can specify a regular expression test for a string value by providing the string you'd use
-  to create a `RegExp` instance. E.g. '#regexp \\d+{5,5}' for a simple zipcode type.
+  to create a `RegExp` instance. E.g. '#regexp ^\\d{5,5}$' for a simple zipcode type.
+
+      matchType('#regexp ^\\d{5,5}$', '90210') // returns [] (no errors)
+      matchType('#regexp ^\\d{5,5}$', '2350') // returns ["was "2350", expected #regexp \d{5,5}"]
 
   ## `describe`
 
@@ -1919,6 +1939,14 @@ var b8r = (function () {
     .shouldBeJSON([])
   Test(() => matchType([], [1]))
     .shouldBeJSON([])
+  Test(() => matchType([], []))
+    .shouldBeJSON([])
+  Test(() => matchType([], {}))
+    .shouldBeJSON(["was object, expected array"])
+  Test(() => matchType({}, {}))
+    .shouldBeJSON([])
+  Test(() => matchType({}, []))
+    .shouldBeJSON(["was array, expected object"])
   Test(() => matchType(['hello'], ['world']))
     .shouldBeJSON([])
   Test(() => matchType([false], ['world']))
@@ -1933,6 +1961,10 @@ var b8r = (function () {
     .shouldBeJSON([])
   Test(() => matchType([{x: 0, y: 17}, {foo: 'bar'}], [{foo: false}]))
     .shouldBeJSON(["[0] had no matching type"])
+  Test(() => matchType('#instance HTMLElement', document.body))
+    .shouldBeJSON([])
+  Test(() => matchType('#instance HTMLElement', {}))
+    .shouldBeJSON(["was object, expected #instance HTMLElement"])
 
   const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
   Test(() => matchType(requestType, 'post'))
@@ -1969,6 +2001,28 @@ var b8r = (function () {
   Test(() => exampleAtPath({foo: [{bar: 'hello'}, {baz: 17}]}, 'foo[].hello'))
     .shouldBe(undefined)
   ~~~~
+
+  ## Notes on Performance
+
+  I've done some rough performance testing of `typeSafe` and added a simple
+  optimization. The test code simply performed an add operation 1,000,000
+  times inline, wrapped in a function, wrapped in a trivial wrapper function, and
+  using a `typeSafe` function.
+
+  In essence, the overhead for typeSafe functions (on my recent, pretty fast,
+  Windows laptop) is about 350ms/million calls checked by typeSafe.
+
+  Note that many frameworks end up wrapping all your functions several times
+  for various reasons, doing non-trivial work in the wrapper. In any event,
+  if even _this_ much of an overhead is abhorrent, simply don't use typeSafe
+  in performance critical situations, or call it outside a loop rather than inside.
+
+  (E.g. if you're iterating across a lot of data in an array, typecheck a function
+  that takes the array, not a function that processes all the elements -- matchType
+  does not check every element of a large array.)
+
+  The obvious place to use typeSafe functions is when communicating with services,
+  and here any overhead is insignificant compared with network or I/O.
   */
 
   const describe = x => {
@@ -2050,6 +2104,12 @@ var b8r = (function () {
         }
       case 'regexp':
         return subjectType === 'string' && regexpTest(spec, subject)
+      case 'array':
+        return Array.isArray(subject)
+      case 'instance':
+        return subject instanceof window[spec]
+      case 'object':
+        return !!subject && typeof subject === 'object' && !Array.isArray(subject)
       default:
         if (subjectType !== baseType) {
           throw new Error(`unrecognized type specifier ${type}`)
@@ -2078,7 +2138,7 @@ var b8r = (function () {
   const typeJSON = (x) => JSON.stringify(describeType(x));
   const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:');
 
-  const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : x;
+  const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : (typeof x === 'object' ? describe(x) : x);
 
   // when checking large arrays, only check a maximum of 111 elements
   function * arraySampler (a) {
@@ -2284,6 +2344,7 @@ var b8r = (function () {
         }
       });
     }
+    return obj
   };
 
   const matchParamTypes = (types, params) => {
@@ -2298,9 +2359,11 @@ var b8r = (function () {
 
   // TODO async function support
 
-  const _typeSafe = (func, paramTypes, resultType, functionName) => {
+  const _typeSafe = (func, paramTypes = [], resultType = undefined, functionName = undefined) => {
     if (!functionName) functionName = func.name || 'anonymous';
-    const typeSafeFunc = function (...params) {
+    let callCount = 0;
+    return assignReadOnly(function (...params) {
+      callCount += 1;
       const paramErrors = matchParamTypes(paramTypes, params);
       // short circuit failures
       if (paramErrors instanceof TypeError) return paramErrors
@@ -2327,15 +2390,14 @@ var b8r = (function () {
         found: params,
         errors: paramErrors
       })
-    };
-    assignReadOnly(typeSafeFunc, {
+    }, {
       paramTypes,
-      resultType
-    });
-    return typeSafeFunc
+      resultType,
+      getCallCount: () => callCount
+    })
   };
 
-  const typeSafe = _typeSafe(_typeSafe, ['#function', '#array', '#?any'], '#function');
+  const typeSafe = _typeSafe(_typeSafe, ['#function', '#?array', '#?any', '#?string'], '#function');
 
   var _byExample = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -3121,9 +3183,15 @@ var b8r = (function () {
     } = processComponent(css, content, name);
     /* jshint evil: true */
     let load = () => console.error('component', name, 'cannot load properly');
-    if (script && script.match(/require\s*\(/) && !script.match(/electron-require/)) {
+    // check for legacy components
+    if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
       console.error(`in component "${name}" replace require with await import()`);
       script = false;
+    }
+    // deprecate access to data, which we look for in global declarations since lint will
+    // pick up undeclared or unused data declarations
+    if (script && script.match(/\/\*\s*global[^*]*\bdata\b/)) {
+      console.log('%c%s', 'background: #ffa; color: black;', `component "${name}" references data (deprecated); use get() instead`);
     }
     try {
       load = script
@@ -5270,7 +5338,10 @@ var b8r = (function () {
    * The mask defaults to dateFormat.masks.default.
    */
 
-  var dateFormat = (function () {
+  // modified to ES6 module form by sticking it against a board and banging nails through it
+  // Tonio Loewald 2020
+
+  const dateFormat = (function () {
     var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g;
 
     var timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g;
@@ -6459,11 +6530,16 @@ var b8r = (function () {
     will map to the function. If the function takes a parameter, it will
     be treated as a computed setter as well. Unlike attributes, props don't
     appear in the DOM.
-  - `methods` will become class methods, notably `render` and `childListChange`
+  - `methods` will become class methods, notably `render`
     - `render` is where the widget gets expressed in the DOM, based on its state
-    - `childListChange` indicates that children of the (original) DOM node have changed
+      it will fire automatically when a value or attribute changes
   - `eventHandlers` will be bound to the DOM element (i.e. `this` will refer to the
     expected instance)
+    - the usual events work as expected (e.g. `click`, `mouseleave`)
+    - `onConnectedCallback` will be called by the parent class at the right time
+    - `childListChange` will be called when something inside the element is changed
+    - `resize` will be called when the element changes size (which is triggered by a
+      ResizeObserver) -- you may want to throttle your handler
   - `attributes` will be converted into object setters and getters.
     - the default value is assumed to be the correct type (if string or number);
       for any other type (e.g. null or an object) the value is preserved as an element
@@ -6614,8 +6690,6 @@ var b8r = (function () {
 
   ## TODO
 
-  - Implement resize events (per [resize.js](./?source=./lib/resize.js) but _ideally_
-    first eliminate the `b8r` dependency so that web-components.js does not create a transitive dependency.)
   - Provide the option of inserting a stylesheet when the first component instance is inserted
     into the DOM (see below) as an alternative to using the shadow DOM or being unstyled.
   - Migrate all style customization in library components to css-variables with sane defaults.
@@ -6633,8 +6707,11 @@ var b8r = (function () {
   I think the jury is out on whether creating _complex views_ as web-components is a good
   idea. (Angular does this under the hood and it's torpid, but that might just be Angular.)
   So far, creating views with `b8r` components seems much simpler, quicker, and
-  more flexible. This may change over time as more people use web-components and the
-  rough edges are smoothed.
+  more flexible. `b8r` components themselves are implemented as instances of the
+  `<b8r-component>` custom element. That said, creating complex views using
+  precompilers (e.g. [TypeScript with .jsx support](https://www.typescriptlang.org/docs/handbook/jsx.html))
+  the way Google's [litElement](https://lit-element.polymer-project.org/)
+  does may potentially make web-components easier to write.
 
   Creating components with minimal styling and no shadowDOM is another possibility.
   Instead of creating an internal style node, they could simply insert a singleton
@@ -6649,6 +6726,14 @@ var b8r = (function () {
 
   - [Custom Elements Best Practices](https://developers.google.com/web/fundamentals/web-components/best-practices)
   - [Web Components Best Practices](https://www.webcomponents.org/community/articles/web-components-best-practices)
+
+  ### Other Resources
+
+  - [Polymer Project](https://www.polymer-project.org/), the source of
+    [litElement](https://lit-element.polymer-project.org/) et al
+  - [webcomponents.org](https://www.webcomponents.org/libraries) strives to be a portal to
+    the world of custom-elements, but so far is not inspiring.
+
   */
   /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
@@ -6667,6 +6752,19 @@ var b8r = (function () {
     classes.forEach((className) => elt.classList.add(className));
     return elt
   };
+
+  const dispatch$1 = (target, type) => {
+    const event = new Event(type);
+    target.dispatchEvent(event);
+  };
+
+  /* global ResizeObserver */
+  const observer = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const element = entry.target;
+      dispatch$1(element, 'resize');
+    }
+  });
 
   const button = (settings = {}) => makeElement('button', settings);
   const div = (settings = {}) => makeElement('div', settings);
@@ -6853,7 +6951,14 @@ var b8r = (function () {
       connectedCallback () {
         // super annoyingly, chrome loses its shit if you set *any* attributes in the constructor
         if (role) this.setAttribute('role', role);
+        if (eventHandlers.resize) {
+          observer.observe(this);
+        }
         if (methods.connectedCallback) methods.connectedCallback.call(this);
+      }
+
+      disconnectedCallback () {
+        observer.unobserve(this);
       }
 
       static defaultAttributes () {
@@ -6871,11 +6976,6 @@ var b8r = (function () {
     if (window.customElements) window.customElements.define(tagName, componentClass);
 
     return componentClass
-  };
-
-  const dispatch$1 = (target, type) => {
-    const event = new Event(type);
-    target.dispatchEvent(event);
   };
 
   var webComponents = /*#__PURE__*/Object.freeze({
@@ -7205,6 +7305,10 @@ var b8r = (function () {
       const value = b8r.interpolate(path, element);
       const existing = boundValues[path];
       if (_unequal(existing, value)) {
+        if (typeof value === 'function') {
+          console.error(element, path, 'received value', value);
+          throw new Error(`path "${path}" from "${element.dataset.bind}" received "${value}"`)
+        }
         newValues[path] = value;
         const _toTargets = targets.filter(t => toTargets[t.target]);
         if (_toTargets.length) {

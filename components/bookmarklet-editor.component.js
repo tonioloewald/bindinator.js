@@ -3,7 +3,7 @@
 
 A [bookmarklet](https://en.wikipedia.org/wiki/Bookmarklet) is a browser bookmark or a link that
 contains javascript instead of a URL. A browser will execute a bookmarklet within the current page.
-Because it executes in the page's context, it's best that you implement bookmarklets by wrapping 
+Because it executes in the page's context, it's best that you implement bookmarklets by wrapping
 them in an anonymous function, i.e. `(() => { your code here })()`.
 
 Bookmarkets can be powerful debugging aids in a pinch, but they're kind of a pain to create
