@@ -221,7 +221,8 @@ as  `b8r` and the output element as `example`.
   const {relayTo} = await import('../lib/resize.js');
   const {unique} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
-  const {ace} = await viaTag('../third-party/ace-src-min-noconflict/ace.js');
+  const {ace} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.min.js')
+  ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/')
   const code_elt = findOne('.code');
   const container = findOne('.example');
   const vfsRoot = window.location.hostname === 'tonioloewald.github.io' ? 'bindinator.js/vfs' : 'vfs'
@@ -240,7 +241,6 @@ as  `b8r` and the output element as `example`.
       useSoftTabs: true,
       useWorker: false,
     });
-    ace.config.set('basePath', '../third-party/ace-src-min-noconflict/');
     editor.setTheme('ace/theme/monokai');
   };
   if(source) {

@@ -27,14 +27,14 @@ import { makeWebComponent } from '../source/web-components.js'
 
 const make_code_editor = async (code_elt, mode = 'html') => {
   const {viaTag} = await import('../lib/scripts.js')
-  const {ace} = await viaTag('./third-party/ace-src-min-noconflict/ace.js')
+  const {ace} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.min.js')
+  ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/')
   const editor = ace.edit(code_elt, {
     mode: `ace/mode/${mode}`,
     tabSize: 2,
     useSoftTabs: true,
     useWorker: false,
   })
-  ace.config.set('basePath', '../third-party/ace-src-min-noconflict/')
   editor.setTheme('ace/theme/monokai')
   return editor
 }
