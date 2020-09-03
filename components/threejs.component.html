@@ -39,13 +39,7 @@ scene.add( helper );
 */
 const ambient = new THREE.AmbientLight(0x603000);
 scene.add(ambient);
-const planeGeometry = new THREE.PlaneGeometry( 1.5, 1.5, 2 );
-const planeMat = new THREE.MeshStandardMaterial( {color: 0x707070 });
-const plane = new THREE.Mesh( planeGeometry, planeMat );
-plane.receiveShadow = true;
-plane.position.y = -0.5;
-plane.rotation.x = Math.PI * -0.5;
-scene.add(plane);
+
 const loader = new THREE.GLTFLoader();
 const load = async path => {
   return await new Promise(resolve => loader.load(path, gltf => resolve(gltf)));
@@ -68,14 +62,14 @@ const mixer = new THREE.AnimationMixer(model);
 mixer.clipAction(gltf.animations[0]).play();
 let time = Date.now();
 // shove this stuff in globals so you can play with it
-window.threejsStuff = {scene, camera, renderer, sunlight, model, plane, materials, meshes};
+window.threejsStuff = {scene, camera, renderer, sunlight, model, materials, meshes};
 const update = () => {
   const mouse = b8r.get('threejs-demo.mouse');
   if (mouse) {
     sunlight.position.x = mouse.x * 20;
     sunlight.position.y = Math.max(-0.4, (mouse.y - 0.5) * -20);
   }
-  model.rotation.y -= 0.01;
+  model.rotation.y -= 0.001;
   const elapsed = (Date.now() - time) * 0.001;
   time = Date.now();
   mixer.update(elapsed);
