@@ -1,7 +1,25 @@
 <!--
 # babylonjs example
 [Babylonjs](http://www.babylonjs.com/) is a 3D engine originally from Microsoft France.
-It's an "old school" Javascript library that expects to be included via a script tag.
+Babylonjs is probably the most robust 3D game engine that runs natively in browsers
+right now.
+
+This scene contains elements modeled in Cheetah3D and exported as .glb, this was
+imported into Blender 2.8 to adjust the materials (Blender's internal shaders retain
+more information when exported.)
+
+This scene demonstrates support for:
+- skeletal animation
+- diffuse color
+- specular color
+- roughness
+- metallicity
+- transparency
+- embedded texture maps
+- keyframe animation (the cube)
+
+**Note**: getting keyframe animation to export was incredibly unintuitive. I got it to work
+by toggling off `Animation > Animation > Group` by NLA Track in the export dialog.
 -->
 <style>
   .babylonjs {
@@ -21,35 +39,34 @@ It's an "old school" Javascript library that expects to be included via a script
   const createScene = function () {
     const scene = new BABYLON.Scene(engine);
     const hemi = new BABYLON.HemisphericLight();
-    hemi.intensity = 0.25;
+    hemi.intensity = 0.5;
     hemi.diffuse = hemi.specular = new BABYLON.Color3(0.3, 0.3, 1);
-    const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(0.5, -0.5, -1), scene);
+    const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(0.5, -1, -1), scene);
     const shadowGenerator = new BABYLON.ShadowGenerator(1024, sun);
     shadowGenerator.bias = 0.001;
-    shadowGenerator.normalBias = 0.02;
+    shadowGenerator.normalBias = 0.01;
     sun.shadowMaxZ = 5;
     sun.shadowMinZ = 0.1;
     shadowGenerator.useContactHardeningShadow = true;
     shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;
-    shadowGenerator.setDarkness(0.25);
+    shadowGenerator.setDarkness(0.1);
 
     //Adding an Arc Rotate Camera
     const camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 10, BABYLON.Vector3.Zero(), scene);
-    camera.attachControl(canvas, false);
-    const ground = BABYLON.Mesh.CreateGround("ground", 0, 0, 0, scene);
-    const groundMaterial = new BABYLON.StandardMaterial("ground", scene);	
-    groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-    ground.material = groundMaterial;
-    ground.receiveShadows = true;
+    b8r.register('babylonjs', {camera, scene});
+
     // The first parameter can be used to specify which mesh to import. Here we import all meshes
     BABYLON.SceneLoader.Append("./test/", "omnidude.glb", scene, function (newMeshes) {
       scene.activeCamera = null;
       for(const mesh of newMeshes.meshes) {
         shadowGenerator.addShadowCaster(mesh);
+        mesh.receiveShadows = true;
       }
       scene.createDefaultCameraOrLight(true);
       scene.activeCamera.attachControl(canvas, false);
+        scene.activeCamera.setPosition(new BABYLON.Vector3(1.5, 1, 1.5));
     });
+    
     return scene;
   }
   const scene = createScene();
