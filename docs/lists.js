@@ -13,7 +13,8 @@ Tne simplest case is straighforward:
 ```
 
 If you look at the DOM, there will be one copy of the
-list template for each element in the list, and it will have
+list template (the element with the `data-list` attribute) 
+for each element in the list, and it will have
 a `data-list-instance` based on its corresponding array index.
 
 e.g.
