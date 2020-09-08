@@ -165,7 +165,7 @@ are in binary "k" (so 1 kB === 1024 B, and so on). Annotation stops at `EB` (exa
     data-bind="timestamp(m-d-yy)=path.to.milliseconds"
 
 Sets the `textContent` of the element to a human readable timestamp, using
-`new Date(...).localString()` by default, but supporting
+`new Date(...).localeString()` by default, but supporting
 [date.format](http://blog.stevenlevithan.com/archives/date-time-format)
 options if supplied.
 
