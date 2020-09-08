@@ -232,6 +232,28 @@ tag ends up as the body of an `async` `load` function that gets passed a bunch o
 methods, including `get` and `set` which provide convenient access to a component's private 
 data. `_component_` refers to the component's private data in bindings.
 
+> ### b8r javascript components
+>
+> Things have changed since the preceding paragraph was written. The preferred method
+> for creating `b8r` components is to implement them as ES6 modules. An html component
+> as described above can be converted to:
+> 
+>     export default {
+>       css:  ... the css,
+>       html: ... the html,
+>       load: async({destructured methods}) => {
+>         ... the script
+>       }
+>     }
+>
+> You can integrate such a component using the `<b8r-component>` custom element:
+>
+>     &lt;b8r-component path="path/to/component.js">
+>       ... children
+>     </b8r-component>
+>
+> You can find out more about the new component system [here](./?source=docs/components.md).
+
 If a `b8r` component includes a `<style>` tag you can refer to the component's `class` -- 
 `<component-name>-component` -- as `_component_` in the component's CSS selectors,
 e.g. `._component_ { background: red; }`.
@@ -242,15 +264,14 @@ e.g. `._component_ { background: red; }`.
   >
   <button 
     data-bind="enabled_if=_component_.text;text=Add #${_component_.nextItem}"
-```
-`b8r` allows the use of ES6-like interpolated strings in bindings, but it _does not allow_
-arbitrary javascript, just insertion of data by path. The idea is _not_ to put business logic 
-in the view or implement a Turing-complete templating language.
-```
     data-event="click:_component_.addItem"
   ></button>
 </form>
 ```
+`b8r` allows the use of ES6-like interpolated strings in bindings, but it _does not allow_
+arbitrary javascript, just insertion of data by path. The idea is _not_ to put business logic 
+in the view or implement a Turing-complete templating language.
+
 So you get the encapsulation of React's single-file component, along with the clean separation of presentation (style and html) from logic (script).
 ```
 <script>
@@ -281,7 +302,7 @@ Or, in "pure javascript", something like:
 b8r.component('path/to/todo-simple').then(c => b8r.insertComponent(c, document.body))
 ```
 
-#### An Aside on Unnecessary Redraws
+### An Aside on Unnecessary Redraws
 
 If you want to know just how constantly react is calling `render`, put in a 
 `console.log` and watch it run every time you hit a key, and when you create a 
@@ -313,7 +334,7 @@ contains a number, a "smart" optimization might consider the new value to be dif
 bindings from being unnecessarily called (if something is bound to `path.to.foo(path.to.bar, path.to.baz))`, 
 `b8r` won't call `foo` if `bar` and `baz` haven't changed since it last called `foo`.
 
-#### A final aside on sub-components…
+### A final aside on sub-components…
 
 The entire ToDo "app" has been encapsulated as a single component
 here, whereas in the React example `TodoList` is a sub-component of the app.
@@ -338,6 +359,18 @@ define it inline thus:
 ```
 b8r.makeComponent('todo-list', '<ul><li data-list="_data_:_auto_" data-bind="text=.text"></li></ul>')
 ```
+
+> You can now define ES6 Javascript components inline much more easily (one of the new system's
+> advantages). So in this case:
+>
+>     b8r.makeComponent('todo-list', {
+>       html: `
+>         <ul>
+>           <li data-list="_data_:_auto_" data-bind="text=.text"></li>
+>         </ul>
+>       `,
+>     })
+
 And then compose it in the DOM thus:
 ```
 <b8r-component name="todo-list" data-path="_component_.list"></b8r-component>
