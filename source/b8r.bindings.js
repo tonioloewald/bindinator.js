@@ -322,14 +322,14 @@ const parseBinding = binding => {
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim())
   const targets = targetsRaw.split(',').map(target => {
-    var parts = target.match(/(\w+(\.\w+)*)(\(([^)]+)\))?/)
+    var parts = target.match(/([\w#\-\.]+)(\(([^)]+)\))?/)
     if (!parts) {
       console.error('bad target', target, 'in binding', binding)
       return
     }
     if (!parts) return null
     if (parts[1].includes('.')) return { target: 'method', key: parts[1] }
-    return { target: parts[1], key: parts[4] }
+    return { target: parts[1], key: parts[3] }
   })
   if (!path) {
     console.error('binding does not specify source', binding)
@@ -346,7 +346,7 @@ splitPaths is used to prise apart data-paths in bindings.
 ~~~~
 // title: splitpaths tests
 
-const {splitPaths, getBindings} = await import('../source/b8r.bindings.js');
+const {splitPaths, getBindings, parseBinding} = await import('../source/b8r.bindings.js');
 
 Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
 Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
@@ -358,6 +358,39 @@ Test(() => splitPaths('path.to.value,path.to[id=17].value,path.to.method(path.to
   shouldBeJSON(["path.to.value", "path.to[id=17].value", "path.to.method(path.to.value,path[11].to.value)"]);
 Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.value,path.to[id=17].value')).
   shouldBeJSON(["path.to.method(path.to.value,path[11].to.value)", "path.to.value", "path.to[id=17].value"]);
+
+Test(() => parseBinding("this(is)=a.test")).shouldBeJSON({
+  "targets": [
+    {
+      "target": "this",
+      "key": "is"
+    }
+  ],
+  "path": "a.test"
+})
+
+Test(() => parseBinding("this.is,another=test")).shouldBeJSON({
+  "targets": [
+    {
+      "target": "method",
+      "key": "this.is"
+    },
+    {
+      "target": "another"
+    }
+  ],
+  "path": "test"
+})
+
+Test(() => parseBinding("c#foo-10.bar.baz=another.test"), 'automatic methods').shouldBeJSON({
+  "targets": [
+    {
+      "target": "method",
+      "key": "c#foo-10.bar.baz"
+    }
+  ],
+  "path": "another.test"
+})
 
 const div = document.createElement('div')
 div.dataset.bind = `
@@ -400,7 +433,8 @@ const findLists = element => findWithin(element, '[data-list]', true)
 const getBindings = element => {
   try {
     return element.dataset.bind
-      .replace(/\n\s*(\w+)(\([^)]*\))?=/g, ';$1$2=')
+      // separate bindings with ';' for consistency
+      .replace(/\n\s*([\w#\-\.,]+)(\([^)]*\))?=/g, ';$1$2=')
       .split(';')
       .filter(s => !!s.trim())
       .map(parseBinding)
