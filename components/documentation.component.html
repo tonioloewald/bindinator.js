@@ -243,11 +243,13 @@
     z-index: 10;
     font-size: 14px;
     backdrop-filter: blur(3px);
+    overflow-y: scroll;
+    overflow-y: overlay;
   }
 
   .in-page-nav:hover {
+    max-height: calc(100vh - 30px);
     opacity: 0.8;
-    max-height: 100%;
   }
 
   .in-page-nav > h5 {
@@ -360,7 +362,8 @@
 <b8r-float
   drag="true"
   class="in-page-nav" 
-  data-bind="show_if=_component_.pageLinks.length" 
+  data-bind="show_if=_component_.pageLinks.length"
+  data-event="mouseleave:_component_.scrollNavToTop"
   style="top: 10px; right: 10px;"
 >
   <h5 class="floater-title">Contents</h5>
@@ -554,6 +557,9 @@
       const {title} = b8r.getListInstance(details);
       get('docs').forEach(doc => doc._open = doc.title === title ? !doc._open : false)
       touch('docs')
+    },
+    scrollNavToTop (evt, target) {
+      if (evt.target === target) findOne('.in-page-nav h5').scrollIntoView()
     },
     destroy() {
       window.removeEventListener('popstate', update);
