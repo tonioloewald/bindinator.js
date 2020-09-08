@@ -10,7 +10,7 @@ and where the similarity ends.
 
 | Feature          | Angular2           | b8r
 |--|--|--
-| data binding     | [style.width.px]="publicProperty" | data-bind="style(width)=${path.to.property}px"
+| data binding     | [style.width.px]="publicProperty" | data-bind="style(width&#124;px)=path.to.property"
 | two-way binding | [(publicProperty)]="publicProperty" | data-bind="value=path.to.property"
 | event binding    | (click)="publicMethod()"          | data-event="click:path.to.method"
 | array binding    | *ngFor="let foo of foos"         | data-list="path.to.array"
