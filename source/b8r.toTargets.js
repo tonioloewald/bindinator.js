@@ -203,6 +203,19 @@ would set the `data-image-url` attribute.)
 
     data-bind="style(color)=message.textColor"
     data-bind="style(padding-left)=${message.leftPad}px"
+    data-bind="style(padding-left|px)=message.leftPad"
+
+```
+<div data-bind="style(color)=_component_.color">color</div>
+<div data-bind="style(padding)=${_component_.padding}px">padding</div>
+<div data-bind="style(padding|px)=_component_.padding">padding</div>
+<script>
+  set({
+    color: 'purple',
+    padding: 10,
+  })
+</script>
+```
 
 This sets styles (via `element.style[stringValue]`) so be warned that hyphenated
 properties (in CSS) become camelcase in Javascript (e.g. background-color is
@@ -612,7 +625,8 @@ export default function (b8r) {
           Object.assign(element.style, value)
         }
       } else if (value !== undefined) {
-        element.style[dest] = value
+        const [prop, units] = dest.split('|')
+        element.style[prop] = units ? `${value}${units}` : value
       }
     },
     class: function (element, value, classToToggle) {
