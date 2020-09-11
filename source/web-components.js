@@ -365,18 +365,17 @@ const makeWebComponent = (tagName, {
     constructor () {
       super()
       for (const prop of Object.keys(props)) {
-        const value = props[prop]
+        const value = props[prop] // local copy that won't change
         if (typeof value !== 'function') {
           this[prop] = value
         } else {
           Object.defineProperty(this, prop, {
-            writeable: value.length > 0,
             enumerable: false,
             get () {
-              return value.call(this)
+              return value
             },
-            set (newValue) {
-              value.call(this, newValue)
+            set () {
+              throw new Error('cannot set read-only prop')
             }
           })
         }
@@ -411,7 +410,6 @@ const makeWebComponent = (tagName, {
         observer.observe(this, { attributes: true })
         attributeNames.forEach(attributeName => {
           Object.defineProperty(this, attributeName, {
-            writeable: true,
             enumerable: false,
             get () {
               if (typeof attributes[attributeName] === 'boolean') {

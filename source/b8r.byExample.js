@@ -578,11 +578,11 @@ export class TypeError {
 const assignReadOnly = (obj, propMap) => {
   propMap = { ...propMap }
   for (const key of Object.keys(propMap)) {
+    const value = propMap[key]
     Object.defineProperty(obj, key, {
-      writeable: false,
       enumerable: true,
       get () {
-        return propMap[key]
+        return value
       },
       set (value) {
         throw new Error(`${key} is read-only`)
