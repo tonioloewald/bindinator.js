@@ -15,6 +15,8 @@ This is a simple editor for creating and editing bookmarklets conveniently.
 <b8r-component path="../components/bookmarklet-editor.component.js"></b8r-component>
 */
 
+const NAME_REGEX = /^\/\/!(.*)?\n/
+
 export default {
   css: `
     ._component_ textarea {
@@ -28,7 +30,7 @@ export default {
 
     ._component_ b8r-dropzone {
       user-select: none;
-      display: inline-block;
+      display: block;
       padding: 5px 10px;
       border-radius: 4px;
       border: 1px solid var(--black-20);
@@ -45,9 +47,6 @@ export default {
       click to test, or bookmark to make bookmarklet
     </div>
     <div style="padding: 5px 0;">
-      <label>
-        Title <input data-bind="value=bookmarklet.name">
-      </label>
       <b8r-dropzone type="text/uri-list">
         drop a bookmarklet here to edit it
       </b8r-dropzone>
@@ -61,15 +60,19 @@ export default {
     findOne('b8r-dropzone').handleDrop = evt => {
       const text = evt.dataTransfer.getData('text/plain')
       if (text.startsWith('javascript:')) {
-        b8r.set('bookmarklet.script', unescape(text.substr(11)))
+        const script = unescape(text.substr(11))
+        const name = (script.match(NAME_REGEX) || [,'untitled'])[1]
+        b8r.set('bookmarklet', { name, script })
       }
       return true
     }
 
     b8r.register('bookmarklet', {
       name: 'bookmarklet',
-      script: '(() => {\n  alert("it works")\n})()',
+      script: '//!untitled\n(() => {\n  alert("it works")\n})()',
       build (elt, bookmarklet) {
+        const name = (bookmarklet.match(NAME_REGEX) || [,'untitled'])[1]
+        b8r.set('bookmarklet', {name})
         elt.setAttribute('href', 'javascript:' + escape(bookmarklet))
       }
     })
