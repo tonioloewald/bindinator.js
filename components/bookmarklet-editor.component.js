@@ -43,39 +43,41 @@ export default {
   `,
   html: `
     <div style="padding: 5px 0;">
-      <a data-bind="text=bookmarklet.name;bookmarklet.build=bookmarklet.script">bookmark me</a>
+      <a class="bookmarklet" data-bind="text=_component_.name;_component_.build=_component_.script">bookmark me</a>
       click to test, or bookmark to make bookmarklet
     </div>
     <div style="padding: 5px 0;">
-      <b8r-dropzone type="text/uri-list">
+      <b8r-dropzone type="text/uri-list" data-event="drop:_component_.handleDrop">
         drop a bookmarklet here to edit it
       </b8r-dropzone>
     </div>
-    <b8r-code-editor data-bind="value=bookmarklet.script"></b8r-code-editor>
+    <b8r-code-editor 
+      data-bind="value=_component_.script" 
+      data-event="change:_component_.build"
+    ></b8r-code-editor>
   `,
-  async initialValue ({ b8r, findOne }) {
+  async initialValue ({ findOne, set, get }) {
     await import('../web-components/code-editor.js')
     await import('../web-components/drag-drop.js')
+    const bookmarklet = findOne('.bookmarklet')
 
-    findOne('b8r-dropzone').handleDrop = evt => {
-      const text = evt.dataTransfer.getData('text/plain')
-      if (text.startsWith('javascript:')) {
-        const script = unescape(text.substr(11))
-        const name = (script.match(NAME_REGEX) || [,'untitled'])[1]
-        b8r.set('bookmarklet', { name, script })
-      }
-      return true
-    }
-
-    b8r.register('bookmarklet', {
-      name: 'bookmarklet',
+    return {
+      name: '',
       script: '//!untitled\n(() => {\n  alert("it works")\n})()',
-      build (elt, bookmarklet) {
-        const name = (bookmarklet.match(NAME_REGEX) || [,'untitled'])[1]
-        b8r.set('bookmarklet', {name})
-        elt.setAttribute('href', 'javascript:' + escape(bookmarklet))
+      build () {
+        const script = get().script
+        const name = (script.match(NAME_REGEX) || [,'untitled'])[1]
+        set({name})
+        bookmarklet.setAttribute('href', 'javascript:' + escape(script))
+      },
+      handleDrop (evt) {
+        const text = evt.dataTransfer.getData('text/plain')
+        if (text.startsWith('javascript:')) {
+          const script = unescape(text.substr(11))
+          const name = (script.match(NAME_REGEX) || [,'untitled'])[1]
+          set({ name, script })
+        }
       }
-    })
-    return {}
+    }
   }
 }
