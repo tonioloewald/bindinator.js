@@ -70,7 +70,15 @@ can tell what "type" a variable is.
 </div>
 <script>
   const rootRules = [...document.styleSheets]
-    .map(s => [...s.cssRules].filter(r => r.selectorText === ':root'))
+    .map(s => {
+      let rules = []
+      try {
+        rules = [...s.cssRules].filter(r => r.selectorText === ':root')
+      } catch(e) {
+        console.error(s, 'not yet loaded')
+      }
+      return rules
+    })
     .flat()
   const cssVars = rootRules.map(r => [...r.style].map(name => {
     const value = b8r.cssVar(name).trim()
