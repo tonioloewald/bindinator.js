@@ -302,25 +302,6 @@
   ._component_ .errors::after {
     content: ' test(s) failed';
   }
-
-  ._component_ .glow {
-    transform-origin: 50% 50%;
-    animation: fading-glow 2s ease-in-out;
-  }
-
-  @keyframes fading-glow {
-    0% {
-      transform: scale(0.5);
-    }
-    
-    50% {
-      transform: scale(1.02);
-    }
-
-    100% {
-      transform: scale(1);
-    }
-  }
 </style>
 <div class="content" data-event="md-render:_component_.updateNav"></div>
 <div class="nav" data-bind="class(localhost)=_component_.localhost">
@@ -545,13 +526,8 @@
     updateNav,
     pageLinks: [],
     showLink: (evt) => {
-      find('.glow').forEach(element => element.classList.remove('glow'))
       const {element} = b8r.getListInstance(evt.target)
       element.scrollIntoView({behavior: 'smooth'})
-      // allow update so we can restart the animation if necessary
-      requestAnimationFrame(() => {
-        element.classList.add('glow')
-      })
     },
     toggle (evt, details) {
       const {title} = b8r.getListInstance(details);
