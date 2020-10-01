@@ -145,7 +145,7 @@ export default {
     const show = async (emoji) => {
       if (get('filterText')) set('filterText', '')
       await b8r.afterUpdate(() => {
-        const elt = [...find('.emoji')].find(elt => elt._b8rListInstance.chars === emoji)
+        const elt = [...find('div.emoji')].find(elt => elt._b8rListInstance.chars === emoji)
         elt.scrollIntoView({ behavior: 'smooth' }) // note -- smooth not implemented in Safari
       })
     }
