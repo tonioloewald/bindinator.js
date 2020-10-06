@@ -322,7 +322,7 @@ const parseBinding = binding => {
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim())
   const targets = targetsRaw.split(',').map(target => {
-    var parts = target.match(/([\w#\-\.]+)(\(([^)]+)\))?/)
+    var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/)
     if (!parts) {
       console.error('bad target', target, 'in binding', binding)
       return
@@ -434,7 +434,7 @@ const getBindings = element => {
   try {
     return element.dataset.bind
       // separate bindings with ';' for consistency
-      .replace(/\n\s*([\w#\-\.,]+)(\([^)]*\))?=/g, ';$1$2=')
+      .replace(/\n\s*([\w#\-.,]+)(\([^)]*\))?=/g, ';$1$2=')
       .split(';')
       .filter(s => !!s.trim())
       .map(parseBinding)

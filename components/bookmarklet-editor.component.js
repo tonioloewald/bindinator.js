@@ -66,15 +66,15 @@ export default {
       script: '//!untitled\n(() => {\n  alert("it works")\n})()',
       build () {
         const script = get().script
-        const name = (script.match(NAME_REGEX) || [,'untitled'])[1]
-        set({name})
+        const name = (script.match(NAME_REGEX) || [null, 'untitled'])[1]
+        set({ name })
         bookmarklet.setAttribute('href', 'javascript:' + escape(script))
       },
       handleDrop (evt) {
         const text = evt.dataTransfer.getData('text/plain')
         if (text.startsWith('javascript:')) {
           const script = unescape(text.substr(11))
-          const name = (script.match(NAME_REGEX) || [,'untitled'])[1]
+          const name = (script.match(NAME_REGEX) || [null, 'untitled'])[1]
           set({ name, script })
         }
       }
