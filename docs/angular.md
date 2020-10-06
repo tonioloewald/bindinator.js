@@ -388,7 +388,7 @@ Or maybe read one of the many Medium articles that try to explain said API, e.g.
 
 By the way, I couldn't get these approaches to work.
 
-## So. Many. &lt;!-- comments --&gt;s.
+## So. Many. &lt;!-- comment --&gt;s.
 
 The Angular documentation argues that `ngIf` is justified because it's cheaper in
 resources to exclude DOM elements that aren't needed and put them in when they
