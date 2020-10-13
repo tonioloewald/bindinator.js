@@ -741,12 +741,12 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   },
   content: false,
   props: {
-    componentId: function () {
+    componentId: function() {
       return this.dataset.componentId
     },
-    data: function () {
-      return b8r.get(this.componentId)
-    }
+    data: function() {
+      return b8r.get(this.dataset.componentId)
+    },
   },
   methods: {
     connectedCallback () {
