@@ -366,19 +366,15 @@ const makeWebComponent = (tagName, {
       super()
       for (const prop of Object.keys(props)) {
         const value = props[prop] // local copy that won't change
-        if (typeof value !== 'function') {
-          this[prop] = value
-        } else {
-          Object.defineProperty(this, prop, {
-            enumerable: false,
-            get () {
-              return value
-            },
-            set () {
-              throw new Error('cannot set read-only prop')
-            }
-          })
-        }
+        Object.defineProperty(this, prop, {
+          enumerable: false,
+          get () {
+            return typeof value === 'function' ? value.apply(this) : value
+          },
+          set () {
+            throw new Error('cannot set read-only prop')
+          }
+        })
       }
       if (styleNode) {
         const shadow = this.attachShadow({ mode: 'open' })
