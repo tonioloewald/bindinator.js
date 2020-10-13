@@ -493,7 +493,7 @@ export default {
       scrollToItem (item, durationMs = 1000) {
         const { config: { virtual }, _previous: { sorted } } = get()
         if (!virtual) {
-          console.error('scrollToRocket only works for virtual tables')
+          console.error('scrollToItem only works for virtual tables')
         }
         const index = sorted.indexOf(item)
         if (index > -1) {
