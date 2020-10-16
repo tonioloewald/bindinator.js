@@ -1610,14 +1610,14 @@ var b8r = (function () {
     const [, targetsRaw, path] =
         binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim());
     const targets = targetsRaw.split(',').map(target => {
-      var parts = target.match(/(\w+(\.\w+)*)(\(([^)]+)\))?/);
+      var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/);
       if (!parts) {
         console.error('bad target', target, 'in binding', binding);
         return
       }
       if (!parts) return null
       if (parts[1].includes('.')) return { target: 'method', key: parts[1] }
-      return { target: parts[1], key: parts[4] }
+      return { target: parts[1], key: parts[3] }
     });
     if (!path) {
       console.error('binding does not specify source', binding);
@@ -1634,7 +1634,7 @@ var b8r = (function () {
   ~~~~
   // title: splitpaths tests
 
-  const {splitPaths, getBindings} = await import('../source/b8r.bindings.js');
+  const {splitPaths, getBindings, parseBinding} = await import('../source/b8r.bindings.js');
 
   Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
   Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
@@ -1646,6 +1646,39 @@ var b8r = (function () {
     shouldBeJSON(["path.to.value", "path.to[id=17].value", "path.to.method(path.to.value,path[11].to.value)"]);
   Test(() => splitPaths('path.to.method(path.to.value,path[11].to.value),path.to.value,path.to[id=17].value')).
     shouldBeJSON(["path.to.method(path.to.value,path[11].to.value)", "path.to.value", "path.to[id=17].value"]);
+
+  Test(() => parseBinding("this(is)=a.test")).shouldBeJSON({
+    "targets": [
+      {
+        "target": "this",
+        "key": "is"
+      }
+    ],
+    "path": "a.test"
+  })
+
+  Test(() => parseBinding("this.is,another=test")).shouldBeJSON({
+    "targets": [
+      {
+        "target": "method",
+        "key": "this.is"
+      },
+      {
+        "target": "another"
+      }
+    ],
+    "path": "test"
+  })
+
+  Test(() => parseBinding("c#foo-10.bar.baz=another.test"), 'automatic methods').shouldBeJSON({
+    "targets": [
+      {
+        "target": "method",
+        "key": "c#foo-10.bar.baz"
+      }
+    ],
+    "path": "another.test"
+  })
 
   const div = document.createElement('div')
   div.dataset.bind = `
@@ -1688,7 +1721,8 @@ var b8r = (function () {
   const getBindings = element => {
     try {
       return element.dataset.bind
-        .replace(/\n\s*(\w+)(\([^)]*\))?=/g, ';$1$2=')
+        // separate bindings with ';' for consistency
+        .replace(/\n\s*([\w#\-.,]+)(\([^)]*\))?=/g, ';$1$2=')
         .split(';')
         .filter(s => !!s.trim())
         .map(parseBinding)
@@ -2333,11 +2367,11 @@ var b8r = (function () {
   const assignReadOnly = (obj, propMap) => {
     propMap = { ...propMap };
     for (const key of Object.keys(propMap)) {
+      const value = propMap[key];
       Object.defineProperty(obj, key, {
-        writeable: false,
         enumerable: true,
         get () {
-          return propMap[key]
+          return value
         },
         set (value) {
           throw new Error(`${key} is read-only`)
@@ -5633,7 +5667,7 @@ var b8r = (function () {
       data-bind="timestamp(m-d-yy)=path.to.milliseconds"
 
   Sets the `textContent` of the element to a human readable timestamp, using
-  `new Date(...).localString()` by default, but supporting
+  `new Date(...).localeString()` by default, but supporting
   [date.format](http://blog.stevenlevithan.com/archives/date-time-format)
   options if supplied.
 
@@ -5671,6 +5705,19 @@ var b8r = (function () {
 
       data-bind="style(color)=message.textColor"
       data-bind="style(padding-left)=${message.leftPad}px"
+      data-bind="style(padding-left|px)=message.leftPad"
+
+  ```
+  <div data-bind="style(color)=_component_.color">color</div>
+  <div data-bind="style(padding)=${_component_.padding}px">padding</div>
+  <div data-bind="style(padding|px)=_component_.padding">padding</div>
+  <script>
+    set({
+      color: 'purple',
+      padding: 10,
+    })
+  </script>
+  ```
 
   This sets styles (via `element.style[stringValue]`) so be warned that hyphenated
   properties (in CSS) become camelcase in Javascript (e.g. background-color is
@@ -6073,7 +6120,8 @@ var b8r = (function () {
             Object.assign(element.style, value);
           }
         } else if (value !== undefined) {
-          element.style[dest] = value;
+          const [prop, units] = dest.split('|');
+          element.style[prop] = units ? `${value}${units}` : value;
         }
       },
       class: function (element, value, classToToggle) {
@@ -6852,21 +6900,16 @@ var b8r = (function () {
       constructor () {
         super();
         for (const prop of Object.keys(props)) {
-          const value = props[prop];
-          if (typeof value !== 'function') {
-            this[prop] = value;
-          } else {
-            Object.defineProperty(this, prop, {
-              writeable: value.length > 0,
-              enumerable: false,
-              get () {
-                return value.call(this)
-              },
-              set (newValue) {
-                value.call(this, newValue);
-              }
-            });
-          }
+          const value = props[prop]; // local copy that won't change
+          Object.defineProperty(this, prop, {
+            enumerable: false,
+            get () {
+              return typeof value === 'function' ? value.apply(this) : value
+            },
+            set () {
+              throw new Error('cannot set read-only prop')
+            }
+          });
         }
         if (styleNode) {
           const shadow = this.attachShadow({ mode: 'open' });
@@ -6898,7 +6941,6 @@ var b8r = (function () {
           observer.observe(this, { attributes: true });
           attributeNames.forEach(attributeName => {
             Object.defineProperty(this, attributeName, {
-              writeable: true,
               enumerable: false,
               get () {
                 if (typeof attributes[attributeName] === 'boolean') {
@@ -7305,10 +7347,6 @@ var b8r = (function () {
       const value = b8r.interpolate(path, element);
       const existing = boundValues[path];
       if (_unequal(existing, value)) {
-        if (typeof value === 'function') {
-          console.error(element, path, 'received value', value);
-          throw new Error(`path "${path}" from "${element.dataset.bind}" received "${value}"`)
-        }
         newValues[path] = value;
         const _toTargets = targets.filter(t => toTargets[t.target]);
         if (_toTargets.length) {
@@ -7676,7 +7714,7 @@ var b8r = (function () {
         return this.dataset.componentId
       },
       data: function () {
-        return b8r.get(this.componentId)
+        return b8r.get(this.dataset.componentId)
       }
     },
     methods: {
