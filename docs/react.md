@@ -70,7 +70,7 @@ that relies on items.
 (Of course, React lets you implement `shouldComponentUpdate` and reject
 rendering if something you don't care changes but, it won't actually
 work here since if `state.items` changes you need to communicate this to
-`<TodoList>` -- by needlessly rendering everything in `<TodoApp>`. So all
+`<TodoList>` — by needlessly rendering everything in `<TodoApp>`. So all
 that complexity buys you… what?)
 ```
           <label htmlFor="new-todo">
@@ -82,17 +82,17 @@ that complexity buys you… what?)
 ```
 Remember how we had `this.handleChange = this.handleChange.bind(this)`
 in the constructor? Well that's because doing the most obvious thing:
--- putting `this.handleChange` here -- won't work, because it's going to be
+-- putting `this.handleChange` here — won't work, because it's going to be
 inserted in the virtual DOM element's props, and then `this` will point to the
-wrong thing, and the second most obvious thing -- putting `this.handleChange.bind(this)`
-here -- is an _antipattern_ which is typically addressed by a suitably configured
+wrong thing, and the second most obvious thing — putting `this.handleChange.bind(this)`
+here — is an _antipattern_ which is typically addressed by a suitably configured
 linter screaming at you (because you run the risk of leaking context every time
 you `render`, and you `render` a lot).
 
 Now, React does lots of clever stuff to avoid doing inefficient things like
 rebuilding DOM nodes unnecessarily. Still, it's interesting to turn on Chrome's
 _performance > rendering > paint flashing_ tool and see just what does get redrawn 
-and when. The `<h3>` tag, for example, gets redrawn when a new item is created -- 
+and when. The `<h3>` tag, for example, gets redrawn when a new item is created — 
 I'm not sure why that doesn't get optimized out…
 ```
             value={this.state.text}
@@ -196,7 +196,7 @@ The equivalent `b8r` ToDo list would looks like:
   <li data-list="_component_.list:_auto_" data-bind="text=.text"></li>
 ```
 Note the use of `_auto_` to get `b8r` to auto-generate _unique_ ids for the array elements.
-(Not "probably" unique. Guaranteed unique.) If we wanted to do it the same was as React 
+(Not "probably" unique. Guaranteed unique.) If we wanted to do it more like React 
 did, we'd generate `id` in some way, e.g. [uuid](?source=source/uuid.js), and have 
 `data-list="_component_.list:id"` here.
 
@@ -223,7 +223,7 @@ The `<form>` saves us putting an event handler on the `<input>`.
 My preference would be to skip the `<form>` and put explicit event handlers 
 for the `keydown` (on the `<input>`) and the `click` (on the `<button>`).
 
-**Aside**: `b8r` offers a convenience for key events -- you can write (for example) 
+**Aside**: `b8r` offers a convenience for key events — you can write (for example) 
 `data-event="keydown(Enter):...` to avoid writing a bunch of boilerplate filter code 
 in the event handler.
 
@@ -248,14 +248,14 @@ data. `_component_` refers to the component's private data in bindings.
 >
 > You can integrate such a component using the `<b8r-component>` custom element:
 >
->     &lt;b8r-component path="path/to/component.js">
+>     <b8r-component path="path/to/component.js">
 >       ... children
 >     </b8r-component>
 >
 > You can find out more about the new component system [here](./?source=docs/components.md).
 
-If a `b8r` component includes a `<style>` tag you can refer to the component's `class` -- 
-`<component-name>-component` -- as `_component_` in the component's CSS selectors,
+If a `b8r` component includes a `<style>` tag you can refer to the component's `class` — 
+`<component-name>-component` — as `_component_` in the component's CSS selectors,
 e.g. `._component_ { background: red; }`.
 ```
   <input
@@ -329,7 +329,7 @@ input field changes a bound value and then that bound value is sent back into th
 then its selection and focus state may be lost, and if you imagine that the input field
 contains a number, a "smart" optimization might consider the new value to be different.
 
-`b8r` does one more thing to prevent unnecessary refreshes -- tracking the bound values 
+`b8r` does one more thing to prevent unnecessary refreshes — tracking the bound values 
 "last seen" during an update and not redrawing if they haven't changed. This can prevent computed 
 bindings from being unnecessarily called (if something is bound to `path.to.foo(path.to.bar, path.to.baz))`, 
 `b8r` won't call `foo` if `bar` and `baz` haven't changed since it last called `foo`.
