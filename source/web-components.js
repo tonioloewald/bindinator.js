@@ -15,6 +15,43 @@
 This library provides helper functions for creating [Custom Elements](https://www.webcomponents.org/).
 The terms "web-component" and "custom element" are used interchangeably everywhere.
 
+## Example
+
+```
+// you cannot redefine an existing web-component so we need a unique name for refreshes
+const componentName = 'simple-button-' + b8r.unique()
+const {makeWebComponent, div} = b8r.webComponents
+const elt = b8r.create(componentName)
+elt.textContent = 'Click Me'
+makeWebComponent(componentName, {
+  style: {
+    ':host': {
+      cursor: 'default',
+      display: 'inline-block',
+      borderRadius: '4px',
+      background: '#55f',
+      color: 'white',
+      padding: '5px 10px',
+    },
+    ':host(:hover)': {
+      background: '#44e',
+    },
+    ':host(:active)': {
+      background: '#228',
+    },
+  },
+  methods: {
+    onAction() {
+      alert(this.textContent + ' was clicked')
+    },
+    render () {
+      this.onclick = this.onAction
+    }
+  }
+})
+example.append(elt)
+```
+
 ## Methods
 
 ### makeWebComponent
