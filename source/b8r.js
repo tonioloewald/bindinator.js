@@ -91,9 +91,10 @@ import {
 
 import * as webComponents from './web-components.js'
 
-import { unique } from './uuid.js'
+let uniqueId = 0
+const unique = () => uniqueId++
 
-const b8r = { constants }
+const b8r = { constants, unique }
 const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
 
@@ -745,7 +746,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       return this.dataset.componentId
     },
     data: function () {
-      return b8r.get(this.componentId)
+      return b8r.get(this.componentId())
     }
   },
   methods: {
