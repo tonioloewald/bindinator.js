@@ -409,10 +409,14 @@ const makeWebComponent = (tagName, {
           Object.defineProperty(this, prop, {
             enumerable: false,
             get () {
-              return value
+              return value.call(this)
             },
-            set () {
-              throw new Error('cannot set read-only prop')
+            set (x) {
+              if (value.length === 1) {
+                value.call(this, x)
+              } else {
+                throw new Error('cannot set read-only prop')
+              }
             }
           })
         }
