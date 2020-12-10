@@ -183,7 +183,8 @@ console.error = error
 
 // unique tokens passed to set by path to delete or create properties
 
-import { unique } from './uuid.js'
+let uniqueId = 0
+const unique = () => uniqueId++
 
 const _delete_ = {}
 const _newObject_ = {}
