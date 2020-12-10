@@ -738,16 +738,24 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
     path: '',
-    value: null
   },
   content: false,
   props: {
-    componentId: function () {
+    componentId () {
       return this.dataset.componentId
     },
-    data: function () {
-      return b8r.get(this.componentId())
-    }
+    state () {
+      return b8r.get(this.componentId)
+    },
+    value (x) {
+      if (x === undefined) {
+        return this.state.value
+      } else {
+        if (this.state.value !== undefined) {
+          this.state.value = x
+        }
+      }
+    },
   },
   methods: {
     connectedCallback () {
@@ -756,6 +764,9 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
         if (!this.name) this.name = path.split('/').pop().split('.').shift()
         b8r.component(this.name, path)
       }
+    },
+    get (path = '.') {
+      return b8r.getByPath(this.componentId)
     },
     set (...args) {
       b8r.setByPath(this.componentId, ...args)
