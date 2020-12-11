@@ -244,8 +244,8 @@ as  `b8r` and the output element as `example`.
     editor.setTheme('ace/theme/monokai');
   };
   if(source) {
-    code_elt.textContent = source;
-    init_editor();
+    code_elt.textContent = source.trim();
+    init_editor(source.startsWith('<') ? 'ace/mode/html' : 'ace/mode/javascript');
     setTimeout(run);
   } else if (code_elt.textContent.trim()) {
     code_elt.textContent = code_elt.textContent.trim();
@@ -283,7 +283,7 @@ as  `b8r` and the output element as `example`.
     b8r.empty(container);
     last_code = source;
     if (source === '') return;
-    if (source.match(/^\s*<\w+[^<>]*>/)) {
+    if (source.match(/^\s*<(!|\w+)[^<>]*>/)) {
       // html component
       b8r.insertComponent(
         b8r.makeComponent('fiddle-' + unique(), source, b8r._path ? `${b8r._path}/` : ''),

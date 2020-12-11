@@ -70,4 +70,4 @@ errors. You might even be tempted to use `b8r` for all your state management.)
 [Hooks](https://reactjs.org/docs/hooks-intro.html) are a pretty recent feature of 
 React (introduced in v16.8), and it's quite possible you're stuck on an older version 
 and can't use them. In that case you'll probably need to build some kind of 
-state constainer. If there's sufficient interest, I'll implement one.
+state container. If there's sufficient interest, I'll implement one.
