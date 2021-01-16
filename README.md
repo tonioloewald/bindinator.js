@@ -166,9 +166,10 @@ the `<li>` tags in the preceding example.)
 A few of things to try in the console:
 
 ```
-b8r.set('example2.list[id=2].name', 'Veejer')
-b8r.push('example2.list', {id: 4, name: 'Clear Air Turbulence'})
-b8r.remove('example2.list[id=3]')
+b8r.set('example2.list[id=ncc-1031]'].name', 'Veejer')
+b8r.push('example2.list', {id: 17, name: 'Clear Air Turbulence'})
+b8r.set('example2.fleet', 'Culture + Federation')
+b8r.remove('example2.list[id=ncc-74656]')
 ```
 
 Finally note that a path comprising just a period binds to the entire list item, so if you

@@ -4,6 +4,80 @@
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
+## New! Radical Simplification
+
+Thanks to the magic of ES6 Proxy, `b8r` can finally have the syntax I
+always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven-williams-2ba1124b/) 
+for the suggestion.
+
+Registry exports a `reg` object, exposed as `b8r.reg` from `b8r`.
+
+    import {reg} from '../path/to/b8r'
+
+    reg.foo = {bar: 17}               // registers the object at the path 'foo'
+    reg.foo.bar                       // returns 17
+    reg.foo.bar = 10                  // sets the value and triggers changes to bindings
+    reg.fleet = [
+      {id: 'ncc-1701', name: 'Enterprise'},
+      {id: 'ncc-1031', name: 'Discovery'},
+      {id: 'ncc-74656', name: 'Voyager'},
+    ]                                 // registers the array as fleet
+    reg.fleet[1].name                 // returns 'Discovery'
+    reg.fleet['id=ncc-74656'].name    // returns 'Voyager'
+    reg.fleet['id=ncc-74656'].name = 'Veejur' // changes the name AND triggers changes to bindings
+
+<b8r-component path="components/fiddle" data-source="components/list"></b8r-component>
+
+You can try the following in the console:
+
+    const {example2} = b8r.reg
+
+    example2.fleet = 'My Own Fleet'
+    example2.list['id=ncc1701'].name = 'Free Enterprise'
+
+~~~~
+// title: proxy tests
+
+b8r.reg.proxyTest = {
+  foo: 17, 
+  bar: {baz: 'world'},
+  ships: [
+      {id: 'ncc-1701', name: 'Enterprise'},
+      {id: 'ncc-1031', name: 'Discovery'},
+      {id: 'ncc-74656', name: 'Voyager'},
+  ]
+}
+
+Test(() => b8r.get('proxyTest.foo', 'registration works')).shouldBe(17)
+b8r.reg.proxyTest.foo = Math.PI
+Test(() => b8r.get('proxyTest.foo', 'setting path works')).shouldBe(Math.PI)
+Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'getting id-path works').shouldBe("Discovery")
+b8r.reg.proxyTest.ships["id=ncc-1031"].name = 'Clear Air Turbulence'
+Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'setting id-path works').shouldBe("Clear Air Turbulence")
+Test(() => b8r.get('proxyTest.ships[id=ncc-1031].name'), 'get agrees').shouldBe("Clear Air Turbulence")
+let changes = 0
+b8r.observe('proxyTest.bar', () => changes++)
+b8r.reg.proxyTest.bar.baz = 'hello'
+Test(() => b8r.get('proxyTest.bar.baz', 'setting deep path works')).shouldBe('hello')
+b8r.reg.proxyTest.bar = {baz: 'fred'}
+Test(() => b8r.get('proxyTest.bar.baz', 'setting object works')).shouldBe('fred')
+Test(() => changes, 'changes were detected').shouldBe(2)
+~~~~
+
+**How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) 
+objects allow you to intercept property lookups and handle them programmatically. 
+In essence, they're computed properties where the name is passed to `get()` and `set()`. 
+This is supported by all the major browsers (except IE) since ~2016.
+
+### TODO
+- the proxy should handle array operations `push` and `delete` (possible?) by doing the right thing
+- `delete reg.foo` should ideally do the equivalent of `b8r.remove('foo')` (possible?)
+- might we want to implement `b8r.obs.path.to.whatever` that provides a proxied `Observable`?
+- it would be cool if changing an array element by index triggered changes in id-path
+  bindings and vice-versa
+
+## register, get, set, and touch
+
 `b8r`'s **registry** is an **observable** object store that b8r uses to keep
 track of objects. Once an object is registered, its properties will
 automatically be bound to events and DOM properties by path. The goal is

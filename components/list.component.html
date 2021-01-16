@@ -1,4 +1,5 @@
 <ul>
+  <h3 data-bind="text=example2.fleet"></h3>
   <li
     data-list="example2.list:id"
     data-bind="text=.name"
@@ -7,10 +8,11 @@
 <script>
   /* global b8r */
   b8r.register('example2', {
+    fleet: 'Starfleet',
     list: [
-      { id: 1, name: 'Enterprise' },
-      { id: 2, name: 'Voyager' },
-      { id: 3, name: 'Discovery' }
+      {id: 'ncc-1701', name: 'Enterprise'},
+      {id: 'ncc-1031', name: 'Discovery'},
+      {id: 'ncc-74656', name: 'Voyager'},
     ]
   })
 </script>
