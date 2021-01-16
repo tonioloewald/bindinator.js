@@ -94,6 +94,8 @@ import * as webComponents from './web-components.js'
 let uniqueId = 0
 const unique = () => uniqueId++
 
+// TODO seal b8r after it's been built
+
 const b8r = { constants, unique }
 const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`

@@ -1183,6 +1183,51 @@ const deregister = path => {
 const _getByPath = (model, path) =>
   get(path ? model + (path[0] === '[' ? path : '.' + path) : model)
 
+const extendPath = (path, prop) => {
+  if (path === '') {
+    return prop
+  } else {
+    if (prop.match(/^\d+$/) || prop.includes('=')) {
+      return `${path}[${prop}]`
+    } else {
+      return `${path}.${prop}`
+    }
+  }
+}
+const regHandler = (path = '') => ({
+  get: function(target, prop) {
+    if (target.hasOwnProperty(prop) || Array.isArray(target) && prop.includes('=')) {
+      let value
+      console.log(prop)
+      if (prop.includes('=')) {
+        const [idPath, needle] = prop.split('=')
+        value = target.find(candidate => getByPath(candidate, idPath) == needle)
+      } else {
+        value = target[prop]
+      }
+      if (typeof value === 'object' && target.constructor) {
+        const currentPath = extendPath(path, prop)
+        console.log(currentPath, value)
+        const proxy = new Proxy(value, regHandler(currentPath))
+        return proxy
+      } else {
+        return value
+      }
+    } else {
+      return undefined
+    }
+  },
+  set: function(target, prop, value) {
+    if (typeof target === 'object') {
+      b8r.set(extendPath(path, prop), value)
+    } else {
+      throw `cannot set property of a non-object`
+    }
+  }
+})
+
+const reg = new Proxy(registry, regHandler())
+
 export {
   get,
   getJSON,
@@ -1199,6 +1244,7 @@ export {
   models,
   _register,
   checkType,
+  reg,
   registerType,
   types,
   register,
