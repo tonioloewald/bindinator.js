@@ -488,7 +488,7 @@ function bindList (listTemplate) {
   // assign unique ids if _auto_ id-path is specified
   if (idPath === '_auto_') {
     for (let i = 0; i < list.length; i++) {
-      if (!list[i]._auto_) {
+      if (list[i]._auto_ === undefined) {
         list[i]._auto_ = unique()
       }
     }
