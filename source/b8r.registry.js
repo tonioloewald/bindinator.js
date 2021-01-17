@@ -25,7 +25,7 @@ and binding events and element properties to paths based on those names.
 > as before.
 
 Thanks to the magic of ES6 Proxy, `b8r` can finally have the syntax I
-always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven-williams-2ba1124b/) 
+always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven-williams-2ba1124b/)
 for the suggestion.
 
 Registry exports a `reg` object, exposed as `b8r.reg` from `b8r`.
@@ -58,7 +58,7 @@ You can try the following in the console:
 // title: proxy tests
 
 b8r.reg.proxyTest = {
-  foo: 17, 
+  foo: 17,
   bar: {baz: 'world'},
   ships: [
       {id: 'ncc-1701', name: 'Enterprise'},
@@ -95,9 +95,9 @@ Test(() => ship.id, 'pop works').shouldBe(2)
 Test(() => b8r.reg.proxyTest.ships[0].id, 'unshift works').shouldBe(2)
 ~~~~
 
-**How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) 
-objects allow you to intercept property lookups and handle them programmatically. 
-In essence, they're computed properties where the name is passed to `get()` and `set()`. 
+**How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
+objects allow you to intercept property lookups and handle them programmatically.
+In essence, they're computed properties where the name is passed to `get()` and `set()`.
 This is supported by all the major browsers (except IE) since ~2016.
 
 ### TODO
@@ -1302,24 +1302,24 @@ const extendPath = (path, prop) => {
 }
 
 const regHandler = (path = '') => ({
-  get: function(target, prop) {
-    if (target.hasOwnProperty(prop) || Array.isArray(target) && prop.includes('=')) {
+  get: function (target, prop) {
+    if (Object.prototype.hasOwnProperty.call(target, prop) || (Array.isArray(target) && prop.includes('='))) {
       let value
       if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=')
-        value = target.find(candidate => getByPath(candidate, idPath) == needle)
+        value = target.find(candidate => `${getByPath(candidate, idPath)}` === needle)
       } else {
         value = target[prop]
       }
       if (typeof value === 'object' && target.constructor) {
         const currentPath = extendPath(path, prop)
         const proxy = new Proxy(value, regHandler(currentPath))
-        return proxy 
+        return proxy
       } else {
         return value
       }
     } else if (Array.isArray(target)) {
-      switch(prop) {
+      switch (prop) {
         case 'push':
         case 'pop':
         case 'shift':
@@ -1339,17 +1339,17 @@ const regHandler = (path = '') => ({
         case 'slice':
           return (...items) => Array.prototype.slice.apply(target, items)
         default:
-          throw `unrecognized property ${prop} on array at ${path}`
+          throw new Error(`unrecognized property ${prop} on array at ${path}`)
       }
     } else {
       return undefined
     }
   },
-  set: function(target, prop, value) {
+  set: function (target, prop, value) {
     if (typeof target === 'object') {
       b8r.set(extendPath(path, prop), value)
     } else {
-      throw `cannot set property of a non-object`
+      throw new Error('cannot set property of a non-object')
     }
   }
 })

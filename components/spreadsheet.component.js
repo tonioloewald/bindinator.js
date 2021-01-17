@@ -12,12 +12,12 @@ Implements a basic, virtualized spreadsheet, including handling of a sparse grid
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'
 const alphaBase = (n) => {
-  let s = '' 
+  let s = ''
   const base = alphabet.length
   do {
     s = alphabet[n % base] + s
-    n = Math.floor(n/base)
-  } while(n > 0)
+    n = Math.floor(n / base)
+  } while (n > 0)
   return s
 }
 
@@ -27,7 +27,7 @@ class SpreadSheet {
   constructor (colCount, rowCount) {
     const rows = []
     const columns = []
-    for(let row = 0; row < rowCount; row++) {
+    for (let row = 0; row < rowCount; row++) {
       const cells = []
       cells[colCount - 1] = null
       rows.push({
@@ -38,24 +38,24 @@ class SpreadSheet {
     for (let col = 0; col < colCount; col++) {
       columns.push({
         title: alphaBase(col),
-        width: 100,
+        width: 100
       })
     }
     Object.assign(this, {
       columns,
       rows,
       colCount,
-      rowCount,
+      rowCount
     })
   }
 
-  setCell(col, row, value) {
+  setCell (col, row, value) {
     const type = !isNaN(parseFloat(value)) ? 'number' : (value[0] === '=' ? 'formula' : 'text')
-    console.log({col, row, value, type})
+    console.log({ col, row, value, type })
     this.rows[row].cells[col] = { value, type }
   }
 
-  getCell(col, row) {
+  getCell (col, row) {
     return (this.rows[row].cells[col] || {}).value
   }
 }
@@ -160,19 +160,19 @@ export default {
   </div>
   <div class="top-left"></div>
   `,
-  initialValue: ({b8r, findOne}) => {
+  initialValue: ({ b8r, findOne }) => {
     const colHead = findOne('.header')
     const rowHead = findOne('.row-header')
     const grid = findOne('.grid')
-    let finalUpdate = 0;
+    let finalUpdate = 0
     const scrollSync = () => {
-      clearTimeout(scrollSync)
+      clearTimeout(finalUpdate)
       finalUpdate = setTimeout(scrollSync, 100)
       colHead.style.transform = `translateX(-${grid.scrollLeft}px)`
       rowHead.style.transform = `translateY(-${grid.scrollTop}px)`
     }
     const cssGrid = function (gridElt, columns) {
-      b8r.cssVar(gridElt.parentElement, '--columns', (columns || []).map(({width}) => `${width}px`).join(' '))
+      b8r.cssVar(gridElt.parentElement, '--columns', (columns || []).map(({ width }) => `${width}px`).join(' '))
     }
     const sheet = makeSheet(50, 100)
     sheet.setCell(2, 2, 1)
@@ -183,7 +183,7 @@ export default {
     return {
       sheet,
       scrollSync,
-      cssGrid,
+      cssGrid
     }
-  },
+  }
 }

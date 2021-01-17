@@ -40,5 +40,5 @@ export default [
   'input', 'change',
   'keydown', 'keyup',
   'cut', 'copy', 'paste',
-  'focus', 'blur', 'focusin', 'focusout', // more to follow
+  'focus', 'blur', 'focusin', 'focusout' // more to follow
 ]
