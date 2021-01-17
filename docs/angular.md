@@ -310,11 +310,13 @@ work and what they do. So you'll often find yourself debugging code
 you didn't write with no clue what it's doing or what it's supposed
 to do.
 
-`@Input` is doing something like wrapping the value assigned to the
-property in an observable and then when the value changes updating the
-property and marking the object as "dirty" so it gets redrawn. Again,
-what a given decorator does is pretty arbitrary so it's a bunch of 
-special case voodoo you just need to learn.
+`@Input` is doing something like implementing the property as a 
+computed property and having it flag some or all of the component
+as requiring redrawing. I'm pretty sure it's not that simple because
+if you create a callback that changes the property and send it to a
+library that executes `outside the ngZone` then, by default, it
+doesn't work any more, and you need to do a bunch of shenanigans
+with ngZones.
 
 By contrast, `b8r` thinks in terms of "paths" so when it sees that a
 value at a path has changed, it knows to redraw anything bound to
