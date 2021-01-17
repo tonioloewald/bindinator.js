@@ -4,7 +4,23 @@
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
-## New! Radical Simplification
+## Better Living Through Proxies (New!)
+
+> In a nutshell, instead of `b8r.get('path.to.value')` you can now write
+> `b8r.reg.path.to.value`, and instead of `b8r.set('path.to.value', newValue)`
+> you can write `b8r.reg.path.to.value = newValue`.
+>
+> In general, this works as expected, so `const {path} = b9r.reg` followed
+> by `path.to.value = newValue` works as expected if the destructured value
+> is an object. So `const {to} = b8r.reg.path` will let you set `to.value = newValue`
+> but `let {value} = b8r.reg.path.to` followed by `value = newValue` will not update
+> the registered object.
+>
+> For arrays, `b8r.reg.path.to.array.push(newArrayItem)` works as expected,
+> including `touch`ing the array.
+>
+> `delete b8r.reg.foo.bar.baz` does not do anything. Use `b8r.remove('foo.bar.baz')`
+> as before.
 
 Thanks to the magic of ES6 Proxy, `b8r` can finally have the syntax I
 always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven-williams-2ba1124b/) 
@@ -62,6 +78,14 @@ Test(() => b8r.get('proxyTest.bar.baz', 'setting deep path works')).shouldBe('he
 b8r.reg.proxyTest.bar = {baz: 'fred'}
 Test(() => b8r.get('proxyTest.bar.baz', 'setting object works')).shouldBe('fred')
 Test(() => changes, 'changes were detected').shouldBe(2)
+b8r.reg.proxyTest.ships.sort(b8r.makeAscendingSorter(ship => ship.name))
+Test(() => b8r.reg.proxyTest.ships[0].name, 'array sort works').shouldBe('Clear Air Turbulence')
+Test(() => b8r.reg.proxyTest.ships.slice(1)[0].name, 'slice works').shouldBe('Enterprise')
+b8r.reg.proxyTest.ships.splice(1, 0, {id: 17, name: 'Death Star'})
+Test(() => b8r.reg.proxyTest.ships[1].name, 'splice works').shouldBe('Death Star')
+b8r.reg.proxyTest.ships.push({id: 1, name: 'Galactica'}, {id: 2, name: 'No More Mr Nice Guy'})
+Test(() => b8r.reg.proxyTest.ships.length, 'push works').shouldBe(6)
+Test(() => b8r.reg.proxyTest.ships[5].id, 'push works').shouldBe(2)
 ~~~~
 
 **How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) 
@@ -408,6 +432,7 @@ import { matchType } from './b8r.byExample.js'
 import { componentTypes } from './b8r.component.js'
 import { _b8r_ } from './b8r._b8r_.js'
 import { observerShouldBeRemoved } from './b8r.constants.js'
+import b8r from './b8r.js'
 
 const registry = { _b8r_ }
 const registeredTypes = {}
@@ -1268,11 +1293,11 @@ const extendPath = (path, prop) => {
     }
   }
 }
+
 const regHandler = (path = '') => ({
   get: function(target, prop) {
     if (target.hasOwnProperty(prop) || Array.isArray(target) && prop.includes('=')) {
       let value
-      console.log(prop)
       if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=')
         value = target.find(candidate => getByPath(candidate, idPath) == needle)
@@ -1283,9 +1308,24 @@ const regHandler = (path = '') => ({
         const currentPath = extendPath(path, prop)
         console.log(currentPath, value)
         const proxy = new Proxy(value, regHandler(currentPath))
-        return proxy
+        return proxy 
       } else {
         return value
+      }
+    } else if (Array.isArray(target)) {
+      switch(prop) {
+        case 'push':
+        case 'sort':
+        case 'splice':
+          return (...items) => {
+            const result = Array.prototype[prop].apply(target, items)
+            touch(path)
+            return result
+          }
+        case 'slice':
+          return (...items) => Array.prototype.slice.apply(target, items)
+        default:
+          throw `unrecognized property ${prop} on array at ${path}`
       }
     } else {
       return undefined
