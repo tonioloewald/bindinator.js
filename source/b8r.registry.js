@@ -4,7 +4,7 @@
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
-## Better Living Through Proxies (New!)
+## `reg` -- better living through Proxies
 
 > In a nutshell, instead of `b8r.get('path.to.value')` you can now write
 > `b8r.reg.path.to.value`, and instead of `b8r.set('path.to.value', newValue)`
@@ -16,8 +16,10 @@ and binding events and element properties to paths based on those names.
 > but `let {value} = b8r.reg.path.to` followed by `value = newValue` will not update
 > the registered object.
 >
-> For arrays, `b8r.reg.path.to.array.push(newArrayItem)` works as expected,
-> including `touch`ing the array.
+> For arrays, `b8r.reg.path.to.array.push(newArrayItem)` works as expected, as do
+> `pop`, `shift`, `unshift`, `forEach`, `find`, `findIndex`, `slice`, `map`, and `reduce`
+> including `touch`ing the array where appropriate (e.g. `forEach` and `splice`
+> trigger updates via `touch`. `slice`, `map`, `reduce`, and `find` do not.
 >
 > `delete b8r.reg.foo.bar.baz` does not do anything. Use `b8r.remove('foo.bar.baz')`
 > as before.
@@ -30,17 +32,18 @@ Registry exports a `reg` object, exposed as `b8r.reg` from `b8r`.
 
     import {reg} from '../path/to/b8r'
 
-    reg.foo = {bar: 17}               // registers the object at the path 'foo'
-    reg.foo.bar                       // returns 17
-    reg.foo.bar = 10                  // sets the value and triggers changes to bindings
+    reg.foo = {bar: 17}                     // registers the object at the path 'foo'
+    reg.foo.bar                             // returns 17
+    reg.foo.bar = 10                        // sets the value and triggers changes to bindings
     reg.fleet = [
       {id: 'ncc-1701', name: 'Enterprise'},
       {id: 'ncc-1031', name: 'Discovery'},
       {id: 'ncc-74656', name: 'Voyager'},
-    ]                                 // registers the array as fleet
-    reg.fleet[1].name                 // returns 'Discovery'
-    reg.fleet['id=ncc-74656'].name    // returns 'Voyager'
+    ]                                       // registers the array as fleet
+    reg.fleet[1].name                       // returns 'Discovery'
+    reg.fleet['id=ncc-74656'].name          // returns 'Voyager'
     reg.fleet['id=ncc-74656'].name = 'Veejur' // changes the name AND triggers changes to bindings
+    reg.fleet.push({id: 10, 'Death Star'})  // pushes the new item onto the array
 
 <b8r-component path="components/fiddle" data-source="components/list"></b8r-component>
 
@@ -86,6 +89,10 @@ Test(() => b8r.reg.proxyTest.ships[1].name, 'splice works').shouldBe('Death Star
 b8r.reg.proxyTest.ships.push({id: 1, name: 'Galactica'}, {id: 2, name: 'No More Mr Nice Guy'})
 Test(() => b8r.reg.proxyTest.ships.length, 'push works').shouldBe(6)
 Test(() => b8r.reg.proxyTest.ships[5].id, 'push works').shouldBe(2)
+const ship = b8r.reg.proxyTest.ships.pop()
+b8r.reg.proxyTest.ships.unshift(ship)
+Test(() => ship.id, 'pop works').shouldBe(2)
+Test(() => b8r.reg.proxyTest.ships[0].id, 'unshift works').shouldBe(2)
 ~~~~
 
 **How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) 
@@ -1306,7 +1313,6 @@ const regHandler = (path = '') => ({
       }
       if (typeof value === 'object' && target.constructor) {
         const currentPath = extendPath(path, prop)
-        console.log(currentPath, value)
         const proxy = new Proxy(value, regHandler(currentPath))
         return proxy 
       } else {
@@ -1315,13 +1321,21 @@ const regHandler = (path = '') => ({
     } else if (Array.isArray(target)) {
       switch(prop) {
         case 'push':
+        case 'pop':
+        case 'shift':
+        case 'unshift':
         case 'sort':
         case 'splice':
+        case 'forEach':
           return (...items) => {
             const result = Array.prototype[prop].apply(target, items)
             touch(path)
             return result
           }
+        case 'find':
+        case 'findIndex':
+        case 'map':
+        case 'reduce':
         case 'slice':
           return (...items) => Array.prototype.slice.apply(target, items)
         default:
