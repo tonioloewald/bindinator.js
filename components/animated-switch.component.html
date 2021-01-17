@@ -19,7 +19,7 @@ This is an example of implementing an animated control using bodymovin.
 /* global b8r, set, component, get, on */
 'use strict';
   const {viaTag} = await import('../lib/scripts.js');
-  const {bodymovin} = await viaTag('third-party/bodymovin.min.js');
+  const {bodymovin} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js');
   const input = findOne('input');
   const animation = bodymovin.loadAnimation({
     container: component,
