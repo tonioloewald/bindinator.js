@@ -22,19 +22,14 @@ see [React vs b8r](?source=docs/react.md)
   ></button>
 </form>
 <script>
-  /* global get, set */
-  set({
-    list: [],
-    text: '',
-    nextItem: 1,
-    addItem() {
-      const {list, nextItem, text} = get()
-      list.push({text})
-      set({
-        nextItem: nextItem + 1,
-        list,
-        text: ''
-      })
-    }
-  })
+  /* global data */ // data is a proxy for the component's private data store
+  data.list = []
+  data.text = ''
+  data.nextItem = 1 // only provided to match React example
+  data.addItem = () => {
+    const {text} = data
+    data.list.push({text})
+    data.nextItem += 1
+    data.text = ''
+  }
 </script>
