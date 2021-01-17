@@ -1332,25 +1332,15 @@ const regHandler = (path = '') => ({
             touch(path)
             return result
           }
-        case 'find':
-        case 'findIndex':
-        case 'map':
-        case 'reduce':
-        case 'slice':
-          return (...items) => Array.prototype.slice.apply(target, items)
         default:
-          throw new Error(`unrecognized property ${prop} on array at ${path}`)
+          return target[prop]
       }
     } else {
       return undefined
     }
   },
   set: function (target, prop, value) {
-    if (typeof target === 'object') {
-      b8r.set(extendPath(path, prop), value)
-    } else {
-      throw new Error('cannot set property of a non-object')
-    }
+    b8r.set(extendPath(path, prop), value)
   }
 })
 
