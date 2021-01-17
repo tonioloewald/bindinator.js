@@ -1019,22 +1019,22 @@ Test(() => get('test-obj.list').length).shouldBe(1);
 */
 
 const push = (path, value, callback) => {
-  const list = get(path) || set(path, [])
+  const list = get(path) || []
   if (Array.isArray(list)) {
     list.push(value)
     if (callback) {
       callback(list)
     }
-    touch(path)
   }
+  set(path, list)
 }
 
 const unshift = (path, value) => {
-  const list = get(path) || set(path, [])
+  const list = get(path) || []
   if (Array.isArray(list)) {
     list.unshift(value)
-    touch(path)
   }
+  set(path, list)
 }
 
 /**
@@ -1079,11 +1079,11 @@ Sorts the array at path using the provided sorting function. (And b8r provides
 */
 
 const sort = (path, comparison) => {
-  const list = get(path) || set(path, [])
+  const list = get(path) || []
   if (Array.isArray(list)) {
     list.sort(comparison)
-    touch(path)
   }
+  set(path, list)
 }
 
 /**
