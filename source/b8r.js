@@ -748,7 +748,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       return this.dataset.componentId
     },
     data: function () {
-      return b8r.get(this.dataset.componentId)
+      return b8r.reg[this.dataset.componentId]
     }
   },
   methods: {
