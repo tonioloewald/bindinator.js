@@ -726,7 +726,7 @@ b8r.insertComponent = async function (component, element, data) {
     try {
       await component.load(
         element, _pathRelativeB8r(component.path), find, findOne,
-        data, register, get, set, on, touch, component
+        b8r.reg[componentId], register, get, set, on, touch, component
       )
     } catch (e) {
       debugger // eslint-disable-line no-debugger
