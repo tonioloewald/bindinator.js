@@ -1,0 +1,12 @@
+<!--
+# Intro Example
+-->
+<input data-bind="value=foo.baz.lurman">
+<ul>
+  <li data-list="foo.list:id" data-bind="text=.name"></li>
+</ul>
+<script>
+  // try changing these in console!
+  b8r.reg.foo = {bar: 17, baz: {lurman: 'hello world'}}
+  b8r.reg.foo.list = [{id: 1, name: 'Tomasina'}, {id: 2, name: 'Deirdre'}, {id: 3, name: 'Harry'}]
+</script>
