@@ -27,14 +27,17 @@ always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven
 for the suggestion.
 
 `b8r.reg` is a proxy for its `registry`, providing syntax-sugar for `get` and `set` via
-an S6 Proxy. The way the proxy works is that it gives you proxies for its object properties,
-and so on (recursively).
+an ES6 Proxy. The way the proxy works is that it gives you proxies for its object properties,
+and so on (recursively), each proxy knowing the path of the value it wraps.
 
     import {reg} from 'path/to/b8r.js'
     const obj = {
       bar: 17,
       baz: {lurman: 'hello world'},
-      list: [{id: 1, name: 'marco'}, {id: 2, name: 'polo'}]
+      list: [{id: 1, name: 'marco'}, {id: 2, name: 'polo'}],
+      func(message) {
+        alert(message)
+      }
     }
 
     reg.foo = obj               // registers the obj as 'foo'
@@ -45,6 +48,11 @@ and so on (recursively).
     reg.foo.bar = -1            // b8r.set('foo.bar', -1)
     reg.foo.list[0].name        // 'marco'
     reg.foo.list['id=2'].name   // 'polo'
+    reg.foo.func('hello world') // calls the function
+
+You can tell whether a value is a "real" value or a reg proxy by seeing if it has a
+`_b8r_sourcePath`. You can obtain its underlying value (i.e. the value bound to its path)
+via `_b8r_value`.
 
 <b8r-component path="components/fiddle" data-source="components/list"></b8r-component>
 
@@ -55,8 +63,14 @@ You can try the following in the console:
     example2.fleet = 'My Own Fleet'
     example2.list['id=ncc1701'].name = 'Free Enterprise'
 
+### "You cannot put reg proxies into the registry"
+
+`b8r` will block any attempt to bind a reg proxy! Binding a reg proxy can lead to
+very odd side-effects. (And, in general, binding the same object to multiple paths
+is a "bad idea" anyway.)
+
 ~~~~
-// title: proxy tests
+// title: proxy
 
 b8r.reg.proxyTest = {
   foo: 17,
@@ -68,9 +82,9 @@ b8r.reg.proxyTest = {
   ]
 }
 
-Test(() => b8r.get('proxyTest.foo', 'registration works')).shouldBe(17)
+Test(() => b8r.get('proxyTest.foo'), 'registration works').shouldBe(17)
 b8r.reg.proxyTest.foo = Math.PI
-Test(() => b8r.get('proxyTest.foo', 'setting path works')).shouldBe(Math.PI)
+Test(() => b8r.get('proxyTest.foo'), 'setting path works').shouldBe(Math.PI)
 Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'getting id-path works').shouldBe("Discovery")
 b8r.reg.proxyTest.ships["id=ncc-1031"].name = 'Clear Air Turbulence'
 Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'setting id-path works').shouldBe("Clear Air Turbulence")
@@ -78,9 +92,9 @@ Test(() => b8r.get('proxyTest.ships[id=ncc-1031].name'), 'get agrees').shouldBe(
 let changes = 0
 b8r.observe('proxyTest.bar', () => changes++)
 b8r.reg.proxyTest.bar.baz = 'hello'
-Test(() => b8r.get('proxyTest.bar.baz', 'setting deep path works')).shouldBe('hello')
+Test(() => b8r.get('proxyTest.bar.baz'), 'setting deep path works').shouldBe('hello')
 b8r.reg.proxyTest.bar = {baz: 'fred'}
-Test(() => b8r.get('proxyTest.bar.baz', 'setting object works')).shouldBe('fred')
+Test(() => b8r.get('proxyTest.bar.baz'), 'setting object works').shouldBe('fred')
 Test(() => changes, 'changes were detected').shouldBe(2)
 b8r.reg.proxyTest.ships.sort(b8r.makeAscendingSorter(ship => ship.name))
 Test(() => b8r.reg.proxyTest.ships[0].name, 'array sort works').shouldBe('Clear Air Turbulence')
@@ -94,6 +108,12 @@ const ship = b8r.reg.proxyTest.ships.pop()
 b8r.reg.proxyTest.ships.unshift(ship)
 Test(() => ship.id, 'pop works').shouldBe(2)
 Test(() => b8r.reg.proxyTest.ships[0].id, 'unshift works').shouldBe(2)
+Test(() => {
+  b8r.reg.proxyError = b8r.reg.proxyTest
+}, 'putting reg proxies into the registry via assignment is blocked').shouldThrow()
+Test(() => {
+  b8r.set('proxyError', b8r.reg.proxyTest)
+}, 'putting reg proxies into the registry via assignment is blocked').shouldThrow()
 ~~~~
 
 **How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
@@ -102,19 +122,11 @@ In essence, they're computed properties where the name is passed to `get()` and 
 This is supported by all the major browsers (except IE) since ~2016.
 
 ### TODO
-- the proxy should handle array operations `push` and `delete` (possible?) by doing the right thing
-- `delete reg.foo` should ideally do the equivalent of `b8r.remove('foo')` (possible?)
 - might we want to implement `b8r.obs.path.to.whatever` that provides a proxied `Observable`?
 - it would be cool if changing an array element by index triggered changes in id-path
   bindings and vice-versa
 
-## register, get, set, and touch
-
-`b8r`'s **registry** is an **observable** object store that b8r uses to keep
-track of objects. Once an object is registered, its properties will
-automatically be bound to events and DOM properties by path. The goal is
-for your registry to be your **model** and the **single source of truth**
-for the state of your application.
+## register, get, set, replace, and touch
 
 Both of these lines register an object under the name 'root':
 
@@ -154,8 +166,7 @@ Test(() => b8r.get('replace-test.foo')).shouldBe(null)
 b8r.remove('replace-test')
 ~~~~
 
-You can set the registry's properties by path. Root level properties must
-themselves be objects.
+You can set the registry's properties by path. Root level properties must be objects.
 
     get('root.path.to.value'); // gets the value
 
@@ -208,20 +219,37 @@ A binding that starts with `_component_.` is bound to the component instance
 data. Here's a simple component example:
 
 ```
-    <!-- a component -->
-    <div data-bind="text=_component_.foo.bar[id=17].baz"></div>
-    <script>
-      set('foo', {
-        bar: [{id: 17, baz: 'hello world'}]
-      })
-    </script>
+<!-- a component -->
+<div data-bind="text=_component_.foo.bar[id=17].baz"></div>
+<script>
+  data.foo = {
+    bar: [{id: 17, baz: 'hello world'}]
+  }
+</script>
 ```
 
 ## Calling functions in the registry
 
-    call('root.path.to.method', ...args); // returns value as appropriate
+The new way:
 
-You can call a method by path.
+    const result = b8r.reg.root.path.to.method(...args)
+
+The old way:
+
+    const result = call('root.path.to.method', ...args)
+
+Either of these methods allows you to call a function by path.
+You can always do the following, of course:
+
+    const result = get('root.path.to.method')(...args)
+
+Note that this is equivalent to:
+
+    const {method} = get('root.path.to')
+    method(...args)
+
+So if the method relies on being bound to its container, it will
+fail.
 
 ## Triggering Updates
 
@@ -295,6 +323,7 @@ For example:
     b8r.offTypeError(typeErrorHandler)  // removes the error handler (returns true on success)
 
 ~~~~
+// title: type errors
 Test(
   async () => {
     let _errors
@@ -371,6 +400,7 @@ Two convenience methods are provided for working with JSON data:
 `isValidPath` returns true if the path looks OK, false otherwise.
 
 ~~~~
+// title: paths
 Test(() => b8r.isValidPath(''), 'NO empty paths').shouldBe(false);
 Test(() => b8r.isValidPath('.'), 'NO bare period').shouldBe(false);
 Test(() => b8r.isValidPath('.foo'), 'list-instance binding').shouldBe(true);
@@ -442,6 +472,7 @@ import { matchType } from './b8r.byExample.js'
 import { componentTypes } from './b8r.component.js'
 import { _b8r_ } from './b8r._b8r_.js'
 import { observerShouldBeRemoved } from './b8r.constants.js'
+import b8r from './b8r.js'
 
 const registry = { _b8r_ }
 const registeredTypes = {}
@@ -527,139 +558,106 @@ const _get = (path, element) => {
 }
 
 /**
-## Computed Properties, b8r-style
+## Computed Bindings
 
-Computed properties are a newish feature in Javascript, but for various reasons they don't play
-well with b8r.
+If you want to do some more specialized binding than is provided by b8r's binding "targets"
+then you can bind to methods.
 
-First, `b8r.set('foo', bar)` is implemented as:
+    <div data-bind="path.to.method=foo.bar.baz,lerp.derp"></div>
 
-    registry.foo = Object.assign(bar, Object.assign({}, registry.foo, bar));
+The signature of a custom binding function is:
 
-It's possible this can be improved, but it's not for no reason.
+    (element, value) => { ... anything you like ... }
 
-Second, there's no obvious way for b8r to "know" when something changes that would change
-the evaluation of a computed property. For example:
+If one parameter is passed, then the method will be passed the `element` and the
+value of the binding.
 
-    const foo = {
-      a: Math.PI,
-      get bar() { return this.a; }
-    };
-    register('foo', foo);
-    set('foo.a', 17); // how does b8r know to update something bound to foo.bar?
+If *more than one parameter* is passed, then the `value` will be an `array` of the values.
 
-Also note that if we naively do something like:
+These computed bindings will automatically keep themselves up-to-date if any
+paths they depend on are updated.
 
-    set('foo.b', 17); // we've killed it!
+```
+<p data-bind="_component_.fullName=_component_.firstName,_component_.lastName"></p>
+<label>
+  First Name
+  <input data-bind="value=_component_.firstName"
+</label><br>
+<label>
+  Last Name
+  <input data-bind="value=_component_.lastName"
+</label>
+<script>
+  data.firstName = 'Juanita'
+  data.lastName = 'Citizen'
+  data.fullName = (element, [firstName, lastName]) => {
+    element.textContent = `${firstName}, ${lastName}`
+  }
+</script>
+```
+### Computed Lists
 
-You can immunize yourself from the latter by (for example) putting in an explicit
-set method:
+This works similarly for `data-list` bindings:
 
-    const foo = {
-      a: Math.PI,
-      get bar() { return this.a; },
-      set bar(_) { console.error('bar is read only') }
-    };
+    <li data-list="path.to.method(foo.list,bar.filters):id"></li>
 
-But that won't save you from lots of problems, notably foo being deep in the
-hierarchy of a shallow-cloned object.
+The signature of a list filtering function is:
 
-To solve this, b8r's path-bindings have been made *slightly* more powerful.
+    (list, ...args) => {
+      ... anything you lke ...
+      // return elements from the original list
+    }
 
-Originally, b8r supported binding to a simple path like this:
+The method is expected to return an array of members of the original list (not just
+any old things).
 
-    <div data-bind="text=path.to.text">I will be replaced!</div>
+`b8r` expects items bound in a list-binding to be somewhere in its registry, the
+obvious placing being the source list. If you want to bind to some synthetic list
+(e.g. an "outer join") simply compute the list, put it in the registry, and bind to it.
 
-You can put a method on the left-side of a binding using the method() binding:
+    function computeList () {
+      const list1 = b8r.reg.path.to.list1
+      const list2 = b8r.reg.path.to.list2
+      const computedList = []
+      ... build list from list1 and list2
+      b8r.reg.path.to.computedList = computedList
+    }
+    
+    b8r.observe('path.to.list1', computeList)
+    b8r.observe('path.to.list2', computeList)
 
-    <div data-bind="method(path.to.method)=path.to.text">Who knows?!</div>
+A data-list binding to path.to.computedList will be updated whenever the
+list is updated, and computeList will update computedList whenever its constituents
+are updated.
 
-This is actually enough to do everything we want, but there are some downsides.
+What is more difficult is having changes to values in the computed list result 
+in changes in the constituent lists. This obviously can't be automatic, but
+in order for it to work, the computedList items must contain information or
+pointers back to their sources.
 
-First, the syntax sucks. (And it will be improved!)
-
-Second, it makes the simple case more complex (e.g. in this case not only does the method need
-to know what to do with the text but it also needs to modify the DOM directly; aside from the
-extra work, who knows what whacky edge-cases the underlying `text` toTarget handles which the
-method won't.) More code, more work, more bugs.
-
-So instead let's suppose we `register` a controller object of some kind:
-
-    b8r.register('text-controller', {
-      decode: text => decodeURIComponent(text),
-    });
-
-We can now write:
-
-    <div data-bind="text=text-controller.decode(path.to.text)">I will be replaced!</div>
-
-OK, so let's look at a more concrete and realistic example. Suppose you have a giant message
-list that is constantly being updated. So initially you do something like:
-
-    b8r.json('messages').then(data => b8r.register('messages'));
-
-Except you have some extra properties you need to synthesize. E.g. you might want to dim the
-messages of a user who is offline, and the user is off in the users list:
-
-    b8r.json('users').then(data => b8r.register('users'));
-
-### Without computed properties
-
-You might end up doing something like this:
-
-    b8r.json('messages').then(messages => {
-      messages.forEach(message => {
-        message._user_online = b8r.get(`users[id=${message.user}].online`);
-      });
-    });
-
-Also, if you receive a new/updated message you'll need to set the value (and do it via
-'set' so that if the message is already in the DOM it gets updated properly), e.g.
-
-    socket.on('message', message => {
-      message._user_online = b8r.get(`users[id=${message.user}].online`);
-      b8r.set(`messages[id=${message.id}]`, message);
-    });
-
-Oh, and if a user's online status changes you need to remember to update all the messages.
-
-Note that the property name has a leading underscore because we're using some kind of
-convention to make locally added properties look different from stuff we got from the server
-(e.g. in case we want to mutate them back to the server and strip the crap out first).
-
-And the binding looks like this:
-
-    <div class="message" data-bind="class(online)=._user_online">...
-
-### With computed properties
-
-Although you don't need to perform calculations on every message you receive, you do need to
-"decorate" every message:
-
-    const message_decorator = message => {
-      Object.defineProperty(
-        message,
-        '_user_online',
-        { get: function() { return b8r.get(`users[id=${this.user}].online`) } }
-      );
-      return message;
-    };
-
-    b8r.json('messages').then(messages => {
-      b8r.register('messages', messages.map(message_decorator));
-    });
-
-    socket.on('message', message => {
-      b8r.set(`messages[id=${message.id}]`, message_decorator(message));
-    });
-
-And again, you'll need to do this when you get new messages (but not necessarily
-when you update existing messages, modulo the b8r issue mentioned at the outset).
-
-Also, you need to deal with the user list being updated just as before.
-
-And we still need to know how to strip out crap before sending it back to the server because
-the computed property looks like a property on first inspection (and after `JSON.stringify`).
+```
+<label>
+  Filter
+  <input data-bind="value=_component_.needle">
+</label>
+<ul>
+  <li 
+    data-list="_component_.filter(_component_.things,_component_.needle):id"
+    data-bind="text=.description"
+  ></li>
+</ul>
+<script>
+  data.things = [
+    {id: 1, description: 'A loaf of bread'},
+    {id: 2, description: 'A quart of milk'},
+    {id: 3, description: 'A stick of butter'}
+  ]
+  data.filter = (list, needle) => {
+    console.log({list, needle})
+    return needle ? list.filter(item => item.description.includes(needle)) : list
+  }
+</script>
+```
 
 ### Using b8r method-paths
 
@@ -797,6 +795,7 @@ These tests cover the low-level functionality necessary to make all this work. N
 that more complex cases than discussed above are handled, such as computed properties which
 look at multiple parameters from multiple different places.
 ~~~~
+// title: low level
 b8r.register('_data', {
   location: 'a',
   other_location: 'b',
@@ -924,6 +923,9 @@ const checkType = (action, name) => {
 }
 
 const set = (path, value, sourceElement) => {
+  if (value && value._b8r_sourcePath) {
+    throw new Error('You cannot put reg proxies into the registry')
+  }
   if (debugPaths && !isValidPath(path)) {
     console.error(`setting invalid path ${path}`)
   }
@@ -1012,6 +1014,7 @@ item to the path. `callback`, if provided, will be passed the list with its new 
 Just like push but the new element gets unshifted to the beginning of the array.
 
 ~~~~
+// title: push
 const {register, push, unshift, get} = b8r;
 register('test-list', [1,2,3]);
 push('test-list', Math.PI);
@@ -1170,6 +1173,7 @@ Finally, you can have an observer **remove itself** by returning
 or the callback.
 
 ~~~~
+// title: observe
 b8r.register('listener_test1', {
   flag_changed: () => {
     b8r.set('listener_test2.counter', b8r.get('listener_test2.counter') + 1);
@@ -1239,6 +1243,7 @@ Will remove the specified property from the registry (including root-level objec
 does not exist, has no effect. By default, will update objects bound to the path. So:
 
 ~~~~
+// title: remove
 const {register, remove, get} = b8r;
 register('remove-test', {bar: 17, baz: {lurman: true}});
 Test(() => {remove('remove-test.bar'); return get('remove-test.bar');}).shouldBe(null);
@@ -1274,6 +1279,7 @@ adds 1 to the value at path
 subtracts 1 from the value at path
 
 ~~~~
+// title: increment, decrement, zero
 const {register, increment, decrement, zero, get, remove} = b8r;
 register('counter-test', {count: 3});
 increment('counter-test.count');
@@ -1318,6 +1324,12 @@ const extendPath = (path, prop) => {
 
 const regHandler = (path = '') => ({
   get (target, prop) {
+    if (prop === '_b8r_sourcePath') {
+      return path
+    }
+    if (prop === '_b8r_value') {
+      return target
+    }
     if (Object.prototype.hasOwnProperty.call(target, prop) || (Array.isArray(target) && prop.includes('='))) {
       let value
       if (prop.includes('=')) {
