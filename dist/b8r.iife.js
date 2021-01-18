@@ -300,7 +300,7 @@ var b8r = (function () {
     const map = {};
     if (idPath === '_auto_') {
       array.forEach((item, idx) => {
-        if (!item._auto_) item._auto_ = unique();
+        if (item._auto_ === undefined) item._auto_ = unique();
         map[item._auto_ + ''] = idx;
       });
     } else {
@@ -3165,9 +3165,9 @@ var b8r = (function () {
     }
 
     if (load) {
-      // _data and _register are masked because they shouldn't be used any more
-      component.load = async (_component, b8r, find, findOne, _data, _register, get, set, on, touch) => {
-        load({ component: _component, b8r, find, findOne, get, set, on, touch });
+      // _register is masked because it shouldn't be used any more
+      component.load = async (_component, b8r, find, findOne, data, _register, get, set, on, touch) => {
+        load({ component: _component, b8r, data, find, findOne, get, set, on, touch });
       };
     }
 
@@ -3221,11 +3221,6 @@ var b8r = (function () {
     if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
       console.error(`in component "${name}" replace require with await import()`);
       script = false;
-    }
-    // deprecate access to data, which we look for in global declarations since lint will
-    // pick up undeclared or unused data declarations
-    if (script && script.match(/\/\*\s*global[^*]*\bdata\b/)) {
-      console.log('%c%s', 'background: #ffa; color: black;', `component "${name}" references data (deprecated); use get() instead`);
     }
     try {
       load = script
@@ -3411,6 +3406,111 @@ var b8r = (function () {
   Bindinator is built around the idea of registering objects under unique names
   and binding events and element properties to paths based on those names.
 
+  ## `reg` -- better living through Proxies
+
+  > In a nutshell, instead of `b8r.get('path.to.value')` you can now write
+  > `b8r.reg.path.to.value`, and instead of `b8r.set('path.to.value', newValue)`
+  > you can write `b8r.reg.path.to.value = newValue`.
+  >
+  > In general, this works as expected, so `const {path} = b9r.reg` followed
+  > by `path.to.value = newValue` works as expected if the destructured value
+  > is an object. So `const {to} = b8r.reg.path` will let you set `to.value = newValue`
+  > but `let {value} = b8r.reg.path.to` followed by `value = newValue` will not update
+  > the registered object.
+  >
+  > For arrays, `b8r.reg.path.to.array.push(newArrayItem)` works as expected, as do
+  > `pop`, `shift`, `unshift`, `forEach`, `find`, `findIndex`, `slice`, `map`, and `reduce`
+  > including `touch`ing the array where appropriate (e.g. `forEach` and `splice`
+  > trigger updates via `touch`. `slice`, `map`, `reduce`, and `find` do not.
+  >
+  > `delete b8r.reg.foo.bar.baz` does not do anything. Use `b8r.remove('foo.bar.baz')`
+  > as before.
+
+  Thanks to the magic of ES6 Proxy, `b8r` can finally have the syntax I
+  always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven-williams-2ba1124b/)
+  for the suggestion.
+
+  Registry exports a `reg` object, exposed as `b8r.reg` from `b8r`.
+
+      import {reg} from '../path/to/b8r'
+
+      reg.foo = {bar: 17}                     // registers the object at the path 'foo'
+      reg.foo.bar                             // returns 17
+      reg.foo.bar = 10                        // sets the value and triggers changes to bindings
+      reg.fleet = [
+        {id: 'ncc-1701', name: 'Enterprise'},
+        {id: 'ncc-1031', name: 'Discovery'},
+        {id: 'ncc-74656', name: 'Voyager'},
+      ]                                       // registers the array as fleet
+      reg.fleet[1].name                       // returns 'Discovery'
+      reg.fleet['id=ncc-74656'].name          // returns 'Voyager'
+      reg.fleet['id=ncc-74656'].name = 'Veejur' // changes the name AND triggers changes to bindings
+      reg.fleet.push({id: 10, 'Death Star'})  // pushes the new item onto the array
+
+  <b8r-component path="components/fiddle" data-source="components/list"></b8r-component>
+
+  You can try the following in the console:
+
+      const {example2} = b8r.reg
+
+      example2.fleet = 'My Own Fleet'
+      example2.list['id=ncc1701'].name = 'Free Enterprise'
+
+  ~~~~
+  // title: proxy tests
+
+  b8r.reg.proxyTest = {
+    foo: 17,
+    bar: {baz: 'world'},
+    ships: [
+        {id: 'ncc-1701', name: 'Enterprise'},
+        {id: 'ncc-1031', name: 'Discovery'},
+        {id: 'ncc-74656', name: 'Voyager'},
+    ]
+  }
+
+  Test(() => b8r.get('proxyTest.foo', 'registration works')).shouldBe(17)
+  b8r.reg.proxyTest.foo = Math.PI
+  Test(() => b8r.get('proxyTest.foo', 'setting path works')).shouldBe(Math.PI)
+  Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'getting id-path works').shouldBe("Discovery")
+  b8r.reg.proxyTest.ships["id=ncc-1031"].name = 'Clear Air Turbulence'
+  Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'setting id-path works').shouldBe("Clear Air Turbulence")
+  Test(() => b8r.get('proxyTest.ships[id=ncc-1031].name'), 'get agrees').shouldBe("Clear Air Turbulence")
+  let changes = 0
+  b8r.observe('proxyTest.bar', () => changes++)
+  b8r.reg.proxyTest.bar.baz = 'hello'
+  Test(() => b8r.get('proxyTest.bar.baz', 'setting deep path works')).shouldBe('hello')
+  b8r.reg.proxyTest.bar = {baz: 'fred'}
+  Test(() => b8r.get('proxyTest.bar.baz', 'setting object works')).shouldBe('fred')
+  Test(() => changes, 'changes were detected').shouldBe(2)
+  b8r.reg.proxyTest.ships.sort(b8r.makeAscendingSorter(ship => ship.name))
+  Test(() => b8r.reg.proxyTest.ships[0].name, 'array sort works').shouldBe('Clear Air Turbulence')
+  Test(() => b8r.reg.proxyTest.ships.slice(1)[0].name, 'slice works').shouldBe('Enterprise')
+  b8r.reg.proxyTest.ships.splice(1, 0, {id: 17, name: 'Death Star'})
+  Test(() => b8r.reg.proxyTest.ships[1].name, 'splice works').shouldBe('Death Star')
+  b8r.reg.proxyTest.ships.push({id: 1, name: 'Galactica'}, {id: 2, name: 'No More Mr Nice Guy'})
+  Test(() => b8r.reg.proxyTest.ships.length, 'push works').shouldBe(6)
+  Test(() => b8r.reg.proxyTest.ships[5].id, 'push works').shouldBe(2)
+  const ship = b8r.reg.proxyTest.ships.pop()
+  b8r.reg.proxyTest.ships.unshift(ship)
+  Test(() => ship.id, 'pop works').shouldBe(2)
+  Test(() => b8r.reg.proxyTest.ships[0].id, 'unshift works').shouldBe(2)
+  ~~~~
+
+  **How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
+  objects allow you to intercept property lookups and handle them programmatically.
+  In essence, they're computed properties where the name is passed to `get()` and `set()`.
+  This is supported by all the major browsers (except IE) since ~2016.
+
+  ### TODO
+  - the proxy should handle array operations `push` and `delete` (possible?) by doing the right thing
+  - `delete reg.foo` should ideally do the equivalent of `b8r.remove('foo')` (possible?)
+  - might we want to implement `b8r.obs.path.to.whatever` that provides a proxied `Observable`?
+  - it would be cool if changing an array element by index triggered changes in id-path
+    bindings and vice-versa
+
+  ## register, get, set, and touch
+
   `b8r`'s **registry** is an **observable** object store that b8r uses to keep
   track of objects. Once an object is registered, its properties will
   automatically be bound to events and DOM properties by path. The goal is
@@ -3452,6 +3552,7 @@ var b8r = (function () {
   b8r.replace('replace-test', {bar: 'replaced'})
   Test(() => b8r.get('replace-test.bar')).shouldBe('replaced')
   Test(() => b8r.get('replace-test.foo')).shouldBe(null)
+  b8r.remove('replace-test')
   ~~~~
 
   You can set the registry's properties by path. Root level properties must
@@ -3608,6 +3709,7 @@ var b8r = (function () {
       b8r.onTypeError(errorHandler)
       b8r.set('error-handling-test.number', false)
       b8r.offTypeError(errorHandler, true)
+      b8r.remove('error-handling-test')
       return _errors
     },
     'verify custom handler for type errors works'
@@ -4127,6 +4229,8 @@ var b8r = (function () {
   Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[0].online,_data.people[0].location)')).shouldBe(false);
   Test(() => b8r.get('_controller.is_in_location(_data.other_location,_data.people[name=tomasina].online,_data.people[name=tomasina].location)')).shouldBe(true);
   Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[2].online,_data.people[2].location)')).shouldBe(true);
+  b8r.remove('_data')
+  b8r.remove('_controller')
   ~~~~
   */
 
@@ -4264,6 +4368,10 @@ var b8r = (function () {
   };
 
   const _register = (name, obj) => {
+    if (registry[name] && registry[name] !== obj) {
+      console.warn(`${name} already registered; if intended, remove() it first`);
+      return
+    }
     registry[name] = obj;
     checkType(`register('${name}')`, name);
   };
@@ -4306,26 +4414,28 @@ var b8r = (function () {
   push('test-obj.list', 17);
   Test(() => get('test-obj.list[0]')).shouldBe(17);
   Test(() => get('test-obj.list').length).shouldBe(1);
+  b8r.remove('test-list')
+  b8r.remove('test-obj')
   ~~~~
   */
 
   const push = (path, value, callback) => {
-    const list = get(path) || set$1(path, []);
+    const list = get(path) || [];
     if (Array.isArray(list)) {
       list.push(value);
       if (callback) {
         callback(list);
       }
-      touch(path);
     }
+    set$1(path, list);
   };
 
   const unshift = (path, value) => {
-    const list = get(path) || set$1(path, []);
+    const list = get(path) || [];
     if (Array.isArray(list)) {
       list.unshift(value);
-      touch(path);
     }
+    set$1(path, list);
   };
 
   /**
@@ -4370,11 +4480,11 @@ var b8r = (function () {
   */
 
   const sort = (path, comparison) => {
-    const list = get(path) || set$1(path, []);
+    const list = get(path) || [];
     if (Array.isArray(list)) {
       list.sort(comparison);
-      touch(path);
     }
+    set$1(path, list);
   };
 
   /**
@@ -4467,6 +4577,7 @@ var b8r = (function () {
   b8r.remove('listener_test1');
   b8r.set('listener_test2.flag', false);
   Test(() => b8r.get('listener_test2.counter'), 'observer automatically removed').shouldBe(3);
+  b8r.remove('listener_test2')
   ~~~~
   */
 
@@ -4518,10 +4629,11 @@ var b8r = (function () {
 
   ~~~~
   const {register, remove, get} = b8r;
-  register('foo', {bar: 17, baz: {lurman: true}});
-  Test(() => {remove('foo.bar'); return get('foo.bar');}).shouldBe(null);
-  Test(() => {remove('foo.boris.yeltsin'); return get('foo.boris')}).shouldBe(null);
-  Test(() => {remove('foo.baz.lurman'); return Object.keys(get('foo.baz')).length}).shouldBe(0);
+  register('remove-test', {bar: 17, baz: {lurman: true}});
+  Test(() => {remove('remove-test.bar'); return get('remove-test.bar');}).shouldBe(null);
+  Test(() => {remove('remove-test.boris.yeltsin'); return get('remove-test.boris')}).shouldBe(null);
+  Test(() => {remove('remove-test.baz.lurman'); return Object.keys(get('remove-test.baz')).length}).shouldBe(0);
+  b8r.remove('remove-test')
   ~~~~
   */
   const remove = (path, update = true) => {
@@ -4551,7 +4663,7 @@ var b8r = (function () {
   subtracts 1 from the value at path
 
   ~~~~
-  const {register, increment, decrement, zero, get} = b8r;
+  const {register, increment, decrement, zero, get, remove} = b8r;
   register('counter-test', {count: 3});
   increment('counter-test.count');
   increment('counter-test.count');
@@ -4563,6 +4675,7 @@ var b8r = (function () {
   Test(() => get('counter-test.count'), 'zero and decrement').shouldBe(-1);
   zero('counter-test.other_count');
   Test(() => get('counter-test.other_count'), 'zero a new path').shouldBe(0);
+  remove('counter-test')
   ~~~~
   */
 
@@ -4579,6 +4692,64 @@ var b8r = (function () {
 
   const _getByPath = (model, path) =>
     get(path ? model + (path[0] === '[' ? path : '.' + path) : model);
+
+  const extendPath = (path, prop) => {
+    if (path === '') {
+      return prop
+    } else {
+      if (prop.match(/^\d+$/) || prop.includes('=')) {
+        return `${path}[${prop}]`
+      } else {
+        return `${path}.${prop}`
+      }
+    }
+  };
+
+  const regHandler = (path = '') => ({
+    get (target, prop) {
+      if (Object.prototype.hasOwnProperty.call(target, prop) || (Array.isArray(target) && prop.includes('='))) {
+        let value;
+        if (prop.includes('=')) {
+          const [idPath, needle] = prop.split('=');
+          value = target.find(candidate => `${getByPath(candidate, idPath)}` === needle);
+        } else {
+          value = target[prop];
+        }
+        if (typeof value === 'object' && target.constructor) {
+          const currentPath = extendPath(path, prop);
+          const proxy = new Proxy(value, regHandler(currentPath));
+          return proxy
+        } else {
+          return value
+        }
+      } else if (Array.isArray(target)) {
+        switch (prop) {
+          case 'push':
+          case 'pop':
+          case 'shift':
+          case 'unshift':
+          case 'sort':
+          case 'splice':
+          case 'forEach':
+            return (...items) => {
+              const result = Array.prototype[prop].apply(target, items);
+              touch(path);
+              return result
+            }
+          default:
+            return target[prop]
+        }
+      } else {
+        return undefined
+      }
+    },
+    set (target, prop, value) {
+      set$1(extendPath(path, prop), value);
+      return true // success (throws error in strict mode otherwise)
+    }
+  });
+
+  const reg = new Proxy(registry, regHandler());
 
   var _registry = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -4604,6 +4775,7 @@ var b8r = (function () {
     models: models,
     _register: _register,
     checkType: checkType,
+    reg: reg,
     registerType: registerType,
     types: types,
     register: register,
@@ -4864,7 +5036,7 @@ var b8r = (function () {
   - `keydown`, `keyup`
   - `input`, `change`
   - `cut`, `copy`, `paste`
-  - `focus`, `blur`
+  - `focus`, `blur`, `focusin`, `focusout`
 
   */
 
@@ -4878,7 +5050,7 @@ var b8r = (function () {
     'input', 'change',
     'keydown', 'keyup',
     'cut', 'copy', 'paste',
-    'focus', 'blur' // more to follow
+    'focus', 'blur', 'focusin', 'focusout' // more to follow
   ];
 
   /**
@@ -6252,9 +6424,14 @@ var b8r = (function () {
   ### Usage
 
       import {sortAscending, sortDescending} from 'path/to/b8r.sort.js';
+
       const a = ['b', 'a', 'c'];
       const ascending = a.sort(sortAscending); // ['a', 'b', 'c'];
       const descending = a.sort(sortDescending); // ['c', 'b', 'a'];
+
+      import {makeAscendingSorter, makeDescendingSorter} from 'path/to/b8r.sort.js'
+      const beatles = [{name: 'paul'}, {name: 'john'}, {name: 'george'}, {name: 'ringo'}]
+      beatles.sort(makeAscendingSorter(beatle => beatle.name)) // [{name: 'george'}, ...]
 
   They're also useful for building custom sort methods:
 
@@ -6263,11 +6440,16 @@ var b8r = (function () {
 
   ~~~~
   // title: sortAscending & sortDescending tests
-  const {sortAscending, sortDescending} = b8r;
+  const {sortAscending, sortDescending, makeAscendingSorter, makeDescendingSorter} = b8r;
   Test(() => ['c', 'a', 'B'].sort(sortAscending), 'sort strings, ascending').shouldBeJSON(['a','B','c']);
   Test(() => ['c', 'a', 'B'].sort(sortDescending), 'sort strings, descending').shouldBeJSON(['c','B','a']);
   Test(() => ['3', 1, 2].sort(sortAscending), 'sort mixed types, ascending').shouldBeJSON([1,2,'3']);
   Test(() => ['3', 1, 2].sort(sortDescending), 'sort mixed types, descending').shouldBeJSON(['3',2,1]);
+  const beatles = [{name: 'paul'}, {name: 'john'}, {name: 'george'}, {name: 'ringo'}]
+  beatles.sort(makeAscendingSorter(beatle => beatle.name))
+  Test(() => beatles[2].name, 'makeAscendingSorter works').shouldBe('paul')
+  beatles.sort(makeDescendingSorter(beatle => beatle.name))
+  Test(() => beatles[3].name, 'makeDescendingSorter works').shouldBe('george')
   ~~~~
   */
 
@@ -6279,10 +6461,22 @@ var b8r = (function () {
     typeof a === 'string' || typeof b === 'string'
       ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
 
+  const identity = x => x;
+
+  const makeAscendingSorter = (getter = identity) => {
+    return (a, b) => sortAscending(getter(a), getter(b))
+  };
+
+  const makeDescendingSorter = (getter = identity) => {
+    return (a, b) => sortDescending(getter(a), getter(b))
+  };
+
   var _sort = /*#__PURE__*/Object.freeze({
     __proto__: null,
     sortAscending: sortAscending,
-    sortDescending: sortDescending
+    sortDescending: sortDescending,
+    makeAscendingSorter: makeAscendingSorter,
+    makeDescendingSorter: makeDescendingSorter
   });
 
   /**
@@ -6549,6 +6743,43 @@ var b8r = (function () {
 
   This library provides helper functions for creating [Custom Elements](https://www.webcomponents.org/).
   The terms "web-component" and "custom element" are used interchangeably everywhere.
+
+  ## Example
+
+  ```
+  // you cannot redefine an existing web-component so we need a unique name for refreshes
+  const componentName = 'simple-button-' + b8r.unique()
+  const {makeWebComponent, div} = b8r.webComponents
+  const elt = b8r.create(componentName)
+  elt.textContent = 'Click Me'
+  makeWebComponent(componentName, {
+    style: {
+      ':host': {
+        cursor: 'default',
+        display: 'inline-block',
+        borderRadius: '4px',
+        background: '#55f',
+        color: 'white',
+        padding: '5px 10px',
+      },
+      ':host(:hover)': {
+        background: '#44e',
+      },
+      ':host(:active)': {
+        background: '#228',
+      },
+    },
+    methods: {
+      onAction() {
+        alert(this.textContent + ' was clicked')
+      },
+      render () {
+        this.onclick = this.onAction
+      }
+    }
+  })
+  example.append(elt)
+  ```
 
   ## Methods
 
@@ -7062,7 +7293,12 @@ var b8r = (function () {
   - [Showing and Hiding](?source=source/b8r.show.js)
   */
 
-  const b8r = { constants };
+  let uniqueId = 0;
+  const unique$1 = () => uniqueId++;
+
+  // TODO seal b8r after it's been built
+
+  const b8r = { constants, unique: unique$1 };
   const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])';
   const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
 
@@ -7073,7 +7309,7 @@ var b8r = (function () {
   Object.assign(b8r, { onAny, offAny, anyListeners });
   Object.assign(b8r, _registry);
   Object.assign(b8r, _byExample);
-  b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement));
+  b8r.observe(() => true, (path, sourceElement) => touchByPath(path, sourceElement));
   b8r.keystroke = keystroke;
   b8r.modifierKeys = modifierKeys;
   b8r.webComponents = webComponents;
@@ -7093,7 +7329,7 @@ var b8r = (function () {
       }
     });
   }, 100);
-  Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement, touchByPath });
+  Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement });
 
   b8r.forceUpdate = () => {
     let updateList;
@@ -7169,6 +7405,10 @@ var b8r = (function () {
   _insertSet(b8r.set);
   _insertFromTargets(fromTargets$1);
 
+  const _touchPath = (model, path) => {
+    b8r.touch(model + (path.startsWith('[') ? path : '.' + path));
+  };
+
   b8r.pushByPath = function (...args) {
     let name, path, value, callback;
     if (args.length === 2 || typeof args[2] === 'function') {
@@ -7183,7 +7423,7 @@ var b8r = (function () {
       if (callback) {
         callback(list);
       }
-      b8r.touchByPath(name, path);
+      _touchPath(name, path);
     } else {
       console.error(`pushByPath failed; ${name} is not a registered model`);
     }
@@ -7200,7 +7440,7 @@ var b8r = (function () {
     if (b8r.registered(name)) {
       const list = getByPath(b8r.get(name), path);
       list.unshift(value);
-      b8r.touchByPath(name, path);
+      _touchPath(name, path);
     } else {
       console.error(`unshiftByPath failed; ${name} is not a registered model`);
     }
@@ -7245,7 +7485,7 @@ var b8r = (function () {
       } else {
         delete list[key];
       }
-      b8r.touchByPath(name, path);
+      _touchPath(name, path);
     }
   };
 
@@ -7454,8 +7694,8 @@ var b8r = (function () {
     // assign unique ids if _auto_ id-path is specified
     if (idPath === '_auto_') {
       for (let i = 0; i < list.length; i++) {
-        if (!list[i]._auto_) {
-          list[i]._auto_ = unique();
+        if (list[i]._auto_ === undefined) {
+          list[i]._auto_ = unique$1();
         }
       }
     }
@@ -7662,7 +7902,6 @@ var b8r = (function () {
         element.classList.remove(c);
       }
     });
-    const register = componentData => b8r.register(componentId, componentData);
     const get = path => b8r.getByPath(componentId, path);
     const set = (...args) => {
       b8r.setByPath(componentId, ...args);
@@ -7671,7 +7910,11 @@ var b8r = (function () {
         b8r.trigger('change', element);
       }
     };
-    const touch = path => b8r.touchByPath(componentId, path);
+    const register = componentData => {
+      console.warn('use of register withi components is deprecated, use set() instead');
+      set(componentData);
+    };
+    const touch = path => _touchPath(componentId, path);
     const on = (...args) => b8r.on(element, ...args);
     const find = selector => b8r.findWithin(element, selector);
     const findOne = selector => b8r.findOneWithin(element, selector);
@@ -7692,7 +7935,7 @@ var b8r = (function () {
       try {
         await component.load(
           element, _pathRelativeB8r(component.path), find, findOne,
-          data, register, get, set, on, touch, component
+          b8r.reg[componentId], register, get, set, on, touch, component
         );
       } catch (e) {
         debugger // eslint-disable-line no-debugger
@@ -7714,7 +7957,7 @@ var b8r = (function () {
         return this.dataset.componentId
       },
       data: function () {
-        return b8r.get(this.dataset.componentId)
+        return b8r.reg[this.dataset.componentId]
       }
     },
     methods: {

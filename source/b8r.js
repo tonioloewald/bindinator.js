@@ -204,7 +204,7 @@ _insertSet(b8r.set)
 _insertFromTargets(fromTargets)
 
 const _touchPath = (model, path) => {
-  b8r.touch( model + (path.startsWith('[') ? path : '.' + path))
+  b8r.touch(model + (path.startsWith('[') ? path : '.' + path))
 }
 
 b8r.pushByPath = function (...args) {

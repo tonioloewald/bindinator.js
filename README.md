@@ -69,7 +69,7 @@ Now try editing the text in the text field. You could also try replacing the bin
 
 Or try entering this in the debugger console:
 
-    b8r.foo.list['id=3'].name = 'harriet'
+    b8r.reg.foo.list['id=3'].name = 'Harriet'
 
 <b8r-component path="components/fiddle" data-source="components/intro">
 </b8r-component>

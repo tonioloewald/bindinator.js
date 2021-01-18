@@ -289,7 +289,8 @@ So you get the encapsulation of React's single-file component, along with the cl
   }
 </script>
 ```
-Note how all the logic is in one place!
+Note how all the logic is in one place, and not interleaved with the markup. Also note
+how absolutely simple and straightforward it is.
 
 To actually use the component, we'd write:
 ```

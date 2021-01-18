@@ -441,7 +441,6 @@ import { matchType } from './b8r.byExample.js'
 import { componentTypes } from './b8r.component.js'
 import { _b8r_ } from './b8r._b8r_.js'
 import { observerShouldBeRemoved } from './b8r.constants.js'
-import b8r from './b8r.js'
 
 const registry = { _b8r_ }
 const registeredTypes = {}
@@ -1315,7 +1314,7 @@ const extendPath = (path, prop) => {
 }
 
 const regHandler = (path = '') => ({
-  get: function (target, prop) {
+  get (target, prop) {
     if (Object.prototype.hasOwnProperty.call(target, prop) || (Array.isArray(target) && prop.includes('='))) {
       let value
       if (prop.includes('=')) {
@@ -1352,8 +1351,8 @@ const regHandler = (path = '') => ({
       return undefined
     }
   },
-  set: function (target, prop, value) {
-    b8r.set(extendPath(path, prop), value)
+  set (target, prop, value) {
+    set(extendPath(path, prop), value)
     return true // success (throws error in strict mode otherwise)
   }
 })
