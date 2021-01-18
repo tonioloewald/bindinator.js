@@ -812,4 +812,6 @@ b8r.componentOnce = async (...args) => {
   }
 }
 
+Object.freeze(b8r)
+
 export default b8r
