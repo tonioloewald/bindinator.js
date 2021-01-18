@@ -4,7 +4,7 @@
 Bindinator is built around the idea of registering objects under unique names
 and binding events and element properties to paths based on those names.
 
-## `reg` -- better living through Proxies
+## `reg`—better living through Proxies
 
 > In a nutshell, instead of `b8r.get('path.to.value')` you can now write
 > `b8r.reg.path.to.value`, and instead of `b8r.set('path.to.value', newValue)`
