@@ -696,7 +696,6 @@ b8r.insertComponent = async function (component, element, data) {
       element.classList.remove(c)
     }
   })
-  const register = componentData => b8r.register(componentId, componentData)
   const get = path => b8r.getByPath(componentId, path)
   const set = (...args) => {
     b8r.setByPath(componentId, ...args)
@@ -704,6 +703,10 @@ b8r.insertComponent = async function (component, element, data) {
     if (args[0] === 'value' || Object.prototype.hasOwnProperty.call(args[0], 'value')) {
       b8r.trigger('change', element)
     }
+  }
+  const register = componentData => {
+    console.warn('use of register withi components is deprecated, use set() instead')
+    set(componentData)
   }
   const touch = path => b8r.touchByPath(componentId, path)
   const on = (...args) => b8r.on(element, ...args)
