@@ -6,44 +6,45 @@ and binding events and element properties to paths based on those names.
 
 ## `reg`—better living through Proxies
 
-> In a nutshell, instead of `b8r.get('path.to.value')` you can now write
-> `b8r.reg.path.to.value`, and instead of `b8r.set('path.to.value', newValue)`
-> you can write `b8r.reg.path.to.value = newValue`.
->
-> In general, this works as expected, so `const {path} = b9r.reg` followed
-> by `path.to.value = newValue` works as expected if the destructured value
-> is an object. So `const {to} = b8r.reg.path` will let you set `to.value = newValue`
-> but `let {value} = b8r.reg.path.to` followed by `value = newValue` will not update
-> the registered object.
->
-> For arrays, `b8r.reg.path.to.array.push(newArrayItem)` works as expected, as do
-> `pop`, `shift`, `unshift`, `forEach`, `find`, `findIndex`, `slice`, `map`, and `reduce`
-> including `touch`ing the array where appropriate (e.g. `forEach` and `splice`
-> trigger updates via `touch`. `slice`, `map`, `reduce`, and `find` do not.
->
-> `delete b8r.reg.foo.bar.baz` does not do anything. Use `b8r.remove('foo.bar.baz')`
-> as before.
+### How it started
+
+    b8r.register('my-object', {foo: 17, bar: {baz: 'lurman'}})
+    const text = b8r.get('path.to.text')
+    b8r.set('path.to.text', 'new string')
+    b8r.pushByPath('path.to.array', {id: 17, name: 'new item'})
+    const itemByIdPath = b8r.get('path.to.array[id=17]') // one of b8r's coolest features
+
+### How it's going
+
+    b8r.reg['my-object'] = {foo: 17, bar: {baz: 'lurman'}}
+    const text = b8r.reg.path.to.text
+    b8r.reg.path.to.text = 'new string'
+    b8r.reg.path.to.array.push({id: 17, name: 'new item'})   // also sort, find, forEach, etc.
+    const itemByIdPath = b8r.reg.path.to.array['id=17']      // works!
 
 Thanks to the magic of ES6 Proxy, `b8r` can finally have the syntax I
 always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven-williams-2ba1124b/)
 for the suggestion.
 
-Registry exports a `reg` object, exposed as `b8r.reg` from `b8r`.
+`b8r.reg` is a proxy for its `registry`, providing syntax-sugar for `get` and `set` via
+an S6 Proxy. The way the proxy works is that it gives you proxies for its object properties,
+and so on (recursively).
 
-    import {reg} from '../path/to/b8r'
+    import {reg} from 'path/to/b8r.js'
+    const obj = {
+      bar: 17,
+      baz: {lurman: 'hello world'},
+      list: [{id: 1, name: 'marco'}, {id: 2, name: 'polo'}]
+    }
 
-    reg.foo = {bar: 17}                     // registers the object at the path 'foo'
-    reg.foo.bar                             // returns 17
-    reg.foo.bar = 10                        // sets the value and triggers changes to bindings
-    reg.fleet = [
-      {id: 'ncc-1701', name: 'Enterprise'},
-      {id: 'ncc-1031', name: 'Discovery'},
-      {id: 'ncc-74656', name: 'Voyager'},
-    ]                                       // registers the array as fleet
-    reg.fleet[1].name                       // returns 'Discovery'
-    reg.fleet['id=ncc-74656'].name          // returns 'Voyager'
-    reg.fleet['id=ncc-74656'].name = 'Veejur' // changes the name AND triggers changes to bindings
-    reg.fleet.push({id: 10, 'Death Star'})  // pushes the new item onto the array
+    reg.foo = obj               // registers the obj as 'foo'
+    reg.foo                     // is now a proxy for obj
+    reg.foo.baz                 // proxy for obj.baz
+    reg.foo.bar                 // 17
+    reg.foo.baz.lurman          // 'hello world'
+    reg.foo.bar = -1            // b8r.set('foo.bar', -1)
+    reg.foo.list[0].name        // 'marco'
+    reg.foo.list['id=2'].name   // 'polo'
 
 <b8r-component path="components/fiddle" data-source="components/list"></b8r-component>
 
