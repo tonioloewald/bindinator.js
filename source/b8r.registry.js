@@ -150,6 +150,7 @@ Test(() => b8r.get('replace-test.foo')).shouldBe(17)
 b8r.replace('replace-test', {bar: 'replaced'})
 Test(() => b8r.get('replace-test.bar')).shouldBe('replaced')
 Test(() => b8r.get('replace-test.foo')).shouldBe(null)
+b8r.remove('replace-test')
 ~~~~
 
 You can set the registry's properties by path. Root level properties must
@@ -306,6 +307,7 @@ Test(
     b8r.onTypeError(errorHandler)
     b8r.set('error-handling-test.number', false)
     b8r.offTypeError(errorHandler, true)
+    b8r.remove('error-handling-test')
     return _errors
   },
   'verify custom handler for type errors works'
@@ -836,6 +838,8 @@ Test(() => b8r.get('_controller.is_in_location(_data.location,_data.person.onlin
 Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[0].online,_data.people[0].location)')).shouldBe(false);
 Test(() => b8r.get('_controller.is_in_location(_data.other_location,_data.people[name=tomasina].online,_data.people[name=tomasina].location)')).shouldBe(true);
 Test(() => b8r.get('_controller.is_in_location(_data.location,_data.people[2].online,_data.people[2].location)')).shouldBe(true);
+b8r.remove('_data')
+b8r.remove('_controller')
 ~~~~
 */
 
@@ -973,6 +977,10 @@ const registerType = (name, example) => {
 }
 
 const _register = (name, obj) => {
+  if (registry[name] && registry[name] !== obj) {
+    console.warn(`${name} already registered; if intended, remove() it first`)
+    return
+  }
   registry[name] = obj
   checkType(`register('${name}')`, name)
 }
@@ -1015,6 +1023,8 @@ register('test-obj', {});
 push('test-obj.list', 17);
 Test(() => get('test-obj.list[0]')).shouldBe(17);
 Test(() => get('test-obj.list').length).shouldBe(1);
+b8r.remove('test-list')
+b8r.remove('test-obj')
 ~~~~
 */
 
@@ -1176,6 +1186,7 @@ Test(() => b8r.get('listener_test2.counter'), 'observer counted flag set to true
 b8r.remove('listener_test1');
 b8r.set('listener_test2.flag', false);
 Test(() => b8r.get('listener_test2.counter'), 'observer automatically removed').shouldBe(3);
+b8r.remove('listener_test2')
 ~~~~
 */
 
@@ -1227,10 +1238,11 @@ does not exist, has no effect. By default, will update objects bound to the path
 
 ~~~~
 const {register, remove, get} = b8r;
-register('foo', {bar: 17, baz: {lurman: true}});
-Test(() => {remove('foo.bar'); return get('foo.bar');}).shouldBe(null);
-Test(() => {remove('foo.boris.yeltsin'); return get('foo.boris')}).shouldBe(null);
-Test(() => {remove('foo.baz.lurman'); return Object.keys(get('foo.baz')).length}).shouldBe(0);
+register('remove-test', {bar: 17, baz: {lurman: true}});
+Test(() => {remove('remove-test.bar'); return get('remove-test.bar');}).shouldBe(null);
+Test(() => {remove('remove-test.boris.yeltsin'); return get('remove-test.boris')}).shouldBe(null);
+Test(() => {remove('remove-test.baz.lurman'); return Object.keys(get('remove-test.baz')).length}).shouldBe(0);
+b8r.remove('remove-test')
 ~~~~
 */
 const remove = (path, update = true) => {
@@ -1260,7 +1272,7 @@ adds 1 to the value at path
 subtracts 1 from the value at path
 
 ~~~~
-const {register, increment, decrement, zero, get} = b8r;
+const {register, increment, decrement, zero, get, remove} = b8r;
 register('counter-test', {count: 3});
 increment('counter-test.count');
 increment('counter-test.count');
@@ -1272,6 +1284,7 @@ decrement('counter-test.count');
 Test(() => get('counter-test.count'), 'zero and decrement').shouldBe(-1);
 zero('counter-test.other_count');
 Test(() => get('counter-test.other_count'), 'zero a new path').shouldBe(0);
+remove('counter-test')
 ~~~~
 */
 
