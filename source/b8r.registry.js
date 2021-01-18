@@ -1083,6 +1083,8 @@ Sorts the array at path using the provided sorting function. (And b8r provides
     const prop_name = evt.target.textContent.toLowerCase();
     b8r.sort('test-people', (a, b) => b8r.sortAscending(a[prop_name], b[prop_name]));
   });
+
+  b8r.remove('test-people')
 </script>
 ```
 */
