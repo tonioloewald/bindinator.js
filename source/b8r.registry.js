@@ -1354,6 +1354,7 @@ const regHandler = (path = '') => ({
   },
   set: function (target, prop, value) {
     b8r.set(extendPath(path, prop), value)
+    return true // success (throws error in strict mode otherwise)
   }
 })
 
