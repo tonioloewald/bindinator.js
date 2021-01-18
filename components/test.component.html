@@ -126,7 +126,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
       reportContainer.textContent = ''
       const specifiedTitle = source.match(/\/\/ *title: *([^\n]+)/)
       if (specifiedTitle) {
-        set('title', specifiedTitle[1].trim())
+        set('title', specifiedTitle[1].trim() + ' (tests)')
       }
       const test_runner = new AsyncFunction('Test', 'b8r', source + `////# sourceURL=${component.dataset.componentId}`) // jshint ignore:line
       await test_runner.call(null, Test, b8r)
