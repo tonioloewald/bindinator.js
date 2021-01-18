@@ -107,7 +107,7 @@ Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponen
 Object.assign(b8r, { onAny, offAny, anyListeners })
 Object.assign(b8r, _registry)
 Object.assign(b8r, _byExample)
-b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement))
+b8r.observe(() => true, (path, sourceElement) => touchByPath(path, sourceElement))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
 b8r.webComponents = webComponents
@@ -127,7 +127,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
     }
   })
 }, 100)
-Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement, touchByPath })
+Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement })
 
 b8r.forceUpdate = () => {
   let updateList
@@ -203,6 +203,10 @@ b8r.setByPath = function (...args) {
 _insertSet(b8r.set)
 _insertFromTargets(fromTargets)
 
+const _touchPath = (model, path) => {
+  b8r.touch( model + (path.startsWith('[') ? path : '.' + path))
+}
+
 b8r.pushByPath = function (...args) {
   let name, path, value, callback
   if (args.length === 2 || typeof args[2] === 'function') {
@@ -217,7 +221,7 @@ b8r.pushByPath = function (...args) {
     if (callback) {
       callback(list)
     }
-    b8r.touchByPath(name, path)
+    _touchPath(name, path)
   } else {
     console.error(`pushByPath failed; ${name} is not a registered model`)
   }
@@ -234,7 +238,7 @@ b8r.unshiftByPath = function (...args) {
   if (b8r.registered(name)) {
     const list = getByPath(b8r.get(name), path)
     list.unshift(value)
-    b8r.touchByPath(name, path)
+    _touchPath(name, path)
   } else {
     console.error(`unshiftByPath failed; ${name} is not a registered model`)
   }
@@ -279,7 +283,7 @@ b8r.removeByPath = function (...args) {
     } else {
       delete list[key]
     }
-    b8r.touchByPath(name, path)
+    _touchPath(name, path)
   }
 }
 
@@ -708,7 +712,7 @@ b8r.insertComponent = async function (component, element, data) {
     console.warn('use of register withi components is deprecated, use set() instead')
     set(componentData)
   }
-  const touch = path => b8r.touchByPath(componentId, path)
+  const touch = path => _touchPath(componentId, path)
   const on = (...args) => b8r.on(element, ...args)
   const find = selector => b8r.findWithin(element, selector)
   const findOne = selector => b8r.findOneWithin(element, selector)
