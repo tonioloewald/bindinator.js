@@ -88,7 +88,8 @@ When you assign objects to `b8r.reg` you are binding data to paths, e.g.
 
     b8r.reg.foo = {bar: 'hello'}
 
-This the object `{bar: 'hello'}` to the path `foo`, so `foo.bar` points to 'hello'. 
+Now, the object `{bar: 'hello'}` is bound to the path `foo`, so `foo.bar` points to 'hello',
+`b8r.reg.foo.bar` and `b8r.get('foo.bar')` will both yield 'hello'.
 
 When you assign new values to the registry, you are in fact altering values inside an 
 object bound to the "root" of the path. `b8r.reg.foo.path.to.whatever = ...` changes 
