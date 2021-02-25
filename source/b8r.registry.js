@@ -622,7 +622,7 @@ obvious placing being the source list. If you want to bind to some synthetic lis
       ... build list from list1 and list2
       b8r.reg.path.to.computedList = computedList
     }
-    
+
     b8r.observe('path.to.list1', computeList)
     b8r.observe('path.to.list2', computeList)
 
@@ -630,7 +630,7 @@ A data-list binding to path.to.computedList will be updated whenever the
 list is updated, and computeList will update computedList whenever its constituents
 are updated.
 
-What is more difficult is having changes to values in the computed list result 
+What is more difficult is having changes to values in the computed list result
 in changes in the constituent lists. This obviously can't be automatic, but
 in order for it to work, the computedList items must contain information or
 pointers back to their sources.
@@ -641,7 +641,7 @@ pointers back to their sources.
   <input data-bind="value=_component_.needle">
 </label>
 <ul>
-  <li 
+  <li
     data-list="_component_.filter(_component_.things,_component_.needle):id"
     data-bind="text=.description"
   ></li>
