@@ -5,18 +5,15 @@ A simple code editor which uses ace
 
     <b8r-code-editor mode="javascript" value="// code goes here"></b8r-code-editor>
 
-This also works (kind of) bearing in mind that whitespace will disapppear and you
-need to insert `<br>` at the end of each line:
+By default, the code editor will load the text within the tag, treating it as pre-formatted.
 
-    <b8r-code-editor mode="javascript">
-      // code goes here
-    </b8r-code-editor>
-
+```
 <b8r-code-editor mode="javascript" style="width: 100%; height: 200px;">
-  // code goes here<br>
-  console.log('hello world')
-</b8r-code-editor>
+// code goes here
 
+console.log('hello world')
+</b8r-code-editor>
+```
 ~~~~
 const {webComponentTest} = await import('../web-components/web-component-test.js')
 webComponentTest(Test, '../web-components/code-editor.js', 'b8r-code-editor')
@@ -72,7 +69,7 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
     connectedCallback () {
       this._editor = makeCodeEditor(this, this.mode)
       if (!this.value) {
-        this.value = this.innerText
+        this.value = this.textContent.trim()
       }
     },
     render () {

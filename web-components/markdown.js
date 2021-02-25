@@ -5,11 +5,11 @@ Provides a simple `<b8r-markdown>` control that displays rendered
 markdown passed as its `value`.
 
 ```
-    <b8r-markdown data-bind="value=_component_.markdown"></b8r-markdown>
-    <script>
-      await import('../web-components/markdown.js');
-      set('markdown', '###markdown\n**bold** and _italic');
-    </script>
+<b8r-markdown data-bind="value=_component_.markdown"></b8r-markdown>
+<script>
+  await import('../web-components/markdown.js');
+  set('markdown', '###markdown\n**bold** and _italic');
+</script>
 ```
 ~~~~
 const {webComponentTest} = await import('../web-components/web-component-test.js')
