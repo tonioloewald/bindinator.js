@@ -12,79 +12,6 @@
 [npm](https://www.npmjs.com/package/@tonioloewald/b8r) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
-## b8r in 5 minutes
-
-Here's a really quick start to working with `b8r` to build a web app. (If you're 
-interested in building a desktop app, you can try 
-[b8r-native](https://github.com/tonioloewald/b8r-native).)
-
-```
-mkdir path/to/project
-cd path/to/project
-npm init
-```
-
-Accept all the defaults. (We'll ignore the entry point for now.)
-
-```
-npm install @tonioloewald/b8r --save
-```
-
-You'll need something to serve pages, a simple option is:
-
-```
-npm install http-server --save-dev
-```
-
-Now create a simple web page:
-
-```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>hello world</title>
-</head>
-<body>
-  <h1 data-bind="text=app.message"></h1>
-  <input data-bind="value=app.message">
-  <button data-event="click:app.speak">Speak</button>
-  <b8r-component path="node_modules/@tonioloewald/b8r/components/photo-tabs"></b8r-component>
-  <script type="module">
-    // you can also use ../b8r/dist/b8r.min.mjs (minified)
-    // or ../b8r/source/b8r.js (source code)
-    import b8r from './node_modules/@tonioloewald/b8r/dist/b8r.mjs'
-
-    window.b8r = b8r // so we can play with it in console
-
-    b8r.register('app', {
-      message: 'hello world',
-      speak() {
-        alert(b8r.get('app.message'))
-      }
-    })
-  </script>
-</body>
-</html>
-```
-
-…and save it as `index.html`.
-
-Now run:
-
-```
-./node_modules/http-server/bin/http-server .
-```
-
-And open [http://localhost:8080](http://localhost:8080) in your browser.
-
-Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Safari*, 
-`Cmd+Option+I` in *Firefox*) and try:
-
-    b8r.get('app.message') // should print "hello world"
-    b8r.set('app.message', 'laziness rules!')
-    b8r.call('app.speak')
-
 ## The lazy JavaScript framework.
 
 *Laziness drives every design decision in b8r*. 
@@ -108,15 +35,69 @@ parse HTML).
 - Don't require special debugging tools, leverage the existing debug tools. 
 - Don't add zillions of runtime dependencies.
 
-### Bind Data to the DOM with `data-bind`
+## Basic Principles
+### Put data into b8r's registry to bind it to a path
+
+    b8r.reg.foo = {bar: 17, baz: {lurman: 'hello world'}}
+### Bind "data-paths" to the DOM with `data-bind`
+
+    <input data-bind="value=foo.baz.lurman">
+### …and stuff "just works"
+
+Now, changes in the DOM update the bound data. And changes made to the data (via the registry)
+update the DOM, e.g.
+
+    b8r.reg.foo.baz.lurman = 'goodbye world'
+### Binding arrays is just as simple:
+
+    <ul>
+      <li data-list="foo.list:id" data-bind="text=.name"></li>
+    </ul>
+
+And then bind a list:
+
+    b8r.reg.foo.list = [{id: 1, name: 'Tomasina'}, {id: 2, name: 'Deirdre'}, {id: 3, name: 'Harry'}]
+
+(Or do it the other way around)
+
+Here's all of the above in a live "fiddle". Try adding this above the `<script>` tag (and then clicking **Refresh**):
+
+    <div data-bind="text=foo.baz.lurman"></div>
+
+Now try editing the text in the text field. You could also try replacing the binding in the 
+`<input>` with `data-bind="value=foo.list[id=3].name"`. Try editing that!
+
+Or try entering this in the debugger console:
+
+    b8r.reg.foo.list['id=3'].name = 'Harriet'
+
+<b8r-component path="components/fiddle" data-source="components/intro">
+</b8r-component>
+
+## Digging a little deeper
+
+There's no magic!
 
 A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors*
 implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
 
 With `b8r`, you **bind paths to DOM elements** using the `data-bind` attribute, and 
-you bind **javascript objects to paths** using `b8r.set`, and `b8r` does the rest.
+you bind **javascript objects to paths** using `b8r.reg...`, and `b8r` does the rest.
 
-This is all asynchronous. Do it in whatever order makes sense.
+When you assign objects to `b8r.reg` you are binding data to paths, e.g.
+
+    b8r.reg.foo = {bar: 'hello'}
+
+Now, the object `{bar: 'hello'}` is bound to the path `foo`, so `foo.bar` points to 'hello',
+`b8r.reg.foo.bar` and `b8r.get('foo.bar')` will both yield 'hello'.
+
+When you assign new values to the registry, you are in fact altering values inside an 
+object bound to the "root" of the path. `b8r.reg.foo.path.to.whatever = ...` changes 
+values inside the object bound to `foo`. Using the `reg` to set values also 
+tells `b8r` that the values have been changed, allowing it to perform updates.
+
+You must register an object to a name before you can change values inside it. But
+*you can always bind to a path*.
 
 <b8r-component path="components/fiddle" data-source="components/drumpf"></b8r-component>
 
@@ -127,10 +108,10 @@ Note the use of an ES6-*like* interpolated string (it doesn't do `eval`, it just
 Usually bindings won't contain `${...}` and are treated as bare data-paths. You can try to change the
 binding to `data-bind="text=example.name"` or `data-bind="text=${example.name} says “hi”"`.
 
-You can update data directly using `b8r.set`, e.g.
+You can update data directly using `b8r.reg`, e.g.
 
 ```
-b8r.set('example.name', 'Trump')
+b8r.reg.example.name = 'Trump'
 ```
 
 Try it in the **console**!
@@ -138,7 +119,7 @@ Try it in the **console**!
 ### Interacting with `b8r` in the console
 
 Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own
-`<iframe>`s -- it's all happily running in the same `body`. By default, `b8r` doesn't
+`<iframe>`s—it's all happily running in the same `body`. By default, `b8r` doesn't
 leave anything at all in global namespace.
 
 In the `b8r` documentation app I've exposed `b8r` to let you play around. This is 
@@ -166,9 +147,10 @@ the `<li>` tags in the preceding example.)
 A few of things to try in the console:
 
 ```
-b8r.set('example2.list[id=2].name', 'Veejer')
-b8r.push('example2.list', {id: 4, name: 'Clear Air Turbulence'})
-b8r.remove('example2.list[id=3]')
+b8r.reg.example2.list['id=ncc-1031]'].name = 'Veejer'
+b8r.reg.example2.list.push({id: 17, name: 'Clear Air Turbulence'})
+b8r.reg.example2.fleet = 'Culture + Federation'
+b8t.reg.example2.list.splice(1,1)
 ```
 
 Finally note that a path comprising just a period binds to the entire list item, so if you
@@ -190,7 +172,7 @@ Events are bound via data-paths as just like data. In this example `click` is th
 Try this in the console (and then click the button again):
 
 ```
-b8r.set('example4.click', () => alert('I changed the event handler'))
+b8r.reg.example4.click = () => alert('I changed the event handler')
 ```
 
 Any of these snippets can be converted into reusable components by saving them as (say)
@@ -263,11 +245,84 @@ to display interactive examples is 343 lines including comments, styles, markup,
 `b8r` isolates component internals so cleanly from the rest of the page that the fiddle doesn't
 need to use an iframe.
 
+## b8r with npm in five minutes
+
+Here's a really quick start to working with `b8r` to build a web app. (If you're 
+interested in building a desktop app, you can try 
+[b8r-native](https://github.com/tonioloewald/b8r-native).)
+
+```
+mkdir path/to/project
+cd path/to/project
+npm init
+```
+
+Accept all the defaults. (We'll ignore the entry point for now.)
+
+```
+npm install @tonioloewald/b8r—save
+```
+
+You'll need something to serve pages, a simple option is:
+
+```
+npm install http-server—save-dev
+```
+
+Now create a simple web page:
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>hello world</title>
+</head>
+<body>
+  <h1 data-bind="text=app.message"></h1>
+  <input data-bind="value=app.message">
+  <button data-event="click:app.speak">Speak</button>
+  <b8r-component path="node_modules/@tonioloewald/b8r/components/photo-tabs"></b8r-component>
+  <script type="module">
+    // you can also use ../b8r/dist/b8r.min.mjs (minified)
+    // or ../b8r/source/b8r.js (source code)
+    import b8r from './node_modules/@tonioloewald/b8r/dist/b8r.mjs'
+
+    window.b8r = b8r // so we can play with it in console
+
+    b8r.reg.app = {
+      message: 'hello world',
+      speak() {
+        alert(b8r.reg.app.message)
+      }
+    }
+  </script>
+</body>
+</html>
+```
+
+…and save it as `index.html`.
+
+Now run:
+
+```
+npx http-server .
+```
+
+And open [http://localhost:8080](http://localhost:8080) in your browser.
+
+Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Safari*, 
+`Cmd+Option+I` in *Firefox*) and try:
+
+    b8r.reg.app.message                     // should print "hello world"
+    b8r.reg.app.message = 'laziness rules!' // updates the value in the input
+    b8r.reg.app.speak()                     // same as clicking the button
+
 ## In a Nut
 
 - bind paths to DOM elements using `data-bind`.
-- bind paths to objects using `b8r.set()` (or `b8r.register`).
-- access and modify values bound to paths using `b8r.get()` and `b8r.set()`.
+- bind paths to objects using `b8r.reg.name` (or `b8r.reg['your name']`) `= { ... }`.
+- access and modify values bound to paths using `b8r.reg.path.to.value`.
 - bind arrays to the DOM using `data-list`.
 - bind events to event handlers using `data-event`.
 - bind components to the DOM using `<b8r-component>`.

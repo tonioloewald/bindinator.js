@@ -26,7 +26,7 @@ To add other types of events, you can call `b8r.implicitlyHandleEventsOfType('ty
 - `keydown`, `keyup`
 - `input`, `change`
 - `cut`, `copy`, `paste`
-- `focus`, `blur`
+- `focus`, `blur`, `focusin`, `focusout`
 
 */
 
@@ -40,5 +40,5 @@ export default [
   'input', 'change',
   'keydown', 'keyup',
   'cut', 'copy', 'paste',
-  'focus', 'blur' // more to follow
+  'focus', 'blur', 'focusin', 'focusout' // more to follow
 ]

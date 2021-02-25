@@ -242,7 +242,7 @@ function buildIdPathValueMap (array, idPath) {
   const map = {}
   if (idPath === '_auto_') {
     array.forEach((item, idx) => {
-      if (!item._auto_) item._auto_ = unique()
+      if (item._auto_ === undefined) item._auto_ = unique()
       map[item._auto_ + ''] = idx
     })
   } else {

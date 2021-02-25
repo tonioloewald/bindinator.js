@@ -1,5 +1,7 @@
 # React vs b8r
 
+> **Note**: updated to reflect the new registry proxy syntax recently added to b8r.
+
 React and `b8r` deal with the same key problem in different ways. _How to tell when the application's state changes and then correctly update the user interface._ 
 
 If you imagine that state is stored in an object, let's call it `props`, then it's hard to tell when it changes, e.g. somewhere in your program someone writes `props.foo.bar = 17`.
@@ -275,23 +277,20 @@ in the view or implement a Turing-complete templating language.
 So you get the encapsulation of React's single-file component, along with the clean separation of presentation (style and html) from logic (script).
 ```
 <script>
-  set({
-    list: [],
-    text: '',
-    nextItem: 1,
-    addItem() {
-      const {list, nextItem, text} = get()
-      list.push({text})
-      set({
-        nextItem: nextItem + 1,
-        list,
-        text: ''
-      })
-    }
-  })
+  /* global data */ // data is a proxy for the component's private data store
+  data.list = []
+  data.text = ''
+  data.nextItem = 1 // only provided to match React example
+  data.addItem = () => {
+    const {text} = data
+    data.list.push({text})
+    data.nextItem += 1
+    data.text = ''
+  }
 </script>
 ```
-Note how all the logic is in one place!
+Note how all the logic is in one place, and not interleaved with the markup. Also note
+how absolutely simple and straightforward it is.
 
 To actually use the component, we'd write:
 ```

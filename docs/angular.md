@@ -96,10 +96,10 @@ use more than one approach).
 
 ## Angular is hard to Google (ironically)
 
-Because angular is a word in common use, it can be very hard to google
-stuff on Angular. Worse, because Angular is very different (and incompatible
-with) Angular2, but both are in wide use, you often run into articles
-where you get advice for the wrong version. Oops.
+Because "angular" is a word in common use AND can refer to one of two
+markedly different versions of Angular it can be very hard to google
+stuff on Angular, and you often run into articles where you get advice f
+or the wrong version. Oops.
 
 Worse, the quality of both the Angular documentation and the numerous
 blog posts "explaining" bread-and-butter topics are wildly uneven in quality
@@ -279,13 +279,15 @@ it has to*. The Angular template has code embedded in the HTML and yet
 requires more code elsewhere (without a supporting `class` with `products`
 and `share` properties, it doesn't do anything (except throw errors).
 
-Every line of code you don't have to write takes no time, costs nothing
-to store, doesn't need to be reviewed, causes no errors, and lints perfectly.
+> Every line of code you don't have to write takes no time, costs nothing
+> to store, lints perfectly, doesn't need to be reviewed, causes no errors, 
+> requires no tests, and doesn't need to be read and grokked by someone later.
 
 ## Not Quite Typescript
 
 Angular makes extensive use of [Decorators](https://www.typescriptlang.org/docs/handbook/decorators.html).
-It's up to you to decide whether you like this (it's something that may change in future).
+It's up to you to decide whether you like this (and, love it or hate it,
+it's something that may change in future).
 
     import { Component, OnInit } from '@angular/core';
 
@@ -301,17 +303,32 @@ It's up to you to decide whether you like this (it's something that may change i
       }
     }
 
+These decorators are, effectively, a DSL which you'll need to learn.
+(You can probably guess whether I like this.) Typically they're
+described in "cookbook" fashion rather than in terms of how they
+work and what they do. So you'll often find yourself debugging code
+you didn't write with no clue what it's doing or what it's supposed
+to do.
+
+`@Input` is doing something like implementing the property as a 
+computed property and having it flag some or all of the component
+as requiring redrawing. I'm pretty sure it's not that simple because
+if you create a callback that changes the property and send it to a
+library that executes `outside the ngZone` then, by default, it
+doesn't work any more, and you need to do a bunch of shenanigans
+with ngZones.
+
+By contrast, `b8r` thinks in terms of "paths" so when it sees that a
+value at a path has changed, it knows to redraw anything bound to
+that path. That seems a lot simpler to explain and grok.
 ## Lots of Files
 
 A simple component can easily end up being *four different source files*. (This
 has the advantage of better leveraging code quality tools than `b8r`'s single
-file approach. I may add it as an option in future.) There will likely be
-1-3 extra files for each subcomponent, and in many cases you'll find you need
-to create subcomponents where you wouldn't need to in `b8r`.
-
-Also, on top of needing to learn and read Angular's template syntax inside
-your HTMLish code, you now need to code in some kind of weird declarative
-syntax (`@Component`, `@Input`) in your source files.
+file approach. I may add it as an option in future, but it will then require
+transpilation.) There will likely be 1-3 extra files for each subcomponent, 
+and in many cases you'll find you need to create subcomponents where you 
+wouldn't need to in `b8r`.
 
 ## Obfuscation and Efficiency
 
@@ -335,12 +352,17 @@ with bad actors).
 
 Of course, nothing is stopping you using protobuf over the wire
 for the performance win, and obfuscation (including minification)
-will give you little or no advantage for gzipped code (and `b8r` 
+will give you little or no advantage for gzipped code, and `b8r` 
 code will typically be far smaller than Angular because of all
 the glue and dom-rendering code you don't end up writing, compiling,
-and packaging). Also, `b8r` supports non-blocking, lazy-loading all 
+and packaging). 
+
+Also, `b8r` supports non-blocking, lazy-loading all 
 the way down so even if it weren't smaller and faster you wouldn't
-care so much.)
+care so much. But, if you're determined to package your application
+as a single giant javascript file—minified, obfuscated, and 
+gzipped, breaking caching whenever any code in your tree is
+changed anywhere—then that advantage is irrelevant to you.
 
 ## Angular makes dynamic stuff hard
 
@@ -356,7 +378,7 @@ library, that's because it is.)
 
 Want to stick it in the DOM?
 
-    b8r.insertComponent('foo');
+    b8r.insertComponent('foo', containingElement);
 
 What if you dynamically add the tag to the DOM?
 
@@ -386,13 +408,13 @@ Or maybe read one of the many Medium articles that try to explain said API, e.g.
 - [Dynamically Creating Components with Angular](https://netbasal.com/dynamically-creating-components-with-angular-a7346f4a982d)
 - [How to Dynamically Create a Component in Angular](https://dzone.com/articles/how-to-dynamically-create-a-component-in-angular)
 
-By the way, I couldn't get these approaches to work.
+By the way, I couldn't really understand these approaches or get them to work.
 
 ## So. Many. &lt;!-- comment --&gt;s.
 
 The Angular documentation argues that `ngIf` is justified because it's cheaper in
 resources to exclude DOM elements that aren't needed and put them in when they
-are. (Versus, say, putting them in and hiding/showing them -- the `b8r` way.)
+are. (Versus, say, putting them in and hiding/showing them—the `b8r` way.)
 This manifests in HTML comments appearing *everywhere* in the DOM as placeholders. 
 (I assume the Angular runtime has to keep links to them to know where to put the 
 conditional elements when needed.)
@@ -416,7 +438,7 @@ will reorder the comments.
    necessary to keep the two things in sync,
 2. Comments are DOM nodes that slow down CSS selectors, etc.
 3. It seems apparent from looking at Angular apps that the perception that `ngIf` is
-   "free" leads to some very bad practices. Imagine a table with many rows filtered by
+   "free" leads to some very bad practices. E.g. (as above) tables with many rows filtered by
    setting `ngIf`.
 
 ## It's Big and Complicated

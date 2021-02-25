@@ -162,6 +162,10 @@
         "path": "lib/exemplar.js"
       },
       {
+        "name": "Local Files",
+        "path": "lib/local-files.js"
+      },
+      {
         "name": "Deep Freeze",
         "path": "lib/deep-freeze.js"
       },
@@ -281,6 +285,10 @@
     "title": "components",
     "sort": true,
     "parts": [
+      {
+        "name": "Spreadsheet",
+        "path": "components/spreadsheet.component.js"
+      },
       {
         "name": "Circle",
         "path": "circle.component.html"

@@ -94,6 +94,8 @@ import * as webComponents from './web-components.js'
 let uniqueId = 0
 const unique = () => uniqueId++
 
+// TODO seal b8r after it's been built
+
 const b8r = { constants, unique }
 const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
@@ -105,7 +107,7 @@ Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponen
 Object.assign(b8r, { onAny, offAny, anyListeners })
 Object.assign(b8r, _registry)
 Object.assign(b8r, _byExample)
-b8r.observe(() => true, (path, sourceElement) => b8r.touchByPath(path, sourceElement))
+b8r.observe(() => true, (path, sourceElement) => touchByPath(path, sourceElement))
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
 b8r.webComponents = webComponents
@@ -125,7 +127,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
     }
   })
 }, 100)
-Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement, touchByPath })
+Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement })
 
 b8r.forceUpdate = () => {
   let updateList
@@ -201,6 +203,10 @@ b8r.setByPath = function (...args) {
 _insertSet(b8r.set)
 _insertFromTargets(fromTargets)
 
+const _touchPath = (model, path) => {
+  b8r.touch(model + (path.startsWith('[') ? path : '.' + path))
+}
+
 b8r.pushByPath = function (...args) {
   let name, path, value, callback
   if (args.length === 2 || typeof args[2] === 'function') {
@@ -215,7 +221,7 @@ b8r.pushByPath = function (...args) {
     if (callback) {
       callback(list)
     }
-    b8r.touchByPath(name, path)
+    _touchPath(name, path)
   } else {
     console.error(`pushByPath failed; ${name} is not a registered model`)
   }
@@ -232,7 +238,7 @@ b8r.unshiftByPath = function (...args) {
   if (b8r.registered(name)) {
     const list = getByPath(b8r.get(name), path)
     list.unshift(value)
-    b8r.touchByPath(name, path)
+    _touchPath(name, path)
   } else {
     console.error(`unshiftByPath failed; ${name} is not a registered model`)
   }
@@ -277,7 +283,7 @@ b8r.removeByPath = function (...args) {
     } else {
       delete list[key]
     }
-    b8r.touchByPath(name, path)
+    _touchPath(name, path)
   }
 }
 
@@ -486,7 +492,7 @@ function bindList (listTemplate) {
   // assign unique ids if _auto_ id-path is specified
   if (idPath === '_auto_') {
     for (let i = 0; i < list.length; i++) {
-      if (!list[i]._auto_) {
+      if (list[i]._auto_ === undefined) {
         list[i]._auto_ = unique()
       }
     }
@@ -694,7 +700,6 @@ b8r.insertComponent = async function (component, element, data) {
       element.classList.remove(c)
     }
   })
-  const register = componentData => b8r.register(componentId, componentData)
   const get = path => b8r.getByPath(componentId, path)
   const set = (...args) => {
     b8r.setByPath(componentId, ...args)
@@ -703,7 +708,11 @@ b8r.insertComponent = async function (component, element, data) {
       b8r.trigger('change', element)
     }
   }
-  const touch = path => b8r.touchByPath(componentId, path)
+  const register = componentData => {
+    console.warn('use of register withi components is deprecated, use set() instead')
+    set(componentData)
+  }
+  const touch = path => _touchPath(componentId, path)
   const on = (...args) => b8r.on(element, ...args)
   const find = selector => b8r.findWithin(element, selector)
   const findOne = selector => b8r.findOneWithin(element, selector)
@@ -724,7 +733,7 @@ b8r.insertComponent = async function (component, element, data) {
     try {
       await component.load(
         element, _pathRelativeB8r(component.path), find, findOne,
-        data, register, get, set, on, touch, component
+        b8r.reg[componentId], register, get, set, on, touch, component
       )
     } catch (e) {
       debugger // eslint-disable-line no-debugger
@@ -744,9 +753,6 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     componentId () {
       return this.dataset.componentId
     },
-    state () {
-      return b8r.get(this.componentId)
-    },
     value (x) {
       if (x === undefined) {
         return this.state.value
@@ -755,6 +761,9 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
           this.state.value = x
         }
       }
+    },
+    data () {
+      return b8r.reg[this.dataset.componentId]
     },
   },
   methods: {
@@ -813,5 +822,7 @@ b8r.componentOnce = async (...args) => {
     await b8r.insertComponent(c)
   }
 }
+
+Object.freeze(b8r)
 
 export default b8r

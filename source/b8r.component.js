@@ -298,9 +298,9 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
   }
 
   if (load) {
-    // _data and _register are masked because they shouldn't be used any more
-    component.load = async (_component, b8r, find, findOne, _data, _register, get, set, on, touch) => {
-      load({ component: _component, b8r, find, findOne, get, set, on, touch })
+    // _register is masked because it shouldn't be used any more
+    component.load = async (_component, b8r, find, findOne, data, _register, get, set, on, touch) => {
+      load({ component: _component, b8r, data, find, findOne, get, set, on, touch })
     }
   }
 
@@ -355,11 +355,6 @@ const makeComponent = (name, source, url, preserveSource) => {
   if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
     console.error(`in component "${name}" replace require with await import()`)
     script = false
-  }
-  // deprecate access to data, which we look for in global declarations since lint will
-  // pick up undeclared or unused data declarations
-  if (script && script.match(/\/\*\s*global[^*]*\bdata\b/)) {
-    console.log('%c%s', 'background: #ffa; color: black;', `component "${name}" references data (deprecated); use get() instead`)
   }
   try {
     load = script
