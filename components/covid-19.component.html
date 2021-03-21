@@ -171,6 +171,7 @@ data rather than just current figures in a variety of ways.
   LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
 </div>
 <script>
+  const MAX_RADIUS = 200
   const darkmode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   const confirmedUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
   const recoveredUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv'
@@ -352,6 +353,13 @@ data rather than just current figures in a variety of ways.
         dates: confirmed.dates,
         points: []
       }
+
+      const maxConfirmed = confirmed.data.reduce((maxSoFar, datum) => {
+        const latest = b8r.last(datum.cells)
+        return latest > maxSoFar ? latest : maxSoFar
+      }, 0)
+      const circleScale = MAX_RADIUS / Math.sqrt(maxConfirmed)
+
       confirmed.data.forEach((datum, idx) => {
         const {province, country, longitude, latitude, cells} = datum
         const caption = province && province !== country ? `${province}, ${country}` : country
@@ -383,7 +391,7 @@ data rather than just current figures in a variety of ways.
       
         if (!isNaN(longitude) && !isNaN(latitude)) {
           const element = dataElement.cloneNode(true)
-          const diameter = Math.min(Math.sqrt(point.confirmed * .05), 200) + 2 + 'px'
+          const diameter = Math.sqrt(point.confirmed) * circleScale + 2 + 'px'
           let summary = `${point.confirmed} cases`
           if (point.dead) summary += `, ${point.dead} deaths`
           if (point.recovered) summary += `, ${point.recovered} recovered`
