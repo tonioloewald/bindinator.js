@@ -28,6 +28,9 @@ CVS
 *.p12
 * (Autosaved)
 
+# nova noise
+.nova
+
 # pack builds
 tonioloewald-b8r-*.tgz
 build-temp
