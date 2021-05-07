@@ -1,12 +1,12 @@
 {
   "name": "@tonioloewald/b8r",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "the even lazier javascript framework",
   "main": "dist/b8r.js",
   "scripts": {
     "start": "echo \"http://localhost:8017/index.html\\n\" & node utils/server.js web_root:.",
-    "lint": "node node_modules/standard/bin/cmd.js --fix",
-    "stylelint": "./node_modules/stylelint/bin/stylelint.js css/*.css **/*.html --fix",
+    "lint": "npx standard --fix",
+    "stylelint": "npx stylelint css/*.css **/*.html --fix",
     "linthtml": "npx linthtml index.html components/**/*.html",
     "build": "npm run lint && npm run linthtml && npm run stylelint && ./utils/build.command"
   },

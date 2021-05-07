@@ -472,7 +472,6 @@ import { matchType } from './b8r.byExample.js'
 import { componentTypes } from './b8r.component.js'
 import { _b8r_ } from './b8r._b8r_.js'
 import { observerShouldBeRemoved } from './b8r.constants.js'
-import b8r from './b8r.js'
 
 const registry = { _b8r_ }
 const registeredTypes = {}
@@ -1363,7 +1362,7 @@ const regHandler = (path = '') => ({
           return target[prop]
       }
     } else {
-      return undefined
+      return target[prop]
     }
   },
   set (target, prop, value) {
