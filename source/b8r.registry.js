@@ -1369,7 +1369,7 @@ const regHandler = (path = '') => ({
           return target[prop]
       }
     } else {
-      return undefined
+      return target[prop]
     }
   },
   set (target, prop, value) {

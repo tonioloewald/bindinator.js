@@ -99,7 +99,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
     padding: 2px 4px;
   }
 </style>
-<ul data-component="menubar">
+<b8r-component path="../components/menubar.js">
   <li>
     File
     <ul>
@@ -215,8 +215,8 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
       </li>
     </ul>
   </li>
-</ul>
-<div data-component="toolbar">
+</b8r-component>
+<b8r-component name="toolbar">
   <input title="file name" placeholder="file name" data-bind="value=_component_.filename" data-event="focus:_component_.all">
   <hr class="fixed">
   <button data-event="click:_component_.exec" data-command="justifyLeft"><span class="icon-paragraph-left3"></span></button>
@@ -237,7 +237,7 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
   <hr>
   <button data-event="click:_component_.exec" data-command="undo"><span class="icon-undo"></span></button>
   <button data-event="click:_component_.exec" data-command="redo"><span class="icon-redo"></span></button>
-</div>
+</b8r-component>
 <div
   class="richtext"
   contenteditable="true"
@@ -255,7 +255,6 @@ functionality offered by [document.execCommand](https://developer.mozilla.org/en
 <script>
 /* global b8r, findOne, set, get, prompt, on */
 'use strict'
-b8r.component('menubar')
 b8r.component('toolbar')
 set('filename', 'Untitled.html')
 const doc = findOne('.richtext')
