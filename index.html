@@ -20,7 +20,7 @@
       // for convenience when debugging
       window.b8r = b8r;
       // if the # contains 'body=path/to/component' load that
-      // othersize load 'components/documentation'
+      // otherwise load 'components/documentation'
       const component_path = (window.location.href.match(/\bbody=([^=&]+)/) || [])[1]
                             || 'components/documentation';
       const root = b8r.create('b8r-component');

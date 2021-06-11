@@ -17,37 +17,40 @@
 *Laziness drives every design decision in b8r*. 
 
 - Get more done with less code.
-- Don't wait for "compiles" or "transpiles"; debug the code you wrote
-- Don't learn new domain-specific languages.
-- Don't learn a templating language.
-- Don't instal and learn a new debugger, use the existing one you know.
-- Write less boilerplate (almost none!)
-- Don't worry about state management — `b8r` does that for you
-- Don't write lots of "getters" or "selectors" — `b8r` does that for you
-- Don't worry about code-splitting — `b8r` is deeply async and deeply lazy
-- Don't pass values through hierarchies, send them direct (where appropriate)
+- You won't have to wait for "compiles" or "transpiles"; debug the code you wrote
+- Or learn new domain-specific languages.
+- Or learn a templating language.
+- Or install and learn a special, crappy debugger, use the existing one you know.
+- Or write (and review and maintain) boilerplate (almost none!)
+- Or worry about state management — `b8r` does that for you
+- Or write lots of "getters" or "selectors" — `b8r` does that for you
+- Or worry about code-splitting — `b8r` is deeply async and deeply lazy
+- Or pass values through hierarchies, send them direct (where appropriate)
 
 And `b8r` is lazy too.
 
-- Don't do things for the browser that the browser knows how to do (like
+- It doesn't do things for the browser that the browser knows how to do (like
 parse HTML).
-- Don't implement a new templating language.
-- Don't require special debugging tools, leverage the existing debug tools. 
-- Don't add zillions of runtime dependencies.
+- Nor implement a new templating language.
+- Nor require special debugging tools, leverage the existing debug tools. 
+- Or add zillions of runtime dependencies. Actually, it doesn't add any.
 
 ## Basic Principles
 ### Put data into b8r's registry to bind it to a path
 
     b8r.reg.foo = {bar: 17, baz: {lurman: 'hello world'}}
+
 ### Bind "data-paths" to the DOM with `data-bind`
 
     <input data-bind="value=foo.baz.lurman">
+
 ### …and stuff "just works"
 
 Now, changes in the DOM update the bound data. And changes made to the data (via the registry)
 update the DOM, e.g.
 
     b8r.reg.foo.baz.lurman = 'goodbye world'
+
 ### Binding arrays is just as simple:
 
     <ul>
