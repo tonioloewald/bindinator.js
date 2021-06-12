@@ -3429,8 +3429,8 @@ var b8r = (function () {
   for the suggestion.
 
   `b8r.reg` is a proxy for its `registry`, providing syntax-sugar for `get` and `set` via
-  an ES6 Proxy. The way the proxy works is that it gives you proxies for its object properties,
-  and so on (recursively), each proxy knowing the path of the value it wraps.
+  an ES6 Proxy. The registry object is wrapped with a proxy that returns its object properties as
+  proxies, and so on (recursively), each knowing the path of the value it wraps.
 
       import {reg} from 'path/to/b8r.js'
       const obj = {
@@ -3855,11 +3855,18 @@ var b8r = (function () {
 
   > ### Note
   >
-  > Having gained experience with the framework, I am doubling down
-  > on object paths and simplifying the API in favor of:
+  > I'm always looking at ways to streamline `b8r` code, usually without breaking
+  > anything, and ideally making the resulting code easier to read, write, and grok.
+  >
   > <pre>
-  > b8r.get('path.to.value');
-  > b8r.set('path.to.value', new_value);
+  > b8r.getByPath('path', 'to.value')                // original
+  > b8r.setByPath('path', 'to.value', new_value)
+  >
+  > b8r.get('path.to.value')                         // simplified
+  > b8r.set('path.to.value', new_value)
+  >
+  > b8r.reg.path.to.value                            // using Proxy
+  > b8r.reg.path.to.value = new_value
   > </pre>
   > The older APIs (setByPath, etc.) will ultimately be deprecated. Even now they
   > are little more than wrappers for set/get. See the *Registry* docs.
@@ -4729,7 +4736,7 @@ var b8r = (function () {
         } else {
           value = target[prop];
         }
-        if (typeof value === 'object' && target.constructor) {
+        if (value && typeof value === 'object' && value.constructor) {
           const currentPath = extendPath(path, prop);
           const proxy = new Proxy(value, regHandler(currentPath));
           return proxy

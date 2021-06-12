@@ -1344,7 +1344,7 @@ const regHandler = (path = '') => ({
       } else {
         value = target[prop]
       }
-      if (typeof value === 'object' && target.constructor) {
+      if (value && typeof value === 'object' && value.constructor) {
         const currentPath = extendPath(path, prop)
         const proxy = new Proxy(value, regHandler(currentPath))
         return proxy
