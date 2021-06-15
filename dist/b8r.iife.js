@@ -5140,8 +5140,10 @@ var b8r = (function () {
           }
           return { types: [] }
         }
-        const handlerParts = handler.trim().match(/^([^.]+)\.(.+)$/);
-        if (!handlerParts) throw new Error(`bad event handler "${handler}"`)
+        const handlerParts = handler.trim().match(/^([^.]+)?\.(.+)$/);
+        if (!handlerParts) {
+          throw new Error(`bad event handler "${handler}"`)
+        }
         const [, model, method] = handlerParts;
         const types = type.split(',').sort();
         return {
@@ -5211,6 +5213,38 @@ var b8r = (function () {
       data-bind="keydown(meta-KeyS)"
 
   For your convenience, there's a *Keyboard Event Utility*.
+  ~~~~
+  const button = b8r.create('button')
+  button.classList.add('event-binding-test')
+  button.dataset.list = 'event-binding-test.list:id'
+  button.dataset.event = 'click:.clickHandler;change:.buried.clickHandler'
+  document.body.append(button)
+  let x = null
+  b8r.set('event-binding-test', {
+    list: [
+      {
+        id: 101,
+        clickHandler() {
+          x = 17
+        }
+      },
+      {
+        id: 102,
+        buried: {
+          clickHandler() {
+            x = Math.PI
+          }
+        }
+      }
+    ]
+  })
+  b8r.forceUpdate()
+  const buttons = b8r.find('.event-binding-test[data-list-instance]')
+  buttons[0].click()
+  Test(() => x).shouldBe(17)
+  b8r.trigger('change', buttons[1])
+  Test(() => x).shouldBe(Math.PI)
+  ~~~~
   */
 
   // TODO use parsed event handlers to do this properly
@@ -5373,7 +5407,14 @@ var b8r = (function () {
               if (handler.model) {
                 result = callMethod(handler.model, handler.method, evt, target, ...args);
               } else {
-                console.warn(`_component_.${handler.method} not found`, target);
+                console.warn(`${handler.method} not found`, target, handler);
+              }
+            } else if (!handler.model && handler.method) {
+              const listInstancePath = target.closest('[data-list-instance]').dataset.listInstance;
+              if (listInstancePath) {
+                result = callMethod(`${listInstancePath}.${handler.method}`, evt, target, ...args);
+              } else {
+                console.error('incomplete event handler on', target);
               }
             } else {
               console.error('incomplete event handler on', target);

@@ -1,6 +1,6 @@
 {
   "name": "@tonioloewald/b8r",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "the even lazier javascript framework",
   "main": "dist/b8r.js",
   "scripts": {
