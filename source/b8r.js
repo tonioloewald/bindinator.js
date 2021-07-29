@@ -409,6 +409,11 @@ function bind (element) {
   if (element.closest(UNREADY_SELECTOR)) {
     return
   }
+  if (element.matches('[data-debug],[data-debug-bind]')) {
+    console.warn(
+      'Add a conditional breakpoint here to watch changes to the DOM caused by changes in the registry'
+    )
+  }
   const bindings = getBindings(element)
   const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {})
   const newValues = {}
