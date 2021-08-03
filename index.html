@@ -25,6 +25,21 @@
                             || 'components/documentation';
       const root = b8r.create('b8r-component');
 
+      window.dump = obj => {
+        const w = window.open()
+        const pre = w.document.createElement('pre')
+        if (typeof obj === 'string') {
+          pre.textContent = obj
+        } else {
+          try {
+            pre.textContent = JSON.stringify(obj, false, 2)
+          } catch(e) {
+            pre.textContent = obj.toString()
+          }
+        }
+        w.document.body.append(pre)
+      }
+
       // sometimes document.body doesn't exist yet
       requestAnimationFrame(() => {
         root.path = component_path
