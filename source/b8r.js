@@ -28,7 +28,7 @@ implement some kind of virtual machine to replace it.
 /* global console, Element, HTMLElement */
 
 import * as constants from './b8r.constants.js'
-import { getByPath, pathSplit } from './b8r.byPath.js'
+import { getByPath, pathSplit, unique } from './b8r.byPath.js'
 import * as _dom from './b8r.dom.js'
 import * as _iterators from './b8r.iterators.js'
 import * as _registry from './b8r.registry.js'
@@ -90,9 +90,6 @@ import {
 } from './b8r.component.js'
 
 import * as webComponents from './web-components.js'
-
-let uniqueId = 0
-const unique = () => uniqueId++
 
 // TODO seal b8r after it's been built
 
