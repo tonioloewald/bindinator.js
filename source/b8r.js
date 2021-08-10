@@ -94,17 +94,36 @@ import * as webComponents from './web-components.js'
 // TODO seal b8r after it's been built
 
 const b8r = { constants, unique }
-const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])'
+const UNLOADED_COMPONENT_SELECTOR =
+  '[data-component],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
 
 Object.assign(b8r, _dom)
 Object.assign(b8r, _iterators)
-Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHandleEventsOfType })
-Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListPath, getListInstancePath })
+Object.assign(b8r, {
+  on,
+  off,
+  enable,
+  disable,
+  trigger,
+  callMethod,
+  implicitlyHandleEventsOfType
+})
+Object.assign(b8r, {
+  addDataBinding,
+  removeDataBinding,
+  getDataPath,
+  getComponentId,
+  getListPath,
+  getListInstancePath
+})
 Object.assign(b8r, { onAny, offAny, anyListeners })
 Object.assign(b8r, _registry)
 Object.assign(b8r, _byExample)
-b8r.observe(() => true, (path, sourceElement) => touchByPath(path, sourceElement))
+b8r.observe(
+  () => true,
+  (path, sourceElement) => touchByPath(path, sourceElement)
+)
 b8r.keystroke = keystroke
 b8r.modifierKeys = modifierKeys
 b8r.webComponents = webComponents
@@ -129,8 +148,10 @@ Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement })
 b8r.forceUpdate = () => {
   let updateList
 
-  while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
-    const lists = b8r.find('[data-list]')
+  while ((updateList = getUpdateList())) {
+    // eslint-disable-line no-cond-assign
+    const lists = b8r
+      .find('[data-list]')
       .map(elt => ({ elt, listBinding: elt.dataset.list }))
     let binds = false // avoid collecting elements before big list updates
 
@@ -139,16 +160,21 @@ b8r.forceUpdate = () => {
       try {
         if (path) {
           lists
-            .filter(bound => bound.elt !== source && bound.listBinding.includes(path))
+            .filter(
+              bound => bound.elt !== source && bound.listBinding.includes(path)
+            )
             .forEach(({ elt }) => bindList(elt))
 
           if (!binds) {
-            binds = b8r.find('[data-bind]')
-              .map(elt => { return { elt, data_binding: elt.dataset.bind } })
+            binds = b8r.find('[data-bind]').map(elt => {
+              return { elt, data_binding: elt.dataset.bind }
+            })
           }
 
           binds
-            .filter(bound => bound.elt !== source && bound.data_binding.includes(path))
+            .filter(
+              bound => bound.elt !== source && bound.data_binding.includes(path)
+            )
             .forEach(rec => {
               rec.dirty = true
             })
@@ -171,25 +197,29 @@ _setForceUpdate(b8r.forceUpdate)
 
 b8r.setByPath = function (...args) {
   let name, path, value, sourceElement
-  if (args.length === 2 && typeof args[1] === 'object' && !Array.isArray(args[1])) {
-    [name, value] = args
+  if (
+    args.length === 2 &&
+    typeof args[1] === 'object' &&
+    !Array.isArray(args[1])
+  ) {
+    ;[name, value] = args
     b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val))
     return
   } else if (args.length === 2 || args[2] instanceof Element) {
-    [path, value, sourceElement] = args
-    path = b8r.resolvePath(path, sourceElement);
-    [name, path] = pathSplit(path)
+    ;[path, value, sourceElement] = args
+    path = b8r.resolvePath(path, sourceElement)
+    ;[name, path] = pathSplit(path)
   } else {
-    [name, path, value, sourceElement] = args
+    ;[name, path, value, sourceElement] = args
   }
   if (b8r.registered(name)) {
     if (typeof path === 'object') {
       b8r.set(name, path, sourceElement)
     } else {
       b8r.set(
-        path[0] === '[' || !path
-          ? `${name}${path}`
-          : `${name}.${path}`, value, sourceElement
+        path[0] === '[' || !path ? `${name}${path}` : `${name}.${path}`,
+        value,
+        sourceElement
       )
     }
   } else {
@@ -207,10 +237,10 @@ const _touchPath = (model, path) => {
 b8r.pushByPath = function (...args) {
   let name, path, value, callback
   if (args.length === 2 || typeof args[2] === 'function') {
-    [path, value, callback] = args;
-    [name, path] = pathSplit(path)
+    ;[path, value, callback] = args
+    ;[name, path] = pathSplit(path)
   } else {
-    [name, path, value, callback] = args
+    ;[name, path, value, callback] = args
   }
   if (b8r.registered(name)) {
     const list = b8r.get(path ? `${name}.${path}` : name)
@@ -227,10 +257,10 @@ b8r.pushByPath = function (...args) {
 b8r.unshiftByPath = function (...args) {
   let name, path, value
   if (args.length === 2) {
-    [path, value] = args;
-    [name, path] = pathSplit(path)
+    ;[path, value] = args
+    ;[name, path] = pathSplit(path)
   } else {
-    [name, path, value] = args
+    ;[name, path, value] = args
   }
   if (b8r.registered(name)) {
     const list = getByPath(b8r.get(name), path)
@@ -267,10 +297,10 @@ function indexFromKey (list, key) {
 b8r.removeByPath = function (...args) {
   let name, path, key
   if (args.length === 2) {
-    [path, key] = args;
-    [name, path] = pathSplit(path)
+    ;[path, key] = args
+    ;[name, path] = pathSplit(path)
   } else {
-    [name, path, key] = args
+    ;[name, path, key] = args
   }
   if (b8r.registered(name)) {
     const list = getByPath(b8r.get(name), path)
@@ -285,11 +315,11 @@ b8r.removeByPath = function (...args) {
 }
 
 b8r.listItems = element =>
-  b8r.makeArray(element.children)
+  b8r
+    .makeArray(element.children)
     .filter(elt => elt.matches('[data-list-instance]'))
 
-b8r.listIndex = element =>
-  b8r.listItems(element.parentElement).indexOf(element)
+b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element)
 
 b8r.getComponentData = (elt, type) => {
   const id = getComponentId(elt, type)
@@ -328,12 +358,14 @@ b8r.getListTemplate = elt => {
 }
 
 if (document.body) {
-  implicitEventTypes
-    .forEach(type => document.body.addEventListener(type, handleEvent, true))
+  implicitEventTypes.forEach(type =>
+    document.body.addEventListener(type, handleEvent, true)
+  )
 } else {
   document.addEventListener('DOMContentLoaded', () => {
-    implicitEventTypes
-      .forEach(type => document.body.addEventListener(type, handleEvent, true))
+    implicitEventTypes.forEach(type =>
+      document.body.addEventListener(type, handleEvent, true)
+    )
   })
 }
 
@@ -364,7 +396,7 @@ b8r.interpolate = (template, elt) => {
   return formatted
 }
 
-const _unequal = (a, b) => (a !== b) || (a && typeof a === 'object')
+const _unequal = (a, b) => a !== b || (a && typeof a === 'object')
 
 function bind (element) {
   if (element.tagName.includes('-') && element.constructor === HTMLElement) {
@@ -373,6 +405,11 @@ function bind (element) {
   }
   if (element.closest(UNREADY_SELECTOR)) {
     return
+  }
+  if (element.matches('[data-debug],[data-debug-bind]')) {
+    console.warn(
+      'Add a conditional breakpoint here to watch changes to the DOM caused by changes in the registry'
+    )
   }
   const bindings = getBindings(element)
   const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {})
@@ -430,8 +467,9 @@ function bindList (listTemplate) {
   let methodPath, listPath, argPaths
   try {
     // parse computed list method if any
-    [, , methodPath, argPaths] =
-      sourcePath.match(/^(([^()]*)\()?([^()]*)(\))?$/)
+    ;[, , methodPath, argPaths] = sourcePath.match(
+      /^(([^()]*)\()?([^()]*)(\))?$/
+    )
     argPaths = argPaths.split(',')
     listPath = argPaths[0]
   } catch (e) {
@@ -440,20 +478,27 @@ function bindList (listTemplate) {
   const resolvedPath = b8r.resolvePath(listPath, listTemplate)
   // rewrite the binding if necessary (otherwise nested list updates fail)
   if (resolvedPath !== listPath) {
-    let listBinding = listPath = resolvedPath
+    let listBinding = (listPath = resolvedPath)
     if (methodPath) {
       argPaths.shift()
-      argPaths = [listPath, ...argPaths.map(path => b8r.resolvePath(path, listTemplate))]
+      argPaths = [
+        listPath,
+        ...argPaths.map(path => b8r.resolvePath(path, listTemplate))
+      ]
       listBinding = `${methodPath}(${argPaths.join(',')})`
     }
-    listTemplate.dataset.list = idPath ? `${listBinding}:${idPath}` : listBinding
+    listTemplate.dataset.list = idPath
+      ? `${listBinding}:${idPath}`
+      : listBinding
   }
   let list = b8r.get(listPath)
   if (!list) {
     return
   }
   if (methodPath && !idPath) {
-    throw new Error(`data-list="${listTemplate.dataset.list}" -- computed list requires id-path`)
+    throw new Error(
+      `data-list="${listTemplate.dataset.list}" -- computed list requires id-path`
+    )
   }
   // compute list
   if (methodPath) {
@@ -462,7 +507,7 @@ function bindList (listTemplate) {
       // the binding so we can ignore it for now
       return
     }
-    (() => {
+    ;(() => {
       try {
         const args = argPaths.map(b8r.get)
         const filteredList = b8r.callMethod(methodPath, ...args, listTemplate)
@@ -474,7 +519,7 @@ function bindList (listTemplate) {
         ) {
           console.warn(
             `list filter ${methodPath} returned a new object` +
-            ' (not from original list); this will break updates!'
+              ' (not from original list); this will break updates!'
           )
         }
         list = filteredList
@@ -483,7 +528,9 @@ function bindList (listTemplate) {
       }
     })()
     if (!list) {
-      throw new Error('could not compute list; async filtered list methods not supported (yet)')
+      throw new Error(
+        'could not compute list; async filtered list methods not supported (yet)'
+      )
     }
   }
   // assign unique ids if _auto_ id-path is specified
@@ -500,7 +547,7 @@ function bindList (listTemplate) {
   // if we have an idPath we grab existing instances, and re-use those with
   // matching ids
   const existingListInstances = listTemplate._b8rListInstances || {}
-  const listInstances = listTemplate._b8rListInstances = {}
+  const listInstances = (listTemplate._b8rListInstances = {})
 
   const template = listTemplate.cloneNode(true)
   template.classList.remove('-b8r-empty-list')
@@ -573,30 +620,34 @@ b8r.onRequest(() => {
 })
 
 const _pathRelativeB8r = _path => {
-  return !_path ? b8r : Object.assign({}, b8r, {
-    _path,
-    component: (...args) => {
-      const pathIndex = args[1] ? 1 : 0
-      let url = args[pathIndex]
-      if (url.indexOf('://') === -1) {
-        url = `${_path}/${url}`
-        args[pathIndex] = url
+  return !_path
+    ? b8r
+    : Object.assign({}, b8r, {
+      _path,
+      component: (...args) => {
+        const pathIndex = args[1] ? 1 : 0
+        let url = args[pathIndex]
+        if (url.indexOf('://') === -1) {
+          url = `${_path}/${url}`
+          args[pathIndex] = url
+        }
+        return b8r.component(...args)
       }
-      return b8r.component(...args)
-    }
-  })
+    })
 }
 Object.assign(b8r, { component, makeComponent, makeComponentNoEval })
 
 b8r.components = () => Object.keys(components)
 
 function loadAvailableComponents (element) {
-  b8r.findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
+  b8r
+    .findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
     .forEach(target => {
       if (!target.closest('[data-list]')) {
-        const name = target.tagName === 'B8R-COMPONENT'
-          ? target.name
-          : target.dataset.component
+        const name =
+          target.tagName === 'B8R-COMPONENT'
+            ? target.name
+            : target.dataset.component
         if (name) b8r.insertComponent(name, target)
       }
     })
@@ -615,7 +666,7 @@ const inheritData = element => {
     const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source))
     return b8r.filterObject(
       data || {},
-      (v, k) => (!reserved.includes(k)) || typeof v !== 'function'
+      (v, k) => !reserved.includes(k) || typeof v !== 'function'
     )
   }
 }
@@ -637,7 +688,9 @@ b8r.insertComponent = async function (component, element, data) {
       if (!componentTimeouts[component]) {
         // if this doesn't happen for five seconds, we have a problem
         componentTimeouts[component] = setTimeout(
-          () => console.error('component timed out: ', component), 5000)
+          () => console.error('component timed out: ', component),
+          5000
+        )
       }
       if (data) {
         saveDataForElement(element, data)
@@ -668,7 +721,7 @@ b8r.insertComponent = async function (component, element, data) {
       passed-through child elements that aren't distinguishable from a component's
       original body
   */
-  const componentId = 'c#' + component.name + '#' + (++componentCount)
+  const componentId = 'c#' + component.name + '#' + ++componentCount
   if (component.view.children.length) {
     if (element.dataset.componentId) {
       if (element.querySelector('[data-children]')) {
@@ -680,7 +733,8 @@ b8r.insertComponent = async function (component, element, data) {
       b8r.moveChildren(element, children)
     }
     // [data-parent] supports DOM elements such as <tr> that can only "live" in a specific context
-    const source = component.view.querySelector('[data-parent]') || component.view
+    const source =
+      component.view.querySelector('[data-parent]') || component.view
     b8r.copyChildren(source, element)
     replaceInBindings(element, '_component_', componentId)
     if (dataPath) {
@@ -701,21 +755,38 @@ b8r.insertComponent = async function (component, element, data) {
   const set = (...args) => {
     b8r.setByPath(componentId, ...args)
     // updates value bindings
-    if (args[0] === 'value' || Object.prototype.hasOwnProperty.call(args[0], 'value')) {
+    if (
+      args[0] === 'value' ||
+      Object.prototype.hasOwnProperty.call(args[0], 'value')
+    ) {
       b8r.trigger('change', element)
     }
   }
   const register = componentData => {
-    console.warn('use of register withi components is deprecated, use set() instead')
+    console.warn(
+      'use of register withi components is deprecated, use set() instead'
+    )
     set(componentData)
   }
   const touch = path => _touchPath(componentId, path)
   const on = (...args) => b8r.on(element, ...args)
   const find = selector => b8r.findWithin(element, selector)
   const findOne = selector => b8r.findOneWithin(element, selector)
-  const initialValue = typeof component.initialValue === 'function'
-    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, find })
-    : b8r.deepClone(component.initialValue) || data
+  element.classList.add(className)
+  element.dataset.componentId = componentId
+  const initialValue =
+    typeof component.initialValue === 'function'
+      ? await component.initialValue({
+        b8r,
+        get,
+        set,
+        touch,
+        on,
+        component: element,
+        findOne,
+        find
+      })
+      : b8r.deepClone(component.initialValue) || data
   data = {
     ...(component.type ? b8r.deepClone(component.type) : {}),
     ...initialValue,
@@ -723,14 +794,21 @@ b8r.insertComponent = async function (component, element, data) {
     componentId
   }
   b8r.register(componentId, data, true)
-  element.classList.add(className)
-  element.dataset.componentId = componentId
   _componentInstances[componentId] = element
   if (component.load) {
     try {
       await component.load(
-        element, _pathRelativeB8r(component.path), find, findOne,
-        b8r.reg[componentId], register, get, set, on, touch, component
+        element,
+        _pathRelativeB8r(component.path),
+        find,
+        findOne,
+        b8r.reg[componentId],
+        register,
+        get,
+        set,
+        on,
+        touch,
+        component
       )
     } catch (e) {
       debugger // eslint-disable-line no-debugger
@@ -767,7 +845,13 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     connectedCallback () {
       const { path } = this
       if (path) {
-        if (!this.name) this.name = path.split('/').pop().split('.').shift()
+        if (!this.name) {
+          this.name = path
+            .split('/')
+            .pop()
+            .split('.')
+            .shift()
+        }
         b8r.component(this.name, path)
       }
     },
@@ -779,7 +863,8 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     },
     render () {
       if (!this.isConnected) return
-      const unready = this.parentElement && this.parentElement.closest(UNREADY_SELECTOR)
+      const unready =
+        this.parentElement && this.parentElement.closest(UNREADY_SELECTOR)
       if (unready) return
       if (this.name) {
         b8r.insertComponent(this.name, this)

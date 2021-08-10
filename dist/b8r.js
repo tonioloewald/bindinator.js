@@ -3382,11 +3382,15 @@ You can use them the obvious way:
     _b8r_._update_ // this is used by b8r to update models automatically
 */
 let set;
-const _insertSet = f => { set = f; };
+const _insertSet = f => {
+  set = f;
+};
 let fromTargets;
-const _insertFromTargets = t => { fromTargets = t; };
+const _insertFromTargets = t => {
+  fromTargets = t;
+};
 
-const hasFromTarget = (t) => fromTargets[t.target];
+const hasFromTarget = t => fromTargets[t.target];
 
 const _b8r_ = {
   echo: evt => console.log(evt) || true,
@@ -3395,25 +3399,36 @@ const _b8r_ = {
     let elements = findAbove(evt.target, '[data-bind]', null, true);
     // update elements with selected fromTarget
     if (evt.target.tagName === 'SELECT') {
-      const options = findWithin(evt.target, 'option[data-bind]:not([data-list])');
+      const options = findWithin(
+        evt.target,
+        'option[data-bind]:not([data-list])'
+      );
       elements = elements.concat(options);
     }
-    elements.filter(elt => !elt.matches('[data-list]')).forEach(elt => {
-      const bindings = getBindings(elt);
-      for (let i = 0; i < bindings.length; i++) {
-        const { targets, path } = bindings[i];
-        const boundTargets = targets.filter(hasFromTarget);
-        const processFromTargets = t => { // jshint ignore:line
-          // all bets are off on bound values!
-          const value = fromTargets[t.target](elt, t.key);
-          if (value !== undefined) {
-            delete elt._b8rBoundValues;
-            set(path, value, elt);
-          }
-        };
-        boundTargets.forEach(processFromTargets);
-      }
-    });
+    elements
+      .filter(elt => !elt.matches('[data-list]'))
+      .forEach(elt => {
+        if (elt.matches('[data-debug],[data-debug-bind]')) {
+          console.warn(
+            'Add a conditional breakpoint here to debug changes to the registry triggered by events'
+          );
+        }
+        const bindings = getBindings(elt);
+        for (let i = 0; i < bindings.length; i++) {
+          const { targets, path } = bindings[i];
+          const boundTargets = targets.filter(hasFromTarget);
+          const processFromTargets = t => {
+            // jshint ignore:line
+            // all bets are off on bound values!
+            const value = fromTargets[t.target](elt, t.key);
+            if (value !== undefined) {
+              delete elt._b8rBoundValues;
+              set(path, value, elt);
+            }
+          };
+          boundTargets.forEach(processFromTargets);
+        }
+      });
     return true
   }
 };
@@ -3908,7 +3923,9 @@ class Listener {
     } else if (test instanceof Function) {
       this.test = test;
     } else {
-      throw new Error('expect listener test to be a string, RegExp, or test function')
+      throw new Error(
+        'expect listener test to be a string, RegExp, or test function'
+      )
     }
     if (typeof callback === 'string') {
       this.callback = (...args) => {
@@ -3960,9 +3977,14 @@ const _get = (path, element) => {
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]');
     if (!elt && element.closest('body')) {
-      console.error(`relative data-path ${path} used without list instance`, element);
+      console.error(
+        `relative data-path ${path} used without list instance`,
+        element
+      );
     }
-    return elt ? getByPath(registry, `${elt.dataset.listInstance}${path}`) : undefined
+    return elt
+      ? getByPath(registry, `${elt.dataset.listInstance}${path}`)
+      : undefined
   } else {
     path = resolvePath(path, element);
     if ( !isValidPath(path)) {
@@ -4286,22 +4308,25 @@ const getJSON = (path, element, pretty) => {
 };
 
 const touch = (path, sourceElement) => {
-  listeners.filter(listener => {
-    let heard;
-    try {
-      heard = listener.test(path);
-    } catch (e) {
-      console.error(listener, 'test threw exception', e);
-    }
-    if (heard === observerShouldBeRemoved) {
-      unobserve(listener);
-      return false
-    }
-    return !!heard
-  })
+  listeners
+    .filter(listener => {
+      let heard;
+      try {
+        heard = listener.test(path);
+      } catch (e) {
+        console.error(listener, 'test threw exception', e);
+      }
+      if (heard === observerShouldBeRemoved) {
+        unobserve(listener);
+        return false
+      }
+      return !!heard
+    })
     .forEach(listener => {
       try {
-        if (listener.callback(path, sourceElement) === observerShouldBeRemoved) {
+        if (
+          listener.callback(path, sourceElement) === observerShouldBeRemoved
+        ) {
           unobserve(listener);
         }
       } catch (e) {
@@ -4314,7 +4339,7 @@ const _defaultTypeErrorHandler = (errors, action) => {
   console.error(`registry type check(s) failed after ${action}`, errors);
 };
 let typeErrorHandlers = [_defaultTypeErrorHandler];
-const onTypeError = (callback) => {
+const onTypeError = callback => {
   offTypeError(_defaultTypeErrorHandler);
   if (typeErrorHandlers.indexOf(callback) === -1) {
     typeErrorHandlers.push(callback);
@@ -4330,7 +4355,9 @@ const offTypeError = (callback, restoreDefault = false) => {
 };
 
 const checkType = (action, name) => {
-  const referenceType = name.startsWith('c#') ? componentTypes[name.split('#')[1]] : registeredTypes[name];
+  const referenceType = name.startsWith('c#')
+    ? componentTypes[name.split('#')[1]]
+    : registeredTypes[name];
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name);
   if (errors.length) {
@@ -4352,7 +4379,9 @@ const set$1 = (path, value, sourceElement) => {
   if (pathParts.length > 1 && !registry[model]) {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
   } else if (pathParts.length === 1 && typeof value !== 'object') {
-    throw new Error(`cannot set ${path}; you can only register objects at root-level`)
+    throw new Error(
+      `cannot set ${path}; you can only register objects at root-level`
+    )
   } else if (value === existing) {
     // if it's an array then it might have gained or lost elements
     if (Array.isArray(value) || Array.isArray(existing)) {
@@ -4363,8 +4392,16 @@ const set$1 = (path, value, sourceElement) => {
       register(path, value);
     } else {
       // we only overlay vanilla objects, not custom classes or arrays
-      if (value.constructor === Object && existing && existing.constructor === Object) {
-        setByPath(registry, path, Object.assign(value, Object.assign(existing, value)));
+      if (
+        value.constructor === Object &&
+        existing &&
+        existing.constructor === Object
+      ) {
+        setByPath(
+          registry,
+          path,
+          Object.assign(value, Object.assign(existing, value))
+        );
       } else {
         setByPath(registry, path, value);
       }
@@ -4384,10 +4421,13 @@ const replace = (path, value) => {
   return value
 };
 
-const types = () => JSON.parse(JSON.stringify({
-  registeredTypes,
-  componentTypes
-}));
+const types = () =>
+  JSON.parse(
+    JSON.stringify({
+      registeredTypes,
+      componentTypes
+    })
+  );
 
 const registerType = (name, example) => {
   registeredTypes[name] = example;
@@ -4405,8 +4445,11 @@ const _register = (name, obj) => {
 
 const register = (name, obj, blockUpdates) => {
   if (name.match(/^_[^_]*_$/)) {
-    throw new Error('cannot register object as ' + name +
-      ', all names starting and ending with a single \'_\' are reserved.')
+    throw new Error(
+      'cannot register object as ' +
+        name +
+        ", all names starting and ending with a single '_' are reserved."
+    )
   }
 
   _register(name, obj);
@@ -4671,10 +4714,12 @@ b8r.remove('remove-test')
 const remove = (path, update = true) => {
   deleteByPath(registry, path);
   if (update) {
-    touch(path);
+    touch(path)
     /* touch array containing the element if appropriate */
-    [, path] = (path.match(/^(.+)\[[^\]]+\]$/) || []);
-    if (path) { touch(path); }
+    ;[, path] = path.match(/^(.+)\[[^\]]+\]$/) || [];
+    if (path) {
+      touch(path);
+    }
   }
 };
 
@@ -4746,18 +4791,29 @@ const regHandler = (path = '') => ({
     if (prop === '_b8r_value') {
       return target
     }
-    if (Object.prototype.hasOwnProperty.call(target, prop) || (Array.isArray(target) && prop.includes('='))) {
+    if (
+      Object.prototype.hasOwnProperty.call(target, prop) ||
+      (Array.isArray(target) && prop.includes('='))
+    ) {
       let value;
       if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=');
-        value = target.find(candidate => `${getByPath(candidate, idPath)}` === needle);
+        value = target.find(
+          candidate => `${getByPath(candidate, idPath)}` === needle
+        );
       } else {
         value = target[prop];
       }
-      if (value && typeof value === 'object' && value.constructor) {
+      if (
+        value &&
+        typeof value === 'object' &&
+        (value.constructor === Object || value.constructor === Array)
+      ) {
         const currentPath = extendPath(path, prop);
         const proxy = new Proxy(value, regHandler(currentPath));
         return proxy
+      } else if (typeof value === 'function') {
+        return value.bind(target)
       } else {
         return value
       }
@@ -5097,20 +5153,24 @@ var implicitEventTypes = [
 */
 
 const onOffArgs = args => {
-  var element; var eventType; var object; var method; var prepend = false;
+  var element;
+  var eventType;
+  var object;
+  var method;
+  var prepend = false;
   if (typeof args[2] === 'object') {
-    console.warn('b8r.on(element, type, OBJECT) is deprecated');
-    [element, eventType, object] = args;
+    console.warn('b8r.on(element, type, OBJECT) is deprecated')
+    ;[element, eventType, object] = args;
     return on(element, eventType, object.model, object.method)
   } else if (args.length > 4 || typeof args[3] === 'string') {
-    [element, eventType, object, method, prepend] = args;
+[element, eventType, object, method, prepend] = args;
     if (typeof object !== 'string' || typeof method !== 'string') {
       console.error('implicit bindings are by name, not', object, method);
       return
     }
     method = object + '.' + method;
   } else {
-    [element, eventType, method, prepend] = args;
+[element, eventType, method, prepend] = args;
   }
   if (!(element instanceof Element)) {
     console.error('bind bare elements please, not', element);
@@ -5119,11 +5179,12 @@ const onOffArgs = args => {
   return { element, eventType, path: method, prepend }
 };
 
-const getEventHandlers = (element) => {
+const getEventHandlers = element => {
   const source = element.dataset.event;
   const existing = source
     ? source
-      .replace(/\s*(^|$|[,:;])\s*/g, '$1').split(/[;\n]/)
+      .replace(/\s*(^|$|[,:;])\s*/g, '$1')
+      .split(/[;\n]/)
       .filter(handler => handler.trim())
     : [];
   return existing
@@ -5152,9 +5213,19 @@ const getParsedEventHandlers = element => {
       const [type, handler] = instruction.split(':');
       if (!handler) {
         if (instruction.indexOf('.')) {
-          console.error('bad event handler (missing event type)', instruction, 'in', element);
+          console.error(
+            'bad event handler (missing event type)',
+            instruction,
+            'in',
+            element
+          );
         } else {
-          console.error('bad event handler (missing handler)', instruction, 'in', element);
+          console.error(
+            'bad event handler (missing handler)',
+            instruction,
+            'in',
+            element
+          );
         }
         return { types: [] }
       }
@@ -5170,7 +5241,10 @@ const getParsedEventHandlers = element => {
           if (s.substr(0, 3) === 'key') {
             s = s.replace(/Key|Digit/g, '');
             // Allows for a key to be Cmd in Mac and Ctrl in Windows
-            s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl');
+            s = s.replace(
+              /CmdOrCtrl/g,
+              navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl'
+            );
           }
           var args = s.match(/\(([^)]+)\)/);
           return args && args[1] ? args[1].split(',') : false
@@ -5284,10 +5358,10 @@ function on (...args) {
 function off (...args) {
   var element, eventType, object, method;
   if (args.length === 4) {
-    [element, eventType, object, method] = args;
+[element, eventType, object, method] = args;
     method = object + '.' + method;
   } else if (args.length === 3) {
-    [element, eventType, method] = args;
+[element, eventType, method] = args;
   } else {
     throw new Error('b8r.off requires three or four arguments')
   }
@@ -5324,7 +5398,9 @@ turns them into data-event-disabled attributes;
 */
 
 const disable = (element, includeChildren) => {
-  const elements = includeChildren ? findWithin(element, '[data-event]', true) : [element];
+  const elements = includeChildren
+    ? findWithin(element, '[data-event]', true)
+    : [element];
   elements.forEach(elt => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event;
@@ -5339,7 +5415,9 @@ const disable = (element, includeChildren) => {
 };
 
 const enable = (element, includeChildren) => {
-  const elements = includeChildren ? findWithin(element, '[data-event-disabled]', true) : [element];
+  const elements = includeChildren
+    ? findWithin(element, '[data-event-disabled]', true)
+    : [element];
   elements.forEach(elt => {
     if (elt.dataset.eventDisabled) {
       elt.dataset.event = elt.dataset.eventDisabled;
@@ -5355,8 +5433,9 @@ const enable = (element, includeChildren) => {
 
 // add touch events if needed
 if (window.TouchEvent) {
-  ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(
-    type => implicitEventTypes.push(type));
+['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(type =>
+    implicitEventTypes.push(type)
+  );
 }
 
 const getComponentWithMethod = function (element, path) {
@@ -5391,10 +5470,10 @@ const callMethod = (...args) => {
   var model, method;
   try {
     if (args[0].match(/[[.]/)) {
-      [method, ...args] = args;
-      [model, method] = pathSplit(method);
+      ;[method, ...args] = args
+      ;[model, method] = pathSplit(method);
     } else {
-      [model, method, ...args] = args;
+      ;[model, method, ...args] = args;
     }
   } catch (e) {
     throw new Error('callMethod has bad arguments')
@@ -5402,9 +5481,18 @@ const callMethod = (...args) => {
   return call(`${model}.${method}`, ...args)
 };
 
-const handleEvent = (evt) => {
+const handleEvent = evt => {
   // early exit for events triggered on elements inside [data-list] template elements and unloaded components
-  if (evt.target.closest('[data-list],b8r-component:not([data-component-id]),[data-component]:not([data-component-id])')) return
+  if (
+    evt.target.closest(
+      '[data-list],b8r-component:not([data-component-id]),[data-component]:not([data-component-id])'
+    )
+  ) {
+    return
+  }
+  if (evt.target.closest('[data-debug],[data-debug-event]')) {
+    console.warn('Add a conditional breakpoint to watch events being handled');
+  }
   var target = anyElement;
   var args = evt.args || [];
   var keystroke$1 = evt instanceof KeyboardEvent ? keystroke(evt) : {};
@@ -5413,24 +5501,37 @@ const handleEvent = (evt) => {
     var result = false;
     for (var i = 0; i < handlers.length; i++) {
       var handler = handlers[i];
-      for (var typeIndex = 0; typeIndex < handler.types.length;
-        typeIndex++) {
-        if (handler.types[typeIndex] === evt.type &&
-            (!handler.typeArgs[typeIndex] ||
-             handler.typeArgs[typeIndex].indexOf(keystroke$1) > -1)) {
+      for (var typeIndex = 0; typeIndex < handler.types.length; typeIndex++) {
+        if (
+          handler.types[typeIndex] === evt.type &&
+          (!handler.typeArgs[typeIndex] ||
+            handler.typeArgs[typeIndex].indexOf(keystroke$1) > -1)
+        ) {
           if (handler.model && handler.method) {
             if (handler.model === '_component_') {
               handler.model = getComponentWithMethod(target, handler.method);
             }
             if (handler.model) {
-              result = callMethod(handler.model, handler.method, evt, target, ...args);
+              result = callMethod(
+                handler.model,
+                handler.method,
+                evt,
+                target,
+                ...args
+              );
             } else {
               console.warn(`${handler.method} not found`, target, handler);
             }
           } else if (!handler.model && handler.method) {
-            const listInstancePath = target.closest('[data-list-instance]').dataset.listInstance;
+            const listInstancePath = target.closest('[data-list-instance]')
+              .dataset.listInstance;
             if (listInstancePath) {
-              result = callMethod(`${listInstancePath}.${handler.method}`, evt, target, ...args);
+              result = callMethod(
+                `${listInstancePath}.${handler.method}`,
+                evt,
+                target,
+                ...args
+              );
             } else {
               console.error('incomplete event handler on', target);
             }
@@ -5446,7 +5547,10 @@ const handleEvent = (evt) => {
         }
       }
     }
-    target = target === anyElement ? evt.target.closest('[data-event]') : target.parentElement.closest('[data-event]');
+    target =
+      target === anyElement
+        ? evt.target.closest('[data-event]')
+        : target.parentElement.closest('[data-event]');
   }
 };
 
@@ -5471,15 +5575,8 @@ naturally the goal is for them to be handled exactly as if they were "real".
 */
 
 const trigger = (type, target, ...args) => {
-  if (
-    typeof type !== 'string' ||
-    (!(target instanceof Element))
-  ) {
-    console.error(
-      'expected trigger(eventType, targetElement)',
-      type,
-      target
-    );
+  if (typeof type !== 'string' || !(target instanceof Element)) {
+    console.error('expected trigger(eventType, targetElement)', type, target);
     return
   }
   if (target) {
@@ -7387,17 +7484,36 @@ const unique$1 = () => uniqueId$1++;
 // TODO seal b8r after it's been built
 
 const b8r = { constants, unique: unique$1 };
-const UNLOADED_COMPONENT_SELECTOR = '[data-component],b8r-component:not([data-component-id])';
+const UNLOADED_COMPONENT_SELECTOR =
+  '[data-component],b8r-component:not([data-component-id])';
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
 
 Object.assign(b8r, _dom);
 Object.assign(b8r, _iterators);
-Object.assign(b8r, { on, off, enable, disable, trigger, callMethod, implicitlyHandleEventsOfType });
-Object.assign(b8r, { addDataBinding, removeDataBinding, getDataPath, getComponentId, getListPath, getListInstancePath });
+Object.assign(b8r, {
+  on,
+  off,
+  enable,
+  disable,
+  trigger,
+  callMethod,
+  implicitlyHandleEventsOfType
+});
+Object.assign(b8r, {
+  addDataBinding,
+  removeDataBinding,
+  getDataPath,
+  getComponentId,
+  getListPath,
+  getListInstancePath
+});
 Object.assign(b8r, { onAny, offAny, anyListeners });
 Object.assign(b8r, _registry);
 Object.assign(b8r, _byExample);
-b8r.observe(() => true, (path, sourceElement) => touchByPath(path, sourceElement));
+b8r.observe(
+  () => true,
+  (path, sourceElement) => touchByPath(path, sourceElement)
+);
 b8r.keystroke = keystroke;
 b8r.modifierKeys = modifierKeys;
 b8r.webComponents = webComponents;
@@ -7422,8 +7538,10 @@ Object.assign(b8r, { asyncUpdate, afterUpdate, touchElement });
 b8r.forceUpdate = () => {
   let updateList;
 
-  while (updateList = getUpdateList()) { // eslint-disable-line no-cond-assign
-    const lists = b8r.find('[data-list]')
+  while ((updateList = getUpdateList())) {
+    // eslint-disable-line no-cond-assign
+    const lists = b8r
+      .find('[data-list]')
       .map(elt => ({ elt, listBinding: elt.dataset.list }));
     let binds = false; // avoid collecting elements before big list updates
 
@@ -7432,16 +7550,21 @@ b8r.forceUpdate = () => {
       try {
         if (path) {
           lists
-            .filter(bound => bound.elt !== source && bound.listBinding.includes(path))
+            .filter(
+              bound => bound.elt !== source && bound.listBinding.includes(path)
+            )
             .forEach(({ elt }) => bindList(elt));
 
           if (!binds) {
-            binds = b8r.find('[data-bind]')
-              .map(elt => { return { elt, data_binding: elt.dataset.bind } });
+            binds = b8r.find('[data-bind]').map(elt => {
+              return { elt, data_binding: elt.dataset.bind }
+            });
           }
 
           binds
-            .filter(bound => bound.elt !== source && bound.data_binding.includes(path))
+            .filter(
+              bound => bound.elt !== source && bound.data_binding.includes(path)
+            )
             .forEach(rec => {
               rec.dirty = true;
             });
@@ -7464,25 +7587,29 @@ _setForceUpdate(b8r.forceUpdate);
 
 b8r.setByPath = function (...args) {
   let name, path, value, sourceElement;
-  if (args.length === 2 && typeof args[1] === 'object' && !Array.isArray(args[1])) {
-    [name, value] = args;
+  if (
+    args.length === 2 &&
+    typeof args[1] === 'object' &&
+    !Array.isArray(args[1])
+  ) {
+[name, value] = args;
     b8r.forEachKey(value, (val, path) => b8r.setByPath(name, path, val));
     return
   } else if (args.length === 2 || args[2] instanceof Element) {
-    [path, value, sourceElement] = args;
-    path = b8r.resolvePath(path, sourceElement);
-    [name, path] = pathSplit(path);
+[path, value, sourceElement] = args;
+    path = b8r.resolvePath(path, sourceElement)
+    ;[name, path] = pathSplit(path);
   } else {
-    [name, path, value, sourceElement] = args;
+[name, path, value, sourceElement] = args;
   }
   if (b8r.registered(name)) {
     if (typeof path === 'object') {
       b8r.set(name, path, sourceElement);
     } else {
       b8r.set(
-        path[0] === '[' || !path
-          ? `${name}${path}`
-          : `${name}.${path}`, value, sourceElement
+        path[0] === '[' || !path ? `${name}${path}` : `${name}.${path}`,
+        value,
+        sourceElement
       );
     }
   } else {
@@ -7500,10 +7627,10 @@ const _touchPath = (model, path) => {
 b8r.pushByPath = function (...args) {
   let name, path, value, callback;
   if (args.length === 2 || typeof args[2] === 'function') {
-    [path, value, callback] = args;
-    [name, path] = pathSplit(path);
+[path, value, callback] = args
+    ;[name, path] = pathSplit(path);
   } else {
-    [name, path, value, callback] = args;
+[name, path, value, callback] = args;
   }
   if (b8r.registered(name)) {
     const list = b8r.get(path ? `${name}.${path}` : name);
@@ -7520,10 +7647,10 @@ b8r.pushByPath = function (...args) {
 b8r.unshiftByPath = function (...args) {
   let name, path, value;
   if (args.length === 2) {
-    [path, value] = args;
-    [name, path] = pathSplit(path);
+[path, value] = args
+    ;[name, path] = pathSplit(path);
   } else {
-    [name, path, value] = args;
+[name, path, value] = args;
   }
   if (b8r.registered(name)) {
     const list = getByPath(b8r.get(name), path);
@@ -7560,10 +7687,10 @@ function indexFromKey (list, key) {
 b8r.removeByPath = function (...args) {
   let name, path, key;
   if (args.length === 2) {
-    [path, key] = args;
-    [name, path] = pathSplit(path);
+[path, key] = args
+    ;[name, path] = pathSplit(path);
   } else {
-    [name, path, key] = args;
+[name, path, key] = args;
   }
   if (b8r.registered(name)) {
     const list = getByPath(b8r.get(name), path);
@@ -7578,11 +7705,11 @@ b8r.removeByPath = function (...args) {
 };
 
 b8r.listItems = element =>
-  b8r.makeArray(element.children)
+  b8r
+    .makeArray(element.children)
     .filter(elt => elt.matches('[data-list-instance]'));
 
-b8r.listIndex = element =>
-  b8r.listItems(element.parentElement).indexOf(element);
+b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element);
 
 b8r.getComponentData = (elt, type) => {
   const id = getComponentId(elt, type);
@@ -7621,12 +7748,14 @@ b8r.getListTemplate = elt => {
 };
 
 if (document.body) {
-  implicitEventTypes
-    .forEach(type => document.body.addEventListener(type, handleEvent, true));
+  implicitEventTypes.forEach(type =>
+    document.body.addEventListener(type, handleEvent, true)
+  );
 } else {
   document.addEventListener('DOMContentLoaded', () => {
-    implicitEventTypes
-      .forEach(type => document.body.addEventListener(type, handleEvent, true));
+    implicitEventTypes.forEach(type =>
+      document.body.addEventListener(type, handleEvent, true)
+    );
   });
 }
 
@@ -7657,7 +7786,7 @@ b8r.interpolate = (template, elt) => {
   return formatted
 };
 
-const _unequal = (a, b) => (a !== b) || (a && typeof a === 'object');
+const _unequal = (a, b) => a !== b || (a && typeof a === 'object');
 
 function bind (element) {
   if (element.tagName.includes('-') && element.constructor === HTMLElement) {
@@ -7666,6 +7795,11 @@ function bind (element) {
   }
   if (element.closest(UNREADY_SELECTOR)) {
     return
+  }
+  if (element.matches('[data-debug],[data-debug-bind]')) {
+    console.warn(
+      'Add a conditional breakpoint here to watch changes to the DOM caused by changes in the registry'
+    );
   }
   const bindings = getBindings(element);
   const boundValues = element._b8rBoundValues || (element._b8rBoundValues = {});
@@ -7723,8 +7857,9 @@ function bindList (listTemplate) {
   let methodPath, listPath, argPaths;
   try {
     // parse computed list method if any
-    [, , methodPath, argPaths] =
-      sourcePath.match(/^(([^()]*)\()?([^()]*)(\))?$/);
+    ;[, , methodPath, argPaths] = sourcePath.match(
+      /^(([^()]*)\()?([^()]*)(\))?$/
+    );
     argPaths = argPaths.split(',');
     listPath = argPaths[0];
   } catch (e) {
@@ -7733,20 +7868,27 @@ function bindList (listTemplate) {
   const resolvedPath = b8r.resolvePath(listPath, listTemplate);
   // rewrite the binding if necessary (otherwise nested list updates fail)
   if (resolvedPath !== listPath) {
-    let listBinding = listPath = resolvedPath;
+    let listBinding = (listPath = resolvedPath);
     if (methodPath) {
       argPaths.shift();
-      argPaths = [listPath, ...argPaths.map(path => b8r.resolvePath(path, listTemplate))];
+      argPaths = [
+        listPath,
+        ...argPaths.map(path => b8r.resolvePath(path, listTemplate))
+      ];
       listBinding = `${methodPath}(${argPaths.join(',')})`;
     }
-    listTemplate.dataset.list = idPath ? `${listBinding}:${idPath}` : listBinding;
+    listTemplate.dataset.list = idPath
+      ? `${listBinding}:${idPath}`
+      : listBinding;
   }
   let list = b8r.get(listPath);
   if (!list) {
     return
   }
   if (methodPath && !idPath) {
-    throw new Error(`data-list="${listTemplate.dataset.list}" -- computed list requires id-path`)
+    throw new Error(
+      `data-list="${listTemplate.dataset.list}" -- computed list requires id-path`
+    )
   }
   // compute list
   if (methodPath) {
@@ -7755,7 +7897,7 @@ function bindList (listTemplate) {
       // the binding so we can ignore it for now
       return
     }
-    (() => {
+(() => {
       try {
         const args = argPaths.map(b8r.get);
         const filteredList = b8r.callMethod(methodPath, ...args, listTemplate);
@@ -7767,7 +7909,7 @@ function bindList (listTemplate) {
         ) {
           console.warn(
             `list filter ${methodPath} returned a new object` +
-            ' (not from original list); this will break updates!'
+              ' (not from original list); this will break updates!'
           );
         }
         list = filteredList;
@@ -7776,7 +7918,9 @@ function bindList (listTemplate) {
       }
     })();
     if (!list) {
-      throw new Error('could not compute list; async filtered list methods not supported (yet)')
+      throw new Error(
+        'could not compute list; async filtered list methods not supported (yet)'
+      )
     }
   }
   // assign unique ids if _auto_ id-path is specified
@@ -7793,7 +7937,7 @@ function bindList (listTemplate) {
   // if we have an idPath we grab existing instances, and re-use those with
   // matching ids
   const existingListInstances = listTemplate._b8rListInstances || {};
-  const listInstances = listTemplate._b8rListInstances = {};
+  const listInstances = (listTemplate._b8rListInstances = {});
 
   const template = listTemplate.cloneNode(true);
   template.classList.remove('-b8r-empty-list');
@@ -7866,30 +8010,34 @@ b8r.onRequest(() => {
 });
 
 const _pathRelativeB8r = _path => {
-  return !_path ? b8r : Object.assign({}, b8r, {
-    _path,
-    component: (...args) => {
-      const pathIndex = args[1] ? 1 : 0;
-      let url = args[pathIndex];
-      if (url.indexOf('://') === -1) {
-        url = `${_path}/${url}`;
-        args[pathIndex] = url;
+  return !_path
+    ? b8r
+    : Object.assign({}, b8r, {
+      _path,
+      component: (...args) => {
+        const pathIndex = args[1] ? 1 : 0;
+        let url = args[pathIndex];
+        if (url.indexOf('://') === -1) {
+          url = `${_path}/${url}`;
+          args[pathIndex] = url;
+        }
+        return b8r.component(...args)
       }
-      return b8r.component(...args)
-    }
-  })
+    })
 };
 Object.assign(b8r, { component, makeComponent, makeComponentNoEval });
 
 b8r.components = () => Object.keys(components);
 
 function loadAvailableComponents (element) {
-  b8r.findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
+  b8r
+    .findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
     .forEach(target => {
       if (!target.closest('[data-list]')) {
-        const name = target.tagName === 'B8R-COMPONENT'
-          ? target.name
-          : target.dataset.component;
+        const name =
+          target.tagName === 'B8R-COMPONENT'
+            ? target.name
+            : target.dataset.component;
         if (name) b8r.insertComponent(name, target);
       }
     });
@@ -7908,7 +8056,7 @@ const inheritData = element => {
     const data = b8r.get(source.dataset.componentId || b8r.getDataPath(source));
     return b8r.filterObject(
       data || {},
-      (v, k) => (!reserved.includes(k)) || typeof v !== 'function'
+      (v, k) => !reserved.includes(k) || typeof v !== 'function'
     )
   }
 };
@@ -7930,7 +8078,9 @@ b8r.insertComponent = async function (component, element, data) {
       if (!componentTimeouts[component]) {
         // if this doesn't happen for five seconds, we have a problem
         componentTimeouts[component] = setTimeout(
-          () => console.error('component timed out: ', component), 5000);
+          () => console.error('component timed out: ', component),
+          5000
+        );
       }
       if (data) {
         saveDataForElement(element, data);
@@ -7961,7 +8111,7 @@ b8r.insertComponent = async function (component, element, data) {
       passed-through child elements that aren't distinguishable from a component's
       original body
   */
-  const componentId = 'c#' + component.name + '#' + (++componentCount);
+  const componentId = 'c#' + component.name + '#' + ++componentCount;
   if (component.view.children.length) {
     if (element.dataset.componentId) {
       if (element.querySelector('[data-children]')) {
@@ -7973,7 +8123,8 @@ b8r.insertComponent = async function (component, element, data) {
       b8r.moveChildren(element, children);
     }
     // [data-parent] supports DOM elements such as <tr> that can only "live" in a specific context
-    const source = component.view.querySelector('[data-parent]') || component.view;
+    const source =
+      component.view.querySelector('[data-parent]') || component.view;
     b8r.copyChildren(source, element);
     replaceInBindings(element, '_component_', componentId);
     if (dataPath) {
@@ -7994,21 +8145,38 @@ b8r.insertComponent = async function (component, element, data) {
   const set = (...args) => {
     b8r.setByPath(componentId, ...args);
     // updates value bindings
-    if (args[0] === 'value' || Object.prototype.hasOwnProperty.call(args[0], 'value')) {
+    if (
+      args[0] === 'value' ||
+      Object.prototype.hasOwnProperty.call(args[0], 'value')
+    ) {
       b8r.trigger('change', element);
     }
   };
   const register = componentData => {
-    console.warn('use of register withi components is deprecated, use set() instead');
+    console.warn(
+      'use of register withi components is deprecated, use set() instead'
+    );
     set(componentData);
   };
   const touch = path => _touchPath(componentId, path);
   const on = (...args) => b8r.on(element, ...args);
   const find = selector => b8r.findWithin(element, selector);
   const findOne = selector => b8r.findOneWithin(element, selector);
-  const initialValue = typeof component.initialValue === 'function'
-    ? await component.initialValue({ b8r, get, set, touch, on, component: element, findOne, find })
-    : b8r.deepClone(component.initialValue) || data;
+  element.classList.add(className);
+  element.dataset.componentId = componentId;
+  const initialValue =
+    typeof component.initialValue === 'function'
+      ? await component.initialValue({
+        b8r,
+        get,
+        set,
+        touch,
+        on,
+        component: element,
+        findOne,
+        find
+      })
+      : b8r.deepClone(component.initialValue) || data;
   data = {
     ...(component.type ? b8r.deepClone(component.type) : {}),
     ...initialValue,
@@ -8016,14 +8184,21 @@ b8r.insertComponent = async function (component, element, data) {
     componentId
   };
   b8r.register(componentId, data, true);
-  element.classList.add(className);
-  element.dataset.componentId = componentId;
   _componentInstances[componentId] = element;
   if (component.load) {
     try {
       await component.load(
-        element, _pathRelativeB8r(component.path), find, findOne,
-        b8r.reg[componentId], register, get, set, on, touch, component
+        element,
+        _pathRelativeB8r(component.path),
+        find,
+        findOne,
+        b8r.reg[componentId],
+        register,
+        get,
+        set,
+        on,
+        touch,
+        component
       );
     } catch (e) {
       debugger // eslint-disable-line no-debugger
@@ -8060,7 +8235,13 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     connectedCallback () {
       const { path } = this;
       if (path) {
-        if (!this.name) this.name = path.split('/').pop().split('.').shift();
+        if (!this.name) {
+          this.name = path
+            .split('/')
+            .pop()
+            .split('.')
+            .shift();
+        }
         b8r.component(this.name, path);
       }
     },
@@ -8072,7 +8253,8 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     },
     render () {
       if (!this.isConnected) return
-      const unready = this.parentElement && this.parentElement.closest(UNREADY_SELECTOR);
+      const unready =
+        this.parentElement && this.parentElement.closest(UNREADY_SELECTOR);
       if (unready) return
       if (this.name) {
         b8r.insertComponent(this.name, this);

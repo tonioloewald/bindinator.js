@@ -13,20 +13,24 @@ import implicitEventTypes from './b8r.implicit-event-types.js'
 import { dispatch } from './b8r.dispatch.js'
 
 const onOffArgs = args => {
-  var element; var eventType; var object; var method; var prepend = false
+  var element
+  var eventType
+  var object
+  var method
+  var prepend = false
   if (typeof args[2] === 'object') {
-    console.warn('b8r.on(element, type, OBJECT) is deprecated');
-    [element, eventType, object] = args
+    console.warn('b8r.on(element, type, OBJECT) is deprecated')
+    ;[element, eventType, object] = args
     return on(element, eventType, object.model, object.method)
   } else if (args.length > 4 || typeof args[3] === 'string') {
-    [element, eventType, object, method, prepend] = args
+    ;[element, eventType, object, method, prepend] = args
     if (typeof object !== 'string' || typeof method !== 'string') {
       console.error('implicit bindings are by name, not', object, method)
       return
     }
     method = object + '.' + method
   } else {
-    [element, eventType, method, prepend] = args
+    ;[element, eventType, method, prepend] = args
   }
   if (!(element instanceof Element)) {
     console.error('bind bare elements please, not', element)
@@ -35,11 +39,12 @@ const onOffArgs = args => {
   return { element, eventType, path: method, prepend }
 }
 
-const getEventHandlers = (element) => {
+const getEventHandlers = element => {
   const source = element.dataset.event
   const existing = source
     ? source
-      .replace(/\s*(^|$|[,:;])\s*/g, '$1').split(/[;\n]/)
+      .replace(/\s*(^|$|[,:;])\s*/g, '$1')
+      .split(/[;\n]/)
       .filter(handler => handler.trim())
     : []
   return existing
@@ -68,9 +73,19 @@ const getParsedEventHandlers = element => {
       const [type, handler] = instruction.split(':')
       if (!handler) {
         if (instruction.indexOf('.')) {
-          console.error('bad event handler (missing event type)', instruction, 'in', element)
+          console.error(
+            'bad event handler (missing event type)',
+            instruction,
+            'in',
+            element
+          )
         } else {
-          console.error('bad event handler (missing handler)', instruction, 'in', element)
+          console.error(
+            'bad event handler (missing handler)',
+            instruction,
+            'in',
+            element
+          )
         }
         return { types: [] }
       }
@@ -86,7 +101,10 @@ const getParsedEventHandlers = element => {
           if (s.substr(0, 3) === 'key') {
             s = s.replace(/Key|Digit/g, '')
             // Allows for a key to be Cmd in Mac and Ctrl in Windows
-            s = s.replace(/CmdOrCtrl/g, navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl')
+            s = s.replace(
+              /CmdOrCtrl/g,
+              navigator.userAgent.indexOf('Macintosh') > -1 ? 'meta' : 'ctrl'
+            )
           }
           var args = s.match(/\(([^)]+)\)/)
           return args && args[1] ? args[1].split(',') : false
@@ -200,10 +218,10 @@ function on (...args) {
 function off (...args) {
   var element, eventType, object, method
   if (args.length === 4) {
-    [element, eventType, object, method] = args
+    ;[element, eventType, object, method] = args
     method = object + '.' + method
   } else if (args.length === 3) {
-    [element, eventType, method] = args
+    ;[element, eventType, method] = args
   } else {
     throw new Error('b8r.off requires three or four arguments')
   }
@@ -240,7 +258,9 @@ turns them into data-event-disabled attributes;
 */
 
 const disable = (element, includeChildren) => {
-  const elements = includeChildren ? findWithin(element, '[data-event]', true) : [element]
+  const elements = includeChildren
+    ? findWithin(element, '[data-event]', true)
+    : [element]
   elements.forEach(elt => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event
@@ -255,7 +275,9 @@ const disable = (element, includeChildren) => {
 }
 
 const enable = (element, includeChildren) => {
-  const elements = includeChildren ? findWithin(element, '[data-event-disabled]', true) : [element]
+  const elements = includeChildren
+    ? findWithin(element, '[data-event-disabled]', true)
+    : [element]
   elements.forEach(elt => {
     if (elt.dataset.eventDisabled) {
       elt.dataset.event = elt.dataset.eventDisabled
@@ -271,8 +293,9 @@ const enable = (element, includeChildren) => {
 
 // add touch events if needed
 if (window.TouchEvent) {
-  ['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(
-    type => implicitEventTypes.push(type))
+  ;['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(type =>
+    implicitEventTypes.push(type)
+  )
 }
 
 const getComponentWithMethod = function (element, path) {
@@ -307,10 +330,10 @@ const callMethod = (...args) => {
   var model, method
   try {
     if (args[0].match(/[[.]/)) {
-      [method, ...args] = args;
-      [model, method] = pathSplit(method)
+      ;[method, ...args] = args
+      ;[model, method] = pathSplit(method)
     } else {
-      [model, method, ...args] = args
+      ;[model, method, ...args] = args
     }
   } catch (e) {
     throw new Error('callMethod has bad arguments')
@@ -318,9 +341,18 @@ const callMethod = (...args) => {
   return call(`${model}.${method}`, ...args)
 }
 
-const handleEvent = (evt) => {
+const handleEvent = evt => {
   // early exit for events triggered on elements inside [data-list] template elements and unloaded components
-  if (evt.target.closest('[data-list],b8r-component:not([data-component-id]),[data-component]:not([data-component-id])')) return
+  if (
+    evt.target.closest(
+      '[data-list],b8r-component:not([data-component-id]),[data-component]:not([data-component-id])'
+    )
+  ) {
+    return
+  }
+  if (evt.target.closest('[data-debug],[data-debug-event]')) {
+    console.warn('Add a conditional breakpoint to watch events being handled')
+  }
   var target = anyElement
   var args = evt.args || []
   var keystroke = evt instanceof KeyboardEvent ? keys.keystroke(evt) : {}
@@ -329,24 +361,37 @@ const handleEvent = (evt) => {
     var result = false
     for (var i = 0; i < handlers.length; i++) {
       var handler = handlers[i]
-      for (var typeIndex = 0; typeIndex < handler.types.length;
-        typeIndex++) {
-        if (handler.types[typeIndex] === evt.type &&
-            (!handler.typeArgs[typeIndex] ||
-             handler.typeArgs[typeIndex].indexOf(keystroke) > -1)) {
+      for (var typeIndex = 0; typeIndex < handler.types.length; typeIndex++) {
+        if (
+          handler.types[typeIndex] === evt.type &&
+          (!handler.typeArgs[typeIndex] ||
+            handler.typeArgs[typeIndex].indexOf(keystroke) > -1)
+        ) {
           if (handler.model && handler.method) {
             if (handler.model === '_component_') {
               handler.model = getComponentWithMethod(target, handler.method)
             }
             if (handler.model) {
-              result = callMethod(handler.model, handler.method, evt, target, ...args)
+              result = callMethod(
+                handler.model,
+                handler.method,
+                evt,
+                target,
+                ...args
+              )
             } else {
               console.warn(`${handler.method} not found`, target, handler)
             }
           } else if (!handler.model && handler.method) {
-            const listInstancePath = target.closest('[data-list-instance]').dataset.listInstance
+            const listInstancePath = target.closest('[data-list-instance]')
+              .dataset.listInstance
             if (listInstancePath) {
-              result = callMethod(`${listInstancePath}.${handler.method}`, evt, target, ...args)
+              result = callMethod(
+                `${listInstancePath}.${handler.method}`,
+                evt,
+                target,
+                ...args
+              )
             } else {
               console.error('incomplete event handler on', target)
             }
@@ -362,7 +407,10 @@ const handleEvent = (evt) => {
         }
       }
     }
-    target = target === anyElement ? evt.target.closest('[data-event]') : target.parentElement.closest('[data-event]')
+    target =
+      target === anyElement
+        ? evt.target.closest('[data-event]')
+        : target.parentElement.closest('[data-event]')
   }
 }
 
@@ -387,15 +435,8 @@ naturally the goal is for them to be handled exactly as if they were "real".
 */
 
 const trigger = (type, target, ...args) => {
-  if (
-    typeof type !== 'string' ||
-    (!(target instanceof Element))
-  ) {
-    console.error(
-      'expected trigger(eventType, targetElement)',
-      type,
-      target
-    )
+  if (typeof type !== 'string' || !(target instanceof Element)) {
+    console.error('expected trigger(eventType, targetElement)', type, target)
     return
   }
   if (target) {
@@ -429,8 +470,15 @@ export {
   makeHandler,
   getEventHandlers,
   getParsedEventHandlers,
-  dispatch, trigger,
-  on, off, enable, disable, callMethod,
+  dispatch,
+  trigger,
+  on,
+  off,
+  enable,
+  disable,
+  callMethod,
   implicitlyHandleEventsOfType,
-  implicitEventTypes, getComponentWithMethod, handleEvent
+  implicitEventTypes,
+  getComponentWithMethod,
+  handleEvent
 }

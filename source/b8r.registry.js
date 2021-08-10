@@ -491,7 +491,9 @@ class Listener {
     } else if (test instanceof Function) {
       this.test = test
     } else {
-      throw new Error('expect listener test to be a string, RegExp, or test function')
+      throw new Error(
+        'expect listener test to be a string, RegExp, or test function'
+      )
     }
     if (typeof callback === 'string') {
       this.callback = (...args) => {
@@ -543,9 +545,14 @@ const _get = (path, element) => {
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]')
     if (!elt && element.closest('body')) {
-      console.error(`relative data-path ${path} used without list instance`, element)
+      console.error(
+        `relative data-path ${path} used without list instance`,
+        element
+      )
     }
-    return elt ? getByPath(registry, `${elt.dataset.listInstance}${path}`) : undefined
+    return elt
+      ? getByPath(registry, `${elt.dataset.listInstance}${path}`)
+      : undefined
   } else {
     path = resolvePath(path, element)
     if (debugPaths && !isValidPath(path)) {
@@ -869,22 +876,25 @@ const getJSON = (path, element, pretty) => {
 }
 
 const touch = (path, sourceElement) => {
-  listeners.filter(listener => {
-    let heard
-    try {
-      heard = listener.test(path)
-    } catch (e) {
-      console.error(listener, 'test threw exception', e)
-    }
-    if (heard === observerShouldBeRemoved) {
-      unobserve(listener)
-      return false
-    }
-    return !!heard
-  })
+  listeners
+    .filter(listener => {
+      let heard
+      try {
+        heard = listener.test(path)
+      } catch (e) {
+        console.error(listener, 'test threw exception', e)
+      }
+      if (heard === observerShouldBeRemoved) {
+        unobserve(listener)
+        return false
+      }
+      return !!heard
+    })
     .forEach(listener => {
       try {
-        if (listener.callback(path, sourceElement) === observerShouldBeRemoved) {
+        if (
+          listener.callback(path, sourceElement) === observerShouldBeRemoved
+        ) {
           unobserve(listener)
         }
       } catch (e) {
@@ -897,7 +907,7 @@ const _defaultTypeErrorHandler = (errors, action) => {
   console.error(`registry type check(s) failed after ${action}`, errors)
 }
 let typeErrorHandlers = [_defaultTypeErrorHandler]
-export const onTypeError = (callback) => {
+export const onTypeError = callback => {
   offTypeError(_defaultTypeErrorHandler)
   if (typeErrorHandlers.indexOf(callback) === -1) {
     typeErrorHandlers.push(callback)
@@ -913,7 +923,9 @@ export const offTypeError = (callback, restoreDefault = false) => {
 }
 
 const checkType = (action, name) => {
-  const referenceType = name.startsWith('c#') ? componentTypes[name.split('#')[1]] : registeredTypes[name]
+  const referenceType = name.startsWith('c#')
+    ? componentTypes[name.split('#')[1]]
+    : registeredTypes[name]
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name, true)
   if (errors.length) {
@@ -935,7 +947,9 @@ const set = (path, value, sourceElement) => {
   if (pathParts.length > 1 && !registry[model]) {
     console.error(`cannot set ${path} to ${value}, ${model} does not exist`)
   } else if (pathParts.length === 1 && typeof value !== 'object') {
-    throw new Error(`cannot set ${path}; you can only register objects at root-level`)
+    throw new Error(
+      `cannot set ${path}; you can only register objects at root-level`
+    )
   } else if (value === existing) {
     // if it's an array then it might have gained or lost elements
     if (Array.isArray(value) || Array.isArray(existing)) {
@@ -946,8 +960,16 @@ const set = (path, value, sourceElement) => {
       register(path, value)
     } else {
       // we only overlay vanilla objects, not custom classes or arrays
-      if (value.constructor === Object && existing && existing.constructor === Object) {
-        setByPath(registry, path, Object.assign(value, Object.assign(existing, value)))
+      if (
+        value.constructor === Object &&
+        existing &&
+        existing.constructor === Object
+      ) {
+        setByPath(
+          registry,
+          path,
+          Object.assign(value, Object.assign(existing, value))
+        )
       } else {
         setByPath(registry, path, value)
       }
@@ -967,10 +989,13 @@ const replace = (path, value) => {
   return value
 }
 
-const types = () => JSON.parse(JSON.stringify({
-  registeredTypes,
-  componentTypes
-}))
+const types = () =>
+  JSON.parse(
+    JSON.stringify({
+      registeredTypes,
+      componentTypes
+    })
+  )
 
 const registerType = (name, example) => {
   registeredTypes[name] = example
@@ -988,8 +1013,11 @@ const _register = (name, obj) => {
 
 const register = (name, obj, blockUpdates) => {
   if (name.match(/^_[^_]*_$/)) {
-    throw new Error('cannot register object as ' + name +
-      ', all names starting and ending with a single \'_\' are reserved.')
+    throw new Error(
+      'cannot register object as ' +
+        name +
+        ", all names starting and ending with a single '_' are reserved."
+    )
   }
 
   _register(name, obj)
@@ -1254,10 +1282,12 @@ b8r.remove('remove-test')
 const remove = (path, update = true) => {
   deleteByPath(registry, path)
   if (update) {
-    touch(path);
+    touch(path)
     /* touch array containing the element if appropriate */
-    [, path] = (path.match(/^(.+)\[[^\]]+\]$/) || [])
-    if (path) { touch(path) }
+    ;[, path] = path.match(/^(.+)\[[^\]]+\]$/) || []
+    if (path) {
+      touch(path)
+    }
   }
 }
 
@@ -1329,18 +1359,29 @@ const regHandler = (path = '') => ({
     if (prop === '_b8r_value') {
       return target
     }
-    if (Object.prototype.hasOwnProperty.call(target, prop) || (Array.isArray(target) && prop.includes('='))) {
+    if (
+      Object.prototype.hasOwnProperty.call(target, prop) ||
+      (Array.isArray(target) && prop.includes('='))
+    ) {
       let value
       if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=')
-        value = target.find(candidate => `${getByPath(candidate, idPath)}` === needle)
+        value = target.find(
+          candidate => `${getByPath(candidate, idPath)}` === needle
+        )
       } else {
         value = target[prop]
       }
-      if (value !== null && typeof value === 'object' && target.constructor) {
+      if (
+        value &&
+        typeof value === 'object' &&
+        (value.constructor === Object || value.constructor === Array)
+      ) {
         const currentPath = extendPath(path, prop)
         const proxy = new Proxy(value, regHandler(currentPath))
         return proxy
+      } else if (typeof value === 'function') {
+        return value.bind(target)
       } else {
         return value
       }
@@ -1380,9 +1421,14 @@ export {
   set,
   replace,
   setJSON,
-  increment, decrement, zero,
-  push, unshift, sort,
-  call, callIf,
+  increment,
+  decrement,
+  zero,
+  push,
+  unshift,
+  sort,
+  call,
+  callIf,
   touch,
   observe,
   unobserve,
