@@ -59,9 +59,13 @@
 
   --link-color: rgba(64, 0, 255, 0.5);
   --link-active-color: #40f;
-  --error-color: rgb(255, 187, 187);
-  --warning-color: rgb(255, 255, 159);
-  --ok-color: rgb(153, 255, 153);
+
+  --error-color: rgb(206, 0, 0);
+  --warning-color: rgb(214, 121, 0);
+  --ok-color: green;
+  --error-bg: rgb(255, 187, 187);
+  --warning-bg: rgb(255, 213, 159);
+  --ok-bg: rgb(153, 255, 153);
 
   --hover-transition: 0.15s ease-out;
   --fade-transition: opacity 0.3s ease-out;
@@ -82,15 +86,18 @@
   --bright-accent-color: #346;
   --pullquote-bg-color: #334;
   --code-text-color: #88f;
-  --ok-color: lime;
   --link-color: #88f;
   --link-active-color: #64f;
   --default-bg-color: #186040;
   --cancel-bg-color: #6a6d1d;
 
-  --error-color: rgb(172, 15, 15);
-  --warning-color: rgb(126, 126, 26);
-  --ok-color: rgb(11, 112, 11);
+
+  --error-bg: rgb(206, 0, 0);
+  --warning-bg: rgb(214, 121, 0);
+  --ok-bg: green;
+  --error-color: rgb(255, 187, 187);
+  --warning-color: rgb(255, 213, 159);
+  --ok-color: rgb(153, 255, 153);
 
   --black-5: rgba(255, 255, 255, 0.05);
   --black-10: rgba(255, 255, 255, 0.1);

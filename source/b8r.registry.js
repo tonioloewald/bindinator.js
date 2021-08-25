@@ -659,7 +659,6 @@ pointers back to their sources.
     {id: 3, description: 'A stick of butter'}
   ]
   data.filter = (list, needle) => {
-    console.log({list, needle})
     return needle ? list.filter(item => item.description.includes(needle)) : list
   }
 </script>
