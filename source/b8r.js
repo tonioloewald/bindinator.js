@@ -421,8 +421,8 @@ function bind (element) {
     if (_unequal(existing, value)) {
       newValues[path] = value
       const _toTargets = []
-      for(const t of targets) {
-        if(toTargets[t.target]) {
+      for (const t of targets) {
+        if (toTargets[t.target]) {
           _toTargets.push(t)
         } else if (!fromTargets[t.target]) {
           console.debug('b8r-warn', `unrecognized target ${t.target} in ${element.dataset.bind}`, element)

@@ -196,7 +196,7 @@ var b8r = (function () {
   // unique tokens passed to set by path to delete or create properties
 
   let uniqueId = 0;
-  const unique = () => uniqueId++;
+  const unique = () => ++uniqueId;
 
   const _delete_ = {};
   const _newObject_ = {};
@@ -1525,7 +1525,7 @@ var b8r = (function () {
   */
 
   const addDataBinding = (element, toTarget, path) => {
-    path = path.replace(/_component_/g, getComponentId(element));
+    path = path.replace(/\b_component_\b/g, getComponentId(element));
     const binding = `${toTarget}=${path}`;
     const existing = (element.dataset.bind || '')
       .split(';').map(s => s.trim()).filter(s => !!s);
@@ -1712,7 +1712,7 @@ var b8r = (function () {
   };
 
   const replaceInBindings = (element, needle, replacement) => {
-    const needleRegexp = new RegExp(needle, 'g');
+    const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g');
     findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
       .forEach(elt => {
         ['data-bind', 'data-list', 'data-path'].forEach(attr => {
@@ -3444,8 +3444,8 @@ var b8r = (function () {
   for the suggestion.
 
   `b8r.reg` is a proxy for its `registry`, providing syntax-sugar for `get` and `set` via
-  an ES6 Proxy. The registry object is wrapped with a proxy that returns its object properties as
-  proxies, and so on (recursively), each knowing the path of the value it wraps.
+  an ES6 Proxy. The way the proxy works is that it gives you proxies for its object properties,
+  and so on (recursively), each proxy knowing the path of the value it wraps.
 
       import {reg} from 'path/to/b8r.js'
       const obj = {
@@ -3870,18 +3870,11 @@ var b8r = (function () {
 
   > ### Note
   >
-  > I'm always looking at ways to streamline `b8r` code, usually without breaking
-  > anything, and ideally making the resulting code easier to read, write, and grok.
-  >
+  > Having gained experience with the framework, I am doubling down
+  > on object paths and simplifying the API in favor of:
   > <pre>
-  > b8r.getByPath('path', 'to.value')                // original
-  > b8r.setByPath('path', 'to.value', new_value)
-  >
-  > b8r.get('path.to.value')                         // simplified
-  > b8r.set('path.to.value', new_value)
-  >
-  > b8r.reg.path.to.value                            // using Proxy
-  > b8r.reg.path.to.value = new_value
+  > b8r.get('path.to.value');
+  > b8r.set('path.to.value', new_value);
   > </pre>
   > The older APIs (setByPath, etc.) will ultimately be deprecated. Even now they
   > are little more than wrappers for set/get. See the *Registry* docs.
@@ -4817,7 +4810,7 @@ var b8r = (function () {
             return target[prop]
         }
       } else {
-        return target[prop]
+        return undefined
       }
     },
     set (target, prop, value) {
@@ -7460,14 +7453,11 @@ var b8r = (function () {
   - [Showing and Hiding](?source=source/b8r.show.js)
   */
 
-  let uniqueId$1 = 0;
-  const unique$1 = () => uniqueId$1++;
-
   // TODO seal b8r after it's been built
 
-  const b8r = { constants, unique: unique$1 };
+  const b8r = { constants, unique };
   const UNLOADED_COMPONENT_SELECTOR =
-    '[data-component],b8r-component:not([data-component-id])';
+    '[data-component],[data-initializing],b8r-component:not([data-component-id])';
   const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
 
   Object.assign(b8r, _dom);
@@ -7792,14 +7782,17 @@ var b8r = (function () {
       const existing = boundValues[path];
       if (_unequal(existing, value)) {
         newValues[path] = value;
-        const _toTargets = targets.filter(t => toTargets[t.target]);
-        if (_toTargets.length) {
-          _toTargets.forEach(t => {
-            toTargets[t.target](element, value, t.key);
-          });
-        } else {
-          console.warn('unrecognized toTarget in binding', element, bindings[i]);
+        const _toTargets = [];
+        for (const t of targets) {
+          if (toTargets[t.target]) {
+            _toTargets.push(t);
+          } else if (!fromTargets$1[t.target]) {
+            console.warn(`unrecognized target ${t.target} in ${element.dataset.bind}`, element);
+          }
         }
+        _toTargets.forEach(t => {
+          toTargets[t.target](element, value, t.key);
+        });
       }
     }
     Object.assign(boundValues, newValues);
@@ -7909,7 +7902,7 @@ var b8r = (function () {
     if (idPath === '_auto_') {
       for (let i = 0; i < list.length; i++) {
         if (list[i]._auto_ === undefined) {
-          list[i]._auto_ = unique$1();
+          list[i]._auto_ = unique();
         }
       }
     }
@@ -8145,6 +8138,7 @@ var b8r = (function () {
     const find = selector => b8r.findWithin(element, selector);
     const findOne = selector => b8r.findOneWithin(element, selector);
     element.classList.add(className);
+    // element.setAttribute('data-initializing', '')
     element.dataset.componentId = componentId;
     const initialValue =
       typeof component.initialValue === 'function'
@@ -8166,6 +8160,7 @@ var b8r = (function () {
       componentId
     };
     b8r.register(componentId, data, true);
+    element.removeAttribute('data-initializing');
     _componentInstances[componentId] = element;
     if (component.load) {
       try {
