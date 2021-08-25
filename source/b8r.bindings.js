@@ -283,7 +283,7 @@ import { findWithin, succeeding } from './b8r.dom.js'
 import { touchElement } from './b8r.update.js'
 
 const addDataBinding = (element, toTarget, path) => {
-  path = path.replace(/_component_/g, getComponentId(element))
+  path = path.replace(/\b_component_\b/g, getComponentId(element))
   const binding = `${toTarget}=${path}`
   const existing = (element.dataset.bind || '')
     .split(';').map(s => s.trim()).filter(s => !!s)
@@ -470,7 +470,7 @@ const getComponentId = (element, type) => {
 }
 
 const replaceInBindings = (element, needle, replacement) => {
-  const needleRegexp = new RegExp(needle, 'g')
+  const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g')
   findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
     .forEach(elt => {
       ['data-bind', 'data-list', 'data-path'].forEach(attr => {
