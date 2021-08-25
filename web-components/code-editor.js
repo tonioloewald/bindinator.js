@@ -1,9 +1,15 @@
 /**
 # Code Editor
 
-A simple code editor which uses ace
+A simple embeddable code editor which uses [Ace](https://ace.c9.io/).
 
-    <b8r-code-editor mode="javascript" value="// code goes here"></b8r-code-editor>
+    <b8r-code-editor
+      mode="javascript"
+      options='{"showGutter": false}'
+      value="// code goes here"
+    ></b8r-code-editor>
+
+The `options` attribute allows greater customization using arbitrary JSON.
 
 By default, the code editor will load the text within the tag, treating it as pre-formatted.
 
@@ -22,7 +28,7 @@ webComponentTest(Test, '../web-components/code-editor.js', 'b8r-code-editor')
 
 import { makeWebComponent } from '../source/web-components.js'
 
-const makeCodeEditor = async (codeElement, mode = 'html') => {
+const makeCodeEditor = async (codeElement, mode = 'html', options = {}) => {
   const { viaTag } = await import('../lib/scripts.js')
   const { ace } = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.min.js')
   ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/')
@@ -30,7 +36,8 @@ const makeCodeEditor = async (codeElement, mode = 'html') => {
     mode: `ace/mode/${mode}`,
     tabSize: 2,
     useSoftTabs: true,
-    useWorker: false
+    useWorker: false,
+    ...options
   })
   editor.setTheme('ace/theme/monokai')
   return editor
@@ -40,7 +47,8 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
   attributes: {
     value: '',
     mode: 'javascript',
-    pendingChange: 0
+    pendingChange: 0,
+    options: ''
   },
   style: {
     ':host': {
@@ -67,7 +75,7 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
   },
   methods: {
     connectedCallback () {
-      this._editor = makeCodeEditor(this, this.mode)
+      this._editor = makeCodeEditor(this, this.mode, JSON.parse(this.options || '{}'))
       if (!this.value) {
         this.value = this.textContent.trim()
       }

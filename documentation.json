@@ -260,6 +260,10 @@
       {
         "name": "resize",
         "path": "lib/resize.js"
+      },
+      {
+        "name": "html-render",
+        "path": "lib/html-render.js"
       }
     ]
   },

@@ -28,7 +28,7 @@ implement some kind of virtual machine to replace it.
 /* global console, Element, HTMLElement */
 
 import * as constants from './b8r.constants.js'
-import { getByPath, pathSplit } from './b8r.byPath.js'
+import { getByPath, pathSplit, unique } from './b8r.byPath.js'
 import * as _dom from './b8r.dom.js'
 import * as _iterators from './b8r.iterators.js'
 import * as _registry from './b8r.registry.js'
@@ -91,14 +91,11 @@ import {
 
 import * as webComponents from './web-components.js'
 
-let uniqueId = 0
-const unique = () => uniqueId++
-
 // TODO seal b8r after it's been built
 
 const b8r = { constants, unique }
 const UNLOADED_COMPONENT_SELECTOR =
-  '[data-component],b8r-component:not([data-component-id])'
+  '[data-component],[data-initializing],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
 
 Object.assign(b8r, _dom)
@@ -423,14 +420,17 @@ function bind (element) {
     const existing = boundValues[path]
     if (_unequal(existing, value)) {
       newValues[path] = value
-      const _toTargets = targets.filter(t => toTargets[t.target])
-      if (_toTargets.length) {
-        _toTargets.forEach(t => {
-          toTargets[t.target](element, value, t.key)
-        })
-      } else {
-        console.warn('unrecognized toTarget in binding', element, bindings[i])
+      const _toTargets = []
+      for(const t of targets) {
+        if(toTargets[t.target]) {
+          _toTargets.push(t)
+        } else if (!fromTargets[t.target]) {
+          console.warn(`unrecognized target ${t.target} in ${element.dataset.bind}`, element)
+        }
       }
+      _toTargets.forEach(t => {
+        toTargets[t.target](element, value, t.key)
+      })
     }
   }
   Object.assign(boundValues, newValues)
@@ -776,6 +776,7 @@ b8r.insertComponent = async function (component, element, data) {
   const find = selector => b8r.findWithin(element, selector)
   const findOne = selector => b8r.findOneWithin(element, selector)
   element.classList.add(className)
+  // element.setAttribute('data-initializing', '')
   element.dataset.componentId = componentId
   const initialValue =
     typeof component.initialValue === 'function'
@@ -797,6 +798,7 @@ b8r.insertComponent = async function (component, element, data) {
     componentId
   }
   b8r.register(componentId, data, true)
+  element.removeAttribute('data-initializing')
   _componentInstances[componentId] = element
   if (component.load) {
     try {
