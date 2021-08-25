@@ -115,9 +115,9 @@ const list = [
   obj
 ]
 
-const error = console.error; // prevent errors from leaking to console
+const debug = console.debug; // prevent errors from leaking to console
 errors = []
-console.error = message => errors.push(message)
+console.debug = (...args) => errors.push(args[1])
 
 Test(() => getByPath(obj, '')).shouldBe(obj);
 Test(() => getByPath(obj, '/')).shouldBe(obj);
@@ -176,7 +176,7 @@ Test(() => {
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
 Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path 'bar.baz' used for array, expected 'id'"]);
 
-console.error = error
+console.debug = debug
 ~~~~
 */
 /* global console */
@@ -231,7 +231,7 @@ function buildIdPathValueMap (array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath
   } else if (array._b8r_id_path !== idPath) {
-    console.error(`inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`)
+    console.debug('b8r-error', `inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`)
   }
   if (!array._b8r_value_maps) {
     // hide the map of maps in a closure that is returned by a computed property so that
@@ -310,14 +310,14 @@ function byIdPath (array, idPath, idValue, valueToInsert) {
 
 function expectArray (obj) {
   if (!Array.isArray(obj)) {
-    console.error('setByPath failed: expected array, found', obj)
+    console.debug('b8r-error', 'setByPath failed: expected array, found', obj)
     throw new Error('setByPath failed: expected array')
   }
 }
 
 function expectObject (obj) {
   if (!obj || obj.constructor !== Object) {
-    console.error('setByPath failed: expected Object, found', obj)
+    console.debug('b8r-error', 'setByPath failed: expected Object, found', obj)
     throw new Error('setByPath failed: expected object')
   }
 }
@@ -403,11 +403,11 @@ function setByPath (orig, path, val) {
         }
       }
     } else {
-      console.error('setByPath failed: bad path', path)
+      console.debug('b8r-error', 'setByPath failed: bad path', path)
       throw new Error('setByPath failed')
     }
   }
-  console.error(`setByPath failed: "${path}" not found in`, orig)
+  console.debug('b8r-error', `setByPath failed: "${path}" not found in`, orig)
   throw new Error(`setByPath(${orig}, ${path}, ${val}) failed`)
 }
 

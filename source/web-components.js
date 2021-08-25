@@ -379,7 +379,7 @@ const makeWebComponent = (tagName, {
     style = Object.assign({ ':host([hidden])': { display: 'none !important' } }, style)
     styleNode = makeElement('style', { content: _css(style) })
   } else if (style) {
-    console.error(`style for a web-component ${tagName} with now shadowRoot is not supported`)
+    console.debug('b8r-error', `style for a web-component ${tagName} with now shadowRoot is not supported`)
   }
   if (methods.render) {
     methods = Object.assign({

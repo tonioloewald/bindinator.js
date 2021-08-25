@@ -19,13 +19,13 @@ const onOffArgs = args => {
   var method
   var prepend = false
   if (typeof args[2] === 'object') {
-    console.warn('b8r.on(element, type, OBJECT) is deprecated')
+    console.debug('b8r-warn', 'b8r.on(element, type, OBJECT) is deprecated')
     ;[element, eventType, object] = args
     return on(element, eventType, object.model, object.method)
   } else if (args.length > 4 || typeof args[3] === 'string') {
     ;[element, eventType, object, method, prepend] = args
     if (typeof object !== 'string' || typeof method !== 'string') {
-      console.error('implicit bindings are by name, not', object, method)
+      console.debug('b8r-error', 'implicit bindings are by name, not', object, method)
       return
     }
     method = object + '.' + method
@@ -33,7 +33,7 @@ const onOffArgs = args => {
     ;[element, eventType, method, prepend] = args
   }
   if (!(element instanceof Element)) {
-    console.error('bind bare elements please, not', element)
+    console.debug('b8r-error', 'bind bare elements please, not', element)
     throw new Error('bad argument')
   }
   return { element, eventType, path: method, prepend }
@@ -73,14 +73,14 @@ const getParsedEventHandlers = element => {
       const [type, handler] = instruction.split(':')
       if (!handler) {
         if (instruction.indexOf('.')) {
-          console.error(
+          console.debug('b8r-error', 
             'bad event handler (missing event type)',
             instruction,
             'in',
             element
           )
         } else {
-          console.error(
+          console.debug('b8r-error', 
             'bad event handler (missing handler)',
             instruction,
             'in',
@@ -114,7 +114,7 @@ const getParsedEventHandlers = element => {
       }
     })
   } catch (e) {
-    console.error('fatal error in event handler', e)
+    console.debug('b8r-error', 'fatal error in event handler', e)
     return []
   }
 }
@@ -124,7 +124,7 @@ const makeHandler = (eventType, method) => {
     eventType = [eventType]
   }
   if (!Array.isArray(eventType)) {
-    console.error('makeHandler failed; bad eventType', eventType)
+    console.debug('b8r-error', 'makeHandler failed; bad eventType', eventType)
     return
   }
   return eventType.sort().join(',') + ':' + method
@@ -351,7 +351,7 @@ const handleEvent = evt => {
     return
   }
   if (evt.target.closest('[data-debug],[data-debug-event]')) {
-    console.warn('Add a conditional breakpoint to watch events being handled')
+    console.debug('b8r-warn', 'Add a conditional breakpoint to watch events being handled')
   }
   var target = anyElement
   var args = evt.args || []
@@ -380,7 +380,7 @@ const handleEvent = evt => {
                 ...args
               )
             } else {
-              console.warn(`${handler.method} not found`, target, handler)
+              console.debug('b8r-warn', `${handler.method} not found`, target, handler)
             }
           } else if (!handler.model && handler.method) {
             const listInstancePath = target.closest('[data-list-instance]')
@@ -393,10 +393,10 @@ const handleEvent = evt => {
                 ...args
               )
             } else {
-              console.error('incomplete event handler on', target)
+              console.debug('b8r-error', 'incomplete event handler on', target)
             }
           } else {
-            console.error('incomplete event handler on', target)
+            console.debug('b8r-error', 'incomplete event handler on', target)
             break
           }
           if (result !== true) {
@@ -436,7 +436,7 @@ naturally the goal is for them to be handled exactly as if they were "real".
 
 const trigger = (type, target, ...args) => {
   if (typeof type !== 'string' || !(target instanceof Element)) {
-    console.error('expected trigger(eventType, targetElement)', type, target)
+    console.debug('b8r-error', 'expected trigger(eventType, targetElement)', type, target)
     return
   }
   if (target) {
@@ -445,7 +445,7 @@ const trigger = (type, target, ...args) => {
       handleEvent(event)
     }
   } else {
-    console.warn('b8r.trigger called with no specified target')
+    console.debug('b8r-warn', 'b8r.trigger called with no specified target')
   }
 }
 

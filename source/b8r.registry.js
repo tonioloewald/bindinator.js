@@ -545,7 +545,7 @@ const _get = (path, element) => {
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]')
     if (!elt && element.closest('body')) {
-      console.error(
+      console.debug('b8r-error', 
         `relative data-path ${path} used without list instance`,
         element
       )
@@ -556,7 +556,7 @@ const _get = (path, element) => {
   } else {
     path = resolvePath(path, element)
     if (debugPaths && !isValidPath(path)) {
-      console.error(`getting invalid path ${path}`)
+      console.debug('b8r-error', `getting invalid path ${path}`)
     } else {
       return getByPath(registry, path)
     }
@@ -882,7 +882,7 @@ const touch = (path, sourceElement) => {
       try {
         heard = listener.test(path)
       } catch (e) {
-        console.error(listener, 'test threw exception', e)
+        console.debug('b8r-error', listener, 'test threw exception', e)
       }
       if (heard === observerShouldBeRemoved) {
         unobserve(listener)
@@ -898,13 +898,13 @@ const touch = (path, sourceElement) => {
           unobserve(listener)
         }
       } catch (e) {
-        console.error(listener, 'callback threw exception', e)
+        console.debug('b8r-error', listener, 'callback threw exception', e)
       }
     })
 }
 
 const _defaultTypeErrorHandler = (errors, action) => {
-  console.error(`registry type check(s) failed after ${action}`, errors)
+  console.debug('b8r-error', `registry type check(s) failed after ${action}`, errors)
 }
 let typeErrorHandlers = [_defaultTypeErrorHandler]
 export const onTypeError = callback => {
@@ -938,14 +938,14 @@ const set = (path, value, sourceElement) => {
     throw new Error('You cannot put reg proxies into the registry')
   }
   if (debugPaths && !isValidPath(path)) {
-    console.error(`setting invalid path ${path}`)
+    console.debug('b8r-error', `setting invalid path ${path}`)
   }
   const pathParts = path.split(/\.|\[/)
   const [name] = pathParts
   const model = pathParts[0]
   const existing = getByPath(registry, path)
   if (pathParts.length > 1 && !registry[model]) {
-    console.error(`cannot set ${path} to ${value}, ${model} does not exist`)
+    console.debug('b8r-error', `cannot set ${path} to ${value}, ${model} does not exist`)
   } else if (pathParts.length === 1 && typeof value !== 'object') {
     throw new Error(
       `cannot set ${path}; you can only register objects at root-level`
@@ -1004,7 +1004,7 @@ const registerType = (name, example) => {
 
 const _register = (name, obj) => {
   if (registry[name] && registry[name] !== obj) {
-    console.warn(`${name} already registered; if intended, remove() it first`)
+    console.debug('b8r-warn', `${name} already registered; if intended, remove() it first`)
     return
   }
   registry[name] = obj
@@ -1139,7 +1139,7 @@ const call = (path, ...args) => {
   if (method instanceof Function) {
     return method(...args)
   } else {
-    console.error(`cannot call ${path}; not a method`)
+    console.debug('b8r-error', `cannot call ${path}; not a method`)
   }
 }
 
@@ -1235,7 +1235,7 @@ const unobserve = test => {
     if (index > -1) {
       listeners.splice(index, 1)
     } else {
-      console.error('unobserve failed, listener not found')
+      console.debug('b8r-error', 'unobserve failed, listener not found')
     }
   } else if (test) {
     for (let i = listeners.length - 1; i >= 0; i--) {
@@ -1332,7 +1332,7 @@ const increment = path => set(path, get(path) + 1)
 const decrement = path => set(path, get(path) - 1)
 
 const deregister = path => {
-  console.warn('deregister is deprecated, use b8r.remove')
+  console.debug('b8r-warn', 'deregister is deprecated, use b8r.remove')
   remove(path)
 }
 

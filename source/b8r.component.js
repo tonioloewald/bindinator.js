@@ -315,7 +315,7 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
       asyncUpdate(false, element)
     }
   })
-  if (components[name]) console.warn('component %s has been redefined', name)
+  if (components[name]) console.debug('b8r-warn', 'component %s has been redefined', name)
   components[name] = component
   return component
 }
@@ -350,10 +350,10 @@ const makeComponent = (name, source, url, preserveSource) => {
     view
   } = processComponent(css, content, name)
   /* jshint evil: true */
-  let load = () => console.error('component', name, 'cannot load properly')
+  let load = () => console.debug('b8r-error', 'component', name, 'cannot load properly')
   // check for legacy components
   if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
-    console.error(`in component "${name}" replace require with await import()`)
+    console.debug('b8r-error', `in component "${name}" replace require with await import()`)
     script = false
   }
   try {
@@ -373,7 +373,7 @@ const makeComponent = (name, source, url, preserveSource) => {
       )
       : false
   } catch (e) {
-    console.error('error creating load method for component', name, e, script)
+    console.debug('b8r-error', 'error creating load method for component', name, e, script)
     throw new Error(`component ${name} load method could not be created`)
   }
   /* jshint evil: false */
@@ -398,7 +398,7 @@ const makeComponent = (name, source, url, preserveSource) => {
     if (components[name].style) {
       components[name].style.remove()
     }
-    console.warn('component %s has been redefined', name)
+    console.debug('b8r-warn', 'component %s has been redefined', name)
   }
   components[name] = component
 
@@ -458,12 +458,12 @@ const component = (name, url, preserveSource = false) => {
             resolve(makeComponent(name, exports.default))
           } else {
             const err = `cannot define component "${name}", ${url} does not export a component definition as default`
-            console.error(err)
+            console.debug('b8r-error', err)
             reject(err)
           }
         }).catch(err => {
           delete componentPromises[name]
-          console.error(err, `failed to import component ${url}`)
+          console.debug('b8r-error', err, `failed to import component ${url}`)
           reject(err)
         })
       } else {
@@ -473,7 +473,7 @@ const component = (name, url, preserveSource = false) => {
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
             delete componentPromises[name]
-            console.error(err, `failed to load component ${url}`)
+            console.debug('b8r-error', err, `failed to load component ${url}`)
             reject(err)
           })
       }

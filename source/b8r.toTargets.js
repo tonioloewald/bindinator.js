@@ -531,7 +531,7 @@ export default function (b8r) {
             }
           } else {
             if (!element.tagName.includes('-')) {
-              console.error('could not set component value', element, value)
+              console.debug('b8r-error', 'could not set component value', element, value)
             }
           }
       }
@@ -699,7 +699,7 @@ export default function (b8r) {
       if (model) {
         b8r.callMethod(model, method, element, value)
       } else if (element.closest('body')) {
-        console.warn(`method ${method} not found in`, element)
+        console.debug('b8r-warn', `method ${method} not found in`, element)
       }
     },
     timestamp: function (element, zulu, format) {

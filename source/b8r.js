@@ -182,7 +182,7 @@ b8r.forceUpdate = () => {
           b8r.bindAll(source)
         }
       } catch (e) {
-        console.error('update error', e, { path, source })
+        console.debug('b8r-error', 'update error', e, { path, source })
       }
     }
     if (binds) binds.forEach(({ elt, dirty }) => dirty && bind(elt))
@@ -223,7 +223,7 @@ b8r.setByPath = function (...args) {
       )
     }
   } else {
-    console.error(`setByPath failed; ${name} is not a registered model`)
+    console.debug('b8r-error', `setByPath failed; ${name} is not a registered model`)
   }
 }
 
@@ -250,7 +250,7 @@ b8r.pushByPath = function (...args) {
     }
     _touchPath(name, path)
   } else {
-    console.error(`pushByPath failed; ${name} is not a registered model`)
+    console.debug('b8r-error', `pushByPath failed; ${name} is not a registered model`)
   }
 }
 
@@ -267,7 +267,7 @@ b8r.unshiftByPath = function (...args) {
     list.unshift(value)
     _touchPath(name, path)
   } else {
-    console.error(`unshiftByPath failed; ${name} is not a registered model`)
+    console.debug('b8r-error', `unshiftByPath failed; ${name} is not a registered model`)
   }
 }
 
@@ -279,10 +279,10 @@ b8r.removeListInstance = function (elt) {
       const [, model, path, key] = ref.match(/^([^.]+)\.(.+)\[([^\]]+)\]$/)
       b8r.removeByPath(model, path, key)
     } catch (e) {
-      console.error('cannot find list item for instance', ref)
+      console.debug('b8r-error', 'cannot find list item for instance', ref)
     }
   } else {
-    console.error('cannot remove list instance for', elt)
+    console.debug('b8r-error', 'cannot remove list instance for', elt)
   }
 }
 
@@ -407,7 +407,7 @@ function bind (element) {
     return
   }
   if (element.matches('[data-debug],[data-debug-bind]')) {
-    console.warn(
+    console.debug('b8r-warn', 
       'Add a conditional breakpoint here to watch changes to the DOM caused by changes in the registry'
     )
   }
@@ -425,7 +425,7 @@ function bind (element) {
         if(toTargets[t.target]) {
           _toTargets.push(t)
         } else if (!fromTargets[t.target]) {
-          console.warn(`unrecognized target ${t.target} in ${element.dataset.bind}`, element)
+          console.debug('b8r-warn', `unrecognized target ${t.target} in ${element.dataset.bind}`, element)
         }
       }
       _toTargets.forEach(t => {
@@ -476,7 +476,7 @@ function bindList (listTemplate) {
     argPaths = argPaths.split(',')
     listPath = argPaths[0]
   } catch (e) {
-    console.error('bindList failed; bad source path', sourcePath)
+    console.debug('b8r-error', 'bindList failed; bad source path', sourcePath)
   }
   const resolvedPath = b8r.resolvePath(listPath, listTemplate)
   // rewrite the binding if necessary (otherwise nested list updates fail)
@@ -520,14 +520,14 @@ function bindList (listTemplate) {
           filteredList.length &&
           list.indexOf(filteredList[0]) === -1
         ) {
-          console.warn(
+          console.debug('b8r-warn', 
             `list filter ${methodPath} returned a new object` +
               ' (not from original list); this will break updates!'
           )
         }
         list = filteredList
       } catch (e) {
-        console.error(`bindList failed, ${methodPath} threw error`, e)
+        console.debug('b8r-error', `bindList failed, ${methodPath} threw error`, e)
       }
     })()
     if (!list) {
@@ -572,7 +572,7 @@ function bindList (listTemplate) {
   listTemplate.classList.toggle('-b8r-empty-list', !list.length)
   forEachItemIn(list, idPath, (item, id) => {
     if (ids[id]) {
-      console.warn(`${id} not unique ${idPath} in ${listTemplate.dataset.list}`)
+      console.debug('b8r-warn', `${id} not unique ${idPath} in ${listTemplate.dataset.list}`)
       return
     }
     ids[id] = true
@@ -691,7 +691,7 @@ b8r.insertComponent = async function (component, element, data) {
       if (!componentTimeouts[component]) {
         // if this doesn't happen for five seconds, we have a problem
         componentTimeouts[component] = setTimeout(
-          () => console.error('component timed out: ', component),
+          () => console.debug('b8r-error', 'component timed out: ', component),
           5000
         )
       }
@@ -766,7 +766,7 @@ b8r.insertComponent = async function (component, element, data) {
     }
   }
   const register = componentData => {
-    console.warn(
+    console.debug('b8r-warn', 
       'use of register withi components is deprecated, use set() instead'
     )
     set(componentData)
@@ -817,7 +817,7 @@ b8r.insertComponent = async function (component, element, data) {
       )
     } catch (e) {
       debugger // eslint-disable-line no-debugger
-      console.error('component', component.name, 'failed to load', e)
+      console.debug('b8r-error', 'component', component.name, 'failed to load', e)
     }
   }
   b8r.bindAll(element)

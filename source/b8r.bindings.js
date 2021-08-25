@@ -324,7 +324,7 @@ const parseBinding = binding => {
   const targets = targetsRaw.split(',').map(target => {
     var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/)
     if (!parts) {
-      console.error('bad target', target, 'in binding', binding)
+      console.debug('b8r-error', 'bad target', target, 'in binding', binding)
       return
     }
     if (!parts) return null
@@ -332,7 +332,7 @@ const parseBinding = binding => {
     return { target: parts[1], key: parts[3] }
   })
   if (!path) {
-    console.error('binding does not specify source', binding)
+    console.debug('b8r-error', 'binding does not specify source', binding)
   }
   return { targets, path }
 }
@@ -439,7 +439,7 @@ const getBindings = element => {
       .filter(s => !!s.trim())
       .map(parseBinding)
   } catch (e) {
-    console.error(element, e)
+    console.debug('b8r-error', element, e)
     return []
   }
 }

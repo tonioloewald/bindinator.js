@@ -46,7 +46,7 @@ export const _b8r_ = {
       .filter(elt => !elt.matches('[data-list]'))
       .forEach(elt => {
         if (elt.matches('[data-debug],[data-debug-bind]')) {
-          console.warn(
+          console.debug('b8r-warn', 
             'Add a conditional breakpoint here to debug changes to the registry triggered by events'
           )
         }

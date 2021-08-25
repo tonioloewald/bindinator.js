@@ -118,7 +118,7 @@ const xml = (url, method, requestData, config) => {
       try {
         resolve(new DOMParser().parseFromString(data, 'text/xml'))
       } catch (e) {
-        console.error('Failed to parse data', data, e)
+        console.debug('b8r-error', 'Failed to parse data', data, e)
         reject(e, data)
       }
     }, reject)
@@ -131,7 +131,7 @@ const json = (url, method, requestData, config) => {
       try {
         resolve(JSON.parse(data || 'null'))
       } catch (e) {
-        console.error('Failed to parse data', data, e)
+        console.debug('b8r-error', 'Failed to parse data', data, e)
         reject(e, data)
       }
     }, reject)

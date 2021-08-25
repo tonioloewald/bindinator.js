@@ -85,7 +85,7 @@ const _afterUpdate = () => {
       fn = _afterUpdateCallbacks.shift()
       fn()
     } catch (e) {
-      console.error('_afterUpdate_callback error', e, fn)
+      console.debug('b8r-error', '_afterUpdate_callback error', e, fn)
     }
   }
 }
