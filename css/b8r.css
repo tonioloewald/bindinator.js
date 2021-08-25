@@ -36,32 +36,32 @@
   --faded-text-color: #666;
   --hint-text-color: #aaa;
   --accent-color: royalblue;
-  --dark-accent-color: rgb(0,96,163);
+  --dark-accent-color: rgb(0, 96, 163);
   --light-accent-color: aliceblue;
   --bright-accent-color: rgb(173, 212, 236);
   --default-bg-color: #cfb;
   --cancel-bg-color: #ffb;
-  --selection-color: rgba(0,64,255,0.5);
-  --focus-color: #FF6A5C;
+  --selection-color: rgba(0, 64, 255, 0.5);
+  --focus-color: #ff6a5c;
   --pullquote-bg-color: aliceblue;
-  --black-5: rgba(0,0,0,0.05);
-  --black-10: rgba(0,0,0,0.1);
-  --black-20: rgba(0,0,0,0.2);
-  --black-40: rgba(0,0,0,0.4);
-  --black-80: rgba(0,0,0,0.8);
-  --white-25: rgba(255,255,255,0.25);
-  --white-50: rgba(255,255,255,0.5);
-  --white-75: rgba(255,255,255,0.75);
-  --grey-50: rgba(128,128,128,0.5);
-  --grey-75: rgba(128,128,128,0.75);
-  --shadow-50: rgba(0,0,0,0.5);
-  --shadow-color: rgba(0,0,0,0.5);
+  --black-5: rgba(0, 0, 0, 0.05);
+  --black-10: rgba(0, 0, 0, 0.1);
+  --black-20: rgba(0, 0, 0, 0.2);
+  --black-40: rgba(0, 0, 0, 0.4);
+  --black-80: rgba(0, 0, 0, 0.8);
+  --white-25: rgba(255, 255, 255, 0.25);
+  --white-50: rgba(255, 255, 255, 0.5);
+  --white-75: rgba(255, 255, 255, 0.75);
+  --grey-50: rgba(128, 128, 128, 0.5);
+  --grey-75: rgba(128, 128, 128, 0.75);
+  --shadow-50: rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.5);
 
-  --link-color: rgba(64,0,255,0.5);
+  --link-color: rgba(64, 0, 255, 0.5);
   --link-active-color: #40f;
-  --error-color: red;
-  --warning-color: yellow;
-  --ok-color: green;
+  --error-color: rgb(255, 187, 187);
+  --warning-color: rgb(255, 255, 159);
+  --ok-color: rgb(153, 255, 153);
 
   --hover-transition: 0.15s ease-out;
   --fade-transition: opacity 0.3s ease-out;
@@ -88,14 +88,18 @@
   --default-bg-color: #186040;
   --cancel-bg-color: #6a6d1d;
 
-  --black-5: rgba(255,255,255,0.05);
-  --black-10: rgba(255,255,255,0.1);
-  --black-20: rgba(255,255,255,0.2);
-  --black-40: rgba(255,255,255,0.4);
-  --black-80: rgba(255,255,255,0.8);
-  --white-25: rgba(0,0,0,0.25);
-  --white-50: rgba(0,0,0,0.5);
-  --white-75: rgba(0,0,0,0.75);
+  --error-color: rgb(172, 15, 15);
+  --warning-color: rgb(126, 126, 26);
+  --ok-color: rgb(11, 112, 11);
+
+  --black-5: rgba(255, 255, 255, 0.05);
+  --black-10: rgba(255, 255, 255, 0.1);
+  --black-20: rgba(255, 255, 255, 0.2);
+  --black-40: rgba(255, 255, 255, 0.4);
+  --black-80: rgba(255, 255, 255, 0.8);
+  --white-25: rgba(0, 0, 0, 0.25);
+  --white-50: rgba(0, 0, 0, 0.5);
+  --white-75: rgba(0, 0, 0, 0.75);
 }
 
 body {
@@ -154,32 +158,65 @@ a:active {
   color: var(--dark-text-color);
 }
 
-h1, h2, h3, h4, h5, h6, p, blockquote {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
   margin-block-start: var(--spacing-size);
   margin-block-end: var(--spacing-size);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: var(--heading-weight);
 }
 
-h1 { font-size: 480%; }
+h1 {
+  font-size: 480%;
+}
 
-h2 { font-size: 240%; }
+h2 {
+  font-size: 240%;
+}
 
-h3 { font-size: 180%; }
+h3 {
+  font-size: 180%;
+}
 
-h4 { font-size: 140%; }
+h4 {
+  font-size: 140%;
+}
 
-h5 { font-size: 120%; }
+h5 {
+  font-size: 120%;
+}
 
-h6 { font-size: 100%; }
+h6 {
+  font-size: 100%;
+}
 
 .b8r-color {
   color: var(--bright-accent-color);
 }
 
-h1, h2, h3, h4, h5, h6, b, strong, i, em {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong,
+i,
+em {
   color: var(--dark-accent-color);
 }
 
@@ -248,9 +285,13 @@ label > * {
   opacity: 0.5;
 }
 
-button, .button,
-select, .select,
-input, textarea, [contenteditable="true"] {
+button,
+.button,
+select,
+.select,
+input,
+textarea,
+[contenteditable='true'] {
   font-size: var(--body-font-size);
   color: var(--text-color);
   padding: var(--input-padding-edges);
@@ -262,7 +303,7 @@ input, textarea, [contenteditable="true"] {
   outline: var(--focus-outline);
 }
 
-input[type="date"] {
+input[type='date'] {
   font: var(--ui-font);
 }
 
@@ -291,18 +332,23 @@ select[multiple] > option {
 
 ::placeholder {
   color: var(--hint-text-color);
-};
+}
 
-select, .select {
+select,
+.select {
   vertical-align: top;
 }
 
-button, .button,
-input, textarea, [contenteditable="true"] {
+button,
+.button,
+input,
+textarea,
+[contenteditable='true'] {
   vertical-align: baseline;
 }
 
-input, textarea {
+input,
+textarea {
   border-radius: var(--tiny-corner-radius-size);
   margin: 1px 0;
 }
@@ -312,12 +358,12 @@ textarea {
   resize: none;
 }
 
-input[type=range] {
+input[type='range'] {
   box-shadow: none;
   vertical-align: middle;
 }
 
-input[type=color] {
+input[type='color'] {
   width: var(--small-target-size);
   height: var(--small-target-size);
   padding: 0;
@@ -325,7 +371,7 @@ input[type=color] {
   box-shadow: none;
 }
 
-input[type=number] {
+input[type='number'] {
   padding-right: var(--narrow-spacing-size);
 }
 
@@ -345,11 +391,13 @@ button {
   vertical-align: bottom;
 }
 
-button.default, button[type="submit"] {
+button.default,
+button[type='submit'] {
   background-color: var(--default-bg-color);
 }
 
-button.cancel, button[type="cancel"] {
+button.cancel,
+button[type='cancel'] {
   background-color: var(--cancel-bg-color);
 }
 
@@ -381,29 +429,38 @@ button.cancel, button[type="cancel"] {
 }
 
 .show-after-checked,
-:checked+.show-after-unchecked,
-:checked+.show-after-checked+.show-after-unchecked {
+:checked + .show-after-unchecked,
+:checked + .show-after-checked + .show-after-unchecked {
   display: none;
 }
 
-:checked+.show-after-checked,
+:checked + .show-after-checked,
 .show-after-unchecked {
   display: inline-block;
 }
 
-button:hover, .button:hover,
-button.cancel:hover, .button.cancel:hover,
-button.default:hover, .button.default:hover,
-button:focus, .button:focus,
-button.cancel:focus, .button.cancel:focus,
-button.default:focus, .button.default:focus {
+button:hover,
+.button:hover,
+button.cancel:hover,
+.button.cancel:hover,
+button.default:hover,
+.button.default:hover,
+button:focus,
+.button:focus,
+button.cancel:focus,
+.button.cancel:focus,
+button.default:focus,
+.button.default:focus {
   background-color: var(--light-accent-color);
   box-shadow: var(--shadow-hover-outline);
 }
 
-button:active, .button:active,
-button.cancel:active, .button.cancel:active,
-button.default:active, .button.default:active {
+button:active,
+.button:active,
+button.cancel:active,
+.button.cancel:active,
+button.default:active,
+.button.default:active {
   background-color: var(--accent-color);
   color: var(--content-color);
   box-shadow: var(--shadow-active-outline);
@@ -429,7 +486,8 @@ fieldset {
   padding: var(--input-padding-edges);
 }
 
-:focus, :focus+.focus-follower {
+:focus,
+:focus + .focus-follower {
   outline: none;
 }
 
