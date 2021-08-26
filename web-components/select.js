@@ -101,7 +101,7 @@ const SelectOption = makeWebComponent('b8r-option', {
   methods: {
     render () {
       if (this.selected) {
-        this.style.background = 'var(--accent-color)'
+        this.style.background = 'var(--selection-color)'
         this.color = 'var(--selected-text-color)'
       } else if (this.hover) {
         this.style.background = 'var(--light-accent-color)'

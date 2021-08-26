@@ -41,7 +41,7 @@
   --bright-accent-color: rgb(173, 212, 236);
   --default-bg-color: #cfb;
   --cancel-bg-color: #ffb;
-  --selection-color: rgba(0, 64, 255, 0.5);
+  --selection-color: rgba(0, 64, 255, 0.25);
   --focus-color: #ff6a5c;
   --pullquote-bg-color: aliceblue;
   --black-5: rgba(0, 0, 0, 0.05);
