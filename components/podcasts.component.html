@@ -462,13 +462,13 @@ and a simple reflection service for consuming RSS feeds.
               enabled_if=_component_.canplay
               value=_component_.playbackRate
             "
-            data-event="input,change:_component_.setRate"
           >
         </div>
         <audio
           class="hidden"
           data-bind="
             attr(src)=_component_.value.item.enclosure
+            prop(playbackRate)=_component_.playbackRate
           "
           data-event="
             loadstart:_component_.audioLoading
@@ -592,8 +592,9 @@ and a simple reflection service for consuming RSS feeds.
     audio.currentTime = typeof position === 'number' ? position : parseFloat(get('selectedEpisode.position'))
     audio.play()
   }
-  const setRate = (rate) => {
-    findOne('audio').playbackRate = typeof rate === 'number' ? rate : parseFloat(get('playbackRate'))
+  const setRate = (event, input) => {
+    const rate = parseFloat(input.value)
+    findOne('audio').playbackRate = !isNaN(rate) ? rate : parseFloat(get('playbackRate'))
   }
   set({
     playbackRate: 1,

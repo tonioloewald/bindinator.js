@@ -15,7 +15,8 @@ function cachedFile($url, $max_age_seconds = 3600) {
     mkdir( 'cache');
   }
   $url_parts = explode('/', $url);
-  $cache_file = 'cache/' . end($url_parts);
+  $url_parts = array_slice($url_parts, 2)
+  $cache_file = 'cache/' . implode('-', $url_parts);
   $timestamp = file_exists($cache_file) ? filemtime($cache_file) : 0;
   if (file_exists($cache_file) && ($timestamp > (time() - $max_age_seconds ))) {
     header('Data-Cached-At: ' . date('c', $timestamp));
