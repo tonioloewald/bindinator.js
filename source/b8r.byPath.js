@@ -183,8 +183,7 @@ console.debug = debug
 
 // unique tokens passed to set by path to delete or create properties
 
-let uniqueId = 0
-export const unique = () => ++uniqueId
+import {id} from './uuid.js'
 
 const _delete_ = {}
 const _newObject_ = {}
@@ -242,7 +241,7 @@ function buildIdPathValueMap (array, idPath) {
   const map = {}
   if (idPath === '_auto_') {
     array.forEach((item, idx) => {
-      if (item._auto_ === undefined) item._auto_ = unique()
+      if (item._auto_ === undefined) item._auto_ = id()
       map[item._auto_ + ''] = idx
     })
   } else {

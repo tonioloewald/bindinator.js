@@ -28,7 +28,8 @@ implement some kind of virtual machine to replace it.
 /* global console, Element, HTMLElement */
 
 import * as constants from './b8r.constants.js'
-import { getByPath, pathSplit, unique } from './b8r.byPath.js'
+import { getByPath, pathSplit } from './b8r.byPath.js'
+import { id } from './uuid.js'
 import * as _dom from './b8r.dom.js'
 import * as _iterators from './b8r.iterators.js'
 import * as _registry from './b8r.registry.js'
@@ -93,7 +94,7 @@ import * as webComponents from './web-components.js'
 
 // TODO seal b8r after it's been built
 
-const b8r = { constants, unique }
+const b8r = { constants, id }
 const UNLOADED_COMPONENT_SELECTOR =
   '[data-component],[data-initializing],b8r-component:not([data-component-id])'
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
@@ -540,7 +541,7 @@ function bindList (listTemplate) {
   if (idPath === '_auto_') {
     for (let i = 0; i < list.length; i++) {
       if (list[i]._auto_ === undefined) {
-        list[i]._auto_ = unique()
+        list[i]._auto_ = id()
       }
     }
   }

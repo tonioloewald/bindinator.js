@@ -219,7 +219,7 @@ as  `b8r` and the output element as `example`.
   const {source, mode} = get();
   await import('../vfs.js');
   const {relayTo} = await import('../lib/resize.js');
-  const {unique} = await import('../source/uuid.js');
+  const {id} = await import('../source/uuid.js');
   const {viaTag} = await import('../lib/scripts.js');
   const {ace} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.min.js')
   ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/')
@@ -286,13 +286,13 @@ as  `b8r` and the output element as `example`.
     if (source.match(/^\s*<(!|\w+)[^<>]*>/)) {
       // html component
       b8r.insertComponent(
-        b8r.makeComponent('fiddle-' + unique(), source, b8r._path ? `${b8r._path}/` : ''),
+        b8r.makeComponent('fiddle-' + id(), source, b8r._path ? `${b8r._path}/` : ''),
         container
       );
     } else if (source.match(/\bexport default\b/)) {
       // javascript component
       (async () => {
-        const componentName = `fiddle-${unique()}`;
+        const componentName = `fiddle-${id()}`;
         const vfsPath = `/${vfsRoot}/${componentName}.js`;
         await b8r.ajax(vfsPath, 'POST', source)
         import(vfsPath).then(exports => {
