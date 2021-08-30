@@ -28,7 +28,7 @@ be used to create very good ids
     // or...
     const myId = id()
 
-> ## Do not use `unique`
+> ### Do not use `unique`
 >
 > The problem with this (deprecated) function is that it can cause subtle
 > bugs if two different bits of code rely on different instances of this
