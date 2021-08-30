@@ -73,14 +73,14 @@ const getParsedEventHandlers = element => {
       const [type, handler] = instruction.split(':')
       if (!handler) {
         if (instruction.indexOf('.')) {
-          console.debug('b8r-error', 
+          console.debug('b8r-error',
             'bad event handler (missing event type)',
             instruction,
             'in',
             element
           )
         } else {
-          console.debug('b8r-error', 
+          console.debug('b8r-error',
             'bad event handler (missing handler)',
             instruction,
             'in',

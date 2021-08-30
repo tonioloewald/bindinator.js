@@ -407,7 +407,7 @@ function bind (element) {
     return
   }
   if (element.matches('[data-debug],[data-debug-bind]')) {
-    console.debug('b8r-warn', 
+    console.debug('b8r-warn',
       'Add a conditional breakpoint here to watch changes to the DOM caused by changes in the registry'
     )
   }
@@ -520,7 +520,7 @@ function bindList (listTemplate) {
           filteredList.length &&
           list.indexOf(filteredList[0]) === -1
         ) {
-          console.debug('b8r-warn', 
+          console.debug('b8r-warn',
             `list filter ${methodPath} returned a new object` +
               ' (not from original list); this will break updates!'
           )
@@ -766,7 +766,7 @@ b8r.insertComponent = async function (component, element, data) {
     }
   }
   const register = componentData => {
-    console.debug('b8r-warn', 
+    console.debug('b8r-warn',
       'use of register withi components is deprecated, use set() instead'
     )
     set(componentData)
@@ -776,7 +776,7 @@ b8r.insertComponent = async function (component, element, data) {
   const find = selector => b8r.findWithin(element, selector)
   const findOne = selector => b8r.findOneWithin(element, selector)
   element.classList.add(className)
-  // element.setAttribute('data-initializing', '')
+  element.setAttribute('data-initializing', '')
   element.dataset.componentId = componentId
   const initialValue =
     typeof component.initialValue === 'function'

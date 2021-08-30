@@ -44,28 +44,28 @@ Two targets bound to one value
 - **from** means the registered value is updated if the DOM is modified by user actions that trigger `change` events.
 
 || target || key || from? || description  
-| value | | yes | binds the `value` (but does what you'd hope for with `&lt;input type="radio">` |
-| checked | | yes | binds the `checked` of `&lt;input type="checkbox">`, supports ternary checkboxes |
-| selected | | `*` | sets/removes the `selected` attribute of &lt;option&gt; based on the truthiness of the bound value |
-| text | | `*` | sets `textContent` to bound value, allows template-string like binding, e.g. `data-bind="text=${user.firstName} ${lastName}"`. If you want to embed such bindings in an actual template string, use `$\{ ... }` |
-| format | | | sets element's content to value formatted with Markdown-style character styles, e.g. `**bold**` and `_italic_` |
-| bytes | | | sets the textContent to a human-friendly string for the number of bytes, e.g. `1024` is rendered as `"1kB"` |
-| timestamp | format string | | renders UNIX timestamp values as `.localeString()` or using the provided format string with `dateFormat()` https://blog.stevenlevithan.com/archives/date-time-format. |
-| json | | | binds `JSON.stringify(boundValue, false, 2)` (this is mainly for debugging) |
-| enabled&#95;if disabled&#95;if | needle | | sets `disabled` attribute based on the truthiness of the bound value or, if provided, whether it matches the needle |
-| pointer&#95;events&#95;if pointer&#95;events&#95;off&#95;if | | | sets `pointer-events: none` based on the truthiness of the bound value |
-| path.to.method method(path.to.method) | | `*` | uses function at path as custom binding. The method is passed the `element` and bound value(s). Multiple bound values will be passed as an array. If expected to function as a `from` binding, function should return the element's (single) value |
 | attr | attribute name | | binds the specified attribute |
-| prop | property name | | binds the specified property |
-| data | camelCase | | sets attribute `data-camel-case` to the boundValue |
-| style | property&vert;units | | sets the inline style property (adding units, if provided), e.g. `style(width|px)=path.to.twoHundred` will set `style="width: 200px"` |
-| show&#95;if hide&#95;if show&#95;unless hide&#95;unless | string | | shows/hides the element based on the truthiness of the bound value or, if provided, the string. |
-| img | | | sets the `src` of an `&lt;img>`, with preloading |
 | bgImg | | | sets the `background-image` style property |
+| bytes | | | sets the textContent to a human-friendly string for the number of bytes, e.g. `1024` is rendered as `"1kB"` |
+| checked | | yes | binds the `checked` of `&lt;input type="checkbox">`, supports ternary checkboxes |
 | class class&#95;if class&#95;unless | className | | toggles the specified class based on the truthiness of the bound value |
 | class&#95;map | string:className&vert; otherString:otherClass&vert; defaultClass | | toggles classes based on the bound value |
 | component | path.to.value | | sets the specified value of the component |
 | component&#95;map | string:name&vert; otherString:otherName&vert; defaultName | | inserts a component by name based on the bound value |
+| data | camelCase | | sets attribute `data-camel-case` to the boundValue |
+| enabled&#95;if disabled&#95;if | needle | | sets `disabled` attribute based on the truthiness of the bound value or, if provided, whether it matches the needle |
+| format | | | sets element's content to value formatted with Markdown-style character styles, e.g. `**bold**` and `_italic_` |
+| img | | | sets the `src` of an `&lt;img>`, with preloading |
+| json | | | binds `JSON.stringify(boundValue, false, 2)` (this is mainly for debugging) |
+| path.to.method method(path.to.method) | | `*` | uses function at path as custom binding. The method is passed the `element` and bound value(s). Multiple bound values will be passed as an array. If expected to function as a `from` binding, function should return the element's (single) value |
+| pointer&#95;events&#95;if pointer&#95;events&#95;off&#95;if | | | sets `pointer-events: none` based on the truthiness of the bound value |
+| prop | property name | | binds the specified property |
+| selected | | `*` | sets/removes the `selected` attribute of &lt;option&gt; based on the truthiness of the bound value |
+| show&#95;if hide&#95;if show&#95;unless hide&#95;unless | string | | shows/hides the element based on the truthiness of the bound value or, if provided, the string. |
+| style | property&vert;units | | sets the inline style property (adding units, if provided), e.g. `style(width&VerticalLine;px)=path.to.width` will set `style="width: 200px"` |
+| text | | `*` | sets `textContent` to bound value, allows template-string like binding, e.g. `data-bind="text=${user.firstName} ${lastName}"`. If you want to embed such bindings in an actual template string, use `$\{ ... }` |
+| timestamp | format string | | renders UNIX timestamp values as `.localeString()` or using the provided format string with `dateFormat()` https://blog.stevenlevithan.com/archives/date-time-format. |
+| value | | yes | binds the `value` (but does what you'd hope for with `&lt;input type="radio">` |
 
 ### Notes
 

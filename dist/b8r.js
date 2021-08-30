@@ -145,9 +145,9 @@ const list = [
   obj
 ]
 
-const error = console.error; // prevent errors from leaking to console
+const debug = console.debug; // prevent errors from leaking to console
 errors = []
-console.error = message => errors.push(message)
+console.debug = (...args) => errors.push(args[1])
 
 Test(() => getByPath(obj, '')).shouldBe(obj);
 Test(() => getByPath(obj, '/')).shouldBe(obj);
@@ -206,7 +206,7 @@ Test(() => {
 }, 'item inserted at idPath must satisfy it').shouldBe(1);
 Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-path 'bar.baz' used for array, expected 'id'"]);
 
-console.error = error
+console.debug = debug
 ~~~~
 */
 /* global console */
@@ -261,7 +261,7 @@ function buildIdPathValueMap (array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath;
   } else if (array._b8r_id_path !== idPath) {
-    console.error(`inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`);
+    console.debug('b8r-error', `inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`);
   }
   if (!array._b8r_value_maps) {
     // hide the map of maps in a closure that is returned by a computed property so that
@@ -340,14 +340,14 @@ function byIdPath (array, idPath, idValue, valueToInsert) {
 
 function expectArray (obj) {
   if (!Array.isArray(obj)) {
-    console.error('setByPath failed: expected array, found', obj);
+    console.debug('b8r-error', 'setByPath failed: expected array, found', obj);
     throw new Error('setByPath failed: expected array')
   }
 }
 
 function expectObject (obj) {
   if (!obj || obj.constructor !== Object) {
-    console.error('setByPath failed: expected Object, found', obj);
+    console.debug('b8r-error', 'setByPath failed: expected Object, found', obj);
     throw new Error('setByPath failed: expected object')
   }
 }
@@ -433,11 +433,11 @@ function setByPath (orig, path, val) {
         }
       }
     } else {
-      console.error('setByPath failed: bad path', path);
+      console.debug('b8r-error', 'setByPath failed: bad path', path);
       throw new Error('setByPath failed')
     }
   }
-  console.error(`setByPath failed: "${path}" not found in`, orig);
+  console.debug('b8r-error', `setByPath failed: "${path}" not found in`, orig);
   throw new Error(`setByPath(${orig}, ${path}, ${val}) failed`)
 }
 
@@ -1201,7 +1201,7 @@ const _afterUpdate = () => {
       fn = _afterUpdateCallbacks.shift();
       fn();
     } catch (e) {
-      console.error('_afterUpdate_callback error', e, fn);
+      console.debug('b8r-error', '_afterUpdate_callback error', e, fn);
     }
   }
 };
@@ -1584,7 +1584,7 @@ const parseBinding = binding => {
   const targets = targetsRaw.split(',').map(target => {
     var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/);
     if (!parts) {
-      console.error('bad target', target, 'in binding', binding);
+      console.debug('b8r-error', 'bad target', target, 'in binding', binding);
       return
     }
     if (!parts) return null
@@ -1592,7 +1592,7 @@ const parseBinding = binding => {
     return { target: parts[1], key: parts[3] }
   });
   if (!path) {
-    console.error('binding does not specify source', binding);
+    console.debug('b8r-error', 'binding does not specify source', binding);
   }
   return { targets, path }
 };
@@ -1699,7 +1699,7 @@ const getBindings = element => {
       .filter(s => !!s.trim())
       .map(parseBinding)
   } catch (e) {
-    console.error(element, e);
+    console.debug('b8r-error', element, e);
     return []
   }
 };
@@ -2539,7 +2539,7 @@ const xml = (url, method, requestData, config) => {
       try {
         resolve(new DOMParser().parseFromString(data, 'text/xml'));
       } catch (e) {
-        console.error('Failed to parse data', data, e);
+        console.debug('b8r-error', 'Failed to parse data', data, e);
         reject(e, data);
       }
     }, reject);
@@ -2552,7 +2552,7 @@ const json = (url, method, requestData, config) => {
       try {
         resolve(JSON.parse(data || 'null'));
       } catch (e) {
-        console.error('Failed to parse data', data, e);
+        console.debug('b8r-error', 'Failed to parse data', data, e);
         reject(e, data);
       }
     }, reject);
@@ -3200,7 +3200,7 @@ const makeComponentNoEval = function (name, { css, html, load, initialValue, typ
       asyncUpdate(false, element);
     }
   });
-  if (components[name]) console.warn('component %s has been redefined', name);
+  if (components[name]) console.debug('b8r-warn', 'component %s has been redefined', name);
   components[name] = component;
   return component
 };
@@ -3234,10 +3234,10 @@ const makeComponent = (name, source, url, preserveSource) => {
     view
   } = processComponent(css, content, name);
   /* jshint evil: true */
-  let load = () => console.error('component', name, 'cannot load properly');
+  let load = () => console.debug('b8r-error', 'component', name, 'cannot load properly');
   // check for legacy components
   if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
-    console.error(`in component "${name}" replace require with await import()`);
+    console.debug('b8r-error', `in component "${name}" replace require with await import()`);
     script = false;
   }
   try {
@@ -3257,7 +3257,7 @@ const makeComponent = (name, source, url, preserveSource) => {
       )
       : false;
   } catch (e) {
-    console.error('error creating load method for component', name, e, script);
+    console.debug('b8r-error', 'error creating load method for component', name, e, script);
     throw new Error(`component ${name} load method could not be created`)
   }
   /* jshint evil: false */
@@ -3282,7 +3282,7 @@ const makeComponent = (name, source, url, preserveSource) => {
     if (components[name].style) {
       components[name].style.remove();
     }
-    console.warn('component %s has been redefined', name);
+    console.debug('b8r-warn', 'component %s has been redefined', name);
   }
   components[name] = component;
 
@@ -3342,12 +3342,12 @@ const component = (name, url, preserveSource = false) => {
             resolve(makeComponent(name, exports.default));
           } else {
             const err = `cannot define component "${name}", ${url} does not export a component definition as default`;
-            console.error(err);
+            console.debug('b8r-error', err);
             reject(err);
           }
         }).catch(err => {
           delete componentPromises[name];
-          console.error(err, `failed to import component ${url}`);
+          console.debug('b8r-error', err, `failed to import component ${url}`);
           reject(err);
         });
       } else {
@@ -3356,7 +3356,7 @@ const component = (name, url, preserveSource = false) => {
           .then(source => resolve(makeComponent(name, source, url, preserveSource)))
           .catch(err => {
             delete componentPromises[name];
-            console.error(err, `failed to load component ${url}`);
+            console.debug('b8r-error', err, `failed to load component ${url}`);
             reject(err);
           });
       }
@@ -3409,7 +3409,7 @@ const _b8r_ = {
       .filter(elt => !elt.matches('[data-list]'))
       .forEach(elt => {
         if (elt.matches('[data-debug],[data-debug-bind]')) {
-          console.warn(
+          console.debug('b8r-warn',
             'Add a conditional breakpoint here to debug changes to the registry triggered by events'
           );
         }
@@ -3970,7 +3970,7 @@ const _get = (path, element) => {
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]');
     if (!elt && element.closest('body')) {
-      console.error(
+      console.debug('b8r-error',
         `relative data-path ${path} used without list instance`,
         element
       );
@@ -3981,7 +3981,7 @@ const _get = (path, element) => {
   } else {
     path = resolvePath(path, element);
     if ( !isValidPath(path)) {
-      console.error(`getting invalid path ${path}`);
+      console.debug('b8r-error', `getting invalid path ${path}`);
     } else {
       return getByPath(registry, path)
     }
@@ -4084,7 +4084,6 @@ pointers back to their sources.
     {id: 3, description: 'A stick of butter'}
   ]
   data.filter = (list, needle) => {
-    console.log({list, needle})
     return needle ? list.filter(item => item.description.includes(needle)) : list
   }
 </script>
@@ -4307,7 +4306,7 @@ const touch = (path, sourceElement) => {
       try {
         heard = listener.test(path);
       } catch (e) {
-        console.error(listener, 'test threw exception', e);
+        console.debug('b8r-error', listener, 'test threw exception', e);
       }
       if (heard === observerShouldBeRemoved) {
         unobserve(listener);
@@ -4323,13 +4322,13 @@ const touch = (path, sourceElement) => {
           unobserve(listener);
         }
       } catch (e) {
-        console.error(listener, 'callback threw exception', e);
+        console.debug('b8r-error', listener, 'callback threw exception', e);
       }
     });
 };
 
 const _defaultTypeErrorHandler = (errors, action) => {
-  console.error(`registry type check(s) failed after ${action}`, errors);
+  console.debug('b8r-error', `registry type check(s) failed after ${action}`, errors);
 };
 let typeErrorHandlers = [_defaultTypeErrorHandler];
 const onTypeError = callback => {
@@ -4363,14 +4362,14 @@ const set$1 = (path, value, sourceElement) => {
     throw new Error('You cannot put reg proxies into the registry')
   }
   if ( !isValidPath(path)) {
-    console.error(`setting invalid path ${path}`);
+    console.debug('b8r-error', `setting invalid path ${path}`);
   }
   const pathParts = path.split(/\.|\[/);
   const [name] = pathParts;
   const model = pathParts[0];
   const existing = getByPath(registry, path);
   if (pathParts.length > 1 && !registry[model]) {
-    console.error(`cannot set ${path} to ${value}, ${model} does not exist`);
+    console.debug('b8r-error', `cannot set ${path} to ${value}, ${model} does not exist`);
   } else if (pathParts.length === 1 && typeof value !== 'object') {
     throw new Error(
       `cannot set ${path}; you can only register objects at root-level`
@@ -4429,7 +4428,7 @@ const registerType = (name, example) => {
 
 const _register = (name, obj) => {
   if (registry[name] && registry[name] !== obj) {
-    console.warn(`${name} already registered; if intended, remove() it first`);
+    console.debug('b8r-warn', `${name} already registered; if intended, remove() it first`);
     return
   }
   registry[name] = obj;
@@ -4564,7 +4563,7 @@ const call = (path, ...args) => {
   if (method instanceof Function) {
     return method(...args)
   } else {
-    console.error(`cannot call ${path}; not a method`);
+    console.debug('b8r-error', `cannot call ${path}; not a method`);
   }
 };
 
@@ -4660,7 +4659,7 @@ const unobserve = test => {
     if (index > -1) {
       listeners.splice(index, 1);
     } else {
-      console.error('unobserve failed, listener not found');
+      console.debug('b8r-error', 'unobserve failed, listener not found');
     }
   } else if (test) {
     for (let i = listeners.length - 1; i >= 0; i--) {
@@ -4757,7 +4756,7 @@ const increment = path => set$1(path, get(path) + 1);
 const decrement = path => set$1(path, get(path) - 1);
 
 const deregister = path => {
-  console.warn('deregister is deprecated, use b8r.remove');
+  console.debug('b8r-warn', 'deregister is deprecated, use b8r.remove');
   remove(path);
 };
 
@@ -5152,13 +5151,13 @@ const onOffArgs = args => {
   var method;
   var prepend = false;
   if (typeof args[2] === 'object') {
-    console.warn('b8r.on(element, type, OBJECT) is deprecated')
+    console.debug('b8r-warn', 'b8r.on(element, type, OBJECT) is deprecated')
     ;[element, eventType, object] = args;
     return on(element, eventType, object.model, object.method)
   } else if (args.length > 4 || typeof args[3] === 'string') {
 [element, eventType, object, method, prepend] = args;
     if (typeof object !== 'string' || typeof method !== 'string') {
-      console.error('implicit bindings are by name, not', object, method);
+      console.debug('b8r-error', 'implicit bindings are by name, not', object, method);
       return
     }
     method = object + '.' + method;
@@ -5166,7 +5165,7 @@ const onOffArgs = args => {
 [element, eventType, method, prepend] = args;
   }
   if (!(element instanceof Element)) {
-    console.error('bind bare elements please, not', element);
+    console.debug('b8r-error', 'bind bare elements please, not', element);
     throw new Error('bad argument')
   }
   return { element, eventType, path: method, prepend }
@@ -5206,14 +5205,14 @@ const getParsedEventHandlers = element => {
       const [type, handler] = instruction.split(':');
       if (!handler) {
         if (instruction.indexOf('.')) {
-          console.error(
+          console.debug('b8r-error',
             'bad event handler (missing event type)',
             instruction,
             'in',
             element
           );
         } else {
-          console.error(
+          console.debug('b8r-error',
             'bad event handler (missing handler)',
             instruction,
             'in',
@@ -5247,7 +5246,7 @@ const getParsedEventHandlers = element => {
       }
     })
   } catch (e) {
-    console.error('fatal error in event handler', e);
+    console.debug('b8r-error', 'fatal error in event handler', e);
     return []
   }
 };
@@ -5257,7 +5256,7 @@ const makeHandler = (eventType, method) => {
     eventType = [eventType];
   }
   if (!Array.isArray(eventType)) {
-    console.error('makeHandler failed; bad eventType', eventType);
+    console.debug('b8r-error', 'makeHandler failed; bad eventType', eventType);
     return
   }
   return eventType.sort().join(',') + ':' + method
@@ -5484,7 +5483,7 @@ const handleEvent = evt => {
     return
   }
   if (evt.target.closest('[data-debug],[data-debug-event]')) {
-    console.warn('Add a conditional breakpoint to watch events being handled');
+    console.debug('b8r-warn', 'Add a conditional breakpoint to watch events being handled');
   }
   var target = anyElement;
   var args = evt.args || [];
@@ -5513,7 +5512,7 @@ const handleEvent = evt => {
                 ...args
               );
             } else {
-              console.warn(`${handler.method} not found`, target, handler);
+              console.debug('b8r-warn', `${handler.method} not found`, target, handler);
             }
           } else if (!handler.model && handler.method) {
             const listInstancePath = target.closest('[data-list-instance]')
@@ -5526,10 +5525,10 @@ const handleEvent = evt => {
                 ...args
               );
             } else {
-              console.error('incomplete event handler on', target);
+              console.debug('b8r-error', 'incomplete event handler on', target);
             }
           } else {
-            console.error('incomplete event handler on', target);
+            console.debug('b8r-error', 'incomplete event handler on', target);
             break
           }
           if (result !== true) {
@@ -5569,7 +5568,7 @@ naturally the goal is for them to be handled exactly as if they were "real".
 
 const trigger = (type, target, ...args) => {
   if (typeof type !== 'string' || !(target instanceof Element)) {
-    console.error('expected trigger(eventType, targetElement)', type, target);
+    console.debug('b8r-error', 'expected trigger(eventType, targetElement)', type, target);
     return
   }
   if (target) {
@@ -5578,7 +5577,7 @@ const trigger = (type, target, ...args) => {
       handleEvent(event);
     }
   } else {
-    console.warn('b8r.trigger called with no specified target');
+    console.debug('b8r-warn', 'b8r.trigger called with no specified target');
   }
 };
 
@@ -6368,7 +6367,7 @@ function _toTargets (b8r) {
             }
           } else {
             if (!element.tagName.includes('-')) {
-              console.error('could not set component value', element, value);
+              console.debug('b8r-error', 'could not set component value', element, value);
             }
           }
       }
@@ -6536,7 +6535,7 @@ function _toTargets (b8r) {
       if (model) {
         b8r.callMethod(model, method, element, value);
       } else if (element.closest('body')) {
-        console.warn(`method ${method} not found in`, element);
+        console.debug('b8r-warn', `method ${method} not found in`, element);
       }
     },
     timestamp: function (element, zulu, format) {
@@ -7278,7 +7277,7 @@ const makeWebComponent = (tagName, {
     style = Object.assign({ ':host([hidden])': { display: 'none !important' } }, style);
     styleNode = makeElement('style', { content: _css(style) });
   } else if (style) {
-    console.error(`style for a web-component ${tagName} with now shadowRoot is not supported`);
+    console.debug('b8r-error', `style for a web-component ${tagName} with now shadowRoot is not supported`);
   }
   if (methods.render) {
     methods = Object.assign({
@@ -7562,7 +7561,7 @@ b8r.forceUpdate = () => {
           b8r.bindAll(source);
         }
       } catch (e) {
-        console.error('update error', e, { path, source });
+        console.debug('b8r-error', 'update error', e, { path, source });
       }
     }
     if (binds) binds.forEach(({ elt, dirty }) => dirty && bind(elt));
@@ -7603,7 +7602,7 @@ b8r.setByPath = function (...args) {
       );
     }
   } else {
-    console.error(`setByPath failed; ${name} is not a registered model`);
+    console.debug('b8r-error', `setByPath failed; ${name} is not a registered model`);
   }
 };
 
@@ -7630,7 +7629,7 @@ b8r.pushByPath = function (...args) {
     }
     _touchPath(name, path);
   } else {
-    console.error(`pushByPath failed; ${name} is not a registered model`);
+    console.debug('b8r-error', `pushByPath failed; ${name} is not a registered model`);
   }
 };
 
@@ -7647,7 +7646,7 @@ b8r.unshiftByPath = function (...args) {
     list.unshift(value);
     _touchPath(name, path);
   } else {
-    console.error(`unshiftByPath failed; ${name} is not a registered model`);
+    console.debug('b8r-error', `unshiftByPath failed; ${name} is not a registered model`);
   }
 };
 
@@ -7659,10 +7658,10 @@ b8r.removeListInstance = function (elt) {
       const [, model, path, key] = ref.match(/^([^.]+)\.(.+)\[([^\]]+)\]$/);
       b8r.removeByPath(model, path, key);
     } catch (e) {
-      console.error('cannot find list item for instance', ref);
+      console.debug('b8r-error', 'cannot find list item for instance', ref);
     }
   } else {
-    console.error('cannot remove list instance for', elt);
+    console.debug('b8r-error', 'cannot remove list instance for', elt);
   }
 };
 
@@ -7787,7 +7786,7 @@ function bind (element) {
     return
   }
   if (element.matches('[data-debug],[data-debug-bind]')) {
-    console.warn(
+    console.debug('b8r-warn',
       'Add a conditional breakpoint here to watch changes to the DOM caused by changes in the registry'
     );
   }
@@ -7805,7 +7804,7 @@ function bind (element) {
         if (toTargets[t.target]) {
           _toTargets.push(t);
         } else if (!fromTargets$1[t.target]) {
-          console.warn(`unrecognized target ${t.target} in ${element.dataset.bind}`, element);
+          console.debug('b8r-warn', `unrecognized target ${t.target} in ${element.dataset.bind}`, element);
         }
       }
       _toTargets.forEach(t => {
@@ -7856,7 +7855,7 @@ function bindList (listTemplate) {
     argPaths = argPaths.split(',');
     listPath = argPaths[0];
   } catch (e) {
-    console.error('bindList failed; bad source path', sourcePath);
+    console.debug('b8r-error', 'bindList failed; bad source path', sourcePath);
   }
   const resolvedPath = b8r.resolvePath(listPath, listTemplate);
   // rewrite the binding if necessary (otherwise nested list updates fail)
@@ -7900,14 +7899,14 @@ function bindList (listTemplate) {
           filteredList.length &&
           list.indexOf(filteredList[0]) === -1
         ) {
-          console.warn(
+          console.debug('b8r-warn',
             `list filter ${methodPath} returned a new object` +
               ' (not from original list); this will break updates!'
           );
         }
         list = filteredList;
       } catch (e) {
-        console.error(`bindList failed, ${methodPath} threw error`, e);
+        console.debug('b8r-error', `bindList failed, ${methodPath} threw error`, e);
       }
     })();
     if (!list) {
@@ -7952,7 +7951,7 @@ function bindList (listTemplate) {
   listTemplate.classList.toggle('-b8r-empty-list', !list.length);
   forEachItemIn(list, idPath, (item, id) => {
     if (ids[id]) {
-      console.warn(`${id} not unique ${idPath} in ${listTemplate.dataset.list}`);
+      console.debug('b8r-warn', `${id} not unique ${idPath} in ${listTemplate.dataset.list}`);
       return
     }
     ids[id] = true;
@@ -8071,7 +8070,7 @@ b8r.insertComponent = async function (component, element, data) {
       if (!componentTimeouts[component]) {
         // if this doesn't happen for five seconds, we have a problem
         componentTimeouts[component] = setTimeout(
-          () => console.error('component timed out: ', component),
+          () => console.debug('b8r-error', 'component timed out: ', component),
           5000
         );
       }
@@ -8146,7 +8145,7 @@ b8r.insertComponent = async function (component, element, data) {
     }
   };
   const register = componentData => {
-    console.warn(
+    console.debug('b8r-warn',
       'use of register withi components is deprecated, use set() instead'
     );
     set(componentData);
@@ -8156,7 +8155,7 @@ b8r.insertComponent = async function (component, element, data) {
   const find = selector => b8r.findWithin(element, selector);
   const findOne = selector => b8r.findOneWithin(element, selector);
   element.classList.add(className);
-  // element.setAttribute('data-initializing', '')
+  element.setAttribute('data-initializing', '');
   element.dataset.componentId = componentId;
   const initialValue =
     typeof component.initialValue === 'function'
@@ -8197,7 +8196,7 @@ b8r.insertComponent = async function (component, element, data) {
       );
     } catch (e) {
       debugger // eslint-disable-line no-debugger
-      console.error('component', component.name, 'failed to load', e);
+      console.debug('b8r-error', 'component', component.name, 'failed to load', e);
     }
   }
   b8r.bindAll(element);

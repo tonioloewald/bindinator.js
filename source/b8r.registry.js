@@ -545,7 +545,7 @@ const _get = (path, element) => {
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]')
     if (!elt && element.closest('body')) {
-      console.debug('b8r-error', 
+      console.debug('b8r-error',
         `relative data-path ${path} used without list instance`,
         element
       )
