@@ -48,7 +48,7 @@ Two targets bound to one value
 | bgImg | | | sets the `background-image` style property |
 | bytes | | | sets the textContent to a human-friendly string for the number of bytes, e.g. `1024` is rendered as `"1kB"` |
 | checked | | yes | binds the `checked` of `&lt;input type="checkbox">`, supports ternary checkboxes |
-| class class&#95;if class&#95;unless | className | | toggles the specified class based on the truthiness of the bound value |
+| class class&#95;unless | className | | toggles the specified class based on the truthiness of the bound value |
 | class&#95;map | string:className&vert; otherString:otherClass&vert; defaultClass | | toggles classes based on the bound value |
 | component | path.to.value | | sets the specified value of the component |
 | component&#95;map | string:name&vert; otherString:otherName&vert; defaultName | | inserts a component by name based on the bound value |
