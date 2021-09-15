@@ -86,6 +86,15 @@ Use parens to indicate exclusive bounds, so '#number [0,1)' indicates a number â
 You can specify just a lower bound or just an upper bound, e.g. '#number (0' specifies a positive
 number.
 
+### #union
+
+    specificTypeMatch('#union string||int', 0)                            === true
+    specificTypeMatch('#union string||int', 'hello')                      === true
+    specificTypeMatch('#union string||int', true)                         === false
+
+You can specify a union type using #union followed by a '||'-delimited list of allowed
+types.
+
 ### #any
 
 You can specify any (non-null, non-undefined) value via '#any'.
@@ -210,6 +219,16 @@ Test(() => matchType('#instance HTMLElement', document.body))
   .shouldBeJSON([])
 Test(() => matchType('#instance HTMLElement', {}))
   .shouldBeJSON(["was object, expected #instance HTMLElement"])
+Test(() => matchType('#union string||int', 'foo')).shouldBeJSON([])
+Test(() => matchType('#union string||int', 17)).shouldBeJSON([])
+Test(() => matchType('#union string||int', null)).shouldBeJSON([
+  "was null, expected #union string||int"
+])
+Test(() => matchType('#union string||int', false)).shouldBeJSON( [
+  "was false, expected #union string||int"
+])
+Test(() => matchType('#?union string||int', null)).shouldBeJSON([])
+Test(() => matchType('#?union string||int', 17)).shouldBeJSON([])
 
 const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
 Test(() => matchType(requestType, 'post'))
@@ -341,12 +360,17 @@ export const specificTypeMatch = (type, subject) => {
     case 'int':
       if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
       return inRange(spec, subject)
+    case 'union':
+      const types = spec.split('||')
+      return !!types.find(type => specificTypeMatch(`#${type}`, subject))
     case 'enum':
       try {
         return spec.split('|').map(JSON.parse).includes(subject)
       } catch (e) {
         throw new Error(`bad enum specification (${spec}), expect JSON strings`)
       }
+    case 'string':
+      return subjectType === 'string'
     case 'regexp':
       return subjectType === 'string' && regexpTest(spec, subject)
     case 'array':
@@ -643,3 +667,67 @@ const _typeSafe = (func, paramTypes = [], resultType = undefined, functionName =
 }
 
 export const typeSafe = _typeSafe(_typeSafe, ['#function', '#?array', '#?any', '#?string'], '#function')
+
+/**
+## monadic
+
+`monadic()` produces a monadic function from three parameters, thus:
+
+    const vecLength = monadic({
+      defaultIn: {x: 0, y: 0},
+      defaultOut: {size: 0}, 
+      func: ({x, y}) => ({ size: Math.sqrt(x * x + y * y) })
+    })
+
+Note that `monadic` is in fact a monad.
+
+~~~~
+const {
+  monadic,
+} = await import('./b8r.byExample.js')
+
+const vecLength = monadic({
+  defaultIn: {x: 0, y: 0},
+  defaultOut: {size: 0}, 
+  func: ({x, y}) => ({ size: Math.sqrt(x * x + y * y) })
+})
+Test(() => typeof vecLength).shouldBeJSON('function')
+Test(() => vecLength({x: 0, y: 0})).shouldBeJSON({size: 0})
+Test(() => vecLength({x: 3, y: 4})).shouldBeJSON({size: 5})
+Test(() => vecLength({x: 3}) instanceof Error).shouldBe(true)
+Test(() => vecLength({x: 3, y: false}) instanceof Error).shouldBe(true)
+Test(() => vecLength({x: 3, y: '4'}) instanceof Error).shouldBe(true)
+~~~~
+*/
+function _monadic({defaultIn, defaultOut, func}) {
+  const monad = input => {
+    if (input instanceof Error) {
+      return Error
+    }
+    const inputErrors = matchType(defaultIn, input)
+    if (inputErrors.length) {
+      return new Error(inputErrors)
+    }
+    const output = func(Object.assign(
+      {},
+      defaultIn,
+      input
+    ))
+    const outputErrors = matchType(defaultOut, output)
+    if (outputErrors.length) {
+      return new Error(outputErrors)
+    }
+    return output
+  }
+  monad.description = `
+    (${describeType(defaultIn)}) =>
+    ${describeType(defaultOut)}
+  `
+  return monad
+}
+
+export const monadic = _monadic({
+  defaultIn: '#?object',
+  defaultOut: '#function',
+  func: _monadic
+})
