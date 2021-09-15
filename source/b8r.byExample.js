@@ -297,6 +297,11 @@ export const describe = x => {
   }
   if (typeof x === 'string' && x.startsWith('#')) return x
   if (x instanceof Promise) return 'promise'
+  if (typeof x === 'function') {
+    return x.constructor === (async () => {}).constructor ? 
+      'async' :
+      'function'
+  }
   return typeof x
 }
 
@@ -728,7 +733,9 @@ function _monadic({defaultIn, defaultOut, func}) {
       if(defaultIn) {
         const inputErrors = matchType(defaultIn, input)
         if (inputErrors.length) {
-          return new Error('input error: ' + inputErrors.join(', '))
+          const errorString = 'input error: ' + inputErrors.join(', ')
+          console.error(errorString)
+          return new Error(errorString)
         }
       }
       const output = await func(Object.assign(
@@ -739,7 +746,9 @@ function _monadic({defaultIn, defaultOut, func}) {
       if (defaultOut) {
         const outputErrors = matchType(defaultOut, output)
         if (outputErrors.length) {
-          return new Error('output error: ' + outputErrors.join(', '))
+          const errorString = 'output error: ' + outputErrors.join(', ')
+          console.error(errorString)
+          return new Error(errorString)
         }
       }
       return output
@@ -768,10 +777,15 @@ function _monadic({defaultIn, defaultOut, func}) {
       return output
     }
   
-  monad.description = `
-    (${describeType(defaultIn)}) =>
-    ${describeType(defaultOut)}
-  `
+  monad.type = { 
+    isAsync,
+    defaultIn: describeType(defaultIn), 
+    defaultOut: describeType(defaultOut),
+    description: `${isAsync ? 'async ': ''}` + 
+      `(${JSON.stringify(describeType(defaultIn), false, 2)}) => ` +
+      `${JSON.stringify(describeType(defaultOut), false, 2)}`
+  }
+    
   return monad
 }
 
@@ -779,8 +793,8 @@ export const monadic = _monadic({
   defaultIn: {
     defaultIn: '#?object',
     defaultOut: '#?object',
-    func: '#function'
+    func: '#union function||async'
   },
-  defaultOut: '#function',
+  defaultOut: '#union function||async',
   func: _monadic
 })
