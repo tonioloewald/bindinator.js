@@ -296,6 +296,7 @@ export const describe = x => {
     if (isNaN(x)) return 'NaN'
   }
   if (typeof x === 'string' && x.startsWith('#')) return x
+  if (x instanceof Promise) return 'promise'
   return typeof x
 }
 
@@ -377,6 +378,8 @@ export const specificTypeMatch = (type, subject) => {
       return Array.isArray(subject)
     case 'instance':
       return subject instanceof window[spec]
+    case 'promise':
+      return subject instanceof Promise
     case 'object':
       return !!subject && typeof subject === 'object' && !Array.isArray(subject)
     default:
@@ -681,6 +684,12 @@ export const typeSafe = _typeSafe(_typeSafe, ['#function', '#?array', '#?any', '
 
 Note that `monadic` is in fact a monad.
 
+### async monads
+
+`monadic` is synchronous, but it will create async monads
+from async functions. The resulting monad will await its input before 
+checking its type, and then await its output before checking its type.
+
 ~~~~
 const {
   monadic,
@@ -697,28 +706,68 @@ Test(() => vecLength({x: 3, y: 4})).shouldBeJSON({size: 5})
 Test(() => vecLength({x: 3}) instanceof Error).shouldBe(true)
 Test(() => vecLength({x: 3, y: false}) instanceof Error).shouldBe(true)
 Test(() => vecLength({x: 3, y: '4'}) instanceof Error).shouldBe(true)
+
+const asyncAdd = monadic({
+  defaultIn: {x: 0},
+  defaultOut: {x: 1},
+  func: async ({x}) => ({x: x + 1})
+})
+Test(() => asyncAdd.constructor).shouldBe((async () => {}).constructor)
+Test(() => asyncAdd({x: 2})).shouldBeJSON({x: 3})
+Test(() => asyncAdd(Promise.resolve({x: 2}))).shouldBeJSON({x: 3})
 ~~~~
 */
 function _monadic({defaultIn, defaultOut, func}) {
-  const monad = input => {
-    if (input instanceof Error) {
-      return Error
+  const isAsync = func.constructor === (async () => {}).constructor
+  const monad = isAsync ?
+    async input => {
+      input = await input
+      if (input instanceof Error) {
+        return Error
+      }
+      if(defaultIn) {
+        const inputErrors = matchType(defaultIn, input)
+        if (inputErrors.length) {
+          return new Error('input error: ' + inputErrors.join(', '))
+        }
+      }
+      const output = await func(Object.assign(
+        {},
+        defaultIn,
+        input
+      ))
+      if (defaultOut) {
+        const outputErrors = matchType(defaultOut, output)
+        if (outputErrors.length) {
+          return new Error('output error: ' + outputErrors.join(', '))
+        }
+      }
+      return output
+    } :
+    input => {
+      if (input instanceof Error) {
+        return Error
+      }
+      if(defaultIn) {
+        const inputErrors = matchType(defaultIn, input)
+        if (inputErrors.length) {
+          return new Error('input error: ' + inputErrors.join(', '))
+        }
+      }
+      const output = func(Object.assign(
+        {},
+        defaultIn,
+        input
+      ))
+      if (defaultOut) {
+        const outputErrors = matchType(defaultOut, output)
+        if (outputErrors.length) {
+          return new Error('output error: ' + outputErrors.join(', '))
+        }
+      }
+      return output
     }
-    const inputErrors = matchType(defaultIn, input)
-    if (inputErrors.length) {
-      return new Error(inputErrors)
-    }
-    const output = func(Object.assign(
-      {},
-      defaultIn,
-      input
-    ))
-    const outputErrors = matchType(defaultOut, output)
-    if (outputErrors.length) {
-      return new Error(outputErrors)
-    }
-    return output
-  }
+  
   monad.description = `
     (${describeType(defaultIn)}) =>
     ${describeType(defaultOut)}
@@ -727,7 +776,11 @@ function _monadic({defaultIn, defaultOut, func}) {
 }
 
 export const monadic = _monadic({
-  defaultIn: '#?object',
+  defaultIn: {
+    defaultIn: '#?object',
+    defaultOut: '#?object',
+    func: '#function'
+  },
   defaultOut: '#function',
   func: _monadic
 })
