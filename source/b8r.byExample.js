@@ -2,7 +2,7 @@
 # Type Checking, Mocks By Example
 
 The goal of this module is to provide simple, effective type-checking "by example" -- i.e. in
-most cases an example of a type can function as a type.
+common cases an example of a type can function as a type.
 
 Certain specialized types — enumerations in particular — are supported in a way that still allows types
 to be encoded as JSON. These types are specified using a string starting with a '#'. (It follows that
@@ -52,7 +52,7 @@ performed in order) and do not include unnecessary elements in example arrays.
 Some specific types can be defined using strings that start with '#'. (It follows that you should not
 use strings starting with '#' as type examples.)
 
-`specficTypeMatch` is the function that evaluates matches against specific types. (Typically you
+`specficTypeMatch` is the function that evaluates values against specific types. (Typically you
 won't use it directly, but use matchType instead.)
 
     specificTypeMatch('#int [0,10]', 5) === true   // 0 ≤ 5 ≤ 10
@@ -93,7 +93,19 @@ number.
     specificTypeMatch('#union string||int', true)                         === false
 
 You can specify a union type using #union followed by a '||'-delimited list of allowed
-types.
+types. (Why '||'? '|' is quite common in regular expressions and you might want to use
+a regex specified string type as an option.)
+
+### #map
+
+    specificTypeMatch('#map int', {foo: 17, bar: 25})                     === true
+    specificTypeMatch('#map int', {foo: 17, bar: '25'})                   === false
+    specificTypeMatch('#map union string||int', {foo: 17, bar: '25'})     === true
+
+It's very common in Javascript to expect an object to simply be a sack of labelled values
+of a certain type or types, e.g. you might represent a set of element styles as a map
+from property names to their (string) values. Since the keys in a Javascript object are 
+strings (barring pathological cases) `#map`-types only specify the value type.
 
 ### #any
 
@@ -229,6 +241,12 @@ Test(() => matchType('#union string||int', false)).shouldBeJSON( [
 ])
 Test(() => matchType('#?union string||int', null)).shouldBeJSON([])
 Test(() => matchType('#?union string||int', 17)).shouldBeJSON([])
+
+Test(() => matchType('#map int', {foo: 17, bar: -1}).length).shouldBe(0)
+Test(() => matchType('#map int', {foo: 17.5, bar: -1}).length).shouldBe(1)
+Test(() => matchType('#map number', {foo: 17.5, bar: -1}).length).shouldBe(0)
+Test(() => matchType('#map union int||string', {foo: 'hello', bar: -1}).length).shouldBe(0)
+Test(() => matchType('#map int', {}).length).shouldBe(0)
 
 const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
 Test(() => matchType(requestType, 'post'))
@@ -385,6 +403,9 @@ export const specificTypeMatch = (type, subject) => {
       return subject instanceof window[spec]
     case 'promise':
       return subject instanceof Promise
+    case 'map':
+      return !!subject && typeof subject === 'object' && !Array.isArray(subject) 
+          && !Object.values(subject).find(v => !specificTypeMatch(`#${spec}`, v))
     case 'object':
       return !!subject && typeof subject === 'object' && !Array.isArray(subject)
     default:
