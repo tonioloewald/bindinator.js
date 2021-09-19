@@ -11,6 +11,84 @@ var b8r = (function () {
   });
 
   /**
+  # uuid
+
+  Random and non-random unique ids. All generated using `crypto.getRandomValues`, i.e. a
+  [cryptographically strong random number generator](https://developer.mozilla.org/en-US/docs/Web/API/Crypto)
+
+      import {uuid, unique, randId, now36, id} from 'path/to/uuid.js'
+
+      // () => crypto.randomUUID()
+      const myId = uuid()
+
+  Other ways of generating random / unique ids:
+
+      // randpm string of digits in specified base
+      const tenDigits = randId(10, 10)
+
+      // default base is 36, this is a 20 digit string
+      const uid = randId(20)
+
+  The convenience functions now36() and randId(length, base) can
+  be used to create very good ids
+
+      // i.e. a unique id that is also going to sort into creation order
+      // ms since epoch as 9-digit base 36 string + 11 digit base 36 digits
+      // note that now36() will have a leading '0' until May 25th 2059
+      const myId = now36() + randId(11)
+
+      // or...
+      const myId = id()
+
+  > ### Do not use `unique`
+  >
+  > The problem with this (deprecated) function is that it can cause subtle
+  > bugs if two different bits of code rely on different instances of this
+  > function in overlapping domains (e.g. two different functions can add
+  > elements with "unique" ids using different instances of `unique` to the
+  > same array that are *very* likely not to be unique.)
+
+  Also, if you use `unique()` as a database key (which you should never ever
+  do) you are hosed.
+
+  The nice thing about id() is that it's pretty efficient, and it's not
+  going to bite you if you use it as a database key.
+
+      // where practical, use id() instead
+      const tempId = unique()
+
+  ~~~~
+  const {uuid, unique, randId, now36, id} = await import('../source/uuid.js');
+  Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
+  Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
+  Test(() => uuid().length).shouldBe(36);
+  Test(() => uuid()).shouldNotBe(uuid());
+  // deprecated
+  // Test(() => unique()).shouldNotBe(unique());
+  // Test(() => unique() - unique()).shouldBe(-1);
+  Test(() => now36().length).shouldBe(9);
+  Test(() => Math.abs(parseInt(now36(), 36) - parseInt(now36(), 36)) > 1).shouldBe(false);
+  Test(() => Math.abs(parseInt(now36(), 36) - Date.now()) > 1).shouldBe(false);
+  Test(() => id().length).shouldBe(20);
+  Test(() => id().match(/[a-z0-9]{20,20}/)).shouldNotBe(null);
+  ~~~~
+  */
+
+  const now36 = () => new Date(parseInt('1000000000', 36) + Date.now()).valueOf().toString(36).slice(1);
+  const { crypto } = window;
+
+  const randId = (length, base = 36) => {
+    const squared = base * base;
+    const r = new Uint32Array(Math.ceil(length / 2));
+    crypto.getRandomValues(r);
+    return [...r].map(bytes => (squared + bytes % squared).toString(base)).slice(1).join('').substr(-length)
+  };
+
+  const id = () => now36() + randId(11);
+
+  const uuid = () => crypto.randomUUID();
+
+  /**
   # Object Path Methods
   Copyright ©2016-2019 Tonio Loewald
 
@@ -191,12 +269,6 @@ var b8r = (function () {
   console.debug = debug
   ~~~~
   */
-  /* global console */
-
-  // unique tokens passed to set by path to delete or create properties
-
-  let uniqueId = 0;
-  const unique = () => ++uniqueId;
 
   const _delete_ = {};
   const _newObject_ = {};
@@ -254,7 +326,7 @@ var b8r = (function () {
     const map = {};
     if (idPath === '_auto_') {
       array.forEach((item, idx) => {
-        if (item._auto_ === undefined) item._auto_ = unique();
+        if (item._auto_ === undefined) item._auto_ = id();
         map[item._auto_ + ''] = idx;
       });
     } else {
@@ -947,7 +1019,7 @@ var b8r = (function () {
     return found
   };
 
-  const id = document.getElementById.bind(document);
+  const id$1 = document.getElementById.bind(document);
 
   const text = document.createTextNode.bind(document);
 
@@ -1062,7 +1134,7 @@ var b8r = (function () {
     succeeding: succeeding,
     preceding: preceding,
     findAbove: findAbove,
-    id: id,
+    id: id$1,
     text: text,
     fragment: fragment,
     create: create,
@@ -2620,52 +2692,6 @@ var b8r = (function () {
       document.head.appendChild(style);
     }
     return style
-  };
-
-  /**
-  # uuid
-
-  A simple method for creading uuids. Usage:
-
-          import {uuid} = from 'path/to/uuid.js';
-          const some_uuid = uuid();
-
-  Also provides a simpler `unique` method that returns a unique
-  counter every time it's called — for when `uuid()` is overkill.
-
-      import {unique} from 'path/to/uuid.js'
-
-  ~~~~
-  const {uuid, unique} = await import('../source/uuid.js');
-  Test(() => uuid().match(/[0-9a-f]+/g).length).shouldBe(5);
-  Test(() => uuid().match(/[0-9a-f]+/g).map(s => s.length)).shouldBeJSON([8,4,4,4,12]);
-  Test(() => uuid().length).shouldBe(36);
-  Test(() => uuid()).shouldNotBe(uuid());
-  Test(() => unique()).shouldNotBe(unique());
-  ~~~~
-  */
-
-  const randomBytes =
-    typeof window === 'undefined'
-      ? () => {
-        const nodeCrypto = require('crypto');
-        return nodeCrypto.randomBytes(16)
-      }
-      : () => {
-        const bs = new Uint8Array(16);
-        window.crypto.getRandomValues(bs);
-        return bs
-      };
-
-  const uuid = () => {
-    // RFC 4122 version 4
-    const ud = randomBytes();
-    ud[8] = ud[8] >> 2 | (0b10 << 6); // clock_seq_hi_and_reserved
-    ud[6] = ud[6] >> 4 | (0b0100 << 4); // time_hi_and_version
-    let i = 0;
-    return 'xxxx-xx-xx-xx-xxxxxx'.replace(/x/g, () =>
-      (0xf00 | ud[i++]).toString(16).slice(1)
-    )
   };
 
   /**
@@ -6515,7 +6541,7 @@ var b8r = (function () {
           model = getComponentWithMethod(element, method);
         }
         if (model) {
-          b8r.callMethod(model, method, element, value);
+          b8r.callMethod(model, method, element, value, dest);
         } else if (element.closest('body')) {
           console.debug('b8r-warn', `method ${method} not found in`, element);
         }
@@ -6899,7 +6925,7 @@ var b8r = (function () {
 
   ```
   // you cannot redefine an existing web-component so we need a unique name for refreshes
-  const componentName = 'simple-button-' + b8r.unique()
+  const componentName = 'simple-button-' + b8r.id()
   const {makeWebComponent, div} = b8r.webComponents
   const elt = b8r.create(componentName)
   elt.textContent = 'Click Me'
@@ -7454,7 +7480,7 @@ var b8r = (function () {
 
   // TODO seal b8r after it's been built
 
-  const b8r = { constants, unique };
+  const b8r = { constants, id };
   const UNLOADED_COMPONENT_SELECTOR =
     '[data-component],[data-initializing],b8r-component:not([data-component-id])';
   const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
@@ -7901,7 +7927,7 @@ var b8r = (function () {
     if (idPath === '_auto_') {
       for (let i = 0; i < list.length; i++) {
         if (list[i]._auto_ === undefined) {
-          list[i]._auto_ = unique();
+          list[i]._auto_ = id();
         }
       }
     }

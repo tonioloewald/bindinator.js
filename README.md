@@ -169,7 +169,7 @@ Most **updates** are handled automatically:
 
 <b8r-component path="components/fiddle" data-source="components/events"></b8r-component>
 
-Events are bound via data-paths as just like data. In this example `click` is the event type and
+Events are bound via data-paths just as data. In this example `click` is the event type and
 `example4.click` is the path to the event.
 
 Try this in the console (and then click the button again):
@@ -192,10 +192,87 @@ Components can be nested exactly as you would expect.
 play nice with them (e.g. waiting for a custom-element's  definition before attempting to bind 
 values to it).
 
+Oh yeah, `b8r` components are themselves instances of the `<b8r-component>` web-component.
+
 ### Create Components with HTML or JavaScript
 
 Each of these little inline examples is a component written in HTML. (`b8r` expects
-components to be in files named `some-name.component.html`.)
+components written in html to be in files named `some-name.component.html`.) HTML
+components aren't as nice as pure Javascript components.
+
+A simple HTML component:
+
+    <style>
+      ._component_ {
+        background: yellow
+      }
+    </style>
+    <h1 data-bind="text=_component_.caption"></h1>
+    <button data-event="click:_component_.alert">
+      Click Me!
+    </button>
+    <script>
+      /* global set, get */
+      if(!get().caption) {
+        set({caption: 'I is component'})
+      }
+      set({
+        alert(){
+          window.alert(get().caption)
+        }
+      })
+    </script>
+
+The equivalent as Javascript:
+
+    export default {
+      css: `
+        _component_ {
+          background: yellow;
+        }
+      `,
+      html: `
+        <h1 data-bind="text=_component_.caption"></h1>
+        <button data-event="click:_component_.alert">
+          Click Me!
+        </button>
+      `,
+      load({get, set}) {
+        if(!get().caption) {
+          set({caption: 'I is component'})
+        }
+        set({
+          alert(){
+            window.alert(get().caption)
+          }
+        })
+      }
+    }
+
+But Javascript components are more flexible and can, for example, set properties
+before the component is inserted into the DOM via `initialValue()`. We don't
+need to check if `caption` has been set because we're earlier in the component
+life-cycle.
+
+    export default {
+      css: `
+        _component_ {
+          background: yellow;
+        }
+      `,
+      html: `
+        <h1 data-bind="text=_component_.caption"></h1>
+        <button data-event="click:_component_.alert">
+          Click Me!
+        </button>
+      `,
+      initialValue({get}) => ({
+        caption: 'I is component',
+        alert(){
+          window.alert(get().caption)
+        }
+      })
+    }
 
 When you want to get into the details of building components, there are sections on
 [components](?source=docs/components.md) and on 
@@ -324,7 +401,7 @@ Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Sa
 ## In a Nut
 
 - bind paths to DOM elements using `data-bind`.
-- bind paths to objects using `b8r.reg.name` (or `b8r.reg['your name']`) `= { ... }`.
+- bind paths to objects using `b8r.reg.name` (or `b8r.reg['your name']`) `= { … }`.
 - access and modify values bound to paths using `b8r.reg.path.to.value`.
 - bind arrays to the DOM using `data-list`.
 - bind events to event handlers using `data-event`.

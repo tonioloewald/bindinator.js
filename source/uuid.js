@@ -33,7 +33,7 @@ be used to create very good ids
 > The problem with this (deprecated) function is that it can cause subtle
 > bugs if two different bits of code rely on different instances of this
 > function in overlapping domains (e.g. two different functions can add
-> elements with "unique" ids using different instances of `unique` to the 
+> elements with "unique" ids using different instances of `unique` to the
 > same array that are *very* likely not to be unique.)
 
 Also, if you use `unique()` as a database key (which you should never ever
@@ -41,7 +41,7 @@ do) you are hosed.
 
 The nice thing about id() is that it's pretty efficient, and it's not
 going to bite you if you use it as a database key.
-    
+
     // where practical, use id() instead
     const tempId = unique()
 
@@ -62,13 +62,13 @@ Test(() => id().match(/[a-z0-9]{20,20}/)).shouldNotBe(null);
 ~~~~
 */
 
-
-export const now36 = () => new Date(parseInt( '1000000000', 36) + Date.now()).valueOf().toString(36).slice(1)
+export const now36 = () => new Date(parseInt('1000000000', 36) + Date.now()).valueOf().toString(36).slice(1)
+const { crypto } = window
 
 export const randId = (length, base = 36) => {
   const squared = base * base
   const r = new Uint32Array(Math.ceil(length / 2))
-  window.crypto.getRandomValues(r)
+  crypto.getRandomValues(r)
   return [...r].map(bytes => (squared + bytes % squared).toString(base)).slice(1).join('').substr(-length)
 }
 
