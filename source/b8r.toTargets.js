@@ -694,10 +694,10 @@ export default function (b8r) {
       let [model, ...method] = dest.split('.')
       method = method.join('.')
       if (model === '_component_') {
-        model = getComponentWithMethod(element, method)
+        model = getComponentWithMethod(element, method, dest)
       }
       if (model) {
-        b8r.callMethod(model, method, element, value)
+        b8r.callMethod(model, method, element, value, dest)
       } else if (element.closest('body')) {
         console.debug('b8r-warn', `method ${method} not found in`, element)
       }

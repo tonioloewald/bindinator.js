@@ -14,13 +14,49 @@ and rich content in tabs, and assignment of specific values to tabs
 (versus indices).
 
 ```
-<b8r-tab-selector closeable style="height: 100%">
-  <div name="first" style="padding: 20px">first tab content</div>
-  <div name="second tab has a very long name" style="padding: 20px">second tab content</div>
-  <div name="third" style="padding: 20px">third tab content</div>
+<style>
+  ._component_ b8r-tab-selector {
+    height: 400px;
+  }
+
+  ._component_ > b8r-tab-selector > * {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  ._component_ .header {
+    padding: 10px;
+    flex: 0 0 auto;
+  }
+
+  ._component_ .padded {
+    padding: 20px;
+  }
+
+  ._component_ .scroll-port {
+    flex: 1 1 auto;
+    overflow-y: scroll;
+  }
+
+  ._component_ .scroll-port > * {
+    padding: 5px 10px;
+  }
+</style>
+<b8r-tab-selector closeable>
+  <div name="first" style="">
+    <h2 class="header">Big Scrolling List</h2>
+    <div class="scroll-port">
+      <div data-list="_component_.items">A list item</div>
+    </div>
+  </div>
+  <div name="second tab has a very long name" class="padded">second tab content</div>
+  <div name="third" class="padded">third tab content</div>
 </b8r-tab-selector>
 <script>
   await import('../web-components/tabs.js');
+  set({items: new Array(100)})
 </script>
 ```
 ~~~~
@@ -47,7 +83,8 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
   style: {
     ':host': {
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      position: 'relatve'
     },
     slot: {
       position: 'relative',
@@ -55,7 +92,9 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       background: 'var(--content-bg-color)',
       border: '1px solid var(--black-20)',
       borderRadius: '2px',
-      flexGrow: 1
+      flexGrow: 1,
+      flexShrink: 1,
+      overflow: 'hidden'
     },
     '.tabs': {
       borderColor: 'var(--accent-color)',
@@ -128,7 +167,7 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       const attributes = { tabIndex: 0 }
       const closeButtonAttributes = { title: 'close tab' }
       bodies.forEach((body, idx) => {
-        const name = body.getAttribute('name') || 'untitled'
+        const name = body.getAttribute('title') || body.getAttribute('name') || 'untitled'
         const closeButton = button({ attributes: closeButtonAttributes, content: '×' })
         const content = [span({ content: name }), closeButton]
         const tab = span({ attributes, content })
@@ -173,7 +212,8 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
         const selected = parseInt(idx, 10) === parseInt(value, 10)
         body.style.display = selected ? '' : 'none'
         body._tab.classList.toggle('selected', selected)
-        body._tab.querySelector('button').style.display = closeButtonDisplay
+        body._tab.querySelector('button').style.display = closeButtonDisplay ||
+          (body.dataset.closeable !== undefined)
       })
     }
   },

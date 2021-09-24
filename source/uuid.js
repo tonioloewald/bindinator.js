@@ -63,17 +63,18 @@ Test(() => id().match(/[a-z0-9]{20,20}/)).shouldNotBe(null);
 */
 
 export const now36 = () => new Date(parseInt('1000000000', 36) + Date.now()).valueOf().toString(36).slice(1)
+const { crypto } = window
 
 export const randId = (length, base = 36) => {
   const squared = base * base
   const r = new Uint32Array(Math.ceil(length / 2))
-  window.crypto.getRandomValues(r)
+  crypto.getRandomValues(r)
   return [...r].map(bytes => (squared + bytes % squared).toString(base)).slice(1).join('').substr(-length)
 }
 
 export const id = () => now36() + randId(11)
 
-export const uuid = () => window.crypto.randomUUID()
+export const uuid = () => crypto.randomUUID()
 
 let counter = 0
 export const unique = () => {
