@@ -96,6 +96,10 @@
         "path": "source/b8r.byExample.js"
       },
       {
+        "name": "monadic",
+        "path": "source/monadic.js"
+      },
+      {
         "name": "components",
         "path": "source/b8r.component.js"
       },
