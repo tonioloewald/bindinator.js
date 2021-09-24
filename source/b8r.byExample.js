@@ -431,8 +431,8 @@ export const specificTypeMatch = (type, subject) => {
   }
 }
 
-const functionDeclaration = /\((.*?)\)\s*(=>)?\s*\{/
-const arrowDeclaration = /(\w+)\s*=>\s*[^\s{]/
+const functionDeclaration = /^(function)?\s*\((.*?)\)\s*(=>)?\s*\{/
+const arrowDeclaration = /^((\w+)|\((.*?)\))\s*=>\s*[^\s{]/
 const returnsValue = /\w+\s*=>\s*[^\s{]|\breturn\b/
 
 export const describeType = (x) => {
@@ -450,12 +450,17 @@ export const describeType = (x) => {
     case 'async':
     {
       const source = x.toString()
+      if (source.startsWith('class ')) {
+        return 'class'
+      }
       if (source === 'function () { [native code] }') {
         return `native ${scalarType}`
       }
-      const paramSource = source.match(functionDeclaration) || x.toString().match(arrowDeclaration)
-      const hasReturnValue = !!source.match(returnsValue)
-      const paramText = paramSource && paramSource[1].trim() ? paramSource[1].trim() : '()'
+      const functionSource = source.match(functionDeclaration)
+      const arrowSource = source.match(arrowDeclaration)
+      const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration)
+      const paramText = ((functionSource && functionSource[2]) ||
+          (arrowSource && (arrowSource[2] || arrowSource[3])) || '').trim()
       const params = paramText.split(',').map(param => {
         const [key, value] = param.split('=')
         let type
@@ -469,7 +474,7 @@ export const describeType = (x) => {
         }
         return value ? `${key} :#?${type}` : `${key} #any`
       })
-      return `${scalarType} ( ${params.join(', ')} ) => ${hasReturnValue ? '#nothing' : '#any'}`
+      return `${scalarType} ( ${params.join(', ')} ) => ${hasReturnValue ? '#any' : '#nothing'}`
     }
     default:
       return scalarType
@@ -702,7 +707,7 @@ export const matchParamTypes = (types, params) => {
 
 export const typeSafe = (func, paramTypes = [], resultType = undefined, functionName = undefined) => {
   const paramErrors = matchParamTypes(
-    ['#function', '#?array','#?any', '#?string'],
+    ['#function', '#?array', '#?any', '#?string'],
     [func, paramTypes, resultType, functionName]
   )
   if (paramErrors instanceof TypeError) return paramErrors
@@ -742,4 +747,72 @@ export const typeSafe = (func, paramTypes = [], resultType = undefined, function
     resultType,
     getCallCount: () => callCount
   })
+}
+
+function tsDescribe (x, name) {
+  const b8rType = describe(x)
+  switch (b8rType) {
+    case 'array':
+      return `Array<${x.length ? tsDescribe(x[0]) : 'any'}>`
+    case 'object':
+      return `{${
+        Object.keys(x).map(key => `${key}: ${tsDescribe(x[key], null)}`).join(', ')
+      }}`
+    case 'null':
+    case 'undefined':
+      return 'any'
+    default:
+      switch (describeType(x).split(' ')[0]) {
+        case 'class':
+          return `class ${name || ''} { constructor(...args: any[]) }`
+        case 'async':
+        case 'function':
+          return tsFunctionType(x, name)
+        case 'native':
+          return `function ${name} (...args:any[]): any  /* native */`
+      }
+      return b8rType
+  }
+}
+
+function tsFunctionType (func, name) {
+  const source = func.toString()
+  const functionSource = source.match(functionDeclaration)
+  const arrowSource = source.match(arrowDeclaration)
+  const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration)
+  const paramText = ((functionSource && functionSource[2]) ||
+      (arrowSource && (arrowSource[2] || arrowSource[3])) || '').trim()
+  const params = paramText ? paramText.split(',').map(param => {
+    const [key, value] = param.split('=')
+    let type
+    if (value) {
+      try {
+        /* eslint-disable no-eval */
+        if (!eval(value)) {
+          console.log(value, eval(value))
+        }
+        type = tsDescribe(eval(value))
+      } catch {
+        type = 'any'
+      }
+    } else {
+      type = 'any'
+    }
+    return `${key.trim()}: ${type}`
+  }) : []
+  return name
+    ? `${isAsync(func) ? 'async ' : ''}function ${name} (${params.join(', ')}): ${hasReturnValue ? 'any' : 'void'}`
+    : `(${params.join(', ')}) => ${hasReturnValue ? 'any' : 'void'}`
+}
+
+export function tsDeclaration (module) {
+  const members = Object.keys(module)
+  return members.map(name => {
+    const member = module[name]
+    if (typeof member === 'function') {
+      return `declare ${tsDescribe(member, name)}`
+    } else {
+      return `declare const ${name}: ${tsDescribe(member)}`
+    }
+  }).join('\n')
 }
