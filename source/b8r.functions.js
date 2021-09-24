@@ -74,7 +74,6 @@ updates throughout the operation and fires one last time after the operation sto
 `delay` is a simple utility function that resolves after the specified amount of time to
 the value specified (null by default).
 
-
 ~~~~
 // title: throttle, debounce, and throttleAndDebounce tests
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
@@ -146,6 +145,39 @@ Test(outerA, 'throttled calls').shouldBeJSON([1,4])
 Test(outerB, 'debounced calls').shouldBeJSON([3,6])
 Test(outerC, 'throttled and debounced calls').shouldBeJSON([1,3,4,6])
 ~~~~
+*/
+
+/**
+### Seeing it all in action
+
+Here's a snippet of code to run in console to see exactly what's going on
+with these meta-functions:
+
+    (async function () {
+      const start = Date.now()
+      const f = b8r.throttleAndDebounce((arg) => console.log('both', arg, arg - (Date.now() - start)), 500) 
+      const g = b8r.debounce((arg) => console.log('debounce', arg, arg - (Date.now() - start)), 500) 
+      const h = b8r.throttle((arg) => console.log('throttle', arg, arg - (Date.now() - start)), 500) 
+      for(let i = 0; i < 20; i++) {
+        await b8r.delay(Math.random() * 500)
+        const elapsed = Date.now() - start
+        console.log(elapsed)
+        f(elapsed)
+        g(elapsed)
+        h(elapsed)
+      }
+      console.log('exited', Date.now() - start)
+    })()
+
+In essence, if you run this, debounce will only fire once, at the end. The other two will fire 
+immediately and at regular intervals, but only throttleAndDebounce and debounce will fire
+the last calls.
+
+### async delay(ms)
+
+    await delay(1000) // wait 1s
+
+A simple utility function (mostly for testing).
 */
 
 const delay = (delayMs, value = null) => new Promise((resolve, reject) => {
