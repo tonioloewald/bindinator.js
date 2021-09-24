@@ -58,8 +58,7 @@ const vecLength = monadic({
     return { size: Math.sqrt(x * x + y * y) }
   }
 })
-window.vecLength = vecLength
-console.log(vecLength.constructor)
+
 Test(() => typeof vecLength).shouldBeJSON('function')
 Test(() => vecLength({x: 0, y: 0})).shouldBeJSON({size: 0})
 Test(() => vecLength()).shouldBeJSON({size: 0})
@@ -124,15 +123,11 @@ const jsonic = monadic({
   outputType: {data: '#any'},
   func: async (params = jsonicDefaults) => {
     const {url, method, requestData, config} = Object.assign({}, params, jsonicDefaults)
-    console.log(params)
     return { data: await b8r.json(url, method, requestData, config ) }
   }
 })
-console.log({jsonic})
 Test(() => jsonic).shouldShareConstructor(async () => {})
 Test(() => jsonic({url: 'documentation.json'}).then(({data}) => data.length)).shouldBe(9)
-
-window.mult = mult
 ~~~~
 */
 
