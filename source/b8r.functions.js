@@ -5,26 +5,60 @@ This module provides convenient access to the `AsyncFunction` constructor.
 
     const f = new b8r.AsyncFunction(...args, code)
 
-Utility functions for preventing a method from being called too frequently.
-Not recommended for use on methods which take arguments!
+> ### A note for test failures
+>
+> Many of the tests in this library are highly sensitive to background processing
+> (since they're async tests based on delays in a non-pre-emptive context). So, if
+> a test fails, check if it calls `delay()`, and maybe run it a few more times.
 
-    b8r.debounce(method, minInterval_ms) => debounced function
+Utility functions for preventing a method from being called too frequently.
+
+### debounce(func, delayMs)
+
+The idea of a debounced function is that it won't get called until you stop calling it
+for a certain amount of time. And *the last call always goes through*. So if you're
+trying to respond to user input with an expensive operation, but it's important that
+the last thing the user does is accounted for, use debounce.
+
+    b8r.debounce(method, delayMs) => debounced function
 
 From a function `f`, create a function that will call f after the provided interval has passed,
 the interval being reset if the function is called again.
 
 E.g. you want to call a query "as the user types" but don't want to call until the user pauses
-typing for a while or at least has a chance to type a few keys.
+typing for a while or at least has a chance to type a few keys. This is also a case where
+responding immediately is actually a bad thing (e.g. when a user starts typing in a search
+field, they typically don't want to search for the first character they type, so waiting a
+fraction of a second after the user types something before calling a query makes the
+user interface *more* responsive *and* saves bandwidth.)
 
-> A debounced method will call the original function at least once after the debounced version is
-called.
+> A debounced function won't fire until it stops being called for a while.
+> The last call to a debounced function always goes through.
 
-    b8r.throttle(method, minInterval_ms) => throttled function
+### throttle(func, delayMs)
+
+The idea of a throttled function is that you want to respond to something immediately, but
+if it happens repeatedly, you don't want to thrash it, and it's not critically important
+to process the final situation, so if several calls are made in quick succession, all but
+the first are skipped.
+
+    b8r.throttle(method, intervalMs) => throttled function
 
 From a function `f`, create a function that will call f if and only if the function hasn't
 been called in the last interval.
 
-> If you call f several times within the specified interval, *only the first call will fire*.
+> If you call a throttled function several times in quick succession, all but the
+> first call will be skipped. If you're working with data, throttled functions are
+> almost always a bad idea since you may skip the last thing that happened. So,
+> use throttleAndDebounce (below).
+
+### throttleAndDebounce(func, intervalMs)
+
+The best of both worlds is often to throttle AND debounce a function. This way it responds
+to the first call immediately, but also to the final call. A good case for using
+this is to handle cosmetic user-interface actions (e.g. scrolling) where it's important
+to react quickly, and it's important to finish in the right place, but handling every
+single intermediate call is really not relevant.
 
     b8r.throttleAndDebounce(method, minInterval_ms) => throttled and debounced function
 
@@ -40,88 +74,77 @@ updates throughout the operation and fires one last time after the operation sto
 `delay` is a simple utility function that resolves after the specified amount of time to
 the value specified (null by default).
 
-~~~~
-// title: throttle and debounce tests
 
+~~~~
+// title: throttle, debounce, and throttleAndDebounce tests
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
-Test(async () => {
-  const failures = []
-  const delayMs = Math.random() * 1000 + 1000
-  let outcome
-  outcome = await delay(delayMs, 'foo')
-  if(outcome !== 'foo') failures.push('expected "foo" to be passed through')
-  const start = Date.now()
-  outcome = await delay(delayMs)
-  if(Date.now() - start - delayMs > 50) failures.push(`delay should be roughly ${delayMs}ms, was ${Date.now() - start}ms`)
-  return failures
-}, 'delay works').shouldBeJSON([])
+await delay(1000)
 
-Test(async () => {
-  const outcomes = []
-  const boing = debounce((x) => { outcomes.push(x) }, 100)
-  const failures = []
+const start = Date.now()
+const outerA = []
+const outerB = []
+const outerC = []
+const throttled = b8r.throttle(a => { outerA.push(a) }, 1000)
+const debounced = b8r.debounce(b => { outerB.push(b) }, 1000)
+const bothed = b8r.throttleAndDebounce(c => { outerC.push(c) }, 1000)
 
-  boing(1)
-  boing(2)
-  boing(3)
-  if(outcomes.length > 0) failures.push('no boing should have fired yet')
-  await delay(1000)
-  if(outcomes[0] !== 3) failures.push('boing(3) should have fired first')
-  boing(4)
-  boing(5)
-  if(outcomes.length > 1) failures.push('only one boing should have fired')
-  await delay(130)
-  if(outcomes[1] !== 5) failures.push('boing(5) should have fired second')
-  await delay(130)
-  await delay(200)
-  if(outcomes.length > 2) failures.push('only two boings should ever fire')
-  return failures
-}, 'debounce works').shouldBeJSON([])
+throttled(1)
+throttled(2)
+throttled(3)
+debounced(1)
+debounced(2)
+debounced(3)
+bothed(1)
+bothed(2)
+bothed(3)
 
-Test(async () => {
-  const outcomes = []
-  const buzz = throttle((x) => {
-    outcomes.push(x)
-  }, 100)
-  const failures = []
+await delay(500)
 
-  buzz(1)
-  buzz(2)
-  buzz(3)
-  if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
-  await delay(130)
-  if(outcomes.length !== 1) failures.push('no more buzzes should have fired')
-  buzz(4)
-  buzz(5)
-  if(outcomes[1] !== 4 || outcomes.length !== 2) failures.push('buzz(4) should have fired second')
-  await delay(200)
-  if(outcomes.length > 2) failures.push('only two buzzes should ever fire')
-  return failures
-}, 'throttle works').shouldBeJSON([])
+// throttled(1) fired immediately
+// throttled(2) and throttled(3) were skipped
+// debounced(1) and debounced(2)
+// debounced(3) will fire at 100
+// bothed(1) fired immediately
+// bothed(2) was skipped
+// bothed(3) will fire at 1000
 
-Test(async () => {
-  const outcomes = []
-  const buzz = throttleAndDebounce((x) => {
-    outcomes.push(x)
-  }, 100)
-  const failures = []
-  buzz(1)
-  buzz(2)
-  buzz(3)
-  if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
-  await delay(130)
-  if(outcomes[1] !== 3 || outcomes.length !== 2) failures.push('buzz(3) should have fired via debounce')
-  buzz(4)
-  if(outcomes[2] !== 4 || outcomes.length !== 3) failures.push('buzz(4) should have fired immediately')
-  buzz(5)
-  buzz(6)
-  await delay(200)
-  if(outcomes[3] !== 6 || outcomes.length !== 4) failures.push('buzz(6) should have fired via debounce')
-  await delay(200)
-  if(outcomes.length > 4) failures.push('no more buzzes should have fired')
-  return failures
-}, 'throttleAndDebounce works').shouldBeJSON([])
+await Test(outerA, 'throttled calls').shouldBeJSON([1])
+await Test(outerB, 'debounced calls').shouldBeJSON([])
+await Test(outerC, 'throttled and debounced calls').shouldBeJSON([1])
+
+await delay(1000) // 1500ms elapsed
+
+// throttled(3) fired at 1000
+// debounced(3) fired at 1000
+// bothed(3) fired at 1000
+
+await Test(outerA, 'throttled calls').shouldBeJSON([1])
+await Test(outerB, 'debounced calls').shouldBeJSON([3])
+await Test(outerC, 'throttled and debounced calls').shouldBeJSON([1,3])
+
+debounced(4)
+bothed(4)
+throttled(4)
+debounced(5)
+bothed(5)
+throttled(5)
+debounced(6)
+bothed(6)
+throttled(6)
+
+await delay(1000) // 2500ms elapsed
+
+// throttled(4) fired at 1500
+// throttled(5) was skipped
+// debounced(4) and debounced(5) were skipped
+// debounced(6) fired at 2000
+// bothed(4) and bothan(5) were skipped
+// both(6) fired at 2000
+
+Test(outerA, 'throttled calls').shouldBeJSON([1,4])
+Test(outerB, 'debounced calls').shouldBeJSON([3,6])
+Test(outerC, 'throttled and debounced calls').shouldBeJSON([1,3,4,6])
 ~~~~
 */
 
@@ -167,9 +190,10 @@ const throttleAndDebounce = (origFn, minInterval) => {
       inFlight = true
       try {
         origFn(...args)
-        inFlight = false
         previousCall = Date.now()
-      } finally {}
+      } finally {
+        inFlight = false
+      }
     }
   }
 }
