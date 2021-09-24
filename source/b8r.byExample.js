@@ -104,7 +104,7 @@ a regex specified string type as an option.)
 
 It's very common in Javascript to expect an object to simply be a sack of labelled values
 of a certain type or types, e.g. you might represent a set of element styles as a map
-from property names to their (string) values. Since the keys in a Javascript object are 
+from property names to their (string) values. Since the keys in a Javascript object are
 strings (barring pathological cases) `#map`-types only specify the value type.
 
 ### #any
@@ -307,6 +307,10 @@ The obvious place to use typeSafe functions is when communicating with services,
 and here any overhead is insignificant compared with network or I/O.
 */
 
+import { deepClone } from './b8r.iterators.js'
+
+export const isAsync = func => func && func.constructor === (async () => {}).constructor
+
 export const describe = x => {
   if (x === null) return 'null'
   if (Array.isArray(x)) return 'array'
@@ -316,9 +320,9 @@ export const describe = x => {
   if (typeof x === 'string' && x.startsWith('#')) return x
   if (x instanceof Promise) return 'promise'
   if (typeof x === 'function') {
-    return x.constructor === (async () => {}).constructor ? 
-      'async' :
-      'function'
+    return x.constructor === (async () => {}).constructor
+      ? 'async'
+      : 'function'
   }
   return typeof x
 }
@@ -374,6 +378,14 @@ export const specificTypeMatch = (type, subject) => {
   switch (baseType) {
     case 'any':
       return subject !== null && subject !== undefined
+    case 'native':
+      if (typeof subject !== 'function' || subject.toString() !== 'function () { [native code] }') {
+        return false
+      }
+      if (!type) {
+        return true
+      }
+      return isAsync(subject) ? type.match(/^async\b/) : type.match(/^function\b/)
     case 'function':
       if (subjectType !== 'function') return false
       // todo allow for typeSafe functions with param/result specified by name
@@ -385,14 +397,17 @@ export const specificTypeMatch = (type, subject) => {
       if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
       return inRange(spec, subject)
     case 'union':
-      const types = spec.split('||')
-      return !!types.find(type => specificTypeMatch(`#${type}`, subject))
+      return !!spec.split('||').find(type => specificTypeMatch(`#${type}`, subject))
     case 'enum':
       try {
         return spec.split('|').map(JSON.parse).includes(subject)
       } catch (e) {
         throw new Error(`bad enum specification (${spec}), expect JSON strings`)
       }
+    case 'void':
+      return subjectType === 'undefined' || subjectType === 'null'
+    case 'nothing':
+      return subjectType === 'undefined'
     case 'string':
       return subjectType === 'string'
     case 'regexp':
@@ -404,18 +419,23 @@ export const specificTypeMatch = (type, subject) => {
     case 'promise':
       return subject instanceof Promise
     case 'map':
-      return !!subject && typeof subject === 'object' && !Array.isArray(subject) 
-          && !Object.values(subject).find(v => !specificTypeMatch(`#${spec}`, v))
+      return !!subject && typeof subject === 'object' && !Array.isArray(subject) &&
+          !Object.values(subject).find(v => !specificTypeMatch(`#${spec}`, v))
     case 'object':
       return !!subject && typeof subject === 'object' && !Array.isArray(subject)
     default:
       if (subjectType !== baseType) {
-        throw new Error(`unrecognized type specifier ${type}`)
+        console.error('got', subject, `expected "${type}", "${subjectType}" does not match "${baseType}"`)
+        return false
       } else {
         return true
       }
   }
 }
+
+const functionDeclaration = /\((.*?)\)\s*(=>)?\s*\{/
+const arrowDeclaration = /(\w+)\s*=>\s*[^\s{]/
+const returnsValue = /\w+\s*=>\s*[^\s{]|\breturn\b/
 
 export const describeType = (x) => {
   const scalarType = describe(x)
@@ -427,6 +447,31 @@ export const describeType = (x) => {
       const _type = {}
       Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]) })
       return _type
+    }
+    case 'function':
+    case 'async':
+    {
+      const source = x.toString()
+      if (source === 'function () { [native code] }') {
+        return `native ${scalarType}`
+      }
+      const paramSource = source.match(functionDeclaration) || x.toString().match(arrowDeclaration)
+      const hasReturnValue = !!source.match(returnsValue)
+      const paramText = paramSource && paramSource[1].trim() ? paramSource[1].trim() : '()'
+      const params = paramText.split(',').map(param => {
+        const [key, value] = param.split('=')
+        let type
+        if (value) {
+          try {
+            /* eslint-disable no-eval */
+            type = describeType(eval(value))
+          } catch {
+            type = 'any'
+          }
+        }
+        return value ? `${key} :#?${type}` : `${key} #any`
+      })
+      return `${scalarType} ( ${params.join(', ')} ) => ${hasReturnValue ? '#nothing' : '#any'}`
     }
     default:
       return scalarType
@@ -700,20 +745,47 @@ export const typeSafe = _typeSafe(_typeSafe, ['#function', '#?array', '#?any', '
 /**
 ## monadic
 
-`monadic()` produces a monadic function from three parameters, thus:
+`monadic()` produces a monadic function from a config object, thus:
 
     const vecLength = monadic({
-      defaultIn: {x: 0, y: 0},
-      defaultOut: {size: 0}, 
+      defaultInput: {x: 0, y: 0},
+      inputType: {x: 0, y: 0},
+      outputType: {size: 0},
       func: ({x, y}) => ({ size: Math.sqrt(x * x + y * y) })
     })
 
-Note that `monadic` is in fact a monad.
+`monadic()` treats concrete values in the inputType as default values (so passing
+them is optional). If you want nullable values of a specific type they need to be declared
+as `'#?...'`. If you require a type and want no default value, you need to specify
+it via string (e.g. `#number` vs. 0).
+
+E.g. this function takes a value and a quantity and returns a product.
+If the value is a number then it returns value x quantity.
+If the value is a string it returns quantity iterations of the string.
+If quantity is not provided, the value is returned.
+
+    const mult = monadic({
+      inputType: {value: '#union string||number', quantity: 1},
+      outputType: {product: '#union string||number'),
+      func({value, quantity}) {
+        let product = ''
+        if (typeof value === 'string') {
+          for(let i = 0; i < quantity; i++) {
+            product += value
+          }
+        } else {
+          product = value * quantity
+        }
+        return { product }
+      }
+    })
+
+Note that `monadic` is a monad.
 
 ### async monads
 
 `monadic` is synchronous, but it will create async monads
-from async functions. The resulting monad will await its input before 
+from async functions. The resulting monad will await its input before
 checking its type, and then await its output before checking its type.
 
 ~~~~
@@ -721,38 +793,132 @@ const {
   monadic,
 } = await import('./b8r.byExample.js')
 
+const vecLengthDefaults = {x: 0, y: 0}
 const vecLength = monadic({
-  defaultIn: {x: 0, y: 0},
-  defaultOut: {size: 0}, 
-  func: ({x, y}) => ({ size: Math.sqrt(x * x + y * y) })
+  defaultInput: {x: 0, y: 0},
+  outputType: {size: 0},
+  func({x, y}){
+    return { size: Math.sqrt(x * x + y * y) }
+  }
 })
+window.vecLength = vecLength
+console.log(vecLength.constructor)
 Test(() => typeof vecLength).shouldBeJSON('function')
 Test(() => vecLength({x: 0, y: 0})).shouldBeJSON({size: 0})
+Test(() => vecLength()).shouldBeJSON({size: 0})
+Test(() => vecLength({x: false, y: 0})).shouldBeInstanceOf(Error)
 Test(() => vecLength({x: 3, y: 4})).shouldBeJSON({size: 5})
-Test(() => vecLength({x: 3}) instanceof Error).shouldBe(true)
-Test(() => vecLength({x: 3, y: false}) instanceof Error).shouldBe(true)
-Test(() => vecLength({x: 3, y: '4'}) instanceof Error).shouldBe(true)
-
+Test(() => vecLength({x: 3})).shouldBeJSON({size: 3})
+Test(() => vecLength({y: 17})).shouldBeJSON({size: 17})
+Test(() => vecLength({x: 3, y: false})).shouldBeInstanceOf(Error)
+Test(() => vecLength({x: 3, y: '4'})).shouldBeInstanceOf(Error)
+Test(() => true).shouldBe(true)
 const asyncAdd = monadic({
-  defaultIn: {x: 0},
-  defaultOut: {x: 1},
+  inputType: {x: 0},
+  outputType: {x: 1},
   func: async ({x}) => ({x: x + 1})
 })
 Test(() => asyncAdd.constructor).shouldBe((async () => {}).constructor)
 Test(() => asyncAdd({x: 2})).shouldBeJSON({x: 3})
 Test(() => asyncAdd(Promise.resolve({x: 2}))).shouldBeJSON({x: 3})
+
+const mult = monadic({
+  defaultInput: {
+    a: 0,
+    b: 1
+  },
+  inputType: {
+    a: '#union number||string||array',
+    b: 1,
+  },
+  outputType: {
+    product: '#union string||number'
+  },
+  func({a, b}){
+    let product = ''
+    if (Array.isArray(a)) {
+      if (typeof a[0] === 'number') {
+        a = a.reduce((p = 1, x) => p * x)
+      } else {
+        a = a.reduce((p, x) => p ? p + ` x ${x}` : x)
+      }
+    }
+    if (typeof a === 'number') {
+      product = a * b
+    } else {
+      for(i = 0; i < b; i++) {
+        product += a
+      }
+    }
+    return { product }
+  }
+})
+
+Test(() => mult({a: 3, b: 4}).product).shouldBe(12)
+Test(() => mult({a: 3, b: false}).constructor).shouldBe(Error)
+Test(() => mult({a: [1,2,3,4]}).product).shouldBe(24)
+Test(() => mult({a: ['1',2,3,4]}).product).shouldBe('1 x 2 x 3 x 4')
+Test(() => mult({a: 'oo', b: 3}).product).shouldBe('oooooo')
+Test(() => mult({a: ['a','b','c'], b: 2}).product).shouldBe('a x b x ca x b x c')
+
+const jsonicDefaults = {method: 'GET'}
+const jsonic = monadic({
+  inputType: {url: 'string', method: '#?enum "HEAD"|"GET"|"POST"|"PUT"|"DELETE"', requestData: '#?any', config: '#?object'},
+  outputType: {data: '#any'},
+  func: async (params = jsonicDefaults) => {
+    const {url, method, requestData, config} = Object.assign({}, params, jsonicDefaults)
+    console.log(params)
+    return { data: await b8r.json(url, method, requestData, config ) }
+  }
+})
+console.log({jsonic})
+Test(() => jsonic).shouldShareConstructor(async () => {})
+Test(() => jsonic({url: 'documentation.json'}).then(({data}) => data.length)).shouldBe(9)
+
+window.mult = mult
 ~~~~
 */
-function _monadic({defaultIn, defaultOut, func}) {
-  const isAsync = func.constructor === (async () => {}).constructor
-  const monad = isAsync ?
-    async input => {
+
+const monadicArgs = Object.freeze({
+  defaultInput: {},
+  inputType: {},
+  outputType: {},
+  func: obj => obj
+})
+export function monadic (config = monadicArgs, ...extraArgs) {
+  if (config === monadicArgs) {
+    return new Error('monadic was called with no arguments')
+  }
+  let { defaultInput, inputType, outputType, func } = Object.assign({}, monadicArgs, config)
+  if (defaultInput && !Object.keys(inputType).length) {
+    inputType = deepClone(defaultInput)
+  }
+  if (config instanceof Error) {
+    return config
+  } else if (
+    !inputType || !outputType ||
+    typeof inputType !== 'object' || typeof outputType !== 'object' ||
+    typeof func !== 'function'
+  ) {
+    console.error('monadic received', config)
+    return new Error('monadic should be passed {defaultInput: {}, inputType: {}, outputType:{}, func(){}}')
+  } else if (extraArgs.length) {
+    return new Error('monadic received more than one argument')
+  }
+  const monad = isAsync(func)
+    ? async (input = {}, ...extraArgs) => {
       input = await input
       if (input instanceof Error) {
         return Error
       }
-      if(defaultIn) {
-        const inputErrors = matchType(defaultIn, input)
+      input = Object.assign({}, defaultInput, input)
+      if (extraArgs.length) {
+        return new Error('monad received more than one argument')
+      } else if (!input || typeof input !== 'object') {
+        return new Error('monad non-object argument')
+      }
+      if (inputType) {
+        const inputErrors = matchType(inputType, input)
         if (inputErrors.length) {
           const errorString = 'input error: ' + inputErrors.join(', ')
           console.error(errorString)
@@ -761,11 +927,11 @@ function _monadic({defaultIn, defaultOut, func}) {
       }
       const output = await func(Object.assign(
         {},
-        defaultIn,
+        defaultInput,
         input
       ))
-      if (defaultOut) {
-        const outputErrors = matchType(defaultOut, output)
+      if (outputType) {
+        const outputErrors = matchType(outputType, output)
         if (outputErrors.length) {
           const errorString = 'output error: ' + outputErrors.join(', ')
           console.error(errorString)
@@ -773,49 +939,41 @@ function _monadic({defaultIn, defaultOut, func}) {
         }
       }
       return output
-    } :
-    input => {
+    }
+    : (input, ...extraArgs) => {
       if (input instanceof Error) {
         return Error
       }
-      if(defaultIn) {
-        const inputErrors = matchType(defaultIn, input)
+      input = Object.assign({}, defaultInput, input)
+      if (extraArgs.length) {
+        return new Error('monad received more than one argument')
+      } else if (!input || typeof input !== 'object') {
+        return new Error('monad non-object argument')
+      }
+      if (inputType) {
+        const inputErrors = matchType(inputType, input)
         if (inputErrors.length) {
           return new Error('input error: ' + inputErrors.join(', '))
         }
       }
-      const output = func(Object.assign(
-        {},
-        defaultIn,
-        input
-      ))
-      if (defaultOut) {
-        const outputErrors = matchType(defaultOut, output)
+      const output = func(input)
+      if (outputType) {
+        const outputErrors = matchType(outputType, output)
         if (outputErrors.length) {
           return new Error('output error: ' + outputErrors.join(', '))
         }
       }
       return output
     }
-  
-  monad.type = { 
+
+  monad.type = {
     isAsync,
-    defaultIn: describeType(defaultIn), 
-    defaultOut: describeType(defaultOut),
-    description: `${isAsync ? 'async ': ''}` + 
-      `(${JSON.stringify(describeType(defaultIn), false, 2)}) => ` +
-      `${JSON.stringify(describeType(defaultOut), false, 2)}`
+    inputType: describeType(inputType),
+    outputType: describeType(outputType),
+    description: `${isAsync ? 'async ' : ''}` +
+      `(${JSON.stringify(describeType(inputType), false, 2)}) => ` +
+      `${JSON.stringify(describeType(outputType), false, 2)}`
   }
-    
+
   return monad
 }
-
-export const monadic = _monadic({
-  defaultIn: {
-    defaultIn: '#?object',
-    defaultOut: '#?object',
-    func: '#union function||async'
-  },
-  defaultOut: '#union function||async',
-  func: _monadic
-})

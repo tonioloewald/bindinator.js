@@ -183,7 +183,7 @@ console.debug = debug
 
 // unique tokens passed to set by path to delete or create properties
 
-import {id} from './uuid.js'
+import { id } from './uuid.js'
 
 const _delete_ = {}
 const _newObject_ = {}

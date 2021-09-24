@@ -23,5 +23,20 @@
     } catch(e) {
       window.location = 'import.html'
     }
+
+    window.dump = (obj) => {
+      const w = window.open()
+      const pre = w.document.createElement('pre')
+      pre.innerText = JSON.stringify(obj, null, 2)
+      w.document.body.append(pre)
+    }
+
+    window.descrbeB8r = () => {
+      const _b8r = Object.assign({}, b8r)
+      delete _b8r.reg
+      const description = b8r.describeType(_b8r)
+      const text = JSON.stringify(description, null, 2)
+      dump(text)
+    }
   </script>
 </html>
