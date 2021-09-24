@@ -431,8 +431,8 @@ export const specificTypeMatch = (type, subject) => {
   }
 }
 
-const functionDeclaration = /^(function)?\s*\((.*?)\)\s*(=>)?\s*\{/
-const arrowDeclaration = /^((\w+)|\((.*?)\))\s*=>\s*[^\s{]/
+const functionDeclaration = /^((async\s+)?function)?\s*\((.*?)\)\s*(=>)?\s*\{/
+const arrowDeclaration = /^((\.\.\.\w+)|(\w+)|\((.*?)\))\s*=>\s*[^\s{]/
 const returnsValue = /\w+\s*=>\s*[^\s{]|\breturn\b/
 
 export const describeType = (x) => {
@@ -453,14 +453,14 @@ export const describeType = (x) => {
       if (source.startsWith('class ')) {
         return 'class'
       }
-      if (source === 'function () { [native code] }') {
+      if (source.endsWith('() { [native code] }')) {
         return `native ${scalarType}`
       }
       const functionSource = source.match(functionDeclaration)
       const arrowSource = source.match(arrowDeclaration)
       const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration)
-      const paramText = ((functionSource && functionSource[2]) ||
-          (arrowSource && (arrowSource[2] || arrowSource[3])) || '').trim()
+      const paramText = ((functionSource && functionSource[3]) ||
+          (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim()
       const params = paramText.split(',').map(param => {
         const [key, value] = param.split('=')
         let type
@@ -780,8 +780,8 @@ function tsFunctionType (func, name) {
   const functionSource = source.match(functionDeclaration)
   const arrowSource = source.match(arrowDeclaration)
   const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration)
-  const paramText = ((functionSource && functionSource[2]) ||
-      (arrowSource && (arrowSource[2] || arrowSource[3])) || '').trim()
+  const paramText = ((functionSource && functionSource[3]) ||
+      (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim()
   const params = paramText ? paramText.split(',').map(param => {
     const [key, value] = param.split('=')
     let type
@@ -806,7 +806,7 @@ function tsFunctionType (func, name) {
 }
 
 export function tsDeclaration (module) {
-  const members = Object.keys(module)
+  const members = Object.keys(module).sort()
   return members.map(name => {
     const member = module[name]
     if (typeof member === 'function') {
