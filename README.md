@@ -6,8 +6,7 @@
   >
 </div>
 
-[bindinator.com](http://bindinator.com/) |
-[Demo (github pages)](https://tonioloewald.github.io/bindinator.js/) |
+[b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
 [npm](https://www.npmjs.com/package/@tonioloewald/b8r) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
