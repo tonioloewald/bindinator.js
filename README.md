@@ -11,20 +11,25 @@
 [npm](https://www.npmjs.com/package/@tonioloewald/b8r) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
-## The lazy JavaScript framework.
+# b8r's Principle of Laziness
 
-*Laziness drives every design decision in b8r*. 
+- write less code
+- that runs as written
+- is easier to read
+- easier to debug
+- quicker to test
+- has fewer bugs (bugs  > k.loc)
+- that loads faster
+- uses less memory
+- runs faster
 
-- Get more done with less code.
-- You won't have to wait for "compiles" or "transpiles"; debug the code you wrote
-- Or learn new domain-specific languages.
-- Or learn a templating language.
-- Or install and learn a special, crappy debugger, use the existing one you know.
-- Or write (and review and maintain) boilerplate (almost none!)
-- Or worry about state management — `b8r` does that for you
-- Or write lots of "getters" or "selectors" — `b8r` does that for you
-- Or worry about code-splitting — `b8r` is deeply async and deeply lazy
-- Or pass values through hierarchies, send them direct (where appropriate)
+Do *less* work. Get smaller, faster, cheaper results. 
+
+Wait what? It's not that you can't pick all three from "good, fast, cheap", it's
+that you're operating within a better framework (philosophy, not
+code library).
+
+*Laziness drives every design decision in b8r*.
 
 And `b8r` is lazy too.
 
@@ -32,7 +37,7 @@ And `b8r` is lazy too.
 parse HTML).
 - Nor implement a new templating language.
 - Nor require special debugging tools, leverage the existing debug tools. 
-- Or add zillions of runtime dependencies. Actually, it doesn't add any.
+- Or add zillions of runtime dependencies. Actually, *it doesn't add any*.
 
 ## Basic Principles
 ### Put data into b8r's registry to bind it to a path
