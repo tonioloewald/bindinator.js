@@ -8187,6 +8187,7 @@ b8r.insertComponent = async function (component, element, data) {
     typeof component.initialValue === 'function'
       ? await component.initialValue({
         b8r,
+        data,
         get,
         set,
         touch,
