@@ -462,17 +462,8 @@ export const describeType = (x) => {
       const paramText = ((functionSource && functionSource[3]) ||
           (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim()
       const params = paramText.split(',').map(param => {
-        const [key, value] = param.split('=')
-        let type
-        if (value) {
-          try {
-            /* eslint-disable no-eval */
-            type = describeType(eval(value))
-          } catch {
-            type = 'any'
-          }
-        }
-        return value ? `${key} :#?${type}` : `${key} #any`
+        const [key] = param.split('=')
+        return `${key} #any`
       })
       return `${scalarType} ( ${params.join(', ')} ) => ${hasReturnValue ? '#any' : '#nothing'}`
     }
@@ -783,22 +774,8 @@ function tsFunctionType (func, name) {
   const paramText = ((functionSource && functionSource[3]) ||
       (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim()
   const params = paramText ? paramText.split(',').map(param => {
-    const [key, value] = param.split('=')
-    let type
-    if (value) {
-      try {
-        /* eslint-disable no-eval */
-        if (!eval(value)) {
-          console.log(value, eval(value))
-        }
-        type = tsDescribe(eval(value))
-      } catch {
-        type = 'any'
-      }
-    } else {
-      type = 'any'
-    }
-    return `${key.trim()}: ${type}`
+    const [key] = param.split('=')
+    return `${key.trim()}: any`
   }) : []
   return name
     ? `${isAsync(func) ? 'async ' : ''}function ${name} (${params.join(', ')}): ${hasReturnValue ? 'any' : 'void'}`
