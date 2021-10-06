@@ -207,12 +207,13 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
       const value = this.value >= 0 && this.value <= this._bodies.length
         ? this.value
         : 0
-      const closeButtonDisplay = this.closeable || body.hasAttribute('data-closeable') ? '' : 'none'
+      const closeButtonDisplay = this.closeable ? '' : 'none'
       this._bodies.forEach((body, idx) => {
         const selected = parseInt(idx, 10) === parseInt(value, 10)
         body.style.display = selected ? '' : 'none'
         body._tab.classList.toggle('selected', selected)
-        body._tab.querySelector('button').style.display = closeButtonDisplay
+        body._tab.querySelector('button').style.display = closeButtonDisplay ||
+          (body.hasAttribute('data-closeable'))
       })
     }
   },
