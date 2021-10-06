@@ -74,8 +74,138 @@ var b8r = (function () {
   ~~~~
   */
 
-  const now36 = () => new Date(parseInt('1000000000', 36) + Date.now()).valueOf().toString(36).slice(1);
   const { crypto } = window;
+
+  /*
+    Polyfill for crypto.randomUUID, taken from here:
+    https://github.com/uuidjs/randomUUID/blob/main/randomUUID.js
+  */
+  class ERR_INVALID_ARG_TYPE extends TypeError {
+    constructor (name, type, value) {
+      super(`${name} variable is not of type ${type} (value: '${value}')`);
+
+      this.code = 'ERR_INVALID_ARG_TYPE';
+    }
+  }
+
+  //
+  // internal/validators
+  //
+
+  function validateBoolean (value, name) {
+    if (typeof value !== 'boolean') throw new ERR_INVALID_ARG_TYPE(name, 'boolean', value)
+  }
+
+  function validateObject (value, name) {
+    if (value === null || Array.isArray(value) || typeof value !== 'object') {
+      throw new ERR_INVALID_ARG_TYPE(name, 'Object', value)
+    }
+  }
+
+  //
+  // crypto
+  //
+
+  const randomFillSync = crypto.getRandomValues.bind(crypto);
+
+  // Implements an RFC 4122 version 4 random UUID.
+  // To improve performance, random data is generated in batches
+  // large enough to cover kBatchSize UUID's at a time. The uuidData
+  // and uuid buffers are reused. Each call to randomUUID() consumes
+  // 16 bytes from the buffer.
+
+  const kHexDigits = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102];
+
+  const kBatchSize = 128;
+  let uuidData;
+  let uuidNotBuffered;
+  let _uuid;
+  let uuidBatch = 0;
+
+  function getBufferedUUID () {
+    if (uuidData === undefined) {
+      uuidData = new Uint8Array(16 * kBatchSize);
+    }
+
+    if (uuidBatch === 0) randomFillSync(uuidData);
+    uuidBatch = (uuidBatch + 1) % kBatchSize;
+    return uuidData.slice(uuidBatch * 16, uuidBatch * 16 + 16)
+  }
+
+  function randomUUID (options) {
+    if (options !== undefined) validateObject(options, 'options');
+    const { disableEntropyCache = false } = { ...options };
+
+    validateBoolean(disableEntropyCache, 'options.disableEntropyCache');
+
+    if (_uuid === undefined) {
+      _uuid = new Uint8Array(36);
+      _uuid[8] = _uuid[13] = _uuid[18] = _uuid[23] = '-'.charCodeAt(0);
+      _uuid[14] = 52; // '4', identifies the _uuid version
+    }
+
+    let uuidBuf;
+    if (!disableEntropyCache) {
+      uuidBuf = getBufferedUUID();
+    } else {
+      uuidBuf = uuidNotBuffered;
+      if (uuidBuf === undefined) uuidBuf = uuidNotBuffered = new Uint8Array(16);
+      randomFillSync(uuidBuf);
+    }
+
+    // Variant byte: 10xxxxxx (variant 1)
+    uuidBuf[8] = (uuidBuf[8] & 0x3f) | 0x80;
+
+    // This function is structured the way it is for performance.
+    // The _uuid buffer stores the serialization of the random
+    // bytes from uuidData.
+    // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    let n = 0;
+    _uuid[0] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[1] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[2] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[3] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[4] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[5] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[6] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[7] = kHexDigits[uuidBuf[n++] & 0xf];
+    // -
+    _uuid[9] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[10] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[11] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[12] = kHexDigits[uuidBuf[n++] & 0xf];
+    // -
+    // 4, _uuid[14] is set already...
+    _uuid[15] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[16] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[17] = kHexDigits[uuidBuf[n++] & 0xf];
+    // -
+    _uuid[19] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[20] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[21] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[22] = kHexDigits[uuidBuf[n++] & 0xf];
+    // -
+    _uuid[24] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[25] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[26] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[27] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[28] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[29] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[30] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[31] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[32] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[33] = kHexDigits[uuidBuf[n++] & 0xf];
+    _uuid[34] = kHexDigits[uuidBuf[n] >> 4];
+    _uuid[35] = kHexDigits[uuidBuf[n] & 0xf];
+
+    return String.fromCharCode.apply(null, _uuid)
+  }
+
+  if (!crypto.randomUUID) {
+    crypto.randomUUID = randomUUID;
+  }
+
+  const now36 = () => new Date(parseInt('1000000000', 36) + Date.now()).valueOf().toString(36).slice(1);
 
   const randId = (length, base = 36) => {
     const squared = base * base;
@@ -86,7 +216,7 @@ var b8r = (function () {
 
   const id = () => now36() + randId(11);
 
-  const uuid = () => crypto.randomUUID();
+  const uuid = crypto.randomUUID.bind(crypto);
 
   /**
   # Object Path Methods
@@ -1817,7 +1947,7 @@ var b8r = (function () {
   # Type Checking, Mocks By Example
 
   The goal of this module is to provide simple, effective type-checking "by example" -- i.e. in
-  most cases an example of a type can function as a type.
+  common cases an example of a type can function as a type.
 
   Certain specialized types — enumerations in particular — are supported in a way that still allows types
   to be encoded as JSON. These types are specified using a string starting with a '#'. (It follows that
@@ -1867,7 +1997,7 @@ var b8r = (function () {
   Some specific types can be defined using strings that start with '#'. (It follows that you should not
   use strings starting with '#' as type examples.)
 
-  `specficTypeMatch` is the function that evaluates matches against specific types. (Typically you
+  `specficTypeMatch` is the function that evaluates values against specific types. (Typically you
   won't use it directly, but use matchType instead.)
 
       specificTypeMatch('#int [0,10]', 5) === true   // 0 ≤ 5 ≤ 10
@@ -1900,6 +2030,27 @@ var b8r = (function () {
 
   You can specify just a lower bound or just an upper bound, e.g. '#number (0' specifies a positive
   number.
+
+  ### #union
+
+      specificTypeMatch('#union string||int', 0)                            === true
+      specificTypeMatch('#union string||int', 'hello')                      === true
+      specificTypeMatch('#union string||int', true)                         === false
+
+  You can specify a union type using #union followed by a '||'-delimited list of allowed
+  types. (Why '||'? '|' is quite common in regular expressions and you might want to use
+  a regex specified string type as an option.)
+
+  ### #map
+
+      specificTypeMatch('#map int', {foo: 17, bar: 25})                     === true
+      specificTypeMatch('#map int', {foo: 17, bar: '25'})                   === false
+      specificTypeMatch('#map union string||int', {foo: 17, bar: '25'})     === true
+
+  It's very common in Javascript to expect an object to simply be a sack of labelled values
+  of a certain type or types, e.g. you might represent a set of element styles as a map
+  from property names to their (string) values. Since the keys in a Javascript object are
+  strings (barring pathological cases) `#map`-types only specify the value type.
 
   ### #any
 
@@ -2025,6 +2176,22 @@ var b8r = (function () {
     .shouldBeJSON([])
   Test(() => matchType('#instance HTMLElement', {}))
     .shouldBeJSON(["was object, expected #instance HTMLElement"])
+  Test(() => matchType('#union string||int', 'foo')).shouldBeJSON([])
+  Test(() => matchType('#union string||int', 17)).shouldBeJSON([])
+  Test(() => matchType('#union string||int', null)).shouldBeJSON([
+    "was null, expected #union string||int"
+  ])
+  Test(() => matchType('#union string||int', false)).shouldBeJSON( [
+    "was false, expected #union string||int"
+  ])
+  Test(() => matchType('#?union string||int', null)).shouldBeJSON([])
+  Test(() => matchType('#?union string||int', 17)).shouldBeJSON([])
+
+  Test(() => matchType('#map int', {foo: 17, bar: -1}).length).shouldBe(0)
+  Test(() => matchType('#map int', {foo: 17.5, bar: -1}).length).shouldBe(1)
+  Test(() => matchType('#map number', {foo: 17.5, bar: -1}).length).shouldBe(0)
+  Test(() => matchType('#map union int||string', {foo: 'hello', bar: -1}).length).shouldBe(0)
+  Test(() => matchType('#map int', {}).length).shouldBe(0)
 
   const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
   Test(() => matchType(requestType, 'post'))
@@ -2085,6 +2252,8 @@ var b8r = (function () {
   and here any overhead is insignificant compared with network or I/O.
   */
 
+  const isAsync = func => func && func.constructor === (async () => {}).constructor;
+
   const describe = x => {
     if (x === null) return 'null'
     if (Array.isArray(x)) return 'array'
@@ -2092,6 +2261,12 @@ var b8r = (function () {
       if (isNaN(x)) return 'NaN'
     }
     if (typeof x === 'string' && x.startsWith('#')) return x
+    if (x instanceof Promise) return 'promise'
+    if (typeof x === 'function') {
+      return x.constructor === (async () => {}).constructor
+        ? 'async'
+        : 'function'
+    }
     return typeof x
   };
 
@@ -2146,6 +2321,14 @@ var b8r = (function () {
     switch (baseType) {
       case 'any':
         return subject !== null && subject !== undefined
+      case 'native':
+        if (typeof subject !== 'function' || subject.toString() !== 'function () { [native code] }') {
+          return false
+        }
+        if (!type) {
+          return true
+        }
+        return isAsync(subject) ? type.match(/^async\b/) : type.match(/^function\b/)
       case 'function':
         if (subjectType !== 'function') return false
         // todo allow for typeSafe functions with param/result specified by name
@@ -2156,28 +2339,46 @@ var b8r = (function () {
       case 'int':
         if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
         return inRange(spec, subject)
+      case 'union':
+        return !!spec.split('||').find(type => specificTypeMatch(`#${type}`, subject))
       case 'enum':
         try {
           return spec.split('|').map(JSON.parse).includes(subject)
         } catch (e) {
           throw new Error(`bad enum specification (${spec}), expect JSON strings`)
         }
+      case 'void':
+        return subjectType === 'undefined' || subjectType === 'null'
+      case 'nothing':
+        return subjectType === 'undefined'
+      case 'string':
+        return subjectType === 'string'
       case 'regexp':
         return subjectType === 'string' && regexpTest(spec, subject)
       case 'array':
         return Array.isArray(subject)
       case 'instance':
         return subject instanceof window[spec]
+      case 'promise':
+        return subject instanceof Promise
+      case 'map':
+        return !!subject && typeof subject === 'object' && !Array.isArray(subject) &&
+            !Object.values(subject).find(v => !specificTypeMatch(`#${spec}`, v))
       case 'object':
         return !!subject && typeof subject === 'object' && !Array.isArray(subject)
       default:
         if (subjectType !== baseType) {
-          throw new Error(`unrecognized type specifier ${type}`)
+          console.error('got', subject, `expected "${type}", "${subjectType}" does not match "${baseType}"`);
+          return false
         } else {
           return true
         }
     }
   };
+
+  const functionDeclaration = /^((async\s+)?function)?\s*\((.*?)\)\s*(=>)?\s*\{/;
+  const arrowDeclaration = /^((\.\.\.\w+)|(\w+)|\((.*?)\))\s*=>\s*[^\s{]/;
+  const returnsValue = /\w+\s*=>\s*[^\s{]|\breturn\b/;
 
   const describeType = (x) => {
     const scalarType = describe(x);
@@ -2189,6 +2390,27 @@ var b8r = (function () {
         const _type = {};
         Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]); });
         return _type
+      }
+      case 'function':
+      case 'async':
+      {
+        const source = x.toString();
+        if (source.startsWith('class ')) {
+          return 'class'
+        }
+        if (source.endsWith('() { [native code] }')) {
+          return `native ${scalarType}`
+        }
+        const functionSource = source.match(functionDeclaration);
+        const arrowSource = source.match(arrowDeclaration);
+        const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration);
+        const paramText = ((functionSource && functionSource[3]) ||
+            (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim();
+        const params = paramText.split(',').map(param => {
+          const [key] = param.split('=');
+          return `${key} #any`
+        });
+        return `${scalarType} ( ${params.join(', ')} ) => ${hasReturnValue ? '#any' : '#nothing'}`
       }
       default:
         return scalarType
@@ -2363,7 +2585,7 @@ var b8r = (function () {
   ~~~~
    */
 
-  class TypeError {
+  class TypeError$1 {
     constructor ({
       functionName,
       isParamFailure,
@@ -2409,7 +2631,7 @@ var b8r = (function () {
 
   const matchParamTypes = (types, params) => {
     for (let i = 0; i < params.length; i++) {
-      if (params[i] instanceof TypeError) {
+      if (params[i] instanceof TypeError$1) {
         return params[i]
       }
     }
@@ -2419,14 +2641,20 @@ var b8r = (function () {
 
   // TODO async function support
 
-  const _typeSafe = (func, paramTypes = [], resultType = undefined, functionName = undefined) => {
+  const typeSafe = (func, paramTypes = [], resultType = undefined, functionName = undefined) => {
+    const paramErrors = matchParamTypes(
+      ['#function', '#?array', '#?any', '#?string'],
+      [func, paramTypes, resultType, functionName]
+    );
+    if (paramErrors instanceof TypeError$1) return paramErrors
+
     if (!functionName) functionName = func.name || 'anonymous';
     let callCount = 0;
     return assignReadOnly(function (...params) {
       callCount += 1;
       const paramErrors = matchParamTypes(paramTypes, params);
       // short circuit failures
-      if (paramErrors instanceof TypeError) return paramErrors
+      if (paramErrors instanceof TypeError$1) return paramErrors
 
       if (paramErrors.length === 0) {
         const result = func(...params);
@@ -2434,7 +2662,7 @@ var b8r = (function () {
         if (resultErrors.length === 0) {
           return result
         } else {
-          return new TypeError({
+          return new TypeError$1({
             functionName,
             isParamFailure: false,
             expected: resultType,
@@ -2443,7 +2671,7 @@ var b8r = (function () {
           })
         }
       }
-      return new TypeError({
+      return new TypeError$1({
         functionName,
         isParamFailure: true,
         expected: paramTypes,
@@ -2457,10 +2685,63 @@ var b8r = (function () {
     })
   };
 
-  const typeSafe = _typeSafe(_typeSafe, ['#function', '#?array', '#?any', '#?string'], '#function');
+  function tsDescribe (x, name) {
+    const b8rType = describe(x);
+    switch (b8rType) {
+      case 'array':
+        return `Array<${x.length ? tsDescribe(x[0]) : 'any'}>`
+      case 'object':
+        return `{${
+        Object.keys(x).map(key => `${key}: ${tsDescribe(x[key], null)}`).join(', ')
+      }}`
+      case 'null':
+      case 'undefined':
+        return 'any'
+      default:
+        switch (describeType(x).split(' ')[0]) {
+          case 'class':
+            return `class ${name || ''} { constructor(...args: any[]) }`
+          case 'async':
+          case 'function':
+            return tsFunctionType(x, name)
+          case 'native':
+            return `function ${name} (...args:any[]): any  /* native */`
+        }
+        return b8rType
+    }
+  }
+
+  function tsFunctionType (func, name) {
+    const source = func.toString();
+    const functionSource = source.match(functionDeclaration);
+    const arrowSource = source.match(arrowDeclaration);
+    const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration);
+    const paramText = ((functionSource && functionSource[3]) ||
+        (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim();
+    const params = paramText ? paramText.split(',').map(param => {
+      const [key] = param.split('=');
+      return `${key.trim()}: any`
+    }) : [];
+    return name
+      ? `${isAsync(func) ? 'async ' : ''}function ${name} (${params.join(', ')}): ${hasReturnValue ? 'any' : 'void'}`
+      : `(${params.join(', ')}) => ${hasReturnValue ? 'any' : 'void'}`
+  }
+
+  function tsDeclaration (module) {
+    const members = Object.keys(module).sort();
+    return members.map(name => {
+      const member = module[name];
+      if (typeof member === 'function') {
+        return `declare ${tsDescribe(member, name)}`
+      } else {
+        return `declare const ${name}: ${tsDescribe(member)}`
+      }
+    }).join('\n')
+  }
 
   var _byExample = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    isAsync: isAsync,
     describe: describe,
     specificTypeMatch: specificTypeMatch,
     describeType: describeType,
@@ -2468,9 +2749,10 @@ var b8r = (function () {
     typeJS: typeJS,
     matchType: matchType,
     exampleAtPath: exampleAtPath,
-    TypeError: TypeError,
+    TypeError: TypeError$1,
     matchParamTypes: matchParamTypes,
-    typeSafe: typeSafe
+    typeSafe: typeSafe,
+    tsDeclaration: tsDeclaration
   });
 
   /**
@@ -2701,26 +2983,60 @@ var b8r = (function () {
 
       const f = new b8r.AsyncFunction(...args, code)
 
-  Utility functions for preventing a method from being called too frequently.
-  Not recommended for use on methods which take arguments!
+  > ### A note for test failures
+  >
+  > Many of the tests in this library are highly sensitive to background processing
+  > (since they're async tests based on delays in a non-pre-emptive context). So, if
+  > a test fails, check if it calls `delay()`, and maybe run it a few more times.
 
-      b8r.debounce(method, minInterval_ms) => debounced function
+  Utility functions for preventing a method from being called too frequently.
+
+  ### debounce(func, delayMs)
+
+  The idea of a debounced function is that it won't get called until you stop calling it
+  for a certain amount of time. And *the last call always goes through*. So if you're
+  trying to respond to user input with an expensive operation, but it's important that
+  the last thing the user does is accounted for, use debounce.
+
+      b8r.debounce(method, delayMs) => debounced function
 
   From a function `f`, create a function that will call f after the provided interval has passed,
   the interval being reset if the function is called again.
 
   E.g. you want to call a query "as the user types" but don't want to call until the user pauses
-  typing for a while or at least has a chance to type a few keys.
+  typing for a while or at least has a chance to type a few keys. This is also a case where
+  responding immediately is actually a bad thing (e.g. when a user starts typing in a search
+  field, they typically don't want to search for the first character they type, so waiting a
+  fraction of a second after the user types something before calling a query makes the
+  user interface *more* responsive *and* saves bandwidth.)
 
-  > A debounced method will call the original function at least once after the debounced version is
-  called.
+  > A debounced function won't fire until it stops being called for a while.
+  > The last call to a debounced function always goes through.
 
-      b8r.throttle(method, minInterval_ms) => throttled function
+  ### throttle(func, delayMs)
+
+  The idea of a throttled function is that you want to respond to something immediately, but
+  if it happens repeatedly, you don't want to thrash it, and it's not critically important
+  to process the final situation, so if several calls are made in quick succession, all but
+  the first are skipped.
+
+      b8r.throttle(method, intervalMs) => throttled function
 
   From a function `f`, create a function that will call f if and only if the function hasn't
   been called in the last interval.
 
-  > If you call f several times within the specified interval, *only the first call will fire*.
+  > If you call a throttled function several times in quick succession, all but the
+  > first call will be skipped. If you're working with data, throttled functions are
+  > almost always a bad idea since you may skip the last thing that happened. So,
+  > use throttleAndDebounce (below).
+
+  ### throttleAndDebounce(func, intervalMs)
+
+  The best of both worlds is often to throttle AND debounce a function. This way it responds
+  to the first call immediately, but also to the final call. A good case for using
+  this is to handle cosmetic user-interface actions (e.g. scrolling) where it's important
+  to react quickly, and it's important to finish in the right place, but handling every
+  single intermediate call is really not relevant.
 
       b8r.throttleAndDebounce(method, minInterval_ms) => throttled and debounced function
 
@@ -2737,88 +3053,109 @@ var b8r = (function () {
   the value specified (null by default).
 
   ~~~~
-  // title: throttle and debounce tests
-
+  // title: throttle, debounce, and throttleAndDebounce tests
   const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
 
-  Test(async () => {
-    const failures = []
-    const delayMs = Math.random() * 1000 + 1000
-    let outcome
-    outcome = await delay(delayMs, 'foo')
-    if(outcome !== 'foo') failures.push('expected "foo" to be passed through')
-    const start = Date.now()
-    outcome = await delay(delayMs)
-    if(Date.now() - start - delayMs > 50) failures.push(`delay should be roughly ${delayMs}ms, was ${Date.now() - start}ms`)
-    return failures
-  }, 'delay works').shouldBeJSON([])
+  await delay(1000)
 
-  Test(async () => {
-    const outcomes = []
-    const boing = debounce((x) => { outcomes.push(x) }, 100)
-    const failures = []
+  const start = Date.now()
+  const outerA = []
+  const outerB = []
+  const outerC = []
+  const throttled = b8r.throttle(a => { outerA.push(a) }, 1000)
+  const debounced = b8r.debounce(b => { outerB.push(b) }, 1000)
+  const bothed = b8r.throttleAndDebounce(c => { outerC.push(c) }, 1000)
 
-    boing(1)
-    boing(2)
-    boing(3)
-    if(outcomes.length > 0) failures.push('no boing should have fired yet')
-    await delay(1000)
-    if(outcomes[0] !== 3) failures.push('boing(3) should have fired first')
-    boing(4)
-    boing(5)
-    if(outcomes.length > 1) failures.push('only one boing should have fired')
-    await delay(130)
-    if(outcomes[1] !== 5) failures.push('boing(5) should have fired second')
-    await delay(130)
-    await delay(200)
-    if(outcomes.length > 2) failures.push('only two boings should ever fire')
-    return failures
-  }, 'debounce works').shouldBeJSON([])
+  throttled(1)
+  throttled(2)
+  throttled(3)
+  debounced(1)
+  debounced(2)
+  debounced(3)
+  bothed(1)
+  bothed(2)
+  bothed(3)
 
-  Test(async () => {
-    const outcomes = []
-    const buzz = throttle((x) => {
-      outcomes.push(x)
-    }, 100)
-    const failures = []
+  await delay(500)
 
-    buzz(1)
-    buzz(2)
-    buzz(3)
-    if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
-    await delay(130)
-    if(outcomes.length !== 1) failures.push('no more buzzes should have fired')
-    buzz(4)
-    buzz(5)
-    if(outcomes[1] !== 4 || outcomes.length !== 2) failures.push('buzz(4) should have fired second')
-    await delay(200)
-    if(outcomes.length > 2) failures.push('only two buzzes should ever fire')
-    return failures
-  }, 'throttle works').shouldBeJSON([])
+  // throttled(1) fired immediately
+  // throttled(2) and throttled(3) were skipped
+  // debounced(1) and debounced(2)
+  // debounced(3) will fire at 100
+  // bothed(1) fired immediately
+  // bothed(2) was skipped
+  // bothed(3) will fire at 1000
 
-  Test(async () => {
-    const outcomes = []
-    const buzz = throttleAndDebounce((x) => {
-      outcomes.push(x)
-    }, 100)
-    const failures = []
-    buzz(1)
-    buzz(2)
-    buzz(3)
-    if(outcomes[0] !== 1 || outcomes.length !== 1) failures.push('only buzz(1) should have fired')
-    await delay(130)
-    if(outcomes[1] !== 3 || outcomes.length !== 2) failures.push('buzz(3) should have fired via debounce')
-    buzz(4)
-    if(outcomes[2] !== 4 || outcomes.length !== 3) failures.push('buzz(4) should have fired immediately')
-    buzz(5)
-    buzz(6)
-    await delay(200)
-    if(outcomes[3] !== 6 || outcomes.length !== 4) failures.push('buzz(6) should have fired via debounce')
-    await delay(200)
-    if(outcomes.length > 4) failures.push('no more buzzes should have fired')
-    return failures
-  }, 'throttleAndDebounce works').shouldBeJSON([])
+  await Test(outerA, 'throttled calls').shouldBeJSON([1])
+  await Test(outerB, 'debounced calls').shouldBeJSON([])
+  await Test(outerC, 'throttled and debounced calls').shouldBeJSON([1])
+
+  await delay(1000) // 1500ms elapsed
+
+  // throttled(3) fired at 1000
+  // debounced(3) fired at 1000
+  // bothed(3) fired at 1000
+
+  await Test(outerA, 'throttled calls').shouldBeJSON([1])
+  await Test(outerB, 'debounced calls').shouldBeJSON([3])
+  await Test(outerC, 'throttled and debounced calls').shouldBeJSON([1,3])
+
+  debounced(4)
+  bothed(4)
+  throttled(4)
+  debounced(5)
+  bothed(5)
+  throttled(5)
+  debounced(6)
+  bothed(6)
+  throttled(6)
+
+  await delay(1000) // 2500ms elapsed
+
+  // throttled(4) fired at 1500
+  // throttled(5) was skipped
+  // debounced(4) and debounced(5) were skipped
+  // debounced(6) fired at 2000
+  // bothed(4) and bothan(5) were skipped
+  // both(6) fired at 2000
+
+  Test(outerA, 'throttled calls').shouldBeJSON([1,4])
+  Test(outerB, 'debounced calls').shouldBeJSON([3,6])
+  Test(outerC, 'throttled and debounced calls').shouldBeJSON([1,3,4,6])
   ~~~~
+  */
+
+  /**
+  ### Seeing it all in action
+
+  Here's a snippet of code to run in console to see exactly what's going on
+  with these meta-functions:
+
+      (async function () {
+        const start = Date.now()
+        const f = b8r.throttleAndDebounce((arg) => console.log('both', arg, arg - (Date.now() - start)), 500)
+        const g = b8r.debounce((arg) => console.log('debounce', arg, arg - (Date.now() - start)), 500)
+        const h = b8r.throttle((arg) => console.log('throttle', arg, arg - (Date.now() - start)), 500)
+        for(let i = 0; i < 20; i++) {
+          await b8r.delay(Math.random() * 500)
+          const elapsed = Date.now() - start
+          console.log(elapsed)
+          f(elapsed)
+          g(elapsed)
+          h(elapsed)
+        }
+        console.log('exited', Date.now() - start)
+      })()
+
+  In essence, if you run this, debounce will only fire once, at the end. The other two will fire
+  immediately and at regular intervals, but only throttleAndDebounce and debounce will fire
+  the last calls.
+
+  ### async delay(ms)
+
+      await delay(1000) // wait 1s
+
+  A simple utility function (mostly for testing).
   */
 
   const delay = (delayMs, value = null) => new Promise((resolve, reject) => {
@@ -2863,9 +3200,10 @@ var b8r = (function () {
         inFlight = true;
         try {
           origFn(...args);
-          inFlight = false;
           previousCall = Date.now();
-        } finally {}
+        } finally {
+          inFlight = false;
+        }
       }
     }
   };

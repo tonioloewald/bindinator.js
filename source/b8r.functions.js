@@ -155,9 +155,9 @@ with these meta-functions:
 
     (async function () {
       const start = Date.now()
-      const f = b8r.throttleAndDebounce((arg) => console.log('both', arg, arg - (Date.now() - start)), 500) 
-      const g = b8r.debounce((arg) => console.log('debounce', arg, arg - (Date.now() - start)), 500) 
-      const h = b8r.throttle((arg) => console.log('throttle', arg, arg - (Date.now() - start)), 500) 
+      const f = b8r.throttleAndDebounce((arg) => console.log('both', arg, arg - (Date.now() - start)), 500)
+      const g = b8r.debounce((arg) => console.log('debounce', arg, arg - (Date.now() - start)), 500)
+      const h = b8r.throttle((arg) => console.log('throttle', arg, arg - (Date.now() - start)), 500)
       for(let i = 0; i < 20; i++) {
         await b8r.delay(Math.random() * 500)
         const elapsed = Date.now() - start
@@ -169,7 +169,7 @@ with these meta-functions:
       console.log('exited', Date.now() - start)
     })()
 
-In essence, if you run this, debounce will only fire once, at the end. The other two will fire 
+In essence, if you run this, debounce will only fire once, at the end. The other two will fire
 immediately and at regular intervals, but only throttleAndDebounce and debounce will fire
 the last calls.
 
