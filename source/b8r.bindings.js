@@ -320,7 +320,7 @@ const parseBinding = binding => {
     throw new Error(`binding "${binding}" is missing = sign; probably need a source or target`)
   }
   const [, targetsRaw, path] =
-      binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim())
+      binding.trim().match(/^([^=]*?)=([^;]*)$/m).map(s => s.trim())
   const targets = targetsRaw.split(',').map(target => {
     var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/)
     if (!parts) {
