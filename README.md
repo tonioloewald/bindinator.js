@@ -18,12 +18,12 @@
 - is easier to read
 - easier to debug
 - quicker to test
-- has fewer bugs (bugs  > k.loc)
+- has fewer bugs (bugs > k &times; loc)
 - that loads faster
-- uses less memory
+- uses less memory, and thus…
 - runs faster
 
-Do *less* work. Get smaller, faster, cheaper results. 
+This is 360° laziness. *Everyone* does less work to get smaller, faster, cheaper results. 
 
 Wait what? It's not that you can't pick all three from "good, fast, cheap", it's
 that you're operating within a better framework (philosophy, not
