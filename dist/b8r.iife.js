@@ -1764,7 +1764,7 @@ var b8r = (function () {
       throw new Error(`binding "${binding}" is missing = sign; probably need a source or target`)
     }
     const [, targetsRaw, path] =
-        binding.trim().match(/^([^=]*)=([^;]*)$/m).map(s => s.trim());
+        binding.trim().match(/^([^=]*?)=([^;]*)$/m).map(s => s.trim());
     const targets = targetsRaw.split(',').map(target => {
       var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/);
       if (!parts) {
@@ -2041,16 +2041,31 @@ var b8r = (function () {
   types. (Why '||'? '|' is quite common in regular expressions and you might want to use
   a regex specified string type as an option.)
 
-  ### #map
+  ### #forbidden
 
-      specificTypeMatch('#map int', {foo: 17, bar: 25})                     === true
-      specificTypeMatch('#map int', {foo: 17, bar: '25'})                   === false
-      specificTypeMatch('#map union string||int', {foo: 17, bar: '25'})     === true
+  This type can be used for forbidding the presence of a property within an object
+  (it's not the same as `undefined`, e.g. `Object.assign({foo: 'bar'}, {foo: undefined})`
+  is not the same as `Object.assign({foo: 'bar'}, {})`. If nothing else, it can trap
+  mistyped property names.
 
-  It's very common in Javascript to expect an object to simply be a sack of labelled values
-  of a certain type or types, e.g. you might represent a set of element styles as a map
-  from property names to their (string) values. Since the keys in a Javascript object are
-  strings (barring pathological cases) `#map`-types only specify the value type.
+  It's particularly useful in conjunction with wildcard property specifiers, e.g. pointType
+  specifies an object with numerical properties `x` and `y` *and nothing else*.
+
+      pointType = {
+        x: 1.5,
+        y: 2.2,
+        '#.*': '#forbidden'
+      }
+
+  You can also enforce naming conventions, this type only allows properties that are
+  legal javascript variable names, but excludes those starting with underscore or
+  containing a '$' sign.
+
+      someType = {
+        '#(_.*|.*$.*)': '#forbidden',
+        '#': '#any',
+        '#.*': #forbidden'
+      }
 
   ### #any
 
@@ -2066,6 +2081,28 @@ var b8r = (function () {
   ### #?... — optional types
 
   You can denote an optional type using '#?<type>'. Both `null` and `undefined` are acceptable.
+
+  Inside objects, which applies to most type declarations, you can use the more convenient
+  and intuitive option of adding a `?` to the key, so:
+
+      const mightHaveFooType = {
+        foo: '#?number'
+      }
+
+  And:
+
+      const mightHaveFooType = {
+        'foo?': 17
+      }
+
+  ÔøΩare equivalent.
+
+  But, I hear you cry, what if I actually want a property named 'foo?' Well, I pity you,
+  but it's possible to do this using the syntax for declaring maps:
+
+      const definitelyHasFooQueryType = {
+        '#foo\\?': 17
+      }
 
   > #### More Types and Custom Types
   >
@@ -2139,7 +2176,7 @@ var b8r = (function () {
   Test(() => matchType({foo: 17, bar: 'hello'}, {foo: 0, bar: 17}))
     .shouldBeJSON([".bar was 17, expected string"])
   Test(() => matchType({foo: 17, bar: 'hello'}, {bar: 17}))
-    .shouldBeJSON([".bar was 17, expected string", ".foo was undefined, expected number"])
+    .shouldBeJSON([".foo was undefined, expected number", ".bar was 17, expected string"])
   Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: false}}}))
     .shouldBeJSON([])
   Test(() => matchType({foo: {bar: {baz: true}}}, {foo: {bar: {baz: 17}}}))
@@ -2186,12 +2223,6 @@ var b8r = (function () {
   ])
   Test(() => matchType('#?union string||int', null)).shouldBeJSON([])
   Test(() => matchType('#?union string||int', 17)).shouldBeJSON([])
-
-  Test(() => matchType('#map int', {foo: 17, bar: -1}).length).shouldBe(0)
-  Test(() => matchType('#map int', {foo: 17.5, bar: -1}).length).shouldBe(1)
-  Test(() => matchType('#map number', {foo: 17.5, bar: -1}).length).shouldBe(0)
-  Test(() => matchType('#map union int||string', {foo: 'hello', bar: -1}).length).shouldBe(0)
-  Test(() => matchType('#map int', {}).length).shouldBe(0)
 
   const requestType = '#enum "get"|"post"|"put"|"delete"|"head"'
   Test(() => matchType(requestType, 'post'))
@@ -2319,6 +2350,8 @@ var b8r = (function () {
     if (optional && (subject === null || subject === undefined)) return true
     const subjectType = describe(subject);
     switch (baseType) {
+      case 'forbidden':
+        return false
       case 'any':
         return subject !== null && subject !== undefined
       case 'native':
@@ -2361,9 +2394,6 @@ var b8r = (function () {
         return subject instanceof window[spec]
       case 'promise':
         return subject instanceof Promise
-      case 'map':
-        return !!subject && typeof subject === 'object' && !Array.isArray(subject) &&
-            !Object.values(subject).find(v => !specificTypeMatch(`#${spec}`, v))
       case 'object':
         return !!subject && typeof subject === 'object' && !Array.isArray(subject)
       default:
@@ -2499,12 +2529,176 @@ var b8r = (function () {
     }
   };
 
+  const legalVarName = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
   const matchKeys = (example, subject, errors = [], path = '') => {
-    for (const key of Object.keys(example).sort()) {
-      matchType(example[key], subject[key], errors, path + '.' + key);
+    const testedKeys = new Set();
+    for (const key of Object.keys(example)) {
+      if (key.startsWith('#')) {
+        let keyTest = legalVarName;
+        try {
+          if (key !== '#') {
+            keyTest = new RegExp(`^${key.substr(1)}$`);
+          }
+        } catch (e) {
+          const badKeyError = `illegal regular expression in example key '${key}'`;
+          errors.push(badKeyError);
+          console.error(badKeyError);
+        }
+        const matchingKeys = Object.keys(subject).filter(key => keyTest.test(key));
+        for (const k of matchingKeys) {
+          if (!testedKeys.has(k)) {
+            matchType(example[key], subject[k], errors, `${path}./^${key.substr(1)}$/:${k}`);
+            testedKeys.add(k);
+          }
+        }
+      } else if (key.endsWith('?')) {
+        const k = key.substr(0, key.length - 1);
+        if (Object.hasOwnProperty.call(subject, k)) {
+          if (!testedKeys.has(k)) {
+            matchType(example[key], subject[k], errors, path + '.' + k);
+            testedKeys.add(k);
+          }
+        }
+      } else {
+        if (!testedKeys.has(key)) {
+          matchType(example[key], subject[key], errors, path + '.' + key);
+          testedKeys.add(key);
+        }
+      }
     }
     return errors
   };
+
+  /**
+  ## Object Keys
+
+  **Important Note**: ey properties are evaluated in the order they
+  appear in the object. This is very important for regex keys.
+
+  It's frequently necessary to declare objects which might have any
+  number of properties. You can declare an object as `{}` and it
+  will be allowed to have any number of crazy properties, or you
+  can use strings prefixed by `#` as the key to denote restrictions
+  on possible keys.
+
+  (And, of course, you can declare a property name that *actually* starts
+  with a '#' symbol by putting it in the regex, so '##foo' defines a
+  property named '#foo'. You can even require a property named '#//'
+  if you want to.)
+
+  As a bonus, we can use the same method for embedding comments in
+  serialized types! A property named '#//' is ignored by matchType
+  (and can be treated as a comment -- you could even put an array of
+  string in it for a long comment)
+
+  E.g.
+
+      const mapType = {
+        '#//': 'This is an example (and this is a comment)',
+        '#': 'whatevs'
+      }
+
+  This declares an object which can have any properties that would be
+  allowed as javascript variable names, as long as the values are strings.
+
+  If you want to allow absolutely anything to be used as a key you could
+  declare:
+
+      const mapType = {
+        '#.*': '#?any'
+      }
+
+  (This is pretty much the same as just declaring `mapType = {}`.)
+
+  If the type has anything after the '#' besides '//' (which denotes a comment)
+  then that will be treated as the body of a `RegExp` with `^` at the start and
+  `$` at the end, so '#.*' allows any key that matches `/^.*$/` (which is anything,
+  including an empty string).
+
+  (Yeah, it doesn't allow for pathological cases, like `undefined` and `null` as keys,
+  but our goal isn't to support programmers who want to declare types that appear as WTF
+  examples of bad Javascript.)
+
+  It follows that the key '#' is equivalent to:
+
+      '#[a-zA-Z_$][a-zA-Z_$0-9]*'
+
+  So you could declare an object like this:
+
+      const namingConventionType = {
+        '#is\w+': true,
+        '#_': '#forbidden'
+      }
+
+  Or hell, enforce some variant of *Hungarian Notation*:
+
+      const hungarianObject = {
+        '#bool[A-Z]\\w+': true,
+        '#txt[A-Z]\\w+': 'whatevs',
+        '#int[A-Z]\\w+': '#int',
+        '#float[A-Z]\\w+': 3.14,
+        ...
+      }
+
+  ~~~~
+  // title: Object Key Tests
+  const {
+    matchType,
+  } = await import('./b8r.byExample.js');
+
+  Test(() => matchType({
+    '#is[A-Z]\\w*': true
+  }, {})).shouldBeJSON([])
+  Test(() => matchType({
+    '#is[A-Z]\\w*': true,
+  }, {
+    isGood: false,
+    ignored: 'because it does not start with "is"',
+  })).shouldBeJSON([])
+  Test(() => matchType({
+    '#is[A-Z]\\w*': true
+  }, {
+    isBad: 'true',
+  })).shouldBeJSON(["./^is[A-Z]\\w*$/:isBad was \"true\", expected boolean"])
+  Test(() => matchType({
+    '#is[A-Z]\\w+': true
+  },{
+    isThis: true,
+    isThat: false,
+    ignored: 'hello',
+    isTheOther: true
+  })).shouldBeJSON([])
+  Test(() => matchType({
+    '#': '#forbidden',
+    '#is[A-Z]\\w+': true
+  },{
+    isThis: true,
+  }), 'order matters').shouldBeJSON(["./^$/:isThis was true, expected #forbidden"])
+  Test(() => matchType({
+    '#is[A-Z]\\w+': true,
+    '#': '#forbidden'
+  },{
+    isThis: true,
+  }), 'order matters').shouldBeJSON([])
+  Test(() => matchType({
+    '#is[A-Z]\\w+': true,
+    '#': '#forbidden'
+  },{
+    ignored: 'hello',
+    isThat: true
+  })).shouldBeJSON(["./^$/:ignored was \"hello\", expected #forbidden"])
+  Test(() => matchType({
+    foo: 17
+  },{})).shouldBeJSON([".foo was undefined, expected number"])
+  Test(() => matchType({
+    foo: '#?number'
+  },{})).shouldBeJSON([])
+  Test(() => matchType({
+    'foo?': 17
+  },{})).shouldBeJSON([])
+  ~~~~
+
+  */
 
   /**
   ## Strongly Typed Functions
