@@ -8433,6 +8433,10 @@ function bindList (listTemplate) {
   }
   let list = b8r.get(listPath);
   if (!list) {
+    for (const instance of Object.values(listTemplate._b8rListInstances || {})) {
+      instance.remove();
+    }
+    listTemplate.classList.add('-b8r-empty-list');
     return
   }
   if (methodPath && !idPath) {
