@@ -467,14 +467,14 @@ function bindList (listTemplate) {
   ) {
     return
   }
-  const [sourcePath, idPath] = listTemplate.dataset.list.split(':')
+  const [sourcePath, idPath] = listTemplate.dataset.list.split(':').map(s => s.trim())
   let methodPath, listPath, argPaths
   try {
     // parse computed list method if any
     ;[, , methodPath, argPaths] = sourcePath.match(
       /^(([^()]*)\()?([^()]*)(\))?$/
     )
-    argPaths = argPaths.split(',')
+    argPaths = argPaths.split(',').map(s => s.trim())
     listPath = argPaths[0]
   } catch (e) {
     console.debug('b8r-error', 'bindList failed; bad source path', sourcePath)
