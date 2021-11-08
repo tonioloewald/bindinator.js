@@ -1387,10 +1387,10 @@ const regHandler = (path = '') => ({
     } else if (Array.isArray(target)) {
       return typeof target[prop] === 'function'
         ? (...items) => {
-            const result = Array.prototype[prop].apply(target, items)
-            touch(path)
-            return result
-          } 
+          const result = Array.prototype[prop].apply(target, items)
+          touch(path)
+          return result
+        }
         : target[prop]
     } else {
       return undefined

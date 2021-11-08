@@ -5325,7 +5325,7 @@ var b8r = (function () {
       }
       if (
         Object.prototype.hasOwnProperty.call(target, prop) ||
-        (Array.isArray(target) && prop.includes('='))
+        (Array.isArray(target) && typeof prop === 'string' && prop.includes('='))
       ) {
         let value;
         if (prop.includes('=')) {
@@ -5350,22 +5350,13 @@ var b8r = (function () {
           return value
         }
       } else if (Array.isArray(target)) {
-        switch (prop) {
-          case 'push':
-          case 'pop':
-          case 'shift':
-          case 'unshift':
-          case 'sort':
-          case 'splice':
-          case 'forEach':
-            return (...items) => {
-              const result = Array.prototype[prop].apply(target, items);
-              touch(path);
-              return result
-            }
-          default:
-            return target[prop]
-        }
+        return typeof target[prop] === 'function'
+          ? (...items) => {
+            const result = Array.prototype[prop].apply(target, items);
+            touch(path);
+            return result
+          }
+          : target[prop]
       } else {
         return undefined
       }
@@ -8385,14 +8376,14 @@ var b8r = (function () {
     ) {
       return
     }
-    const [sourcePath, idPath] = listTemplate.dataset.list.split(':');
+    const [sourcePath, idPath] = listTemplate.dataset.list.split(':').map(s => s.trim());
     let methodPath, listPath, argPaths;
     try {
       // parse computed list method if any
       ;[, , methodPath, argPaths] = sourcePath.match(
         /^(([^()]*)\()?([^()]*)(\))?$/
       );
-      argPaths = argPaths.split(',');
+      argPaths = argPaths.split(',').map(s => s.trim());
       listPath = argPaths[0];
     } catch (e) {
       console.debug('b8r-error', 'bindList failed; bad source path', sourcePath);

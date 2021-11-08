@@ -42,13 +42,19 @@ const makeStyleSheet = (source, title) => {
 }
 
 export const viaLink = (href) => {
-  if (!findOne(`link[href="${href}"]`)) {
-    const link = create('link')
-    link.rel = 'stylesheet'
-    link.type = 'text/css'
-    link.href = href
-    document.head.append(link)
-  }
+  return new Promise((resolve, reject) => {
+    let link = findOne(`link[href="${href}"]`)
+    if (!link) {
+      link = create('link')
+      link.rel = 'stylesheet'
+      link.type = 'text/css'
+      link.href = href
+      document.head.append(link)
+      link.onload = () => resolve(link)
+    } else {
+      resolve(link)
+    }
+  })
 }
 
 export default makeStyleSheet
