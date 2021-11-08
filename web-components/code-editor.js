@@ -1,7 +1,7 @@
 /**
 # Code Editor
 
-A simple embeddable code editor which uses [Ace](https://ace.c9.io/).
+Embed a code editor anywhere using a simple web-component that embeds [Ace](https://ace.c9.io/).
 
     <b8r-code-editor
       mode="javascript"
@@ -30,8 +30,8 @@ import { makeWebComponent } from '../source/web-components.js'
 
 const makeCodeEditor = async (codeElement, mode = 'html', options = {}) => {
   const { viaTag } = await import('../lib/scripts.js')
-  const { ace } = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.min.js')
-  ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/')
+  const { ace } = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.13/ace.min.js')
+  ace.config.set('basePath', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.13/')
   const editor = ace.edit(codeElement, {
     mode: `ace/mode/${mode}`,
     tabSize: 2,
