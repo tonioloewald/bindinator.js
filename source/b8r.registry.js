@@ -1360,7 +1360,7 @@ const regHandler = (path = '') => ({
     }
     if (
       Object.prototype.hasOwnProperty.call(target, prop) ||
-      (Array.isArray(target) && prop.includes('='))
+      (Array.isArray(target) && typeof prop === 'string' && prop.includes('='))
     ) {
       let value
       if (prop.includes('=')) {
@@ -1385,22 +1385,13 @@ const regHandler = (path = '') => ({
         return value
       }
     } else if (Array.isArray(target)) {
-      switch (prop) {
-        case 'push':
-        case 'pop':
-        case 'shift':
-        case 'unshift':
-        case 'sort':
-        case 'splice':
-        case 'forEach':
-          return (...items) => {
+      return typeof target[prop] === 'function'
+        ? (...items) => {
             const result = Array.prototype[prop].apply(target, items)
             touch(path)
             return result
-          }
-        default:
-          return target[prop]
-      }
+          } 
+        : target[prop]
     } else {
       return undefined
     }
