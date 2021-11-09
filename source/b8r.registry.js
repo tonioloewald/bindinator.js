@@ -1279,14 +1279,18 @@ b8r.remove('remove-test')
 ~~~~
 */
 const remove = (path, update = true) => {
-  deleteByPath(registry, path)
-  if (update) {
-    touch(path)
-    /* touch array containing the element if appropriate */
-    ;[, path] = path.match(/^(.+)\[[^\]]+\]$/) || []
-    if (path) {
-      touch(path)
+  const [,listPath] = path.match(/^(.*)\[[^\[]*\]$/) || []
+  if (listPath) {
+    const list = getByPath(registry, listPath)
+    const item = getByPath(registry, path)
+    const index = list.indexOf(item)
+    if (index !== -1) {
+      list.splice(index, 1)
+      if (update) touch(listPath) 
     }
+  } else {
+    deleteByPath(registry, path)
+    if (update) touch(path)
   }
 }
 
