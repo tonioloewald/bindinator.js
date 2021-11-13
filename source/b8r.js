@@ -274,45 +274,7 @@ b8r.unshiftByPath = function (...args) {
 
 b8r.removeListInstance = function (elt) {
   elt = elt.closest('[data-list-instance]')
-  if (elt) {
-    const ref = elt.dataset.listInstance
-    try {
-      const [, model, path, key] = ref.match(/^([^.]+)\.(.+)\[([^\]]+)\]$/)
-      b8r.removeByPath(model, path, key)
-    } catch (e) {
-      console.debug('b8r-error', 'cannot find list item for instance', ref)
-    }
-  } else {
-    console.debug('b8r-error', 'cannot remove list instance for', elt)
-  }
-}
-
-function indexFromKey (list, key) {
-  if (typeof key === 'number') {
-    return key
-  }
-  const [idPath, value] = key.split('=')
-  return list.findIndex(elt => `${getByPath(elt, idPath)}` === value)
-}
-
-b8r.removeByPath = function (...args) {
-  let name, path, key
-  if (args.length === 2) {
-    ;[path, key] = args
-    ;[name, path] = pathSplit(path)
-  } else {
-    ;[name, path, key] = args
-  }
-  if (b8r.registered(name)) {
-    const list = getByPath(b8r.get(name), path)
-    const index = indexFromKey(list, key)
-    if (Array.isArray(list) && index > -1) {
-      list.splice(index, 1)
-    } else {
-      delete list[key]
-    }
-    _touchPath(name, path)
-  }
+  b8r.remove(elt.dataset.listInstance)
 }
 
 b8r.listItems = element =>

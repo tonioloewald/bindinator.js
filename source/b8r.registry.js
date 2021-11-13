@@ -13,6 +13,7 @@ and binding events and element properties to paths based on those names.
     b8r.set('path.to.text', 'new string')
     b8r.pushByPath('path.to.array', {id: 17, name: 'new item'})
     const itemByIdPath = b8r.get('path.to.array[id=17]') // one of b8r's coolest features
+    b8r.set('path.to.array[id=17].foo', 'bar')
 
 ### How it's going
 
@@ -21,6 +22,7 @@ and binding events and element properties to paths based on those names.
     b8r.reg.path.to.text = 'new string'
     b8r.reg.path.to.array.push({id: 17, name: 'new item'})   // also sort, find, forEach, etc.
     const itemByIdPath = b8r.reg.path.to.array['id=17']      // works!
+    b8r.reg['path.to.array[id=17].foo'] = 'bar'              // works!!
 
 Thanks to the magic of ES6 Proxy, `b8r` can finally have the syntax I
 always wanted. Thank you to [Steven Williams](https://www.linkedin.com/in/steven-williams-2ba1124b/)
@@ -113,7 +115,7 @@ Test(() => {
 }, 'putting reg proxies into the registry via assignment is blocked').shouldThrow()
 Test(() => {
   b8r.set('proxyError', b8r.reg.proxyTest)
-}, 'putting reg proxies into the registry via assignment is blocked').shouldThrow()
+}, 'putting reg proxies into the registry via path is blocked').shouldThrow()
 ~~~~
 
 **How does it work?** [ES6 Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
@@ -1279,14 +1281,14 @@ b8r.remove('remove-test')
 ~~~~
 */
 const remove = (path, update = true) => {
-  const [,listPath] = path.match(/^(.*)\[[^\[]*\]$/) || []
+  const [, listPath] = path.match(/^(.*)\[[^[]*\]$/) || []
   if (listPath) {
     const list = getByPath(registry, listPath)
     const item = getByPath(registry, path)
     const index = list.indexOf(item)
     if (index !== -1) {
       list.splice(index, 1)
-      if (update) touch(listPath) 
+      if (update) touch(listPath)
     }
   } else {
     deleteByPath(registry, path)
@@ -1356,6 +1358,16 @@ const extendPath = (path, prop) => {
 
 const regHandler = (path = '') => ({
   get (target, prop) {
+    const compoundProp = prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
+                      prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
+                      prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
+                      prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
+    if (compoundProp) {
+      const [, basePath, subPath] = compoundProp
+      const currentPath = extendPath(path, basePath)
+      const value = getByPath(target, basePath)
+      return value && typeof value === 'object' ? new Proxy(value, regHandler(currentPath))[subPath] : value
+    }
     if (prop === '_b8r_sourcePath') {
       return path
     }
@@ -1401,7 +1413,10 @@ const regHandler = (path = '') => ({
     }
   },
   set (target, prop, value) {
-    set(extendPath(path, prop), value)
+    if (value && value._b8r_sourcePath) {
+      throw new Error('You cannot put reg proxies into the registry')
+    }
+    set(extendPath(path, prop), value._b8r_value || value)
     return true // success (throws error in strict mode otherwise)
   }
 })
