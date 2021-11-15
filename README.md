@@ -36,7 +36,7 @@ And `b8r` is lazy too.
 - It doesn't do things for the browser that the browser knows how to do (like
 parse HTML).
 - Nor implement a new templating language.
-- Nor require special debugging tools, leverage the existing debug tools. 
+- Nor require special debugging tools.
 - Or add zillions of runtime dependencies. Actually, *it doesn't add any*.
 
 ## Basic Principles
