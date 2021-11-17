@@ -1416,7 +1416,7 @@ const regHandler = (path = '') => ({
     if (value && value._b8r_sourcePath) {
       throw new Error('You cannot put reg proxies into the registry')
     }
-    set(extendPath(path, prop), value._b8r_value || value)
+    set(extendPath(path, prop), value)
     return true // success (throws error in strict mode otherwise)
   }
 })
