@@ -275,9 +275,6 @@
         requestAnimationFrame(() => {
           Test(() => outerComposable.data.x, 'outer composable data-event works').shouldBe(Math.PI * Math.PI)
           Test(() => innerComposable.data.x, 'inner composable data-event works').shouldBe(1)
-
-          outerComposable.data.clickHandler()
-          innerComposable.data.clickHandler()
         })
       })
     })

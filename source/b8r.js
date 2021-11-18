@@ -693,7 +693,7 @@ b8r.insertComponent = async function (component, element, data) {
   const componentId = 'c#' + component.name + '#' + ++componentCount
   if (component.view.children.length) {
     b8r.moveChildren(element, children)
-    
+
     // [data-parent] supports DOM elements such as <tr> that can only "live" in a specific context
     const source =
       component.view.querySelector('[data-parent]') || component.view

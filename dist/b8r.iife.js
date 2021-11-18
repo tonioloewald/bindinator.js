@@ -1726,6 +1726,10 @@ var b8r = (function () {
       b8r.getListInstance(elt)
   */
 
+  const UNLOADED_COMPONENT_SELECTOR =
+    '[data-component],[data-initializing],b8r-component:not([data-component-id])';
+  const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
+
   const addDataBinding = (element, toTarget, path) => {
     path = path.replace(/\b_component_\b/g, getComponentId(element));
     const binding = `${toTarget}=${path}`;
@@ -1917,6 +1921,10 @@ var b8r = (function () {
     const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g');
     findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
       .forEach(elt => {
+        const unreadyParent = elt.parentElement && elt.parentElement.closest(UNLOADED_COMPONENT_SELECTOR);
+        if (unreadyParent && unreadyParent !== element) {
+          return
+        }
         ['data-bind', 'data-list', 'data-path'].forEach(attr => {
           const val = elt.getAttribute(attr);
           if (val) {
@@ -8023,9 +8031,6 @@ var b8r = (function () {
   // TODO seal b8r after it's been built
 
   const b8r = { constants, id };
-  const UNLOADED_COMPONENT_SELECTOR =
-    '[data-component],[data-initializing],b8r-component:not([data-component-id])';
-  const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
 
   Object.assign(b8r, _dom);
   Object.assign(b8r, _iterators);
@@ -8621,15 +8626,8 @@ var b8r = (function () {
     */
     const componentId = 'c#' + component.name + '#' + ++componentCount;
     if (component.view.children.length) {
-      if (element.dataset.componentId) {
-        if (element.querySelector('[data-children]')) {
-          b8r.moveChildren(element.querySelector('[data-children]'), children);
-        } else {
-          b8r.empty(element);
-        }
-      } else {
-        b8r.moveChildren(element, children);
-      }
+      b8r.moveChildren(element, children);
+
       // [data-parent] supports DOM elements such as <tr> that can only "live" in a specific context
       const source =
         component.view.querySelector('[data-parent]') || component.view;
