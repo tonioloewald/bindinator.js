@@ -121,6 +121,13 @@
           </span>
         </li>
       </ul>
+      <h4>Composition</h4>
+      <b8r-component class="composable-outer" name="composable">
+        <b>outer</b>        
+        <b8r-component class="composable-inner" name="composable">
+          <b>inner</b>
+        </b8r-component>
+      </b8r-component>
     </div>
     <div data-component="test">
       <p>First Child</p>
@@ -222,6 +229,18 @@
       list: [{value: 1}, {value: 2}, {value: 3}],
     }
     b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
+    b8r.makeComponent('composable', {
+      css: '._component_ { display: block; border: 1px solid blue; padding: 10px; }',
+      html: '<input data-bind="value=_component_.x"><span data-children></span><button data-event="click:_component_.clickHandler">Square It</button>',
+      initialValue ({set, get}) {
+        return {
+          x: 17,
+          clickHandler() {
+            set('x', get().x * get().x)
+          }
+        }
+      }
+    })
     Test(() => getByPath(obj, '') === obj).shouldBe(true);
     Test(() => getByPath(obj, '/') === obj).shouldBe(true);
     Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
@@ -238,6 +257,30 @@
     Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
     setByPath(obj, 'sub.list[2]', 25);
     Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
+
+    requestAnimationFrame(() => {
+      const outerComposable = b8r.findOne('.composable-outer')
+      const innerComposable = b8r.findOne('.composable-inner')
+      outerComposable.data.x = Math.PI
+      innerComposable.data.x = -1
+      b8r.touchElement(outerComposable)
+
+      requestAnimationFrame(() => {
+        Test(() => outerComposable.data.x, 'outer composable data-bind works').shouldBe(Math.PI)
+        Test(() => innerComposable.data.x, 'inner composable data-bind works').shouldBe(-1)
+
+        outerComposable.data.clickHandler()
+        innerComposable.data.clickHandler()
+
+        requestAnimationFrame(() => {
+          Test(() => outerComposable.data.x, 'outer composable data-event works').shouldBe(Math.PI * Math.PI)
+          Test(() => innerComposable.data.x, 'inner composable data-event works').shouldBe(1)
+
+          outerComposable.data.clickHandler()
+          innerComposable.data.clickHandler()
+        })
+      })
+    })
 
     // binding (to), data mounting
     b8r.register('test1', obj);

@@ -63,7 +63,9 @@ import {
   getBindings,
   replaceInBindings,
   resolveListInstanceBindings,
-  splitPaths
+  splitPaths,
+  UNLOADED_COMPONENT_SELECTOR,
+  UNREADY_SELECTOR
 } from './b8r.bindings.js'
 import { saveDataForElement, dataForElement } from './b8r.dataForElement.js'
 import { onAny, offAny, anyListeners } from './b8r.anyEvent.js'
@@ -95,9 +97,6 @@ import * as webComponents from './web-components.js'
 // TODO seal b8r after it's been built
 
 const b8r = { constants, id }
-const UNLOADED_COMPONENT_SELECTOR =
-  '[data-component],[data-initializing],b8r-component:not([data-component-id])'
-const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
 
 Object.assign(b8r, _dom)
 Object.assign(b8r, _iterators)
@@ -693,15 +692,8 @@ b8r.insertComponent = async function (component, element, data) {
   */
   const componentId = 'c#' + component.name + '#' + ++componentCount
   if (component.view.children.length) {
-    if (element.dataset.componentId) {
-      if (element.querySelector('[data-children]')) {
-        b8r.moveChildren(element.querySelector('[data-children]'), children)
-      } else {
-        b8r.empty(element)
-      }
-    } else {
-      b8r.moveChildren(element, children)
-    }
+    b8r.moveChildren(element, children)
+    
     // [data-parent] supports DOM elements such as <tr> that can only "live" in a specific context
     const source =
       component.view.querySelector('[data-parent]') || component.view
