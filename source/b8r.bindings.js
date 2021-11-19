@@ -282,6 +282,7 @@ To quickly obtain bound data a list instance from an element inside it:
 import { findWithin, succeeding } from './b8r.dom.js'
 import { touchElement } from './b8r.update.js'
 
+export const COMPONENT_SELECTOR = '[data-component],[data-component-id],b8r-component'
 export const UNLOADED_COMPONENT_SELECTOR =
   '[data-component],[data-initializing],b8r-component:not([data-component-id])'
 export const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
@@ -477,8 +478,9 @@ const replaceInBindings = (element, needle, replacement) => {
   const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g')
   findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
     .forEach(elt => {
-      const unreadyParent = elt.parentElement && elt.parentElement.closest(UNLOADED_COMPONENT_SELECTOR)
-      if (unreadyParent && unreadyParent !== element) {
+      const directComponentParent = elt.closest(COMPONENT_SELECTOR)
+      if (directComponentParent && directComponentParent !== element) {
+        console.log(element, directComponentParent)
         return
       }
       ['data-bind', 'data-list', 'data-path'].forEach(attr => {

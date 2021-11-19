@@ -123,9 +123,11 @@
       </ul>
       <h4>Composition</h4>
       <b8r-component class="composable-outer" name="composable">
-        <b>outer</b>        
+        <b>outer</b>
+        <span data-bind="text=_component_.x"></span>
         <b8r-component class="composable-inner" name="composable">
           <b>inner</b>
+          <span data-bind="text=_component_.x"></span>
         </b8r-component>
       </b8r-component>
     </div>

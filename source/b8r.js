@@ -698,14 +698,14 @@ b8r.insertComponent = async function (component, element, data) {
     const source =
       component.view.querySelector('[data-parent]') || component.view
     b8r.copyChildren(source, element)
-    replaceInBindings(element, '_component_', componentId)
-    if (dataPath) {
-      replaceInBindings(element, '_data_', dataPath)
-    }
     const childrenDest = b8r.findOneWithin(element, '[data-children]')
     if (children.firstChild && childrenDest) {
       b8r.empty(childrenDest)
       b8r.moveChildren(children, childrenDest)
+    }
+    replaceInBindings(element, '_component_', componentId)
+    if (dataPath) {
+      replaceInBindings(element, '_data_', dataPath)
     }
   }
   b8r.makeArray(element.classList).forEach(c => {

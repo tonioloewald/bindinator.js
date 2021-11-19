@@ -1744,6 +1744,7 @@ To quickly obtain bound data a list instance from an element inside it:
     b8r.getListInstance(elt)
 */
 
+const COMPONENT_SELECTOR = '[data-component],[data-component-id],b8r-component';
 const UNLOADED_COMPONENT_SELECTOR =
   '[data-component],[data-initializing],b8r-component:not([data-component-id])';
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
@@ -1939,8 +1940,9 @@ const replaceInBindings = (element, needle, replacement) => {
   const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g');
   findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
     .forEach(elt => {
-      const unreadyParent = elt.parentElement && elt.parentElement.closest(UNLOADED_COMPONENT_SELECTOR);
-      if (unreadyParent && unreadyParent !== element) {
+      const directComponentParent = elt.closest(COMPONENT_SELECTOR);
+      if (directComponentParent && directComponentParent !== element) {
+        console.log(element, directComponentParent);
         return
       }
       ['data-bind', 'data-list', 'data-path'].forEach(attr => {
@@ -8650,14 +8652,14 @@ b8r.insertComponent = async function (component, element, data) {
     const source =
       component.view.querySelector('[data-parent]') || component.view;
     b8r.copyChildren(source, element);
-    replaceInBindings(element, '_component_', componentId);
-    if (dataPath) {
-      replaceInBindings(element, '_data_', dataPath);
-    }
     const childrenDest = b8r.findOneWithin(element, '[data-children]');
     if (children.firstChild && childrenDest) {
       b8r.empty(childrenDest);
       b8r.moveChildren(children, childrenDest);
+    }
+    replaceInBindings(element, '_component_', componentId);
+    if (dataPath) {
+      replaceInBindings(element, '_data_', dataPath);
     }
   }
   b8r.makeArray(element.classList).forEach(c => {
