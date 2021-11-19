@@ -231,10 +231,11 @@
     b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
     b8r.makeComponent('composable', {
       css: '._component_ { display: block; border: 1px solid blue; padding: 10px; }',
-      html: '<input data-bind="value=_component_.x"><span data-children></span><button data-event="click:_component_.clickHandler">Square It</button>',
+      html: '<ul><li data-list="_component_.list" data-bind="text=."></li></ul><input data-bind="value=_component_.x"><span data-children></span><button data-event="click:_component_.clickHandler">Square It</button>',
       initialValue ({set, get}) {
         return {
           x: 17,
+          list: [1,2,3],
           clickHandler() {
             set('x', get().x * get().x)
           }
@@ -262,12 +263,16 @@
       const outerComposable = b8r.findOne('.composable-outer')
       const innerComposable = b8r.findOne('.composable-inner')
       outerComposable.data.x = Math.PI
+      outerComposable.data.list.shift()
       innerComposable.data.x = -1
+      innerComposable.data.list.push(Math.exp(1))
       b8r.touchElement(outerComposable)
 
       requestAnimationFrame(() => {
         Test(() => outerComposable.data.x, 'outer composable data-bind works').shouldBe(Math.PI)
         Test(() => innerComposable.data.x, 'inner composable data-bind works').shouldBe(-1)
+        Test(() => outerComposable.data.list[0], 'outer composable data-list works').shouldBe(2)
+        Test(() => innerComposable.data.list[3], 'inner composable data-list works').shouldBe(Math.exp(1))
 
         outerComposable.data.clickHandler()
         innerComposable.data.clickHandler()
