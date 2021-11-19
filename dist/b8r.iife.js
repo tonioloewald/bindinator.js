@@ -1725,8 +1725,6 @@ var b8r = (function () {
 
       b8r.getListInstance(elt)
   */
-
-  const COMPONENT_SELECTOR = '[data-component],[data-component-id],b8r-component';
   const UNLOADED_COMPONENT_SELECTOR =
     '[data-component],[data-initializing],b8r-component:not([data-component-id])';
   const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
@@ -1922,11 +1920,6 @@ var b8r = (function () {
     const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g');
     findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
       .forEach(elt => {
-        const directComponentParent = elt.closest(COMPONENT_SELECTOR);
-        if (directComponentParent && directComponentParent !== element) {
-          console.log(element, directComponentParent);
-          return
-        }
         ['data-bind', 'data-list', 'data-path'].forEach(attr => {
           const val = elt.getAttribute(attr);
           if (val) {

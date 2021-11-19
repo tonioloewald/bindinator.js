@@ -478,11 +478,6 @@ const replaceInBindings = (element, needle, replacement) => {
   const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g')
   findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
     .forEach(elt => {
-      const directComponentParent = elt.closest(COMPONENT_SELECTOR)
-      if (directComponentParent && directComponentParent !== element) {
-        console.log(element, directComponentParent)
-        return
-      }
       ['data-bind', 'data-list', 'data-path'].forEach(attr => {
         const val = elt.getAttribute(attr)
         if (val) {

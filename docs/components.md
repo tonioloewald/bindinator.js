@@ -279,7 +279,7 @@ removed, and if that data includes a `destroy` method, that method will be calle
 
 ## Composing Components: `data-children`
 
-It is possible to *compose* components with normal html, e.g.
+It is possible to *compose* components (including within a component) as though the components are ordinary tags, e.g.
 
 ```
 <b8r-component path="path/to/foo">
@@ -331,6 +331,34 @@ you could do something like this:
   });
 </script>
 ```
+
+## Binding and Composition
+
+**Data-binding works outside-in**. Each component binds its constituent elements (whether
+that are ordinary HTML elements, `b8r` components, or web-components) when it is initialized.
+
+**Event-binding works inside-out**. An event passes through its parent, and so forth, until
+it is handled. (Note, this is *not* how DOM events behave normally, where the behavior of events
+is not consistent.) If a given event-handler does not return true, the event stops propagating.
+
+This means that in this composition:
+
+    <b8r-component name="outer">
+      <b8r-component name="inner">
+        <span data-bind="text=_component_.foo"></span>
+        <button data-event="click:_component_.clickHandler"
+      </b8r-component>
+    </b8r-component>
+
+- the `<span>` gets its data from the **outer** component.
+- the `<button>` will look for `clickHandler` in the **inner** component first.
+
+This behavior reflects what you will see in the DOM after the components have been
+initialized. A data-binding is rewritten as a static binding to a specific object
+as soon as that object becomes available and is rewritten accordingly.
+
+An event-handler is (dynamically) bound to `_component_` and its behavior
+may change if something happens above it in the DOM hierarchy.
 
 ## Communicating with Components
 

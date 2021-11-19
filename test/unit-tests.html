@@ -123,11 +123,17 @@
       </ul>
       <h4>Composition</h4>
       <b8r-component class="composable-outer" name="composable">
-        <b>outer</b>
-        <span data-bind="text=_component_.x"></span>
-        <b8r-component class="composable-inner" name="composable">
-          <b>inner</b>
+        <b>grandparent</b>
+        <div>
+          <b>bound to x</b>
           <span data-bind="text=_component_.x"></span>
+        </div>
+        <b8r-component class="composable-inner" name="composable">
+          <b>parent</b>
+          <div>
+            <b>bound to grandparent x</b>
+            <span data-bind="text=_component_.x"></span>
+          </div>
         </b8r-component>
       </b8r-component>
     </div>
@@ -232,14 +238,34 @@
     }
     b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
     b8r.makeComponent('composable', {
-      css: '._component_ { display: block; border: 1px solid blue; padding: 10px; }',
-      html: '<ul><li data-list="_component_.list" data-bind="text=."></li></ul><input data-bind="value=_component_.x"><span data-children></span><button data-event="click:_component_.clickHandler">Square It</button>',
+      css: `
+        ._component_ {
+          display: block;
+          background: #0002;
+          padding: 10px; 
+        }
+
+        ._component_ [data-children] {
+          padding: 5px;
+        }`,
+      html: `
+        <ul>
+          <li data-list="_component_.list" data-bind="text=."></li>
+        </ul>
+        <div>
+          <b>my x</b><span data-bind="text=$\{_component_.clickCount} clicks"></span>
+          <input data-bind="value=_component_.x">
+        </div>
+        <button data-event="click:_component_.clickHandler">Square It</button>
+        <span data-children></span>`,
       initialValue ({set, get}) {
         return {
           x: 17,
           list: [1,2,3],
+          clickCount: 0,
           clickHandler() {
             set('x', get().x * get().x)
+            set('clickCount', get().clickCount + 1)
           }
         }
       }
@@ -266,22 +292,22 @@
       const innerComposable = b8r.findOne('.composable-inner')
       outerComposable.data.x = Math.PI
       outerComposable.data.list.shift()
-      innerComposable.data.x = -1
+      innerComposable.data.x = -1.1
       innerComposable.data.list.push(Math.exp(1))
       b8r.touchElement(outerComposable)
 
       requestAnimationFrame(() => {
         Test(() => outerComposable.data.x, 'outer composable data-bind works').shouldBe(Math.PI)
-        Test(() => innerComposable.data.x, 'inner composable data-bind works').shouldBe(-1)
+        Test(() => innerComposable.data.x, 'inner composable data-bind works').shouldBe(-1.1)
         Test(() => outerComposable.data.list[0], 'outer composable data-list works').shouldBe(2)
-        Test(() => innerComposable.data.list[3], 'inner composable data-list works').shouldBe(Math.exp(1))
+        Test(() => innerComposable.data.list[3], 'inner composable data-list works').shouldBe(Math.exp(1), 0.001)
 
         outerComposable.data.clickHandler()
         innerComposable.data.clickHandler()
 
         requestAnimationFrame(() => {
-          Test(() => outerComposable.data.x, 'outer composable data-event works').shouldBe(Math.PI * Math.PI)
-          Test(() => innerComposable.data.x, 'inner composable data-event works').shouldBe(1)
+          Test(() => outerComposable.data.x, 'outer composable data-event works').shouldBe(Math.PI * Math.PI, 0.001)
+          Test(() => innerComposable.data.x, 'inner composable data-event works').shouldBe(1.21, 0.001)
         })
       })
     })
