@@ -19,7 +19,7 @@ The terms "web-component" and "custom element" are used interchangeably everywhe
 
 ```
 // you cannot redefine an existing web-component so we need a unique name for refreshes
-const componentName = 'simple-button-' + b8r.id()
+const componentName = 'simple-button-' + Math.random()
 const {makeWebComponent, div} = b8r.webComponents
 const elt = b8r.create(componentName)
 elt.textContent = 'Click Me'
