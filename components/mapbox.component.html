@@ -128,7 +128,8 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   }, 100)
   map.on('render', updateHash)
   console.time('load fire data')
-  b8r.ajax('https://bindinator.com/services/?modis').then(csv => {
+  const modisUrl = 'https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.csv'
+  b8r.ajax(`https://bindinator.com/services/?rss=${modisUrl}`).then(csv => {
     console.timeEnd('load fire data')
     console.time('render markers')
     // this is a very simple csv file, so we don't need a "real" csv parser
