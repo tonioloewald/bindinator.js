@@ -48,17 +48,38 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
 </div>
 <script>
-  const {viaTag} = await import('../lib/scripts.js')
-  const {viaLink} = await import('../source/b8r.makeStylesheet.js')
-  const {parseHash, serializeObj} = await import('../lib/url-utils.js')
-  viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
-  await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
-  const settings = {
-    '@': '48.9591590,31.3392433,5.0'
+  const FIRE_LAYER = {
+    id: 'fires',
+    type: 'circle',
+    source: 'fires-source',
+    paint: {
+      'circle-radius': [
+        'interpolate',
+        ['linear'],
+        ['number', ['get', 'confidence']],
+        0,
+        4,
+        5,
+        12
+      ],
+      'circle-color': [
+        'interpolate',
+        ['linear'],
+        ['number', ['get', 'confidence']],
+        0,
+        '#0f0',
+        1,
+        '#ff0',
+        3,
+        '#f80',
+        5,
+        '#f00'
+      ],
+      'circle-opacity': 0.5
+    }
   }
-  Object.assign(settings, parseHash())
-  set('currentMapStyle', 'mapbox://styles/mapbox/outdoors-v10')
-  set('mapStyles', [
+
+  const MAPBOX_STYLES = [
     {
       name: 'streets',
       url: 'mapbox://styles/mapbox/streets-v10'
@@ -99,8 +120,20 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
       name: 'guidance night',
       url: 'mapbox://styles/mapbox/navigation-guidance-night-v2'
     },
-  ])
-  const [long, lat, zoom] = settings['@'].split(',').map(parseFloat)
+  ]
+  
+  const {viaTag} = await import('../lib/scripts.js')
+  const {viaLink} = await import('../source/b8r.makeStylesheet.js')
+  const {parseHash, serializeObj} = await import('../lib/url-utils.js')
+  viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
+  await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')
+  const settings = {
+    '@': '48.9591590,31.3392433,5.0,1'
+  }
+  Object.assign(settings, parseHash())
+  const [long, lat, zoom, mapstyle] = settings['@'].split(',').map(parseFloat)
+  set('currentMapStyle', MAPBOX_STYLES[mapstyle].url)
+  set('mapStyles', MAPBOX_STYLES)
   mapboxgl.accessToken = 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'
   const map = new mapboxgl.Map({
     container: findOne('.map'),
@@ -111,12 +144,12 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   set('setMapStyle', () => {
     map.setStyle(get('currentMapStyle'))
   })
-  window._map = map
   const updateHash = b8r.debounce(() => {
     const {lng, lat} = map.getCenter()
     const zoom = map.getZoom()
     // limit precision to keep url shorter
-    settings['@'] = `${lat.toFixed(7)},${lng.toFixed(7)},${zoom.toFixed(1)}`
+    const mapstyle = MAPBOX_STYLES.findIndex(style => style.url === get('currentMapStyle'))
+    settings['@'] = `${lat.toFixed(7)},${lng.toFixed(7)},${zoom.toFixed(1)},${mapstyle}`
     history.replaceState({}, "map demo", window.location.href.split('#')[0] + '#' + serializeObj(settings));
   }, 100)
   map.on('render', updateHash)
@@ -124,7 +157,7 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   const modisUrl = 'https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv'
   b8r.ajax(`https://bindinator.com/services/?rss=${modisUrl}`).then(csv => {
     console.timeEnd('load fire data')
-    console.time('render markers')
+    console.time('render layer')
     // this is a very simple csv file, so we don't need a "real" csv parser
     csv = csv.split('\n').filter(line => !!line.trim()).map(line => line.split(','));
     const columns = csv.shift();
@@ -147,42 +180,27 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
       }
     })
 
-    map.addLayer({
-      id: 'fires',
-      type: 'circle',
-      source: {
-        type: 'geojson',
-        data: {
-          type: "FeatureCollection",
-          features
+    const showFires = () => {
+      map.addSource('fires-source', 
+        {
+          type: 'geojson',
+          data: {
+            type: "FeatureCollection",
+            features
+          }
         }
-      },
-      paint: {
-        'circle-radius': [
-          'interpolate',
-          ['linear'],
-          ['number', ['get', 'confidence']],
-          0,
-          4,
-          5,
-          12
-        ],
-        'circle-color': [
-          'interpolate',
-          ['linear'],
-          ['number', ['get', 'confidence']],
-          0,
-          '#0f0',
-          1,
-          '#ff0',
-          3,
-          '#f80',
-          5,
-          '#f00'
-        ],
-        'circle-opacity': 0.5
+      )
+      map.addLayer(FIRE_LAYER)
+    }
+
+    map.on('styledata', () => {
+      if(!map.getLayer('fires')) {
+        showFires()
       }
     })
-    console.timeEnd('render markers')
+
+    showFires()
+
+    console.timeEnd('render layer')
   })
 </script>
