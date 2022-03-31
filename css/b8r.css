@@ -280,12 +280,17 @@ em {
 }
 
 label {
-  vertical-align: baseline;
-  padding: var(--narrow-spacing-size) 0;
+  align-items: center;
+  display: inline-flex;
+  padding: var(--spacing-size) 0;
 }
 
 label > * {
   line-height: var(--body-line-height);
+}
+
+label > * + * {
+  margin-left: var(--narrow-spacing-size);
 }
 
 :disabled {
