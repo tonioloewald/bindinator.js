@@ -56,18 +56,18 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
       'circle-radius': [
         'interpolate',
         ['linear'],
-        ['number', ['get', 'confidence']],
+        ['number', ['get', 'brightness']],
         0,
         4,
         5,
-        12
+        20
       ],
       'circle-color': [
         'interpolate',
         ['linear'],
         ['number', ['get', 'confidence']],
         0,
-        '#0f0',
+        '#cc4',
         1,
         '#ff0',
         3,
@@ -165,13 +165,15 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
       obj[columns[i]] = value
       return obj
     }, {}))
+    set({map, fireData})
 
     const features = fireData.map(obj => {
-      const {longitude, latitude, confidence} = obj
+      const {longitude, latitude, confidence, brightness} = obj
       return {
         type: 'feature',
         properties: {
-          confidence: confidence / 20
+          confidence: confidence / 20,
+          brightness: (brightness - 300) / 40
         },
         geometry: {
           type: 'Point',
