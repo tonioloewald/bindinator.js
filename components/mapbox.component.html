@@ -7,7 +7,7 @@ The markers show worldwide
 by converting the CSV data into [geoJSON](https://geojson.org/) 
 format on-the-fly (allowing very efficient OpenGL-accelerated rendering).
 Red brighter the red, the more confidence (presumably the more likely it's actualy a fire).
-This example also uses the (new) registry entry b8rRequestsInFlight to show when data is loading.
+This example also uses the (new) registry entry b8rRequestInFlight to show when data is loading.
 -->
 <style>
   ._component_ > label > select {
@@ -44,7 +44,7 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   </select>
 </label>
 <div class="map"></div>
-<div class="loading" data-bind="show_if=b8rRequestsInFlight.length">
+<div class="loading" data-bind="show_if=b8rRequestInFlight.length">
   LOADING (<span data-bind="text=b8rRequestInFlight.length"></span>)
 </div>
 <script>
@@ -75,7 +75,15 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
         5,
         '#f00'
       ],
-      'circle-opacity': 0.5
+      'circle-opacity': [
+        'interpolate',
+        ['linear'],
+        ['number', ['get', 'age']],
+        0,
+        0.75,
+        7,
+        0.01
+      ]
     }
   }
 
@@ -132,7 +140,7 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   }
   Object.assign(settings, parseHash())
   const [long, lat, zoom, mapstyle] = settings['@'].split(',').map(parseFloat)
-  set('currentMapStyle', MAPBOX_STYLES[mapstyle].url)
+  set('currentMapStyle', MAPBOX_STYLES[mapstyle || 1].url)
   set('mapStyles', MAPBOX_STYLES)
   mapboxgl.accessToken = 'pk.eyJ1IjoicG9kcGVyc29uIiwiYSI6ImNqc2JlbWU0bjA1ZmY0YW5ycHZod3VhbWcifQ.arvqfpOqMgFYkKgQ35UScA'
   const map = new mapboxgl.Map({
@@ -154,7 +162,8 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
   }, 100)
   map.on('render', updateHash)
   console.time('load fire data')
-  const modisUrl = 'https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv'
+  // const modisUrl = 'https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_24h.csv'
+  const modisUrl = 'https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_Global_7d.csv' // 7d
   b8r.ajax(`https://bindinator.com/services/?rss=${modisUrl}`).then(csv => {
     console.timeEnd('load fire data')
     console.time('render layer')
@@ -168,12 +177,14 @@ This example also uses the (new) registry entry b8rRequestsInFlight to show when
     set({map, fireData})
 
     const features = fireData.map(obj => {
-      const {longitude, latitude, confidence, brightness} = obj
+      const {longitude, latitude, confidence, brightness, acq_date} = obj
+      const age = (Date.now() - new Date(acq_date).valueOf()) / (24 * 3600 * 1000)
       return {
         type: 'feature',
         properties: {
           confidence: confidence / 20,
-          brightness: (brightness - 300) / 40
+          brightness: (brightness - 300) / 40,
+          age
         },
         geometry: {
           type: 'Point',
