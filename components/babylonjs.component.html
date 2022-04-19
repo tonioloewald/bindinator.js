@@ -29,14 +29,14 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
 </style>
 <canvas class="babylonjs">
 </canvas>
-<script>
+<script type="module">
 /* global findOne */
   const {viaTag} = await import('../lib/scripts.js');
   const {BABYLON} = await viaTag('https://cdn.babylonjs.com/babylon.max.js');
   await viaTag('https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js');
   const canvas = findOne('canvas');
   const engine = new BABYLON.Engine(canvas, true);
-  const createScene = function () {
+  const createScene = async function () {
     const scene = new BABYLON.Scene(engine);
     const hemi = new BABYLON.HemisphericLight();
     hemi.intensity = 0.5;
@@ -58,17 +58,40 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
     // The first parameter can be used to specify which mesh to import. Here we import all meshes
     BABYLON.SceneLoader.Append("./test/", "omnidude.glb", scene, function (newMeshes) {
       scene.activeCamera = null;
+
+      scene.createDefaultCameraOrLight(true);
+      scene.activeCamera.attachControl(canvas, false);
+      scene.activeCamera.setPosition(new BABYLON.Vector3(-1.5, 1, 1.5));
+
+      const probe = new BABYLON.ReflectionProbe("main", 512, scene);
+      const cube = scene.getMeshByName('Cube.001');
+
       for(const mesh of newMeshes.meshes) {
         shadowGenerator.addShadowCaster(mesh);
         mesh.receiveShadows = true;
+        if (mesh !== cube) {
+          probe.renderList.push(mesh)
+        }
       }
-      scene.createDefaultCameraOrLight(true);
-      scene.activeCamera.attachControl(canvas, false);
-        scene.activeCamera.setPosition(new BABYLON.Vector3(1.5, 1, 1.5));
+
+      const cubeMaterial = new BABYLON.StandardMaterial("main", scene);
+      probe.attachToMesh(cube)
+      cube.material = cubeMaterial;
+      set({probe})
+      
+      cubeMaterial.diffuseColor = new BABYLON.Color3(0.2,0.25,0.5);	
+      cubeMaterial.reflectionTexture = probe.cubeTexture;
+      cubeMaterial.reflectionFresnelParameters = new BABYLON.FresnelParameters();
+      cubeMaterial.reflectionFresnelParameters.bias = 0.02;
     });
-    
+    // const xr = scene.createDefaultXRExperienceAsync();
+
     return scene;
   }
-  const scene = createScene();
+  const scene = await createScene();
+
+  const glowLayer = new BABYLON.GlowLayer("glow", scene)
+  glowLayer.intensity = 1
+  set({scene})
   engine.runRenderLoop(scene.render.bind(scene));
 </script>
