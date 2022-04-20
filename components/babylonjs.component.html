@@ -5,7 +5,7 @@ It's probably the most capable native 3D engine available for browsers. Unlike t
 it has first class support for glb/gltf files, making it very easy to import content.
 
 This scene contains elements modeled in Cheetah3D and exported as .glb, this was
-imported into Blender 2.8 to adjust the materials (Blender's internal shaders retain
+imported into Blender to adjust the materials (Blender's internal shaders retain
 more information when exported.)
 
 This scene demonstrates support for:
@@ -17,6 +17,8 @@ This scene demonstrates support for:
 - transparency
 - embedded texture maps
 - keyframe animation (the cube)
+- reflection probe (the cube)
+- glow layer (allowing emissive materials to glow)
 
 **Note**: getting keyframe animation to export was incredibly unintuitive. I got it to work
 by toggling off `Animation > Animation > Group` by NLA Track in the export dialog.
@@ -74,12 +76,10 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
         }
       }
 
-      const cubeMaterial = new BABYLON.StandardMaterial("main", scene);
+      const cubeMaterial = cube.material;
       probe.attachToMesh(cube)
-      cube.material = cubeMaterial;
       set({probe})
       
-      cubeMaterial.diffuseColor = new BABYLON.Color3(0.2,0.25,0.5);	
       cubeMaterial.reflectionTexture = probe.cubeTexture;
       cubeMaterial.reflectionFresnelParameters = new BABYLON.FresnelParameters();
       cubeMaterial.reflectionFresnelParameters.bias = 0.02;
