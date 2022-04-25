@@ -24,13 +24,24 @@ This scene demonstrates support for:
 by toggling off `Animation > Animation > Group` by NLA Track in the export dialog.
 -->
 <style>
-  .babylonjs {
-    width: 640px;
-    height: 360px;
+  ._component_ {
+    position: relative;
+    min-height: 400px;
+  }
+
+  ._component_ .maximize {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
+  ._component_ .babylonjs {
+    width: 100%;
+    height: 100%;
   }
 </style>
 <canvas class="babylonjs">
 </canvas>
+<button class="maximize" data-event="click:_component_.toggleFullscreen"><span class="icon-enlarge7"></span></button>
 <script type="module">
 /* global findOne */
   const {viaTag} = await import('../lib/scripts.js');
@@ -57,7 +68,7 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
     const camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 10, BABYLON.Vector3.Zero(), scene);
     b8r.register('babylonjs', {camera, scene});
 
-    // The first parameter can be used to specify which mesh to import. Here we import all meshes
+    // The first parameter can be used to specify which mesh to import. Here we import all m eshes
     BABYLON.SceneLoader.Append("./test/", "omnidude.glb", scene, function (newMeshes) {
       scene.activeCamera = null;
 
@@ -92,6 +103,25 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
 
   const glowLayer = new BABYLON.GlowLayer("glow", scene)
   glowLayer.intensity = 1
-  set({scene})
-  engine.runRenderLoop(scene.render.bind(scene));
+  let lastUpdate = 0
+  const fps = 60
+  const render = () => {
+    if (Date.now() - lastUpdate > 1000 / get('fps')) {
+      scene.render()
+      lastUpdate = Date.now()
+    }
+  }
+  engine.runRenderLoop(render);
+
+  set({
+    fps,
+    engine,
+    scene,
+    destroy() {
+      engine.stopRenderLoop(render)
+    },
+    toggleFullscreen () {
+      engine.switchFullscreen()
+    }
+  })
 </script>
