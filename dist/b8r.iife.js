@@ -7470,7 +7470,7 @@ var b8r = (function () {
 
   ```
   // you cannot redefine an existing web-component so we need a unique name for refreshes
-  const componentName = 'simple-button-' + b8r.id()
+  const componentName = 'simple-button-' + Math.random()
   const {makeWebComponent, div} = b8r.webComponents
   const elt = b8r.create(componentName)
   elt.textContent = 'Click Me'
@@ -8760,7 +8760,9 @@ var b8r = (function () {
           this.parentElement && this.parentElement.closest(UNREADY_SELECTOR);
         if (unready) return
         if (this.name) {
-          b8r.insertComponent(this.name, this);
+          if (!this.closest('[data-list]')) {
+            b8r.insertComponent(this.name, this);
+          }
         } else {
           b8r.removeComponent(this);
         }
