@@ -831,7 +831,9 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
         this.parentElement && this.parentElement.closest(UNREADY_SELECTOR)
       if (unready) return
       if (this.name) {
-        b8r.insertComponent(this.name, this)
+        if (!this.closest('[data-list]')) {
+          b8r.insertComponent(this.name, this)
+        }
       } else {
         b8r.removeComponent(this)
       }
