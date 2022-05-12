@@ -42,9 +42,11 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
 </style>
 <canvas class="babylonjs">
 </canvas>
-<button class="maximize" data-event="click:_component_.toggleFullscreen"><span class="icon-enlarge7"></span></button>
+<button class="maximize" data-event="click:_component_.toggleFullscreen">
+  <span data-bind="class(icon-shrink7|icon-enlarge7)=_component_.isFullscreen"></span>
+</button>
 <script type="module">
-/* global findOne */
+/* global component, findOne */
   const {viaTag} = await import('../lib/scripts.js');
   const {BABYLON} = await viaTag('https://cdn.babylonjs.com/babylon.max.js');
   await viaTag('https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js');
@@ -121,8 +123,17 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
     destroy() {
       engine.stopRenderLoop(render)
     },
-    toggleFullscreen () {
-      engine.switchFullscreen()
+    isFullScreen: false,
+    async toggleFullscreen () {
+      const {isFullscreen} = get()
+      if(isFullscreen) {
+        await document.exitFullscreen()
+        engine.resize()
+      } else {
+        await component.requestFullscreen()
+        engine.resize()
+      }
+      set({isFullscreen: !isFullscreen})
     }
   })
 </script>
