@@ -584,6 +584,10 @@
         "path": "babylonjs.component.html"
       },
       {
+        "name": "image-edtior (fabricjs)",
+        "path": "components/fabric.js"
+      },
+      {
         "name": "Chart",
         "path": "chart.component.html"
       },
