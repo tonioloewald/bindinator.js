@@ -7,6 +7,9 @@ by leveraging fabricjs's serialization (`toJSON`, `loadFromJSON`) methods.
 The editor can be configured to edit a specified image using the `data-image-url` attribute or
 by using the `init` method.
 
+Any children of the editor will be added to its "toolbar", which is by default at the top. If
+you set the component's style to "flex-direction: column-reverse" then the bar will be at the bottom.
+
 <b8r-component path="../components/fabric.js" data-image-url="/test/portraits/weasel.png">
   <button data-event="click:_component_.addRect">Rect</button>
   <button data-event="click:_component_.addText">Text</button>
@@ -296,7 +299,7 @@ export default {
       },
       export() {
         const {fabricCanvas} = get()
-        const [,,,x,y] = [...fabricCanvas.viewportTransform]
+        const savedTransform = [...fabricCanvas.viewportTransform]
         const scale = fabricCanvas.getZoom()
 
         fabricCanvas.setZoom(1)
@@ -304,8 +307,7 @@ export default {
         fabricCanvas.viewportTransform[5] = 0
         const dataUrl = fabricCanvas.toDataURL()
         fabricCanvas.setZoom(scale)
-        fabricCanvas.viewportTransform[4] = x
-        fabricCanvas.viewportTransform[5] = y
+        fabricCanvas.viewportTransform = savedTransform
         const w = window.open()
         const img = w.document.createElement('img')
         img.src = dataUrl
