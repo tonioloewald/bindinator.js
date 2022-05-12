@@ -9,7 +9,8 @@
 export default {
   css: `
     ._component_ {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       box-shadow: var(--shadow-outline);
       padding: var(--narrow-spacing-size) var(--spacing-size);
       background: var(--content-bg-color);

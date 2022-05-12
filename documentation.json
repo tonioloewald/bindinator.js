@@ -418,11 +418,11 @@
         "path": "tab-scroller.component.html"
       },
       {
-        "name": "Image Editor",
-        "path": "image-editor.component.html"
+        "name": "image-edtior (fabricjs)",
+        "path": "components/fabric.js"
       },
       {
-        "name": "Filter",
+        "name": "Filter (WIP)",
         "path": "components/filter.component.js"
       },
       {
@@ -560,6 +560,10 @@
         "path": "hello.component.html"
       },
       {
+        "name": "image filters (glfx)",
+        "path": "image-editor.component.html"
+      },
+      {
         "name": "To Do (Simple)",
         "path": "todo-simple.component.html"
       },
@@ -582,10 +586,6 @@
       {
         "name": "3d (babylonjs)",
         "path": "babylonjs.component.html"
-      },
-      {
-        "name": "image-edtior (fabricjs)",
-        "path": "components/fabric.js"
       },
       {
         "name": "Chart",
