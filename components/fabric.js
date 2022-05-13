@@ -10,7 +10,7 @@ by using the `init` method.
 Any children of the editor will be added to its "toolbar", which is by default at the top. If
 you set the component's style to "flex-direction: column-reverse" then the bar will be at the bottom.
 
-<b8r-component path="../components/fabric.js" data-image-url="/test/portraits/weasel.png">
+<b8r-component path="../components/fabric.js" data-image-url="/test/portraits/weasel.png" style="height: 400px">
   <button data-event="click:_component_.addRect">Rect</button>
   <button data-event="click:_component_.addText">Text</button>
   <button data-event="click:_component_.toggleDraw" data-stroke="2,#11ad">Pen</button>
@@ -33,6 +33,13 @@ you set the component's style to "flex-direction: column-reverse" then the bar w
 import { viaTag } from '../lib/scripts.js'
 import { imagePromise } from '../source/b8r.imgSrc.js'
 
+function clamp(x, min, max) {
+  if (max < min) {
+    [max, min] = [min, max]
+  }
+  return x < min ? min : (x > max ? max : x)
+}
+
 export default {
   css: `
     ._component_ {
@@ -40,7 +47,6 @@ export default {
       flex-direction: column;
       background: #444;
       overflow: hidden;
-      min-height: 400px;
       position: relative;
     }
 
@@ -55,6 +61,7 @@ export default {
 
     ._component_ .row {
       display: flex;
+      flex: 0 0 auto;
     }
 
     ._component_ .elastic {
@@ -80,6 +87,7 @@ export default {
     }
 
     ._component_ .container {
+      flex: 1 1 auto;
       position: relative;
     }
   `,
@@ -93,8 +101,6 @@ export default {
     b8r.implicitlyHandleEventsOfType('touchstart')
     b8r.implicitlyHandleEventsOfType('touchmove')
     b8r.implicitlyHandleEventsOfType('touchend')
-
-    const { imageUrl } = component.dataset
     const container = findOne('.container')
 
     const trackState = () => {
@@ -110,15 +116,12 @@ export default {
     const panZoom = function (opt) {
       const delta = -opt.e.wheelDeltaY * 0.25
 
-      const { fabricCanvas } = get()
+      const { fabricCanvas, zoomToPoint } = get()
+      const minScale = get().minScale()
+      const {width, height} = fabricCanvas
       let zoom = fabricCanvas.getZoom()
       zoom *= 0.999 ** delta
-      if (zoom > 20) zoom = 20
-      if (zoom < 0.01) zoom = 0.01
-      fabricCanvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
-
-      fabricCanvas.viewportTransform[4] -= opt.e.deltaX
-      fabricCanvas.viewportTransform[5] -= opt.e.deltaY
+      zoomToPoint(opt.e.offsetX, opt.e.offsetY, -opt.e.deltaX, -opt.e.deltaY, zoom)
 
       if (opt.e.stopPropagation) {
         opt.e.preventDefault()
@@ -126,59 +129,58 @@ export default {
       }
     }
 
-    const init = async image => {
-      set({ skipTracking: true })
-      container.textContent = ''
-      const canvas = b8r.create('canvas')
-      container.append(canvas)
-      if (typeof image === 'string') {
-        image = await imagePromise(image)
-      }
-      let baseImage = null
-      const width = image ? image.width : canvas.offsetWidth
-      const height = image ? image.height : canvas.offsetHeight
+    return {
+      async init(image) {
+        set({ skipTracking: true })
 
-      const fabricCanvas = new fabric.Canvas(canvas, {
-        backgroundColor: '#888',
-        selectionColor: '#0ff8',
-        selectionLineWidth: 2,
-        width,
-        height
-      })
+        container.textContent = ''
+        const canvas = b8r.create('canvas')
+        container.append(canvas)
+        if (typeof image === 'string') {
+          image = await imagePromise(image)
+        }
+        let baseImage = null
+        const width = image ? image.width : canvas.offsetWidth
+        const height = image ? image.height : canvas.offsetHeight
 
-      if (image) {
-        baseImage = new fabric.Image(image, {
-          left: 0,
-          top: 0,
-          angle: 0,
-          opacity: 1,
-          selectable: false,
-          hoverCursor: 'default',
+        const fabricCanvas = new fabric.Canvas(canvas, {
+          backgroundColor: '#888',
+          selectionColor: '#0ff8',
+          selectionLineWidth: 2,
+          width,
+          height
+        })
+
+        if (image) {
+          baseImage = new fabric.Image(image, {
+            left: 0,
+            top: 0,
+            angle: 0,
+            opacity: 1,
+            selectable: false,
+            hoverCursor: 'default',
+          })
+          fabricCanvas.add(baseImage)
+        }
+
+        const undoBuffer = [fabricCanvas.toObject()]
+
+        fabricCanvas.on('selection:created', () => { set({ hasSelection: true }) })
+        fabricCanvas.on('selection:cleared', () => { set({ hasSelection: false }) })
+        fabricCanvas.on('object:modified', trackState)
+        fabricCanvas.on('object:added', trackState)
+        fabricCanvas.on('object:removed', trackState)
+        fabricCanvas.on('mouse:wheel', panZoom)
+
+        set({
+          fabricCanvas,
+          undoBuffer,
+          canUndo: false,
+          undoDepth: 0,
+          baseImage, 
           skipTracking: false
         })
-        fabricCanvas.add(baseImage)
-      }
-
-      const undoBuffer = [fabricCanvas.toObject()]
-
-      fabricCanvas.on('selection:created', () => { set({ hasSelection: true }) })
-      fabricCanvas.on('selection:cleared', () => { set({ hasSelection: false }) })
-      fabricCanvas.on('object:modified', trackState)
-      fabricCanvas.on('object:added', trackState)
-      fabricCanvas.on('object:removed', trackState)
-      fabricCanvas.on('mouse:wheel', panZoom)
-      set({
-        fabricCanvas,
-        undoBuffer,
-        canUndo: false,
-        undoDepth: 0,
-        baseImage
-      })
-    }
-
-    init(imageUrl)
-
-    return {
+      },
       defaultShape: {
         width: 100,
         height: 100,
@@ -193,7 +195,6 @@ export default {
       },
       skipTracking: false,
       canUndo: false,
-      init,
       addRect () {
         const { fabricCanvas } = get()
         get().exitDraw()
@@ -234,7 +235,7 @@ export default {
       },
       lastTouch: null,
       touchMove (evt) {
-        const { lastTouch, fabricCanvas } = get()
+        const { lastTouch, fabricCanvas, zoomToPoint } = get()
         let zoom = fabricCanvas.getZoom()
         if (evt.touches.length !== 2) {
           set({ lastTouch: null })
@@ -250,15 +251,24 @@ export default {
           }
           if (lastTouch) {
             zoom *= touch.size / lastTouch.size
-            if (zoom > 20) zoom = 20
-            if (zoom < 0.01) zoom = 0.01
-            fabricCanvas.zoomToPoint({ x, y }, zoom)
-            fabricCanvas.viewportTransform[4] += touch.x - lastTouch.x
-            fabricCanvas.viewportTransform[5] += touch.y - lastTouch.y
+            zoomToPoint(x, y, touch.x - lastTouch.x, touch.y - lastTouch.y, zoom)
           }
           set({ lastTouch: touch })
         }
         return true
+      },
+      zoomToPoint(x, y, deltaX, deltaY, zoom) {
+        const {fabricCanvas} = get()
+        const minScale = get().minScale()
+        const {width, height} = fabricCanvas
+
+        zoom = clamp(zoom, minScale, 4)
+        fabricCanvas.zoomToPoint({x, y}, zoom)
+        const {offsetWidth, offsetHeight} = container
+        const _x = fabricCanvas.viewportTransform[4] + deltaX
+        const _y = fabricCanvas.viewportTransform[5] + deltaY
+        fabricCanvas.viewportTransform[4] = clamp(_x, offsetWidth - zoom * width, 0)
+        fabricCanvas.viewportTransform[5] = clamp(_y, offsetHeight - zoom * height, 0)
       },
       undo () {
         get().exitDraw()
@@ -306,11 +316,15 @@ export default {
           console.log(drawingMode, elt.textContent, elt.textContent === drawingMode)
         })
       },
+      minScale() {
+        const {fabricCanvas} = get()
+        return Math.min(1, container.offsetWidth / fabricCanvas.getWidth(), container.offsetHeight / fabricCanvas.getHeight())
+      },
       zoom (evt) {
         const { fabricCanvas } = get()
         let scale = Number(evt.target.dataset.scale)
         if (!scale) {
-          scale = Math.min(container.offsetWidth / fabricCanvas.getWidth(), container.offsetHeight / fabricCanvas.getHeight())
+          scale = get().minScale()
         }
         const x = (container.offsetWidth - (scale * fabricCanvas.getWidth())) * 0.5
         const y = (container.offsetHeight - (scale * fabricCanvas.getHeight())) * 0.5
@@ -360,5 +374,9 @@ export default {
         w.document.body.append(img)
       }
     }
+  },
+  async load({component, get}){
+    const { imageUrl } = component.dataset
+    get().init(imageUrl)
   }
 }
