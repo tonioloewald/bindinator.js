@@ -30,8 +30,8 @@ you set the component's style to "flex-direction: column-reverse" then the bar w
 </b8r-component>
 */
 
-import {viaTag} from '../lib/scripts.js'
-import {imagePromise} from '../source/b8r.imgSrc.js'
+import { viaTag } from '../lib/scripts.js'
+import { imagePromise } from '../source/b8r.imgSrc.js'
 
 export default {
   css: `
@@ -41,6 +41,7 @@ export default {
       background: #444;
       overflow: hidden;
       min-height: 400px;
+      position: relative;
     }
 
     ._component_ * {
@@ -84,42 +85,49 @@ export default {
   `,
   html: `
     <div data-children class="row"></div>
-    <div class="elastic container"></div>
+    <div class="elastic container" data-event="touchstart,touchmove,touchend:_component_.touchMove"></div>
   `,
-  async initialValue({b8r, component, findOne, find, get, set}) {
+  async initialValue ({ b8r, component, findOne, find, get, set }) {
     await viaTag('https://cdnjs.cloudflare.com/ajax/libs/fabric.js/521/fabric.min.js')
     b8r.onAny('keydown(Backspace)', `${component.dataset.componentId}.deleteSelection`)
+    b8r.implicitlyHandleEventsOfType('touchstart')
+    b8r.implicitlyHandleEventsOfType('touchmove')
+    b8r.implicitlyHandleEventsOfType('touchend')
 
-    const {imageUrl} = component.dataset
+    const { imageUrl } = component.dataset
     const container = findOne('.container')
 
     const trackState = () => {
-      const {skipTracking, undoBuffer, fabricCanvas} = get()
+      const { skipTracking, undoBuffer, fabricCanvas } = get()
       if (skipTracking) {
         return
       }
       undoBuffer.splice(0, get().undoDepth)
       undoBuffer.unshift(fabricCanvas.toObject())
-      set({undoBuffer, canUndo: true, undoDepth: 0})
+      set({ undoBuffer, canUndo: true, undoDepth: 0 })
     }
 
-    const panZoom = function(opt) {
+    const panZoom = function (opt) {
       const delta = -opt.e.wheelDeltaY * 0.25
 
-      let zoom = this.getZoom()
+      const { fabricCanvas } = get()
+      let zoom = fabricCanvas.getZoom()
       zoom *= 0.999 ** delta
       if (zoom > 20) zoom = 20
       if (zoom < 0.01) zoom = 0.01
-      this.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
+      fabricCanvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
 
-      this.viewportTransform[4] -= opt.e.deltaX
-      this.viewportTransform[5] -= opt.e.deltaY
+      fabricCanvas.viewportTransform[4] -= opt.e.deltaX
+      fabricCanvas.viewportTransform[5] -= opt.e.deltaY
 
-      opt.e.preventDefault()
-      opt.e.stopPropagation()
+      if (opt.e.stopPropagation) {
+        opt.e.preventDefault()
+        opt.e.stopPropagation()
+      }
     }
 
     const init = async image => {
+      set({ skipTracking: true })
       container.textContent = ''
       const canvas = b8r.create('canvas')
       container.append(canvas)
@@ -145,15 +153,16 @@ export default {
           angle: 0,
           opacity: 1,
           selectable: false,
-          hoverCursor: 'default'
+          hoverCursor: 'default',
+          skipTracking: false
         })
         fabricCanvas.add(baseImage)
       }
 
       const undoBuffer = [fabricCanvas.toObject()]
 
-      fabricCanvas.on('selection:created', () => { set({hasSelection: true}) })
-      fabricCanvas.on('selection:cleared', () => { set({hasSelection: false}) })
+      fabricCanvas.on('selection:created', () => { set({ hasSelection: true }) })
+      fabricCanvas.on('selection:cleared', () => { set({ hasSelection: false }) })
       fabricCanvas.on('object:modified', trackState)
       fabricCanvas.on('object:added', trackState)
       fabricCanvas.on('object:removed', trackState)
@@ -163,7 +172,7 @@ export default {
         undoBuffer,
         canUndo: false,
         undoDepth: 0,
-        baseImage,
+        baseImage
       })
     }
 
@@ -175,30 +184,30 @@ export default {
         height: 100,
         left: 100,
         top: 100,
-        strokeUniform: true,
+        strokeUniform: true
       },
       settings: {
         strokeWidth: 2,
         stroke: '#f008',
-        fill: '#f00d',
+        fill: '#f00d'
       },
       skipTracking: false,
       canUndo: false,
       init,
-      addRect() {
-        const {fabricCanvas} = get()
+      addRect () {
+        const { fabricCanvas } = get()
         get().exitDraw()
         fabricCanvas.discardActiveObject()
         const rect = new fabric.Rect({
           ...get().defaultShape,
           ...get().settings,
-          selectable: true,
+          selectable: true
         })
         fabricCanvas.add(rect)
         fabricCanvas.setActiveObject(rect)
       },
       addText () {
-        const {fabricCanvas} = get()
+        const { fabricCanvas } = get()
         get().exitDraw()
         fabricCanvas.discardActiveObject()
         const message = window.prompt('Enter text', 'edit this text')
@@ -210,18 +219,53 @@ export default {
           backgroundColor: '#fffd',
           fill: '#11ad',
           fontFamily: 'Sans-serif'
-        });
+        })
         fabricCanvas.add(text)
         fabricCanvas.setActiveObject(text)
       },
       hasSelection: false,
       drawingMode: false,
+      lockBaseImage () {
+        const { baseImage, fabricCanvas } = get()
+        if (baseImage) {
+          fabricCanvas.getObjects()[0].selectable = false
+          fabricCanvas.getObjects()[0].hoverCursor = 'default'
+        }
+      },
+      lastTouch: null,
+      touchMove (evt) {
+        const { lastTouch, fabricCanvas } = get()
+        let zoom = fabricCanvas.getZoom()
+        if (evt.touches.length !== 2) {
+          set({ lastTouch: null })
+        } else {
+          const [a, b] = evt.touches
+          const x = (a.clientX + b.clientY) * 0.5
+          const y = (a.clientY + b.clientY) * 0.5
+          const touch = {
+            x,
+            y,
+            size: Math.sqrt(Math.pow(a.clientX - b.clientX, 2) + Math.pow(a.clientY - b.clientY, 2)),
+            scale: zoom
+          }
+          if (lastTouch) {
+            zoom *= touch.size / lastTouch.size
+            if (zoom > 20) zoom = 20
+            if (zoom < 0.01) zoom = 0.01
+            fabricCanvas.zoomToPoint({ x, y }, zoom)
+            fabricCanvas.viewportTransform[4] += touch.x - lastTouch.x
+            fabricCanvas.viewportTransform[5] += touch.y - lastTouch.y
+          }
+          set({ lastTouch: touch })
+        }
+        return true
+      },
       undo () {
-        let {undoDepth, undoBuffer, fabricCanvas} = get()
-        set({skipTracking: true})
+        let { undoDepth, undoBuffer, fabricCanvas, lockBaseImage } = get()
+        set({ skipTracking: true })
         undoDepth += 1
-        fabricCanvas.loadFromJSON(undoBuffer[undoDepth])
-        window.requestAnimationFrame(() => {
+        fabricCanvas.loadFromJSON(undoBuffer[undoDepth], () => {
+          lockBaseImage()
           set({
             undoDepth,
             canUndo: undoDepth < undoBuffer.length - 1,
@@ -230,11 +274,11 @@ export default {
         })
       },
       redo () {
-        let {undoBuffer, fabricCanvas, undoDepth} = get()
-        set({skipTracking: true})
+        let { undoBuffer, fabricCanvas, undoDepth, lockBaseImage } = get()
+        set({ skipTracking: true })
         undoDepth -= 1
-        fabricCanvas.loadFromJSON(undoBuffer[undoDepth])
-        window.requestAnimationFrame(() => {
+        fabricCanvas.loadFromJSON(undoBuffer[undoDepth], () => {
+          lockBaseImage()
           set({
             undoDepth,
             canUndo: true,
@@ -242,8 +286,8 @@ export default {
           })
         })
       },
-      toggleDraw(evt) {
-        let {drawingMode, fabricCanvas} = get()
+      toggleDraw (evt) {
+        let { drawingMode, fabricCanvas } = get()
         if (drawingMode === evt.target.textContent) {
           drawingMode = fabricCanvas.isDrawingMode ? false : evt.target.textContent
         } else {
@@ -253,15 +297,15 @@ export default {
         const brush = fabricCanvas.freeDrawingBrush
         brush.color = color
         brush.width = Number(width)
-        set({drawingMode})
+        set({ drawingMode })
         fabricCanvas.isDrawingMode = !!drawingMode
         find('[data-stroke]').forEach(elt => {
           elt.classList.toggle('active', elt.textContent === drawingMode)
           console.log(drawingMode, elt.textContent, elt.textContent === drawingMode)
         })
       },
-      zoom(evt) {
-        const {fabricCanvas} = get()
+      zoom (evt) {
+        const { fabricCanvas } = get()
         let scale = Number(evt.target.dataset.scale)
         if (!scale) {
           scale = Math.min(container.offsetWidth / fabricCanvas.getWidth(), container.offsetHeight / fabricCanvas.getHeight())
@@ -272,33 +316,33 @@ export default {
         fabricCanvas.viewportTransform[4] = x
         fabricCanvas.viewportTransform[5] = y
       },
-      exitDraw() {
-        const {fabricCanvas} = get()
+      exitDraw () {
+        const { fabricCanvas } = get()
         fabricCanvas.isDrawingMode = false
-        set({drawingMode: false})
+        set({ drawingMode: false })
       },
-      moveToFront() {
-        const {fabricCanvas} = get()
+      moveToFront () {
+        const { fabricCanvas } = get()
         fabricCanvas.bringToFront(fabricCanvas.getActiveObject())
       },
-      moveToBack() {
-        const {fabricCanvas, baseImage} = get()
+      moveToBack () {
+        const { fabricCanvas, baseImage } = get()
         fabricCanvas.sendToBack(fabricCanvas.getActiveObject())
-        if(baseImage) {
+        if (baseImage) {
           fabricCanvas.bringForward(fabricCanvas.getActiveObject())
         }
         fabricCanvas.discardActiveObject()
       },
-      deleteSelection() {
-        const {fabricCanvas} = get()
+      deleteSelection () {
+        const { fabricCanvas } = get()
         fabricCanvas.remove(fabricCanvas.getActiveObject())
         return true
       },
-      destroy() {
+      destroy () {
         b8r.offAny('keydown(Backspace)', `${component.dataset.componentId}.deleteSelection`)
       },
-      export() {
-        const {fabricCanvas} = get()
+      export () {
+        const { fabricCanvas } = get()
         const savedTransform = [...fabricCanvas.viewportTransform]
         const scale = fabricCanvas.getZoom()
 
