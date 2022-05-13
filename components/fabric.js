@@ -261,6 +261,7 @@ export default {
         return true
       },
       undo () {
+        get().exitDraw()
         let { undoDepth, undoBuffer, fabricCanvas, lockBaseImage } = get()
         set({ skipTracking: true })
         undoDepth += 1
@@ -274,6 +275,7 @@ export default {
         })
       },
       redo () {
+        get().exitDraw()
         let { undoBuffer, fabricCanvas, undoDepth, lockBaseImage } = get()
         set({ skipTracking: true })
         undoDepth -= 1
