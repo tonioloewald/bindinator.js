@@ -8644,13 +8644,17 @@ var b8r = (function () {
     });
     const get = path => b8r.getByPath(componentId, path);
     const set = (...args) => {
-      b8r.setByPath(componentId, ...args);
-      // updates value bindings
-      if (
-        args[0] === 'value' ||
-        Object.prototype.hasOwnProperty.call(args[0], 'value')
-      ) {
-        b8r.trigger('change', element);
+      if (args.length === 1 && args[0] && args[0].constructor === Object) {
+        b8r.reg[componentId] = args[0];
+      } else {
+        b8r.setByPath(componentId, ...args);
+        // updates value bindings
+        if (
+          args[0] === 'value' ||
+          Object.prototype.hasOwnProperty.call(args[0], 'value')
+        ) {
+          b8r.trigger('change', element);
+        }
       }
     };
     const register = componentData => {

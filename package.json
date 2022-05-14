@@ -65,7 +65,7 @@
           ]
         }
       ],
-      "unit-whitelist": [
+      "unit-allowed-list": [
         "px",
         "vw",
         "vh",
