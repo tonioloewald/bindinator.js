@@ -13,8 +13,8 @@ you set the component's style to "flex-direction: column-reverse" then the bar w
 <b8r-component path="../components/fabric.js" data-image-url="/test/portraits/weasel.png" style="height: 400px">
   <button data-event="click:_component_.addRect">Rect</button>
   <button data-event="click:_component_.addText">Text</button>
-  <button data-event="click:_component_.toggleDraw" data-stroke="2,#11ad">Pen</button>
-  <button data-event="click:_component_.toggleDraw" data-stroke="20,#ff04">Hiliter</button>
+  <button data-bind="_component_.isActive=_component_.activeTool" data-event="click:_component_.toggleDraw" data-stroke="2,#11ad">Pen</button>
+  <button data-bind="_component_.isActive=_component_.activeTool" data-event="click:_component_.toggleDraw" data-stroke="20,#ff04">Hiliter</button>
   <span class="spacer"></span>
   <button data-event="click:_component_.zoom">Fit</button>
   <button data-event="click:_component_.zoom" data-scale="1">100%</button>
@@ -33,7 +33,7 @@ you set the component's style to "flex-direction: column-reverse" then the bar w
 import { viaTag } from '../lib/scripts.js'
 import { imagePromise } from '../source/b8r.imgSrc.js'
 
-function clamp(x, min, max) {
+function clamp (x, min, max) {
   if (max < min) {
     [max, min] = [min, max]
   }
@@ -97,6 +97,7 @@ export default {
   `,
   async initialValue ({ b8r, component, findOne, find, get, set }) {
     await viaTag('https://cdnjs.cloudflare.com/ajax/libs/fabric.js/521/fabric.min.js')
+    /* global fabric */
     b8r.onAny('keydown(Backspace)', `${component.dataset.componentId}.deleteSelection`)
     b8r.implicitlyHandleEventsOfType('touchstart')
     b8r.implicitlyHandleEventsOfType('touchmove')
@@ -117,8 +118,6 @@ export default {
       const delta = -opt.e.wheelDeltaY * 0.25
 
       const { fabricCanvas, zoomToPoint } = get()
-      const minScale = get().minScale()
-      const {width, height} = fabricCanvas
       let zoom = fabricCanvas.getZoom()
       zoom *= 0.999 ** delta
       zoomToPoint(opt.e.offsetX, opt.e.offsetY, -opt.e.deltaX, -opt.e.deltaY, zoom)
@@ -130,7 +129,7 @@ export default {
     }
 
     return {
-      async init(image) {
+      async init (image) {
         set({ skipTracking: true })
 
         container.textContent = ''
@@ -158,7 +157,7 @@ export default {
             angle: 0,
             opacity: 1,
             selectable: false,
-            hoverCursor: 'default',
+            hoverCursor: 'default'
           })
           fabricCanvas.add(baseImage)
         }
@@ -177,7 +176,7 @@ export default {
           undoBuffer,
           canUndo: false,
           undoDepth: 0,
-          baseImage, 
+          baseImage,
           skipTracking: false
         })
       },
@@ -225,7 +224,7 @@ export default {
         fabricCanvas.setActiveObject(text)
       },
       hasSelection: false,
-      drawingMode: false,
+      activeTool: false,
       lockBaseImage () {
         const { baseImage, fabricCanvas } = get()
         if (baseImage) {
@@ -255,16 +254,16 @@ export default {
           }
           set({ lastTouch: touch })
         }
-        return true
+        return !lastTouch
       },
-      zoomToPoint(x, y, deltaX, deltaY, zoom) {
-        const {fabricCanvas} = get()
+      zoomToPoint (x, y, deltaX, deltaY, zoom) {
+        const { fabricCanvas } = get()
         const minScale = get().minScale()
-        const {width, height} = fabricCanvas
+        const { width, height } = fabricCanvas
 
         zoom = clamp(zoom, minScale, 4)
-        fabricCanvas.zoomToPoint({x, y}, zoom)
-        const {offsetWidth, offsetHeight} = container
+        fabricCanvas.zoomToPoint({ x, y }, zoom)
+        const { offsetWidth, offsetHeight } = container
         const _x = fabricCanvas.viewportTransform[4] + deltaX
         const _y = fabricCanvas.viewportTransform[5] + deltaY
         fabricCanvas.viewportTransform[4] = clamp(_x, offsetWidth - zoom * width, 0)
@@ -298,26 +297,26 @@ export default {
           })
         })
       },
-      toggleDraw (evt) {
-        let { drawingMode, fabricCanvas } = get()
-        if (drawingMode === evt.target.textContent) {
-          drawingMode = fabricCanvas.isDrawingMode ? false : evt.target.textContent
-        } else {
-          drawingMode = evt.target.textContent
-        }
-        const [width, color] = evt.target.dataset.stroke.split(',')
-        const brush = fabricCanvas.freeDrawingBrush
-        brush.color = color
-        brush.width = Number(width)
-        set({ drawingMode })
-        fabricCanvas.isDrawingMode = !!drawingMode
-        find('[data-stroke]').forEach(elt => {
-          elt.classList.toggle('active', elt.textContent === drawingMode)
-          console.log(drawingMode, elt.textContent, elt.textContent === drawingMode)
-        })
+      isActive (elt, activeTool) {
+        elt.classList.toggle('active', elt === activeTool)
       },
-      minScale() {
-        const {fabricCanvas} = get()
+      toggleDraw (evt) {
+        const { fabricCanvas } = get()
+        if (evt.target.classList.contains('active')) {
+          set({ activeTool: false })
+          fabricCanvas.isDrawingMode = false
+        } else {
+          const [width, color] = evt.target.dataset.stroke.split(',')
+          const brush = fabricCanvas.freeDrawingBrush
+          brush.color = color
+          brush.width = Number(width)
+          set({ activeTool: evt.target })
+          // component.data.activeTool = evt.target
+          fabricCanvas.isDrawingMode = true
+        }
+      },
+      minScale () {
+        const { fabricCanvas } = get()
         return Math.min(1, container.offsetWidth / fabricCanvas.getWidth(), container.offsetHeight / fabricCanvas.getHeight())
       },
       zoom (evt) {
@@ -375,7 +374,7 @@ export default {
       }
     }
   },
-  async load({component, get}){
+  async load ({ component, get }) {
     const { imageUrl } = component.dataset
     get().init(imageUrl)
   }
