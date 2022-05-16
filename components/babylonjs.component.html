@@ -40,13 +40,7 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
     height: 100%;
   }
 </style>
-<canvas 
-    class="babylonjs" 
-    data-event="
-        mousemove:_component_.hover
-        mouseup:_component_.pick
-    "
->
+<canvas class="babylonjs" data-event="mousedown:_component_.pick">
 </canvas>
 <button class="maximize" data-event="click:_component_.toggleFullscreen">
   <span data-bind="class(icon-shrink7|icon-enlarge7)=_component_.isFullscreen"></span>
@@ -109,7 +103,13 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
     return scene;
   }
   const scene = await createScene();
-  var highlightLayer = new BABYLON.HighlightLayer("hl1", scene);
+  const highlightLayer = new BABYLON.HighlightLayer("hl1", scene);
+  scene.onPointerDown = (evt, info) =>{
+    highlightLayer.removeAllMeshes()
+    if (info.hit) {
+      highlightLayer.addMesh(info.pickedMesh, BABYLON.Color3.FromHexString('#aaaaff'))
+    }
+  }
 
   const glowLayer = new BABYLON.GlowLayer("glow", scene)
   glowLayer.intensity = 1
@@ -127,8 +127,6 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
     fps,
     engine,
     scene,
-    highlightLayer,
-    pickedMesh: null,
     destroy() {
       engine.stopRenderLoop(render)
     },
@@ -144,25 +142,5 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
       }
       set({isFullscreen: !isFullscreen})
     },
-    hover(){
-	    const pickResult = scene.pick(scene.pointerX, scene.pointerY);
-      let {pickedMesh, highlightLayer} = get()
-	    if (pickResult.hit) {
-        if (pickedMesh !== pickResult.pickedMesh) {
-          if(pickedMesh) {
-            highlightLayer.removeMesh(pickedMesh)
-          }
-          pickedMesh = pickResult.pickedMesh
-          highlightLayer.addMesh(pickedMesh, BABYLON.Color3.FromHexString('#aaaaff'))
-          set({pickedMesh})
-        }	          
-    	}	else if (pickedMesh) {
-        highlightLayer.removeMesh(pickedMesh)
-        set({pickedMesh: null})
-      }
-    },
-    pick() {
-	    const pickResult = scene.pick(scene.pointerX, scene.pointerY);
-    }
   })
 </script>
