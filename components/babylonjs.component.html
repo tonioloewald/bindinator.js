@@ -26,7 +26,8 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
 <style>
   ._component_ {
     position: relative;
-    min-height: 400px;
+    width: 50vw;
+    height: 50vh;
   }
 
   ._component_ .maximize {
@@ -69,7 +70,6 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
 
     //Adding an Arc Rotate Camera
     const camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 10, BABYLON.Vector3.Zero(), scene);
-    b8r.register('babylonjs', {camera, scene});
 
     // The first parameter can be used to specify which mesh to import. Here we import all m eshes
     BABYLON.SceneLoader.Append("./test/", "omnidude.glb", scene, function (newMeshes) {
@@ -114,7 +114,7 @@ by toggling off `Animation > Animation > Group` by NLA Track in the export dialo
   const glowLayer = new BABYLON.GlowLayer("glow", scene)
   glowLayer.intensity = 1
   let lastUpdate = 0
-  const fps = 60
+  const fps = 30
   const render = () => {
     if (Date.now() - lastUpdate > 1000 / get('fps')) {
       scene.render()
