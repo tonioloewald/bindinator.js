@@ -8,6 +8,10 @@
 - automatically runs inline tests and flags failures
 -->
 <style>
+  :root {
+    --touch-size: 44px;
+    --topbar-size: calc(var(--touch-size) + 10px);
+  }
   @media not print {
     ._component_ {
       top: 0;
@@ -23,7 +27,7 @@
     }
   }
   @media print {
-    ._component_ > .nav {
+    ._component_ > nav {
       display: none;
     }
 
@@ -41,29 +45,37 @@
     transition: var(--hover-transition);
   }
 
-  ._component_ > .nav {
-    top: 0;
+  ._component_ > nav {
+    top: var(--topbar-size);
     bottom: 0;
-    width: 180px;
-    padding: 10px 0;
+    left: -230px;
+    transition: 0.25s ease-out;
+    width: 240px;
     background-color: var(--bright-accent-color);
     box-shadow: -10px 0 0 0 var(--bright-accent-color);
     overflow-y: scroll;
     overflow-y: overlay;
     text-align: right;
+    background: var(--bg-color);
+  }
+
+  ._component_ > nav:hover,
+  ._component_ > nav.active {
+    left: 0;
   }
 
   ._component_ > .content {
-    top: 0;
+    left: calc(var(--touch-size) * 0.5);
     right: 0;
+    top: calc(var(--touch-size) + 20px);
     bottom: 0;
-    min-height: 100%;
+    min-height: calc(100vh - var(--touch-size) - 20px);
     padding: 0;
     background: var(--content-bg-color);
   }
 
   ._component_ > .content > *,
-  ._component_ > .nav > * {
+  ._component_ > nav > * {
     max-width: 100%;
     margin: 4px 12px;
   }
@@ -72,13 +84,13 @@
     max-width: 100%;
   }
 
-  ._component_ > .nav > * {
+  ._component_ > nav > * {
     margin-left: auto;
-    width: 160px;
+    width: 220px;
     text-align: left;
   }
 
-  ._component_ > .nav ::-webkit-details-marker {
+  ._component_ > nav ::-webkit-details-marker {
     color: var(--accent-color);
   }
 
@@ -92,7 +104,7 @@
     border-radius: 0;
   }
 
-  ._component_ > .nav summary {
+  ._component_ > nav summary {
     cursor: pointer;
     font-weight: 500;
     color: var(--faded-text-color);
@@ -110,11 +122,11 @@
     cursor: pointer;
   }
 
-  ._component_ > .nav details[open] summary {
+  ._component_ > nav details[open] summary {
     margin: 2px -5px -1px 0;
   }
 
-  ._component_ > .nav details[open] summary ~ * {
+  ._component_ > nav details[open] summary ~ * {
     animation: fade-in var(--hover-transition);
   }
 
@@ -230,12 +242,14 @@
   }
 
   .in-page-nav {
+    top: var(--topbar-size); 
+    right: 0;
     z-index: 3;
     background: var(--faded-bg-color);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.25);
     border-radius: 5px;
-    opacity: 0.6;
-    transition: opacity ease-out 0.1s;
+    opacity: 0.8;
+    transition: ease-out 0.1s;
     padding: 0 0 5px;
     width: 320px;
     max-height: 30px;
@@ -245,11 +259,18 @@
     backdrop-filter: blur(3px);
     overflow-y: scroll;
     overflow-y: overlay;
+    max-height: calc(100vh - var(--topbar-size));
   }
 
-  .in-page-nav:hover {
-    max-height: calc(100vh - 30px);
-    opacity: 0.8;
+  .in-page-nav:not(.active) {
+    top: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .in-page-nav.active {
+    opacity: 1;
+    pointer-events: ;
   }
 
   .in-page-nav > h5 {
@@ -292,27 +313,69 @@
 
   ._component_ .errors {
     background: var(--error-bg);
-    text-align: center;
-    padding: 2.5px 5px;
-    position: fixed;
-    top: 5px;
-    left: 5px;
+    border-radius: 4px;
   }
   
   ._component_ .errors::after {
     content: ' test(s) failed';
   }
+
+  ._component_ .topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--topbar-size);
+    background: var(--bright-accent-color);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+  }
+
+  ._component_ .topbar > * {
+    padding: 10px;
+  }
+
+  ._component_ .elastic {
+    flex: 1 1 10px;
+  }
+
+  ._component_ .icon-arrow-right,
+  ._component_ .icon-arrow-down {
+    transition: 0.2s ease-out;
+  }
+
+  ._component_ .rotate-right {
+    transform: rotateZ(90deg);
+  }
+
+  ._component_ .rotate-left {
+    transform: rotateZ(-90deg); 
+  }
+
+  ._component_ .flip {
+    transform: rotateZ(180deg); 
+  }
+
+  ._component_ .topbar > button {
+    position: relative;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  ._component_ .topbar > button > * {
+    display: inline-block;
+  }
 </style>
 <div class="content" data-event="md-render:_component_.updateNav"></div>
-<div class="nav" data-bind="class(localhost)=_component_.localhost">
-  <div style="text-align: center; padding-bottom: 10px">
-    <img
-      class="nav-logo"
-      alt="bindinator logo"
-      style="height: 24px"
-      src="images/bindinator-logo-notext-mono.svg"
-    >
-  </div>
+<div class="topbar">
+  <button data-event="click:_component_.toggleNav" title="toggle navigation">
+    <span 
+        class="icon-arrow-right"
+        data-bind="class(rotate-right)=_component_.navActive"
+    ></span>
+  </button>
   <b8r-component
     data-placeholder="search docs"
     path="./components/search-field"
@@ -322,6 +385,27 @@
       input,change:_component_.filterDocs
     "
   ></b8r-component>
+  <h3 data-bind="text=_component_.title"></h3>
+  <span class="elastic"></span>
+  <div class="errors" data-bind="show_if,text=_component_.testErrors"></div>
+  <button
+      title="toggle bookmarks"
+      data-bind="enabled_if=_component_.pageLinks.length"
+      data-event="click:_component_.toggleBookmarks"
+  >
+    <span 
+      class="icon-arrow-left"
+      data-bind="class(rotate-left)=_component_.bookmarksActive"
+    ></span>
+  </button>
+</div>
+<nav 
+    data-bind="
+        class(localhost)=_component_.localhost
+        class(active)=_component_.navActive
+    "
+    dara-event="mouseleave:_component_.hideNav"
+>
   <details
     data-list="_component_.docs:title"
     data-bind="hide_if=._hide;prop(open)=._open"
@@ -338,16 +422,12 @@
       File Name
     </div>
   </details>
-</div>
-<div class="errors" data-bind="show_if,text=_component_.testErrors"></div>
+</nav>
 <b8r-float
   drag="true"
   class="in-page-nav" 
-  data-bind="show_if=_component_.pageLinks.length"
-  data-event="mouseleave:_component_.scrollNavToTop"
-  style="top: 10px; right: 10px;"
+  data-bind="class(active)=_component_.bookmarksActive"
 >
-  <h5 class="floater-title">Contents</h5>
   <div 
     data-list="_component_.pageLinks"
     data-bind="text=.title;attr(class)=.className"
@@ -363,7 +443,7 @@
   import('../web-components/float.js');
   const getSource = () => parseSearch().source || get('docs')[0].parts[0].path
   const content = findOne('.content');
-  const nav = findOne('.nav');
+  const nav = findOne('nav');
   function markCurrent() {
     b8r.afterUpdate(() => {
       const path = getSource()
@@ -388,11 +468,14 @@
         const url = `${origin}${pathname}?body=components/${component_name}`;
         const w = windows.open(url, {width: 800, height: 450});
         w.window.addEventListener('load', () => w.window.document.body.classList.add('fullscreen'))
+        set({title: `${component_name} (html component)`})
       } else {
         const newUrl = window.location.href.split('?')[0] + '?' + 'source=' + part.path
         window.history.pushState({}, part.name, newUrl)
+        set({title: `${part.name}`})
         update()
       }
+      set({navActive: false, bookmarksActive: false, pageLinks: []})
     },
     alertKeystroke: evt => alert(b8r.keystroke(evt)),
   });
@@ -456,7 +539,7 @@
     console.log('Index built', Date.now() - start)
   }
   const updateNav = b8r.debounce(() => {
-    const pageLinks = b8r.findWithin(content, 'h1,h2,h3,.fiddle-component,.test-component [role=heading]')
+    const pageLinks = (b8r.findWithin(content, 'h1,h2,h3,.fiddle-component,.test-component [role=heading]') || [])
       .filter(element => !element.parentElement.closest('fiddle-component'))
       .map(element => {
         const title = element.dataset.componentId 
@@ -502,13 +585,15 @@
   }
   window.addEventListener('popstate', update);
   set({
+    title: 'bindinator documentation',
+    navActive: false,
     year: new Date().getFullYear(),
     searchFilter: '',
     localhost: window.location.hostname === 'localhost',
     testErrors: 0,
     filterDocs: b8r.debounce(() => {
       const docs = get('docs')
-      const searchField = get('searchFilter').toLocaleLowerCase()
+      const searchField = get('searchFilter').toLocaleLowerCase().trim()
       const isFiltered = !!searchField
       docs.forEach(section => {
         section._hide = isFiltered
@@ -520,7 +605,7 @@
         })
         section._open = isFiltered ? !section._hide : section.parts.find(part => part._current)
       })
-      set({docs})
+      set({docs, navActive: !!searchField})
     }),
     buildIndex,
     updateNav,
@@ -528,6 +613,7 @@
     showLink: (evt) => {
       const {element} = b8r.getListInstance(evt.target)
       element.scrollIntoView({behavior: 'smooth'})
+      set({bookmarksActive: false})
     },
     toggle (evt, details) {
       const {title} = b8r.getListInstance(details);
@@ -536,6 +622,18 @@
     },
     scrollNavToTop (evt, target) {
       if (evt.target === target) findOne('.in-page-nav h5').scrollIntoView()
+    },
+    showNav () {
+      set({navActive: true})
+    },
+    hideNav () {
+      set({navActive: false})
+    },
+    toggleNav() {
+      set({navActive: !get().navActive})
+    },
+    toggleBookmarks () {
+      set({bookmarksActive: !get().bookmarksActive})
     },
     destroy() {
       window.removeEventListener('popstate', update);

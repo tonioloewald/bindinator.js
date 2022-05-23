@@ -63,7 +63,7 @@ Test(
   'Async test takes 2s'
 ).shouldBe(17);
 Test(() => add(1,1)).shouldNotBe(3);
-Test(() => add(1,2), 'deliberate test failure').shouldNotBe(3); // expect failure
+// Test(() => add(1,2), 'deliberate test failure').shouldNotBe(3); // expect failure
 ~~~~
 */
 
