@@ -588,6 +588,10 @@
         "path": "babylonjs.component.html"
       },
       {
+        "name": "babylonjs 3d",
+        "path": "components/b3d.js"
+      },
+      {
         "name": "Chart",
         "path": "chart.component.html"
       },
