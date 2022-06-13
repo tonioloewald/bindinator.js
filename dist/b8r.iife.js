@@ -8645,7 +8645,7 @@ var b8r = (function () {
     const get = path => b8r.getByPath(componentId, path);
     const set = (...args) => {
       if (args.length === 1 && args[0] && args[0].constructor === Object) {
-        b8r.reg[componentId] = args[0];
+        Object.assign(b8r.reg[componentId], args[0]);
       } else {
         b8r.setByPath(componentId, ...args);
         // updates value bindings
