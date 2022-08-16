@@ -1358,10 +1358,12 @@ const extendPath = (path, prop) => {
 
 const regHandler = (path = '') => ({
   get (target, prop) {
-    const compoundProp = prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
-                      prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
-                      prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
-                      prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
+    const compoundProp = typeof prop === 'symbol' 
+                      ? prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
+                        prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
+                        prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
+                        prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
+                      : false
     if (compoundProp) {
       const [, basePath, subPath] = compoundProp
       const currentPath = extendPath(path, basePath)
@@ -1379,7 +1381,9 @@ const regHandler = (path = '') => ({
       (Array.isArray(target) && typeof prop === 'string' && prop.includes('='))
     ) {
       let value
-      if (prop.includes('=')) {
+      if (typeof prop === 'symbol') {
+        value = target[prop]
+      } if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=')
         value = target.find(
           candidate => `${getByPath(candidate, idPath)}` === needle
