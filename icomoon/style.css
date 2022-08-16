@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?v6j8d');
-  src:  url('fonts/icomoon.eot?v6j8d#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?v6j8d') format('truetype'),
-    url('fonts/icomoon.woff?v6j8d') format('woff'),
-    url('fonts/icomoon.svg?v6j8d#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?pkz17d');
+  src:  url('fonts/icomoon.eot?pkz17d#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?pkz17d') format('truetype'),
+    url('fonts/icomoon.woff?pkz17d') format('woff'),
+    url('fonts/icomoon.svg?pkz17d#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -13,7 +13,7 @@
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
-  speak: none;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -25,6 +25,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-bookmark-filled:before {
+  content: "\ecb7";
+}
+.icon-bookmark:before {
+  content: "\ecb8";
+}
 .icon-sort:before {
   content: "\e914";
 }

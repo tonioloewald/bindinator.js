@@ -249,7 +249,7 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.25);
     border-radius: 5px;
     opacity: 0.8;
-    transition: ease-out 0.1s;
+    transition: ease-out 0.25s;
     padding: 0 0 5px;
     width: 320px;
     max-height: 30px;
@@ -390,12 +390,16 @@
   <div class="errors" data-bind="show_if,text=_component_.testErrors"></div>
   <button
       title="toggle bookmarks"
-      data-bind="enabled_if=_component_.pageLinks.length"
+      data-bind="enabled_if,show_if=_component_.pageLinks.length"
       data-event="click:_component_.toggleBookmarks"
   >
     <span 
-      class="icon-arrow-left"
-      data-bind="class(rotate-left)=_component_.bookmarksActive"
+      class="icon-bookmark"
+      data-bind="hide_if=_component_.bookmarksActive"
+    ></span>
+    <span 
+      class="icon-bookmark-filled"
+      data-bind="show_if=_component_.bookmarksActive"
     ></span>
   </button>
 </div>
@@ -551,6 +555,9 @@
           element,
         }
       })
+    if (pageLinks.length < 2) {
+      pageLinks.splice(0)
+    }
     set({pageLinks})
   }, 100);
   b8r.json(component.dataset.sourceFiles || 'documentation.json')
