@@ -2,6 +2,9 @@
 # biggrid test
 
 This component serves as a testbed for the [bigrid.js](./?source=lib/biggrid.js) library.
+
+Each of the elements is an input field, so you can try editing the values and verify that 
+the modified values are correctly stored in state.
 -->
 <style>
   ._component_ {
@@ -60,14 +63,14 @@ This component serves as a testbed for the [bigrid.js](./?source=lib/biggrid.js)
   <button data-event="click:biggrid-test.scrollToIndex">100000</button>
 </div>
 <div class="biggrid-test-scroller resizer-target">
-  <div
+  <input
     class="biggrid-test-item"
     data-list="biggrid.slice(biggrid-test.list):id"
     data-bind="
       style(backgroundColor)=.color;
-      text=.id;
+      value=.caption;
     "
-  ></div>
+  >
 </div>
 <span data-component="resizer"></span>
 <div
@@ -85,6 +88,7 @@ This component serves as a testbed for the [bigrid.js](./?source=lib/biggrid.js)
   for (let i = 0; i < 100000; i++) {
     list.push({
       id: i,
+      caption: i,
       color: colors[Math.floor(Math.random() * colors.length)],
     });
   }
