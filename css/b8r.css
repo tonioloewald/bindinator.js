@@ -515,7 +515,7 @@ pre {
 
 code,
 .code {
-  color: var(--code-text-color);
+  color: var(--dark-accent-color);
   font: var(--code-font);
 }
 

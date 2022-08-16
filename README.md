@@ -1,15 +1,40 @@
-<div style="text-align: center">
+<p style="text-align: center">
   <img
     alt="bindinator b∞r logo"
     style="width: 400px; height: 400px; padding: 5vh 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"
     src="https://bindinator.com/images/bindinator-logo.svg"
   >
-</div>
+</p>
+
+# What is Bindinator?
 
 [b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
 [npm](https://www.npmjs.com/package/@tonioloewald/b8r) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
+
+Bindinator (`b8r`) is a fairly small (24kB compressed) front-end javascript library with no transitive 
+dependencies that implements the model-view-controller (MVC) design pattern along with state-management 
+("reactive programming") and separation of concerns.
+
+|| Model || View || Controller
+| objects (and maybe code) | HTML + CSS | code
+| const mvc = {text: 'hello world'} | `&lt;input data-bind="value=mvc.text">` | b8r.reg.mvc = mvc
+
+It's **bind** because `b8r` lets you use HTML **data-attributes** to
+bind data from the model and event-handlers from the controller code with the views.
+
+And it's **inator** because once you *register* an object, bindings are managed automatically and efficiently.
+
+<b8r-component path="components/fiddle" data-source="components/minimal-mvc"></b8r-component>
+
+So, in this case, if the user edits the text in the `<input>` field, then `mvc.text` will
+be updated, and if you update the registry, e.g. b8r.reg.mvc.text = "foo", then the `<input>`
+field will be updated.
+
+> Feel free to use the console to see how b8r.reg.mvc is updated and how modifying it automatically
+> updates the view. (Don't worry, the documentation site intentionally exposes b8r as a global otherwise you wouldn't be able
+> to do this.)
 
 # b8r's Principle of Laziness
 

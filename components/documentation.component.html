@@ -65,9 +65,9 @@
   }
 
   ._component_ > .content {
-    left: calc(var(--touch-size) * 0.5);
+    left: calc(var(--touch-size) * 0.5 - 10px);
     right: 0;
-    top: calc(var(--touch-size) + 20px);
+    top: calc(var(--touch-size) + 10px);
     bottom: 0;
     min-height: calc(100vh - var(--touch-size) - 20px);
     padding: 0;
@@ -345,12 +345,8 @@
     transition: 0.2s ease-out;
   }
 
-  ._component_ .rotate-right {
-    transform: rotateZ(90deg);
-  }
-
-  ._component_ .rotate-left {
-    transform: rotateZ(-90deg); 
+  ._component_ .point-left {
+    transform: rotateZ(180deg);
   }
 
   ._component_ .flip {
@@ -373,7 +369,7 @@
   <button data-event="click:_component_.toggleNav" title="toggle navigation">
     <span 
         class="icon-arrow-right"
-        data-bind="class(rotate-right)=_component_.navActive"
+        data-bind="class(point-left)=_component_.navActive"
     ></span>
   </button>
   <b8r-component

@@ -219,7 +219,8 @@ const DialogModal = makeWebComponent('b8r-modal', {
       top: '50%',
       transform: 'translateX(-50%) translateY(-50%)',
       borderRadius: '4px',
-      boxShadow: '0 10px 20px 0 rgba(0,0,0,0.5)'
+      boxShadow: '0 10px 20px 0 rgba(0,0,0,0.5)',
+      overflow: 'hidden'
     }
   }
 })
