@@ -19,7 +19,7 @@ dependencies that implements the model-view-controller (MVC) design pattern alon
 
 || Model || View || Controller
 | objects (and maybe code) | HTML + CSS | code
-| const mvc = {text: 'hello world'} | `&lt;input data-bind="value=mvc.text">` | b8r.reg.mvc = mvc
+| `{text: 'hello world'}` | `&lt;input data-bind="value=model.text">` | `{ clear(){ b8r.reg.mvc.model.text = '' }` }
 
 It's **bind** because `b8r` lets you use HTML **data-attributes** to
 bind data from the model and event-handlers from the controller code with the views.
@@ -28,13 +28,19 @@ And it's **inator** because once you *register* an object, bindings are managed 
 
 <b8r-component path="components/fiddle" data-source="components/minimal-mvc"></b8r-component>
 
-So, in this case, if the user edits the text in the `<input>` field, then `mvc.text` will
-be updated, and if you update the registry, e.g. b8r.reg.mvc.text = "foo", then the `<input>`
-field will be updated.
+So, in this simple example, if the user edits the text in the `<input>` field, then `model.text` will
+be updated as will the text in the `<p>`, and if you update the registry, e.g. b8r.reg.model.text = "foo", 
+then the `<input>` field and `<p>` will be updated, which is also how the `clear()` function in the 
+controller works.
 
-> Feel free to use the console to see how b8r.reg.mvc is updated and how modifying it automatically
-> updates the view. (Don't worry, the documentation site intentionally exposes b8r as a global otherwise you wouldn't be able
-> to do this.)
+> You can use the console to see how `b8r.reg.model` is updated and how modifying it automatically
+> updates the view. You can also modify the controller to do something else.
+>
+> You might also want to turn on Chrome's "paint flashing" tools and see how efficiently
+> `b8r` updates the DOM.
+>
+> Oh, and don't worry, the documentation site intentionally exposes `b8r` as a global otherwise you wouldn't
+> be able to do this. Normally `b8r` is hidden in a *closure* in production.
 
 # b8r's Principle of Laziness
 

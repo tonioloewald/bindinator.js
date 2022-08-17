@@ -362,7 +362,6 @@ textarea,
 input,
 textarea {
   border-radius: var(--tiny-corner-radius-size);
-  margin: 1px 0;
 }
 
 textarea {

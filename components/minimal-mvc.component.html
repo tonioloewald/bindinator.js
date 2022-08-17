@@ -1,8 +1,15 @@
-<!--
-# minimalist mvc example
--->
-<p data-bind="text=mvc.text"></p>
-<input data-bind="value=mvc.text">
+<h2>Minimalist MVC</h2>
+<p data-bind="text=model.text == “${model.text}”"></p>
+<input data-bind="value=model.text">
+<button data-event="click:controller.clear">Clear</button>
 <script>
-  b8r.reg.mvc = { text: 'hello' }
+  b8r.reg.model = {
+    text: 'hello'
+  }
+
+  b8r.reg.controller = { 
+    clear() {
+      b8r.reg.model.text = ''
+    }
+  }
 </script>
