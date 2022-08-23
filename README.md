@@ -1,20 +1,20 @@
-<p style="text-align: center">
+<h1 style="text-align: center" title="bindinator">
   <img
-    alt="bindinator b∞r logo"
+    alt="bindinator logo"
     style="width: 400px; height: 400px; padding: 5vh 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"
     src="https://bindinator.com/images/bindinator-logo.svg"
   >
-</p>
+</h1>
 
-# What is Bindinator?
+## A Javascript Library for Building Apps
 
 [b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
 [npm](https://www.npmjs.com/package/@tonioloewald/b8r) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
-Bindinator (`b8r`) is a fairly small (24kB compressed) front-end javascript library with no transitive 
-dependencies that implements the model-view-controller (MVC) design pattern along with state-management 
+Bindinator (`b8r`) is a fairly small (24kB compressed) "front-end" javascript library with *no transitive dependencies* 
+that implements the model-view-controller (MVC) design pattern along with state-management 
 ("reactive programming") and separation of concerns.
 
 || Model || View || Controller
