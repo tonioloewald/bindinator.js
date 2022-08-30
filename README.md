@@ -42,7 +42,7 @@ controller works.
 > Oh, and don't worry, the documentation site intentionally exposes `b8r` as a global otherwise you wouldn't
 > be able to do this. Normally `b8r` is hidden in a *closure* in production.
 
-# b8r's Principle of Laziness
+## b8r's Principle of Laziness
 
 - write less code
 - that runs as written
