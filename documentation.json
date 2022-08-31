@@ -108,6 +108,10 @@
         "path": "source/b8r.dom.js"
       },
       {
+        "name": "elements",
+        "path": "source/elements.js"
+      },
+      {
         "name": "events",
         "path": "source/b8r.events.js"
       },
@@ -542,6 +546,10 @@
       {
         "name": "Alphaville",
         "path": "components/alphaville.component.js"
+      },
+      {
+        "name": "Web3 Storage (FileCoin)",
+        "path": "components/filecoin.js"
       },
       {
         "name": "Photo Carousel",
