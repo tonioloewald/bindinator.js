@@ -250,6 +250,7 @@ is removed from the registry.
 
 import { asyncUpdate } from './b8r.update.js'
 import { create, find, findWithin } from './b8r.dom.js'
+import { elements } from './elements.js'
 import { ajax } from './b8r.ajax.js'
 import makeStylesheet from './b8r.makeStylesheet.js'
 import uuid from './uuid.js'
@@ -261,9 +262,14 @@ const componentPromises = {}
 const componentPreloadMap = {}
 const componentTypes = {}
 
-const processComponent = (css, html, name) => {
-  const view = create('div')
-  view.innerHTML = html || ''
+const processComponent = ({name, css, html, view}) => {
+  if (!view) {
+    view = create('div') 
+    view.innerHTML = html || ''
+  } else {
+    const contents = view(elements)
+    view = Array.isArray(contents) ? elements.div(...contents) : elements.div(contents)
+  }
   const className = `${name}-component`
   const style = css ? makeStylesheet(css.replace(/_component_/g, className), className) : false
   for (const elt of findWithin(view, '[class*="_component_"]')) {
@@ -275,11 +281,12 @@ const processComponent = (css, html, name) => {
   return { style, view }
 }
 
-const makeComponentNoEval = function (name, { css, html, load, initialValue, type }) {
-  const {
+const makeComponentNoEval = function (name, { css, html, view, load, initialValue, type }) {
+  let style
+  ({
     style,
     view
-  } = processComponent(css, html, name)
+  } = processComponent({name, css, html, view}))
   const component = {
     version: 2,
     name,
@@ -348,7 +355,7 @@ const makeComponent = (name, source, url, preserveSource) => {
   const {
     style,
     view
-  } = processComponent(css, content, name)
+  } = processComponent({css, html: content, name})
   /* jshint evil: true */
   let load = () => console.debug('b8r-error', 'component', name, 'cannot load properly')
   // check for legacy components
