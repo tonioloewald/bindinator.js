@@ -146,7 +146,7 @@ a {
   border-bottom: 1px dotted var(--link-color);
 }
 
-a:hover {
+a:enabled:hover {
   background: var(--black-10);
 }
 
@@ -424,7 +424,7 @@ button[type='cancel'] {
 }
 
 .iconic:focus,
-.iconic:hover {
+.iconic:enabled:hover {
   box-shadow: none;
   background: var(--white-75);
 }
@@ -450,12 +450,12 @@ button[type='cancel'] {
   display: inline-block;
 }
 
-button:hover,
-.button:hover,
-button.cancel:hover,
-.button.cancel:hover,
-button.default:hover,
-.button.default:hover,
+button:enabled:hover,
+.button:enabled:hover,
+button.cancel:enabled:hover,
+.button.cancel:enabled:hover,
+button.default:enabled:hover,
+.button.default:enabled:hover,
 button:focus,
 .button:focus,
 button.cancel:focus,
@@ -538,7 +538,7 @@ pre > code {
   text-overflow: ellipsis;
 }
 
-.select > :hover {
+.select > :enabled:hover {
   background: var(--black-10);
 }
 
@@ -578,15 +578,15 @@ pre > code {
   background: transparent;
 }
 
-:hover::-webkit-scrollbar-track {
+:enabled:hover::-webkit-scrollbar-track {
   background: var(--black-5);
 }
 
-:hover::-webkit-scrollbar-thumb {
+:enabled:hover::-webkit-scrollbar-thumb {
   background: var(--black-10);
 }
 
-:hover::-webkit-scrollbar-thumb:window-inactive {
+:enabled:hover::-webkit-scrollbar-thumb:window-inactive {
   background: var(--black-5);
 }
 
