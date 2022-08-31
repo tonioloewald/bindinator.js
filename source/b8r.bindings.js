@@ -326,15 +326,16 @@ const parseBinding = binding => {
   }
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*?)=([^;]*)$/m).map(s => s.trim())
-  const targets = targetsRaw.split(',').map(target => {
-    var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/)
+  const targets = targetsRaw.split(',').map(_target => {
+    var parts = _target.match(/([\w#\-.]+)(\(([^)]+)\))?/)
     if (!parts) {
       console.debug('b8r-error', 'bad target', target, 'in binding', binding)
       return
     }
     if (!parts) return null
     if (parts[1].includes('.')) return { target: 'method', key: parts[1] }
-    return { target: parts[1], key: parts[3] }
+    const target = parts[1].replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+    return { target, key: parts[3] }
   })
   if (!path) {
     console.debug('b8r-error', 'binding does not specify source', binding)
