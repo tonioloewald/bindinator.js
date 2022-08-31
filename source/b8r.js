@@ -730,7 +730,7 @@ b8r.insertComponent = async function (component, element, data) {
   }
   const register = componentData => {
     console.debug('b8r-warn',
-      'use of register withi components is deprecated, use set() instead'
+      'use of register withi components is deprecated, use data or set() instead'
     )
     set(componentData)
   }

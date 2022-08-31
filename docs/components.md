@@ -32,11 +32,12 @@ export default {
   css: `
     ._component_ > div { color: yellow }
   `,
-  html: `
-    <div>
-      this text will be yellow
-    </div>
-  `,
+  view({div, span}) { // view is passed the elements object
+    return [
+      div('this text will be yellow'),
+      span('this text will be the usual color')
+    ]
+  },
   initialValue: async ({
     // only destructure the items you need
     component,           // this is the element that the component is inserted into
@@ -50,7 +51,7 @@ export default {
   }) => {
     // your setup code here
     return {
-      ...                // initial state of component
+      ...                // initial properties of component (including methods)
     }
   },
   load: async ({
@@ -62,7 +63,8 @@ export default {
     get,                 // get (within the component's private data)
     set,                 // set (within the component's private data)
     on,                  // b8r.on(component, ...)
-    touch                // refresh the component
+    touch,               // refresh the component
+    data,                // reg proxy for the components private data store
   }) => {
     // your javascript goes here
   },

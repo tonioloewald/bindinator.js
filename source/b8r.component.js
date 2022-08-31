@@ -74,22 +74,25 @@ global declarations.
 
     export default const componentName = makeComponent('component-name', {
       css: '._component_ > div { color: yellow }',
-      html: '<div>this text will be yellow</div>',
-      initialValue: {...},
-                   // specify the component's initial value
-                   // or you can provide an [async] function
-                   // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
-      load: async ({
+      view({div}) {
+        return div('this text will be yellow')
+      },
+      async initialValue({b8r, get, set, touch, on, component, find, findOne}) {
+        return {
+          ... // initial component data
+        }
+      },
+      async load ({
         component, // this is the element that the component is inserted into
         b8r,       // it's b8r!
         find,      // b8r.findWithin(component, ...)
         findOne,   // b8r.findOneWithin(component, ...)
-        register,  // replace the component's private data object
         get,       // get (within the component's private data)
         set,       // set (within the component's private data)
         on,        // b8r.on(component, ...)
-        touch      // force updates of paths inside the component
-      }) => {
+        touch,     // force updates of paths inside the component
+        data,      // registry proxy for the component's private data
+      }) {
         // your javascript goes here
       },
       type: {...}, // specify the component's type
