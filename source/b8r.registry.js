@@ -1358,12 +1358,12 @@ const extendPath = (path, prop) => {
 
 const regHandler = (path = '') => ({
   get (target, prop) {
-    const compoundProp = typeof prop === 'symbol' 
-                      ? prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
+    const compoundProp = typeof prop === 'symbol'
+      ? prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
                         prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
                         prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
                         prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
-                      : false
+      : false
     if (compoundProp) {
       const [, basePath, subPath] = compoundProp
       const currentPath = extendPath(path, basePath)

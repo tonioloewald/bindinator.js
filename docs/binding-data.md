@@ -56,11 +56,16 @@ You can put **multiple values** into a binding, which only makes sense if you're
 Finally, you can put an *interpolated value* on the right side of a data-binding, e.g.
 
 ```
-<div data-bind="text=${user.first} ${user.last}"></div>
+<div data-bind="text={{user.first}} ${user.last}}"></div>
 ```
 
-This is intended to be familiar to Javascript programmers (it looks like interpolated strings in Javascript)
-but be aware that all it does pull `b8r` paths -- code will not be executed.
+This is intended to be familiar to Javascript programmers (it looks like interpolated strings in 
+several templating languages or Javascript) but be aware that all it does values from `b8r` paths -- code 
+will not be executed.
+
+**Note**: originally, only Javascript-style `${…}` template strings were supported, but this 
+throws errors in some linters so support for `{{…}}` template strings has been added, and you
+should avoid the former.
 
 ## Data Path Types
 

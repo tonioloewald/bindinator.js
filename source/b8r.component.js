@@ -265,9 +265,9 @@ const componentPromises = {}
 const componentPreloadMap = {}
 const componentTypes = {}
 
-const processComponent = ({name, css, html, view}) => {
+const processComponent = ({ name, css, html, view }) => {
   if (!view) {
-    view = create('div') 
+    view = create('div')
     view.innerHTML = html || ''
   } else {
     const contents = view(elements)
@@ -289,7 +289,7 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
   ({
     style,
     view
-  } = processComponent({name, css, html, view}))
+  } = processComponent({ name, css, html, view }))
   const component = {
     version: 2,
     name,
@@ -358,7 +358,7 @@ const makeComponent = (name, source, url, preserveSource) => {
   const {
     style,
     view
-  } = processComponent({css, html: content, name})
+  } = processComponent({ css, html: content, name })
   /* jshint evil: true */
   let load = () => console.debug('b8r-error', 'component', name, 'cannot load properly')
   // check for legacy components

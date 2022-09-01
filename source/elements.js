@@ -30,14 +30,14 @@ Or even:
       )
     )
 
-`elements.comp` creates a `<b8r-component>` element, e.g.:
+`elements._comp` creates a `<b8r-component>` element, e.g.:
 
-    elements.comp({
+    elements._comp({
       path: '../components/foo.js'
     })
 
 Produces:
-  
+
     <b8r-component path="../components/foo.js"></b8r-component>
 
 Attributes beginning with `bind` will be converted into data-bindings, while those beginning with
@@ -61,28 +61,30 @@ Produces:
     >Click Me!</button>
 */
 
-const _elements = (tagType, ...contents) => {
+/* global HTMLElement */
+
+const makeElement = (tagType, ...contents) => {
   const elt = document.createElement(tagType)
-  for(const item of contents) {
-    if(item instanceof HTMLElement || typeof item === 'string') {
+  for (const item of contents) {
+    if (item instanceof HTMLElement || typeof item === 'string') {
       elt.append(item)
     } else {
-      let dataBindings = []
-      let eventBindings = []
-      for(const key of Object.keys(item)) {
+      const dataBindings = []
+      const eventBindings = []
+      for (const key of Object.keys(item)) {
         const value = item[key]
-        if(key === 'bindList') {
+        if (key === 'bindList') {
           elt.dataset.list = value
-        } else if(key.includes('.')) {
+        } else if (key.includes('.')) {
           dataBindings.push(`${key}=${value}`)
-        } else if(key.match(/^(bind|on)[A-Z]\w+$/)) {
+        } else if (key.match(/^(bind|on)[A-Z]\w+$/)) {
           if (key.startsWith('bind')) {
             dataBindings.push(`${key.substr(4).replace(/[A-Z]/, c => c.toLowerCase())}=${value}`)
           } else {
             eventBindings.push(`${key.substr(2).replace(/[A-Z]/, c => c.toLowerCase())}:${value}`)
           }
         } else {
-          elt.setAttribute(key, value) 
+          elt.setAttribute(key, value)
         }
       }
       if (dataBindings.length) {
@@ -96,18 +98,18 @@ const _elements = (tagType, ...contents) => {
   return elt
 }
 
-_elements.comp = (...contents) => target('b8r-component', ...contents)
+const _comp = (...contents) => makeElement('b8r-component', ...contents)
 
-export const elements = new Proxy(_elements, {
-  get(target, tagName) {
-    if (!tagName.match(/^\w+(\-\w+)*$/)) {
+export const elements = new Proxy({ _comp }, {
+  get (target, tagName) {
+    if (!tagName.match(/^\w+(-\w+)*$/)) {
       throw new Error(`${tagName} does not appear to be a valid element tagName`)
     } else if (!target[tagName]) {
-      target[tagName] = (...contents) => target(tagName, ...contents)
+      target[tagName] = (...contents) => makeElement(tagName, ...contents)
     }
     return target[tagName]
   },
-  set() {
+  set () {
     throw new Error('You may not add new properties to elements')
   }
 })

@@ -613,7 +613,7 @@ export default function (b8r) {
     },
     href: function (element, value) {
       if (value) {
-        element.setAttribute('href', value) 
+        element.setAttribute('href', value)
       } else {
         element.removeAttribute('href')
       }

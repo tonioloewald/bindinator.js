@@ -329,7 +329,7 @@ const parseBinding = binding => {
   const targets = targetsRaw.split(',').map(_target => {
     var parts = _target.match(/([\w#\-.]+)(\(([^)]+)\))?/)
     if (!parts) {
-      console.debug('b8r-error', 'bad target', target, 'in binding', binding)
+      console.debug('b8r-error', 'bad target', _target, 'in binding', binding)
       return
     }
     if (!parts) return null

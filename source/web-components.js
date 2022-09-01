@@ -149,12 +149,12 @@ More information is provided in [this blog entry](http://loewald.com/blog/2019/0
 
 ### makeElement
 
-    const makeElement = (tagType, {
+    makeElement (tagType, {
       content: false,  // text, or something that can be appended to an HTMLElement
       attributes: {},  // attribute map
       styles: {},      // style object
       classes: [],     // list of classes
-    })                // returns the element
+    })                 // returns the element
 
 A handy method for creating a DOM element with specified properties. Content can
 be an `HTMLElement` or `DocumentFragment` or a string (which is converted to a text

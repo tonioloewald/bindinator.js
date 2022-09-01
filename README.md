@@ -142,9 +142,11 @@ You must register an object to a name before you can change values inside it. Bu
 In this example `text` is the **target**, `example.name` is the **data-path**. The root **name**
 (`example`) is bound to the path via `b8r.register`.
 
-Note the use of an ES6-*like* interpolated string (it doesn't do `eval`, it just looks up paths).
-Usually bindings won't contain `${...}` and are treated as bare data-paths. You can try to change the
-binding to `data-bind="text=example.name"` or `data-bind="text=${example.name} says “hi”"`.
+Note the use of a handlebars-*like* interpolated string (it doesn't do `eval`, it just looks up paths).
+Usually bindings won't contain `{{...}}` and are treated as bare data-paths. You can try to change the
+binding to `data-bind="text=example.name"` or `data-bind="text={{example.name}} says “hi”"`.
+
+**Note** that ES6 template-string-like `${…}` syntax is also supported, but deprecated (it causes lint issues).
 
 You can update data directly using `b8r.reg`, e.g.
 
