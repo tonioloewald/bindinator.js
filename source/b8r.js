@@ -337,14 +337,14 @@ b8r.onAny(['change', 'input'], '_b8r_._update_')
 
 b8r.interpolate = (template, elt) => {
   let formatted
-  if (template.match(/\$\{[^}]+\}|\{\{[^}]+\}\}/)) {
+  if (template.match(/\$\{[^{]+\}|\{\{[^{]+\}\}/)) {
     formatted = template
     do {
-      formatted = formatted.replace(/\$\{([^}]+)\}|\{\{([^}]+)\}\}/g, (_, pathA, pathB) => {
+      formatted = formatted.replace(/\$\{([^{]+?)\}|\{\{([^{]+?)\}\}/g, (_, pathA, pathB) => {
         const value = b8r.get(pathA || pathB, elt)
         return value !== null ? value : ''
       })
-    } while (formatted.match(/\$\{[^}]+\}|\{\{[^}]+\}\}/))
+    } while (formatted.match(/\$\{[^{]+\}|\{\{[^{]+\}\}/))
   } else {
     const paths = splitPaths(template)
     if (paths.indexOf('') > -1) {

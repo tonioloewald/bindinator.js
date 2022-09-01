@@ -1,510 +1,516 @@
-<!-- bindinator.js Copyright ©2016-2017 Tonio Loewald -->
-<style>
-  body {
-    font-family: Helvetica, Sans-serif;
-    font-size: 14px;
-    background: #eee;
-  }
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- bindinator.js Copyright ©2016-2020 Tonio Loewald -->
+    <meta charset="utf-8">
+    <style>
+      body {
+        font-family: Helvetica, Sans-serif;
+        font-size: 14px;
+        background: #eee;
+      }
 
-  h2, p, ul, li {
-    margin: 0;
-    padding: 0;
-  }
+      h2, p, ul, li {
+        margin: 0;
+        padding: 0;
+      }
 
-  .test_widgets {
-    display: flex;
-  }
+      .test_widgets {
+        display: flex;
+      }
 
-  .test_widgets > div {
-    flex-grow: 1;
-    padding: 8px;
-  }
+      .test_widgets > div {
+        flex-grow: 1;
+        padding: 8px;
+      }
 
-  .success {
-    background-color: #bfb;
-  }
+      .success {
+        background-color: #bfb;
+      }
 
-  .failure {
-    background-color: #ffa;
-  }
+      .failure {
+        background-color: #ffa;
+      }
 
-  .report pre {
-    font-family: Menlo, Monaco, monospace;
-    padding: 5px 10px;
-    margin: 0;
-    border-bottom: 1px solid rgba(128,128,128,0.5);
-  }
+      .report pre {
+        font-family: Menlo, Monaco, monospace;
+        padding: 5px 10px;
+        margin: 0;
+        border-bottom: 1px solid rgba(128,128,128,0.5);
+      }
 
-  [data-bind] {
-    display: block;
-  }
+      [data-bind] {
+        display: block;
+      }
 
-  input[type=radio] {
-    display: inline-block;
-  }
+      input[type=radio] {
+        display: inline-block;
+      }
 
-  [data-list] {
-    display: none;
-  }
-</style>
-<body>
-  <h2>b8r Tests</h2>
-  <b8r-component path="../test/test-nav.component.js"></b8r-component>
-  <div class="test_widgets">
-    <div>
-      <span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
-      <span id="c" data-bind="text=test1.sub.list[2]">A</span>
-      <span id="d" data-bind="text=test1.list[0].y">A</span>
-      <span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
-      <input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
-      <input id="f" data-bind="value=test1.sub.list[2]">
+      [data-list] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>b8r Tests</h2>
+    <b8r-component path="../test/test-nav.component.js"></b8r-component>
+    <div class="test_widgets">
+      <div>
+        <span id="a" data-bind="text=test1.base;style(color)=test1.color">A</span>
+        <span id="c" data-bind="text=test1.sub.list[2]">A</span>
+        <span id="d" data-bind="text=test1.list[0].y">A</span>
+        <span id="b" data-bind="text=test1.sub.prop;style(color)=test2.color">A</span>
+        <input id="e" data-bind="value=test1.sub.list[2];attr(type)=test1.type">
+        <input id="f" data-bind="value=test1.sub.list[2]">
 
-      <h3>Complex Lists</h3>
-      <div id="complex-lists">
-        <div data-list="test1.sort(nested_list):id">
-          <h3 data-bind="text=.name"></h3>
-          <div class="child" data-list="test1.sort(.children):name" data-bind="text=.name"></div>
+        <h3>Complex Lists</h3>
+        <div id="complex-lists">
+          <div data-list="test1.sort(nested_list):id">
+            <h3 data-bind="text=.name"></h3>
+            <div class="child" data-list="test1.sort(.children):name" data-bind="text=.name"></div>
+          </div>
         </div>
+
+        <h3>Interpolated Strings</h3>
+        <div id="intepolated-1" data-bind="text=hello {{test1.complex_list[id=-3].foo.bar}}!"></div>
+        <div id="intepolated-2" data-bind="text=hello ${test1.complex_list[id=${test1.buried.id}].foo.bar}!"></div>
       </div>
-
-      <h3>Interpolated Strings</h3>
-      <div id="intepolated-1" data-bind="text=hello ${test1.complex_list[id=-3].foo.bar}!"></div>
-      <div id="intepolated-2" data-bind="text=hello ${test1.complex_list[id=${test1.buried.id}].foo.bar}!"></div>
-    </div>
-    <div>
-      <select data-bind="value=test1.option">
-        <option>ONE</option>
-        <option>two</option>
-        <option>3</option>
-      </select>
-      <span id="g" data-bind="text=test1.option">A</span>
-      <input data-bind="checked=test1.checkbox" type="checkbox" checked>
-      <span id="h" data-bind="text=test1.checkbox">A</span>
-    </div>
-    <div>
-      <label>
-        <input data-bind="value=test1.list[0].y"> Test list-bound values
-      </label>
-      <ul>
-        <li data-list="test1.list:x">
-          <span style="display: inline" data-bind="text=.x">x</span>, <input style="display: inline" data-bind="value=.y">
-        </li>
-      </ul>
-      <label>
-        <input type="radio" name="group" value="first" data-bind="value=test1.radio">
-        first
-      </label>
-      <label>
-        <input type="radio" name="group" value="second" data-bind="value=test1.radio">
-        second
-      </label>
-      <label>
-        <input type="radio" name="group" value="third" data-bind="value=test1.radio">
-        third
-      </label>
-      <span data-bind="text=test1.radio"></span>
-      <h4>Computed List</h4>
-      <div data-list="computedList.oddOnly(computedList.list)" data-bind="text=.value"></div>
-      <h4>Complex Bindings</h4>
-      <ul id="complex-list">
-        <li data-list="test1.complex_list:id"><span data-component="show-bar" data-path=".foo"></span></li>
-      </ul>
-      <h4>Indirect Binding</h4>
-      <div id="indirect-bind" data-component="show-bar" data-bind="data_path=test1.bind_path"></div>
-      <h4>Nested Computed List</h4>
-      <ul>
-        <li data-list="test1.outer_list:_auto_">
-          <span 
-            data-list="list.filter(.inner_list,.filter):_auto_"
-            data-bind="text=.name"
-          >
-          </span>
-        </li>
-      </ul>
-      <h4>Composition</h4>
-      <b8r-component class="composable-outer" name="composable">
-        <b>grandparent</b>
-        <div>
-          <b>bound to x</b>
-          <span data-bind="text=_component_.x"></span>
-        </div>
-        <b8r-component class="composable-inner" name="composable">
-          <b>parent</b>
+      <div>
+        <select data-bind="value=test1.option">
+          <option>ONE</option>
+          <option>two</option>
+          <option>3</option>
+        </select>
+        <span id="g" data-bind="text=test1.option">A</span>
+        <input data-bind="checked=test1.checkbox" type="checkbox" checked>
+        <span id="h" data-bind="text=test1.checkbox">A</span>
+      </div>
+      <div>
+        <label>
+          <input data-bind="value=test1.list[0].y"> Test list-bound values
+        </label>
+        <ul>
+          <li data-list="test1.list:x">
+            <span style="display: inline" data-bind="text=.x">x</span>, <input style="display: inline" data-bind="value=.y">
+          </li>
+        </ul>
+        <label>
+          <input type="radio" name="group" value="first" data-bind="value=test1.radio">
+          first
+        </label>
+        <label>
+          <input type="radio" name="group" value="second" data-bind="value=test1.radio">
+          second
+        </label>
+        <label>
+          <input type="radio" name="group" value="third" data-bind="value=test1.radio">
+          third
+        </label>
+        <span data-bind="text=test1.radio"></span>
+        <h4>Computed List</h4>
+        <div data-list="computedList.oddOnly(computedList.list)" data-bind="text=.value"></div>
+        <h4>Complex Bindings</h4>
+        <ul id="complex-list">
+          <li data-list="test1.complex_list:id"><span data-component="show-bar" data-path=".foo"></span></li>
+        </ul>
+        <h4>Indirect Binding</h4>
+        <div id="indirect-bind" data-component="show-bar" data-bind="data_path=test1.bind_path"></div>
+        <h4>Nested Computed List</h4>
+        <ul>
+          <li data-list="test1.outer_list:_auto_">
+            <span 
+              data-list="list.filter(.inner_list,.filter):_auto_"
+              data-bind="text=.name"
+            >
+            </span>
+          </li>
+        </ul>
+        <h4>Composition</h4>
+        <b8r-component class="composable-outer" name="composable">
+          <b>grandparent</b>
           <div>
-            <b>bound to grandparent x</b>
+            <b>bound to x</b>
             <span data-bind="text=_component_.x"></span>
           </div>
+          <b8r-component class="composable-inner" name="composable">
+            <b>parent</b>
+            <div>
+              <b>bound to grandparent x</b>
+              <span data-bind="text=_component_.x"></span>
+            </div>
+          </b8r-component>
         </b8r-component>
-      </b8r-component>
-    </div>
-    <div data-component="test">
-      <p>First Child</p>
-      <p>Second Child</p>
-      <ul>
-        <li class="bad-list" data-list="test1.id_list:id" data-bind="text=.label"></li>
-      </ul>
-      <ul>
-        <li class="obj-list" data-list="test1.obj_list" data-bind="text=.label"></li>
-      </ul>
-    </div>
-    <div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
-  </div>
-  <div class="report"></div>
-  <script type="module">
-    import b8r from '../source/b8r.js';
-    import {configuredTest, trigger} from '../lib/test.js';
-    import {getByPath, setByPath} from '../source/b8r.byPath.js';
-
-    window.b8r = b8r
-
-    console.log(
-      '%cb8r unit tests -- expect three errors',
-      'color: white; background-color: green;'
-    )
-    const Test = configuredTest({
-      reportContainer: b8r.findOne('.report'),
-    })
-    var obj = {
-      base: 17,
-      buried: { id: -3 },
-      sub: {
-        list: [1,2,3],
-        prop: 'hello'
-      },
-      list: [
-        {x: 10, y: 11},
-        {x: 12, y: 13},
-        {x: 'y=z', y: Math.PI}
-      ],
-      complex_list: [
-        {id: -3, foo: {bar: 'baz'}},
-        {id: 42, foo: {bar: 'lurman'}},
-      ],
-      color: 'red',
-      type: 'range',
-      nested_list: [
-        [4,5,6],
-        [7,8,9]
-      ],
-      id_list: [{id: 'A', label: 'A'}, {id: 'B', label: 'B'}, {id: 'C', label: 'C'}, {id: 'A', label: 'bogus A'}],
-      obj_list: {
-        a: {label: 'object.a'},
-        b: {label: 'object.b'},
-        c: {label: 'object.c'},
-      },
-      outer_list: [
-        {
-          filter: 'test',
-          inner_list: [
-            {
-              name: 'test'
-            },
-            {
-              name: 'omit me'
-            },
-            {
-              name: 'also test'
-            }
-          ]
-        },
-        {
-          filter: 'hello',
-          inner_list: [
-            {
-              name: 'hello'
-            },
-            {
-              name: 'hello world'
-            },
-            {
-              name: 'omit me'
-            }
-          ]
-        }
-      ],
-      option: '3',
-      checkbox: true,
-      radio: 'second',
-      bind_path: 'test1.complex_list[id=-3].foo',
-    };
-    b8r.register('list', {
-      filter: (list, filter) => {
-        return list.filter(item => item.name.includes(filter))
-      },
-    })
-    const computedList = {
-      oddOnly: (list) => list.filter(item => item.value % 2),
-      list: [{value: 1}, {value: 2}, {value: 3}],
-    }
-    b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
-    b8r.makeComponent('composable', {
-      css: `
-        ._component_ {
-          display: block;
-          background: #0002;
-          padding: 10px; 
-        }
-
-        ._component_ [data-children] {
-          padding: 5px;
-        }`,
-      html: `
+      </div>
+      <div data-component="test">
+        <p>First Child</p>
+        <p>Second Child</p>
         <ul>
-          <li data-list="_component_.list" data-bind="text=."></li>
+          <li class="bad-list" data-list="test1.id_list:id" data-bind="text=.label"></li>
         </ul>
-        <div>
-          <b>my x</b><span data-bind="text=$\{_component_.clickCount} clicks"></span>
-          <input data-bind="value=_component_.x">
-        </div>
-        <button data-event="click:_component_.clickHandler">Square It</button>
-        <span data-children></span>`,
-      initialValue ({set, get}) {
-        return {
-          x: 17,
+        <ul>
+          <li class="obj-list" data-list="test1.obj_list" data-bind="text=.label"></li>
+        </ul>
+      </div>
+      <div id="method_binding" data-bind="method(method_binding.test),fromMethod(method_binding.test)=method_binding.val"></div>
+    </div>
+    <div class="report"></div>
+    <script type="module">
+      import b8r from '../source/b8r.js';
+      import {configuredTest, trigger} from '../lib/test.js';
+      import {getByPath, setByPath} from '../source/b8r.byPath.js';
+
+      window.b8r = b8r
+
+      console.log(
+        '%cb8r unit tests -- expect three errors',
+        'color: white; background-color: green;'
+      )
+      const Test = configuredTest({
+        reportContainer: b8r.findOne('.report'),
+      })
+      var obj = {
+        base: 17,
+        buried: { id: -3 },
+        sub: {
           list: [1,2,3],
-          clickCount: 0,
-          clickHandler() {
-            set('x', get().x * get().x)
-            set('clickCount', get().clickCount + 1)
+          prop: 'hello'
+        },
+        list: [
+          {x: 10, y: 11},
+          {x: 12, y: 13},
+          {x: 'y=z', y: Math.PI}
+        ],
+        complex_list: [
+          {id: -3, foo: {bar: 'baz'}},
+          {id: 42, foo: {bar: 'lurman'}},
+        ],
+        color: 'red',
+        type: 'range',
+        nested_list: [
+          [4,5,6],
+          [7,8,9]
+        ],
+        id_list: [{id: 'A', label: 'A'}, {id: 'B', label: 'B'}, {id: 'C', label: 'C'}, {id: 'A', label: 'bogus A'}],
+        obj_list: {
+          a: {label: 'object.a'},
+          b: {label: 'object.b'},
+          c: {label: 'object.c'},
+        },
+        outer_list: [
+          {
+            filter: 'test',
+            inner_list: [
+              {
+                name: 'test'
+              },
+              {
+                name: 'omit me'
+              },
+              {
+                name: 'also test'
+              }
+            ]
+          },
+          {
+            filter: 'hello',
+            inner_list: [
+              {
+                name: 'hello'
+              },
+              {
+                name: 'hello world'
+              },
+              {
+                name: 'omit me'
+              }
+            ]
+          }
+        ],
+        option: '3',
+        checkbox: true,
+        radio: 'second',
+        bind_path: 'test1.complex_list[id=-3].foo',
+      };
+      b8r.register('list', {
+        filter: (list, filter) => {
+          return list.filter(item => item.name.includes(filter))
+        },
+      })
+      const computedList = {
+        oddOnly: (list) => list.filter(item => item.value % 2),
+        list: [{value: 1}, {value: 2}, {value: 3}],
+      }
+      b8r.makeComponent('show-bar', `<span data-bind="text=_data_.bar">xxx</span>`, 'testy');
+      b8r.makeComponent('composable', {
+        css: `
+          ._component_ {
+            display: block;
+            background: #0002;
+            padding: 10px; 
+          }
+
+          ._component_ [data-children] {
+            padding: 5px;
+          }`,
+        html: `
+          <ul>
+            <li data-list="_component_.list" data-bind="text=."></li>
+          </ul>
+          <div>
+            <b>my x</b><span data-bind="text=$\{_component_.clickCount} clicks"></span>
+            <input data-bind="value=_component_.x">
+          </div>
+          <button data-event="click:_component_.clickHandler">Square It</button>
+          <span data-children></span>`,
+        initialValue ({set, get}) {
+          return {
+            x: 17,
+            list: [1,2,3],
+            clickCount: 0,
+            clickHandler() {
+              set('x', get().x * get().x)
+              set('clickCount', get().clickCount + 1)
+            }
           }
         }
-      }
-    })
-    Test(() => getByPath(obj, '') === obj).shouldBe(true);
-    Test(() => getByPath(obj, '/') === obj).shouldBe(true);
-    Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
-    Test(() => getByPath(obj, 'sub.prop')).shouldBe(obj.sub.prop);
-    Test(() => getByPath(obj, 'sub.list')).shouldBe(obj.sub.list);
-    Test(() => getByPath(obj, 'sub.list[1]')).shouldBe(obj.sub.list[1]);
-    Test(() => getByPath(obj, 'list[1].x')).shouldBe(obj.list[1].x);
-    Test(() => getByPath(obj, 'nested_list[1][1]')).shouldBe(obj.nested_list[1][1]);
-    Test(() => getByPath(obj, 'list[x=12]')).shouldBe(obj.list[1]);
-    Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2]);
-    setByPath(obj, 'base', 42);
-    setByPath(obj, 'kettle.black', 11);
-    Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
-    Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
-    setByPath(obj, 'sub.list[2]', 25);
-    Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
-
-    requestAnimationFrame(() => {
-      const outerComposable = b8r.findOne('.composable-outer')
-      const innerComposable = b8r.findOne('.composable-inner')
-      outerComposable.data.x = Math.PI
-      outerComposable.data.list.shift()
-      innerComposable.data.x = -1.1
-      innerComposable.data.list.push(Math.exp(1))
-      b8r.touchElement(outerComposable)
+      })
+      Test(() => getByPath(obj, '') === obj).shouldBe(true);
+      Test(() => getByPath(obj, '/') === obj).shouldBe(true);
+      Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
+      Test(() => getByPath(obj, 'sub.prop')).shouldBe(obj.sub.prop);
+      Test(() => getByPath(obj, 'sub.list')).shouldBe(obj.sub.list);
+      Test(() => getByPath(obj, 'sub.list[1]')).shouldBe(obj.sub.list[1]);
+      Test(() => getByPath(obj, 'list[1].x')).shouldBe(obj.list[1].x);
+      Test(() => getByPath(obj, 'nested_list[1][1]')).shouldBe(obj.nested_list[1][1]);
+      Test(() => getByPath(obj, 'list[x=12]')).shouldBe(obj.list[1]);
+      Test(() => getByPath(obj, 'list[x=y=z]')).shouldBe(obj.list[2]);
+      setByPath(obj, 'base', 42);
+      setByPath(obj, 'kettle.black', 11);
+      Test(() => getByPath(obj, 'base')).shouldBe(obj.base);
+      Test(() => getByPath(obj, 'kettle.black')).shouldBe(obj.kettle.black);
+      setByPath(obj, 'sub.list[2]', 25);
+      Test(() => getByPath(obj, 'sub.list[2]')).shouldBe(obj.sub.list[2]);
 
       requestAnimationFrame(() => {
-        Test(() => outerComposable.data.x, 'outer composable data-bind works').shouldBe(Math.PI)
-        Test(() => innerComposable.data.x, 'inner composable data-bind works').shouldBe(-1.1)
-        Test(() => outerComposable.data.list[0], 'outer composable data-list works').shouldBe(2)
-        Test(() => innerComposable.data.list[3], 'inner composable data-list works').shouldBe(Math.exp(1), 0.001)
-
-        outerComposable.data.clickHandler()
-        innerComposable.data.clickHandler()
+        const outerComposable = b8r.findOne('.composable-outer')
+        const innerComposable = b8r.findOne('.composable-inner')
+        outerComposable.data.x = Math.PI
+        outerComposable.data.list.shift()
+        innerComposable.data.x = -1.1
+        innerComposable.data.list.push(Math.exp(1))
+        b8r.touchElement(outerComposable)
 
         requestAnimationFrame(() => {
-          Test(() => outerComposable.data.x, 'outer composable data-event works').shouldBe(Math.PI * Math.PI, 0.001)
-          Test(() => innerComposable.data.x, 'inner composable data-event works').shouldBe(1.21, 0.001)
+          Test(() => outerComposable.data.x, 'outer composable data-bind works').shouldBe(Math.PI)
+          Test(() => innerComposable.data.x, 'inner composable data-bind works').shouldBe(-1.1)
+          Test(() => outerComposable.data.list[0], 'outer composable data-list works').shouldBe(2)
+          Test(() => innerComposable.data.list[3], 'inner composable data-list works').shouldBe(Math.exp(1), 0.001)
+
+          outerComposable.data.clickHandler()
+          innerComposable.data.clickHandler()
+
+          requestAnimationFrame(() => {
+            Test(() => outerComposable.data.x, 'outer composable data-event works').shouldBe(Math.PI * Math.PI, 0.001)
+            Test(() => innerComposable.data.x, 'inner composable data-event works').shouldBe(1.21, 0.001)
+          })
         })
       })
-    })
 
-    // binding (to), data mounting
-    b8r.register('test1', obj);
-    b8r.forceUpdate();
-    Test(() => b8r.id('a').textContent).shouldBe('42');
-    Test(() => b8r.id('b').textContent).shouldBe('hello');
-    Test(() => b8r.id('c').textContent).shouldBe(obj.sub.list[2] + '');
-    Test(() => b8r.id('d').textContent).shouldBe('11');
-    Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
-    Test(() => b8r.id('a').style.color).shouldBe('red');
-    Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
+      // binding (to), data mounting
+      b8r.register('test1', obj);
+      b8r.forceUpdate();
+      Test(() => b8r.id('a').textContent).shouldBe('42');
+      Test(() => b8r.id('b').textContent).shouldBe('hello');
+      Test(() => b8r.id('c').textContent).shouldBe(obj.sub.list[2] + '');
+      Test(() => b8r.id('d').textContent).shouldBe('11');
+      Test(() => b8r.id('e').value).shouldBe(obj.sub.list[2] + '');
+      Test(() => b8r.id('a').style.color).shouldBe('red');
+      Test(() => b8r.id('e').getAttribute('type')).shouldBe('range');
 
-    Test(() => b8r.id('complex-list').querySelectorAll('li')[1].textContent, 'explicitly setting data-path for component').shouldBe('lurman');
-    Test(() => b8r.id('indirect-bind').textContent, 'indirect binding via data_path toTarget').shouldBe('baz');
+      Test(() => b8r.id('complex-list').querySelectorAll('li')[1].textContent, 'explicitly setting data-path for component').shouldBe('lurman');
+      Test(() => b8r.id('indirect-bind').textContent, 'indirect binding via data_path toTarget').shouldBe('baz');
 
-    // interpolated strings
-    Test(() => b8r.id('intepolated-1').textContent, 'interpolated RHS value').shouldBe('hello baz!');
-    Test(() => b8r.id('intepolated-2').textContent, 'nested interpolated RHS value').shouldBe('hello baz!');
-    b8r.set('test1.buried.id', 42);
-    b8r.forceUpdate();
-    Test(() => b8r.id('intepolated-2').textContent, 'dynamically updated nested interpolated RHS value').shouldBe('hello lurman!');
+      // interpolated strings
+      Test(() => b8r.id('intepolated-1').textContent, 'interpolated RHS value').shouldBe('hello baz!');
+      Test(() => b8r.id('intepolated-2').textContent, 'nested interpolated RHS value').shouldBe('hello baz!');
+      b8r.set('test1.buried.id', 42);
+      b8r.forceUpdate();
+      Test(() => b8r.id('intepolated-2').textContent, 'dynamically updated nested interpolated RHS value').shouldBe('hello lurman!');
 
-    b8r.register('test2', {color: 'green'});
-    b8r.forceUpdate();
-    Test(() => b8r.id('b').style.color).shouldBe('green');
+      b8r.register('test2', {color: 'green'});
+      b8r.forceUpdate();
+      Test(() => b8r.id('b').style.color).shouldBe('green');
 
-    Test(() => b8r.findOne('[data-list-instance="test1.list[x=12]"] span').textContent).shouldBe('12');
+      Test(() => b8r.findOne('[data-list-instance="test1.list[x=12]"] span').textContent).shouldBe('12');
 
-    // binding (from)
-    b8r.findOne('input').value = 55;
-    trigger('input', b8r.findOne('input'));
-    b8r.forceUpdate();
-    Test(() => b8r.id('e').value)
-                       .shouldBe(obj.sub.list[2] + '');
-    Test(() => b8r.id('c').textContent)
-                       .shouldBe(obj.sub.list[2] + '');
-    b8r.setByPath('test2', 'color', 'purple');
-    b8r.forceUpdate();
-    Test(() => b8r.id('b').style.color).shouldBe('purple');
-    b8r.findOne('select').value = 'two';
-    trigger('change', 'select');
-    Test(() => obj.option).shouldBe('two');
-    b8r.findOne('[type=checkbox]').checked = false;
-    trigger('input', '[type=checkbox]');
-    Test(() => obj.checkbox).shouldBe(false);
+      // binding (from)
+      b8r.findOne('input').value = 55;
+      trigger('input', b8r.findOne('input'));
+      b8r.forceUpdate();
+      Test(() => b8r.id('e').value)
+                         .shouldBe(obj.sub.list[2] + '');
+      Test(() => b8r.id('c').textContent)
+                         .shouldBe(obj.sub.list[2] + '');
+      b8r.setByPath('test2', 'color', 'purple');
+      b8r.forceUpdate();
+      Test(() => b8r.id('b').style.color).shouldBe('purple');
+      b8r.findOne('select').value = 'two';
+      trigger('change', 'select');
+      Test(() => obj.option).shouldBe('two');
+      b8r.findOne('[type=checkbox]').checked = false;
+      trigger('input', '[type=checkbox]');
+      Test(() => obj.checkbox).shouldBe(false);
 
-    // verify type-matching
-    obj.checkbox = false;
-    b8r.findOne('[type=checkbox]').checked = true;
-    trigger('input', '[type=checkbox]');
-    Test(() => obj.checkbox).shouldBe(true);
-    b8r.findOne('[type=radio][value=first]').checked = true;
-    trigger('change', '[type=radio][value=first]');
-    Test(() => obj.radio).shouldBe('first');
+      // verify type-matching
+      obj.checkbox = false;
+      b8r.findOne('[type=checkbox]').checked = true;
+      trigger('input', '[type=checkbox]');
+      Test(() => obj.checkbox).shouldBe(true);
+      b8r.findOne('[type=radio][value=first]').checked = true;
+      trigger('change', '[type=radio][value=first]');
+      Test(() => obj.radio).shouldBe('first');
 
-    // ajax methods
-    b8r.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
-    Test(async () => b8r.ajax('test/does-not-exist.txt', 'GET'), 'endpoint 404 throws error').shouldThrow();
+      // ajax methods
+      b8r.ajax('test/test.txt', 'GET').then(ajax_data => Test(() => ajax_data).shouldBe('esteban'));
+      Test(async () => b8r.ajax('test/does-not-exist.txt', 'GET'), 'endpoint 404 throws error').shouldThrow();
 
-    Test(async () => {
-      const data = await b8r.json('/test/test.json', 'GET')
-      return data.bar.baz[1].foo
-    }, 'b8r.json works').shouldBe('BAZ')
-    Test(async () => b8r.json('/test/malformed.json', 'GET'), 'malformed json throws error')
-      .shouldThrow()
-    Test(async () => b8r.json('/test/empty.json', 'GET'), 'empty json returns null').shouldBeJSON(null)
+      Test(async () => {
+        const data = await b8r.json('/test/test.json', 'GET')
+        return data.bar.baz[1].foo
+      }, 'b8r.json works').shouldBe('BAZ')
+      Test(async () => b8r.json('/test/malformed.json', 'GET'), 'malformed json throws error')
+        .shouldThrow()
+      Test(async () => b8r.json('/test/empty.json', 'GET'), 'empty json returns null').shouldBeJSON(null)
 
-    // method to and from targets
-    b8r.register('method_binding', {
-      test: (elt, value) => {
-        if (value) {
-          const [first,second] = value.split(',');
-          elt.setAttribute('first', first);
-          elt.setAttribute('second', second);
-        } else {
-          return elt.getAttribute('first') + ',' + elt.getAttribute('second');
-        }
-      },
-      val: 'A,B',
-    });
-    const elt = b8r.id('method_binding');
-    b8r.forceUpdate();
-    Test(() => elt.getAttribute('first')).shouldBe('A');
-    b8r.setByPath('method_binding', 'val', 'C,D');
-    b8r.forceUpdate();
-    Test(() => elt.getAttribute('second')).shouldBe('D');
-    elt.setAttribute('second', 'Q');
-    b8r.trigger('change', elt);
-    Test(() => b8r.getByPath('method_binding', 'val')).shouldBe('C,Q');
-
-    function computed_color(name) {
-      var p = b8r.create(p);
-      p.style.color = name;
-      p.style.display = 'none';
-      document.body.appendChild(p);
-      var computed = window.getComputedStyle(p).color;
-      document.body.removeChild(p);
-      return computed;
-    }
-
-    // async updates
-    b8r.set('test1.base', 86);
-    Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
-    b8r.forceUpdate();
-    Test(() => b8r.id('a').textContent, 'Async Update afterUpdate').shouldBe('86');
-
-    b8r.register('empty_obj', {});
-    b8r.set('empty_obj.array[id=5]', {id: 5, name: 'fred'});
-    b8r.set('empty_obj.array[3]', {id:17, name: 'bloggs'});
-    b8r.set('empty_obj.x.y', {id: 5, name: 'fred'});
-    Test(() => b8r.get('empty_obj.array[0].name'), 'automatic array insertion by id path').shouldBe('fred');
-    Test(() => b8r.get('empty_obj.array[id=17].name'), 'array insertion by index').shouldBe('bloggs');
-    Test(() => b8r.get('empty_obj.x.y.id'), 'object insertion by path').shouldBe(5);
-
-    // components
-    b8r.component('test', 'test/test')
-      .then(() => {
-        b8r.forceUpdate();
-        Test(() => b8r.findOne('.test-component p').textContent, 'Component loaded')
-          .shouldBe('This is a test');
-        Test(() => b8r.findOne('.test-component input').value, 'Component bound')
-          .shouldBe('55');
-        Test(() => window.getComputedStyle(b8r.findOne('.test-component > h2')).backgroundColor, 'Component stylesheet inserted')
-          .shouldBe(computed_color('purple'));
-        Test(() => window.getComputedStyle(b8r.findOne('p')).backgroundColor, 'Component stylesheet did not "leak"')
-            .shouldBe(window.getComputedStyle(b8r.findOne('h2')).backgroundColor);
-        Test(() => b8r.findOne('.test-component h2').textContent, 'Component script ran')
-          .shouldBe('Set on load');
-        Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
-          .shouldBe(2);
-        Test(() => b8r.find('.bad-list[data-list-instance]').length).shouldBe(3);
+      // method to and from targets
+      b8r.register('method_binding', {
+        test: (elt, value) => {
+          if (value) {
+            const [first,second] = value.split(',');
+            elt.setAttribute('first', first);
+            elt.setAttribute('second', second);
+          } else {
+            return elt.getAttribute('first') + ',' + elt.getAttribute('second');
+          }
+        },
+        val: 'A,B',
       });
+      const elt = b8r.id('method_binding');
+      b8r.forceUpdate();
+      Test(() => elt.getAttribute('first')).shouldBe('A');
+      b8r.setByPath('method_binding', 'val', 'C,D');
+      b8r.forceUpdate();
+      Test(() => elt.getAttribute('second')).shouldBe('D');
+      elt.setAttribute('second', 'Q');
+      b8r.trigger('change', elt);
+      Test(() => b8r.getByPath('method_binding', 'val')).shouldBe('C,Q');
 
-    // complex lists
-    b8r.set('test1.sort', list => {
-      return list.sort((a, b) => b8r.sortAscending(a.name, b.name));
-    });
-    b8r.register('nested_list', [
-      {
-        id: 1,
-        name: 'Tolkien',
-        children: [
-          {name: 'Gollum'},
-          {name: 'Frodo'},
-          {name: 'Aragorn'},
-        ],
-      },
-      {
-        id: 2,
-        name: 'Bradley',
-        children: [
-          {name: 'Melora'},
-          {name: 'Romilly'},
-          {name: 'Jaelle'},
-        ],
-      },
-      {
-        id: 3,
-        name: 'Vance',
-        children: [
-          {name: 'Murgen'},
-          {name: 'Tamurello'},
-          {name: 'Desmei'},
-        ],
-      },
-    ]);
-    b8r.forceUpdate();
-    Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list binding').
-      shouldBe('Vance');
-    Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list binding')[4].textContent).
-      shouldBe('Frodo');
-    b8r.forceUpdate();
-    b8r.set('nested_list[id=1].name', 'John Ronald Reuel Tolkien');
-    b8r.push('nested_list[id=1].children', {name: 'Elrond'});
-    b8r.set('nested_list[id=2].name', 'Marion Zimmer Bradley');
-    b8r.set('nested_list[id=3].name', 'Jack Vance');
-    b8r.touch('nested_list');
-    b8r.forceUpdate();
-    Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list update').
-      shouldBe('Marion Zimmer Bradley');
-    Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list update')[4].textContent).
-      shouldBe('Elrond');
-    
-    Test(() => { 
-      b8r.register('computedList', computedList)
-      b8r.forceUpdate()
-      return b8r.find('[data-list-instance*="computedList"]').length
-    }).shouldBe(0);
-    Test(async () => { 
-      const listTemplate = b8r.findOne('[data-list="computedList.oddOnly(computedList.list)"]')
-      listTemplate.dataset.list += ':value'
-      b8r.touchElement(listTemplate)
-      b8r.forceUpdate()
-      return b8r.find('[data-list-instance*="computedList"]').length
-    }).shouldBe(2);
-  </script>
-</body>
+      function computed_color(name) {
+        var p = b8r.create(p);
+        p.style.color = name;
+        p.style.display = 'none';
+        document.body.appendChild(p);
+        var computed = window.getComputedStyle(p).color;
+        document.body.removeChild(p);
+        return computed;
+      }
+
+      // async updates
+      b8r.set('test1.base', 86);
+      Test(() => b8r.id('a').textContent, 'Async Update is actually asynchronous').shouldNotBe('86');
+      b8r.forceUpdate();
+      Test(() => b8r.id('a').textContent, 'Async Update afterUpdate').shouldBe('86');
+
+      b8r.register('empty_obj', {});
+      b8r.set('empty_obj.array[id=5]', {id: 5, name: 'fred'});
+      b8r.set('empty_obj.array[3]', {id:17, name: 'bloggs'});
+      b8r.set('empty_obj.x.y', {id: 5, name: 'fred'});
+      Test(() => b8r.get('empty_obj.array[0].name'), 'automatic array insertion by id path').shouldBe('fred');
+      Test(() => b8r.get('empty_obj.array[id=17].name'), 'array insertion by index').shouldBe('bloggs');
+      Test(() => b8r.get('empty_obj.x.y.id'), 'object insertion by path').shouldBe(5);
+
+      // components
+      b8r.component('test', 'test/test')
+        .then(() => {
+          b8r.forceUpdate();
+          Test(() => b8r.findOne('.test-component p').textContent, 'Component loaded')
+            .shouldBe('This is a test');
+          Test(() => b8r.findOne('.test-component input').value, 'Component bound')
+            .shouldBe('55');
+          Test(() => window.getComputedStyle(b8r.findOne('.test-component > h2')).backgroundColor, 'Component stylesheet inserted')
+            .shouldBe(computed_color('purple'));
+          Test(() => window.getComputedStyle(b8r.findOne('p')).backgroundColor, 'Component stylesheet did not "leak"')
+              .shouldBe(window.getComputedStyle(b8r.findOne('h2')).backgroundColor);
+          Test(() => b8r.findOne('.test-component h2').textContent, 'Component script ran')
+            .shouldBe('Set on load');
+          Test(() => b8r.find('.test-component [data-children] p').length, 'Component received children')
+            .shouldBe(2);
+          Test(() => b8r.find('.bad-list[data-list-instance]').length).shouldBe(3);
+        });
+
+      // complex lists
+      b8r.set('test1.sort', list => {
+        return list.sort((a, b) => b8r.sortAscending(a.name, b.name));
+      });
+      b8r.register('nested_list', [
+        {
+          id: 1,
+          name: 'Tolkien',
+          children: [
+            {name: 'Gollum'},
+            {name: 'Frodo'},
+            {name: 'Aragorn'},
+          ],
+        },
+        {
+          id: 2,
+          name: 'Bradley',
+          children: [
+            {name: 'Melora'},
+            {name: 'Romilly'},
+            {name: 'Jaelle'},
+          ],
+        },
+        {
+          id: 3,
+          name: 'Vance',
+          children: [
+            {name: 'Murgen'},
+            {name: 'Tamurello'},
+            {name: 'Desmei'},
+          ],
+        },
+      ]);
+      b8r.forceUpdate();
+      Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list binding').
+        shouldBe('Vance');
+      Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list binding')[4].textContent).
+        shouldBe('Frodo');
+      b8r.forceUpdate();
+      b8r.set('nested_list[id=1].name', 'John Ronald Reuel Tolkien');
+      b8r.push('nested_list[id=1].children', {name: 'Elrond'});
+      b8r.set('nested_list[id=2].name', 'Marion Zimmer Bradley');
+      b8r.set('nested_list[id=3].name', 'Jack Vance');
+      b8r.touch('nested_list');
+      b8r.forceUpdate();
+      Test(() => b8r.find('#complex-lists h3')[2].textContent, 'computed list update').
+        shouldBe('Marion Zimmer Bradley');
+      Test(() => b8r.find('#complex-lists .child[data-list-instance]', 'computed nested list update')[4].textContent).
+        shouldBe('Elrond');
+      
+      Test(() => { 
+        b8r.register('computedList', computedList)
+        b8r.forceUpdate()
+        return b8r.find('[data-list-instance*="computedList"]').length
+      }).shouldBe(0);
+      Test(async () => { 
+        const listTemplate = b8r.findOne('[data-list="computedList.oddOnly(computedList.list)"]')
+        listTemplate.dataset.list += ':value'
+        b8r.touchElement(listTemplate)
+        b8r.forceUpdate()
+        return b8r.find('[data-list-instance*="computedList"]').length
+      }).shouldBe(2);
+    </script>
+  </body>
+</html>
