@@ -55,7 +55,7 @@ export default {
   view({head, label, span, input, textarea, img, h4, div, a, button} ) {
     return [
       head(
-        img({src: 'https://bafybeid7p25n6motbkrida32a7ftuf2jtcrpsabiir3drtpxdonwl3pgva.ipfs.w3s.link/bindinator-logo.svg'}),
+        img({src: 'https://w3s.link/ipfs/bafybeid7p25n6motbkrida32a7ftuf2jtcrpsabiir3drtpxdonwl3pgva/bindinator-logo.svg'}),
         label(
           {
             class: 'column elastic'
@@ -96,7 +96,7 @@ export default {
         {
           'target': '_blank',
           bindList: '_component_.uploads',
-          bindHref: 'https://${.cid}.ipfs.w3s.link',
+          bindHref: 'https://w3s.link/ipfs/${.cid}',
         },
         span({
           class: 'elastic'
