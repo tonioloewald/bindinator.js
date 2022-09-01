@@ -1786,15 +1786,16 @@ const parseBinding = binding => {
   }
   const [, targetsRaw, path] =
       binding.trim().match(/^([^=]*?)=([^;]*)$/m).map(s => s.trim());
-  const targets = targetsRaw.split(',').map(target => {
-    var parts = target.match(/([\w#\-.]+)(\(([^)]+)\))?/);
+  const targets = targetsRaw.split(',').map(_target => {
+    var parts = _target.match(/([\w#\-.]+)(\(([^)]+)\))?/);
     if (!parts) {
-      console.debug('b8r-error', 'bad target', target, 'in binding', binding);
+      console.debug('b8r-error', 'bad target', _target, 'in binding', binding);
       return
     }
     if (!parts) return null
     if (parts[1].includes('.')) return { target: 'method', key: parts[1] }
-    return { target: parts[1], key: parts[3] }
+    const target = parts[1].replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    return { target, key: parts[3] }
   });
   if (!path) {
     console.debug('b8r-error', 'binding does not specify source', binding);
@@ -2971,6 +2972,122 @@ var _byExample = /*#__PURE__*/Object.freeze({
 });
 
 /**
+# elements
+
+A convenient factory for creating DOM elements in code.
+
+    elements('tag-name', 'text', {sack: 'of attributes'}, element) // creates a <tag-name> element
+
+`elements` is actually a proxy and will automatically create factories for specific element types, e.g.
+
+    elements.div({class: 'bar'}, 'foo') // create <div class="bar">foo</div>
+
+Or even:
+
+    const {template, div, label, input} = elements
+
+    const myTemplate = template(
+      div(
+        label(
+          'this is a field',
+          input({bindValue: 'app.doc.field1'})
+        ),
+        label(
+          'this is another field',
+          input({bindValue: 'app.doc.field2'})
+        ),
+        button(
+          'Make it so!',
+          onClick: 'app.controller.doSubmit'
+        )
+      )
+    )
+
+`elements._comp` creates a `<b8r-component>` element, e.g.:
+
+    elements._comp({
+      path: '../components/foo.js'
+    })
+
+Produces:
+
+    <b8r-component path="../components/foo.js"></b8r-component>
+
+Attributes beginning with `bind` will be converted into data-bindings, while those beginning with
+`on` will be converted into event bindings, e.g.
+
+    elements.button(
+      'Click Me!',
+      bindEnabledIf: 'app.enableButton',
+      bindShowIf: 'app.showButton',
+      onClick: 'app.doThing',
+    )
+
+Produces:
+
+    <button
+        data-bind="
+          enabledIf=app.enableButton
+          showIf=app.showButton
+        "
+        data-event="click:app.doThing"
+    >Click Me!</button>
+*/
+
+/* global HTMLElement */
+
+const makeElement = (tagType, ...contents) => {
+  const elt = document.createElement(tagType);
+  for (const item of contents) {
+    if (item instanceof HTMLElement || typeof item === 'string') {
+      elt.append(item);
+    } else {
+      const dataBindings = [];
+      const eventBindings = [];
+      for (const key of Object.keys(item)) {
+        const value = item[key];
+        if (key === 'bindList') {
+          elt.dataset.list = value;
+        } else if (key.includes('.')) {
+          dataBindings.push(`${key}=${value}`);
+        } else if (key.match(/^(bind|on)[A-Z]\w+$/)) {
+          if (key.startsWith('bind')) {
+            dataBindings.push(`${key.substr(4).replace(/[A-Z]/, c => c.toLowerCase())}=${value}`);
+          } else {
+            eventBindings.push(`${key.substr(2).replace(/[A-Z]/, c => c.toLowerCase())}:${value}`);
+          }
+        } else {
+          elt.setAttribute(key, value);
+        }
+      }
+      if (dataBindings.length) {
+        elt.dataset.bind = dataBindings.join('\n');
+      }
+      if (eventBindings.length) {
+        elt.dataset.event = eventBindings.join('\n');
+      }
+    }
+  }
+  return elt
+};
+
+const _comp = (...contents) => makeElement('b8r-component', ...contents);
+
+const elements = new Proxy({ _comp }, {
+  get (target, tagName) {
+    if (!tagName.match(/^\w+(-\w+)*$/)) {
+      throw new Error(`${tagName} does not appear to be a valid element tagName`)
+    } else if (!target[tagName]) {
+      target[tagName] = (...contents) => makeElement(tagName, ...contents);
+    }
+    return target[tagName]
+  },
+  set () {
+    throw new Error('You may not add new properties to elements')
+  }
+});
+
+/**
 # Ajax Methods
 
 > **Note**: these methods were implemented before `fetch` became available.
@@ -3528,22 +3645,25 @@ global declarations.
 
     export default const componentName = makeComponent('component-name', {
       css: '._component_ > div { color: yellow }',
-      html: '<div>this text will be yellow</div>',
-      initialValue: {...},
-                   // specify the component's initial value
-                   // or you can provide an [async] function
-                   // ({b8r, get, set, touch, on, component, findOne, findOneWithin}) => { ... } // return intial value
-      load: async ({
+      view({div}) {
+        return div('this text will be yellow')
+      },
+      async initialValue({b8r, get, set, touch, on, component, find, findOne}) {
+        return {
+          ... // initial component data
+        }
+      },
+      async load ({
         component, // this is the element that the component is inserted into
         b8r,       // it's b8r!
         find,      // b8r.findWithin(component, ...)
         findOne,   // b8r.findOneWithin(component, ...)
-        register,  // replace the component's private data object
         get,       // get (within the component's private data)
         set,       // set (within the component's private data)
         on,        // b8r.on(component, ...)
-        touch      // force updates of paths inside the component
-      }) => {
+        touch,     // force updates of paths inside the component
+        data,      // registry proxy for the component's private data
+      }) {
         // your javascript goes here
       },
       type: {...}, // specify the component's type
@@ -3707,9 +3827,14 @@ const componentTimeouts = [];
 const componentPromises = {};
 const componentTypes = {};
 
-const processComponent = (css, html, name) => {
-  const view = create('div');
-  view.innerHTML = html || '';
+const processComponent = ({ name, css, html, view }) => {
+  if (!view) {
+    view = create('div');
+    view.innerHTML = html || '';
+  } else {
+    const contents = view(elements);
+    view = Array.isArray(contents) ? elements.div(...contents) : elements.div(contents);
+  }
   const className = `${name}-component`;
   const style = css ? makeStyleSheet(css.replace(/_component_/g, className), className) : false;
   for (const elt of findWithin(view, '[class*="_component_"]')) {
@@ -3721,11 +3846,12 @@ const processComponent = (css, html, name) => {
   return { style, view }
 };
 
-const makeComponentNoEval = function (name, { css, html, load, initialValue, type }) {
-  const {
+const makeComponentNoEval = function (name, { css, html, view, load, initialValue, type }) {
+  let style;
+  ({
     style,
     view
-  } = processComponent(css, html, name);
+  } = processComponent({ name, css, html, view }));
   const component = {
     version: 2,
     name,
@@ -3793,7 +3919,7 @@ const makeComponent = (name, source, url, preserveSource) => {
   const {
     style,
     view
-  } = processComponent(css, content, name);
+  } = processComponent({ css, html: content, name });
   /* jshint evil: true */
   let load = () => console.debug('b8r-error', 'component', name, 'cannot load properly');
   // check for legacy components
@@ -5344,10 +5470,12 @@ const extendPath = (path, prop) => {
 
 const regHandler = (path = '') => ({
   get (target, prop) {
-    const compoundProp = prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
-                      prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
-                      prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
-                      prop.match(/^(\[[^\]]+\])\[(.+)$/); // [basePath][subPath
+    const compoundProp = typeof prop === 'symbol'
+      ? prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
+                        prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
+                        prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
+                        prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
+      : false;
     if (compoundProp) {
       const [, basePath, subPath] = compoundProp;
       const currentPath = extendPath(path, basePath);
@@ -5365,7 +5493,9 @@ const regHandler = (path = '') => ({
       (Array.isArray(target) && typeof prop === 'string' && prop.includes('='))
     ) {
       let value;
-      if (prop.includes('=')) {
+      if (typeof prop === 'symbol') {
+        value = target[prop];
+      } if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=');
         value = target.find(
           candidate => `${getByPath(candidate, idPath)}` === needle
@@ -6597,6 +6727,12 @@ options if supplied.
 This is the specified attribute. This can also be used to set "special"
 properties like id, class, and style.
 
+### href
+
+    data-bind="href=image.url"
+
+This sets the element's `href` attribute.
+
 ### prop()
 
     data-bind="prop(currentTime)=_component_.video.position"
@@ -6701,13 +6837,13 @@ and the second otherwise.
 
 This lets you pick between two classes.
 
-### show\_if, show\_if(), hide\_if, hide\_if()
+### showIf, showIf(), hideIf, hideIf()
 
     data-bind="hide_if(_undefined_)=message.priority"
 
-### enabled\_if, enabled\_if(), disabled\_if, disabled\_if()
+### enabledIf, enabledIf(), disabledIf, disabledIf()
 
-    data-bind="enabled_if=path.to.editable"
+    data-bind="enabledIf=path.to.editable"
 
 This shows (or hides) an element based on whether a bound value is truthy or
 matches the provided parameter.
@@ -6846,16 +6982,16 @@ will be assigned to the component's private data.)
 Dumps a nicely formatted stringified object in an element (for debugging
 purposes);
 
-### pointer\_events\_if, pointer\_events\_off\_if
+### pointerEventsIf, pointerEventsUnless
 
-    data-bind="pointer_events_if=path.to.enabled"
+    data-bind="pointerEventsIf=path.to.enabled"
 
 Sets the style rule pointer-events to 'none' as appropriate (very simple way of disabling
 the content of an element)
 
-### data\_path
+### dataPath
 
-    data-bind="data_path=path.to.dataPath"
+    data-bind="dataPath=path.to.dataPath"
 
 You can use this to-target to set the `data-path` attribute of a DOM element
 to a registered value (presumably a path).
@@ -6912,7 +7048,7 @@ function _toTargets (b8r) {
   };
 
   return {
-    value: function (element, value) {
+    value: (element, value) => {
       if (element.dataset.type === 'number') value = parseFloat(value);
       switch (element.getAttribute('type')) {
         case 'radio':
@@ -6926,6 +7062,12 @@ function _toTargets (b8r) {
         default:
           if (element.dataset.componentId) {
             b8r.set(`${element.dataset.componentId}.value`, value);
+          } else if (element.type === 'file') {
+            if (!value) {
+              element.value = '';
+            } else {
+              console.debug('b8r-error', 'cannot set file input value except to clear it', element, value);
+            }
           } else if (element.value !== undefined) {
             element.value = value;
             // <select> element will not take value if no matching option exists
@@ -7006,6 +7148,13 @@ function _toTargets (b8r) {
         if (dest === 'src' && typeof element.load === 'function') element.load();
       }
     },
+    href: function (element, value) {
+      if (value) {
+        element.setAttribute('href', value);
+      } else {
+        element.removeAttribute('href');
+      }
+    },
     prop: function (element, value, property) {
       element[property] = value;
     },
@@ -7046,13 +7195,13 @@ function _toTargets (b8r) {
         element.classList.toggle(options[1].value, !value);
       }
     },
-    class_unless: function (element, value, classToToggle) {
+    classUnless: function (element, value, classToToggle) {
       if (!classToToggle) {
-        throw new Error('class_unless toTarget requires a class to be specified')
+        throw new Error('classUnless toTarget requires a class to be specified')
       }
       element.classList.toggle(classToToggle, !value);
     },
-    class_map: function (element, value, map) {
+    classMap: function (element, value, map) {
       const classOptions = parseOptions(map);
       let done = false;
       classOptions.forEach(item => {
@@ -7071,30 +7220,30 @@ function _toTargets (b8r) {
         element.removeAttribute('contenteditable');
       }
     },
-    enabled_if: function (element, value, dest) {
+    enabledIf: function (element, value, dest) {
       if (equals(dest, value)) {
         b8r.enable(element);
       } else {
         b8r.disable(element);
       }
     },
-    disabled_if: function (element, value, dest) {
+    disabledIf: function (element, value, dest) {
       if (!equals(dest, value)) {
         b8r.enable(element);
       } else {
         b8r.disable(element);
       }
     },
-    pointer_events_if: function (element, value) {
+    pointerEventsIf: function (element, value) {
       element.style.pointerEvents = value ? 'auto' : 'none';
     },
-    pointer_events_off_if: function (element, value) {
+    pointerEventsOffIf: function (element, value) {
       element.style.pointerEvents = !value ? 'auto' : 'none';
     },
-    show_if: function (element, value, dest) {
+    showIf: function (element, value, dest) {
       equals(dest, value) ? b8r.show(element) : b8r.hide(element);
     },
-    hide_if: function (element, value, dest) {
+    hideIf: function (element, value, dest) {
       equals(dest, value) ? b8r.hide(element) : b8r.show(element);
     },
     method: function (element, value, dest) {
@@ -7131,7 +7280,7 @@ function _toTargets (b8r) {
         element.textContent = '/* partial data -- could not stringify */\n' + JSON.stringify(obj, false, 2);
       }
     },
-    data_path: function (element, value) {
+    dataPath: function (element, value) {
       if (!element.dataset.path || (value && element.dataset.path.substr(-value.length) !== value)) {
         element.dataset.path = value;
         b8r.bindAll(element);
@@ -7141,7 +7290,7 @@ function _toTargets (b8r) {
       const componentId = b8r.getComponentId(element);
       b8r.setByPath(componentId, dest, value);
     },
-    component_map: function (element, value, map) {
+    componentMap: function (element, value, map) {
       const componentOptions = parseOptions(map);
       const option = componentOptions.find(item => !item.match || item.match == value); // eslint-disable-line eqeqeq
       if (option) {
@@ -7618,12 +7767,12 @@ More information is provided in [this blog entry](http://loewald.com/blog/2019/0
 
 ### makeElement
 
-    const makeElement = (tagType, {
+    makeElement (tagType, {
       content: false,  // text, or something that can be appended to an HTMLElement
       attributes: {},  // attribute map
       styles: {},      // style object
       classes: [],     // list of classes
-    })                // returns the element
+    })                 // returns the element
 
 A handy method for creating a DOM element with specified properties. Content can
 be an `HTMLElement` or `DocumentFragment` or a string (which is converted to a text
@@ -7756,7 +7905,7 @@ reference purposes.
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
-const makeElement = (tagType, {
+const makeElement$1 = (tagType, {
   content = false,
   attributes = {},
   styles = {},
@@ -7785,12 +7934,12 @@ const observer = new ResizeObserver(entries => {
   }
 });
 
-const button = (settings = {}) => makeElement('button', settings);
-const div = (settings = {}) => makeElement('div', settings);
-const input = (settings = {}) => makeElement('input', settings);
-const label = (settings = {}) => makeElement('label', settings);
-const slot = (settings = {}) => makeElement('slot', settings);
-const span = (settings = {}) => makeElement('span', settings);
+const button = (settings = {}) => makeElement$1('button', settings);
+const div = (settings = {}) => makeElement$1('div', settings);
+const input = (settings = {}) => makeElement$1('input', settings);
+const label = (settings = {}) => makeElement$1('label', settings);
+const slot = (settings = {}) => makeElement$1('slot', settings);
+const span = (settings = {}) => makeElement$1('span', settings);
 const text$2 = s => document.createTextNode(s);
 
 const appendContentToElement = (elt, content) => {
@@ -7846,7 +7995,7 @@ const makeWebComponent = (tagName, {
   let styleNode = null;
   if (style) {
     style = Object.assign({ ':host([hidden])': { display: 'none !important' } }, style);
-    styleNode = makeElement('style', { content: _css(style) });
+    styleNode = makeElement$1('style', { content: _css(style) });
   } else if (style) {
     console.debug('b8r-error', `style for a web-component ${tagName} with now shadowRoot is not supported`);
   }
@@ -8002,7 +8151,7 @@ const makeWebComponent = (tagName, {
 var webComponents = /*#__PURE__*/Object.freeze({
   __proto__: null,
   fragment: fragment$1,
-  makeElement: makeElement,
+  makeElement: makeElement$1,
   makeWebComponent: makeWebComponent,
   div: div,
   slot: slot,
@@ -8284,14 +8433,14 @@ b8r.onAny(['change', 'input'], '_b8r_._update_');
 
 b8r.interpolate = (template, elt) => {
   let formatted;
-  if (template.match(/\$\{[^{]*?\}/)) {
+  if (template.match(/\$\{[^}]+\}|\{\{[^}]+\}\}/)) {
     formatted = template;
     do {
-      formatted = formatted.replace(/\$\{([^{]*?)\}/g, (_, path) => {
-        const value = b8r.get(path, elt);
+      formatted = formatted.replace(/\$\{([^}]+)\}|\{\{([^}]+)\}\}/g, (_, pathA, pathB) => {
+        const value = b8r.get(pathA || pathB, elt);
         return value !== null ? value : ''
       });
-    } while (formatted.match(/\$\{[^{]*?\}/))
+    } while (formatted.match(/\$\{[^}]+\}|\{\{[^}]+\}\}/))
   } else {
     const paths = splitPaths(template);
     if (paths.indexOf('') > -1) {
@@ -8677,7 +8826,7 @@ b8r.insertComponent = async function (component, element, data) {
   };
   const register = componentData => {
     console.debug('b8r-warn',
-      'use of register withi components is deprecated, use set() instead'
+      'use of register withi components is deprecated, use data or set() instead'
     );
     set(componentData);
   };
