@@ -14,23 +14,19 @@ export default {
       object-fit: contain;
     }
   `,
-  html: `
-    <div title="image">
-      <h4>Image</h4>
-      <img data-bind="img=_component_.image">
-      <input type="file" accept="image/png"  data-event="change:_component_.handleFile">
-    </div>
-    <div title="rgb">
-      <h4>RGB</h4>
-      <img data-bind="img=_component_.imageRGB">
-      <input type="file" accept="image/*"  data-event="change:_component_.handleFile">
-    </div>
-    <div title="alpha">
-      <h4>Alpha</h4>
-      <img data-bind="img=_component_.imageAlpha">
-      <input type="file" accept="image/*" data-event="change:_component_.handleFile">
-    </div>
-  `,
+  view ({div, h4, img, input}) {
+    const imageBlock = (title, imageProp) => div(
+      { title },
+      h4(title),
+      img({ bindImg: `_component_.${imageProp}`}),
+      input({ type: 'file', accept: 'image/*', onChange: '_component_.handleFile' })
+    )
+    return [
+      imageBlock('image', 'image'),
+      imageBlock('rgb', 'imageRGB'),
+      imageBlock('alpha', 'imageAlpha')
+    ]
+  },
   initialValue ({ set, findOne }) {
     const fileActions = {
       image (img) {
@@ -66,10 +62,10 @@ export default {
         rgb.src = canvas.toDataURL('image/png')
       },
       imageRGB () {
-
+        // todo: rebuild image with new rgb
       },
       imageAlpha () {
-
+        // todo: rebuild image with new alpha
       }
     }
 
