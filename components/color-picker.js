@@ -135,19 +135,21 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
 
     ._component_:focus canvas,
     ._component_[data-open] canvas {
+      margin-top: 2px;
       opacity: 1;
       height: 40px;
     }
   `,
-  html: `
-    <div class="diagonal-stripes">
-        <span class="swatch" data-bind="style(background)=_component_.value">&nbsp;</span>
-    </div>
-    <canvas 
-      data-bind="method(color-picker-controller.palette)=_component_.h,_component_.s,_component_.v"
-      data-event="mousedown,mousemove,mouseup:color-picker-controller.pickColor"
-    ></canvas>
-  `,
+  view: ({div, span, canvas}) => [
+    div(
+      {class: 'diagonal-stripes'},
+      span({class: 'swatch', 'bindStyle(background)': '_component_.value'}, ' '),
+      canvas({
+        'color-picker-controller.palette': '_component_.h,_component_.s,_component_.v',
+        'onMousedown,mousemove,mouseup': 'color-picker-controller.pickColor'
+      })
+    )
+  ],
   load: async ({
     component, // this is the element that the component is inserted into
     b8r, // it's b8r!
