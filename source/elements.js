@@ -4,6 +4,7 @@
 A convenient factory for creating DOM elements in code.
 
     elements('tag-name', 'text', {sack: 'of attributes'}, element) // creates a <tag-name> element
+    elements('tagName')
 
 `elements` is actually a proxy and will automatically create factories for specific element types, e.g.
 
@@ -59,6 +60,15 @@ Produces:
         "
         data-event="click:app.doThing"
     >Click Me!</button>
+
+Attributes containing a period will be converted into **method bindings**, e.g.
+
+    elements.textarea({
+      '_component_.stringify': '_component_.data'
+    })
+
+Produces
+    <textarea data-bind="_component_.stringify=_component_.data"></textarea>
 */
 
 /* global HTMLElement */
@@ -77,7 +87,15 @@ const makeElement = (tagType, ...contents) => {
           elt.dataset.list = value
         } else if (key.includes('.')) {
           dataBindings.push(`${key}=${value}`)
-        } else if (key.match(/^(bind|on)[A-Z]\w+$/)) {
+        } else if (key.match(/^(bind|on)[A-Z]/)) {
+/*
+  TODO: consider tracking targets and values so that 
+    bindFoo: 'path.to.thing',
+    bindBar: 'path.to.thing'
+  becomes:
+    'foo,bar=path.to.thing'
+  (and similarly for events)
+*/
           if (key.startsWith('bind')) {
             dataBindings.push(`${key.substr(4).replace(/[A-Z]/, c => c.toLowerCase())}=${value}`)
           } else {
@@ -100,8 +118,17 @@ const makeElement = (tagType, ...contents) => {
 
 const _comp = (...contents) => makeElement('b8r-component', ...contents)
 
-export const elements = new Proxy({ _comp }, {
+const _fragment = (...contents) => {
+  const frag = document.createDocumentFragment()
+  for(const item of contents) {
+    frag.append(item)
+  }
+  return frag
+}
+
+export const elements = new Proxy({ _comp, _fragment }, {
   get (target, tagName) {
+    tagName = tagName.replace(/[A-Z]/g, c => `-${c.toLocaleLowerCase()}`)
     if (!tagName.match(/^\w+(-\w+)*$/)) {
       throw new Error(`${tagName} does not appear to be a valid element tagName`)
     } else if (!target[tagName]) {
