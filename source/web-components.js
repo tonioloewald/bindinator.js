@@ -415,7 +415,7 @@ const makeWebComponent = (tagName, {
               if (value.length === 1) {
                 value.call(this, x)
               } else {
-                throw new Error('cannot set read-only prop')
+                throw new Error(`cannot set ${prop}, it is read-only`)
               }
             }
           })
