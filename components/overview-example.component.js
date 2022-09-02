@@ -1,13 +1,11 @@
 export default {
-  html: `
-    <div>
-      <input data-bind="value=_component_.name">
-      <button data-event="click:_component_.actions.click">
-        Click Me
-      </button>
-    </div>
-    <p></p>
-  `,
+  view: ({div, input, button, p}) => [
+    div(
+      input({ bindValue: '_component_.name' }),
+      button( 'Click Me', { onClick: '_component_.actions.click'} )
+    ),
+    p()
+  ],
   initialValue: ({ get, findOne }) => ({
     name: 'Juanita',
     actions: {
