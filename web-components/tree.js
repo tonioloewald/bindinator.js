@@ -55,7 +55,6 @@ const Tree = makeWebComponent('b8r-tree', {
   attributes: {
     disclosed: true,
     leaf: false,
-    parentProp: 'children',
     childProp: 'children'
   },
   props: {
