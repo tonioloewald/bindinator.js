@@ -41,21 +41,34 @@ export default {
       border-color: var(--black-40);
     }
   `,
-  html: `
-    <div style="padding: 5px 0;">
-      <a class="bookmarklet" data-bind="text=_component_.name;_component_.build=_component_.script">bookmark me</a>
-      click to test, or bookmark to make bookmarklet
-    </div>
-    <div style="padding: 5px 0;">
-      <b8r-dropzone type="text/uri-list" data-event="drop:_component_.handleDrop">
-        drop a bookmarklet here to edit it
-      </b8r-dropzone>
-    </div>
-    <b8r-code-editor 
-      data-bind="value=_component_.script" 
-      data-event="change:_component_.build"
-    ></b8r-code-editor>
-  `,
+  view({div, a, b8rDropzone, b8rCodeEditor}) {
+    const paddingStyle = { style: 'padding: 5px 0' }
+    return [
+      div(
+        paddingStyle,
+        'Click ',
+        a(
+          {class: 'bookmarklet', bindText: '_component_.name'},
+          'bookmark me'
+        ),
+        ' to test, or bookmark (e.g. drag to bookmark bar) to make bookmarklet'
+      ),
+      div(
+        paddingStyle,
+        b8rDropzone(
+          {
+            type: 'text/uri-list',
+            onDrop: '_component_.handleDrop'
+          },
+          'drop a bookmarklet here to edit it (does not work in Safari)'
+        )
+      ),
+      b8rCodeEditor({
+        bindValue: '_component_.script',
+        onChange: '_component_.build'
+      })
+    ]
+  },
   async initialValue ({ findOne, set, get }) {
     await import('../web-components/code-editor.js')
     await import('../web-components/drag-drop.js')
