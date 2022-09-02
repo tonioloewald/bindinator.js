@@ -1,8 +1,8 @@
 export default {
-  view: ({div, input, button, p}) => [
+  view: ({ div, input, button, p }) => [
     div(
       input({ bindValue: '_component_.name' }),
-      button( 'Click Me', { onClick: '_component_.actions.click'} )
+      button('Click Me', { onClick: '_component_.actions.click' })
     ),
     p()
   ],

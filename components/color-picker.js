@@ -140,10 +140,10 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
       height: 40px;
     }
   `,
-  view: ({div, span, canvas}) => [
+  view: ({ div, span, canvas }) => [
     div(
-      {class: 'diagonal-stripes'},
-      span({class: 'swatch', 'bindStyle(background)': '_component_.value'}, ' '),
+      { class: 'diagonal-stripes' },
+      span({ class: 'swatch', 'bindStyle(background)': '_component_.value' }, ' '),
       canvas({
         'color-picker-controller.palette': '_component_.h,_component_.s,_component_.v',
         'onMousedown,mousemove,mouseup': 'color-picker-controller.pickColor'

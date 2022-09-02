@@ -88,8 +88,8 @@ const makeElement = (tagType, ...contents) => {
         } else if (key.includes('.')) {
           dataBindings.push(`${key}=${value}`)
         } else if (key.match(/^(bind|on)[A-Z]/)) {
-/*
-  TODO: consider tracking targets and values so that 
+          /*
+  TODO: consider tracking targets and values so that
     bindFoo: 'path.to.thing',
     bindBar: 'path.to.thing'
   becomes:
@@ -120,7 +120,7 @@ const _comp = (...contents) => makeElement('b8r-component', ...contents)
 
 const _fragment = (...contents) => {
   const frag = document.createDocumentFragment()
-  for(const item of contents) {
+  for (const item of contents) {
     frag.append(item)
   }
   return frag

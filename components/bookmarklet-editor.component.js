@@ -41,14 +41,14 @@ export default {
       border-color: var(--black-40);
     }
   `,
-  view({div, a, b8rDropzone, b8rCodeEditor}) {
+  view ({ div, a, b8rDropzone, b8rCodeEditor }) {
     const paddingStyle = { style: 'padding: 5px 0' }
     return [
       div(
         paddingStyle,
         'Click ',
         a(
-          {class: 'bookmarklet', bindText: '_component_.name'},
+          { class: 'bookmarklet', bindText: '_component_.name' },
           'bookmark me'
         ),
         ' to test, or bookmark (e.g. drag to bookmark bar) to make bookmarklet'

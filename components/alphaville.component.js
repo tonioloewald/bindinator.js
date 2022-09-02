@@ -14,11 +14,11 @@ export default {
       object-fit: contain;
     }
   `,
-  view ({div, h4, img, input}) {
+  view ({ div, h4, img, input }) {
     const imageBlock = (title, imageProp) => div(
       { title },
       h4(title),
-      img({ bindImg: `_component_.${imageProp}`}),
+      img({ bindImg: `_component_.${imageProp}` }),
       input({ type: 'file', accept: 'image/*', onChange: '_component_.handleFile' })
     )
     return [

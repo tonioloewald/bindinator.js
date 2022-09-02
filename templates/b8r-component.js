@@ -10,12 +10,12 @@ export default {
       border: 1px solid green;
     }
   `,
-  view: ({button, span}) => [
+  view: ({ button, span }) => [
     button(
       { onClick: '_component_.edit' },
       span({ class: 'icon-home5' }, ' '),
-      span({ bindText: '_component_.caption'}),
-    ),
+      span({ bindText: '_component_.caption' })
+    )
   ],
   // construct initialValue before element is inserted into component
   initialValue: async ({ b8r, get, set }) => {

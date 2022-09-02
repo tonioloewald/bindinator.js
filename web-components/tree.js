@@ -1,7 +1,7 @@
 /**
 # tree
 
-This is a general-purpose tree component. To display information about a 
+This is a general-purpose tree component. To display information about a
 given node you need to provide the root element with a `describer` helper
 function which can return an `HTMLElement`, `fragment`, or string.
 
@@ -29,7 +29,7 @@ each element's tagName and classes or the text of text nodes.
 ></b8r-tree>
 <script>
   await import('../web-components/tree.js');
-  set({ 
+  set({
     root: document.body,
     describer(elt) {
       return elt instanceof HTMLElement
@@ -40,10 +40,10 @@ each element's tagName and classes or the text of text nodes.
 </script>
 ```
 */
-import {makeWebComponent} from '../source/web-components.js'
-import {elements} from '../source/elements.js'
+import { makeWebComponent } from '../source/web-components.js'
+import { elements } from '../source/elements.js'
 
-const {div, span, slot, b8rTree, _fragment} = elements
+const { span, slot, b8rTree } = elements
 
 const Tree = makeWebComponent('b8r-tree', {
   style: {
@@ -56,13 +56,13 @@ const Tree = makeWebComponent('b8r-tree', {
     disclosed: true,
     leaf: false,
     parentProp: 'children',
-    childProp: 'children',
+    childProp: 'children'
   },
   props: {
     value: null,
-    describer(f) {
+    describer (f) {
       if (f) {
-        this._describer = f 
+        this._describer = f
       } else {
         return this._describer
       }
@@ -110,7 +110,7 @@ const Tree = makeWebComponent('b8r-tree', {
   },
   content: [
     span(
-      span('no description', {class: 'description'})
+      span('no description', { class: 'description' })
     ),
     slot()
   ],

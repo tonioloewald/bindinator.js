@@ -118,11 +118,11 @@ export default {
   css: `
     ._component_ canvas { width: 128px; height: 128px; }
   `,
-  view: ({canvas}) => canvas( { 
+  view: ({ canvas }) => canvas({
     'bindAttr(aria-label),attr(title)': 'clock showing {{_component_.time}}',
     width: 256,
-    height: 256,
-  } ),
+    height: 256
+  }),
   initialValue: {
     faceColor: '#f7f7f7',
     tickColor: '#222',
