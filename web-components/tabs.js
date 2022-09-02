@@ -75,7 +75,7 @@ import {
   makeWebComponent
 } from '../source/web-components.js'
 
-const TabSelector = makeWebComponent('b8r-tab-selector', {
+export const TabSelector = makeWebComponent('b8r-tab-selector', {
   attributes: {
     value: 0,
     closeable: false
@@ -223,7 +223,3 @@ const TabSelector = makeWebComponent('b8r-tab-selector', {
   ),
   role: 'tab set'
 })
-
-export {
-  TabSelector
-}

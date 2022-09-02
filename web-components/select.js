@@ -67,7 +67,7 @@ const rectUnion = (r, s) => {
   return union
 }
 
-const SelectOption = makeWebComponent('b8r-option', {
+export const SelectOption = makeWebComponent('b8r-option', {
   attributes: {
     value: '',
     selected: false,
@@ -116,7 +116,7 @@ const SelectOption = makeWebComponent('b8r-option', {
   role: 'select'
 })
 
-const SelectBar = makeWebComponent('b8r-select-bar', {
+export const SelectBar = makeWebComponent('b8r-select-bar', {
   attributes: {
     value: ''
   },
@@ -148,7 +148,7 @@ const SelectBar = makeWebComponent('b8r-select-bar', {
   role: 'select'
 })
 
-const SelectPop = makeWebComponent('b8r-select', {
+export const SelectPop = makeWebComponent('b8r-select', {
   attributes: {
     transition: 'var(--hover-transition)',
     open: false,
@@ -273,9 +273,3 @@ const SelectPop = makeWebComponent('b8r-select', {
   ),
   role: 'select'
 })
-
-export {
-  SelectOption,
-  SelectBar,
-  SelectPop
-}

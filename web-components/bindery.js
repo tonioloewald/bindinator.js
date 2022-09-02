@@ -121,7 +121,7 @@ const toBindings = (elt) => {
 }
 */
 
-const BinderyModel = makeWebComponent('b8r-bindery', {
+export const BinderyModel = makeWebComponent('b8r-bindery', {
   attributes: {
     value: null,
     events: ''
@@ -212,7 +212,3 @@ const BinderyModel = makeWebComponent('b8r-bindery', {
     }
   }
 })
-
-export {
-  BinderyModel
-}

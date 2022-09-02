@@ -151,7 +151,7 @@ import {
   button
 } from '../source/web-components.js'
 
-const DialogModal = makeWebComponent('b8r-modal', {
+export const DialogModal = makeWebComponent('b8r-modal', {
   attributes: {
     value: null,
     active: false
@@ -242,9 +242,9 @@ const _makeButtons = (buttons) =>
     }
   }))
 
-const dialogAlert = (message, title = window.location.host) => dialogConfirm(message, title, [_okButton])
+export const dialogAlert = (message, title = window.location.host) => dialogConfirm(message, title, [_okButton])
 
-const dialogConfirm = (message, title = window.location.host, buttons = _confirmButtons) =>
+export const dialogConfirm = (message, title = window.location.host, buttons = _confirmButtons) =>
   new Promise((resolve, reject) => {
     const dialog = new DialogModal()
     const _title = div({ content: title, classes: ['b8r-modal-title'] })
@@ -264,7 +264,7 @@ const dialogConfirm = (message, title = window.location.host, buttons = _confirm
     dialog.show()
   })
 
-const dialogPrompt = (message = 'Enter some text', text = '', title = window.location.host) =>
+export const dialogPrompt = (message = 'Enter some text', text = '', title = window.location.host) =>
   new Promise((resolve, reject) => {
     const dialog = new DialogModal()
     const _title = div({ content: title, classes: ['b8r-modal-title'] })
@@ -286,10 +286,3 @@ const dialogPrompt = (message = 'Enter some text', text = '', title = window.loc
     dialog.show()
     dialog.querySelector('input').setSelectionRange(0, 32000)
   })
-
-export {
-  DialogModal,
-  dialogAlert,
-  dialogConfirm,
-  dialogPrompt
-}

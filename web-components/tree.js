@@ -45,7 +45,7 @@ import { elements } from '../source/elements.js'
 
 const { span, slot, b8rTree } = elements
 
-const Tree = makeWebComponent('b8r-tree', {
+export const Tree = makeWebComponent('b8r-tree', {
   style: {
     ':host': {
       display: 'block',
@@ -115,7 +115,3 @@ const Tree = makeWebComponent('b8r-tree', {
   ],
   role: 'tree'
 })
-
-export {
-  Tree
-}

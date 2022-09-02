@@ -25,7 +25,7 @@ import {
   makeWebComponent
 } from '../source/web-components.js'
 
-const CheckboxSwitch = makeWebComponent('b8r-switch', {
+export const CheckboxSwitch = makeWebComponent('b8r-switch', {
   attributes: {
     color: 'var(--faded-bg-color)',
     onColor: 'var(--accent-color)',
@@ -93,7 +93,3 @@ const CheckboxSwitch = makeWebComponent('b8r-switch', {
     }
   }
 })
-
-export {
-  CheckboxSwitch
-}

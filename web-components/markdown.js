@@ -23,7 +23,7 @@ import {
   makeWebComponent
 } from '../source/web-components.js'
 
-const MarkdownArea = makeWebComponent('b8r-markdown', {
+export const MarkdownArea = makeWebComponent('b8r-markdown', {
   attributes: {
     value: ''
   },
@@ -39,7 +39,3 @@ const MarkdownArea = makeWebComponent('b8r-markdown', {
   },
   role: 'rich text'
 })
-
-export {
-  MarkdownArea
-}

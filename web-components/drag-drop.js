@@ -169,7 +169,7 @@ webComponentTest(Test, '../web-components/drag-drop.js', 'b8r-draggable', 'b8r-d
 import { makeWebComponent } from '../source/web-components.js'
 
 let elementBeingDragged = null
-const dragged = () => elementBeingDragged
+export const dragged = () => elementBeingDragged
 
 const isTypeAllowed = (allowedTypes, type) => {
   for (let i = 0; i < allowedTypes.length; i++) {
@@ -221,7 +221,7 @@ const dragstart = (evt, draggable) => {
   markDroppable(evt)
 }
 
-const DragItem = makeWebComponent('b8r-draggable', {
+export const DragItem = makeWebComponent('b8r-draggable', {
   attributes: {
     type: 'text/plain;text/html',
     content: 'auto'
@@ -250,7 +250,7 @@ const drag = (evt) => {
   }
 }
 
-const dragEnd = () => {
+export const dragEnd = () => {
   elementBeingDragged = null;
   [...document.querySelectorAll('.drag-source')].forEach(elt => elt.classList.remove('drag-source'));
   [...document.querySelectorAll('.drag-over')].forEach(elt => elt.classList.remove('drag-over'));
@@ -263,7 +263,7 @@ document.body.addEventListener('dragend', dragEnd)
 document.body.addEventListener('dragstart', dragstart)
 document.body.addEventListener('dragenter', dragstart)
 
-const DropZone = makeWebComponent('b8r-dropzone', {
+export const DropZone = makeWebComponent('b8r-dropzone', {
   attributes: {
     type: 'text/plain;text/html',
     effect: 'copy'
@@ -301,7 +301,7 @@ const DropZone = makeWebComponent('b8r-dropzone', {
   }
 })
 
-const DragSortable = makeWebComponent('b8r-drag-sortable', {
+export const DragSortable = makeWebComponent('b8r-drag-sortable', {
   style: {
     ':host': {
       display: 'block'
@@ -345,11 +345,3 @@ const DragSortable = makeWebComponent('b8r-drag-sortable', {
     }
   }
 })
-
-export {
-  DragItem,
-  DropZone,
-  DragSortable,
-  dragged,
-  dragEnd
-}

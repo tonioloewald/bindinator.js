@@ -65,7 +65,7 @@ import { makeWebComponent, slot } from '../source/web-components.js'
 import { listenForDragStart, trackDrag, moveEventDiv } from '../lib/track-drag.js'
 import { findHighestZ } from '../source/b8r.dom.js'
 
-const Float = makeWebComponent('b8r-float', {
+export const Float = makeWebComponent('b8r-float', {
   style: {
     ':host': {
       display: 'block',
@@ -106,7 +106,3 @@ const Float = makeWebComponent('b8r-float', {
     }
   }
 })
-
-export {
-  Float
-}
