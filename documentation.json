@@ -488,6 +488,10 @@
         "path": "web-components/drag-drop.js"
       },
       {
+        "name": "Tree",
+        "path": "web-components/tree.js"
+      },
+      {
         "name": "Float",
         "path": "web-components/float.js"
       },
