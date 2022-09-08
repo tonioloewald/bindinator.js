@@ -1,6 +1,7 @@
 <!--
 # Documentation
-`b8r``'s self-hosted documentation used to be a bespoke page. Now it's a component.
+`b8r`'s self-hosted documentation used to be a bespoke page. Now it's a component.
+
 ## Features
 - provides a navigation and search interface for all documents in documents.json
 - supports javascript, markdown, and html component files
@@ -264,6 +265,7 @@
   .in-page-nav:not(.active) {
     top: 0;
     opacity: 0;
+    pointer-events: none;
   }
 
   .in-page-nav.active {
