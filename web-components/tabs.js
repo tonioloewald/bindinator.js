@@ -45,7 +45,7 @@ and rich content in tabs, and assignment of specific values to tabs
   }
 </style>
 <b8r-tab-selector closeable>
-  <div name="first" style="">
+  <div name="first">
     <h2 class="header">Big Scrolling List</h2>
     <div class="scroll-port">
       <div data-list="_component_.items">A list item</div>
