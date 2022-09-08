@@ -68,7 +68,60 @@ Attributes containing a period will be converted into **method bindings**, e.g.
     })
 
 Produces
+
     <textarea data-bind="_component_.stringify=_component_.data"></textarea>
+
+~~~~
+const {elements} = await import('../source/elements.js')
+const {div, span, _comp, fooBarBaz, button} = elements
+
+Test(
+  () => div().tagName, 'elements.div works'
+).shouldBe('DIV')
+Test(
+  () => _comp().tagName, '_comp produces <b8r-component>'
+).shouldBe('B8R-COMPONENT')
+Test(
+  () => fooBarBaz().tagName,
+  'camelCase produces hyphen-case tags'
+).shouldBe('FOO-BAR-BAZ')
+Test(
+  () => div({style: 'color: red'}).style.color,
+  'style strings work'
+).shouldBe('red')
+Test(
+  () => div({style: {color: 'green'}}, {style: {fontSize: '24px'}}).getAttribute('style'),
+  'style objects work'
+).shouldBe('color: green; font-size: 24px;')
+Test(
+  () => div(span(), span()).children.length,
+  'element nesting works'
+).shouldBe(2)
+Test(
+  () => div('foo').childNodes[0].constructor,
+  'strings become text nodes'
+).shouldBe(Text)
+Test(
+  () => div({class: 'foo'}).classList.contains('foo'), 
+  'class attribute works'
+).shouldBe(true)
+Test(
+  () => button('click me', {onClick: 'foo.bar'}).dataset.event,
+  'onEvent produces data-event attribute'
+).shouldBe('click:foo.bar')
+Test(
+  () => button('click me', {bindText: 'foo.bar'}).dataset.bind,
+  'bindTarget produces data-bind attribute'
+).shouldBe('text=foo.bar')
+Test(
+  () => div({dataFooBarBaz: 'Lurman'}).getAttribute('data-foo-bar-baz'),
+  'camelCase attributes are converted to hyphen-case'
+).shouldBe('Lurman')
+Test(
+  () => div({'foo.bar': 'baz.lurman'}).dataset.bind,
+  'implicit method-bindings work'
+).shouldBe('foo.bar=baz.lurman')
+~~~~
 */
 
 /* global HTMLElement */
@@ -101,8 +154,16 @@ const makeElement = (tagType, ...contents) => {
           } else {
             eventBindings.push(`${key.substr(2).replace(/[A-Z]/, c => c.toLowerCase())}:${value}`)
           }
+        } else if (key === 'style') {
+          if (typeof value === 'object') {
+            for(const prop of Object.keys(value)) {
+              elt.style[prop] = value[prop]
+            }
+          } else {
+            elt.setAttribute('style', value)
+          }
         } else {
-          elt.setAttribute(key, value)
+          elt.setAttribute(key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()), value)
         }
       }
       if (dataBindings.length) {
