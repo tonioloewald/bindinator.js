@@ -631,8 +631,8 @@
       set({navActive: true})
     },
     hideTimeout: null,
-    hideNav () {
-      if (navigator.maxTouchPoints === 0) {
+    hideNav (evt) {
+      if (evt.target.tagName === 'NAV' && navigator.maxTouchPoints === 0) {
         set({hideTimeout: setTimeout(() => {
           set({navActive: false})
         }, 500)}) 
