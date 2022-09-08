@@ -632,9 +632,11 @@
     },
     hideTimeout: null,
     hideNav () {
-      set({hideTimeout: setTimeout(() => {
-        set({navActive: false})
-      }, 500)})
+      if (navigator.maxTouchPoints === 0) {
+        set({hideTimeout: setTimeout(() => {
+          set({navActive: false})
+        }, 500)}) 
+      }
     },
     toggleNav() {
       set({navActive: !get().navActive})
