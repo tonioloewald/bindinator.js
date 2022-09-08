@@ -59,7 +59,6 @@
     background: var(--bg-color);
   }
 
-  ._component_ > nav:hover,
   ._component_ > nav.active {
     left: 0;
   }
@@ -265,12 +264,10 @@
   .in-page-nav:not(.active) {
     top: 0;
     opacity: 0;
-    pointer-events: none;
   }
 
   .in-page-nav.active {
     opacity: 1;
-    pointer-events: ;
   }
 
   .in-page-nav > h5 {
@@ -404,7 +401,10 @@
         class(localhost)=_component_.localhost
         class(active)=_component_.navActive
     "
-    dara-event="mouseleave:_component_.hideNav"
+    data-event="
+      mouseover:_component_.showNav
+      mouseleave:_component_.hideNav
+    "
 >
   <details
     data-list="_component_.docs:title"
@@ -627,10 +627,14 @@
       if (evt.target === target) findOne('.in-page-nav h5').scrollIntoView()
     },
     showNav () {
+      clearTimeout(get().hideTimeout)
       set({navActive: true})
     },
+    hideTimeout: null,
     hideNav () {
-      set({navActive: false})
+      set({hideTimeout: setTimeout(() => {
+        set({navActive: false})
+      }, 500)})
     },
     toggleNav() {
       set({navActive: !get().navActive})
