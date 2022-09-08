@@ -660,7 +660,7 @@
         "path": "components/firebase.component.js"
       },
       {
-        "name": "Custom Components",
+        "name": "Custom Elements",
         "path": "web-components.component.html"
       },
       {
