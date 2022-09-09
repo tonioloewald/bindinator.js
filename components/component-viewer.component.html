@@ -34,7 +34,7 @@
       source = c._source;
     }
     if(docs_md) {
-      md(info, docs_md);
+      md({elt: info, source: docs_md});
     }
     code.textContent = source.replace(/\t/g, '  ');
     code.closest('.hidden').classList.remove('hidden');

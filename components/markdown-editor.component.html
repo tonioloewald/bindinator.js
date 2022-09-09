@@ -76,7 +76,7 @@ And here is a table:
 |  attr(foo)      |  specified attribute of an element
 `;
   const preview = findOne('.preview');
-  const update = b8r.debounce(() => md(preview, get('source'), {renderTables: true}), 250);
+  const update = b8r.debounce(() => md({elt: preview, source: get('source'), renderTables: true}), 250);
   update();
   set ({
     update,

@@ -151,6 +151,14 @@ Test(
   () => div({'foo.bar': 'baz.lurman'}).dataset.bind,
   'implicit method-bindings work'
 ).shouldBe('foo.bar=baz.lurman')
+Test(
+  () => button('test', {disabled: true}).getAttribute('disabled'),
+  'boolean attributes are properly set if true'
+).shouldBe('')
+Test(
+  () => button('test', {disabled: false}).hasAttribute('disabled'),
+  'boolean attributes are properly set if true'
+).shouldBe('false')
 ~~~~
 */
 
@@ -193,7 +201,11 @@ export const create = (tagType, ...contents) => {
             elt.setAttribute('style', value)
           }
         } else {
-          elt.setAttribute(key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()), value)
+          if (typeof value === 'boolean') {
+            value ? elt.setAttribute(key.replace(/[A-Z]/g), '') : elt.removeAttribute(key.replace(/[A-Z]/g))
+          } else {
+            elt.setAttribute(key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()), value)
+          }
         }
       }
       if (dataBindings.length) {

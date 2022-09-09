@@ -48,7 +48,8 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
     value: '',
     mode: 'javascript',
     pendingChange: 0,
-    options: ''
+    options: '',
+    disabled: false
   },
   style: {
     ':host': {
@@ -75,9 +76,14 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
   },
   methods: {
     connectedCallback () {
-      this._editor = makeCodeEditor(this, this.mode, JSON.parse(this.options || '{}'))
+      const options = {
+        showGutter: !this.disabled,
+        ...JSON.parse(this.options || '{}')
+      }
+      this._editor = makeCodeEditor(this, this.mode, options)
+      this._editor.then(editor => editor.setReadOnly(this.disabled))
       if (!this.value) {
-        this.value = this.textContent
+        this.value = this.textContent.trim('\n')
       }
     },
     render () {
@@ -91,6 +97,7 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
         if (this.pendingChange === 0 && editor.getValue() !== this.value) {
           editor.setValue(this.value, 1)
         }
+        editor.setReadOnly(this.disabled)
       })
     }
   },

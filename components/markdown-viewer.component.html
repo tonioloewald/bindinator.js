@@ -1,5 +1,10 @@
 <!-- Copyright ©2016-2017 Tonio Loewald -->
-  <div data-component="loading"></div>
+<style>
+  ._component_ > b8r-code-editor {
+    margin: var(--narrow-spacing-size) 0;
+  }
+</style>
+<div data-component="loading"></div>
 <script>
 /*global component, get, b8r */
   const {content, url} = get();
@@ -7,9 +12,9 @@
   const loading = await b8r.component('loading');
   await b8r.component('fiddle');
   if (content) {
-    md(component, content, {renderTables: true});
+    md({elt: component, source: content, renderTables: true});
   } else if (url) {
     const content = await b8r.ajax(url);
-    md(component, content, {renderTables: true});
+    md({elt: component, source: content, renderTables: true});
   }
 </script>

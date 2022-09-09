@@ -15,10 +15,13 @@
   const codeElt = findOne('code');
   const {code} = await import('../lib/text-render.js');
   if(source) {
-    code(codeElt, source.split('\n').filter(s => s.trim()).join('\n'));
+    code({
+      elt: codeElt,
+      source: source.split('\n').filter(s => s.trim()).join('\n')
+    });
   } else if (url) {
     b8r.component('loading').
     then(() => b8r.ajax(url)).
-    then(loadedSource => code(codeElt, loadedSource));
+    then(loadedSource => code({elt: codeElt, source: loadedSource}));
   }
 </script>
