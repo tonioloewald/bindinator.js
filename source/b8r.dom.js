@@ -211,7 +211,7 @@ unwraps the element of its immediate parent or its closest `wrapperSelector` if 
 
 import { makeArray, forEachKey } from './b8r.iterators.js'
 
-export {create, elements} from './elements.js'
+export { create, elements } from './elements.js'
 
 export const isVisible = (element, includeParents) => element &&
   getComputedStyle(element).display !== 'none' &&

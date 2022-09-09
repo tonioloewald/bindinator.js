@@ -26,7 +26,7 @@ Note that parameters are processed in order so for example
 
     elements.foo(x, y, z) // is equivalent to create('foo', x, ,y, z)
 
-This is all designed to make creating DOM elements more concise and efficient 
+This is all designed to make creating DOM elements more concise and efficient
 than writing HTML or JSX. Examples:
 
     const {ul, li} = elements
@@ -132,7 +132,7 @@ Test(
   'strings become text nodes'
 ).shouldBe(Text)
 Test(
-  () => div({class: 'foo'}).classList.contains('foo'), 
+  () => div({class: 'foo'}).classList.contains('foo'),
   'class attribute works'
 ).shouldBe(true)
 Test(
@@ -186,7 +186,7 @@ export const create = (tagType, ...contents) => {
           }
         } else if (key === 'style') {
           if (typeof value === 'object') {
-            for(const prop of Object.keys(value)) {
+            for (const prop of Object.keys(value)) {
               elt.style[prop] = value[prop]
             }
           } else {
