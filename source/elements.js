@@ -158,7 +158,7 @@ Test(
 Test(
   () => button('test', {disabled: false}).hasAttribute('disabled'),
   'boolean attributes are properly set if true'
-).shouldBe('false')
+).shouldBe(false)
 ~~~~
 */
 
