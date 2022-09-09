@@ -36,6 +36,10 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
     max-width: initial;
   }
 
+  ._component_ b8r-code-editor {
+    min-height: 50vh;
+  }
+
   ._component_ .test-transcript > .pending {
     color: var(--warning-color);
   }
@@ -92,21 +96,21 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   </summary>
   <div data-component="tab-selector">
     <div name="results" class="test-transcript"></div>
-    <pre name="source" data-bind="method(_component_.js)=_component_.source" style="overflow: hidden"></pre>
+    <b8r-code-editor name="source" data-bind="value=_component_.source"></b8r-code-editor>
   </div>
 </details>
 <script>
   /* global findOne, b8r, get, set, component */
-  const {source} = get()
   const {AsyncFunction} = await import('../source/b8r.functions.js')
   const {code} = await import('../lib/text-render.js')
   const {configuredTest} = await import('../lib/test.js')
+  import('../web-components/code-editor.js')
+
   b8r.component('tab-selector')
   b8r.component('resizer')
   set({
     title: 'Test Results',
-    show: false,
-    js: (elt, source) => code(elt, source, 'js'),
+    show: false
   });
   const notify_errors = () => {
     b8r.findOne('.literate-errors').style.display = 'block'
@@ -122,6 +126,7 @@ in a private context with `_required_` and `Test` (the test.js module) passed as
   })
   const run = async () => {
     try {
+      const {source} = get()
       const reportContainer = findOne('.test-transcript')
       reportContainer.textContent = ''
       const specifiedTitle = source.match(/\/\/ *title: *([^\n]+)/)
