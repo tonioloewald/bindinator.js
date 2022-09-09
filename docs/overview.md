@@ -9,7 +9,7 @@ templating languages, boilerplate, or pretty much anything else. On the other ha
 nicely with most third-party libraries, including legacy libraries that expect to be imported
 by tag.
 
-<b8r-component name="fiddle" data-source="./components/overview-example.component.js"></b8r-component>
+<b8r-component name="fiddle" data-source="./components/todo-simple.js"></b8r-component>
 
 The preceding example is a self-contained reusable component implemented as an ES6 module.
 
@@ -270,17 +270,36 @@ You can use a component by `path` (which automatically loads the component if ne
 by `name` if a component is already (or will be) loaded (e.g. via `b8r.component`, as per below, 
 or by another `<b8r-component>`)
 
-E.g. for the new version 2 "pure javascript" components:
+E.g. for javascript components you can load the component via `import()` or `require()` (or on-the-fly
+using `b8r.makeComponent()`):
 
 ```
-<b8r-component path="path/to/some-v2-component.js"></b8r-component>
+import someComponent from 'path/to/some-component.js'
+b8r.makeComponent('some-component', someComponent)
+```
+
+And then insert instances of that component by name:
+
+```
+<b8r-component name="some-component"></b8r-component>
+```
+
+Note that order is not important, and you can insert the element any way you like (e.g. by creating
+the `<b8r-component>` element directly and inserting it into the DOM).
+
+If you're not trying to package your app using WebPack or rollup and aren't worried about
+[content security policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you can simply load 
+the component directly from a `path`:
+
+```
+<b8r-component path="path/to/some-component.js"></b8r-component>
 ```
 
 Here's the [color-picker](?source=components/color-picker.js) component loaded inline using the preceding method:
 
 <b8r-component path="../components/color-picker.js"></b8r-component>
 
-Or for the older `.component.html` components:
+Or for the older `.component.html` components, you omit the `.component.html` from the end of the path.
 
 ```
 <b8r-component path="path/to/some-component"></b8r-component>
@@ -292,21 +311,3 @@ e.g. via `b8r.component('path/to/some-component')`):
 ```
 <b8r-component name="some-component"></b8r-component>
 ```
-
-### loading components with b8r.component
-
-Having created a component, you can load it using `b8r.component('path/to/component_name')` (omit the `.component.html`). This returns a `promise` of the component object itself (in case you want to write code that is contingent on a component having loaded).
-
-### binding components with data-component (deprecated)
-
-The simplest way to use components is to bind them to DOM elements using `data-component` using `data-component`.
-
-The general form is `data-component="component_name"`. An instance of the component will be inserted into the element thus bound as soon as the component is loaded.
-
-```
-<div data-component="example"></div>
-...
-b8r.component('path/to/example');
-  // component will be inserted in div once it loads
-```
-

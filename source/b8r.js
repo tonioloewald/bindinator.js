@@ -829,6 +829,10 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     set (...args) {
       b8r.setByPath(this.componentId, ...args)
     },
+    empty() {
+      this.textContent = ''
+      b8r.removeComponent(this)
+    },
     render () {
       if (!this.isConnected) return
       const unready =

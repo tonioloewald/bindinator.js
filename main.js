@@ -11,7 +11,7 @@ window.b8r = b8r
 // otherwise load 'components/documentation'
 const componemtPath = (window.location.href.match(/\bbody=([^=&]+)/) || [])[1] ||
                       'components/documentation'
-const root = b8r.create('b8r-component')
+const root = b8r.elements._comp()
 
 window.dump = obj => {
   const w = window.open()

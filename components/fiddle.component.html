@@ -192,11 +192,11 @@ as  `b8r` and the output element as `example`.
   <b8r-component path="./components/maxtoggle"></b8r-component>
 </div>
 <div class="fiddle-bodies">
-  <div
+  <b8r-component
     class="example"
     data-title="Example"
     data-bind="hide_if(source)=_component_.mode"
-  ></div>
+  ></b8r-component>
   <b8r-component
     path="./components/sizer"
     data-bind="show_if(all)=_component_.mode"
@@ -283,27 +283,24 @@ as  `b8r` and the output element as `example`.
     b8r.empty(container);
     last_code = source;
     if (source === '') return;
+    const cid = 'fiddle-' + id()
     if (source.match(/^\s*<(!|\w+)[^<>]*>/)) {
       // html component
-      b8r.insertComponent(
-        b8r.makeComponent('fiddle-' + id(), source, b8r._path ? `${b8r._path}/` : ''),
-        container
-      );
+      b8r.makeComponent(cid, source, b8r._path ? `${b8r._path}/` : '')
+      container.name = cid
     } else if (source.match(/\bexport default\b/)) {
       // javascript component
       (async () => {
-        const componentName = `fiddle-${id()}`;
-        const vfsPath = `/${vfsRoot}/${componentName}.js`;
+        const vfsPath = `/${vfsRoot}/${cid}.js`;
         await b8r.ajax(vfsPath, 'POST', source)
         import(vfsPath).then(exports => {
-          b8r.insertComponent(
-            b8r.makeComponent(componentName, exports.default),
-            container
-          );
+          b8r.makeComponent(cid, exports.default)
+          container.name = cid
         })
       })()
     } else {
       // javascript
+      container.empty()
       try {
         const f = new AsyncFunction('b8r', 'example', source); // jshint ignore:line
         const output = await f(b8r, container);
