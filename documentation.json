@@ -27,6 +27,10 @@
         "path": "docs/events.md"
       },
       {
+        "name": "HTML5",
+        "path": "docs/html5.md"
+      },
+      {
         "name": "b8r Components",
         "path": "docs/components.md"
       },
@@ -290,6 +294,10 @@
       {
         "name": "Theme Editor",
         "path": "theme-editor.component.html"
+      },
+      {
+        "name": "Component Editor",
+        "path": "components/component-editor.js"
       }
     ]
   },
@@ -577,7 +585,7 @@
       },
       {
         "name": "To Do (Simple)",
-        "path": "todo-simple.component.html"
+        "path": "components/todo-simple.js"
       },
       {
         "name": "To Do",

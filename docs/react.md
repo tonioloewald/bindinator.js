@@ -1,14 +1,14 @@
 # React vs b8r
 
-> **Note**: updated to reflect the new registry proxy syntax recently added to b8r.
+> **Note**: updated to reflect the javascript-based views added in v0.6.0
 
-React and `b8r` deal with the same key problem in different ways. _How to tell when the application's state changes and then correctly update the user interface._
+React and `b8r` deal with the same key problem in different ways. _How to tell when the application's state changes and then correctly update the user interface._ (`b8r` actually goes much further and can serve as a much simpler and more efficient alternative to [Redux](https://redux.js.org/) or [RxJS](https://rxjs.dev/))
 
 If you imagine that state is stored in an object, let's call it `props`, then it's hard to tell when it changes, e.g. somewhere in your program someone writes `props.foo.bar = 17`.
 
 React takes a _functional_ approach, based on the idea that the user interface should be a (side-effect free, mostly) product of the application's state. Change the state, then re-render the user interface based on the state, using various optimizations to avoid rebuilding things that don't need to change.
 
-`b8r` instead says, "if you promise to store your state in my registry and either change it by telling me to change it or tell me if you change it behind my back, I'll keep everything up-to-date". It does this by being very good at figuring out precisely which bits of the UI care about precisely which bits of state.
+`b8r` instead says, "if you promise to store your state in my registry and either change it by telling me to change it or tell me if you change it behind my back, I'll keep everything up-to-date". It does this by being very good at figuring out precisely which bits of the DOM care about precisely which bits of state.
 
 There are lots of wrinkles, optimizations, and implications to each approach. And both frameworks do similar things to minimize perturbations to the DOM (although `b8r` does not use a "virtual DOM").
 
@@ -20,7 +20,7 @@ I imagine a lot of potential users of `b8r` will be familiar with [ReactJS](http
 Below I've included the React **ToDo** example along with the same thing implemented using `b8r`.
 
 To see the ReactJS version in action, go to the [ReactJS home page](https://reactjs.org/). It's
-one of the interactive examples. The `b8r` version is [here](?source=todo-simple.component.html)
+one of the interactive examples. The `b8r` version is [here](?source=components/todo-simple.js)
 (this link won't work if you're reading this in github).
 
 ### React Version
@@ -139,10 +139,10 @@ the default? But because React faithfully re-implements the DOM's default behavi
 with synthetic events), we still have to prevent that default behavior.
 
 `b8r` leverages the browser's intrinsic event system, but always "captures" events and, by
-default, halts propagation of an event when it has been handled once. (You can explicitly
-return `true` from an event handler to have the event continue "bubbling").
+default, halts propagation of an event when it has been handled once.
 
-`b8r` will stop an event that's been handled unless the handler explicitly returns `true`.
+`b8r` will stop an event that's been handled unless the handler explicitly returns `true`,
+allowing you to allow propagation or prevent default behavior, or not, yourself.
 
 ```
     if (!this.state.text.length) {
@@ -202,129 +202,71 @@ ReactDOM.render(
 
 ### b8r version
 
-![react to-do example in action](docs/images/b8r-to-do.png)
+![b8r to-do example in action](docs/images/b8r-to-do.png)
 
-The equivalent `b8r` ToDo list would looks like:
-
-```
-<h3>ToDo</h3>
-<ul>
-  <li data-list="_component_.list:_auto_" data-bind="text=.text"></li>
-```
-
-Note the use of `_auto_` to get `b8r` to auto-generate _unique_ ids for the array elements.
-(Not "probably" unique. Guaranteed unique.) If we wanted to do it more like React
-did, we'd generate `id` in some way, e.g. [uuid](?source=source/uuid.js), and have
-`data-list="_component_.list:id"` here.
-
-A more realistic scenario would be to:
-
-1. add the item (with no proper id) to the list
-2. and then call a service to store it on the server.
-3. When the request succeeds it will return the "real" object and you can add the correct (server-generated) id to the object, `b8r` can efficiently update it using the automatically generated `_auto_` id.
-4. If the service fails in some way flag the item for resend or remove it and display display an error or something.
+This is the equivalent thing in `b8r`:
 
 ```
-</ul>
+export default {
+  view: ({ h3, ol, li, input, button }) => [
+    h3('To Do List'),
+    ol(li({dataList: '_component_.todos:_auto_', bindText: '.text'})),
+    input({placeholder: 'enter reminder', bindValue: '_component_.text', 'onKeydown(Enter)': '_component_.add'}),
+    button('Add to List', {onClick: '_component_.add', bindEnabledIf: '_component_.text', bindText: 'Add #{{_component_.nextItem}}'})
+  ],
 ```
 
-Note that the React version defines `TodoList` as a subcomponent (corresponding to the `<ul>`
-tag) whereas we're just inlining it. I'll discuss this further at the end.
+`b8r` doesn't rely on transpilation or other specialized tooling, so views are constructed using pure
+javascript. This has been refined to the point where it's quicker and easier than HTML or JSX.
+
+The `view` function will be passed one argument which is a proxy that will produce factory
+functions for any desired DOM element as properties. So, the destructuring in the arguments
+immediately creates everything needed.
+
+Objects passed to the factory functions set attributes on the element, while strings and HTMLElements
+are appended. `camelCase` attributes are converted to `kebab-case` and certain properties get
+special treatment, notably `bindValue: "..."` is syntax sugar for binding the `value` of the element
+to the specified path.
+
+`onClick` is syntax sugar for an event-binding, as is `'keydown(Enter)` which not only handles
+the keydown event, but filters it based on the keystroke.
+
+`dataList` binds the list at `_component_.todos`, and `:_auto_` ensures that a unique key is generated
+for each instance. This usually requires coding in React and Angular, the React example uses a hack,
+`b8r` does this automatically and correctly, and if you already have a unique id (as is often the case)
+then instead of `_auto_` you simply use the property name (e.g. `uid`) or even path (e.g `path.to.uid`)
+within the object.
 
 ```
-<form data-event="submit:_b8r_.stopEvent">
+  initialValue: ({ component }) => ({
+    todos: [],
+    text: '',
+    nextItem: 1, // just here to match the React example
+    add: () => {
+      const {text, todos} = component.data
+      if(text) {
+        todos.push({text})
+        component.data.text = ''
+        component.data.nextItem += 1
+      }
+    }
+  })
+}
 ```
 
-Ordinarily, I wouldn't use a `<form>` element because the default behavior of forms is
-often (usually!) not what you want, but we're trying to be like the React example so
-I've put one in and blocked the default `onsubmit` behavior.
+`initialValue` simply returns the initial private state of the component. It
+is passed an object with lots of useful stuff in it, but `component` is simply
+the `element` hosting the component, and `data` is a *registry proxy* of the
+component's private data.
 
-The `<form>` saves us putting an event handler on the `<input>`.
-My preference would be to skip the `<form>` and put explicit event handlers
-for the `keydown` (on the `<input>`) and the `click` (on the `<button>`).
+Registry proxies are syntax-sugar for registry `get()` and `set()` calls.
+So `component.data.foo` is equivalent to `b8r.get(componentId + '.foo')` and
+`component.data.bar = 'baz'` is equivalent to `b8r.set(componentId + '.bar', 'baz')`.
 
-**Aside**: `b8r` offers a convenience for key events — you can write (for example)
-`data-event="keydown(Enter):...` to avoid writing a bunch of boilerplate filter code
-in the event handler.
+The object passed to `initialValue` also contains `get` and `set` accessors
+specific to the component, so there are many ways to write the `add()` method.
 
-A `b8r` component is a single "html" file (it's more of an html `fragment`). The `<script>`
-tag ends up as the body of an `async` `load` function that gets passed a bunch of useful
-methods, including `get` and `set` which provide convenient access to a component's private
-data. `_component_` refers to the component's private data in bindings.
-
-> ### b8r javascript components
->
-> Things have changed since the preceding paragraph was written. The preferred method
-> for creating `b8r` components is to implement them as ES6 modules. An html component
-> as described above can be converted to:
->
->     export default {
->       css:  ... the css,
->       html: ... the html,
->       load: async({destructured methods}) => {
->         ... the script
->       }
->     }
->
-> You can integrate such a component using the `<b8r-component>` custom element:
->
->     <b8r-component path="path/to/component.js">
->       ... children
->     </b8r-component>
->
-> You can find out more about the new component system [here](./?source=docs/components.md).
-
-If a `b8r` component includes a `<style>` tag you can refer to the component's `class` —
-`<component-name>-component` — as `_component_` in the component's CSS selectors,
-e.g. `._component_ { background: red; }`.
-
-```
-  <input
-    placeholder="thing to do"
-    data-bind="value=_component_.text"
-  >
-  <button
-    data-bind="enabled_if=_component_.text;text=Add #${_component_.nextItem}"
-    data-event="click:_component_.addItem"
-  ></button>
-</form>
-```
-
-`b8r` allows the use of ES6-like interpolated strings in bindings, but it _does not allow_
-arbitrary javascript, just insertion of data by path. The idea is _not_ to put business logic
-in the view or implement a Turing-complete templating language.
-
-So you get the encapsulation of React's single-file component, along with the clean separation of presentation (style and html) from logic (script).
-
-```
-<script>
-  /* global data */ // data is a proxy for the component's private data store
-  data.list = []
-  data.text = ''
-  data.nextItem = 1 // only provided to match React example
-  data.addItem = () => {
-    const {text} = data
-    data.list.push({text})
-    data.nextItem += 1
-    data.text = ''
-  }
-</script>
-```
-
-Note how all the logic is in one place, and not interleaved with the markup. Also note
-how absolutely simple and straightforward it is.
-
-To actually use the component, we'd write:
-
-```
-<b8r-component path="path/to/todo-simple"></b8r-component>
-```
-
-Or, in "pure javascript", something like:
-
-```
-b8r.component('path/to/todo-simple').then(c => b8r.insertComponent(c, document.body))
-```
+Finally, note that `initialValue` can in fact be an async function if so desired.
 
 ### An Aside on Unnecessary Redraws
 
@@ -337,7 +279,7 @@ two examples being discussed.
 ![redraw flashing in react](./docs/images/react-screen-redraws.gif)
 
 In order to minimize unnecessary redraws, React utilizes a "virtual DOM" that
-is intended to store the state of UI components so that it can tell whether they
+is intended to store the state of DOM elements so that it can tell whether they
 need to be redrawn. Despite this, this simple example redraws the static heading
 for no reason and, in practice, developers frequently need to implement a method
 named `shouldComponentUpdate` to manually block redraws.
@@ -358,6 +300,15 @@ contains a number, a "smart" optimization might consider the new value to be dif
 bindings from being unnecessarily called (if something is bound to `path.to.foo(path.to.bar, path.to.baz))`,
 `b8r` won't call `foo` if `bar` and `baz` haven't changed since it last called `foo`.
 
+### Why no form?
+
+An earlier version of the `b8r` example used a `<form>` simply to mirror what
+the React example does.
+
+The form allows the user to hit "enter" to "submit" the form (saving an event handler?) 
+but really `<form>` elements have a bunch of behavior dating back to before Web 2.0
+that aren't really desireable, e.g. by default, submitting a form reloads the page…
+
 ### A final aside on sub-components…
 
 The entire ToDo "app" has been encapsulated as a single component
@@ -368,33 +319,26 @@ You could, of course, encapsulate the list as a sub-component in `b8r` too.
 the React version because by doing this you don't end up re-rendering the list
 every time you type a keystroke in the input field.)
 
-You might end up wanting to define a component that looked like this:
+You might end up wanting to define a sub-component that looked like this:
 
 ```
-export default {
-  html:
-`
-<ul>
-  <li
-      data-list="_component_.list:_auto_"
-      data-bind="text=.text"
-  ></li>
-</ul>
-`
-}
+b8r.makeComponent('todo-items', {
+  view: ({ol, li}) => ol(li({
+    dataList: '_component_.list:_auto_',
+    bindText: '.text'
+  }))
+})
 ```
 
 And compose it thus:
 
 ```
-<b8r-component path="path/to/todo-list" data-bind="component(list)=path.to.list"></b8r-component>
-```
-
-If we wanted to avoid creating a separate file for the component, we could
-define it inline thus:
-
-```
-b8r.makeComponent('todo-list', { ... })
+  view: ({ h3, _comp, input, button }) => [
+    h3('To Do List'),
+    _comp({name: 'todo-items'}),
+    input({placeholder: 'enter reminder', bindValue: '_component_.text', 'onKeydown(Enter)': '_component_.add'}),
+    button('Add to List', {onClick: '_component_.add', bindEnabledIf: '_component_.text', bindText: 'Add #{{_component_.nextItem}}'})
+  ],
 ```
 
 This is quite similar to what's going on in React chiefly because the outer context
