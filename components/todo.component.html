@@ -1,0 +1,93 @@
+<!--
+# to do list
+Copyright ©2016-2017 Tonio Loewald
+
+Since a to-do list example has become a cliche these days, here's a `b8r` implementation.
+Items can be marked done or deleted and have their priorities set. Items automatically sort by
+priority, with completed items having low priority.
+
+Unlike the simple todo example, this component stores its data internally
+-->
+<style>
+  ._component_ {
+    border: 1px solid rgba(128,128,128,0.25);
+    padding: 10px;
+    max-width: 400px;
+  }
+
+  ._component_ hr {
+    height: 0;
+    border: 1px solid rgba(128,128,128,0.25);
+    border-width: 0 0 1px 0;
+  }
+</style>
+<div style="display: flex; align-items: flex-end; margin-bottom: 5px;">
+  <h3 style="flex: 1 1 auto; margin: 0">To Do List</h3>
+  <button
+    data-bind="enabled_if=_component_._history.canUndo"
+    data-event="click:_component_._history.undo"
+    class="icon-undo"
+    title="undo"
+  ></button>
+  <button
+    data-bind="enabled_if=_component_._history.canRedo"
+    data-event="click:_component_._history.redo"
+    class="icon-redo"
+    title="redo"
+  ></button>
+</div>
+<div data-list="_component_.sort(_component_.todolist):id" data-event="change:_component_.forceSort">
+  <input title="done" type="checkbox" data-bind="checked=.done">
+  <input data-bind="value=.text">
+  <select data-type="number" data-bind="value=.priority">
+    <option value="1">Important!</option>
+    <option value="2">Normal</option>
+    <option value="3">Low</option>
+  </select>
+  <button
+    title="delete item"
+    data-event="click:_component_.remove"
+  >&times;</button>
+</div>
+<hr>
+<h4>Create Reminder</h4>
+<label>
+  Priority
+  <select data-type="number" data-bind="value=_component_.composer.priority">
+    <option value="1">Important!</option>
+    <option value="2">Normal</option>
+    <option value="3">Low</option>
+  </select>
+</label>
+<input
+  data-bind="value=_component_.composer.text"
+  data-event="keydown(Enter):_component_.addItem"
+  placeholder="Write a reminder…"
+>
+<script>
+  /* global b8r, data */
+  'use strict'
+  const {HistoryManager} = await import('../lib/history.js');
+  const comparePriority = (a, b) => (a.done ? a.priority + 3 : a.priority) - (b.done ? b.priority + 3 : b.priority)
+  let id = 0
+
+  set({
+    todolist: [],
+    composer: { text: '', priority: 2 },
+    addItem () {
+      id++
+      const item = Object.assign(
+        { done: false, id },
+        data.composer
+      )
+      data.todolist.push(item)
+      data.composer.priority = 2
+      data.composer.text = ''
+    },
+    sort: list => list.sort(comparePriority),
+    forceSort: (evt, elt) => b8r.touchElement(b8r.getListTemplate(elt)),
+    remove: evt => b8r.removeListInstance(evt.target),
+  })
+
+  new HistoryManager(`${data.componentId}.todolist`, {historyPath: data.componentId + '._history'})
+</script>
