@@ -1,6 +1,16 @@
 /**
 # Dialog
 
+> ### Deprecated
+>
+> HTML5 now has the `<dialog>` element which does everything you might hope or
+> expect a dialog to do, so this custom-element is now only needed if you're
+> trying to support a legacy browser (that's modern enough to support web-components
+> so that's highly unlikely).
+>
+> See [caniuse.com](https://caniuse.com/dialog) for browser support and
+> [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog) for documentation.
+
 `<b8r-modal>` simply places its content in a centered box with a translucent dark
 overlay covering the rest of the window.
 
