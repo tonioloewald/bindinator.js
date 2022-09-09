@@ -99,9 +99,10 @@ need to camelcase hypenated settings, so 'font-family' becomes `fontFamily`.
 `cssVar` allows you to access and modify css-variables -- really nice for creating themes or
 pushing computed dimensions (e.g. based on window size) through your CSS.
 
-    create(tagName)
+    create(tagName, string | HTMLElement | Object,... )
+    elements.div( string | HTMLElement | Object,... )
 
-document.createElement(tagName)
+The `create()` function and `elements` Proxy are exported from [elements.js](?source=/source/elements.js)
 
     succeeding(element, selector);
 
@@ -210,6 +211,8 @@ unwraps the element of its immediate parent or its closest `wrapperSelector` if 
 
 import { makeArray, forEachKey } from './b8r.iterators.js'
 
+export {create, elements} from './elements.js'
+
 export const isVisible = (element, includeParents) => element &&
   getComputedStyle(element).display !== 'none' &&
   ((!includeParents) || element === document.body || isVisible(element.parentElement, true))
@@ -286,8 +289,6 @@ export const id = document.getElementById.bind(document)
 export const text = document.createTextNode.bind(document)
 
 export const fragment = document.createDocumentFragment.bind(document)
-
-export const create = document.createElement.bind(document)
 
 export const classes = (element, settings) => {
   forEachKey(settings, (onOff, className) => {

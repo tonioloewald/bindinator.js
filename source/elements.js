@@ -1,19 +1,47 @@
 /**
 # elements
 
-A convenient factory for creating DOM elements in code.
+A convenient factory for creating DOM elements in code. This library comprises the
+`create()` function and the `elements` proxy.
 
-    elements('tag-name', 'text', {sack: 'of attributes'}, element) // creates a <tag-name> element
-    elements('tagName')
+    create(tagName, string | object | HTMLElement,… ) // creates the element
+    element.div( string | object | HTMLElement,… )    // creates a div
 
-`elements` is actually a proxy and will automatically create factories for specific element types, e.g.
+Strings are added to the created element as `Text` nodes, HTMLElements are
+appended, and objects are treated as "sacks of attributes" with some convenients.
 
-    elements.div({class: 'bar'}, 'foo') // create <div class="bar">foo</div>
+Inside objects, certain properties get special treatment:
 
-Or even:
+- `camelCaseAttributes` are converted to `kebab-case`, so `dataFooBar` becomes `data-foo-bar`.
+- `onEvent` is turned into an event-binding, so {onClick: 'foo.bar`} becomes `data-event="click:foo.bar`
+- `bindTarget` is turned into a data-binding, so {bindValue: 'app.text'} becomes `data-bind="value=app.text"`
+- attributes containing a period are turned into method-bindings, so {'app.process': 'app.data'} becomes
+  `data-bind="app.process=app.data`
+- `style` can be a string, e.g. `{style: 'font-size: 14px'}`, or maps, e.g. `{style: {fontSize: '14px'}}`.
+
+Note that parameters are processed in order so for example
+`...{style: {fontSize: '14px'}}, {style: 'color: red'}...` will lead to the first style being overwritten.
+
+`elements` will automatically creates and memoizes curried wrappers for `create()` for specific element types, e.g.
+
+    elements.foo(x, y, z) // is equivalent to create('foo', x, ,y, z)
+
+This is all designed to make creating DOM elements more concise and efficient 
+than writing HTML or JSX. Examples:
+
+    const {ul, li} = elements
+    const list = [ lots, of, stuff ]
+    const myList = ul(list.map(li))
+
+    const {table, tr, th, td} = elements
+    const list = [ lots, of, objects ]
+    const columns = Object.keys(list[0])
+    const myTable = table(
+      tr(...columns.map(th)),
+      list.map(row => tr(...columns.map(key => td(row[key]))))
+    )
 
     const {template, div, label, input} = elements
-
     const myTemplate = template(
       div(
         label(
@@ -30,6 +58,8 @@ Or even:
         )
       )
     )
+
+Or consider:
 
 `elements._comp` creates a `<b8r-component>` element, e.g.:
 
@@ -126,7 +156,7 @@ Test(
 
 /* global HTMLElement */
 
-const makeElement = (tagType, ...contents) => {
+export const create = (tagType, ...contents) => {
   const elt = document.createElement(tagType)
   for (const item of contents) {
     if (item instanceof HTMLElement || typeof item === 'string') {
@@ -177,7 +207,7 @@ const makeElement = (tagType, ...contents) => {
   return elt
 }
 
-const _comp = (...contents) => makeElement('b8r-component', ...contents)
+const _comp = (...contents) => create('b8r-component', ...contents)
 
 const _fragment = (...contents) => {
   const frag = document.createDocumentFragment()
@@ -193,7 +223,7 @@ export const elements = new Proxy({ _comp, _fragment }, {
     if (!tagName.match(/^\w+(-\w+)*$/)) {
       throw new Error(`${tagName} does not appear to be a valid element tagName`)
     } else if (!target[tagName]) {
-      target[tagName] = (...contents) => makeElement(tagName, ...contents)
+      target[tagName] = (...contents) => create(tagName, ...contents)
     }
     return target[tagName]
   },
