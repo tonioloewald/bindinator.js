@@ -77,7 +77,7 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
     connectedCallback () {
       this._editor = makeCodeEditor(this, this.mode, JSON.parse(this.options || '{}'))
       if (!this.value) {
-        this.value = this.textContent.trim()
+        this.value = this.textContent
       }
     },
     render () {
