@@ -77,7 +77,7 @@ Produces:
 
 `elements._fragment()` creates a `DocumentFragment`.
 
-Attributes beginning with `bind` will be converted into `data-bind` attributes (i.e. data-bindings), 
+Attributes beginning with `bind` will be converted into `data-bind` attributes (i.e. data-bindings),
 while those beginning with `on` will be converted into data-event attributes (i.e. event bindings), e.g.
 
     elements.button(

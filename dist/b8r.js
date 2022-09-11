@@ -918,17 +918,23 @@ Note that parameters are processed in order so for example
 This is all designed to make creating DOM elements more concise and efficient
 than writing HTML or JSX. Examples:
 
+Render an array as a list:
+
     const {ul, li} = elements
     const list = [ lots, of, stuff ]
     const myList = ul(list.map(li))
 
-    const {table, tr, th, td} = elements
+Render an array of objects as a table:
+
+    const {table, thead, tbody, tr, th, td} = elements
     const list = [ lots, of, objects ]
     const columns = Object.keys(list[0])
     const myTable = table(
-      tr(...columns.map(th)),
-      list.map(row => tr(...columns.map(key => td(row[key]))))
+      thead(tr(...columns.map(th))),
+      tbody(...list.map(row => tr(...columns.map(key => td(row[key])))))
     )
+
+Build a UI template:
 
     const {template, div, label, input} = elements
     const myTemplate = template(
@@ -948,20 +954,20 @@ than writing HTML or JSX. Examples:
       )
     )
 
-Or consider:
+## Conveniences &amp; Syntax Sugar
 
-`elements._comp` creates a `<b8r-component>` element, e.g.:
+`elements._comp()` creates a `<b8r-component>` element, e.g.:
 
-    elements._comp({
-      path: '../components/foo.js'
-    })
+    elements._comp({path: '../components/foo.js'})
 
 Produces:
 
     <b8r-component path="../components/foo.js"></b8r-component>
 
-Attributes beginning with `bind` will be converted into data-bindings, while those beginning with
-`on` will be converted into event bindings, e.g.
+`elements._fragment()` creates a `DocumentFragment`.
+
+Attributes beginning with `bind` will be converted into `data-bind` attributes (i.e. data-bindings),
+while those beginning with `on` will be converted into data-event attributes (i.e. event bindings), e.g.
 
     elements.button(
       'Click Me!',
