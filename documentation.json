@@ -648,7 +648,7 @@
         "path": "covid-19.component.html"
       },
       {
-        "name": "Mapbox",
+        "name": "Mapbox (MODIS Fire Data)",
         "path": "mapbox.component.html"
       },
       {
