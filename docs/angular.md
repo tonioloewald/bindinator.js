@@ -1,6 +1,6 @@
 # Angular vs. b8r
 
-A lot of the coders I've shown `b8r` to say something like "it looks a
+A lot of the coders I've shown `b8r` say something like "it looks a
 lot like Angular" (which I think they often [intend as an insult](http://codeofrob.com/entries/you-have-ruined-javascript.html)).
 While `b8r` may bear some superficial similarity to `Angular` in that it uses HTML
 "properties" to bind your `model` to the DOM, that's almost entirely coincidental, 
@@ -35,7 +35,7 @@ and where the similarity ends.
 
 Then there are the deeper differences...
 
-## Angular's Change Detection is a Weird and Complicated
+## Angular's Change Detection is Weird and Complicated
 
 To implement change detection, Angular overrides core DOM methods such as
 addEventListener() and setTimeout(). `b8r` does no such thing.
