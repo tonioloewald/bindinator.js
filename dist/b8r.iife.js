@@ -1048,10 +1048,16 @@ var b8r = (function () {
 
   /* global HTMLElement */
 
+  const templates = {};
+
   const create = (tagType, ...contents) => {
-    const elt = document.createElement(tagType);
+    if (!templates[tagType]) {
+      console.log(`created template for <${tagType}>`);
+      templates[tagType] = document.createElement(tagType);
+    }
+    const elt = templates[tagType].cloneNode();
     for (const item of contents) {
-      if (item instanceof HTMLElement || typeof item === 'string') {
+      if (item instanceof HTMLElement || typeof item === 'string' || typeof item === 'number') {
         elt.append(item);
       } else {
         const dataBindings = [];

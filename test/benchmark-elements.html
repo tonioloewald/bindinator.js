@@ -25,7 +25,10 @@
         <div class="jumbotron">
             <div class="row">
                 <div class="col-md-6">
-                    <h1>VanillaJS</h1>
+                    <h1>Elements</h1>
+                    <p>
+                        Quick and dirty benchmark for the new elements library.
+                    </p>
                     <b8r-component path="../test/test-nav.component.js"></b8r-component>
                     <p>Derived from the vanillajs code from <a href="https://github.com/krausest/js-framework-benchmark">here</a></p>
                 </div>
@@ -60,8 +63,8 @@
         <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
     </div>
 </div>
-<script type="module" src="../source/b8r.js"></script>
-<script>
+<script type="module">
+import b8r from '../source/b8r.js'
 'use strict';
 
 var startTime;
@@ -404,33 +407,13 @@ class Main {
         */
     }
     createRow(data) {
-        let tr = document.createElement("tr");
-        tr.data_id = data.id;
-        let td1 = td("col-md-1");
-        td1.textContent = data.id;
-        tr.appendChild(td1);
-
-        let td2 = td("col-md-4")
-        tr.appendChild(td2);
-        let a2 = document.createElement("a");
-        a2.className = "lbl";
-        td2.appendChild(a2);
-        a2.textContent = data.label;
-
-        let td3 = td("col-md-1");
-        tr.appendChild(td3);
-        let a = document.createElement("a");
-        a.className = "remove";
-        td3.appendChild(a);
-        let span = document.createElement("span");
-        span.className = "glyphicon glyphicon-remove remove";
-        span.setAttribute("aria-hidden","true");
-        a.appendChild(span);
-
-        let td5 = td("col-md-6");
-        tr.appendChild(td5)
-
-        return tr;
+        const {tr, td, a, span} = b8r.elements
+        return tr(
+            td({class: 'col-md-1'}, data.id),
+            td({class: 'col-md-4'}, a({class: 'lbl'}, data.label)),
+            td({class: 'col-md-1'}, a({class: 'remove'}, span({class: 'glyphicon glyphicon-remove remove', ariaHidden: true}))),
+            td({class: 'col-md-6'})
+        )
     }
 }
 
