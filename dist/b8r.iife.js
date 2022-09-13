@@ -1036,6 +1036,13 @@ var b8r = (function () {
     () => button('test', {disabled: false}).hasAttribute('disabled'),
     'boolean attributes are properly set if true'
   ).shouldBe(false)
+  Test(
+    () => {
+      const elt = div({dataChildren: true})
+      return [elt.hasAttribute('data-children'), elt.dataset.children]
+    },
+    'hyphenated boolean attributes are correctly set'
+  ).shouldBeJSON([true, ''])
   ~~~~
   */
 
@@ -1078,10 +1085,11 @@ var b8r = (function () {
               elt.setAttribute('style', value);
             }
           } else {
+            const attr = key.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
             if (typeof value === 'boolean') {
-              value ? elt.setAttribute(key.replace(/[A-Z]/g), '') : elt.removeAttribute(key.replace(/[A-Z]/g));
+              value ? elt.setAttribute(attr, '') : elt.removeAttribute(attr);
             } else {
-              elt.setAttribute(key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()), value);
+              elt.setAttribute(attr, value);
             }
           }
         }
@@ -8905,6 +8913,9 @@ var b8r = (function () {
         original body
     */
     const componentId = 'c#' + component.name + '#' + ++componentCount;
+    for (const attr of component.view.getAttributeNames()) {
+      element.setAttribute(attr, component.view.getAttribute(attr));
+    }
     if (component.view.children.length) {
       b8r.moveChildren(element, children);
 

@@ -691,6 +691,9 @@ b8r.insertComponent = async function (component, element, data) {
       original body
   */
   const componentId = 'c#' + component.name + '#' + ++componentCount
+  for (const attr of component.view.getAttributeNames()) {
+    element.setAttribute(attr, component.view.getAttribute(attr))
+  }
   if (component.view.children.length) {
     b8r.moveChildren(element, children)
 

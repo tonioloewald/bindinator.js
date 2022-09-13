@@ -165,6 +165,13 @@ Test(
   () => button('test', {disabled: false}).hasAttribute('disabled'),
   'boolean attributes are properly set if true'
 ).shouldBe(false)
+Test(
+  () => {
+    const elt = div({dataChildren: true})
+    return [elt.hasAttribute('data-children'), elt.dataset.children]
+  },
+  'hyphenated boolean attributes are correctly set'
+).shouldBeJSON([true, ''])
 ~~~~
 */
 
@@ -207,10 +214,11 @@ export const create = (tagType, ...contents) => {
             elt.setAttribute('style', value)
           }
         } else {
+          const attr = key.replace(/[A-Z]/g, c => '-' + c.toLowerCase())
           if (typeof value === 'boolean') {
-            value ? elt.setAttribute(key.replace(/[A-Z]/g), '') : elt.removeAttribute(key.replace(/[A-Z]/g))
+            value ? elt.setAttribute(attr, '') : elt.removeAttribute(attr)
           } else {
-            elt.setAttribute(key.replace(/[A-Z]/g, c => '-' + c.toLowerCase()), value)
+            elt.setAttribute(attr, value)
           }
         }
       }

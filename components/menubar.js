@@ -112,10 +112,15 @@ export default {
     margin-left: 8px;
   }
   `,
+  view: () => [
+    {
+      dataChildren: true,
+      'onMouseup,keydown(Space)': 'menubar.action',
+      'onFocus,mouseover,mousedown': 'menubar.open',
+      'onBlur,keydown(Escape)': 'menubar.close'
+    }
+  ],
   load ({ b8r, component, find }) {
-    b8r.on(component, ['mouseup', 'keydown(Space)'], 'menubar', 'action')
-    b8r.on(component, ['focus', 'mouseover', 'mousedown'], 'menubar', 'open')
-    b8r.on(component, ['blur', 'keydown(Escape)'], 'menubar', 'close')
     find('[data-event]').forEach(elt => {
       var handlerDef = elt.dataset.event
       if (elt.dataset.shortcut) {
@@ -139,7 +144,7 @@ export default {
       b8r.off(document.body, 'mousedown', 'menubar', 'close')
       b8r.find('.menubar-component.open,.menubar-component .open').forEach(elt => elt.classList.remove('open'))
     }
-    b8r.register('menubar', {
+    b8r.reg.menubar = {
       action (evt) {
         if (!evt.target.matches('.menubar-component') && !evt.target.parentElement.matches('.menubar-component')) {
           closeAllMenus()
@@ -170,6 +175,6 @@ export default {
           closeAllMenus()
         }
       }
-    })
+    }
   }
 }
