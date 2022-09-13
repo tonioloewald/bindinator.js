@@ -15,7 +15,7 @@ and where the similarity ends.
 | event binding    | (click)="publicMethod()"          | data-event="click:path.to.method"
 | array binding    | *ngFor="let foo of foos"         | data-list="path.to.array"
 | efficient array binding | *ngFor="let foo of foos; trackBy: getId"<br>You'll need to implement getId, much like generating a key in React | data-list="path.to.array:id"<br> if id is unique property of each element
-| array element binding | [something]="foo.prop"       | data-bind=".prop"
+| array element binding | [something]="foo.prop"       | data-bind="something=.prop"
 | conditional element | *ngIf="booleanVar == true"    | data-bind="show_if=path.to.booleanVar"
 | component lifecycle | ngOnChanges, ngOnInit, ngDoCheck, ngAfterContentInit, ngAfterContentChecked, ngAfterViewInit, ngAfterViewChecked, ngOnDestroy | initialValue, load, destroy
 | intercept property changes | use a setter | use a setter
@@ -175,6 +175,16 @@ vs:
       </button>
     </div>
 
+Or, as of v0.6.0 you can write views in plain old Javascript:
+
+    view: ({div, h3, button}) => {
+      div(
+        { dataList: 'path.to.products:uuid' },
+        h3({bindText: '.name'}),
+        button({onClick: '_component_.addToCard'}, 'Add to Cart')
+      )
+    }
+
 > By the way, I would *love* to make `b8r`'s syntax cleaner
 > by not forcing the user to write `data-bind="value=path.to.bar"`
 > and instead (say) `value=path.to.bar` but if the price is needing
@@ -323,12 +333,18 @@ value at a path has changed, it knows to redraw anything bound to
 that path. That seems a lot simpler to explain and grok.
 ## Lots of Files
 
-A simple component can easily end up being *four different source files*. (This
-has the advantage of better leveraging code quality tools than `b8r`'s single
-file approach. I may add it as an option in future, but it will then require
-transpilation.) There will likely be 1-3 extra files for each subcomponent, 
+A simple component can easily end up being *four different source files*.
+There will likely be 1-3 extra files for each subcomponent, 
 and in many cases you'll find you need to create subcomponents where you 
 wouldn't need to in `b8r`.
+
+This does has the advantage of better leveraging code quality tools than 
+`b8r`'s single file approach. I may add it as an option in future, but it 
+will then require transpilation.
+
+In the mean time, I've added support for pure javascript components,
+including in v0.6.0 helper funtions that allow views to be written
+entirely in javascript very efficiently.
 
 ## Obfuscation and Efficiency
 
@@ -342,8 +358,8 @@ a piece) supports obfuscation from end-to-end (e.g. protobuf code
 compiles query requests and responses down to arrays with no labels, 
 unlike GraphQL which uses plaintext labels for queries and returns 
 vanilla JSON). This saves bandwidth (and gives you a little
-"security by obscurity"), although gzip more-or-less eliminates the bandwidth
-difference.
+"security by obscurity"), although compression more-or-less eliminates 
+the bandwidth difference.
 
 `b8r` simply won't obfuscate the DOM or your data structures (the
 registry is really easy to understand — a huge advantage during
@@ -369,8 +385,9 @@ changed anywhere—then that advantage is irrelevant to you.
 Want to create a component on-the-fly in `b8r`?
 
     b8r.makeComponent('foo', {
-      css: '._component_  { position: absolute; top: 0; right: 0} ',
-      html: '<div>foo</div>'
+      css: '._component_  { position: absolute; top: 0; right: 0}',
+      view: ({div}) => div({bindText: '_component_.text'}),
+      initialValue: { text: 'hello world' },
     })
 
 (If this seems *just like* how you'd make a component in a javascript
