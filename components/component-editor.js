@@ -42,7 +42,7 @@ export default {
           li('Paste', { dataShortcut: 'ctrl-V' })
         )),
         li('View', ul(
-          li('Toggle Code Views', { dataShortcut: 'alt-T'}),
+          li('Toggle Code Views', { dataShortcut: 'alt-T' }),
           li({ class: 'separator' }),
           li('Layout', { dataShortcut: 'F1' }),
           li('Styles', { dataShortcut: 'F2' }),
