@@ -34,7 +34,7 @@ const makeStyleSheet = (source, title) => {
   const style = source ? create('style') : false
   if (style) {
     style.type = 'text/css'
-    style.dataset.title = title
+    style.id = title
     style.appendChild(text(source))
     document.head.appendChild(style)
   }
