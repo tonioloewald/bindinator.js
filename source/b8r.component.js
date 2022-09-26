@@ -256,7 +256,7 @@ import { create, find, findWithin } from './b8r.dom.js'
 import { elements } from './elements.js'
 import { ajax } from './b8r.ajax.js'
 import makeStylesheet from './b8r.makeStylesheet.js'
-import uuid from './uuid.js'
+import { uuid, unique } from './uuid.js'
 import { AsyncFunction } from './b8r.functions.js'
 
 const components = {}
@@ -331,7 +331,10 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
 }
 
 const makeComponent = (name, source, url, preserveSource) => {
-  if (typeof source === 'object' && url === undefined) {
+  if (typeof name === 'object' && !source) {
+    source = name
+    name = `doe-${unique()}`
+  } else if (typeof source === 'object' && url === undefined) {
     return makeComponentNoEval(name, source)
   }
   let css = false; let content; let script = false; let parts; let remains

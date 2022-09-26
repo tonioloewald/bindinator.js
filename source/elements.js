@@ -181,7 +181,6 @@ const templates = {}
 
 export const create = (tagType, ...contents) => {
   if (!templates[tagType]) {
-    console.log(`created template for <${tagType}>`)
     templates[tagType] = document.createElement(tagType)
   }
   const elt = templates[tagType].cloneNode()

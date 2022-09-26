@@ -133,11 +133,40 @@ using the javascript `showModal` method.
 See MDN for docs on [dialog element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog).
 
 ### `<embed>`
-### `<keygen>`
+
+The "standard" way for embedding plugins. Plugins really aren't much of a thing any more.
+
+### <del>`<keygen>`</del>
+
+Deprecated.
+
 ### `<meter>`
+
+It's like a `<progress>` element but with some extra properties. Does not work properly AFAICT.
+See MDN [docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter).
+
+<label>
+  Volume <meter value="7" max="11"></meter>
+</label>
+
 ### `<progress>`
+
+A progress bar.
+MDN [docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress).
+
+<progress max="100" value="50"></progress>
+
 ### `<time>`
+
+A semantic wrapper element for a 24h time (e.g. `datetime="14:30"`), date (e.g. `datetime="2022-09-25"`),
+or duration (e.g. `datetime="PT2H30M"`).
+
+
+<time datetime="2022-09-25">September 25</time>
+
 ### `<wbr>`
+
+Optional line-break.
 
 ## Semantic
 

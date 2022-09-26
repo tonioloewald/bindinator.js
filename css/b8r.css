@@ -590,6 +590,7 @@ pre > code {
   background: var(--black-5);
 }
 
+meter,
 progress {
   /* Reset the default appearance */
   -webkit-appearance: none;

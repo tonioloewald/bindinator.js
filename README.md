@@ -19,7 +19,7 @@ that implements the model-view-controller (MVC) design pattern along with state-
 
 || Model || View || Controller
 | objects (and maybe code) | HTML + CSS | code
-| `{text: 'hello world'}` | `&lt;input data-bind="value=model.text">` | `{ clear(){ b8r.reg.model.text = '' } }`
+| `{text: 'hello world'}` | `&lt;input data-bind="value=model.text">` | `{ clear(){ b8r.reg.model.text = ''} }`
 
 It's **bind** because `b8r` lets you use HTML **data-attributes** to
 bind data from the model and event-handlers from the controller code with the views.
