@@ -195,7 +195,7 @@ The **first time** a given component is inserted into the DOM, its `<style>` she
 inserted into the document `head`. Inside that stylesheet, `_component_` will have been
 replaced with `<name>-component` where `name` is the `name` of the component.
 
-A component's `<style>` sheet will have a `data-title` set to the component's name, to make
+A component's `<style>` sheet will have its `id` set to the component's name, to make
 debugging CSS issues easier.
 
 **Note** that this takes place the first time a given component is instanced and inserted, not

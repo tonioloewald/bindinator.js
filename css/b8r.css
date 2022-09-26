@@ -391,6 +391,7 @@ input[type='number'] {
   display: inline-block;
 }
 
+input[type=search],
 input.search {
   border-radius: var(--rounded-radius-size);
   padding: var(--narrowest-spacing-size) var(--spacing-size);

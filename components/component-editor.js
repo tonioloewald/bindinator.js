@@ -22,7 +22,7 @@ export default {
       width: 50%;
     }
   `,
-  view ({ _comp, li, ul, div, dialog, header, b8rTabSelector, b8rCodeEditor }) {
+  view ({ _comp, li, ul, div, input, b8rTabSelector, b8rCodeEditor }) {
     console.log(_comp)
     return [
       _comp(
@@ -42,10 +42,18 @@ export default {
           li('Paste', { dataShortcut: 'ctrl-V' })
         )),
         li('View', ul(
+          li('Toggle Code Views', { dataShortcut: 'alt-T' }),
+          li({ class: 'separator' }),
           li('Layout', { dataShortcut: 'F1' }),
           li('Styles', { dataShortcut: 'F2' }),
           li('Code', { dataShortcut: 'F3' }),
           li('Preview', { dataShortcut: 'F4' })
+        )),
+        li('Help', ul(
+          li(input({
+            type: 'search',
+            placeholder: 'Search menus'
+          }))
         ))
       ),
       div(
@@ -55,7 +63,7 @@ export default {
         b8rTabSelector(
           b8rCodeEditor({ name: 'style', mode: 'css' }),
           b8rCodeEditor({ name: 'view', mode: 'html' }),
-          b8rCodeEditor({ name: 'initialValue', node: 'javascript' }),
+          b8rCodeEditor({ name: 'initial value', node: 'javascript' }),
           b8rCodeEditor({ name: 'load', node: 'javascript' })
         )
       )
