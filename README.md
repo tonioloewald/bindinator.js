@@ -56,9 +56,9 @@ controller works.
 
 This is 360° laziness. *Everyone* does less work to get smaller, faster, cheaper results. 
 
-Wait what? It's not that you can't pick all three from "good, fast, cheap", it's
-that you're operating within a better framework (philosophy, not
-code library).
+Wait what? It's not that you can pick all three from "good, fast, cheap", it's
+that you're operating within a better framework (philosophy, not code library)
+that lets you spend more time on what's important to *your* app.
 
 *Laziness drives every design decision in b8r*.
 

@@ -60,10 +60,10 @@
   --link-color: rgba(64, 0, 255, 0.5);
   --link-active-color: #40f;
 
-  --error-color: rgb(206, 0, 0);
+  --error-color: rgb(255, 255, 255);
   --warning-color: rgb(214, 121, 0);
   --ok-color: green;
-  --error-bg: rgb(255, 187, 187);
+  --error-bg: rgb(206, 0, 0);
   --warning-bg: rgb(255, 213, 159);
   --ok-bg: rgb(153, 255, 153);
 
@@ -92,10 +92,8 @@
   --cancel-bg-color: #6a6d1d;
 
 
-  --error-bg: rgb(206, 0, 0);
   --warning-bg: rgb(214, 121, 0);
   --ok-bg: green;
-  --error-color: rgb(255, 187, 187);
   --warning-color: rgb(255, 213, 159);
   --ok-color: rgb(153, 255, 153);
 

@@ -307,13 +307,10 @@
     font-family: Monaco, monospace;
   }
 
-  ._component_ .localhost {
-    border-left: 2px solid var(--warning-color);
-  }
-
   ._component_ .errors {
     background: var(--error-bg);
-    border-radius: 4px;
+    color:  var(--error-color);
+    border-radius: 99px;
   }
   
   ._component_ .errors::after {
@@ -383,7 +380,8 @@
   ></b8r-component>
   <h3 data-bind="text=_component_.title"></h3>
   <span class="elastic"></span>
-  <div class="errors" data-bind="show_if,text=_component_.testErrors"></div>
+  <b style="display: none" data-bind="showIf=_component_.localhost">localhost</b>
+  <div class="errors" data-bind="showIf,text=_component_.testErrors"></div>
   <button
       title="toggle bookmarks"
       data-bind="enabled_if,show_if=_component_.pageLinks.length"
@@ -400,10 +398,7 @@
   </button>
 </div>
 <nav 
-    data-bind="
-        class(localhost)=_component_.localhost
-        class(active)=_component_.navActive
-    "
+    data-bind="class(active)=_component_.navActive"
     data-event="
       mouseover:_component_.showNav
       mouseleave:_component_.hideNav

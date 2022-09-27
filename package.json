@@ -87,6 +87,5 @@
       "/third-party/",
       "web-component-test.js"
     ]
-  },
-  "dependencies": {}
+  }
 }
