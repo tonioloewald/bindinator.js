@@ -632,6 +632,10 @@
         "path": "components/analog-clock.component.js"
       },
       {
+        "name": "Analog Clock (svg)",
+        "path": "components/swiss-clock.js"
+      },
+      {
         "name": "Speech",
         "path": "speech.component.html"
       },
