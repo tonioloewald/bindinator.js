@@ -4,7 +4,7 @@
   "description": "the even lazier javascript framework",
   "main": "dist/b8r.js",
   "scripts": {
-    "start": "echo \"http://localhost:8017/index.html\\n\" & node utils/server.js web_root:.",
+    "start": "echo \"http://localhost:8017/index.html\\n\" && node utils/server.js web_root:.",
     "lint": "npx standard --fix",
     "stylelint": "npx stylelint css/*.css **/*.html --fix",
     "linthtml": "npx linthtml index.html components/**/*.html",
