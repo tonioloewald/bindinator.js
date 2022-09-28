@@ -307,14 +307,30 @@
     font-family: Monaco, monospace;
   }
 
-  ._component_ .errors {
-    background: var(--error-bg);
-    color:  var(--error-color);
+  ._component_ .topbar > .test-results {
+    background: var(--black-5);
+    padding: 5px 10px;
     border-radius: 99px;
   }
   
-  ._component_ .errors::after {
-    content: ' test(s) failed';
+  ._component_ .errors.errors.errors {
+    background: var(--error-bg);
+    color:  var(--error-color);
+    animation: throb 1s infinite;
+  }
+
+  @keyframes throb {
+    0% {
+      box-shadow: 0 0 0 0 var(--error-bg);
+    }
+
+    50% {
+      box-shadow: 0 0 4px 2px var(--error-bg);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 var(--error-bg);
+    }
   }
 
   ._component_ .topbar {
@@ -380,8 +396,17 @@
   ></b8r-component>
   <h3 data-bind="text=_component_.title"></h3>
   <span class="elastic"></span>
-  <b style="display: none" data-bind="showIf=_component_.localhost">localhost</b>
-  <div class="errors" data-bind="showIf,text=_component_.testErrors"></div>
+  <div class="test-results" data-bind="
+      showIf=_component_.localhost
+      class(errors)=_component_.testResults.failures
+    "
+  >
+    localhost
+    <span data-bind="text=_component_.testResults.failures"></span>
+    /
+    <span data-bind="text=_component_.testResults.count"></span>
+    tests failed
+  </div>
   <button
       title="toggle bookmarks"
       data-bind="enabled_if,show_if=_component_.pageLinks.length"
@@ -489,24 +514,25 @@
         console.error('could not load source file', path);
         set(`docs[title=${sectionTitle}].hasErrors`, true);
         set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
-        set('testErrors', get().testErrors + 1);
+        set('testResults.failures', get().testResults.failures + 1)
       }
       const tests = source.split('~~~~').filter((_, idx) => idx % 2)
       tests.forEach(testSource => {
         const t = new AsyncFunction('Test', 'b8r', testSource + `////# sourceURL=${path}`)
+        set('testResults.count', get().testResults.count + 1)
         try {
           t.call(null, configuredTest({
             onError: () => {
               set(`docs[title=${sectionTitle}].hasErrors`, true);
               set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
-              set('testErrors', get().testErrors + 1);
+              set('testResults.failures', get().testResults.failures + 1)
             },
             reportContainer: document.createElement('div'),
           }), b8r);
         } catch (_) {
           set(`docs[title=${sectionTitle}].hasErrors`, true);
           set(`docs[title=${sectionTitle}].parts[${partIdx}].hasErrors`, true);
-          set('testErrors', get().testErrors + 1);
+          set('testResults.failures', get().testResults.failures + 1)
         }
       });
     }
@@ -591,7 +617,7 @@
     year: new Date().getFullYear(),
     searchFilter: '',
     localhost: window.location.hostname === 'localhost',
-    testErrors: 0,
+    testResults: { count: 0, failures: 0 },
     filterDocs: b8r.debounce(() => {
       const docs = get('docs')
       const searchField = get('searchFilter').toLocaleLowerCase().trim()
