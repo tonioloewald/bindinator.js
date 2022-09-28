@@ -5,7 +5,7 @@ A simple function for describing the values of things.
 
     const description = describe(variable_name, maxUniques=4, generic=false);
 
-`maxUniques` determines how many items/keys it checks before giving up. If  `max_unqiues` is `-1`
+`maxUniques` determines how many items/keys it checks before giving up. If  `maxUnqiues` is `-1`
 then everything will be handled.
 
 `generic` determines whether it returns `string` and `#` instead of literals.
