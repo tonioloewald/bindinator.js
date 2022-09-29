@@ -11,6 +11,7 @@
 [b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
 [npm](https://www.npmjs.com/package/@tonioloewald/b8r) |
+[jsdeliver] (https://www.jsdelivr.com/package/npm/@tonioloewald/b8r?path=dist) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
 Bindinator (`b8r`) is a fairly small (24kB compressed) "front-end" javascript library with *no transitive dependencies* 
