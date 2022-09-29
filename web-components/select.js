@@ -10,34 +10,34 @@ intentionally delays the population of the selects until after they've been
 assigned a value. When new options appear, the control is refreshed.)
 
 ```
-    <h2>Note</h2>
-    <p>
-      The first select will change to 'a', then two of the three selects
-      below will populate after 1s and 2s respectively. This is a test of their correctly
-      retaining a value before being populated with the underlying option.
-    </p>
-    <b8r-select-bar data-bind="value=_component_.option">
-      <b8r-option value="a">A</b8r-option>
-      <b8r-option value="b">B</b8r-option>
-      <b8r-option value="c">C</b8r-option>
-    </b8r-select-bar>
-    <b8r-select data-bind="value=_component_.option">
-      <b8r-option data-list="_component_.chars" data-bind="text,value=."></b8r-option>
-    </b8r-select>
-    <b8r-select data-bind="value=_component_.page">
-      <b8r-option data-list="_component_.nums" data-bind="text,value=."></b8r-option>
-    </b8r-select>
-    <script>
-      await import('../web-components/select.js');
-      set('option', 'b');
-      set('page', 1)
-      set('nums', [])
-      setTimeout(() => set('option', 'a'), 500)
-      // this shows that the select copes with values set before
-      // the option appears, and renders correctly
-      setTimeout(() => set('chars', ["a", "b", "c"]), 1500)
-      setTimeout(() => set('nums', [1,2,3,4,5]), 2500)
-    </script>
+<h2>Note</h2>
+<p>
+  The first select will change to 'a', then two of the three selects
+  below will populate after 1s and 2s respectively. This is a test of their correctly
+  retaining a value before being populated with the underlying option.
+</p>
+<b8r-select-bar data-bind="value=_component_.option">
+  <b8r-option value="a">A</b8r-option>
+  <b8r-option value="b">B</b8r-option>
+  <b8r-option value="c">C</b8r-option>
+</b8r-select-bar>
+<b8r-select data-bind="value=_component_.option">
+  <b8r-option data-list="_component_.chars" data-bind="text,value=."></b8r-option>
+</b8r-select>
+<b8r-select data-bind="value=_component_.page">
+  <b8r-option data-list="_component_.nums" data-bind="text,value=."></b8r-option>
+</b8r-select>
+<script>
+  await import('../web-components/select.js');
+  set('option', 'b');
+  set('page', 1)
+  set('nums', [])
+  setTimeout(() => set('option', 'a'), 500)
+  // this shows that the select copes with values set before
+  // the option appears, and renders correctly
+  setTimeout(() => set('chars', ["a", "b", "c"]), 1500)
+  setTimeout(() => set('nums', [1,2,3,4,5]), 2500)
+</script>
 ```
 ~~~~
 const {webComponentTest} = await import('../web-components/web-component-test.js')
