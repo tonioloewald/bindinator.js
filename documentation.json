@@ -480,6 +480,10 @@
         "path": "web-components/markdown.js"
       },
       {
+        "name": "Phone Number",
+        "path": "web-components/phone.js"
+      },
+      {
         "name": "Select",
         "path": "web-components/select.js"
       },
