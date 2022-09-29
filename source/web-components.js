@@ -147,7 +147,36 @@ them around (I imagine that the overhead is some fraction of an `<iframe>`...).
 
 More information is provided in [this blog entry](http://loewald.com/blog/2019/01/more-on-web-components-and-perf/).
 
+### elementRefs
+
+It's quite common to need references to elements within the shadow DOM (e.g. when
+implementing the `render()` method of a component). To simplify and optimize code,
+each element has an `elementRefs` proxy that will find an element based on
+its `data-id` attribute (and then cache the reference and remove the `data-id` attribute)
+to keep the DOM tidy.
+
+E.g. if the component's content is like this:
+
+    content: _fragment(
+      slot({name: 'before'}),
+      span({dataId: 'foo'}),
+      div({dataId: 'bar'}),
+      slot({name: 'after'})
+    )
+
+Then inside the `render()` body you can write:
+
+    const {foo, bar} = this.elementRefs
+
+And `foo` and `bar` will get references to the specified elements
+(and their `data-id` attributes will be removed).
+
+**Do not** use this mechanism for elements that will be dynamically added
+or removed.
+
 ### makeElement
+
+> **Deprecated** in favor of the [elements.js](?source=source/elements.js).
 
     makeElement (tagType, {
       content: false,  // text, or something that can be appended to an HTMLElement
@@ -364,7 +393,7 @@ const _css = (obj) => {
 }
 
 const makeWebComponent = (tagName, {
-  superClass = HTMLElement, // the class you're exetending
+  superClass = HTMLElement, // the class you're extending
   value = false, // expect boolean
   style = false, // expect object
   methods = {}, // map names to functions
@@ -421,6 +450,21 @@ const makeWebComponent = (tagName, {
           })
         }
       }
+      const self = this
+      this.elementRefs = new Proxy({}, {
+        get (target, ref) {
+          if (!target[ref]) {
+            const element = self.shadowRoot.querySelector(`[data-id="${ref}"]`)
+            if (!element) throw new Error(`elementRef "${ref}" does not exist!`)
+            element.removeAttribute('data-id')
+            target[ref] = element
+          }
+          return target[ref]
+        },
+        set () {
+          throw new Error('elementRefs is read-only')
+        }
+      })
       if (styleNode) {
         const shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(styleNode.cloneNode(true))

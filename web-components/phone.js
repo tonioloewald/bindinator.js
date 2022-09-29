@@ -114,11 +114,12 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
           padding: '0 5px'
         }
       },
-      span({ class: 'flag', style: 'flex: 0 0' }),
-      span({ class: 'dialcode', style: 'flex: 1 1 auto; text-align: right' }),
+      span({ dataId: 'flag', style: 'flex: 0 0' }),
+      span({ dataId: 'dialcode', style: 'flex: 1 1 auto; text-align: right' }),
       span('▼', { style: 'margin-left: 5px; font-size: 75%; opacity: 0.75' }),
       select(
         {
+          dataId: 'countrySelect',
           title: 'select country',
           style: {
             textAlign: 'right',
@@ -137,6 +138,7 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
     ),
     input(
       {
+        dataId: 'phoneNumber',
         inputmode: 'numeric',
         style: {
           flex: '1 1 auto'
@@ -146,8 +148,7 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
   ),
   methods: {
     connectedCallback () {
-      const countrySelect = this.shadowRoot.querySelector('select')
-      const phoneNumber = this.shadowRoot.querySelector('input')
+      const { countrySelect, phoneNumber } = this.elementRefs
       countrySelect.addEventListener('change', () => {
         this.country = countries.find(c => c.code === countrySelect.value).code.toLocaleLowerCase()
       })
@@ -163,19 +164,15 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
     },
     render () {
       const country = countries.find(c => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase())
-      const countrySelect = this.shadowRoot.querySelector('select')
-      const phoneNumber = this.shadowRoot.querySelector('input')
-      const flagSpan = this.shadowRoot.querySelector('.flag')
-      const dialcodeSpan = this.shadowRoot.querySelector('.dialcode')
+      const { countrySelect, phoneNumber, flag, dialcode } = this.elementRefs
       phoneNumber.placeholder = this.placeholder
       countrySelect.value = country.code
-      flagSpan.textContent = country.flag
-      dialcodeSpan.textContent = country.dialCode
+      flag.textContent = country.flag
+      dialcode.textContent = country.dialCode
       if (phoneNumber.value !== this.phoneNumber) {
         phoneNumber.value = this.phoneNumber
       }
       this.value = country.dialCode + this.phoneNumber
     }
-  },
-  role: 'input'
+  }
 })
