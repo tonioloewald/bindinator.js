@@ -137,6 +137,7 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
     ),
     input(
       {
+        inputmode: 'numeric',
         style: {
           flex: '1 1 auto'
         }
