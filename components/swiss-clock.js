@@ -53,7 +53,7 @@ export default {
   </g>
 </svg>
 `,
-  initialValue({component, get, set}) {
+  initialValue ({ component, get, set }) {
     const update = () => {
       if (component.closest('body')) {
         if (get().updateActive) {
@@ -66,7 +66,7 @@ export default {
     const minutes = []
     const hours = []
     for (let min = 0; min < 60; min++) {
-      const tick = {angle: min * 6}
+      const tick = { angle: min * 6 }
       if (min % 5) {
         minutes.push(tick)
       } else {
@@ -79,7 +79,7 @@ export default {
       const m = time.getMinutes()
       const s = time.getSeconds()
       const ms = time.getMilliseconds()
-      return {     
+      return {
         hourAngle: h * 30 + m * 0.5,
         minuteAngle: m * 6 + s * 0.1,
         secondAngle: s * 6 + ms * 0.006
@@ -92,15 +92,15 @@ export default {
       minutes,
       hours,
       ...angles(time),
-      setTime(time) {
+      setTime (time) {
         set({
           time,
           ...angles(time)
         })
       },
-      rotate(element, angle) {
+      rotate (element, angle) {
         element.setAttribute('transform', `rotate(${angle}, 300, 300)`)
-      },
+      }
     }
   }
 }

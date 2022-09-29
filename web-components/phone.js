@@ -19,7 +19,7 @@ number into the field instead.
 The input field does not accept non-numeric entries.
 
 ```
-<b8r-input-phone 
+<b8r-input-phone
   country="au"
   data-bind="value=_component_.phoneNumber"
 >
@@ -40,17 +40,9 @@ import { elements } from '../source/elements.js'
 import { makeWebComponent } from '../source/web-components.js'
 import countries from './countries.js'
 
-const {_fragment, input, label, span, select, option} = elements
+const { _fragment, input, span, select, option } = elements
 
 const notAllowed = /[^\d]/g
-
-const fillParent = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%'
-}
 
 export const PhoneNumber = makeWebComponent('b8r-input-phone', {
   attributes: {
@@ -59,7 +51,7 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
     placeholder: 'enter phone number'
   },
   props: {
-    phoneNumber: '',
+    phoneNumber: ''
   },
   style: {
     ':host': {
@@ -79,11 +71,11 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
     input: {
       border: 0,
       background: 'transparent',
-      padding: 'var(--input-padding-edges)',
+      padding: 'var(--input-padding-edges)'
     }
   },
   eventHandlers: {
-    change(evt) {
+    change (evt) {
       if (evt.target !== this) {
         return
       }
@@ -116,7 +108,7 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
       },
       span({ class: 'flag', style: 'flex: 0 0' }),
       span({ class: 'dialcode', style: 'flex: 1 1 auto; text-align: right' }),
-      span('▼', {style: 'margin-left: 5px; font-size: 75%; opacity: 0.75'}),
+      span('▼', { style: 'margin-left: 5px; font-size: 75%; opacity: 0.75' }),
       select(
         {
           title: 'select country',
@@ -132,20 +124,19 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
             height: '100%'
           }
         },
-        ...countries.map(({code, name, flag}) => option(name, {value: code}))
-      ),
+        ...countries.map(({ code, name, flag }) => option(name, { value: code }))
+      )
     ),
     input(
       {
         style: {
           flex: '1 1 auto'
-        },
+        }
       }
     )
   ),
   methods: {
-    connectedCallback() {
-      const country = countries.find(c => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase())
+    connectedCallback () {
       const countrySelect = this.shadowRoot.querySelector('select')
       const phoneNumber = this.shadowRoot.querySelector('input')
       countrySelect.addEventListener('change', () => {
