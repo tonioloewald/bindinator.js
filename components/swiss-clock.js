@@ -73,12 +73,18 @@ export default {
         hours.push(tick)
       }
     }
-    const interval = setInterval(update, 500)
-    const angles = time => ({     
-      hourAngle: time.getHours() * 30 + time.getMinutes() * 0.5,
-      minuteAngle: time.getMinutes() * 6 + time.getSeconds() * 0.1,
-      secondAngle: time.getSeconds() * 6,
-    })
+    const interval = setInterval(update, 66)
+    const angles = time => {
+      const h = time.getHours()
+      const m = time.getMinutes()
+      const s = time.getSeconds()
+      const ms = time.getMilliseconds()
+      return {     
+        hourAngle: h * 30 + m * 0.5,
+        minuteAngle: m * 6 + s * 0.1,
+        secondAngle: s * 6 + ms * 0.006
+      }
+    }
     const time = new Date()
     return {
       updateActive: true,
