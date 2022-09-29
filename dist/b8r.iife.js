@@ -218,6 +218,17 @@ var b8r = (function () {
 
   const uuid = crypto.randomUUID.bind(crypto);
 
+  let counter = 0;
+  const unique = () => {
+    if (!counter) {
+      console.warn('unique() is deprecated, use id() instead');
+    } else {
+      console.debug('unique() is deprecated, use id() instead');
+    }
+    counter += 1;
+    return counter
+  };
+
   /**
   # Object Path Methods
   Copyright ©2016-2019 Tonio Loewald
@@ -3432,7 +3443,7 @@ var b8r = (function () {
     const style = source ? create('style') : false;
     if (style) {
       style.type = 'text/css';
-      style.dataset.title = title;
+      style.id = title;
       style.appendChild(text(source));
       document.head.appendChild(style);
     }
@@ -4024,7 +4035,10 @@ var b8r = (function () {
   };
 
   const makeComponent = (name, source, url, preserveSource) => {
-    if (typeof source === 'object' && url === undefined) {
+    if (typeof name === 'object' && !source) {
+      source = name;
+      name = `doe-${unique()}`;
+    } else if (typeof source === 'object' && url === undefined) {
       return makeComponentNoEval(name, source)
     }
     let css = false; let content; let script = false; let parts; let remains;
@@ -6437,7 +6451,7 @@ var b8r = (function () {
 
       const description = describe(variable_name, maxUniques=4, generic=false);
 
-  `maxUniques` determines how many items/keys it checks before giving up. If  `max_unqiues` is `-1`
+  `maxUniques` determines how many items/keys it checks before giving up. If  `maxUnqiues` is `-1`
   then everything will be handled.
 
   `generic` determines whether it returns `string` and `#` instead of literals.
@@ -7896,7 +7910,36 @@ var b8r = (function () {
 
   More information is provided in [this blog entry](http://loewald.com/blog/2019/01/more-on-web-components-and-perf/).
 
+  ### elementRefs
+
+  It's quite common to need references to elements within the shadow DOM (e.g. when
+  implementing the `render()` method of a component). To simplify and optimize code,
+  each element has an `elementRefs` proxy that will find an element based on
+  its `data-id` attribute (and then cache the reference and remove the `data-id` attribute)
+  to keep the DOM tidy.
+
+  E.g. if the component's content is like this:
+
+      content: _fragment(
+        slot({name: 'before'}),
+        span({dataId: 'foo'}),
+        div({dataId: 'bar'}),
+        slot({name: 'after'})
+      )
+
+  Then inside the `render()` body you can write:
+
+      const {foo, bar} = this.elementRefs
+
+  And `foo` and `bar` will get references to the specified elements
+  (and their `data-id` attributes will be removed).
+
+  **Do not** use this mechanism for elements that will be dynamically added
+  or removed.
+
   ### makeElement
+
+  > **Deprecated** in favor of the [elements.js](?source=source/elements.js).
 
       makeElement (tagType, {
         content: false,  // text, or something that can be appended to an HTMLElement
@@ -8113,7 +8156,7 @@ var b8r = (function () {
   };
 
   const makeWebComponent = (tagName, {
-    superClass = HTMLElement, // the class you're exetending
+    superClass = HTMLElement, // the class you're extending
     value = false, // expect boolean
     style = false, // expect object
     methods = {}, // map names to functions
@@ -8170,6 +8213,21 @@ var b8r = (function () {
             });
           }
         }
+        const self = this;
+        this.elementRefs = new Proxy({}, {
+          get (target, ref) {
+            if (!target[ref]) {
+              const element = self.shadowRoot.querySelector(`[data-id="${ref}"]`);
+              if (!element) throw new Error(`elementRef "${ref}" does not exist!`)
+              element.removeAttribute('data-id');
+              target[ref] = element;
+            }
+            return target[ref]
+          },
+          set () {
+            throw new Error('elementRefs is read-only')
+          }
+        });
         if (styleNode) {
           const shadow = this.attachShadow({ mode: 'open' });
           shadow.appendChild(styleNode.cloneNode(true));
