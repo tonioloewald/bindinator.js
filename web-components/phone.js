@@ -8,6 +8,10 @@ code.
 
 You can set the default `country` and `placeholder` as attributes.
 
+The component has `dialCode`, `phoneNumber`, and `value` properties, so
+if you set the `value` to '+615556666' then the `dialCode` will be '+61'
+and the `phoneNumber` will be '5556666'
+
 Note that some countries share the same code, e.g. the US and Canada)
 so this guessing is not perfect.
 
@@ -51,6 +55,10 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
     placeholder: 'enter phone number'
   },
   props: {
+    dialCode () {
+      const country = countries.find(c => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase())
+      return country.dialCode
+    },
     phoneNumber: ''
   },
   style: {
@@ -144,9 +152,10 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
       })
       phoneNumber.addEventListener('input', () => {
         this.phoneNumber = phoneNumber.value.replace(notAllowed, '')
+        this.value = this.dialCode + this.phoneNumber
       })
       phoneNumber.addEventListener('keydown', evt => {
-        if (!evt.code.match(/Backspace|Digit\d|Tab/) && !evt.ctrlKey && !evt.metaKey) {
+        if (!evt.code.match(/Backspace|Digit\d|Tab|Arrow/) && !evt.ctrlKey && !evt.metaKey) {
           evt.preventDefault()
         }
       })
