@@ -61,7 +61,7 @@ export default {
         {
           class: 'column elastic'
         },
-        span('FileCoin API Key'),
+        span('web3.storage API Key'),
         textarea({
           placeholder: 'paste your filecoin api key here',
           class: 'elastic',
@@ -116,14 +116,12 @@ export default {
           style: 'display: block'
         }
       ),
-      input(
-        {
-          type: 'file',
-          class: 'elastic',
-          bindDisabledIf: '_component_.uploading',
-          bindValue: '_component_.file'
-        }
-      ),
+      input({
+        type: 'file',
+        class: 'elastic',
+        bindDisabledIf: '_component_.uploading',
+        bindValue: '_component_.file'
+      }),
       button(
         'Upload',
         {
