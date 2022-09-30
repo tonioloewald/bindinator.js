@@ -452,4 +452,4 @@ called when it becomes available.
 
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-Copyright ©2016-2019 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald

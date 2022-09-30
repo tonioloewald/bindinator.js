@@ -1,68 +1,73 @@
 <!--
 # switch
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
+
 This is an input checkbox disguised as a sliding on/off switch.
 It uses a pair of nested `<span>` nodes to render the switch.
 -->
 <style>
-  .switch-component {
+  ._component_ {
     display: inline-block;
     position: relative;
     overflow: hidden;
     vertical-align: middle;
-    min-height: 16px;
+    --switch-height: calc(var(--body-line-height, 20px) * 0.8);
+    --switch-width: calc(var(--switch-height) * 1.625);
+    --switch-checked-offset: calc(var(--switch-height) * 0.625);
+    --switch-radius: calc(var(--switch-height) * 0.5);
+    min-height: var(--switch-height);
     overflow: visible;
   }
 
-  .switch-component input {
+  ._component_ input {
     -webkit-appearance: none;
     background: none;
     padding: 0;
     box-shadow: none;
   }
 
-  .switch-component input + span {
+  ._component_ input + span {
     vertical-align: bottom;
     position: relative;
     display: inline-block;
-    width: 26px;
-    height: 16px;
+    width: var(--switch-width);
+    height: var(--switch-height);
     border-radius: 8px;
     margin-right: 4px;
     transition-duration: 0.25s;
     box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
   }
 
-  .switch-component input:not(:checked) + span {
+  ._component_ input:not(:checked) + span {
     background-color: var(--black-20);
   }
 
-  .switch-component input:checked + span {
+  ._component_ input:checked + span {
     background-color: var(--accent-color);
   }
 
-  .switch-component input + span > span {
+  ._component_ input + span > span {
     content: " ";
     display: block;
-    width: 16px;
-    height: 16px;
+    width: var(--switch-height);
+    height: var(--switch-height);
     background-color: var(--text-color);
     position: absolute;
     top: 0;
-    border-radius: 8px;
+    border-radius: var(--switch-radius);
     box-shadow: inset 0 -0.5px 0.5px rgba(0,0,0,0.5);
     transition-duration: 0.25s;
   }
 
-  .switch-component input:not(:checked) + span > span {
+  ._component_ input:not(:checked) + span > span {
     left: 0;
   }
 
-  .switch-component input:checked + span > span {
-    left: 12px;
+  ._component_ input:checked + span > span {
+    left: var(--switch-checked-offset);
   }
 </style>
 <label>
   <input type="checkbox" data-bind="checked=_component_.value">
-  <span class="focus-follower"><span>&nbsp;</span></span><span data-children></span>
+  <span class="focus-follower"><span>&nbsp;</span></span><span data-children>Switch Label</span>
 </label>

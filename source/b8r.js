@@ -1,6 +1,6 @@
 /**
 #bindinator
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 Bindinator (b8r) binds data and methods to the DOM and lets you quickly turn chunks of
 markup, style, and code into reusable components so you can concentrate on your project.

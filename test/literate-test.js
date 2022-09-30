@@ -1,6 +1,6 @@
 /**
 # Literate JS Viewer Test
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 This file exists for the sole purpose of testing the b8r *literate programming* component.
 

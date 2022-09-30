@@ -1,6 +1,6 @@
 /**
 # images
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
     imgSrc(img, url, cors=true)
 

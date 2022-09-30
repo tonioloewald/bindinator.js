@@ -1,6 +1,6 @@
 /**
 # toTargets
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 ## Binding data to the DOM
 

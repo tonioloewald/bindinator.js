@@ -1,6 +1,6 @@
 /**
 # Object Path Methods
-Copyright ©2016-2019 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 > Note that these are low-level methods that `b8r` does not expose.
 > `b8r.getByPath` and `b8r.setByPath` are deprecated (use `b8r.set` and `b8r.get` instead).
