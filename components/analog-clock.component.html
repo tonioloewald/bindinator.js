@@ -13,8 +13,6 @@ and `title` attributes so that it's still accessible.
   const {domInterval} = await import ('../lib/dom-timers.js');
   const clock = findOne('canvas');
   const g = clock.getContext('2d');
-  const logo = new Image();
-  logo.src = 'images/bindinator-logo-notext-mono.svg';
   g.fillStyle = '#f7f7f7';
   const d2r = Math.PI / 180;
   const drawRay = (width, angle, r0, r1, color='#222') => {
@@ -41,7 +39,6 @@ and `title` attributes so that it's still accessible.
       g.beginPath();
       g.ellipse(128, 128, 128, 128, 0, 0, 2 * Math.PI);
       g.fill();
-      g.drawImage(logo, 108, 160, 40, 29);
       for (let h = 0; h < 12; h++){
         drawRay(6, h * 30, 96, 120, '#444');
       }

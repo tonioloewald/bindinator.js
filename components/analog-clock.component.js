@@ -59,7 +59,7 @@ export const configuration = [
     name: 'logoUrl',
     values: [
       { description: 'no logo', value: null },
-      { description: 'b8r logo greyscale', value: 'images/bindinator-logo-notext-mono.svg' }
+      { description: 'b8r logo greyscale', value: 'images/bindinator-logo.svg' }
     ]
   },
   {
@@ -128,7 +128,7 @@ export default {
     tickColor: '#222',
     handColor: '#444',
     secondHandColor: 'red',
-    logoUrl: 'images/bindinator-logo-notext-mono.svg',
+    logoUrl: false,
     getHMS: localTime
   },
   load: async ({ get, set, findOne }) => {
@@ -170,7 +170,7 @@ export default {
         g.beginPath()
         g.ellipse(128, 128, 128, 128, 0, 0, 2 * Math.PI)
         g.fill()
-        g.drawImage(logo, 108, 160, 40, 29)
+        if (logo) g.drawImage(logo, 108, 160, 40, 40)
         for (let h = 0; h < 12; h++) {
           drawRay(6, h * 30, 96, 120, handColor)
         }

@@ -7,6 +7,12 @@ This is yet another analog clock demo, but instead of rendering the clock manual
 using canvas commands, it simply binds an SVG.
 
 For extra efficiency, the hour and minute tick marks are list-bindings.
+
+> A little testing shows that the CPU load for this clock is about the same as for
+> the canvas-based [analog-clock](?source=analog-clock.component.html) example,
+> despite the animation updating at 30fps vs 1fps and being resolution independent.
+> It follows that for these kinds of components, binding SVGs is likely to be
+> better in every way than using canvas code.
 */
 
 export default {

@@ -1,8 +1,8 @@
 <h1 style="text-align: center" title="bindinator">
   <img
     alt="bindinator logo"
-    style="width: 400px; height: 400px; padding: 5vh 0; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));"
-    src="https://bindinator.com/images/bindinator-logo.svg"
+    style="width: 256px; height: 256px; border-radius: 48px;"
+    src="images/bindinator-logo.svg"
   >
 </h1>
 
