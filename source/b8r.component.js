@@ -342,7 +342,6 @@ const makeComponent = (name, source, url, preserveSource) => {
   if (!url) url = uuid()
   componentPreloadMap[name] = url
 
-  // nothing <style> css </style> rest-of-component
   parts = source.split(/<style>|<\/style>/)
   if (parts.length === 3) {
     [, css, remains] = parts
@@ -350,7 +349,6 @@ const makeComponent = (name, source, url, preserveSource) => {
     remains = source
   }
 
-  // content <script> script </script> nothing
   parts = remains.split(/<script[^>\n]*>|<\/script>/)
   if (parts.length >= 3) {
     [content, script] = parts

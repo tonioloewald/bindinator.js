@@ -61,7 +61,7 @@ Copyright ©2016-2022 Tonio Loewald
   </div>
 </div>
 <script>
-  /* global component, findOne, register */
+  /* global component, findOne, set */
   if (component.getAttribute('direction') === 'column') {
     findOne('.flexcordion').classList.add('column')
 }
@@ -69,5 +69,5 @@ Copyright ©2016-2022 Tonio Loewald
     find('.flexcordion > .current').forEach(elt => elt.classList.remove('current'))
   evt.target.closest('.flexcordion > *').classList.add('current')
 }
-  register({ select })
+  set({ select })
 </script>

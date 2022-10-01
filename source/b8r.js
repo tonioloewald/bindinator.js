@@ -787,8 +787,15 @@ b8r.insertComponent = async function (component, element, data) {
     }
   }
   b8r.bindAll(element)
+
+  if (instanceReadyPromises.get(element)) {
+    b8r.afterUpdate(() => {
+      instanceReadyPromises.get(element).resolve()
+    })
+  }
 }
 
+const instanceReadyPromises = new WeakMap()
 b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
@@ -810,7 +817,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     },
     data () {
       return b8r.reg[this.dataset.componentId]
-    }
+    },
   },
   methods: {
     connectedCallback () {
@@ -827,10 +834,27 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       }
     },
     get (path = '.') {
-      return b8r.getByPath(this.componentId)
+      return b8r.getByPath(this.componentId, path)
     },
     set (...args) {
       b8r.setByPath(this.componentId, ...args)
+    },
+    async ready () {
+      if (this.componentId && this.data) {
+        return true
+      }
+      if (!instanceReadyPromises.get(this)) {
+        const obj = {}
+        const promise = new Promise((resolve) => {
+          obj.resolve = () => {
+            resolve()
+            instanceReadyPromises.delete(this)
+          }
+          instanceReadyPromises.set(this, obj)
+        })
+        obj.promise = promise
+      }
+      return instanceReadyPromises.get(this).promise
     },
     empty () {
       this.textContent = ''

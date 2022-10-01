@@ -60,7 +60,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
     margin-right: 8px;
   }
 
-  .kitchen-sink-component .icon-eye-blocked2 {
+  .kitchen-sink-component .icon-eye-blocked {
     opacity: 0.5;
   }
 </style>
@@ -253,7 +253,7 @@ launches child windows that are synced to `kitchen-sink-demo`.
   <br><label>
     Icon Toggle
     <input type=checkbox data-bind="checked=kitchen-sink-demo.checked" class="hidden">
-    <span data-bind="class(icon-eye2|icon-eye-blocked2)=kitchen-sink-demo.checked"></span>
+    <span data-bind="class(icon-eye|icon-eye-blocked)=kitchen-sink-demo.checked"></span>
   </label>
   <blockquote>
     The code here is so simple, is it worth creating a component? One class hides the checkbox

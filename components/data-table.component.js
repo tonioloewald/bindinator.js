@@ -441,7 +441,7 @@ export default {
       <div
         tabindex=0
         title="select visible columns"
-        class="t-column-selection icon-eye2 clickable"
+        class="t-column-selection icon-eye clickable"
         data-bind="show_if=_component_.config.userCanEditColumns"
         data-event="keydown(Space),click:_component_.toggleEditVisibleColumns"
       ></div>

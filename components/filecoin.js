@@ -48,7 +48,7 @@ export default {
       font-style: bold;
     }
 
-    ._component_ .icon-spinner5 {
+    ._component_ .icon-spinner {
       color: var(--dark-accent-color);
       display: inline-block;
       animation: spin-clockwise 2s infinite linear;
@@ -83,7 +83,7 @@ export default {
       span('Files')
     ),
     div(
-      span({ class: 'icon-spinner5' }),
+      span({ class: 'icon-spinner' }),
       {
         style: 'text-align: center',
         bindShowIf: '_component_.loading'
@@ -157,7 +157,7 @@ export default {
             elt.classList.add('icon-folder')
             break
           default:
-            elt.classList.add('icon-file-empty2')
+            elt.classList.add('icon-file-empty')
         }
       },
       async upload () {

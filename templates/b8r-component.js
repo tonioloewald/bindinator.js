@@ -13,7 +13,7 @@ export default {
   view: ({ button, span }) => [
     button(
       { onClick: '_component_.edit' },
-      span({ class: 'icon-home5' }, ' '),
+      span({ class: 'icon-home' }, ' '),
       span({ bindText: '_component_.caption' })
     )
   ],

@@ -30,7 +30,7 @@ export default {
 <canvas class="babylonjs" data-event="mousedown:_component_.pick">
 </canvas>
 <button class="maximize" data-event="click:_component_.toggleFullscreen">
-  <span data-bind="class(icon-shrink7|icon-enlarge7)=_component_.isFullscreen"></span>
+  <span data-bind="class(icon-shrink|icon-enlarge)=_component_.isFullscreen"></span>
 </button>
 `,
   async load ({ component, findOne, get, set }) {

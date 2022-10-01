@@ -7,8 +7,8 @@
   position: relative;
 }
 
-.search-field-component .icon-search3,
-.search-field-component .icon-cross2 {
+.search-field-component .icon-search,
+.search-field-component .icon-cross {
   opacity: 0.5;
   position: absolute;
   top: 50%;
@@ -21,15 +21,15 @@
   width: 100%;
 }
 
-.search-field-component input:focus+.icon-search3 {
+.search-field-component input:focus+.icon-search {
   opacity: 0.75;
 }
 
-.search-field-component .icon-search3 {
+.search-field-component .icon-search {
   left: 18px;
 }
 
-.search-field-component .icon-cross2 {
+.search-field-component .icon-cross {
   right: 18px;
   background: rgba(0,0,0,0.1);
   border-radius: 99px;
@@ -37,18 +37,18 @@
   font-size: 10px
 }
 
-.search-field-component .icon-cross2:hover {
+.search-field-component .icon-cross:hover {
   opacity: 0.75;
 }
 
-.search-field-component .icon-cross2:active {
+.search-field-component .icon-cross:active {
   opacity: 1;
 }
 </style>
 <input
   data-bind="attr(placeholder)=_component_.placeholder;value=_component_.value">
-<span class="icon-search3"></span>
-<span class="icon-cross2" data-event="mouseup,touchend:_component_.clear"></span>
+<span class="icon-search"></span>
+<span class="icon-cross" data-event="mouseup,touchend:_component_.clear"></span>
 <script>
   /* global get, set */
   'use strict'

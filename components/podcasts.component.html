@@ -416,7 +416,7 @@ and a simple reflection service for consuming RSS feeds.
       <div style="margin: 10px 0" class="controls flexfixed">
         <div class="panel">
           <button
-            class="icon-backward2"
+            class="icon-backward"
             data-offset="-30"
             data-bind="enabled_if=_component_.canplay"
             data-event="click:_component_.offsetPosition"
@@ -425,12 +425,12 @@ and a simple reflection service for consuming RSS feeds.
             class="large-button"
             data-bind="
               enabled_if=_component_.canplay
-              class(icon-play4|icon-pause2)=_component_.value.paused
+              class(icon-play|icon-pause)=_component_.value.paused
             "
             data-event="click:_component_.play"
           ></button>
           <button
-            class="icon-forward3"
+            class="icon-forward"
             data-offset="30"
             data-bind="enabled_if=_component_.canplay"
             data-event="click:_component_.offsetPosition"

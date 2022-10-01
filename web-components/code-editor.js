@@ -45,11 +45,22 @@ const makeCodeEditor = async (codeElement, mode = 'html', options = {}) => {
 
 export const codeEditor = makeWebComponent('b8r-code-editor', {
   attributes: {
-    value: '',
     mode: 'javascript',
-    pendingChange: 0,
     options: '',
     disabled: false
+  },
+  props: {
+    value(source) {
+      if(source) {
+        if (this._syncEditor) {
+          this._syncEditor.setValue(source || '', 1)
+        } else {
+          this._value = source
+        }
+      } else {
+        return this._syncEditor ? this._syncEditor.getValue() : this._value || null
+      }
+    }
   },
   style: {
     ':host': {
@@ -58,30 +69,32 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
     }
   },
   eventHandlers: {
-    input () {
-      if (this.pendingChange === 0) {
-        this.pendingChange = setTimeout(() => {
-          this._editor.then(editor => {
-            this.value = editor.getValue()
-          })
-          this.pendingChange = 0
-        }, 500)
-      }
-    },
     resize () {
       if (this._editor) {
-        this._editor.then(editor => editor.resize(true))
+        this.ready().then(editor => editor.resize(true))
       }
     }
   },
   methods: {
-    connectedCallback () {
+    ready () {
       const options = {
         showGutter: !this.disabled,
         ...JSON.parse(this.options || '{}')
       }
-      this._editor = makeCodeEditor(this, this.mode, options)
-      this._editor.then(editor => editor.setReadOnly(this.disabled))
+      if (!this._editor) {
+        this._editor = makeCodeEditor(this, this.mode, options)
+        this._editor.then(editor => {
+          this._syncEditor = editor
+          if(this._value) {
+            this._syncEditor.setValue(this._value, 1)
+            delete this._value
+          }
+        })
+      }
+      return this._editor
+    },
+    connectedCallback () {
+      this.ready().then(editor => editor.setReadOnly(this.disabled))
       if (!this.value) {
         this.value = this.textContent.trim('\n')
       }
@@ -93,9 +106,9 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
       }
       // note that there is a race condition if the user types something and while
       // the change is pending the value of the element is set programmatically
-      this._editor.then(editor => {
-        if (this.pendingChange === 0 && editor.getValue() !== this.value) {
-          editor.setValue(this.value, 1)
+      this.ready().then(editor => {
+        if (editor.getValue() !== this.value) {
+          editor.setValue(this.value || '', 1)
         }
         editor.setReadOnly(this.disabled)
       })

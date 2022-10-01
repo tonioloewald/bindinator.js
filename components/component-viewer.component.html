@@ -1,44 +1,21 @@
 <div class="info"></div>
-<div class="example"></div>
-<details style="margin-top: 10px">
-  <summary>Component Data <i>(updates every second)</i></summary>
-  <pre></pre>
-</details>
-<div class="hidden">
-  <pre>
-    <code style="font-size: 12px; white-space: pre-wrap;" class="language-markup"></code>
-  </pre>f
-</div>
+<b8r-component path="../components/component-editor.js"></b8r-component>
 <script>
 /* global b8r, get, findOne */
   const {md} = await import('../lib/text-render.js');
-  const {domInterval} = await import('../lib/dom-timers.js');
-  const {viaTag} = await import('../lib/scripts.js');
-  const {Prism} = await viaTag('https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/prism.min.js');
-  const code = findOne('code');
+  const editor = findOne('b8r-component')
   const info = findOne('.info');
-  const example = findOne('.example');
-  const pre = findOne('pre');
   b8r.component('./path-browser');
-  b8r.component(get().url, undefined, true).
-  then(c => {
-    b8r.insertComponent(c, example).then(() => {
-      b8r.addDataBinding(pre, 'json', example.dataset.componentId);
-      domInterval(pre, () => b8r.bindAll(pre), 1000);
-    });
-    var docs_md, source;
+  b8r.component(get().url, undefined, true).then(c => {
+    let docs_md, source;
     if (c._source.indexOf('<!--') === 0) {
-      [docs_md, source] = c._source.substr(4).split('-->');
+      [docs_md] = c._source.substr(4).split('-->');
     } else {
       docs_md = `# ${get().url}`;
-      source = c._source;
     }
-    if(docs_md) {
-      md({elt: info, source: docs_md});
-    }
-    code.textContent = source.replace(/\t/g, '  ');
-    code.closest('.hidden').classList.remove('hidden');
-    Prism.highlightElement(code);
-    b8r.show(code.closest('div'));
+    md({elt: info, source: docs_md});
+    editor.ready().then(() => {
+      editor.data.loadSource(c._source)
+    })
   });
 </script>

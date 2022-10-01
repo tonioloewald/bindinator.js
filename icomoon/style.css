@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?pkz17d');
-  src:  url('fonts/icomoon.eot?pkz17d#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?pkz17d') format('truetype'),
-    url('fonts/icomoon.woff?pkz17d') format('woff'),
-    url('fonts/icomoon.svg?pkz17d#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?bky4zk');
+  src:  url('fonts/icomoon.eot?bky4zk#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?bky4zk') format('truetype'),
+    url('fonts/icomoon.woff?bky4zk') format('woff'),
+    url('fonts/icomoon.svg?bky4zk#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -40,19 +40,19 @@
 .icon-sort-descending:before {
   content: "\edc9";
 }
-.icon-play4:before {
+.icon-play:before {
   content: "\ed85";
 }
-.icon-pause2:before {
+.icon-pause:before {
   content: "\ed86";
 }
-.icon-stop2:before {
+.icon-stop:before {
   content: "\ed87";
 }
-.icon-backward2:before {
+.icon-backward:before {
   content: "\ed88";
 }
-.icon-forward3:before {
+.icon-forward:before {
   content: "\ed89";
 }
 .icon-first:before {
@@ -61,10 +61,10 @@
 .icon-last:before {
   content: "\ed8b";
 }
-.icon-previous2:before {
+.icon-previous:before {
   content: "\ed8c";
 }
-.icon-next2:before {
+.icon-next:before {
   content: "\ed8d";
 }
 .icon-eject:before {
@@ -82,13 +82,13 @@
 .icon-arrow-left:before {
   content: "\edc5";
 }
-.icon-loop3:before {
+.icon-loop:before {
   content: "\edaa";
 }
-.icon-spinner5:before {
+.icon-spinner:before {
   content: "\eb26";
 }
-.icon-bug2:before {
+.icon-bug:before {
   content: "\eb79";
 }
 .icon-locked:before {
@@ -97,16 +97,16 @@
 .icon-unlocked:before {
   content: "\eb54";
 }
-.icon-eye2:before {
+.icon-eye:before {
   content: "\ecb2";
 }
-.icon-eye-blocked2:before {
+.icon-eye-blocked:before {
   content: "\ecb3";
 }
 .icon-dots:before {
   content: "\ed4e";
 }
-.icon-home5:before {
+.icon-home:before {
   content: "\e913";
 }
 .icon-file-empty:before {
@@ -124,13 +124,13 @@
 .icon-folder-upload:before {
   content: "\e9d3";
 }
-.icon-search3:before {
+.icon-search:before {
   content: "\eb36";
 }
 .icon-wrench:before {
   content: "\eb58";
 }
-.icon-cog2:before {
+.icon-cog:before {
   content: "\eb61";
 }
 .icon-arrow-down3:before {
@@ -139,28 +139,25 @@
 .icon-umbrella:before {
   content: "\ecd5";
 }
-.icon-plus2:before {
+.icon-plus:before {
   content: "\ed5b";
 }
-.icon-cross2:before {
-  content: "\ed6d";
-}
-.icon-link3:before {
+.icon-link:before {
   content: "\ec9d";
 }
-.icon-unlink3:before {
+.icon-unlink:before {
   content: "\ec9e";
 }
-.icon-enlarge7:before {
+.icon-enlarge:before {
   content: "\eb48";
 }
-.icon-shrink7:before {
+.icon-shrink:before {
   content: "\eb49";
 }
-.icon-download2:before {
+.icon-download:before {
   content: "\ec7d";
 }
-.icon-upload2:before {
+.icon-upload:before {
   content: "\ec7f";
 }
 .icon-undo:before {
@@ -172,37 +169,37 @@
 .icon-list-numbered:before {
   content: "\ec58";
 }
-.icon-list2:before {
+.icon-list:before {
   content: "\ec5a";
 }
-.icon-bold2:before {
+.icon-bold:before {
   content: "\ee9d";
 }
-.icon-underline2:before {
+.icon-underline:before {
   content: "\ee9e";
 }
-.icon-italic2:before {
+.icon-italic:before {
   content: "\ee9f";
 }
-.icon-strikethrough3:before {
+.icon-strikethrough:before {
   content: "\eea0";
 }
-.icon-paragraph-left3:before {
+.icon-paragraph-left:before {
   content: "\eec1";
 }
-.icon-paragraph-center3:before {
+.icon-paragraph-center:before {
   content: "\eec2";
 }
-.icon-paragraph-right3:before {
+.icon-paragraph-right:before {
   content: "\eec3";
 }
-.icon-paragraph-justify3:before {
+.icon-paragraph-justify:before {
   content: "\eec4";
 }
-.icon-indent-increase2:before {
+.icon-indent-increase:before {
   content: "\eec5";
 }
-.icon-indent-decrease2:before {
+.icon-indent-decrease:before {
   content: "\eec6";
 }
 .icon-check:before {
@@ -223,85 +220,61 @@
 .icon-wifi:before {
   content: "\e912";
 }
-.icon-bindinator-logo .path1:before {
-  content: "\e900";
-  color: rgb(220, 20, 60);
-}
-.icon-bindinator-logo .path2:before {
-  content: "\e901";
-  margin-left: -1.087890625em;
-  color: rgb(135, 206, 250);
-}
-.icon-bindinator-logo .path3:before {
-  content: "\e902";
-  margin-left: -1.087890625em;
-  color: rgb(220, 20, 60);
-}
-.icon-bindinator-logo .path4:before {
-  content: "\e903";
-  margin-left: -1.087890625em;
-  color: rgb(135, 206, 250);
-}
-.icon-bindinator-logo .path5:before {
-  content: "\e904";
-  margin-left: -1.087890625em;
-  color: rgb(220, 20, 60);
-}
-.icon-bindinator-logo .path6:before {
-  content: "\e905";
-  margin-left: -1.087890625em;
-  color: rgb(220, 20, 60);
-}
-.icon-bindinator-logo .path7:before {
-  content: "\e906";
-  margin-left: -1.087890625em;
-  color: rgb(135, 206, 250);
-}
 .icon-bindinator-logo-notext-mono .path1:before {
   content: "\e907";
-  color: rgb(105, 105, 105);
+  color: rgb(132, 132, 132);
 }
 .icon-bindinator-logo-notext-mono .path2:before {
   content: "\e908";
-  margin-left: -1.3798828125em;
-  color: rgb(245, 245, 245);
+  margin-left: -0.9892578125em;
+  color: rgb(229, 229, 229);
 }
 .icon-bindinator-logo-notext-mono .path3:before {
   content: "\e909";
-  margin-left: -1.3798828125em;
-  color: rgb(105, 105, 105);
+  margin-left: -0.9892578125em;
+  color: rgb(56, 56, 56);
 }
 .icon-bindinator-logo-notext-mono .path4:before {
   content: "\e90a";
-  margin-left: -1.3798828125em;
-  color: rgb(245, 245, 245);
+  margin-left: -0.9892578125em;
+  color: rgb(56, 56, 56);
 }
 .icon-bindinator-logo-notext-mono .path5:before {
   content: "\e90b";
-  margin-left: -1.3798828125em;
-  color: rgb(105, 105, 105);
+  margin-left: -0.9892578125em;
+  color: rgb(229, 229, 229);
+}
+.icon-bindinator-logo-notext-mono .path6:before {
+  content: "\e901";
+  margin-left: -0.9892578125em;
+  color: rgb(229, 229, 229);
 }
 .icon-bindinator-logo-notext .path1:before {
   content: "\e90c";
-  color: rgb(220, 20, 60);
+  color: rgb(104, 135, 255);
 }
 .icon-bindinator-logo-notext .path2:before {
   content: "\e90d";
-  margin-left: -1.3798828125em;
-  color: rgb(135, 206, 250);
+  margin-left: -0.9892578125em;
+  color: rgb(229, 229, 229);
 }
 .icon-bindinator-logo-notext .path3:before {
   content: "\e90e";
-  margin-left: -1.3798828125em;
-  color: rgb(220, 20, 60);
+  margin-left: -0.9892578125em;
+  color: rgb(56, 56, 56);
 }
 .icon-bindinator-logo-notext .path4:before {
   content: "\e90f";
-  margin-left: -1.3798828125em;
-  color: rgb(135, 206, 250);
+  margin-left: -0.9892578125em;
+  color: rgb(56, 56, 56);
 }
 .icon-bindinator-logo-notext .path5:before {
   content: "\e910";
-  margin-left: -1.3798828125em;
-  color: rgb(220, 20, 60);
+  margin-left: -0.9892578125em;
+  color: rgb(229, 229, 229);
+}
+.icon-bindinator-logo-notext .path6:before {
+  content: "\e900";
+  margin-left: -0.9892578125em;
+  color: rgb(229, 229, 229);
 }

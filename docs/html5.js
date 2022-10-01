@@ -1,3 +1,4 @@
+/**
 # HTML5 and b8r
 
 Every so often I discover that I've written a bunch of code that is no longer needed
@@ -111,14 +112,14 @@ using the javascript `showModal` method.
     Here's more info!
   </p>
   <label>
-    Info
+    <span>Info<span>
     <input>
   </label>
   <button data-event="click:_component_.ok">OK</button>
 </dialog>
 <button data-event="click:_component_.showModal">Show Modal</button>
-<script>
-  const dialog = findOne('open')
+<script> 
+  const dialog = findOne('dialog')
   set({
     showModal() {
       dialog.showModal()
@@ -189,3 +190,4 @@ does it really matter if a browser "supports" them (CSS will still work, etc.).
 || `&lt;section>` | a section of a document
 
 
+*/

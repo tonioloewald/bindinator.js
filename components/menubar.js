@@ -5,7 +5,7 @@ export default {
   css: `
   .menubar-component {
     height: 30px;
-    display: block;
+    display: flex;
     background-color: var(--input-bg-color);
     list-style: none;
     margin: 0;
@@ -49,6 +49,7 @@ export default {
     margin: 0;
     padding: 2px 10px;
     display: inline-flex;
+    align-items: center;
     height: 30px;
     line-height: 26px;
     white-space: nowrap;
@@ -151,6 +152,7 @@ export default {
         }
       },
       open (evt) {
+        component.style.zIndex = b8r.findHighestZ()
         const li = evt.target.closest('li')
         if (!li) {
           return

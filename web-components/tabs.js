@@ -84,7 +84,8 @@ export const TabSelector = makeWebComponent('b8r-tab-selector', {
     ':host': {
       display: 'flex',
       flexDirection: 'column',
-      position: 'relatve'
+      position: 'relatve',
+      overflow: 'hidden'
     },
     slot: {
       position: 'relative',

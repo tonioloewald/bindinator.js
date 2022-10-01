@@ -280,7 +280,6 @@ em {
 label {
   align-items: center;
   display: inline-flex;
-  padding: var(--spacing-size) 0;
 }
 
 label > * {

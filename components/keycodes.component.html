@@ -2,7 +2,9 @@
 # KeyboardEvent Code Tool
 This is a utility component to determine the keyboard event <b>code</b> of a given keystroke.
 You can use these codes in `b8r`'s key event handlers, e.g.
+
     <input data-event="keydown(shift-Enter):app.doSubmit">
+
 You can also use them with the [shortcut](?source=lib/shortcuts.js) library and the the
 menu component (which you can see in action in the
 [kitchen sink demo](?source=kitchen-sink.component.html))
@@ -20,11 +22,11 @@ Copyright ©2016-2022 Tonio Loewald
   </div>
 </div>
 <script>
-  /* global findOne, b8r, register */
+  /* global findOne, b8r, set */
   var keycodes = findOne('.keycodes')
   findOne('input').focus()
   b8r.hide(keycodes)
-  register({
+  set({
     showCode: evt => {
       var div = b8r.create('div')
       div.textContent = b8r.keystroke(evt)

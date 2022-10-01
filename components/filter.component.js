@@ -40,6 +40,6 @@ export default {
     </select>
     =
     <input>
-    <span class="tag">id=123<button class="icon-cross2 iconic"></button></span>
+    <span class="tag">id=123<button class="icon-cross iconic"></button></span>
   `
 }

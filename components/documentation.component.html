@@ -652,6 +652,7 @@
     },
     showNav () {
       clearTimeout(get().hideTimeout)
+      findOne('nav').style.zIndex = b8r.findHighestZ() + 1
       set({navActive: true})
     },
     hideTimeout: null,
