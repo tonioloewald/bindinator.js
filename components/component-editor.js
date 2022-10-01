@@ -68,7 +68,7 @@ export default {
         li('View', ul(
           li('Reload', { dataShortcut: 'ctrl-R', onMenuclick: '_component_.reload' }),
           li({ class: 'separator' }),
-          li('Toggle Views', { dataShortcut: 'alt-T', onMenuclick: '_component_.toggleCodeViews' }),
+          li('Toggle Views', { dataShortcut: 'ctrl-T', onMenuclick: '_component_.toggleCodeViews' }),
           li({ class: 'separator' }),
           li('Layout', { dataShortcut: 'ctrl-1', onMenuclick: '_component_.showTab', dataCommand: 0 }),
           li('Styles', { dataShortcut: 'ctrl-2', onMenuclick: '_component_.showTab', dataCommand: 1 }),
