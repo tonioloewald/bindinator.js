@@ -4374,6 +4374,10 @@ Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'getting id-path works')
 b8r.reg.proxyTest.ships["id=ncc-1031"].name = 'Clear Air Turbulence'
 Test(() => b8r.reg.proxyTest.ships["id=ncc-1031"].name, 'setting id-path works').shouldBe("Clear Air Turbulence")
 Test(() => b8r.get('proxyTest.ships[id=ncc-1031].name'), 'get agrees').shouldBe("Clear Air Turbulence")
+Test(() => b8r.reg['proxyTest.foo'], 'setting path works').shouldBe(Math.PI)
+Test(() => b8r.reg['proxyTest.ships[id=ncc-1031].name'], 'reg works like get').shouldBe("Clear Air Turbulence")
+b8r.reg['proxyTest.ships[id=ncc-1031]'].name = 'Rediscovered'
+Test(() => b8r.reg['proxyTest.ships[id=ncc-1031].name'], 'reg works like set').shouldBe("Rediscovered")
 let changes = 0
 b8r.observe('proxyTest.bar', () => changes++)
 b8r.reg.proxyTest.bar.baz = 'hello'
@@ -4382,8 +4386,8 @@ b8r.reg.proxyTest.bar = {baz: 'fred'}
 Test(() => b8r.get('proxyTest.bar.baz'), 'setting object works').shouldBe('fred')
 Test(() => changes, 'changes were detected').shouldBe(2)
 b8r.reg.proxyTest.ships.sort(b8r.makeAscendingSorter(ship => ship.name))
-Test(() => b8r.reg.proxyTest.ships[0].name, 'array sort works').shouldBe('Clear Air Turbulence')
-Test(() => b8r.reg.proxyTest.ships.slice(1)[0].name, 'slice works').shouldBe('Enterprise')
+Test(() => b8r.reg.proxyTest.ships[0].name, 'array sort works').shouldBe('Enterprise')
+Test(() => b8r.reg.proxyTest.ships.slice(1)[0].name, 'slice works').shouldBe('Rediscovered')
 b8r.reg.proxyTest.ships.splice(1, 0, {id: 17, name: 'Death Star'})
 Test(() => b8r.reg.proxyTest.ships[1].name, 'splice works').shouldBe('Death Star')
 b8r.reg.proxyTest.ships.push({id: 1, name: 'Galactica'}, {id: 2, name: 'No More Mr Nice Guy'})
@@ -5648,6 +5652,9 @@ const regHandler = (path = '') => ({
     }
     if (prop === '_b8r_value') {
       return target
+    }
+    if (prop.startsWith('[') && prop.endsWith(']')) {
+      prop = prop.substr(1, prop.length - 2);
     }
     if (
       Object.prototype.hasOwnProperty.call(target, prop) ||
