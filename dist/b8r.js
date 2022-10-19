@@ -249,7 +249,7 @@ const unique = () => {
 
 /**
 # Object Path Methods
-Copyright ©2016-2019 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 > Note that these are low-level methods that `b8r` does not expose.
 > `b8r.getByPath` and `b8r.setByPath` are deprecated (use `b8r.set` and `b8r.get` instead).
@@ -1165,7 +1165,7 @@ const elements = new Proxy({ _comp, _fragment }, {
 
 /**
 # DOM Methods
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
     find(selector);
 
@@ -4063,7 +4063,6 @@ const makeComponent = (name, source, url, preserveSource) => {
 
   if (!url) url = uuid();
 
-  // nothing <style> css </style> rest-of-component
   parts = source.split(/<style>|<\/style>/);
   if (parts.length === 3) {
     [, css, remains] = parts;
@@ -4071,7 +4070,6 @@ const makeComponent = (name, source, url, preserveSource) => {
     remains = source;
   }
 
-  // content <script> script </script> nothing
   parts = remains.split(/<script[^>\n]*>|<\/script>/);
   if (parts.length >= 3) {
     [content, script] = parts;
@@ -5633,7 +5631,7 @@ const extendPath = (path, prop) => {
 
 const regHandler = (path = '') => ({
   get (target, prop) {
-    const compoundProp = typeof prop === 'symbol'
+    const compoundProp = typeof prop !== 'symbol'
       ? prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
                         prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
                         prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
@@ -5753,7 +5751,7 @@ const render = (color) => {
 
 /**
 # images
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
     imgSrc(img, url, cors=true)
 
@@ -6707,7 +6705,7 @@ Date.prototype.format = function (mask, utc) {
 
 /**
 # toTargets
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 ## Binding data to the DOM
 
@@ -7533,7 +7531,7 @@ var _sort = /*#__PURE__*/Object.freeze({
 
 /**
 # fromTargets
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 ## Getting bound data from the DOM
 
@@ -8372,7 +8370,7 @@ var webComponents = /*#__PURE__*/Object.freeze({
 
 /**
 #bindinator
-Copyright ©2016-2017 Tonio Loewald
+Copyright ©2016-2022 Tonio Loewald
 
 Bindinator (b8r) binds data and methods to the DOM and lets you quickly turn chunks of
 markup, style, and code into reusable components so you can concentrate on your project.
@@ -9090,8 +9088,15 @@ b8r.insertComponent = async function (component, element, data) {
     }
   }
   b8r.bindAll(element);
+
+  if (instanceReadyPromises.get(element)) {
+    b8r.afterUpdate(() => {
+      instanceReadyPromises.get(element).resolve();
+    });
+  }
 };
 
+const instanceReadyPromises = new WeakMap();
 b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
@@ -9130,10 +9135,27 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       }
     },
     get (path = '.') {
-      return b8r.getByPath(this.componentId)
+      return b8r.getByPath(this.componentId, path)
     },
     set (...args) {
       b8r.setByPath(this.componentId, ...args);
+    },
+    async ready () {
+      if (this.componentId && this.data) {
+        return true
+      }
+      if (!instanceReadyPromises.get(this)) {
+        const obj = {};
+        const promise = new Promise((resolve) => {
+          obj.resolve = () => {
+            resolve();
+            instanceReadyPromises.delete(this);
+          };
+          instanceReadyPromises.set(this, obj);
+        });
+        obj.promise = promise;
+      }
+      return instanceReadyPromises.get(this).promise
     },
     empty () {
       this.textContent = '';

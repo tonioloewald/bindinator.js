@@ -6,7 +6,7 @@ because the functionality has been built into browsers. This is a *good thing* a
 it's great for `b8r` because it means it can do less work!
 
 This article was inspired by my "discovery" of the HTML5 `&lt;dialog>` element (widely
-supported since 2020, so possibly older than my 
+supported since 2020, so possibly older than my
 [dialog.js](?source=web-components/dialog.js) web-component).
 
 In general, built-in HTML elements are better than web-components are better than
@@ -17,7 +17,7 @@ on your target platform(s)!
 So, I thought I'd discuss these new elements and provide working examples of their
 interoperation wit `b8r` for my own edification and (hopefully) someone else's benefit.
 
-I found this fairly nice summary of the new elements at 
+I found this fairly nice summary of the new elements at
 [geeksforgeeks.org](https://www.geeksforgeeks.org/html5-new-tags/).
 
 ## Functional
@@ -45,7 +45,7 @@ The `<canvas>` element has been around a long time and provides extensive 2D and
 graphics capabilities. See [MDN Canvas API documentation](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API).
 
 If you want to work in 3D (or very fast 2D) you probably want to use one of the
-powerful WebGL libraries such as [babylonjs](https://www.babylonjs.com/) or 
+powerful WebGL libraries such as [babylonjs](https://www.babylonjs.com/) or
 [threejs](https://threejs.org/).
 
 ### `<datalist>` (autocomplete)
@@ -118,7 +118,7 @@ using the javascript `showModal` method.
   <button data-event="click:_component_.ok">OK</button>
 </dialog>
 <button data-event="click:_component_.showModal">Show Modal</button>
-<script> 
+<script>
   const dialog = findOne('dialog')
   set({
     showModal() {
@@ -162,7 +162,6 @@ MDN [docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress).
 A semantic wrapper element for a 24h time (e.g. `datetime="14:30"`), date (e.g. `datetime="2022-09-25"`),
 or duration (e.g. `datetime="PT2H30M"`).
 
-
 <time datetime="2022-09-25">September 25</time>
 
 ### `<wbr>`
@@ -171,8 +170,8 @@ Optional line-break.
 
 ## Semantic
 
-Most of the new elements are basically just there to show intention and have the 
-same functionality as a `&lt;div>` (or an element you just make up, like `&lt;foo>`). 
+Most of the new elements are basically just there to show intention and have the
+same functionality as a `&lt;div>` (or an element you just make up, like `&lt;foo>`).
 They should be used as appropriate to make styling easier and help screen-readers
 and search engines, but they do not require special technical consideration nor
 does it really matter if a browser "supports" them (CSS will still work, etc.).
@@ -188,6 +187,5 @@ does it really matter if a browser "supports" them (CSS will still work, etc.).
 || `&lt;output>`  | output of a computation
 || `&lt;ruby>`    | small text annotation (mainly used by Japanese publications)
 || `&lt;section>` | a section of a document
-
 
 */
