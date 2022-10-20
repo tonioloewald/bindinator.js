@@ -212,7 +212,6 @@ export default {
       },
       async reload () {
         const js = component.data.getSource()
-        console.log(js)
         const cid = `ce-${id()}`
         const vfsPath = `/${vfsRoot}/${cid}.js`
         await b8r.ajax(vfsPath, 'POST', js)

@@ -518,13 +518,13 @@ launches child windows that are synced to `kitchen-sink-demo`.
   ></video>
   <canvas></canvas>
   <blockquote>
-    <b>Note</b> that the video stuff is driven mainly by `timeupdate` events which are
+    <b>Note</b> that the video stuff is driven mainly by \`timeupdate\` events which are
     not fine-grained for security reasons. Also, while the playhead position will be
     synced across windows, the user interface may not update correctly.
   </blockquote>
 </div>
 <script>
-/* global b8r, register, console */
+/* global b8r, set, console */
   const {isParent, open} = await import('../lib/windows.js');
   b8r.component('menubar');
   b8r.component('toolbar');
@@ -567,9 +567,9 @@ launches child windows that are synced to `kitchen-sink-demo`.
       );
     };
     // we only want the parent to be able to spawn new child windows
-    register({video_snapshot, spawn_window});
+    set({video_snapshot, spawn_window});
     // create a fake dataset once for everyone to share
-    b8r.register('kitchen-sink-demo', {
+    b8r.reg['kitchen-sink-demo'] = {
       fuelrods: 17,
       single_selection: 'Another Option',
       input_field: 'edit this text',
@@ -605,11 +605,11 @@ launches child windows that are synced to `kitchen-sink-demo`.
         return true;
       },
       video_playhead: 0,
-    });
+    };
   } else {
-    register({video_snapshot});
-    if (! b8r.get('kitchen-sink-demo')) {
-      b8r.register('kitchen-sink-demo', {});
+    set({video_snapshot});
+    if (! b8r.reg['kitchen-sink-demo']) {
+      b8r.reg['kitchen-sink-demo'] = {};
     }
   }
 </script>
