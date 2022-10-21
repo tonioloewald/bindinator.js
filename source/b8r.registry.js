@@ -932,7 +932,7 @@ const checkType = (action, name) => {
     ? componentTypes[name.split('#')[1]]
     : registeredTypes[name]
   if (!referenceType || !registry[name]) return
-  const errors = matchType(referenceType, registry[name], [], name, true)
+  const errors = matchType(referenceType, registry[name], [], name)
   if (errors.length) {
     typeErrorHandlers.forEach(f => f(errors, action))
   }
