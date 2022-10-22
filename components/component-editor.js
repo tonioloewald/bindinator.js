@@ -176,6 +176,7 @@ export default {
 
             const funcs = ['component', 'b8r', 'find', 'findOne', 'data', 'register', 'get', 'set', 'on', 'touch'].filter(func => js.includes(func))
             js = js.replace(/'use strict';?\n|"use strict";?\n/g, '').trim('\n')
+            // TODO set up warnings, e.g. for register
             js = `export default {
   async load({${funcs.join(', ')}}) {
     ${js.split('\n').map(line => `      ${line}`).join('\n')}
