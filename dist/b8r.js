@@ -528,11 +528,7 @@ function byKey (obj, key, valueToInsert) {
 function byIdPath (array, idPath, idValue, valueToInsert) {
   let idx = idPath ? keyToIndex(array, idPath, idValue) : idValue;
   if (valueToInsert === _delete_) {
-    if (!idPath) {
-      delete array[idx];
-    } else {
-      array.splice(idx, 1);
-    }
+    array.splice(idx, 1);
     return null
   } else if (valueToInsert === _newObject_) {
     if (!idPath && !array[idx]) {
