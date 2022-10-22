@@ -200,7 +200,6 @@
     padding: 3px 8px 3px 8px;
     margin: -1px -12px -1px 5px;
     cursor: pointer;
-    transition: background-color ease-out 0.25s;
   }
 
   .loadable:hover {
@@ -311,6 +310,11 @@
     background: var(--black-5);
     padding: 5px 10px;
     border-radius: 99px;
+    flex: 0 0 205px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
   }
   
   ._component_ .errors.errors.errors {
@@ -409,8 +413,9 @@
   </div>
   <button
       title="toggle bookmarks"
-      data-bind="enabled_if,show_if=_component_.pageLinks.length"
+      data-bind="enabled_if=_component_.pageLinks.length"
       data-event="click:_component_.toggleBookmarks"
+      style="flex: 0 0 34px"
   >
     <span 
       class="icon-bookmark"

@@ -50,8 +50,8 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
     disabled: false
   },
   props: {
-    value(source) {
-      if(source) {
+    value (source) {
+      if (source) {
         if (this._syncEditor) {
           this._syncEditor.setValue(source || '', 1)
         } else {
@@ -85,7 +85,7 @@ export const codeEditor = makeWebComponent('b8r-code-editor', {
         this._editor = makeCodeEditor(this, this.mode, options)
         this._editor.then(editor => {
           this._syncEditor = editor
-          if(this._value) {
+          if (this._value) {
             this._syncEditor.setValue(this._value, 1)
             delete this._value
           }

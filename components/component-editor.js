@@ -101,41 +101,41 @@ export default {
       )
     ]
   },
-  async initialValue ({component, findOne, find, set}) {
+  async initialValue ({ b8r, component, findOne, find, set }) {
     await import('../vfs.js')
     await Promise.all(find('b0r-code-editor').map(editor => editor.ready))
-    const {id} = await import('../source/uuid.js')
+    const { id } = await import('../source/uuid.js')
     const vfsRoot = window.location.hostname === 'tonioloewald.github.io' ? 'bindinator.js/vfs' : 'vfs'
     const view = findOne('.view')
     const tabSelector = findOne('b8r-tab-selector')
 
     return {
-      docs: `# Untitled`,
+      docs: '# Untitled',
       css: `._component_ { color: var(--accent-color); }
 `,
-      html: `<div>hello <span data-bind="text=_component_.who"></span></div>`,
+      html: '<div>hello <span data-bind="text=_component_.who"></span></div>',
       js: `export default {
   async initialValue({component}) { return { who: 'world' } },
 
   async load({component}) {}
 }
 `,
-      state: `{}`,
-      about() {
+      state: '{}',
+      about () {
         window.alert('Rapid app development like it’s the 90s!')
         return true
       },
-      showTab(evt) {
+      showTab (evt) {
         tabSelector.value = evt.target.dataset.command
         return true
       },
-      showState() {
-        if(tabSelector.value === 4) {
+      showState () {
+        if (tabSelector.value === 4) {
 
         }
       },
-      toggleCodeViews() {
-        if(tabSelector.style.display === 'none') {
+      toggleCodeViews () {
+        if (tabSelector.style.display === 'none') {
           tabSelector.style.display = ''
           view.style.display = 'none'
         } else if (view.style.display === 'none') {
@@ -145,18 +145,18 @@ export default {
         }
         return true
       },
-      focusSearch() {
+      focusSearch () {
         findOne('.menu-search').focus()
       },
-      loadSource(source, type="auto") {
-        if(type === 'auto') {
+      loadSource (source, type = 'auto') {
+        if (type === 'auto') {
           type = source.match(/^\s*</) ? 'html' : 'js'
         }
-        if(type === 'js') {
+        if (type === 'js') {
 
         } else {
           // adapted from b8r.makeComponent but actually more robust!
-          let parts, remains, docs = 'untitled', css = `/* no styles found */`, html = '', js = 'export default {}'
+          let parts; let remains; let docs = 'untitled'; let css = '/* no styles found */'; let html = ''; let js = 'export default {}'
 
           parts = source.split(/-->/)
           if (parts.length === 2) {
@@ -164,7 +164,7 @@ export default {
           }
           docs = docs.split(/<!--/)[1]
 
-          parts = remains.split(/<style>|<\/style>/)
+          parts = remains.split(/<style>|<\/style>/).map(s => s.replace(/^\n+|\n+$/, ''))
           if (parts.length === 3) {
             [, css, remains] = parts
           }
@@ -189,7 +189,7 @@ export default {
           // extract docs
           if (docs) {
             docs = docs.replace(/<!--/, '')
-            docs = docs.replace(/-->/, '') 
+            docs = docs.replace(/-->/, '')
             docs = docs.trim('\n')
           } else {
             docs = '# untitled'
@@ -198,22 +198,21 @@ export default {
           // rewrite inline template variables to be safer
           html = html.replace(/\$\{([^}]+)\}/g, '{{$1}}')
 
-          set({docs, css, html, js})
-          console.log('setting', {docs, css, html, js})
+          set({ docs, css, html, js })
+          console.log('setting', { docs, css, html, js })
           component.data.reload()
         }
       },
-      getSource() {
-        let {docs, css, html, js} = component.data
-        js = `/\**\n${docs}\n*/\n\n` + js.replace(/\bexport default {/, 
+      getSource () {
+        let { docs, css, html, js } = component.data
+        js = `/**\n${docs}\n*/\n\n` + js.replace(/\bexport default {/,
 `export default {
   css: \`${css}\`,\n
   html: \`${html}\`,\n`)
         return js
       },
-      async reload() {
+      async reload () {
         const js = component.data.getSource()
-        console.log(js)
         const cid = `ce-${id()}`
         const vfsPath = `/${vfsRoot}/${cid}.js`
         await b8r.ajax(vfsPath, 'POST', js)

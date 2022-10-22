@@ -817,7 +817,7 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
     },
     data () {
       return b8r.reg[this.dataset.componentId]
-    },
+    }
   },
   methods: {
     connectedCallback () {

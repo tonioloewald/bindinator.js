@@ -627,7 +627,7 @@ const matchKeys = (example, subject, errors = [], path = '') => {
 /**
 ## Object Keys
 
-**Important Note**: ey properties are evaluated in the order they
+**Important Note**: key properties are evaluated in the order they
 appear in the object. This is very important for regex keys.
 
 It's frequently necessary to declare objects which might have any

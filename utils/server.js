@@ -151,7 +151,8 @@ const handleStaticRequest = (req, res) => {
         res.end(data.slice(start, end))
       } else {
         res.writeHead(200, {
-          'Content-Type': mimeType
+          'Content-Type': mimeType,
+          'Cache-Control': 'public, max-age=15000000'
         })
         res.end(data)
       }

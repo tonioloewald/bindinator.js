@@ -113,7 +113,7 @@ export const SelectOption = makeWebComponent('b8r-option', {
       this.tabIndex = 0
     }
   },
-  role: 'select'
+  role: 'menuitemradio'
 })
 
 export const SelectBar = makeWebComponent('b8r-select-bar', {
@@ -145,7 +145,7 @@ export const SelectBar = makeWebComponent('b8r-select-bar', {
       })
     }
   },
-  role: 'select'
+  role: 'menu'
 })
 
 export const SelectPop = makeWebComponent('b8r-select', {
@@ -239,7 +239,9 @@ export const SelectPop = makeWebComponent('b8r-select', {
       const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION')
       options.forEach((option, idx) => {
         option.selected = `${option.value}` === `${this.value}`
-        if (option.selected) selection.appendChild(option.cloneNode(true))
+        if (option.selected) {
+          selection.appendChild(option.cloneNode(true))
+        }
       })
 
       if (this.open) {
@@ -271,5 +273,5 @@ export const SelectPop = makeWebComponent('b8r-select', {
     div({ classes: ['outer'] }),
     div({ classes: ['menu'], content: slot() })
   ),
-  role: 'select'
+  role: 'menu'
 })
