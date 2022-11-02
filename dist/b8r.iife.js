@@ -8103,7 +8103,7 @@ var b8r = (function () {
   };
 
   /* global ResizeObserver */
-  const observer = new ResizeObserver(entries => {
+  const resizeObserver = new ResizeObserver(entries => {
     for (const entry of entries) {
       const element = entry.target;
       dispatch$1(element, 'resize');
@@ -8172,8 +8172,6 @@ var b8r = (function () {
     if (style) {
       style = Object.assign({ ':host([hidden])': { display: 'none !important' } }, style);
       styleNode = makeElement('style', { content: _css(style) });
-    } else if (style) {
-      console.debug('b8r-error', `style for a web-component ${tagName} with now shadowRoot is not supported`);
     }
     if (methods.render) {
       methods = Object.assign({
@@ -8196,9 +8194,20 @@ var b8r = (function () {
       constructor () {
         super();
         for (const prop of Object.keys(props)) {
-          const value = props[prop]; // local copy that won't change
+          let value = props[prop];
           if (typeof value !== 'function') {
-            this[prop] = value;
+            Object.definProperty(this, prop, {
+              enumerable: false,
+              get () {
+                return value
+              },
+              set (x) {
+                if (value !== x) {
+                  value = x;
+                  this.queueRender(true);
+                }
+              }
+            });
           } else {
             Object.defineProperty(this, prop, {
               enumerable: false,
@@ -8249,13 +8258,11 @@ var b8r = (function () {
         if (attributeNames.length) {
           const attributeValues = {};
           const observer = new MutationObserver((mutationsList) => {
-            let triggerChange = false;
             let triggerRender = false;
             mutationsList.forEach((mutation) => {
-              triggerChange = mutation.attributeChange === 'value';
-              triggerRender = triggerRender || triggerChange || attributeNames.includes(mutation.attributeName);
+              triggerRender = mutation.attributeName && attributeNames.includes(mutation.attributeName);
             });
-            if (triggerRender && this.queueRender) this.queueRender(triggerChange);
+            if (triggerRender && this.queueRender) this.queueRender(false);
           });
           observer.observe(this, { attributes: true });
           attributeNames.forEach(attributeName => {
@@ -8313,13 +8320,13 @@ var b8r = (function () {
         // super annoyingly, chrome loses its shit if you set *any* attributes in the constructor
         if (role) this.setAttribute('role', role);
         if (eventHandlers.resize) {
-          observer.observe(this);
+          resizeObserver.observe(this);
         }
         if (methods.connectedCallback) methods.connectedCallback.call(this);
       }
 
       disconnectedCallback () {
-        observer.unobserve(this);
+        resizeObserver.unobserve(this);
       }
 
       static defaultAttributes () {
