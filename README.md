@@ -11,13 +11,11 @@
 [b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
 [npm](https://www.npmjs.com/package/b8rjs) |
-[jsdeliver] (https://www.jsdelivr.com/package/npm/@tonioloewald/b8r?path=dist) |
+[cdn] (https://www.jsdelivr.com/package/npm/@tonioloewald/b8r?path=dist) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
-> **Note** I'm moving the **npm** package from 
-> [@tonioloewald/b8r](https://www.npmjs.com/package/@tonioloewald/b8r) 
-> to [b8rjs](https://www.npmjs.com/package/b8rjs). I'll update the other links as
-> well, and there will be a period of overlap before I deprecate the old package.
+> **Note** `b8r` is now published to npm as [b8rjs](https://www.npmjs.com/package/b8rjs).
+> I'll update the cdn link when I've confirmed it has updated.
 
 Bindinator (`b8r`) is a fairly small (24kB compressed) "front-end" javascript library with *no transitive dependencies* 
 that implements the model-view-controller (MVC) design pattern along with state-management 
