@@ -79,7 +79,8 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
     input: {
       border: 0,
       background: 'transparent',
-      padding: 'var(--input-padding-edges)'
+      padding: 'var(--input-padding-edges)',
+      color: 'var(--text-color)'
     }
   },
   eventHandlers: {
