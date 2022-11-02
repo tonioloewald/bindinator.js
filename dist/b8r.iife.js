@@ -4736,6 +4736,9 @@ var b8r = (function () {
   const listeners = []; // { path_string_or_test, callback }
   const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/;
 
+  // list of Array functions that change the array
+  const ARRAY_MUTATIONS = ['sort', 'splice', 'copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'unshift'];
+
   const isValidPath = path => validPath.test(path);
 
   class Listener {
@@ -5649,11 +5652,7 @@ var b8r = (function () {
         } else {
           value = target[prop];
         }
-        if (
-          value &&
-          typeof value === 'object' &&
-          (value.constructor === Object || value.constructor === Array)
-        ) {
+        if (value && typeof value === 'object') {
           const currentPath = extendPath(path, prop);
           const proxy = new Proxy(value, regHandler(currentPath));
           return proxy
@@ -5666,12 +5665,14 @@ var b8r = (function () {
         return typeof target[prop] === 'function'
           ? (...items) => {
             const result = Array.prototype[prop].apply(target, items);
-            touch(path);
+            if (ARRAY_MUTATIONS.includes(prop)) {
+              touch(path);
+            }
             return result
           }
           : target[prop]
       } else {
-        return undefined
+        return target ? target[prop] : undefined
       }
     },
     set (target, prop, value) {

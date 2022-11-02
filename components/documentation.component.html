@@ -200,15 +200,19 @@
     padding: 3px 8px 3px 8px;
     margin: -1px -12px -1px 5px;
     cursor: pointer;
+    display: block;
+    border: 0;
   }
 
   .loadable:hover {
     background-color: var(--white-25);
+    border: 0;
   }
 
   .loadable:focus,
   summary:focus {
     background-color: var(--white-25);
+    border: 0;
   }
 
   .loadable.current {
@@ -440,15 +444,15 @@
     data-event="click:_component_.toggle"
   >
     <summary data-bind="text=.title;class(hasErrors)=.hasErrors" tabindex="0">Title</summary>
-    <div
+    <a
       class="loadable"
       data-list=".parts"
-      data-bind="text=.name;data(ref)=.path;hide_if=._hide;class(current)=._current;class(hasErrors)=.hasErrors"
+      data-bind="text=.name;attr(href)=?source={{.path}};hide_if=._hide;class(current)=._current;class(hasErrors)=.hasErrors"
       data-event="click,keydown(Space):documentation-controller.showDocs"
       tabindex="0"
     >
       File Name
-    </div>
+    </a>
   </details>
 </nav>
 <b8r-float
@@ -504,8 +508,7 @@
         update()
       }
       set({navActive: false, bookmarksActive: false, pageLinks: []})
-    },
-    alertKeystroke: evt => alert(b8r.keystroke(evt)),
+    }
   });
   // in the background, we're going to run every test block in every library
   const AsyncFunction = (async () => {}).constructor
@@ -651,6 +654,7 @@
       const {title} = b8r.getListInstance(details);
       get('docs').forEach(doc => doc._open = doc.title === title ? !doc._open : false)
       touch('docs')
+      return true
     },
     scrollNavToTop (evt, target) {
       if (evt.target === target) findOne('.in-page-nav h5').scrollIntoView()
