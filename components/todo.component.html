@@ -20,6 +20,14 @@ Unlike the simple todo example, this component stores its data internally
     border: 1px solid rgba(128,128,128,0.25);
     border-width: 0 0 1px 0;
   }
+
+  ._component_ select {
+    width: 100px;
+  }
+
+  ._component_ .todo-item+.todo-item {
+    margin-top: 5px;
+  }
 </style>
 <div style="display: flex; align-items: flex-end; margin-bottom: 5px;">
   <h3 style="flex: 1 1 auto; margin: 0">To Do List</h3>
@@ -36,7 +44,7 @@ Unlike the simple todo example, this component stores its data internally
     title="redo"
   ></button>
 </div>
-<div data-list="_component_.sort(_component_.todolist):id" data-event="change:_component_.forceSort">
+<div class="todo-item" data-list="_component_.sort(_component_.todolist):id" data-event="change:_component_.forceSort">
   <input title="done" type="checkbox" data-bind="checked=.done">
   <input data-bind="value=.text">
   <select data-type="number" data-bind="value=.priority">
@@ -52,7 +60,7 @@ Unlike the simple todo example, this component stores its data internally
 <hr>
 <h4>Create Reminder</h4>
 <label>
-  Priority
+  <span>Priority</span>
   <select data-type="number" data-bind="value=_component_.composer.priority">
     <option value="1">Important!</option>
     <option value="2">Normal</option>
