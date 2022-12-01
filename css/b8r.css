@@ -25,10 +25,10 @@
   --shadow-active-outline: 0 0 0 1px var(--back-40);
 
   --bg-color: aliceblue;
-  --content-bg-color: #ddd;
+  --content-bg-color: #f8f8f8;
   --faded-bg-color: #ccc;
   --example-bg-color: rgb(229, 229, 241);
-  --input-bg-color: #eee;
+  --input-bg-color: #fcfcfc;
   --text-color: #333;
   --tooltip-bg-color: #ff8;
   --dark-text-color: #eee;

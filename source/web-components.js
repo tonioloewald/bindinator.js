@@ -431,7 +431,7 @@ const makeWebComponent = (tagName, {
       for (const prop of Object.keys(props)) {
         let value = props[prop]
         if (typeof value !== 'function') {
-          Object.definProperty(this, prop, {
+          Object.defineProperty(this, prop, {
             enumerable: false,
             get () {
               return value

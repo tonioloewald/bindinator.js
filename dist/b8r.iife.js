@@ -4339,12 +4339,19 @@ var b8r = (function () {
     foo: 17,
     bar: {baz: 'world'},
     ships: [
-        {id: 'ncc-1701', name: 'Enterprise'},
-        {id: 'ncc-1031', name: 'Discovery'},
-        {id: 'ncc-74656', name: 'Voyager'},
+      {id: 'ncc-1701', name: 'Enterprise'},
+      {id: 'ncc-1031', name: 'Discovery'},
+      {id: 'ncc-74656', name: 'Voyager'},
     ]
   }
 
+  Test(() => {
+    let count = 0
+    for(const ship of b8r.reg.proxyTest.ships) {
+      count++
+    }
+    return count
+  }, 'Symbol.iterator should work').shouldBe(3)
   Test(() => b8r.get('proxyTest.foo'), 'registration works').shouldBe(17)
   b8r.reg.proxyTest.foo = Math.PI
   Test(() => b8r.get('proxyTest.foo'), 'setting path works').shouldBe(Math.PI)
@@ -5616,12 +5623,13 @@ var b8r = (function () {
 
   const regHandler = (path = '') => ({
     get (target, prop) {
-      const compoundProp = typeof prop !== 'symbol'
-        ? prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
-                          prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
-                          prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
-                          prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
-        : false;
+      if (typeof prop === 'symbol') {
+        return target[prop]
+      }
+      const compoundProp = prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
+                           prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
+                           prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
+                           prop.match(/^(\[[^\]]+\])\[(.+)$/); // [basePath][subPath
       if (compoundProp) {
         const [, basePath, subPath] = compoundProp;
         const currentPath = extendPath(path, basePath);
@@ -5642,9 +5650,7 @@ var b8r = (function () {
         (Array.isArray(target) && typeof prop === 'string' && prop.includes('='))
       ) {
         let value;
-        if (typeof prop === 'symbol') {
-          value = target[prop];
-        } if (prop.includes('=')) {
+        if (prop.includes('=')) {
           const [idPath, needle] = prop.split('=');
           value = target.find(
             candidate => `${getByPath(candidate, idPath)}` === needle
@@ -5653,6 +5659,9 @@ var b8r = (function () {
           value = target[prop];
         }
         if (value && typeof value === 'object') {
+          if (value.constructor !== Object && value.constructor !== Array) {
+            return value
+          }
           const currentPath = extendPath(path, prop);
           const proxy = new Proxy(value, regHandler(currentPath));
           return proxy
@@ -8196,7 +8205,7 @@ var b8r = (function () {
         for (const prop of Object.keys(props)) {
           let value = props[prop];
           if (typeof value !== 'function') {
-            Object.definProperty(this, prop, {
+            Object.defineProperty(this, prop, {
               enumerable: false,
               get () {
                 return value
