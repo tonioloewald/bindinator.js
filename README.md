@@ -11,24 +11,39 @@
 [b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
 [npm](https://www.npmjs.com/package/b8rjs) |
-[cdn] (https://www.jsdelivr.com/package/npm/@tonioloewald/b8r?path=dist) |
+[cdn] (https://www.jsdelivr.com/package/npm/b8rjs) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
 > **Note** `b8r` is now published to npm as [b8rjs](https://www.npmjs.com/package/b8rjs).
-> I'll update the cdn link when I've confirmed it has updated.
+> You may want to update your dependencies accordingly.
 
-Bindinator (`b8r`) is a fairly small (24kB compressed) "front-end" javascript library with *no transitive dependencies* 
-that implements the model-view-controller (MVC) design pattern along with state-management 
-("reactive programming") and separation of concerns.
+Bindinator (`b8r`) is a fairly small (~22kB gzipped) "front-end" javascript library
+with *no transitive dependencies*  that implements the model-view-controller (MVC) design pattern
+along with [state-management](/?source=source/b8r.registry.js) ("reactive programming") 
+and separation of concerns.
 
 || Model || View || Controller
 | objects (and maybe code) | HTML + CSS | code
 | `{text: 'hello world'}` | `&lt;input data-bind="value=model.text">` | `{ clear(){ b8r.reg.model.text = ''} }`
 
+`b8r` supports both [custom elements](/?source=source/web-components.js) as well
+as its own lightweight reusable, composable [components](?source=docs/components.md).
+
+`b8r` plays nicely both with bundled code and code delivered via cdn. It allows you to
+load `iife`-style libraries (traditionally loaded via `<script>` tags) as promises.
+
+Why "bindinator"?
+
 It's **bind** because `b8r` lets you use HTML **data-attributes** to
 bind data from the model and event-handlers from the controller code with the views.
 
 And it's **inator** because once you *register* an object, bindings are managed automatically and efficiently.
+
+In a nutshell, it does what [React](https://reactjs.org), [Redux](https://redux.js.org/), 
+[LitElement](), and a whole passel of other libraries do, plays nicely with others, doesn't expose you to 
+hundreds of transitive dependencies do or require a specific set of tools to build (import it via `<script>` tag and write 
+your app in Notepad) or debug (it leverages the Web Inspector rather than require its own custom debugger).
+It's deeply asynchronous. It's stupidly [fast and lean](/test/benchmark-data-table.html), and it's just JavaScript.
 
 <b8r-component path="components/fiddle" data-source="components/minimal-mvc"></b8r-component>
 

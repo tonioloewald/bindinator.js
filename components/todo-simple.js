@@ -1,3 +1,15 @@
+/**
+# To Do (simple)
+
+This is a minimalist "to do" example specifically designed for comparison to the [ReactJS](https://reactjs.org)
+example. In particular it uses fewer lines of code, doesn't require transpilation, and updates the DOM more
+efficiently (try turning on paint-flashing).
+
+It's discussed more fully in [React vs. b8r](/?source=docs/react.md).
+
+<b8r-component style="padding: 20px; display: block;" path="../components/todo-simple.js"></b8r-component>
+*/
+
 export default {
   view: ({ h3, ol, li, input, button }) => [
     h3('To Do List'),

@@ -15,7 +15,13 @@
     "front end",
     "html",
     "mvc",
-    "framework"
+    "framework",
+    "state management",
+    "components",
+    "web-components",
+    "custom-elements",
+    "reactive",
+    "async"
   ],
   "files": [
     "index.js",
@@ -69,6 +75,8 @@
   },
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
+  "dependencies": {
+  },
   "devDependencies": {
     "@linthtml/linthtml": "^0.4.2",
     "pixelmatch": "^5.2.1",
