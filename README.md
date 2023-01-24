@@ -1,7 +1,7 @@
 <h1 style="text-align: center" title="bindinator">
   <img
     alt="bindinator logo"
-    style="width: 256px; height: 256px; border-radius: 48px;"
+    style="width: 256px; height: 256px; border-radius: 48px; margin-top: 32px"
     src="https://b8rjs.com/images/bindinator-logo.svg"
   >
 </h1>
@@ -32,7 +32,7 @@ as its own lightweight reusable, composable [components](?source=docs/components
 `b8r` plays nicely both with bundled code and code delivered via cdn. It allows you to
 load `iife`-style libraries (traditionally loaded via `<script>` tags) as promises.
 
-Why "bindinator"?
+### Why "bindinator"?
 
 It's **bind** because `b8r` lets you use HTML **data-attributes** to
 bind data from the model and event-handlers from the controller code with the views.
@@ -60,6 +60,27 @@ controller works.
 >
 > Oh, and don't worry, the documentation site intentionally exposes `b8r` as a global otherwise you wouldn't
 > be able to do this. Normally `b8r` is hidden in a *closure* in production.
+
+### Library or Framework?
+
+What makes `b8r` a "library" and not a "framework" and why is this a good thing?
+
+In my opinion, a "framework" is a "platform" you build code on. It's not quite a "virtual machine" but it
+insulates you from the underlying platform (in this case the web browser, HTML, CSS, etc.) and tends to filter
+all that functionality through itself.
+
+A "library" on the other hand simply gives you a set of capabilities you can use or not. It doesn't prevent
+you from doing anything you would do if it weren't there, it just makes some things possible or radically easier.
+
+`b8r` is a library. It works alongside other libraries without requiring them to be "wrapped".
+
+Why is this a "good thing"? Typically, when the platform advances, you need to wait for frameworks to catch up.
+Similarly, you it's often hard to use a nice library until it's been "wrapped" with your framework. Finally,
+knowledge you have about the underlying platform or library is somewhat obsolete, because it's the wrapper API
+that matters and, conversely, any new knowledge you acquire isn't generally applicable outside the framework.
+
+You see this all the time in the case of React developers who don't know the workings of CSS or HTML because
+they've operated in a world where these are filtered by React and its associated technologies.
 
 ## b8r's Principle of Laziness
 
