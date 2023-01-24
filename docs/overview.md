@@ -83,9 +83,9 @@ which are local to the component.
 ```
 export default = {
   ...
-  load({component, get, set}) {
-    set('foo', 17) // equivalent of b8r.set(component.dataset.componentId + '.foo', 17)
-    get('foo')     // 17
+  load({get, set}) {
+    set('foo', 17)   // equivalent of b8r.set('<component-id>.foo', 17)
+    get('foo')       // 17
   }
 }
 ```
@@ -180,21 +180,17 @@ Arrays are bound to the DOM by:
 
 The general form is `data-list="path.to.array"` or, optionally `data-list="path.to.array:path.to.id"` (usually, the id-path is pretty simple, e.g. `id`). Using id-paths allows for more efficient list updates.
 
-```
-export default = {
-  view({ul, li}) {
-    // produces <ul><li data-list="root.list" data-bind="text=.name"></li></ul>
-    return ul(li({bindList: 'root.list', bindText: '.name'}))
-  },
-  initialValue({b8r}) {
-    if (!b8r.reg.root) {
-      b8r.reg.root = {
-        list: [{name: 'Juanita'}, {name: 'Mahatma'}]
-      }
-    }
-  }
+<b8r-component name="fiddle">
+example.append(
+  b8r.elements.div({
+    bindList: 'list-example.array', 
+    bindText: '.name'
+  })
+)
+b8r.reg['list-example'] = {
+  array: [{name: 'Reginald'}, {name: 'Roger'}, {name: 'Brian'}]
 }
-```
+</b8r-component>
 
 Within the list template, you can use **relative paths** (e.g. `.name`) which reference paths within the list element.
 
@@ -217,8 +213,8 @@ b8r.register('simple-list-example', {
 
 [b8r components](/?source=docs/components.md) are self-contained reusable, composable views. 
 
-A component should be defined in a single javascript file and exported
-as an object:
+Typically, a component is defined in a single javascript file and exported
+as an object: 
 
 ```
 /**
