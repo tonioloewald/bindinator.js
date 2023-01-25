@@ -228,8 +228,8 @@ const updateMonth = () => {
   const date = new Date(get('value'))
   const month = parseInt(get('month'), 10);
   const year = get('year');
-  const day = Math.min(date.getUTCDate(), daysInMonth(month, year))
-  date.setUTCFullYear(year, month + 1, day)
+  const day = Math.min(date.getUTCDate(), daysInMonth(month + 1, year))
+  date.setUTCFullYear(year, month, day)
   update(date)
 }
 const select = evt => {
