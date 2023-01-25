@@ -1,7 +1,5 @@
 /**
 # fromTargets
-Copyright ©2016-2022 Tonio Loewald
-
 ## Getting bound data from the DOM
 
 The following binding *targets* will automatically copy data from the DOM to bound objects

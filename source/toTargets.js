@@ -1,7 +1,5 @@
 /**
 # toTargets
-Copyright ©2016-2022 Tonio Loewald
-
 ## Binding data to the DOM
 
 The following targets (attributes of a DOM element) can be bound to object data:

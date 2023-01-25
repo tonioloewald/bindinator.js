@@ -84,11 +84,11 @@
         "path": "source/registry.js"
       },
       {
-        "name": "data-bind to elements",
+        "name": "data: syncing to the DOM",
         "path": "source/toTargets.js"
       },
       {
-        "name": "data-bind from elements",
+        "name": "data: updating from the DOM",
         "path": "source/fromTargets.js"
       },
       {
