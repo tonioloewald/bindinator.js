@@ -125,7 +125,7 @@
       },
       {
         "name": "event handlers (built-in)",
-        "path": "source/_b8r_.js"
+        "path": "source/builtin-event-handlers.js"
       },
       {
         "name": "events — priority access",

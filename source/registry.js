@@ -483,7 +483,7 @@ import { getByPath, setByPath, deleteByPath } from './byPath.js'
 import { getDataPath, getComponentId, splitPaths } from './bindings.js'
 import { matchType } from './byExample.js'
 import { componentTypes } from './component.js'
-import { _b8r_ } from './_b8r_.js'
+import { _b8r_ } from './builtin-event-handlers.js'
 import { observerShouldBeRemoved } from './constants.js'
 
 const registry = { _b8r_ }

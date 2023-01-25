@@ -235,7 +235,7 @@ var b8r = (function () {
 
   > Note that these are low-level methods that `b8r` does not expose.
   > `b8r.getByPath` and `b8r.setByPath` are deprecated (use `b8r.set` and `b8r.get` instead).
-  > See the [Data Registry](?source=source/b8r.registry.js) documentation for more useful information.
+  > See the [Data Registry](?source=source/registry.js) documentation for more useful information.
 
       getByPath(obj, 'path.to.value')
 
@@ -328,7 +328,7 @@ var b8r = (function () {
   ~~~~
   // title: getByPath, setByPath, and pathParts tests
 
-  const {getByPath, setByPath, pathParts} = await import('../source/b8r.byPath.js');
+  const {getByPath, setByPath, pathParts} = await import('../source/byPath.js');
   const obj = {
     foo: 17,
     bar: {baz: 'hello'},
@@ -945,7 +945,8 @@ var b8r = (function () {
 
   ## Conveniences &amp; Syntax Sugar
 
-  `elements._comp()` creates a `<b8r-component>` element, e.g.:
+  `elements._comp()` creates a `<b8r-component>` element (you can also just type
+  `elements.b8rComponent()` of course), e.g.:
 
       elements._comp({path: '../components/foo.js'})
 
@@ -956,7 +957,7 @@ var b8r = (function () {
   `elements._fragment()` creates a `DocumentFragment`.
 
   Attributes beginning with `bind` will be converted into `data-bind` attributes (i.e. data-bindings),
-  while those beginning with `on` will be converted into data-event attributes (i.e. event bindings), e.g.
+  while those beginning with `on` will be converted into `data-event` attributes (i.e. event bindings), e.g.
 
       elements.button(
         'Click Me!',
@@ -1580,7 +1581,7 @@ var b8r = (function () {
   # Async Update Queue
 
   `b8r` queues DOM updates and then performs them at the next animation frame. Generally,
-  you don't need to worry about how this works. Just use [registry](?source=source/b8r.register.js)
+  you don't need to worry about how this works. Just use [registry](?source=source/register.js)
   methods such as `b8r.set` (and `set` inside components) to change bound values and
   everything *should just work*.
 
@@ -1722,7 +1723,7 @@ var b8r = (function () {
   # Data Bindings
 
   Data binding is implemented via the `data-bind` and `data-list` attributes. Bindings tie
-  [registered data](?source=source/b8r.registry.js) to and from view (DOM) elements.
+  [registered data](?source=source/registry.js) to and from view (DOM) elements.
 
   ```
   <h3 data-bind="text=binding-example.text"></h3>
@@ -2066,7 +2067,7 @@ var b8r = (function () {
   ~~~~
   // title: splitpaths tests
 
-  const {splitPaths, getBindings, parseBinding} = await import('../source/b8r.bindings.js');
+  const {splitPaths, getBindings, parseBinding} = await import('../source/bindings.js');
 
   Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
   Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);
@@ -2232,7 +2233,7 @@ var b8r = (function () {
   ## Work in Progress
 
   Ultimately, this module is intended to afford both static analysis of `b8r` code and components and efficient
-  run-time checking of application state -- see [The Registry](?source=source/b8r.registry.js)
+  run-time checking of application state -- see [The Registry](?source=source/registry.js)
   documentation for more information.
 
   As a side-benefit, it is also capable of driving mock-data and optimistic rendering.
@@ -2410,7 +2411,7 @@ var b8r = (function () {
     matchType,
     describe,
     exampleAtPath,
-  } = await import('./b8r.byExample.js');
+  } = await import('./byExample.js');
 
   Test(() => matchType(0, 17)).shouldBeJSON([])
   Test(() => matchType(0, 'hello')).shouldBeJSON(['was \"hello\", expected number'])
@@ -2920,7 +2921,7 @@ var b8r = (function () {
   // title: Object Key Tests
   const {
     matchType,
-  } = await import('./b8r.byExample.js');
+  } = await import('./byExample.js');
 
   Test(() => matchType({
     '#is[A-Z]\\w*': true
@@ -3023,7 +3024,7 @@ var b8r = (function () {
     matchParamTypes,
     typeSafe,
     TypeError,
-  } = await import('./b8r.byExample.js');
+  } = await import('./byExample.js');
 
   Test(() => matchParamTypes([1,2,3], [1,2,3])).shouldBeJSON([])
   Test(() => matchParamTypes([1,'a',{}], [0,'b',{}])).shouldBeJSON([])
@@ -3524,7 +3525,7 @@ var b8r = (function () {
 
   ~~~~
   // title: throttle, debounce, and throttleAndDebounce tests
-  const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
+  const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/functions.js')
 
   await delay(1000)
 
@@ -3716,23 +3717,25 @@ var b8r = (function () {
 
       b8r.component([name,] url)
 
-  Load component at `path/to/foo.component.html` and name it 'foo':
-
-      b8r.component('path/to/foo')
-      // or
-      b8r.component('path/to/foo.component.html')
-
-  Load component at `path/to/foo.component.html` and name it 'bar':
-
-      b8r.component('bar', 'path/to/foo')
-
-  Load (javascript) component from `path/to/foo.js` and name it 'foo':
+  Load component from `path/to/foo.js` and name it 'foo':
 
       b8r.component('path/to/foo.js')
 
-  Load (javascript) component from `path/to/bar.component.js` and name it 'bar':
+  Load component from `path/to/component.js` and name it 'bar':
 
-      b8r.component('path/to/bar.component.js')
+      b8r.component('path/to/component.js')
+
+  > ### Deprecated methods for loading HTML components
+  >
+  > Load component at `path/to/foo.component.html` and name it 'foo':
+  >
+  >     b8r.component('path/to/foo')
+  >     // or
+  >     b8r.component('path/to/foo.component.html')
+  >
+  > Load component at `path/to/foo.component.html` and name it 'bar':
+  >
+  >     b8r.component('bar', 'path/to/foo')
 
   `b8r.component(...)` returns a promise of the component once loaded. Components
   are not stored in the registry so don't worry about their names conflicting with
@@ -3807,7 +3810,7 @@ var b8r = (function () {
         type: {...}, // specify the component's type
       })
 
-  All of these properties are optional. `type` is [by example](?source=source/b8r.byExample.js).
+  All of these properties are optional. `type` is [by example](?source=source/byExample.js).
 
   ```
   <b8r-component name="typed"></b8r-component>
@@ -4454,7 +4457,7 @@ var b8r = (function () {
 
   ## Paths
 
-  Data inside the registry is [accessed by path](?source=source/b8r.byPath.js).
+  Data inside the registry is [accessed by path](?source=source/byPath.js).
   A path is a text string that resembles javascript object references, e.g.
 
       const foo = {
@@ -4556,7 +4559,7 @@ var b8r = (function () {
 
       b8r.registerType('foo', {bar: 17})
 
-  This will use `matchType` (see [Type Checking by Example](?source=source/b8r.byExample.js))
+  This will use `matchType` (see [Type Checking by Example](?source=source/byExample.js))
   to compare the specified registry entry when that entry is initialized or changed. So, if you
   registered the type of 'foo' as above, then:
 
@@ -5351,7 +5354,7 @@ var b8r = (function () {
       sort('file-list', (a, b) => b8r.sortAscending(a.name, b.name));
 
   Sorts the array at path using the provided sorting function. (And b8r provides
-  [two convenience methods for creating sort functions](?source=source/b8r.sort.js).)
+  [two convenience methods for creating sort functions](?source=source/sort.js).)
 
   ```
   <table>
@@ -5858,7 +5861,7 @@ var b8r = (function () {
   </label>
   <div data-bind="text=_component_.keystroke"></div>
   <script>
-    const {keystroke} = await import('../source/b8r.keystroke.js');
+    const {keystroke} = await import('../source/keystroke.js');
     const key = evt => {
       set('keystroke', keystroke(evt));
       return true; // process keystroke normally
@@ -6700,8 +6703,6 @@ var b8r = (function () {
 
   /**
   # toTargets
-  Copyright ©2016-2022 Tonio Loewald
-
   ## Binding data to the DOM
 
   The following targets (attributes of a DOM element) can be bound to object data:
@@ -6718,7 +6719,7 @@ var b8r = (function () {
 
   > ### Two-Way Bindings
   >
-  > `value` is also a ["from"-binding](?source=source/b8r.fromTargets.js). which means that
+  > `value` is also a ["from"-binding](?source=source/fromTargets.js). which means that
   > if the user changes the value of an element (that normally has a value) the change will
   > automatically be picked up by b8r and the bound data updated -- per the example below.
 
@@ -7009,7 +7010,7 @@ var b8r = (function () {
       <img data-bind="img=path.to.imageUrl">
 
   The `<img>` element will have its src attribute set after the image has been preloaded
-  (and it will fade in). Leverage's b8r's [imgSrc library](?source=source/b8r.imgSrc.js)
+  (and it will fade in). Leverage's b8r's [imgSrc library](?source=source/imgSrc.js)
 
   **Note**: This can cause problems with cross-domain policies. If you just want to set the src
   to the specified string, you can use a simple `attr()` binding:
@@ -7468,13 +7469,13 @@ var b8r = (function () {
 
   ### Usage
 
-      import {sortAscending, sortDescending} from 'path/to/b8r.sort.js';
+      import {sortAscending, sortDescending} from 'path/to/sort.js';
 
       const a = ['b', 'a', 'c'];
       const ascending = a.sort(sortAscending); // ['a', 'b', 'c'];
       const descending = a.sort(sortDescending); // ['c', 'b', 'a'];
 
-      import {makeAscendingSorter, makeDescendingSorter} from 'path/to/b8r.sort.js'
+      import {makeAscendingSorter, makeDescendingSorter} from 'path/to/sort.js'
       const beatles = [{name: 'paul'}, {name: 'john'}, {name: 'george'}, {name: 'ringo'}]
       beatles.sort(makeAscendingSorter(beatle => beatle.name)) // [{name: 'george'}, ...]
 
@@ -7526,8 +7527,6 @@ var b8r = (function () {
 
   /**
   # fromTargets
-  Copyright ©2016-2022 Tonio Loewald
-
   ## Getting bound data from the DOM
 
   The following binding *targets* will automatically copy data from the DOM to bound objects
@@ -7549,7 +7548,7 @@ var b8r = (function () {
 
   > ### Two-Way Bindings
   >
-  > `value` and most "from"-bindings are also ["to"-bindings](?source=source/b8r.toTargets.js).
+  > `value` and most "from"-bindings are also ["to"-bindings](?source=source/toTargets.js).
   > which means that an element will automatically be populated with bound data, and updated
   > when it is set or changed *by path* (e.g. `set('path.to.data', newValue)`) or the path to that
   > data is `touch()`ed (e.g. `touch('path.to.data'))`).
@@ -8381,20 +8380,20 @@ var b8r = (function () {
   implement some kind of virtual machine to replace it.
 
   ## Core Functionality
-  - [The Registry](?source=source/b8r.registry.js)
-  - [Binding Data](?source=source/b8r.bindings.js)
-    - [sending data to the DOM](?source=source/b8r.toTargets.js)
-    - [capturing data changes from the DOM](?source=source/b8r.fromTargets.js)
-  - [Events](?source=source/b8r.events.js)
-    - [keystroke](?source=source/b8r.keystroke.js)
-  - [Components](?source=source/b8r.component.js)
+  - [The Registry](?source=source/registry.js)
+  - [Binding Data](?source=source/bindings.js)
+    - [sending data to the DOM](?source=source/toTargets.js)
+    - [capturing data changes from the DOM](?source=source/fromTargets.js)
+  - [Events](?source=source/events.js)
+    - [keystroke](?source=source/keystroke.js)
+  - [Components](?source=source/component.js)
 
   ## Utilities
-  - [AJAX](?source=source/b8r.ajax.js)
-  - [DOM Utilities](?source=source/b8r.dom.js)
-  - [Functions](?source=source/b8r.functions.js)
-  - [Iterators](?source=source/b8r.iterators.js)
-  - [Showing and Hiding](?source=source/b8r.show.js)
+  - [AJAX](?source=source/ajax.js)
+  - [DOM Utilities](?source=source/dom.js)
+  - [Functions](?source=source/functions.js)
+  - [Iterators](?source=source/iterators.js)
+  - [Showing and Hiding](?source=source/show.js)
   */
 
   // TODO seal b8r after it's been built

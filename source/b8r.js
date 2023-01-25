@@ -49,7 +49,7 @@ import {
   implicitlyHandleEventsOfType,
   handleEvent
 } from './events.js'
-import { _insertSet, _insertFromTargets } from './_b8r_.js'
+import { _insertSet, _insertFromTargets } from './builtin-event-handlers.js'
 import * as fromTargets from './fromTargets.js'
 import {
   addDataBinding,
