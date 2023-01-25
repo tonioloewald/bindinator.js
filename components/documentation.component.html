@@ -61,6 +61,25 @@
     z-index: 500;
   }
 
+  ._component_ .search-field-component,
+  ._component_ .search-field-component * {
+    transition: 0.25s ease-in-out;
+  }
+
+  ._component_ .search-field-component:not(:focus-within) {
+    width: 70px;
+  }
+
+  ._component_ .search-field-component:not(:focus-within) .icon-cross,
+  ._component_ .search-field-component:not(:focus-within) > input::placeholder {
+    pointer-events: none;
+    opacity: 0;
+  }
+  
+  ._component_ .search-field-component:not(:focus-within) > input {
+    padding: 0;
+  }
+
   ._component_ > nav.active {
     left: 0;
   }
