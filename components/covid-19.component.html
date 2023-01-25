@@ -177,7 +177,7 @@ data rather than just current figures in a variety of ways.
   const recoveredUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv'
   const deathsUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
   const {viaTag} = await import('../lib/scripts.js')
-  const {viaLink} = await import('../source/b8r.makeStylesheet.js')
+  const {viaLink} = await import('../source/makeStylesheet.js')
   const {parseHash, serializeObj} = await import('../lib/url-utils.js')
   viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
   //viaLink('https://cdnjs.cloudflare.com/ajax/libs/dygraph/2.1.0/dygraph.min.css')

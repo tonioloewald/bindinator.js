@@ -179,7 +179,7 @@ export default {
             // TODO set up warnings, e.g. for register
             js = `export default {
   async load({${funcs.join(', ')}}) {
-    ${js.split('\n').map(line => `      ${line}`).join('\n')}
+    ${js.split('\n').map(line => `      ${line}`).join('\n').replace(/\s*("use strict"|'use strict');?\s*\n/, '')}
   }
 }`
           } else {

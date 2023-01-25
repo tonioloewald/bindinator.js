@@ -5,13 +5,13 @@ These are convenient methods that behave a bit like the "spaceship" operator in 
 
 ### Usage
 
-    import {sortAscending, sortDescending} from 'path/to/b8r.sort.js';
+    import {sortAscending, sortDescending} from 'path/to/sort.js';
 
     const a = ['b', 'a', 'c'];
     const ascending = a.sort(sortAscending); // ['a', 'b', 'c'];
     const descending = a.sort(sortDescending); // ['c', 'b', 'a'];
 
-    import {makeAscendingSorter, makeDescendingSorter} from 'path/to/b8r.sort.js'
+    import {makeAscendingSorter, makeDescendingSorter} from 'path/to/sort.js'
     const beatles = [{name: 'paul'}, {name: 'john'}, {name: 'george'}, {name: 'ringo'}]
     beatles.sort(makeAscendingSorter(beatle => beatle.name)) // [{name: 'george'}, ...]
 

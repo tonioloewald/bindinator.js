@@ -9,35 +9,35 @@ b8r leverages your understanding of the DOM and the browser rather than trying t
 implement some kind of virtual machine to replace it.
 
 ## Core Functionality
-- [The Registry](?source=source/b8r.registry.js)
-- [Binding Data](?source=source/b8r.bindings.js)
-  - [sending data to the DOM](?source=source/b8r.toTargets.js)
-  - [capturing data changes from the DOM](?source=source/b8r.fromTargets.js)
-- [Events](?source=source/b8r.events.js)
-  - [keystroke](?source=source/b8r.keystroke.js)
-- [Components](?source=source/b8r.component.js)
+- [The Registry](?source=source/registry.js)
+- [Binding Data](?source=source/bindings.js)
+  - [sending data to the DOM](?source=source/toTargets.js)
+  - [capturing data changes from the DOM](?source=source/fromTargets.js)
+- [Events](?source=source/events.js)
+  - [keystroke](?source=source/keystroke.js)
+- [Components](?source=source/component.js)
 
 ## Utilities
-- [AJAX](?source=source/b8r.ajax.js)
-- [DOM Utilities](?source=source/b8r.dom.js)
-- [Functions](?source=source/b8r.functions.js)
-- [Iterators](?source=source/b8r.iterators.js)
-- [Showing and Hiding](?source=source/b8r.show.js)
+- [AJAX](?source=source/ajax.js)
+- [DOM Utilities](?source=source/dom.js)
+- [Functions](?source=source/functions.js)
+- [Iterators](?source=source/iterators.js)
+- [Showing and Hiding](?source=source/show.js)
 */
 /* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
 /* global console, Element, HTMLElement */
 
-import * as constants from './b8r.constants.js'
-import { getByPath, pathSplit } from './b8r.byPath.js'
+import * as constants from './constants.js'
+import { getByPath, pathSplit } from './byPath.js'
 import { id } from './uuid.js'
-import * as _dom from './b8r.dom.js'
-import * as _iterators from './b8r.iterators.js'
-import * as _registry from './b8r.registry.js'
-import * as _byExample from './b8r.byExample.js'
-import * as _functions from './b8r.functions.js'
-import _toTargets from './b8r.toTargets.js'
-import * as _ajax from './b8r.ajax.js'
-import * as _sort from './b8r.sort.js'
+import * as _dom from './dom.js'
+import * as _iterators from './iterators.js'
+import * as _registry from './registry.js'
+import * as _byExample from './byExample.js'
+import * as _functions from './functions.js'
+import _toTargets from './toTargets.js'
+import * as _ajax from './ajax.js'
+import * as _sort from './sort.js'
 import {
   on,
   off,
@@ -48,9 +48,9 @@ import {
   implicitEventTypes,
   implicitlyHandleEventsOfType,
   handleEvent
-} from './b8r.events.js'
-import { _insertSet, _insertFromTargets } from './b8r._b8r_.js'
-import * as fromTargets from './b8r.fromTargets.js'
+} from './events.js'
+import { _insertSet, _insertFromTargets } from './_b8r_.js'
+import * as fromTargets from './fromTargets.js'
 import {
   addDataBinding,
   removeDataBinding,
@@ -66,10 +66,10 @@ import {
   splitPaths,
   UNLOADED_COMPONENT_SELECTOR,
   UNREADY_SELECTOR
-} from './b8r.bindings.js'
-import { saveDataForElement, dataForElement } from './b8r.dataForElement.js'
-import { onAny, offAny, anyListeners } from './b8r.anyEvent.js'
-import { keystroke, modifierKeys } from './b8r.keystroke.js'
+} from './bindings.js'
+import { saveDataForElement, dataForElement } from './dataForElement.js'
+import { onAny, offAny, anyListeners } from './anyEvent.js'
+import { keystroke, modifierKeys } from './keystroke.js'
 
 import {
   asyncUpdate,
@@ -80,9 +80,9 @@ import {
   _afterUpdate,
   _setForceUpdate,
   expectCustomElement
-} from './b8r.update.js'
+} from './update.js'
 
-import { show, hide } from './b8r.show.js'
+import { show, hide } from './show.js'
 
 import {
   component,
@@ -90,7 +90,7 @@ import {
   componentTimeouts,
   makeComponent,
   makeComponentNoEval
-} from './b8r.component.js'
+} from './component.js'
 
 import * as webComponents from './web-components.js'
 

@@ -131,8 +131,8 @@ Test(() => jsonic({url: 'documentation.json'}).then(({data}) => data.length)).sh
 ~~~~
 */
 
-import { deepClone } from './b8r.iterators.js'
-import { isAsync, describeType, matchType } from './b8r.byExample.js'
+import { deepClone } from './iterators.js'
+import { isAsync, describeType, matchType } from './byExample.js'
 
 const monadicArgs = Object.freeze({
   defaultInput: {},

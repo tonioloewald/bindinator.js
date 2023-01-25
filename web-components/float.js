@@ -63,7 +63,7 @@ webComponentTest(Test, '../web-components/float.js', 'b8r-float')
 
 import { makeWebComponent, slot } from '../source/web-components.js'
 import { listenForDragStart, trackDrag, moveEventDiv } from '../lib/track-drag.js'
-import { findHighestZ } from '../source/b8r.dom.js'
+import { findHighestZ } from '../source/dom.js'
 
 export const Float = makeWebComponent('b8r-float', {
   style: {

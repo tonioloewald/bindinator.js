@@ -1,7 +1,5 @@
 /**
 # toTargets
-Copyright ©2016-2022 Tonio Loewald
-
 ## Binding data to the DOM
 
 The following targets (attributes of a DOM element) can be bound to object data:
@@ -18,7 +16,7 @@ value.
 
 > ### Two-Way Bindings
 >
-> `value` is also a ["from"-binding](?source=source/b8r.fromTargets.js). which means that
+> `value` is also a ["from"-binding](?source=source/fromTargets.js). which means that
 > if the user changes the value of an element (that normally has a value) the change will
 > automatically be picked up by b8r and the bound data updated -- per the example below.
 
@@ -309,7 +307,7 @@ matches the provided parameter.
     <img data-bind="img=path.to.imageUrl">
 
 The `<img>` element will have its src attribute set after the image has been preloaded
-(and it will fade in). Leverage's b8r's [imgSrc library](?source=source/b8r.imgSrc.js)
+(and it will fade in). Leverage's b8r's [imgSrc library](?source=source/imgSrc.js)
 
 **Note**: This can cause problems with cross-domain policies. If you just want to set the src
 to the specified string, you can use a simple `attr()` binding:
@@ -473,8 +471,8 @@ These terms are used for comparison to certain values in conditional toTargets.
 /* jshint expr: true */
 /* global console, HTMLSelectElement */
 
-import { imgSrc } from './b8r.imgSrc.js'
-import { getComponentWithMethod } from './b8r.events.js'
+import { imgSrc } from './imgSrc.js'
+import { getComponentWithMethod } from './events.js'
 import describe from './describe.js'
 import '../third-party/date.format.js'
 

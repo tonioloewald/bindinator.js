@@ -77,14 +77,17 @@ b8r.replace('root', {bar: 'baz'})   // b8r.get('root.test') and b8r.get('root.in
 
 ### register, set, and get — inside a component
 
-Within a component's load method (its `<script>` if it's an HTML component) you have access to `register`, `get`, and `set`
+Within a component's `initialValue` or `load` methods you have access to `get`, and `set`
 which are local to the component.
 
 ```
-<script> // assume this is inside a component's script tag
-  b8r.set('someRoot.to.foo', 'hello') // sets the registry entry for "someRoot.to.foo" to "hello"
-  set('to.foo', 'good-bye') // sets the registry entry for `\`${component.dataset.id}.to.foo\`` to "good-bye"
-</script>
+export default = {
+  ...
+  load({get, set}) {
+    set('foo', 17)   // equivalent of b8r.set('<component-id>.foo', 17)
+    get('foo')       // 17
+  }
+}
 ```
 
 ### touch
@@ -133,13 +136,12 @@ Note that it doesn't matter whether you insert DOM elements (presumably within
 components) before you bind the data to the path or vice versa! 
 b8r is designed for an async world!
 
-```
-<input data-bind="value=root.title">
-...
-<script>
-  b8r.register('root', {title: 'Edit Me'}); // input will now contain 'Edit Me'
-</script>
-```
+<b8r-component name="fiddle">
+example.appendChild(
+  b8r.elements.input({bindValue: 'data-binding-example.text'})
+)
+b8r.reg['data-binding-example'] = {text: 'edit this text'}
+</b8r-component>
 
 ## binding methods to events with `data-event`
 
@@ -152,20 +154,19 @@ The general form is `data-event="event_type:path.to.method`.
 
 When the event occurs the method is called and passed the event and the element.
 
-```
-<button data-event="click:root.action">Click Me!</button>
-...
-<script>
-  b8r.register('root', {action: () => alert('I was clicked')});
-</script>
-```
-
 <b8r-component name="fiddle">
-const button = b8r.create('button')
-button.dataset.event = 'click:event-binding-example.click'
-button.textContent = 'click me!'
-example.appendChild(button)
-b8r.register('event-binding-example', {click: () => alert('it works!')})
+example.appendChild(
+  b8r.elements.button(
+    'Click me!', {
+      onClick: 'event-binding-example.click'
+    }
+  )
+)
+b8r.reg['event-binding-example'] = {
+  click(){
+    alert('OMG a click!')
+  }
+}
 </b8r-component>
 
 Again, it's not important if the event is triggered (slightly) before the handler has been bound to the path. You can bind a path to an event and then bind the method later (e.g. when the code for it becomes available). In fact, if the user clicks the button before the method has been bound to the path, it will call the method when it becomes available.
@@ -179,16 +180,17 @@ Arrays are bound to the DOM by:
 
 The general form is `data-list="path.to.array"` or, optionally `data-list="path.to.array:path.to.id"` (usually, the id-path is pretty simple, e.g. `id`). Using id-paths allows for more efficient list updates.
 
-```
-<ul>
-  <li data-list="root.list" data-bind=".name"></list>
-</ul>
-...
-<script>
-  b8r.set('root.list', [{name: 'Juanita'}, {name: 'Mahatma'}]);
-  // the list will have two (visible) items.
-</script>
-```
+<b8r-component name="fiddle">
+example.append(
+  b8r.elements.div({
+    bindList: 'list-example.array', 
+    bindText: '.name'
+  })
+)
+b8r.reg['list-example'] = {
+  array: [{name: 'Reginald'}, {name: 'Roger'}, {name: 'Brian'}]
+}
+</b8r-component>
 
 Within the list template, you can use **relative paths** (e.g. `.name`) which reference paths within the list element.
 
@@ -196,10 +198,12 @@ The relative path `.` is treated by `b8r` as referring to the entire list item, 
 binding arrays of bare values (e.g. arrays of strings or numbers)
 
 <b8r-component name="fiddle">
-const div = b8r.create('div')
-div.dataset.list = "simple-list-example.array"
-div.dataset.bind = "text=."
-example.append(div)
+example.append(
+  b8r.elements.div({
+    bindList: 'simple-list-example.array', 
+    bindText: '.'
+  })
+)
 b8r.register('simple-list-example', {
   array: ['a', 'simple', 'array', 17, Math.PI]
 })
@@ -207,71 +211,48 @@ b8r.register('simple-list-example', {
 
 ## components
 
-Components are self-contained reusable software blobs. 
+[b8r components](/?source=docs/components.md) are self-contained reusable, composable views. 
 
-A component can be defined using a single `.component.html` file, of the form:
-
-```
-<!--
-# Example
-
-Documentation in markdown format.
--->
-<style>
-  .example-component {
-    ...
-  }
-</style>
-<div data-bind="text=_component_.message"></div>
-<script>
-/* global require, component, b8r, find, findOne, get, set, on, touch */
-'use strict';
-  // code that executes when an instance of the component is inserted
-  set('message', 'This is an example');
-  // the div will be populated with the text above
-</script>
-```
-
-or it can be defined in javascript using a different syntax:
+Typically, a component is defined in a single javascript file and exported
+as an object: 
 
 ```
-import {webComponent} from 'path/to/web-components.js'
+/**
+# Example Component
 
-export const componentName = makeWebComponent('component-name', {
-  css: '._component_ > div { color: yellow }',
-  html: '<div>this text will be yellow</div>',
-  load: async ({
-    component, // this is the element that the component is inserted into
-    b8r,       // it's b8r!
-    find,      // b8r.findWithin(component, ...)
-    findOne,   // b8r.findOneWithin(component, ...)
-    register,  // replace the component's private data object
-    get,       // get (within the component's private data)
-    set,       // set (within the component's private data)
-    on,        // b8r.on(component, ...)
-    touch      // refresh the component
-  }) => {
-    // your javascript goes here
+You can use markdown to format the docs.
+*/
+
+export default = {
+  css: `._component_ > label > span {
+    color: yellow;
+  }`,
+  view(elements) {
+    return elements.label(
+      elements.span('Enter some text'),
+      elements.input({ bindValue: '_component_.text'})
+    )
   },
-  initialValue: {}, // initial value for each component instance,
-  // type: { ... }, // component type (by example)
-})
+  initialValue(context) {
+    context.set({
+      text: 'edit this'
+    })
+  }
+}
 ```
-
-<b8r-component name="fiddle" data-source="components/analog-clock.component.js"></b8r-component>
-
-This would be saved as, for example, `example.component.html`.
 
 ### loading components with `<b8r-component>`
 
 The easiest way to insert a `b8r` component is to use a `<b8r-component>` custom element.
 
-You can use a component by `path` (which automatically loads the component if necessary) or
-by `name` if a component is already (or will be) loaded (e.g. via `b8r.component`, as per below, 
-or by another `<b8r-component>`)
+If you inspect the DOM, you can see how the clock below has been embedded:
 
-E.g. for javascript components you can load the component via `import()` or `require()` (or on-the-fly
-using `b8r.makeComponent()`):
+<b8r-component name="fiddle" data-source="components/analog-clock.component.js"></b8r-component>
+
+You can use a component by `path` (which automatically loads the component if necessary) or
+by `name` if a component is already (or will be) loaded (typically using `b8r.component('path/to/component.js)`)
+
+If you want to bundle compnents then `import` them and use `b8r.makeComponent` to register them with a given name.
 
 ```
 import someComponent from 'path/to/some-component.js'
@@ -299,15 +280,9 @@ Here's the [color-picker](?source=components/color-picker.js) component loaded i
 
 <b8r-component path="../components/color-picker.js"></b8r-component>
 
-Or for the older `.component.html` components, you omit the `.component.html` from the end of the path.
+For legacy `.component.html` components, you omit the `.component.html` from the end of the path.
 
 ```
 <b8r-component path="path/to/some-component"></b8r-component>
 ```
 
-Or, if you want to insert a component by name (assuming you've loaded or defined it elsewhere,
-e.g. via `b8r.component('path/to/some-component')`):
-
-```
-<b8r-component name="some-component"></b8r-component>
-```

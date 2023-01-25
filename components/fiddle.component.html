@@ -305,6 +305,7 @@ as  `b8r` and the output element as `example`.
         const f = new AsyncFunction('b8r', 'example', source); // jshint ignore:line
         const output = await f(b8r, container);
         if (output) container.append(output);
+        container.dataset.componentId = 'fake'
       } catch(e) {
         container.append('(exception) ' + e);
       }

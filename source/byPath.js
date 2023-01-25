@@ -4,7 +4,7 @@ Copyright ©2016-2022 Tonio Loewald
 
 > Note that these are low-level methods that `b8r` does not expose.
 > `b8r.getByPath` and `b8r.setByPath` are deprecated (use `b8r.set` and `b8r.get` instead).
-> See the [Data Registry](?source=source/b8r.registry.js) documentation for more useful information.
+> See the [Data Registry](?source=source/registry.js) documentation for more useful information.
 
     getByPath(obj, 'path.to.value')
 
@@ -97,7 +97,7 @@ In this case, you want the absence of an object to be either undefined
 ~~~~
 // title: getByPath, setByPath, and pathParts tests
 
-const {getByPath, setByPath, pathParts} = await import('../source/b8r.byPath.js');
+const {getByPath, setByPath, pathParts} = await import('../source/byPath.js');
 const obj = {
   foo: 17,
   bar: {baz: 'hello'},

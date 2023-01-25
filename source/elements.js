@@ -67,7 +67,8 @@ Build a UI template:
 
 ## Conveniences &amp; Syntax Sugar
 
-`elements._comp()` creates a `<b8r-component>` element, e.g.:
+`elements._comp()` creates a `<b8r-component>` element (you can also just type
+`elements.b8rComponent()` of course), e.g.:
 
     elements._comp({path: '../components/foo.js'})
 
@@ -78,7 +79,7 @@ Produces:
 `elements._fragment()` creates a `DocumentFragment`.
 
 Attributes beginning with `bind` will be converted into `data-bind` attributes (i.e. data-bindings),
-while those beginning with `on` will be converted into data-event attributes (i.e. event bindings), e.g.
+while those beginning with `on` will be converted into `data-event` attributes (i.e. event bindings), e.g.
 
     elements.button(
       'Click Me!',

@@ -131,7 +131,7 @@ This example also uses the (new) registry entry b8rRequestInFlight to show when 
   ]
   
   const {viaTag} = await import('../lib/scripts.js')
-  const {viaLink} = await import('../source/b8r.makeStylesheet.js')
+  const {viaLink} = await import('../source/makeStylesheet.js')
   const {parseHash, serializeObj} = await import('../lib/url-utils.js')
   viaLink('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css')
   await viaTag('https://api.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js')

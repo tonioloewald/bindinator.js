@@ -19,8 +19,8 @@ an element is hidden, `hide` sets `.style.display = "none"` and records its prev
 the `data-orig-display` attribute.
 */
 
-import { findWithin, isVisible } from './b8r.dom.js'
-import { trigger } from './b8r.events.js'
+import { findWithin, isVisible } from './dom.js'
+import { trigger } from './events.js'
 
 const show = (element, ...args) => {
   // used to check if the element was in fact hidden, but that turns out to be expensive

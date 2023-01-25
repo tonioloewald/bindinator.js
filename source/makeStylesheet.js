@@ -28,7 +28,7 @@ in the document <head> if (and only if) no such `<link>` tag is already present 
 might lead to duplicate links.)
 */
 
-import { create, text, findOne } from './b8r.dom.js'
+import { create, text, findOne } from './dom.js'
 
 const makeStyleSheet = (source, title) => {
   const style = source ? create('style') : false

@@ -11,7 +11,7 @@ you shouldn't use strings starting with '#' as examples of strings.)
 ## Work in Progress
 
 Ultimately, this module is intended to afford both static analysis of `b8r` code and components and efficient
-run-time checking of application state -- see [The Registry](?source=source/b8r.registry.js)
+run-time checking of application state -- see [The Registry](?source=source/registry.js)
 documentation for more information.
 
 As a side-benefit, it is also capable of driving mock-data and optimistic rendering.
@@ -189,7 +189,7 @@ const {
   matchType,
   describe,
   exampleAtPath,
-} = await import('./b8r.byExample.js');
+} = await import('./byExample.js');
 
 Test(() => matchType(0, 17)).shouldBeJSON([])
 Test(() => matchType(0, 'hello')).shouldBeJSON(['was \"hello\", expected number'])
@@ -699,7 +699,7 @@ Or hell, enforce some variant of *Hungarian Notation*:
 // title: Object Key Tests
 const {
   matchType,
-} = await import('./b8r.byExample.js');
+} = await import('./byExample.js');
 
 Test(() => matchType({
   '#is[A-Z]\\w*': true
@@ -802,7 +802,7 @@ const {
   matchParamTypes,
   typeSafe,
   TypeError,
-} = await import('./b8r.byExample.js');
+} = await import('./byExample.js');
 
 Test(() => matchParamTypes([1,2,3], [1,2,3])).shouldBeJSON([])
 Test(() => matchParamTypes([1,'a',{}], [0,'b',{}])).shouldBeJSON([])

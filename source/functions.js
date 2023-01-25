@@ -76,7 +76,7 @@ the value specified (null by default).
 
 ~~~~
 // title: throttle, debounce, and throttleAndDebounce tests
-const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/b8r.functions.js')
+const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/functions.js')
 
 await delay(1000)
 
@@ -256,7 +256,7 @@ const memoize = f => {
 identical calls
 ~~~~
 // title: memoize tests
-const {memoize} = await import('../source/b8r.functions.js')
+const {memoize} = await import('../source/functions.js')
 let callCount = 0
 const results = []
 

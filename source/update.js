@@ -2,7 +2,7 @@
 # Async Update Queue
 
 `b8r` queues DOM updates and then performs them at the next animation frame. Generally,
-you don't need to worry about how this works. Just use [registry](?source=source/b8r.register.js)
+you don't need to worry about how this works. Just use [registry](?source=source/register.js)
 methods such as `b8r.set` (and `set` inside components) to change bound values and
 everything *should just work*.
 
@@ -41,8 +41,8 @@ afterUpdate fires immediately (and synchronously) if there are no pending update
 */
 /* global requestAnimationFrame, HTMLElement */
 
-import { dispatch } from './b8r.dispatch.js'
-import { find } from './b8r.dom.js'
+import { dispatch } from './dispatch.js'
+import { find } from './dom.js'
 
 const _changeList = []
 let _updateFrame = null

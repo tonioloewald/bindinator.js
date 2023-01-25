@@ -73,31 +73,31 @@
       },
       {
         "name": "ajax",
-        "path": "source/b8r.ajax.js"
+        "path": "source/ajax.js"
       },
       {
         "name": "bindings",
-        "path": "source/b8r.bindings.js"
+        "path": "source/bindings.js"
       },
       {
         "name": "data registry",
-        "path": "source/b8r.registry.js"
+        "path": "source/registry.js"
       },
       {
-        "name": "data-bind to elements",
-        "path": "source/b8r.toTargets.js"
+        "name": "data: syncing to the DOM",
+        "path": "source/toTargets.js"
       },
       {
-        "name": "data-bind from elements",
-        "path": "source/b8r.fromTargets.js"
+        "name": "data: updating from the DOM",
+        "path": "source/fromTargets.js"
       },
       {
         "name": "data paths",
-        "path": "source/b8r.byPath.js"
+        "path": "source/byPath.js"
       },
       {
         "name": "type checking",
-        "path": "source/b8r.byExample.js"
+        "path": "source/byExample.js"
       },
       {
         "name": "monadic",
@@ -105,11 +105,11 @@
       },
       {
         "name": "components",
-        "path": "source/b8r.component.js"
+        "path": "source/component.js"
       },
       {
         "name": "dom",
-        "path": "source/b8r.dom.js"
+        "path": "source/dom.js"
       },
       {
         "name": "elements",
@@ -117,51 +117,51 @@
       },
       {
         "name": "events",
-        "path": "source/b8r.events.js"
+        "path": "source/events.js"
       },
       {
         "name": "event types",
-        "path": "source/b8r.implicit-event-types.js"
+        "path": "source/implicit-event-types.js"
       },
       {
         "name": "event handlers (built-in)",
-        "path": "source/b8r._b8r_.js"
+        "path": "source/_b8r_.js"
       },
       {
         "name": "events — priority access",
-        "path": "source/b8r.anyEvent.js"
+        "path": "source/anyEvent.js"
       },
       {
         "name": "functions",
-        "path": "source/b8r.functions.js"
+        "path": "source/functions.js"
       },
       {
         "name": "images",
-        "path": "source/b8r.imgSrc.js"
+        "path": "source/imgSrc.js"
       },
       {
         "name": "iterators",
-        "path": "source/b8r.iterators.js"
+        "path": "source/iterators.js"
       },
       {
         "name": "keystroke",
-        "path": "source/b8r.keystroke.js"
+        "path": "source/keystroke.js"
       },
       {
         "name": "makeStylesheet",
-        "path": "source/b8r.makeStylesheet.js"
+        "path": "source/makeStylesheet.js"
       },
       {
         "name": "sort",
-        "path": "source/b8r.sort.js"
+        "path": "source/sort.js"
       },
       {
         "name": "show",
-        "path": "source/b8r.show.js"
+        "path": "source/show.js"
       },
       {
         "name": "update",
-        "path": "source/b8r.update.js"
+        "path": "source/update.js"
       }
     ]
   },
@@ -368,10 +368,6 @@
       {
         "name": "Offline",
         "path": "offline.component.html"
-      },
-      {
-        "name": "Center Scroller",
-        "path": "center-scroller-test.component.html"
       },
       {
         "name": "webrtc settings",
