@@ -370,10 +370,6 @@
         "path": "offline.component.html"
       },
       {
-        "name": "Center Scroller",
-        "path": "center-scroller-test.component.html"
-      },
-      {
         "name": "webrtc settings",
         "path": "webrtc.component.html"
       },
