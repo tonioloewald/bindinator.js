@@ -353,7 +353,7 @@ life-cycle.
 
 When you want to get into the details of building components, there are sections on
 [components](?source=docs/components.md) and on 
-[`b8r`'s component API](?source=source/b8r.component.js).
+[`b8r`'s component API](?source=source/component.js).
 
 ### Add components with `<b8r-component>`
 

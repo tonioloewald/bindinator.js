@@ -15,8 +15,8 @@ You can use them the obvious way:
     _b8r_._update_ // this is used by b8r to update models automatically
 */
 
-import { getBindings } from './b8r.bindings.js'
-import { findAbove, findWithin } from './b8r.dom.js'
+import { getBindings } from './bindings.js'
+import { findAbove, findWithin } from './dom.js'
 let set
 export const _insertSet = f => {
   set = f

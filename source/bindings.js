@@ -2,7 +2,7 @@
 # Data Bindings
 
 Data binding is implemented via the `data-bind` and `data-list` attributes. Bindings tie
-[registered data](?source=source/b8r.registry.js) to and from view (DOM) elements.
+[registered data](?source=source/registry.js) to and from view (DOM) elements.
 
 ```
 <h3 data-bind="text=binding-example.text"></h3>
@@ -279,8 +279,8 @@ To quickly obtain bound data a list instance from an element inside it:
 */
 /* global console */
 
-import { findWithin, succeeding } from './b8r.dom.js'
-import { touchElement } from './b8r.update.js'
+import { findWithin, succeeding } from './dom.js'
+import { touchElement } from './update.js'
 
 export const COMPONENT_SELECTOR = '[data-component],[data-component-id],b8r-component'
 export const UNLOADED_COMPONENT_SELECTOR =
@@ -352,7 +352,7 @@ splitPaths is used to prise apart data-paths in bindings.
 ~~~~
 // title: splitpaths tests
 
-const {splitPaths, getBindings, parseBinding} = await import('../source/b8r.bindings.js');
+const {splitPaths, getBindings, parseBinding} = await import('../source/bindings.js');
 
 Test(() => splitPaths('foo.bar')).shouldBeJSON(["foo.bar"]);
 Test(() => splitPaths('foo,bar,baz')).shouldBeJSON(["foo", "bar", "baz"]);

@@ -257,7 +257,7 @@ It's better to use `get()`, which is your only option for Javascript components.
 > #### [Re]define your component in Javascript
 >
 > The best way to avoid this issue is to define the component as a Javascript module instead
-> of an HTML file. (See [Making a Component with Javascript](source=source/b8r.component.js).)
+> of an HTML file. (See [Making a Component with Javascript](source=source/component.js).)
 > This allows you to define your component's `initialValue` before the component is inserted
 > into the DOM.
 >

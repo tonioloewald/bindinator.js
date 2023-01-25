@@ -74,7 +74,7 @@ webComponentTest(Test, '../web-components/bindery.js', 'b8r-bindery')
 */
 /* global MutationObserver */
 
-import implicitEventTypes from '../source/b8r.implicit-event-types.js'
+import implicitEventTypes from '../source/implicit-event-types.js'
 import { makeWebComponent } from '../source/web-components.js'
 
 /*

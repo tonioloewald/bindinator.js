@@ -209,7 +209,7 @@ unwraps the element of its immediate parent or its closest `wrapperSelector` if 
 */
 /* global getComputedStyle */
 
-import { makeArray, forEachKey } from './b8r.iterators.js'
+import { makeArray, forEachKey } from './iterators.js'
 
 export { create, elements } from './elements.js'
 

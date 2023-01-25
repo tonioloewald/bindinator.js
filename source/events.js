@@ -4,13 +4,13 @@
 /* jshint latedef:false */
 /* global console, window, KeyboardEvent, Element */
 
-import { findWithin } from './b8r.dom.js'
-import { get, call } from './b8r.registry.js'
-import anyElement from './b8r.anyElement.js'
-import * as keys from './b8r.keystroke.js'
-import { pathSplit } from './b8r.byPath.js'
-import implicitEventTypes from './b8r.implicit-event-types.js'
-import { dispatch } from './b8r.dispatch.js'
+import { findWithin } from './dom.js'
+import { get, call } from './registry.js'
+import anyElement from './anyElement.js'
+import * as keys from './keystroke.js'
+import { pathSplit } from './byPath.js'
+import implicitEventTypes from './implicit-event-types.js'
+import { dispatch } from './dispatch.js'
 
 const onOffArgs = args => {
   var element

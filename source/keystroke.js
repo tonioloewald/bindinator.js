@@ -29,7 +29,7 @@ one or more specified keystrokes for an event to handle, e.g.
 </label>
 <div data-bind="text=_component_.keystroke"></div>
 <script>
-  const {keystroke} = await import('../source/b8r.keystroke.js');
+  const {keystroke} = await import('../source/keystroke.js');
   const key = evt => {
     set('keystroke', keystroke(evt));
     return true; // process keystroke normally
@@ -43,7 +43,7 @@ Also provides `modifierKeys`, a map from the modifier strings (e.g. alt) to
 the relevant unicode glyphs (e.g. '⌥').
 */
 
-import { isMacOS } from './b8r.constants.js'
+import { isMacOS } from './constants.js'
 
 const keycode = evt => {
   if (evt.code) {

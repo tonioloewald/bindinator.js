@@ -6,7 +6,7 @@
 
 - `b8r.mjs` for ES6 modules
 - `b8r.js` (commonjs) for use with require
-- `b8r.iife.js` for use via `<script src="path/to/b8r.iife.js"></script>` tag
+- `iife.js` for use via `<script src="path/to/iife.js"></script>` tag
 
 (There are also corresponding minified versions and source maps.)
 

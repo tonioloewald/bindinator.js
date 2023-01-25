@@ -31,7 +31,7 @@ you set the component's style to "flex-direction: column-reverse" then the bar w
 */
 
 import { viaTag } from '../lib/scripts.js'
-import { imagePromise } from '../source/b8r.imgSrc.js'
+import { imagePromise } from '../source/imgSrc.js'
 
 function clamp (x, min, max) {
   if (max < min) {

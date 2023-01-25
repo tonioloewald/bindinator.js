@@ -24,8 +24,8 @@ everything else for purposes of propagation.
 
 */
 
-import { on, off, getEventHandlers } from './b8r.events.js'
-import anyElement from './b8r.anyElement.js'
+import { on, off, getEventHandlers } from './events.js'
+import anyElement from './anyElement.js'
 
 const anyArgs = args => {
   var eventType, object, method, path

@@ -16,9 +16,9 @@ The basic form of a data binding is `data-bind="target=path.to.value"`.
 In `b8r` terms, `text` is the **target** (the DOM property you are binding
 data to and/or from), while `path.to.text` is the data **path**.
 
-- [Binding to the DOM](?source=source/b8r.toTargets.js) 
-- [Binding from the DOM](?source=source/b8r.fromTargets.js)
-- [Registry](?source=source/b8r.registry.js) (see the section on **Paths**)
+- [Binding to the DOM](?source=source/toTargets.js) 
+- [Binding from the DOM](?source=source/fromTargets.js)
+- [Registry](?source=source/registry.js) (see the section on **Paths**)
 
 ### Multiple Bindings
 
@@ -170,8 +170,8 @@ Where it makes sense (notably `value`, `checked`) the targets are "two-way", i.e
 model is automatically updated when the user changes the view. This just works.
 
 To learn about out all kinds of targets, as well as get more information about specific targets,
-see the documentation for ["to targets"](?source=source/b8r.toTargets.js) 
-and ["from targets"](?source=source/b8r.fromTargets.js)
+see the documentation for ["to targets"](?source=source/toTargets.js) 
+and ["from targets"](?source=source/fromTargets.js)
 
 ## The Binding Hierarchy
 

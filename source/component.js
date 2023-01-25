@@ -7,23 +7,25 @@ before the first period).
 
     b8r.component([name,] url)
 
-Load component at `path/to/foo.component.html` and name it 'foo':
-
-    b8r.component('path/to/foo')
-    // or
-    b8r.component('path/to/foo.component.html')
-
-Load component at `path/to/foo.component.html` and name it 'bar':
-
-    b8r.component('bar', 'path/to/foo')
-
-Load (javascript) component from `path/to/foo.js` and name it 'foo':
+Load component from `path/to/foo.js` and name it 'foo':
 
     b8r.component('path/to/foo.js')
 
-Load (javascript) component from `path/to/bar.component.js` and name it 'bar':
+Load component from `path/to/component.js` and name it 'bar':
 
-    b8r.component('path/to/bar.component.js')
+    b8r.component('path/to/component.js')
+
+> ### Deprecated methods for loading HTML components
+>
+> Load component at `path/to/foo.component.html` and name it 'foo':
+>
+>     b8r.component('path/to/foo')
+>     // or
+>     b8r.component('path/to/foo.component.html')
+>
+> Load component at `path/to/foo.component.html` and name it 'bar':
+>
+>     b8r.component('bar', 'path/to/foo')
 
 `b8r.component(...)` returns a promise of the component once loaded. Components
 are not stored in the registry so don't worry about their names conflicting with
@@ -98,7 +100,7 @@ global declarations.
       type: {...}, // specify the component's type
     })
 
-All of these properties are optional. `type` is [by example](?source=source/b8r.byExample.js).
+All of these properties are optional. `type` is [by example](?source=source/byExample.js).
 
 ```
 <b8r-component name="typed"></b8r-component>
@@ -251,13 +253,13 @@ If a component has a method named `destroy` it will be called just before the in
 is removed from the registry.
 */
 
-import { asyncUpdate } from './b8r.update.js'
-import { create, find, findWithin } from './b8r.dom.js'
+import { asyncUpdate } from './update.js'
+import { create, find, findWithin } from './dom.js'
 import { elements } from './elements.js'
-import { ajax } from './b8r.ajax.js'
-import makeStylesheet from './b8r.makeStylesheet.js'
+import { ajax } from './ajax.js'
+import makeStylesheet from './makeStylesheet.js'
 import { uuid, unique } from './uuid.js'
-import { AsyncFunction } from './b8r.functions.js'
+import { AsyncFunction } from './functions.js'
 
 const components = {}
 const componentTimeouts = []
