@@ -139,8 +139,8 @@ export default {
           image = await imagePromise(image)
         }
         let baseImage = null
-        const width = image ? image.width : canvas.offsetWidth
-        const height = image ? image.height : canvas.offsetHeight
+        const width = image ? Math.max(image.width, component.offsetWidth) : component.offsetWidth
+        const height = image ? Math.max(image.height, component.offsetHeight) : component.offsetHeight
 
         const fabricCanvas = new fabric.Canvas(canvas, {
           backgroundColor: '#888',
@@ -152,8 +152,8 @@ export default {
 
         if (image) {
           baseImage = new fabric.Image(image, {
-            left: 0,
-            top: 0,
+            left: (width - image.width) * 0.5,
+            top: (height - image.height) * 0.5,
             angle: 0,
             opacity: 1,
             selectable: false,
