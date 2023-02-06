@@ -21,6 +21,15 @@
   height: 30px;
   line-height: 30px;
   width: 100%;
+  overflow: hidden;
+}
+
+.search-field-component input:not(:focus) {
+  color: #8880;
+}
+
+.search-field-component input:not(:focus)::-webkit-input-placeholder {
+  opacity: 0;
 }
 
 .search-field-component input:focus+.icon-search {
