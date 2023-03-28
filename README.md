@@ -6,7 +6,7 @@
   >
 </h1>
 
-## A Javascript Library for Building Apps
+## A Javascript Library for Creating Apps
 
 [b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
 [github](https://github.com/tonioloewald/bindinator.js) | 
@@ -39,8 +39,9 @@ bind data from the model and event-handlers from the controller code with the vi
 
 And it's **inator** because once you *register* an object, bindings are managed automatically and efficiently.
 
-In a nutshell, it does what [React](https://reactjs.org), [Redux](https://redux.js.org/), 
-[LitElement](), and a whole passel of other libraries do, plays nicely with others, doesn't expose you to 
+In a nutshell, `b8r` does what [React](https://reactjs.org), [Redux](https://redux.js.org/), 
+[LitElement](https://lit.dev), and a whole passel of other libraries do, plays [nicely](/?source=babylonjs.component.html) 
+[with](/?source=mapbox.component.html#@=48.9591590,31.3392433,5.0,9) [others](), doesn't expose you to 
 hundreds of transitive dependencies do or require a specific set of tools to build (import it via `<script>` tag and write 
 your app in Notepad) or debug (it leverages the Web Inspector rather than require its own custom debugger).
 It's deeply asynchronous. It's stupidly [fast and lean](/test/benchmark-data-table.html), and it's just JavaScript.
