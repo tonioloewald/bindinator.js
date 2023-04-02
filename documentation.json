@@ -289,7 +289,7 @@
       },
       {
         "name": "Kitchen Sink",
-        "path": "kitchen-sink.component.html"
+        "path": "components/kitchen-sink.js"
       },
       {
         "name": "Theme Editor",
