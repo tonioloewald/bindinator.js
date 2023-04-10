@@ -568,7 +568,7 @@ body > .kitchen-sink-component {
         if (isParent()) {
           const spawn_window = () => {
             open(
-              window.location.href.split('#')[0] + '#body=components/kitchen-sink',
+              window.location.href.split('#')[0] + '#body=/components/kitchen-sink.js',
               { minWidth: 600, minHeight: 400 },
               ['kitchen-sink-demo']
             );
