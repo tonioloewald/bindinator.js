@@ -14,6 +14,9 @@
 [cdn] (https://www.jsdelivr.com/package/npm/b8rjs) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
+![b8rjs size](https://deno.bundlejs.com/?q=b8rjs,b8rjs&treeshake=[*],[{+default+}]&config={%22analysis%22:undefined}&badge=)
+![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
+
 > **Note** `b8r` is now published to npm as [b8rjs](https://www.npmjs.com/package/b8rjs).
 > You may want to update your dependencies accordingly.
 
@@ -490,6 +493,4 @@ We can register data (*models* and *controllers*) and load components (*views*) 
 If the user clicks the button before the controller is registered, the controller method will be
 called when it becomes available.
 
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-
-Copyright ©2016-2022 Tonio Loewald
+Copyright ©2016-2023 Tonio Loewald
