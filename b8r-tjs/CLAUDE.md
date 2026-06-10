@@ -29,9 +29,18 @@ tjs is **not** TypeScript. The single biggest trap:
 - Colon-shorthand works on **`function` declarations**, not on object-method
   shorthand (`{ method (x: 1) {} }` is a parse error — pull the logic out into a
   top-level typed function instead).
-- Avoid giving a return-type example unless it is genuinely representative: tjs
-  runs the example through the function at transpile time and fails the build if
-  the result is inconsistent (types double as tests).
+- **Use return-type examples — they're free signature tests.** `function f (n:
+  3): 6 { ... }` makes tjs run the param examples through `f` at build time and
+  fail the build if the result isn't `6`. Give one whenever a single value is
+  representative (e.g. `pathsOverlap(a, b): true`). Only omit it when no single
+  value is (the function returns an object, varies, etc.).
+- **Write inline `test` blocks, not separate files, for self-contained logic.**
+  `test 'desc' { expect(step(5, 2)).toBe(7) }` runs inside the source; `tjs()`
+  executes it at build time and `build.mjs` fails the build on any failure
+  (confirmed). Keep Node `test/*.test.mjs` only for what inline tests can't
+  express — async `import()`, the `data:`-URL load path, cross-module behaviour.
+  (Inline tests run at transpile time, before imports resolve, so a module that
+  imports another can't inline-test code that calls the import.)
 - Errors are **returned** as `MonadicError`, not thrown (`isMonadicError(v)` /
   check `v?.name === 'MonadicError'`).
 - Style matches tjs/tosijs/standard: single quotes, no semicolons, 2-space.

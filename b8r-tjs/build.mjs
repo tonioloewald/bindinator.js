@@ -41,9 +41,17 @@ async function build () {
     if (result.warnings && result.warnings.length) {
       for (const w of result.warnings) console.warn(`  ! ${rel}: ${w}`)
     }
+    // inline `test` blocks run at transpile time; a failure fails the build
+    const failed = (result.testResults || []).filter(t => !t.passed)
+    if (failed.length) {
+      failures++
+      console.error(`✗ ${rel} — ${failed.length} inline test(s) failed`)
+      for (const t of failed) console.error(`    ✗ ${t.description} (line ${t.line})`)
+      continue
+    }
     await mkdir(dirname(out), { recursive: true })
     await writeFile(out, result.code)
-    const tests = result.testCount ? ` (${result.testCount} inline test(s))` : ''
+    const tests = result.testCount ? ` (${result.testCount} inline test(s) ✓)` : ''
     console.log(`✓ ${rel}${tests}`)
     count++
   }
