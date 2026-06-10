@@ -51,6 +51,14 @@ statements).
 - Trigger is specifically a **member assignment on an exported binding**
   (`export function f(){}; f.m = 1`). `export const`/`function`/`class` *without*
   such an assignment round-trip fine under percent-encoding.
+- **`data:`-URL-specific.** The *identical* source in a `.mjs`/`.js` file imports
+  correctly (`["f","x"]`); only the `data:` URL collapses. So it is not a general
+  CJS-detection problem — it is in the `data:` module path.
+- **MIME type is irrelevant.** `text/javascript`, `application/javascript`,
+  `text/ecmascript`, `application/ecmascript`, `;charset=utf-8`, and even no MIME
+  (`data:,…`) all collapse under percent-encoding. The only axis that matters is
+  the **encoding**: percent → CJS collapse, base64 → correct ESM. (So the fix is
+  not "declare the right MIME"; it is "base64-encode".)
 - Raw/unencoded data URLs are independently unsafe (a `#` in the source is parsed
   as a URL fragment; `%` as an escape), so base64 is the correct portable choice
   regardless of this bug.
