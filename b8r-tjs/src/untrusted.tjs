@@ -1,0 +1,70 @@
+/*#
+## b8r-tjs · untrusted components (the AJS sandbox)
+
+Community / untrusted component logic must not run as full-privilege JavaScript.
+tjs's sibling **AJS** is a gas-metered VM: code compiles to a JSON AST and runs
+in `AgentVM` with **fuel limits** (no infinite loops — exhaustion is *returned*,
+never hangs) and **capability isolation** (no DOM, no network, no host globals —
+only atoms you inject). So an untrusted event handler can transform its own
+state and nothing else.
+
+`defineUntrusted` is `defineComponent` whose `handlers` are AJS **source
+strings** instead of JS methods. Each runs as a pure
+`function agent({ state, event }) { … return newState }` transform in the
+sandbox; the returned keys are applied to the instance's state (which then drives
+the wiring as usual). The view/markup is still trusted host code — only the
+behaviour is sandboxed.
+*/
+
+import { ajs } from 'tjs-lang/lang'
+import { AgentVM } from 'tjs-lang/vm'
+import { defineComponent } from './component.tjs'
+
+const vm = new AgentVM()
+
+// Run untrusted AJS source as a sandboxed, fuel-metered state transform.
+// Always returns { ok, result|error } — parse rejections (e.g. forbidden atoms)
+// and fuel exhaustion are reported, never thrown into the host.
+export async function runHandler (source: '', input, fuel) {
+  const budget = fuel === undefined ? 1000 : fuel
+  let out
+  try {
+    out = await vm.run(ajs(source), input, { fuel: budget })
+  } catch (parseError) {
+    return { ok: false, error: { message: String(parseError) } }
+  }
+  const result = out.result
+  const errored =
+    (out.error !== null && out.error !== undefined) ||
+    (result !== null && typeof result === 'object' && result.$error === true)
+  if (errored) {
+    const error = out.error === null || out.error === undefined ? result : out.error
+    return { ok: false, error, fuelUsed: out.fuelUsed }
+  }
+  return { ok: true, result, fuelUsed: out.fuelUsed }
+}
+
+// defineComponent whose event handlers are untrusted AJS source strings.
+export function defineUntrusted (spec, fuel) {
+  const methods = {}
+  for (const name of Object.keys(spec.handlers)) {
+    const source = spec.handlers[name]
+    methods[name] = async function (ctx, event) {
+      const input = {
+        state: structuredClone(ctx.snapshot()),
+        event: { type: event === undefined || event === null ? '' : event.type }
+      }
+      const outcome = await runHandler(source, input, fuel)
+      if (outcome.ok && outcome.result !== null && typeof outcome.result === 'object') {
+        for (const key of Object.keys(outcome.result)) ctx.set(key, outcome.result[key])
+      }
+    }
+  }
+  return defineComponent({
+    name: spec.name,
+    state: spec.state,
+    methods,
+    style: spec.style,
+    view: spec.view
+  })
+}

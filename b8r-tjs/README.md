@@ -136,6 +136,8 @@ Verified today:
   definition renders to static HTML and that markup hydrates in place.
 - `src/live.tjs` — the live-editing loop (`applyEdit`): compile editable source (a
   `(lib) => spec` factory) in-process and redefine, hot-reloading live instances.
+- `src/untrusted.tjs` — `defineUntrusted`: component handlers as AJS source, run
+  fuel-metered and capability-isolated in tjs's `AgentVM`.
 - `src/index.tjs` — the authoring barrel.
 
 Proven headlessly (bun + linkedom):
@@ -147,6 +149,8 @@ Proven headlessly (bun + linkedom):
   nodes survive) and wires it to live state.
 - `test/live-edit.test.ts` — mount → edit source text → compile → redefine →
   the live instance updates to the new view with state preserved (the payoff loop).
+- `test/untrusted.test.ts` — an AJS handler drives the UI from inside the sandbox;
+  the host is unreachable; a starved handler is contained by fuel.
 
 ## Layout
 
@@ -200,7 +204,11 @@ block and return-example signature test and failing on any failure.
    edit a component's tjs source → compile in-process → redefine → live instances
    update with state preserved, no vfs, no reload. Type errors / failing inline
    tests in the edited source are caught at compile time.
-8. **Untrusted components** — load community components through AJS.
+8. **Untrusted components** ✅ — `defineUntrusted` (`src/untrusted.tjs`) runs a
+   component's handlers as AJS source in tjs's gas-metered VM: fuel-limited (no
+   infinite loops) and capability-isolated (no DOM/network/globals). A handler is
+   a pure `({ state, event }) → newState` transform; it can change its own state
+   and nothing else.
 
 [b8r]: https://github.com/tonioloewald/bindinator.js
 [tosijs]: https://tosijs.net

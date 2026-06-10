@@ -33,7 +33,8 @@ register('_c', {})         // root holding every instance's private state
 function makeCtx (scope) {
   return {
     get (rel) { return get(scope + '.' + rel) },
-    set (rel, value) { return set(scope + '.' + rel, value) }
+    set (rel, value) { return set(scope + '.' + rel, value) },
+    snapshot () { return get(scope) } // the whole instance state object
   }
 }
 

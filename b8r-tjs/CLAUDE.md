@@ -133,6 +133,11 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   `(lib) => spec` factory (no imports — primitives injected as `lib`, so the
   compiled module loads from a `data:` URL anywhere) and `defineComponent`s the
   result. Imports `compile.tjs`, so also kept out of the barrel.
+- `src/untrusted.tjs` — `defineUntrusted` / `runHandler`. Handlers are AJS source
+  run in `AgentVM` (`tjs-lang/vm`) as pure `({ state, event }) -> newState`
+  transforms: fuel-metered, capability-isolated. `runHandler` never throws —
+  parse rejections and fuel exhaustion come back as `{ ok: false, error }`. Imports
+  `tjs-lang`, so kept out of the barrel.
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).
 - `examples/` — literate example components (not built).
 - `test/*.test.ts` — `bun:test`, headless via `linkedom` (a `parseHTML` document
