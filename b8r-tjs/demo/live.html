@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>b8r-tjs — live edit</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 48rem; }
+    .note { color: #555; }
+    textarea { width: 100%; min-height: 16rem; font-family: ui-monospace, monospace;
+      font-size: 13px; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
+    .row { display: flex; gap: 12px; align-items: center; margin: 10px 0; }
+    button.apply { font: inherit; cursor: pointer; padding: 6px 14px; border-radius: 8px; }
+    #status { color: #777; }
+    .box { display: inline-flex; align-items: center; gap: 12px; padding: 8px 14px;
+      border: 1px solid #ccc; border-radius: 10px; }
+    .box button { font: inherit; cursor: pointer; width: 2em; height: 2em; border-radius: 50%; }
+    .box .n { min-width: 3ch; text-align: center; font-weight: bold; font-size: 1.25rem; }
+  </style>
+  <!-- tjs-lang runs in the browser so the editor can transpile edited source
+       in-process (no vfs, no build step). Here it's vendored locally (run
+       `bun demo/vendor.mjs`) so the demo works offline / in CI with no network.
+       In production, the tjs playground loads it from JSDelivr `/+esm`, which
+       flattens deps and supports dynamic, version-pinned imports. -->
+  <script type="importmap">
+    {
+      "imports": {
+        "b8r-tjs": "../dist/index.js",
+        "tjs-lang/lang": "./vendor/tjs-lang.js",
+        "acorn": "./vendor/acorn.mjs",
+        "tosijs-schema": "./vendor/tosijs-schema.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>b8r-tjs — live edit</h1>
+  <p class="note">
+    Edit the component source below and press <strong>Apply</strong>. It is
+    compiled with <code>tjs</code> in the browser and the definition is swapped —
+    the mounted instance below hot-reloads to the new view <em>with its count
+    preserved</em>. No <code>vfs</code>, no reload.
+  </p>
+
+  <textarea id="src">export default ({ elements }) => {
+  const { div, span, button } = elements
+  return {
+    name: 'live-counter',
+    state: { count: 0 },
+    methods: {
+      inc: (c) => c.set('count', c.get('count') + 1)
+    },
+    view: () => div({ class: 'box' },
+      span({ class: 'n', bindText: 'count' }),
+      button('+', { onClick: 'inc' })
+    )
+  }
+}</textarea>
+
+  <div class="row">
+    <button class="apply" id="apply">Apply (compile &amp; hot-reload)</button>
+    <span id="status">loading tjs…</span>
+  </div>
+
+  <h3>Mounted instance</h3>
+  <div id="app"></div>
+
+  <script type="module">
+    import { mount } from 'b8r-tjs'
+    import { applyEdit } from '../dist/live.js'
+
+    const status = document.querySelector('#status')
+    const srcEl = document.querySelector('#src')
+    let mounted = false
+
+    async function apply () {
+      status.textContent = 'compiling…'
+      window.lastApply = 'pending'
+      try {
+        const { tests } = await applyEdit(srcEl.value)
+        if (!mounted) { mount('live-counter', document.querySelector('#app')); mounted = true }
+        const failed = (tests || []).filter(t => !t.passed).length
+        status.textContent = `applied ✓  (inline tests: ${(tests || []).length}, ${failed} failed)`
+        window.lastApply = 'ok'
+      } catch (e) {
+        status.textContent = 'compile error: ' + (e && e.message ? e.message : String(e))
+        window.lastApply = 'error: ' + (e && e.message ? e.message : String(e))
+      }
+    }
+
+    document.querySelector('#apply').addEventListener('click', apply)
+    apply().then(() => { window.b8rTjsReady = true })
+  </script>
+</body>
+</html>

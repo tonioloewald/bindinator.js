@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>b8r-tjs — hydration</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 44rem; }
+    .note { color: #555; }
+    code { background: #f3f3f3; padding: 0 4px; border-radius: 4px; }
+    pre { background: #f7f7f7; padding: 12px; border-radius: 8px; overflow:auto; }
+  </style>
+  <script type="importmap">
+    { "imports": { "b8r-tjs": "../dist/index.js" } }
+  </script>
+</head>
+<body>
+  <h1>b8r-tjs — hydration</h1>
+  <p class="note">
+    Server-rendered markup (with <code>data-bind</code>/<code>data-event</code>
+    baked in and content pre-filled) is <strong>adopted in place</strong> by
+    <code>hydrate()</code> — the existing DOM nodes are wired to live state, not
+    rebuilt. <em>(For the demo the markup is produced client-side with
+    <code>renderToString</code>; in production your server sends it, so content
+    paints before JS — SEO + TTFI.)</em>
+  </p>
+
+  <h3>Server markup (what <code>renderToString</code> emits)</h3>
+  <pre id="markup"></pre>
+
+  <h3>Live (hydrated — click it)</h3>
+  <div id="server"></div>
+
+  <script type="module">
+    import { defineComponent, renderToString, hydrate, elements, css } from 'b8r-tjs'
+    const { div, span, button } = elements
+
+    defineComponent({
+      name: 'counter',
+      state: { count: 0 },
+      methods: {
+        inc: (c) => c.set('count', c.get('count') + 1),
+        dec: (c) => c.set('count', c.get('count') - 1)
+      },
+      style: css({
+        '.counter': { display: 'inline-flex', alignItems: 'center', gap: '12px',
+          padding: '8px 14px', border: '1px solid #ccc', borderRadius: '10px' },
+        '.counter button': { font: 'inherit', cursor: 'pointer', width: '2em',
+          height: '2em', borderRadius: '50%', border: '1px solid #999' },
+        '.counter .n': { minWidth: '3ch', textAlign: 'center', fontWeight: 'bold',
+          fontSize: '1.25rem' }
+      }),
+      view: () => div({ class: 'counter' },
+        button('−', { onClick: 'dec' }),
+        span({ class: 'n', bindText: 'count' }),
+        button('+', { onClick: 'inc' })
+      )
+    })
+
+    // 1) the "server" produces static HTML with state baked in
+    const serverHTML = renderToString('counter', { count: 3 })
+    document.querySelector('#markup').textContent = serverHTML
+
+    const host = document.querySelector('#server')
+    host.innerHTML = serverHTML // as if delivered by the server
+
+    // 2) prove adoption: stamp an existing node, then hydrate over it
+    const serverNode = host.querySelector('.n')
+    serverNode.__fromServer = true
+    hydrate('counter', host, { count: 3 })
+
+    window.hydrateDemo = {
+      markupHasBinding: serverHTML.includes('data-bind="text:count"'),
+      markupHasEvent: serverHTML.includes('data-event="click:inc"'),
+      adoptedSameNode: host.querySelector('.n').__fromServer === true,
+      shown: host.querySelector('.n').textContent
+    }
+    window.b8rTjsReady = true
+  </script>
+</body>
+</html>
