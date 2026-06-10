@@ -116,7 +116,41 @@ hj eval "(() => { document.querySelector('#inc').click(); return document.queryS
 hj console            # confirm zero errors
 ```
 
-## 4. Desktop / MCP integration
+## 4. CI testing
+
+Haltija is a first-class CI testing tool, not just an interactive driver. The
+split that works well in practice:
+
+- **Playwright** → cross-browser **smoke tests** (Chromium/Firefox/WebKit parity).
+- **Haltija** → **everything else** — functional and integration browser testing,
+  which is faster to author and drive.
+
+Run it in CI:
+
+```bash
+# --ci: Electron app + wait-for-ready + sandbox disabled (pair with a virtual
+#       display such as xvfb-run). Or use --headless for a pure headless browser.
+# --snapshots-dir saves artifacts; --wait-ready blocks until ready for scripting.
+bunx haltija@latest --headless --name myapp --wait-ready \
+  --snapshots-dir ./artifacts \
+  --headless-url http://localhost:8030/your-page.html
+# lock it down on shared CI networks: --token "$HALTIJA_TOKEN"  (then hj --token …)
+```
+
+Author and run test files with the `test` / `recording` commands:
+
+```bash
+hj recording start        # drive the app…
+hj recording stop
+hj recording generate     # …emit a test file from those actions
+hj test run <file>        # run it  (also: hj test suite <file> | hj test validate <file>)
+```
+
+(Exact test-file format: `hj test --help` and `hj recording --help`.) For
+fully scripted checks you can also just chain `hj eval`/`hj click` calls (§2/§3)
+and assert on their JSON `.data` — exit non-zero on mismatch.
+
+## 5. Desktop / MCP integration
 
 On a machine with a display you can register Haltija as a Claude Desktop MCP
 server (exposes `mcp__*` browser tools instead of the CLI):
