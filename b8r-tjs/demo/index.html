@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>b8r-tjs demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 40rem; }
+    h1 { margin-bottom: 0; }
+    p { color: #555; }
+    #app { margin: 1rem 0; }
+    button.add { font: inherit; cursor: pointer; }
+  </style>
+  <!-- the framework is loaded as plain ES modules — no bundler -->
+  <script type="importmap">
+    { "imports": { "b8r-tjs": "../dist/index.js" } }
+  </script>
+</head>
+<body>
+  <h1>b8r-tjs</h1>
+  <p>
+    A counter component: element-creator view, CSS-variable styling, events as
+    named methods, bindings as wiring. Click to update only the wired node;
+    each instance is independent.
+  </p>
+  <div id="app"></div>
+  <button class="add" id="more">+ mount another instance</button>
+
+  <script type="module">
+    import { defineComponent, mount, elements, css } from 'b8r-tjs'
+
+    const { div, span, button } = elements
+
+    defineComponent({
+      name: 'counter',
+      state: { count: 0 },
+      methods: {
+        inc: (ctx) => ctx.set('count', ctx.get('count') + 1),
+        dec: (ctx) => ctx.set('count', ctx.get('count') - 1)
+      },
+      style: css({
+        '.counter': {
+          display: 'inline-flex', alignItems: 'center', gap: '12px',
+          padding: '8px 14px', margin: '4px 0',
+          border: '1px solid #ccc', borderRadius: '10px'
+        },
+        '.counter button': {
+          font: 'inherit', cursor: 'pointer', width: '2em', height: '2em',
+          borderRadius: '50%', border: '1px solid #999'
+        },
+        '.counter .n': { minWidth: '3ch', textAlign: 'center', fontWeight: 'bold', fontSize: '1.25rem' }
+      }),
+      view: () => div(
+        { class: 'counter' },
+        button('−', { onClick: 'dec' }),
+        span({ class: 'n', bindText: 'count' }),
+        button('+', { onClick: 'inc' })
+      )
+    })
+
+    const app = document.querySelector('#app')
+    mount('counter', app)
+
+    document.querySelector('#more').addEventListener('click', () => {
+      const host = document.createElement('div')
+      app.append(host)
+      mount('counter', host)
+    })
+
+    // expose for quick console / automation checks
+    window.b8rTjsReady = true
+  </script>
+</body>
+</html>

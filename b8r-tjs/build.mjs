@@ -50,7 +50,15 @@ async function build () {
       continue
     }
     await mkdir(dirname(out), { recursive: true })
-    await writeFile(out, result.code)
+    // tjs preserves import specifiers verbatim, so `./x.tjs` survives into the
+    // emitted JS. Rewrite relative `.tjs` specifiers to `.js` so the built dist
+    // resolves against its sibling `.js` files (bun's dev plugin loads `.tjs`
+    // directly and never hits this; a browser/Node loading dist does).
+    const code = result.code.replace(
+      /((?:from|import)\s*\(?\s*['"])([^'"]+)\.tjs(['"])/g,
+      '$1$2.js$3'
+    )
+    await writeFile(out, code)
     const tests = result.testCount ? ` (${result.testCount} inline test(s) ✓)` : ''
     console.log(`✓ ${rel}${tests}`)
     count++
