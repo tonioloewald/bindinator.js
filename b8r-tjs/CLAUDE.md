@@ -68,7 +68,7 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
 1. **No `vfs`.** `src/compile.tjs` is why: `tjs(source).code` →
    `data:text/javascript,<encoded>` → `await import(...)`. Edited source becomes
    a live, type-validated ES module with no file and no service worker.
-   `test/compile.test.mjs` guards it (incl. a wrong-typed call returning a
+   `test/compile.test.ts` guards it (incl. a wrong-typed call returning a
    `MonadicError`). Keep that path intact.
 
 2. **Not "reactive."** The view is never a function of state; nothing re-renders
@@ -102,9 +102,27 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
    **hydration** — the same render must be able to *adopt* existing DOM and wire
    bindings to it, never blow it away and rebuild.
 
-## Layout
+## Module map & conventions
 
-- `src/` — framework source, authored in `.tjs`.
-- `examples/` — literate example components (target authoring model; not built).
-- `test/` — Node tests run against built `dist/`.
-- `build.mjs` — the `.tjs` → `.js` transpiler.
+- `src/observe.tjs` — path-observed state (`register`/`get`/`set`/`observe`/
+  `touch`). Stable by default.
+- `src/elements.tjs` — element creator. Props: `style` (object), `onEvent` (fn),
+  attributes, and **`bind*` wiring markers** recorded on the element as
+  `el.__bindings = [{ target, path }]` (e.g. `bindText` → `textContent`). This
+  module never touches state — it only records wiring intent.
+- `src/css.tjs` — `css(spec)` → CSS string (camelCase → kebab); `vars.fooBar` →
+  `var(--foo-bar)`. Pure, so covered by inline + signature tests.
+- `src/component.tjs` — the redefinable registry. Instance state lives in the
+  observe registry under `_c.<instanceId>`; a view's `ctx.get/ctx.set` are scoped
+  to that path. `defineComponent` (re)registers and re-renders live instances;
+  `mount(name, target)` creates one. Bindings are wired by walking the rendered
+  tree for `el.__bindings` and `observe`-ing each path. **Don't** route this
+  through `customElements`.
+- `src/compile.tjs` — the vfs-free loader (imports `tjs-lang`; kept out of the
+  `index.tjs` barrel).
+- `src/index.tjs` — authoring barrel (observe + elements + css + component).
+- `examples/` — literate example components (not built).
+- `test/*.test.ts` — `bun:test`, headless via `linkedom` (a `parseHTML` document
+  assigned to `globalThis.document`). For DOM/cross-module/async behaviour;
+  self-contained logic is covered by inline tests in the `.tjs` sources.
+- `build.mjs` — `.tjs` → `dist/` transpiler + inline/signature-test gate.

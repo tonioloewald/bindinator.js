@@ -122,11 +122,22 @@ metadata on an exported binding.)
 Early, and authored **in tjs** (built to `dist/` via `tjs`, no TypeScript step).
 Verified today:
 
-- `src/compile.tjs` — the vfs-free literate component compiler (`compile` /
-  `toModuleUrl` / `load`).
+- `src/compile.tjs` — the vfs-free literate compiler (`compile` / `toModuleUrl`
+  / `load`).
 - `src/observe.tjs` — path-observed state: `register` / `get` / `set` / `observe`
   / `touch`. Stable by default; bindings wire to it.
-- `build.mjs` — transpiles `src/**/*.tjs` → `dist/**/*.js`.
+- `src/elements.tjs` — the element creator (`elements.div(...)`): children, props,
+  `style`, `onEvent` handlers, and `bind*` wiring markers. No HTML slabs.
+- `src/css.tjs` — `css(...)` and `vars`: styles as data, keyed off CSS variables.
+- `src/component.tjs` — the **redefinable definition registry**
+  (`defineComponent` / `mount`). Instances render from the current definition;
+  redefining hot-reloads every live instance with its state preserved.
+- `src/index.tjs` — the authoring barrel.
+
+The capstone (`test/component.test.ts`) proves it headlessly: two independent
+instances, surgical wiring updates, and **redefine → both live instances
+re-render from the new view, each keeping its own state** — hot reload, no
+browser, no vfs.
 
 ## Layout
 
@@ -163,12 +174,11 @@ block and return-example signature test and failing on any failure.
 
 1. **Compiler** ✅ — vfs-free `compile`/`load` of literate tjs components.
 2. **Observed state** ✅ — path observers; stable by default.
-3. **Element creator + CSS variables** — port tosijs's `elements`/`css`/`vars`
-   ideas into tjs (no HTML/CSS slabs). Renderer runs **headless in Node** so it
-   can both unit-test without a browser and pre-render HTML (see #5).
-4. **Component model** — a redefinable definition registry (not custom
-   elements): tjs-typed state (examples become validation), element-creator
-   views, bindings as wiring, instances re-rendered when a definition is swapped.
+3. **Element creator + CSS variables** ✅ — `elements`/`css`/`vars` ported into
+   tjs (no HTML/CSS slabs); renders headless under bun/linkedom.
+4. **Component model** ✅ — a redefinable definition registry (not custom
+   elements): element-creator views, bindings as wiring, instances re-rendered
+   (state preserved) when a definition is swapped.
 5. **Static generation + hydration** — render component definitions to static
    HTML at build time (the same literate sources that define the doc examples),
    ship that markup plus a hydrating `<script>` that **adopts** the existing DOM

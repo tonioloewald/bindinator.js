@@ -1,0 +1,106 @@
+/*#
+## b8r-tjs · components — a redefinable definition registry
+
+Components are *definitions* held in a registry, not custom elements. Each
+instance renders from whatever definition currently sits under its name, so
+calling `defineComponent` again with the same name re-renders every live
+instance from the new definition **with its state preserved** — hot reload, with
+no `customElements` lock and no page reload.
+
+Bindings are wiring: the view's `bind*` markers (recorded by the element creator)
+are connected to the instance's state through `observe`, so when a bound path
+changes exactly that node updates. Nothing re-renders wholesale.
+
+A definition is `{ name, state, style, view }`:
+- `state` — the per-instance initial data (cloned per instance);
+- `style` — a CSS string (from `css(...)`), injected once per definition;
+- `view(ctx)` — builds the DOM once; `ctx.get(path)` / `ctx.set(path, value)`
+  read and write this instance's state.
+*/
+
+import { get, set, observe, register } from './observe.tjs'
+
+const definitions = {}     // name -> spec
+const instances = {}       // instanceId -> { name, target, unobservers }
+let nextId = 0
+
+register('_c', {})         // root holding every instance's private state
+
+function injectStyle (name, styleText) {
+  if (styleText === undefined || styleText === null) return
+  let styleEl = document.head.querySelector('style[data-component="' + name + '"]')
+  if (styleEl === null) {
+    styleEl = document.createElement('style')
+    styleEl.setAttribute('data-component', name)
+    document.head.append(styleEl)
+  }
+  styleEl.textContent = styleText
+}
+
+function walk (node, visit) {
+  visit(node)
+  const kids = node.childNodes
+  if (kids !== undefined && kids !== null) {
+    for (const kid of kids) {
+      if (kid.nodeType === 1) walk(kid, visit)
+    }
+  }
+}
+
+function clearInstance (inst) {
+  for (const unobserve of inst.unobservers) unobserve()
+  inst.unobservers = []
+  inst.target.textContent = ''
+}
+
+function renderInstance (instanceId) {
+  const inst = instances[instanceId]
+  const spec = definitions[inst.name]
+  clearInstance(inst)
+  const scope = '_c.' + instanceId
+  const ctx = {
+    get (rel) { return get(scope + '.' + rel) },
+    set (rel, value) { return set(scope + '.' + rel, value) }
+  }
+  const node = spec.view(ctx)
+  inst.target.append(node)
+  walk(node, function (el) {
+    if (el.__bindings === undefined) return
+    for (const binding of el.__bindings) {
+      const path = scope + '.' + binding.path
+      const target = binding.target
+      const update = function () { el[target] = get(path) }
+      update()
+      inst.unobservers.push(observe(path, update))
+    }
+  })
+}
+
+// Define — or redefine — a component. If instances of this name are mounted,
+// each is re-rendered from the new definition with its state preserved.
+export function defineComponent (spec) {
+  definitions[spec.name] = spec
+  injectStyle(spec.name, spec.style)
+  for (const instanceId of Object.keys(instances)) {
+    if (instances[instanceId].name === spec.name) renderInstance(instanceId)
+  }
+  return spec
+}
+
+// Mount an instance of a named component into a target element.
+export function mount (name: 'counter', target) {
+  const instanceId = 'i' + nextId
+  nextId = nextId + 1
+  const spec = definitions[name]
+  const initial = spec.state === undefined ? {} : spec.state
+  set('_c.' + instanceId, structuredClone(initial))
+  instances[instanceId] = { name, target, unobservers: [] }
+  renderInstance(instanceId)
+  return instanceId
+}
+
+export function instancesOf (name: 'counter') {
+  return Object.keys(instances).filter(function (id) {
+    return instances[id].name === name
+  })
+}

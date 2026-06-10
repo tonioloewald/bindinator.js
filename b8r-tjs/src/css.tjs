@@ -1,0 +1,50 @@
+/*#
+## b8r-tjs · css + variables
+
+Styles as data, so component files carry no CSS slabs.
+
+- `css({ '.box': { fontSize: '12px' } })` → a CSS string (camelCase properties
+  become kebab-case).
+- `vars.fooBar` → `'var(--foo-bar)'`, so styles key off CSS custom properties
+  instead of hard-coded values.
+
+Both are pure string functions, so they're covered by inline + signature tests
+that run at build time (no DOM needed).
+*/
+
+// 'fooBar' -> 'foo-bar' (return-example signature test runs at build time)
+function kebab (s: 'fooBar'): 'foo-bar' {
+  return s.replace(/[A-Z]/g, function (match) {
+    return '-' + match.toLowerCase()
+  })
+}
+
+export function css (spec) {
+  let out = ''
+  for (const selector of Object.keys(spec)) {
+    const rules = spec[selector]
+    out = out + selector + ' {\n'
+    for (const prop of Object.keys(rules)) {
+      out = out + '  ' + kebab(prop) + ': ' + rules[prop] + ';\n'
+    }
+    out = out + '}\n'
+  }
+  return out
+}
+
+export const vars = new Proxy({}, {
+  get (_target, name) {
+    return 'var(--' + kebab(name) + ')'
+  }
+})
+
+test 'css emits kebab-cased declarations inside the selector' {
+  const out = css({ '.box': { fontSize: '12px', backgroundColor: 'red' } })
+  expect(out.includes('.box {')).toBe(true)
+  expect(out.includes('font-size: 12px;')).toBe(true)
+  expect(out.includes('background-color: red;')).toBe(true)
+}
+
+test 'vars references a CSS custom property' {
+  expect(vars.spacingSmall).toBe('var(--spacing-small)')
+}

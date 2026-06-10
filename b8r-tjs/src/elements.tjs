@@ -1,0 +1,68 @@
+/*#
+## b8r-tjs · element creator
+
+Build real DOM nodes from plain JavaScript — no HTML slabs. `elements.div(...)`
+creates a `<div>`; `elements.myThing(...)` creates `<my-thing>`. Each creator
+takes children (strings/numbers → text nodes, nodes → appended, arrays →
+flattened, `null`/`false` → skipped) and plain-object props:
+
+- `style` (object) → inline styles (camelCase keys);
+- `onEvent` (function) → `addEventListener('event', fn)`;
+- `bind*` (string) → a *wiring marker* recorded on the element for the component
+  layer to connect to instance state (`bindText` → `textContent`, `bindValue`
+  → `value`, etc.); nothing here resolves the path — wiring is the component's job;
+- anything else → an attribute.
+
+This module only creates DOM and records wiring intent; it never touches state.
+*/
+
+function isNode (x) {
+  return x !== null && typeof x === 'object' && typeof x.nodeType === 'number'
+}
+
+// 'onClick' -> 'click' (a return-example signature test, run at build time)
+function eventName (key: 'onClick'): 'click' {
+  return key.slice(2).toLowerCase()
+}
+
+function applyProps (el, props) {
+  for (const key of Object.keys(props)) {
+    const value = props[key]
+    if (key === 'style' && value !== null && typeof value === 'object') {
+      for (const styleKey of Object.keys(value)) {
+        el.style[styleKey] = value[styleKey]
+      }
+    } else if (key.startsWith('on') && typeof value === 'function') {
+      el.addEventListener(eventName(key), value)
+    } else if (key.startsWith('bind')) {
+      const target = key === 'bindText' ? 'textContent' : key.slice(4).toLowerCase()
+      if (el.__bindings === undefined) el.__bindings = []
+      el.__bindings.push({ target, path: value })
+    } else {
+      el.setAttribute(key, value)
+    }
+  }
+}
+
+function appendChild (el, child) {
+  if (child === null || child === undefined || child === false) return
+  if (Array.isArray(child)) {
+    for (const each of child) appendChild(el, each)
+  } else if (isNode(child)) {
+    el.append(child)
+  } else if (typeof child === 'object') {
+    applyProps(el, child)
+  } else {
+    el.append(document.createTextNode(String(child)))
+  }
+}
+
+export const elements = new Proxy({}, {
+  get (_target, tag) {
+    return function (...args) {
+      const el = document.createElement(tag)
+      for (const arg of args) appendChild(el, arg)
+      return el
+    }
+  }
+})

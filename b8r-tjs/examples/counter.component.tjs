@@ -1,46 +1,45 @@
 /*#
 # Counter
 
-A sketch of the target authoring model for b8r-tjs (roadmap #4 — the API here
-does not exist yet). It shows the shape we are building toward:
+The target authoring model — and now it actually runs (see
+`test/component.test.ts`). A **redefinable definition**, not a custom element; a
+view built from the **element creator** (no HTML slab); styles as **data keyed
+off CSS variables** (no CSS slab); behaviour as a typed tjs function whose
+example values are its types.
 
-- A component is a **definition object**, not a custom element — so it can be
-  redefined at runtime and every live instance updates (hot reload, live edit).
-- **No slabs of HTML or CSS**: the view is built with the element creator and the
-  styles are a plain object keyed off CSS variables.
-- **Bindings are wiring**: `bindText: 'count'` wires that one text node to the
-  `count` path. When `count` changes, that node updates — nothing else re-runs.
-  The view function builds the DOM **once**; it is not re-invoked on every change.
-- Behaviour is plain, typed tjs functions whose example values (`count: 0`,
-  `by: 1`) are simultaneously their types, docs, and tests.
+Bindings are **wiring**: `bindText: 'count'` updates just that one node when
+`count` changes. The view builds the DOM once — it is not a function of state and
+is not re-run on every change.
 */
 
-import { defineComponent, elements, css, vars } from '../src/index.tjs'
+import { defineComponent, mount, elements, css, vars } from '../src/index.tjs'
 
-const { div, button, span } = elements
+const { div, span, button } = elements
 
-// behaviour lives in plain, typed functions — examples are the types
+// behaviour is a plain, typed function — `count: 0` / `by: 1` are its types
 export function step (count: 0, by: 1) {
   return count + by
 }
 
 export const counter = defineComponent({
   name: 'counter',
-  // initial instance state; `count: 0` is also its type (an integer)
   state: { count: 0 },
-  // styles as data, keyed off CSS variables — no CSS slab
   style: css({
-    ':scope': {
+    '.counter': {
       display: 'inline-flex',
       alignItems: 'center',
-      gap: vars.spacingSmall_100
+      gap: vars.spacingSmall
     },
     button: { font: 'inherit', cursor: 'pointer' }
   }),
-  // the view builds real DOM nodes ONCE; bindings wire paths to nodes
-  view: ({ get, set }) => div(
-    button('−', { onClick: () => set('count', step(get('count'), -1)) }),
+  view: (ctx) => div(
+    { class: 'counter' },
+    button('−', { onClick: () => ctx.set('count', step(ctx.get('count'), -1)) }),
     span({ bindText: 'count' }),
-    button('+', { onClick: () => set('count', step(get('count'), 1)) })
+    button('+', { onClick: () => ctx.set('count', step(ctx.get('count'), 1)) })
   )
 })
+
+// mount it: mount('counter', document.querySelector('#app'))
+// hot reload: call defineComponent({ name: 'counter', ... }) again — every
+// mounted instance re-renders from the new definition, state preserved.
