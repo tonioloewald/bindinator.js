@@ -7,13 +7,17 @@ takes children (strings/numbers → text nodes, nodes → appended, arrays →
 flattened, `null`/`false` → skipped) and plain-object props:
 
 - `style` (object) → inline styles (camelCase keys);
-- `onEvent` (function) → `addEventListener('event', fn)`;
-- `bind*` (string) → a *wiring marker* recorded on the element for the component
-  layer to connect to instance state (`bindText` → `textContent`, `bindValue`
-  → `value`, etc.); nothing here resolves the path — wiring is the component's job;
+- `onEvent` → a handler: a **string** names a method on the component definition
+  and is recorded as a serializable `data-event="event:method"` attribute (this
+  is what makes the DOM hydratable); a **function** is attached directly with
+  `addEventListener` (client-only, not serializable);
+- `bind*` (string) → a serializable `data-bind="type:path"` wiring marker
+  (`bindText` → `text:path`, `bindValue` → `value:path`); the component layer
+  resolves these against instance state — nothing here touches state;
 - anything else → an attribute.
 
-This module only creates DOM and records wiring intent; it never touches state.
+Because wiring lives in attributes (not closures), the same markup serializes for
+static generation and is adopted as-is on hydration.
 */
 
 function isNode (x) {
@@ -25,6 +29,12 @@ function eventName (key: 'onClick'): 'click' {
   return key.slice(2).toLowerCase()
 }
 
+// accumulate a `;`-separated token into an attribute (data-bind / data-event)
+function addToken (el, attr, token) {
+  const existing = el.getAttribute(attr)
+  el.setAttribute(attr, existing === null ? token : existing + ';' + token)
+}
+
 function applyProps (el, props) {
   for (const key of Object.keys(props)) {
     const value = props[key]
@@ -32,12 +42,15 @@ function applyProps (el, props) {
       for (const styleKey of Object.keys(value)) {
         el.style[styleKey] = value[styleKey]
       }
-    } else if (key.startsWith('on') && typeof value === 'function') {
-      el.addEventListener(eventName(key), value)
+    } else if (key.startsWith('on')) {
+      if (typeof value === 'function') {
+        el.addEventListener(eventName(key), value)
+      } else {
+        addToken(el, 'data-event', eventName(key) + ':' + value)
+      }
     } else if (key.startsWith('bind')) {
-      const target = key === 'bindText' ? 'textContent' : key.slice(4).toLowerCase()
-      if (el.__bindings === undefined) el.__bindings = []
-      el.__bindings.push({ target, path: value })
+      const type = key === 'bindText' ? 'text' : key.slice(4).toLowerCase()
+      addToken(el, 'data-bind', type + ':' + value)
     } else {
       el.setAttribute(key, value)
     }

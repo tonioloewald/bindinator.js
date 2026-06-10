@@ -106,18 +106,25 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
 
 - `src/observe.tjs` — path-observed state (`register`/`get`/`set`/`observe`/
   `touch`). Stable by default.
-- `src/elements.tjs` — element creator. Props: `style` (object), `onEvent` (fn),
-  attributes, and **`bind*` wiring markers** recorded on the element as
-  `el.__bindings = [{ target, path }]` (e.g. `bindText` → `textContent`). This
-  module never touches state — it only records wiring intent.
+- `src/elements.tjs` — element creator. Props: `style` (object), attributes,
+  `on*` handlers, and `bind*` markers. Wiring is recorded as **serializable
+  attributes** (so it survives to static HTML and hydration): `bindText: 'x'` →
+  `data-bind="text:x"`; `onClick: 'inc'` (string method name) →
+  `data-event="click:inc"`. An `on*` *function* is attached directly with
+  `addEventListener` (client-only, not serializable). This module never touches
+  state — only records wiring intent.
 - `src/css.tjs` — `css(spec)` → CSS string (camelCase → kebab); `vars.fooBar` →
   `var(--foo-bar)`. Pure, so covered by inline + signature tests.
-- `src/component.tjs` — the redefinable registry. Instance state lives in the
-  observe registry under `_c.<instanceId>`; a view's `ctx.get/ctx.set` are scoped
-  to that path. `defineComponent` (re)registers and re-renders live instances;
-  `mount(name, target)` creates one. Bindings are wired by walking the rendered
-  tree for `el.__bindings` and `observe`-ing each path. **Don't** route this
-  through `customElements`.
+- `src/component.tjs` — the redefinable registry. A definition is `{ name, state,
+  methods, style, view }`; events are **named methods** `methods.foo(ctx, event)`.
+  Instance state lives under `_c.<instanceId>` in the observe registry; a view's
+  `ctx.get/ctx.set` are scoped to that path. `defineComponent` (re)registers and
+  re-renders live instances; `mount` builds the DOM; `renderToString` bakes a
+  static HTML snapshot (SSG); `hydrate` adopts existing server DOM in place (no
+  rebuild). All of these wire by walking for `data-bind`/`data-event` attributes
+  — one code path for mount, SSG, and hydration. **Don't** route through
+  `customElements`. **Note:** the registry/instances are module singletons, so in
+  bun tests (shared module cache) use a unique component `name` per test file.
 - `src/compile.tjs` — the vfs-free loader (imports `tjs-lang`; kept out of the
   `index.tjs` barrel).
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).

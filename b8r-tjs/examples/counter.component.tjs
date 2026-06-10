@@ -1,18 +1,20 @@
 /*#
 # Counter
 
-The target authoring model — and now it actually runs (see
-`test/component.test.ts`). A **redefinable definition**, not a custom element; a
-view built from the **element creator** (no HTML slab); styles as **data keyed
-off CSS variables** (no CSS slab); behaviour as a typed tjs function whose
-example values are its types.
+The target authoring model — and it actually runs (see `test/component.test.ts`
+and `test/ssg-hydrate.test.ts`). A **redefinable definition**, not a custom
+element; a view from the **element creator** (no HTML slab); styles as **data
+keyed off CSS variables** (no CSS slab); behaviour as **named methods** and a
+typed tjs function whose example values are its types.
 
-Bindings are **wiring**: `bindText: 'count'` updates just that one node when
-`count` changes. The view builds the DOM once — it is not a function of state and
-is not re-run on every change.
+Wiring is declarative and serializable: `bindText: 'count'` and `onClick: 'inc'`
+become `data-bind` / `data-event` attributes. That is what lets the same view be
+pre-rendered to static HTML (`renderToString`) and **hydrated in place**
+(`hydrate`) — adopted node-for-node, never rebuilt. Bindings are wiring: when
+`count` changes, only that one node updates; the view builds the DOM once.
 */
 
-import { defineComponent, mount, elements, css, vars } from '../src/index.tjs'
+import { defineComponent, elements, css, vars } from '../src/index.tjs'
 
 const { div, span, button } = elements
 
@@ -24,6 +26,10 @@ export function step (count: 0, by: 1) {
 export const counter = defineComponent({
   name: 'counter',
   state: { count: 0 },
+  methods: {
+    dec (ctx) { ctx.set('count', step(ctx.get('count'), -1)) },
+    inc (ctx) { ctx.set('count', step(ctx.get('count'), 1)) }
+  },
   style: css({
     '.counter': {
       display: 'inline-flex',
@@ -32,14 +38,16 @@ export const counter = defineComponent({
     },
     button: { font: 'inherit', cursor: 'pointer' }
   }),
-  view: (ctx) => div(
+  view: () => div(
     { class: 'counter' },
-    button('−', { onClick: () => ctx.set('count', step(ctx.get('count'), -1)) }),
+    button('−', { onClick: 'dec' }),
     span({ bindText: 'count' }),
-    button('+', { onClick: () => ctx.set('count', step(ctx.get('count'), 1)) })
+    button('+', { onClick: 'inc' })
   )
 })
 
-// mount it: mount('counter', document.querySelector('#app'))
-// hot reload: call defineComponent({ name: 'counter', ... }) again — every
-// mounted instance re-renders from the new definition, state preserved.
+// client:  mount('counter', document.querySelector('#app'))
+// static:  const html = renderToString('counter')        // SEO + TTFI
+// hydrate: hydrate('counter', serverRenderedEl, { count: 0 })  // adopt the DOM
+// reload:  call defineComponent({ name: 'counter', ... }) again — live instances
+//          re-render from the new definition, state preserved.

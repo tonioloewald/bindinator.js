@@ -130,14 +130,19 @@ Verified today:
   `style`, `onEvent` handlers, and `bind*` wiring markers. No HTML slabs.
 - `src/css.tjs` — `css(...)` and `vars`: styles as data, keyed off CSS variables.
 - `src/component.tjs` — the **redefinable definition registry**
-  (`defineComponent` / `mount`). Instances render from the current definition;
-  redefining hot-reloads every live instance with its state preserved.
+  (`defineComponent` / `mount` / `renderToString` / `hydrate`). Wiring is
+  declarative and serializable: views declare `bindText`/`onClick`, recorded as
+  `data-bind`/`data-event` attributes; events are **named methods**. So a
+  definition renders to static HTML and that markup hydrates in place.
 - `src/index.tjs` — the authoring barrel.
 
-The capstone (`test/component.test.ts`) proves it headlessly: two independent
-instances, surgical wiring updates, and **redefine → both live instances
-re-render from the new view, each keeping its own state** — hot reload, no
-browser, no vfs.
+Proven headlessly (bun + linkedom):
+- `test/component.test.ts` — two independent instances, surgical wiring updates,
+  and **redefine → both live instances re-render from the new view, each keeping
+  its own state** (hot reload, no browser, no vfs).
+- `test/ssg-hydrate.test.ts` — `renderToString` bakes content + wiring attributes
+  into static markup, and `hydrate` **adopts** that server DOM in place (the same
+  nodes survive) and wires it to live state.
 
 ## Layout
 
@@ -179,11 +184,10 @@ block and return-example signature test and failing on any failure.
 4. **Component model** ✅ — a redefinable definition registry (not custom
    elements): element-creator views, bindings as wiring, instances re-rendered
    (state preserved) when a definition is swapped.
-5. **Static generation + hydration** — render component definitions to static
-   HTML at build time (the same literate sources that define the doc examples),
-   ship that markup plus a hydrating `<script>` that **adopts** the existing DOM
-   and wires bindings to it. Content paints before JS → SEO + fast TTFI; the
-   "no HTML slabs" rule means the static markup is generated, never maintained.
+5. **Static generation + hydration** ✅ — `renderToString` bakes content +
+   `data-bind`/`data-event` wiring into static HTML (SEO + TTFI); `hydrate`
+   adopts that server DOM in place and wires it. (Next: a build step that emits
+   pages from the literate sources + a delegated, root-level event listener.)
 6. **Performance cutouts** — if profiling demands it, make the binding-apply
    layer an explicit unsafe (`!`) fast path and batch DOM writes. Off by default.
 7. **Live editor** — the payoff loop: edit a component's tjs source → `compile()`

@@ -1,6 +1,7 @@
-// The capstone: components are redefinable definitions, bindings are wiring.
-// Runs headlessly on linkedom — no browser. Proves instance isolation, surgical
-// wiring updates, and hot reload (redefine → live instances update, state kept).
+// The capstone: components are redefinable definitions, bindings are wiring,
+// events are named methods. Runs headlessly on linkedom — no browser. Proves
+// instance isolation, surgical wiring updates, and hot reload (redefine → live
+// instances update, state kept).
 import { test, expect } from 'bun:test'
 import { parseHTML } from 'linkedom'
 
@@ -14,7 +15,7 @@ const { defineComponent, mount, instancesOf } = await import('../src/component.t
 
 const { div, span, button } = elements
 
-// targets and instances persist across tests in this file (shared module state)
+// targets persist across tests in this file (shared module state)
 const a = document.createElement('div')
 const b = document.createElement('div')
 document.body.append(a)
@@ -23,14 +24,16 @@ document.body.append(b)
 const shown = (target: any) => target.querySelector('.tally').textContent
 
 test('mounted instances render initial state and are independent', () => {
-  // v1 definition
   defineComponent({
     name: 'counter',
     state: { count: 0 },
+    methods: {
+      inc (ctx: any) { ctx.set('count', ctx.get('count') + 1) }
+    },
     style: css({ '.tally': { fontWeight: 'bold' } }),
-    view: (ctx: any) => div(
+    view: () => div(
       span({ class: 'tally', bindText: 'count' }),
-      button('+', { class: 'inc', onClick: () => ctx.set('count', ctx.get('count') + 1) })
+      button('+', { class: 'inc', onClick: 'inc' })
     )
   })
   mount('counter', a)
@@ -53,15 +56,18 @@ test('a style element is injected once per definition', () => {
 
 test('redefining hot-reloads every live instance, keeping per-instance state', () => {
   // (continuing: A shows 1, B shows 0)
-  // v2: a different view — a label prefix and a decrement button, SAME state shape
+  // v2: a different view + method (decrement), SAME state shape
   defineComponent({
     name: 'counter',
     state: { count: 0 },
+    methods: {
+      dec (ctx: any) { ctx.set('count', ctx.get('count') - 1) }
+    },
     style: css({ '.tally': { color: 'red' } }),
-    view: (ctx: any) => div(
+    view: () => div(
       span('count = '),
       span({ class: 'tally', bindText: 'count' }),
-      button('−', { class: 'dec', onClick: () => ctx.set('count', ctx.get('count') - 1) })
+      button('−', { class: 'dec', onClick: 'dec' })
     )
   })
 
