@@ -107,12 +107,15 @@ fenced exception, never the default.
 ```js
 import { tjs } from 'tjs-lang/lang'
 const { code } = tjs(componentSource)                 // transpile in-process
-const mod = await import('data:text/javascript,' + encodeURIComponent(code))
+const mod = await import('data:text/javascript;base64,' + base64(code))
 ```
 
 No file is written, no service worker registered. `src/compile.tjs` implements
-this and `test/compile.test.mjs` proves it round-trips — including that a
-wrong-typed call into the loaded module returns a `MonadicError`.
+this and `test/compile.test.ts` proves it round-trips — including that a
+wrong-typed call into the loaded module returns a `MonadicError`. (We base64-
+encode the `data:` URL rather than percent-encode it: it is UTF-8 safe and bun's
+data: loader classifies it as ESM correctly even when tjs emits `fn.__tjs = {…}`
+metadata on an exported binding.)
 
 ## Status
 
@@ -129,20 +132,32 @@ Verified today:
 
 ```
 b8r-tjs/
-  src/        framework source, authored in .tjs
-  examples/   literate example components (target authoring model)
-  test/       Node tests run against built dist/
-  build.mjs   .tjs -> .js transpiler (single pass via tjs)
-  dist/       build output (gitignored)
+  src/                framework source, authored in .tjs
+  examples/           literate example components (target authoring model)
+  test/               bun:test files, importing .tjs directly (no build)
+  tjs-bun-plugin.ts   bun loader for .tjs (preloaded via bunfig.toml)
+  bunfig.toml         bun config (preloads the plugin)
+  build.mjs           .tjs -> dist transpiler + inline/signature test gate
+  dist/               distributable build output (gitignored)
 ```
 
 ## Commands
 
+Tooling is **bun-first** — the tjs toolchain is built to integrate with bun, and
+tjs does true TypeScript transpilation, so `.tjs` (and `.ts`) just work with no
+config beyond a one-line plugin. A `bunfig.toml` preloads `tjs-bun-plugin.ts`, so
+`.tjs` files are imported directly (transpiled with runtime validation) — **no
+build step for development or tests.**
+
 ```bash
-npm install      # tjs-lang (the only dependency)
-npm run build    # transpile src/**/*.tjs -> dist/
-npm test         # build, then run Node tests against dist/
+bun install      # tjs-lang (the only dependency)
+bun test         # run inline + signature tests (build) then integration tests
+bun run build    # produce distributable JS in dist/ (also gates inline tests)
 ```
+
+`bun test` imports `.tjs` straight from `src/` via the plugin. `bun run build`
+(`build.mjs`) transpiles `src/**/*.tjs` → `dist/`, running every inline `test`
+block and return-example signature test and failing on any failure.
 
 ## Roadmap
 

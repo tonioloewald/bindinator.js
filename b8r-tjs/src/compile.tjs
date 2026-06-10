@@ -28,10 +28,18 @@ export function compile (source: '') {
 
 /*
 Turn emitted JavaScript into a `data:` URL that `import()` accepts. This is the
-single line that replaces b8r's whole `vfs` round-trip.
+single step that replaces b8r's whole `vfs` round-trip. We base64-encode (rather
+than percent-encode) because it is UTF-8 safe and, unlike percent-encoding, bun's
+data: loader classifies it as ES module correctly even when the code assigns
+metadata to an exported binding (tjs emits `fn.__tjs = { ... }`).
 */
 export function toModuleUrl (code: '') {
-  return 'data:text/javascript,' + encodeURIComponent(code)
+  const bytes = new TextEncoder().encode(code)
+  let binary = ''
+  for (const byte of bytes) {
+    binary = binary + String.fromCharCode(byte)
+  }
+  return 'data:text/javascript;base64,' + btoa(binary)
 }
 
 /*

@@ -4,21 +4,35 @@ A ground-up reimagining of bindinator (b8r): the tosijs primitives expressed in
 the **tjs** language, runtime-type-safe and literate, with **no `vfs`**. See
 `README.md` for the full thesis. This file is the working guide.
 
-## Commands
+## Commands (bun-first)
 
 ```bash
-npm install      # tjs-lang + tosijs
-npm run build    # transpile src/**/*.tjs -> dist/**/*.js (single pass via tjs)
-npm test         # build, then node --test against dist/
+bun install      # tjs-lang (the only dependency)
+bun test         # build.mjs (inline + signature tests) then bun:test integration
+bun run build    # produce distributable dist/ + gate inline/signature tests
 ```
 
-## How the build works
+The tooling targets **bun**. `bunfig.toml` preloads `tjs-bun-plugin.ts`, which
+runs every imported `.tjs` file through `tjs()` — so `.tjs` imports directly with
+**no build step** for development or tests. (tjs also does true TypeScript
+transpilation, so `.ts` works too; we author framework source in `.tjs` to get
+the example-types → runtime-validation + signature tests.)
 
-`build.mjs` walks `src/**/*.tjs`, runs each through `tjs(source)` from
-`tjs-lang/lang`, and writes the emitted JavaScript to `dist/`. There is **no
-bundler and no TypeScript step** — `tjs` strips the example-types, injects
-runtime validation, runs inline `test` blocks, and emits standalone JS (each
-file carries a minimal inline runtime fallback). `dist/` is gitignored.
+## How the build / loaders work
+
+- **Dev & tests:** import `.tjs` directly under bun (the plugin transpiles on
+  load, `runTests: false`). `test/*.test.ts` use `bun:test`.
+- **Inline/signature tests:** `build.mjs` (run via `bun ./build.mjs`) walks
+  `src/**/*.tjs`, runs each through `tjs(source)` with tests on, fails the build
+  on any failure, and writes standalone JS to `dist/` (gitignored). This is the
+  test gate for self-contained logic and the distributable emitter. No bundler.
+- **Loading compiled source (the vfs killer):** `src/compile.tjs` `toModuleUrl`
+  builds a **base64** `data:` URL — *not* percent-encoded. Why: bun's data:
+  loader misclassifies a percent-encoded module as CJS when it assigns metadata
+  to an exported binding (tjs emits `fn.__tjs = {…}`), collapsing named exports
+  to `{default,__esModule}`. base64 is read as ESM correctly (and is UTF-8 safe).
+  Node and browsers handle either form; base64 is the portable choice. Don't
+  revert it.
 
 ## Writing tjs (read before editing `.tjs`)
 

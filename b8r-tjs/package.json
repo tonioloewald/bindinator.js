@@ -4,15 +4,15 @@
   "description": "A literate, runtime-type-safe UI framework: b8r's light-DOM model and tosijs's primitives ported into the tjs language. Stable by default, no service-worker vfs.",
   "type": "module",
   "scripts": {
-    "build": "node build.mjs",
-    "test": "node build.mjs && node --test test/*.test.mjs"
+    "build": "bun ./build.mjs",
+    "test": "bun ./build.mjs && bun test"
   },
   "keywords": [
     "tjs",
     "tosijs",
     "bindinator",
+    "bun",
     "web-components",
-    "reactive",
     "literate",
     "runtime-types"
   ],
