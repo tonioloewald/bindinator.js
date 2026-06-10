@@ -1,7 +1,7 @@
 # bun bug: `data:` JS modules collapse ESM → CJS when an exported binding gets a property
 
-**Status:** not yet filed upstream (`oven-sh/bun`). Workaround in place: `src/compile.tjs`
-`toModuleUrl` base64-encodes the `data:` URL.
+**Status:** Filed upstream — [oven-sh/bun#32057](https://github.com/oven-sh/bun/issues/32057).
+Workaround in place: `src/compile.tjs` `toModuleUrl` base64-encodes the `data:` URL.
 
 ## Summary
 
