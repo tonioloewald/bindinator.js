@@ -31,8 +31,9 @@ the example-types → runtime-validation + signature tests.)
   loader misclassifies a percent-encoded module as CJS when it assigns metadata
   to an exported binding (tjs emits `fn.__tjs = {…}`), collapsing named exports
   to `{default,__esModule}`. base64 is read as ESM correctly (and is UTF-8 safe).
-  Node and browsers handle either form; base64 is the portable choice. Don't
-  revert it.
+  Node and browsers handle either form; base64 is the portable choice (raw/
+  unencoded URLs are also unsafe — `#` parses as a fragment, `%` as an escape).
+  Don't revert it. Full write-up + minimal repro: `docs/bun-data-url-esm-bug.md`.
 
 ## Writing tjs (read before editing `.tjs`)
 
