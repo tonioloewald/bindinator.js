@@ -7,15 +7,21 @@
   const info = findOne('.info');
   b8r.component('./path-browser');
   b8r.component(get().url, undefined, true).then(c => {
-    let docs_md, source;
-    if (c._source.indexOf('<!--') === 0) {
+    let docs_md;
+    // v1 (.component.html) components preserve their source; v2 (.js) ones do not
+    if (c._source && c._source.indexOf('<!--') === 0) {
       [docs_md] = c._source.substr(4).split('-->');
     } else {
       docs_md = `# ${get().url}`;
     }
     md({elt: info, source: docs_md});
     editor.ready().then(() => {
-      editor.data.loadSource(c._source)
+      if (c._source) {
+        editor.data.loadSource(c._source, 'auto', get().url)
+      } else {
+        // v2 component: render it directly (editing v2 in-place is a TODO)
+        editor.data.previewComponent(c)
+      }
     })
   });
 </script>

@@ -121,6 +121,11 @@ export default {
 }
 `,
       state: '{}',
+      // when a legacy (.component.html) component is loaded we render it via
+      // the original v1 path instead of the vfs round-trip, so its
+      // dependencies (relative imports, sub-components) resolve correctly
+      legacy: false,
+      url: '',
       about () {
         window.alert('Rapid app development like it’s the 90s!')
         return true
@@ -148,23 +153,32 @@ export default {
       focusSearch () {
         findOne('.menu-search').focus()
       },
-      loadSource (source, type = 'auto') {
+      loadSource (source, type = 'auto', url = '') {
         if (type === 'auto') {
           type = source.match(/^\s*</) ? 'html' : 'js'
         }
         if (type === 'js') {
-
+          // TODO: deconstruct a v2 (pure Javascript) component so it can be
+          // edited here. For now just flag it as non-legacy.
+          set({ legacy: false, url })
         } else {
-          // adapted from b8r.makeComponent but actually more robust!
-          let parts; let remains; let docs = 'untitled'; let css = '/* no styles found */'; let html = ''; let js = 'export default {}'
+          // Parse a legacy `.component.html` into its parts. We keep the
+          // `<script>` body verbatim (rather than wrapping it in a v2 `load`)
+          // and rebuild/render it via the original v1 component path in
+          // reload(), so relative imports and sub-component dependencies
+          // resolve exactly as they do on the live site.
+          let parts; let remains = source
+          let docs = '# untitled'; let css = '/* no styles found */'; let html = ''; let js = ''
 
-          parts = source.split(/-->/)
-          if (parts.length === 2) {
-            [docs, remains] = parts
+          // only the leading <!-- ... --> comment is documentation; matching
+          // it explicitly avoids being fooled by a `-->` inside the script
+          const docMatch = source.match(/^\s*<!--([\s\S]*?)-->/)
+          if (docMatch) {
+            docs = docMatch[1]
+            remains = source.slice(docMatch[0].length)
           }
-          docs = docs.split(/<!--/)[1]
 
-          parts = remains.split(/<style>|<\/style>/).map(s => s.replace(/^\n+|\n+$/, ''))
+          parts = remains.split(/<style>|<\/style>/).map(s => s.replace(/^\n+|\n+$/g, ''))
           if (parts.length === 3) {
             [, css, remains] = parts
           }
@@ -172,50 +186,49 @@ export default {
           parts = remains.split(/<script[^>\n]*>|<\/script>/)
           if (parts.length >= 3) {
             [html, js] = parts
-            html = html.trim('\n')
-
-            const funcs = ['component', 'b8r', 'find', 'findOne', 'data', 'register', 'get', 'set', 'on', 'touch'].filter(func => js.includes(func))
-            js = js.replace(/'use strict';?\n|"use strict";?\n/g, '').trim('\n')
-            // TODO set up warnings, e.g. for register
-            js = `export default {
-  async load({${funcs.join(', ')}}) {
-    ${js.split('\n').map(line => `      ${line}`).join('\n').replace(/\s*("use strict"|'use strict');?\s*\n/, '')}
-  }
-}`
           } else {
-            html = remains.trim('\n')
+            html = remains
           }
 
-          // extract docs
-          if (docs) {
-            docs = docs.replace(/<!--/, '')
-            docs = docs.replace(/-->/, '')
-            docs = docs.trim('\n')
-          } else {
-            docs = '# untitled'
-          }
+          docs = docs.replace(/^\n+|\n+$/g, '')
+          html = html.replace(/^\n+|\n+$/g, '')
+          js = js.replace(/^\n+|\n+$/g, '')
 
-          // rewrite inline template variables to be safer
-          html = html.replace(/\$\{([^}]+)\}/g, '{{$1}}')
-
-          set({ docs, css, html, js })
-          console.log('setting', { docs, css, html, js })
+          set({ docs, css, html, js, legacy: true, url })
           component.data.reload()
         }
       },
+      // Preview an already-loaded v2 (pure Javascript) component. Editing v2
+      // components in place is still a TODO, so this just renders it.
+      previewComponent (c) {
+        set({ legacy: false, url: c.name })
+        view.empty()
+        view.name = c.name
+      },
       getSource () {
-        let { docs, css, html, js } = component.data
-        js = `/**\n${docs}\n*/\n\n` + js.replace(/\bexport default {/,
+        const { docs, css, html, js, legacy } = component.data
+        if (legacy) {
+          // round-trip back to legacy `.component.html` source
+          return `<!--\n${docs}\n-->\n\n<style>\n${css}\n</style>\n${html}\n<script>\n${js}\n</script>\n`
+        }
+        return `/**\n${docs}\n*/\n\n` + js.replace(/\bexport default {/,
 `export default {
   css: \`${css}\`,\n
   html: \`${html}\`,\n`)
-        return js
       },
       async reload () {
-        const js = component.data.getSource()
+        const source = component.data.getSource()
         const cid = `ce-${id()}`
+        if (component.data.legacy) {
+          // Render legacy components via the original v1 path (no vfs
+          // round-trip), so their dependencies resolve as they did before.
+          b8r.makeComponent(cid, source, component.data.url || cid)
+          view.empty()
+          view.name = cid
+          return
+        }
         const vfsPath = `/${vfsRoot}/${cid}.js`
-        await b8r.ajax(vfsPath, 'POST', js)
+        await b8r.ajax(vfsPath, 'POST', source)
         import(vfsPath).then(exports => {
           b8r.makeComponent(cid, exports.default)
           view.empty()
