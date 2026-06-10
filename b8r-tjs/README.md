@@ -134,6 +134,8 @@ Verified today:
   declarative and serializable: views declare `bindText`/`onClick`, recorded as
   `data-bind`/`data-event` attributes; events are **named methods**. So a
   definition renders to static HTML and that markup hydrates in place.
+- `src/live.tjs` — the live-editing loop (`applyEdit`): compile editable source (a
+  `(lib) => spec` factory) in-process and redefine, hot-reloading live instances.
 - `src/index.tjs` — the authoring barrel.
 
 Proven headlessly (bun + linkedom):
@@ -143,6 +145,8 @@ Proven headlessly (bun + linkedom):
 - `test/ssg-hydrate.test.ts` — `renderToString` bakes content + wiring attributes
   into static markup, and `hydrate` **adopts** that server DOM in place (the same
   nodes survive) and wires it to live state.
+- `test/live-edit.test.ts` — mount → edit source text → compile → redefine →
+  the live instance updates to the new view with state preserved (the payoff loop).
 
 ## Layout
 
@@ -192,8 +196,10 @@ block and return-example signature test and failing on any failure.
    path does ~0.9M `set`/sec, so shipped `batch()` (opt-in burst coalescing,
    ~1000× fewer callbacks) and deliberately did **not** add the unsafe
    validation-skip — the profile doesn't justify it. Off by default, by design.
-7. **Live editor** — the payoff loop: edit a component's tjs source → `compile()`
-   → install the new definition → live instances update, no vfs, no reload.
+7. **Live editor** ✅ — the payoff loop, closed (`src/live.tjs`, `applyEdit`):
+   edit a component's tjs source → compile in-process → redefine → live instances
+   update with state preserved, no vfs, no reload. Type errors / failing inline
+   tests in the edited source are caught at compile time.
 8. **Untrusted components** — load community components through AJS.
 
 [b8r]: https://github.com/tonioloewald/bindinator.js

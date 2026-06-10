@@ -129,6 +129,10 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   bun tests (shared module cache) use a unique component `name` per test file.
 - `src/compile.tjs` — the vfs-free loader (imports `tjs-lang`; kept out of the
   `index.tjs` barrel).
+- `src/live.tjs` — the live-edit loop. `applyEdit(source)` compiles an editable
+  `(lib) => spec` factory (no imports — primitives injected as `lib`, so the
+  compiled module loads from a `data:` URL anywhere) and `defineComponent`s the
+  result. Imports `compile.tjs`, so also kept out of the barrel.
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).
 - `examples/` — literate example components (not built).
 - `test/*.test.ts` — `bun:test`, headless via `linkedom` (a `parseHTML` document

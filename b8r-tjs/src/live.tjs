@@ -1,0 +1,51 @@
+/*#
+## b8r-tjs · live editing — the whole point
+
+This closes the loop that justifies the project: **edit a component's tjs source
+→ compile it in-process → redefine → every live instance updates.** No `vfs`, no
+bundler, no page reload, and the edited code is type-checked (and its inline
+tests run) on the way in.
+
+The editable unit is a **factory**: `export default (lib) => spec`. It takes no
+imports — the b8r-tjs primitives (`elements`, `css`, `vars`) are injected as
+`lib` — so the compiled module is self-contained and loads from a `data:` URL in
+any runtime (and, for untrusted components later, could run under AJS). The
+returned `spec` is fed straight to `defineComponent`, whose redefinition
+re-renders mounted instances with their state preserved.
+
+    applyEdit(`
+      export default ({ elements }) => {
+        const { div, span, button } = elements
+        return {
+          name: 'counter',
+          state: { count: 0 },
+          methods: { inc: (ctx) => ctx.set('count', ctx.get('count') + 1) },
+          view: () => div(
+            span({ bindText: 'count' }),
+            button('+', { onClick: 'inc' })
+          )
+        }
+      }
+    `)
+*/
+
+import { load } from './compile.tjs'
+import { elements } from './elements.tjs'
+import { css, vars } from './css.tjs'
+import { defineComponent } from './component.tjs'
+
+const lib = { elements, css, vars }
+
+// Compile editable component source (a `(lib) => spec` factory), run it with the
+// injected primitives, and install the definition — hot-reloading live instances.
+// Returns the definition plus any inline test/warning results from the source,
+// so an editor can surface them.
+export async function applyEdit (source: '') {
+  const result = await load(source)
+  const spec = result.module.default(lib)
+  return {
+    definition: defineComponent(spec),
+    tests: result.tests,
+    warnings: result.warnings
+  }
+}
