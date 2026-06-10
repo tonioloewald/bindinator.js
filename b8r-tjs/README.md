@@ -188,8 +188,10 @@ block and return-example signature test and failing on any failure.
    `data-bind`/`data-event` wiring into static HTML (SEO + TTFI); `hydrate`
    adopts that server DOM in place and wires it. (Next: a build step that emits
    pages from the literate sources + a delegated, root-level event listener.)
-6. **Performance cutouts** — if profiling demands it, make the binding-apply
-   layer an explicit unsafe (`!`) fast path and batch DOM writes. Off by default.
+6. **Performance cutouts** ✅ — profiled (`docs/perf.md`): the default validated
+   path does ~0.9M `set`/sec, so shipped `batch()` (opt-in burst coalescing,
+   ~1000× fewer callbacks) and deliberately did **not** add the unsafe
+   validation-skip — the profile doesn't justify it. Off by default, by design.
 7. **Live editor** — the payoff loop: edit a component's tjs source → `compile()`
    → install the new definition → live instances update, no vfs, no reload.
 8. **Untrusted components** — load community components through AJS.

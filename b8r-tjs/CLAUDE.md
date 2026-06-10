@@ -105,7 +105,9 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
 ## Module map & conventions
 
 - `src/observe.tjs` — path-observed state (`register`/`get`/`set`/`observe`/
-  `touch`). Stable by default.
+  `touch`). Stable by default. `batch(fn)` is the opt-in perf cutout: coalesces a
+  burst of changes so each observer fires once (default path stays synchronous).
+  See `docs/perf.md` for the benchmark + why the unsafe validation-skip is off.
 - `src/elements.tjs` — element creator. Props: `style` (object), attributes,
   `on*` handlers, and `bind*` markers. Wiring is recorded as **serializable
   attributes** (so it survives to static HTML and hydration): `bindText: 'x'` →

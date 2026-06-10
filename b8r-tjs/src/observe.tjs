@@ -14,6 +14,12 @@ until you `touch` its path, on purpose.
 const registry = {}
 const observers = []
 
+// batching: while a `batch` is open, changes are recorded and notification is
+// deferred to the end, where each affected observer fires exactly once. The
+// default (un-batched) path stays fully synchronous.
+let batching = false
+let dirty = null
+
 // walk the registry along a pre-split path, stopping safely at any gap
 function valueAtParts (parts: ['app', 'foo']) {
   let node = registry
@@ -56,9 +62,15 @@ function notify (changed: 'app.foo') {
   }
 }
 
+// mark a path changed: defer to the open batch, or notify now
+function changed (path) {
+  if (batching) dirty.push(path)
+  else notify(path)
+}
+
 // force-notify observers of a path — use after mutating an object in place
 export function touch (path: 'app.foo') {
-  notify(path)
+  changed(path)
 }
 
 // set the value at a dotted path. Stable by default: no notification unless the
@@ -70,8 +82,33 @@ export function set (path: 'app.foo', value) {
   if (parent === null || parent === undefined) return undefined
   if (parent[last] === value) return value
   parent[last] = value
-  notify(path)
+  changed(path)
   return value
+}
+
+// Run `fn`, coalescing every change made inside it: when `fn` returns, each
+// affected observer fires exactly once (deduped at the observer level), no
+// matter how many `set`/`touch` calls — or how many overlapping paths — hit it.
+// This is the opt-in performance cutout for bursty updates; outside a batch the
+// default path stays synchronous. Nested batches join the outermost one.
+export function batch (fn) {
+  if (batching) return fn()
+  batching = true
+  dirty = []
+  fn()
+  batching = false
+  const paths = dirty
+  dirty = null
+  for (const observer of [...observers]) {
+    let hit = false
+    for (const path of paths) {
+      if (pathsOverlap(observer.path, path)) {
+        hit = true
+        break
+      }
+    }
+    if (hit) observer.callback(paths[0])
+  }
 }
 
 // wire a callback to a path. Returns an unobserve function.
@@ -126,4 +163,20 @@ test 'observers fire for overlapping ancestor/descendant paths' {
   set('t4.a.b', 2)
   expect(parent).toBe(1)
   expect(child).toBe(1)
+}
+
+test 'batch coalesces a burst into one notification per observer' {
+  register('t5', { a: { b: 0 }, c: 0 })
+  let onA = 0
+  let onB = 0
+  observe('t5.a', () => { onA = onA + 1 })       // overlaps t5.a.b and t5.a
+  observe('t5.a.b', () => { onB = onB + 1 })
+  batch(function () {
+    set('t5.a.b', 1)   // touches t5.a (overlap) and t5.a.b
+    set('t5.a.b', 2)   // same paths again
+    set('t5.c', 9)     // unrelated to the observers above
+  })
+  expect(onA).toBe(1)          // fired once despite two overlapping sets
+  expect(onB).toBe(1)          // fired once despite two sets to its path
+  expect(get('t5.a.b')).toBe(2)
 }

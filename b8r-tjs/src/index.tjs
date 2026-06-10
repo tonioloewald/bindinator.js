@@ -7,7 +7,7 @@ the redefinable component registry. (The literate compiler lives in
 pulls in `tjs-lang`, so it is intentionally not part of this barrel.)
 */
 
-export { register, get, set, observe, touch } from './observe.tjs'
+export { register, get, set, observe, touch, batch } from './observe.tjs'
 export { elements } from './elements.tjs'
 export { css, vars } from './css.tjs'
 export { defineComponent, mount, hydrate, renderToString, instancesOf } from './component.tjs'
