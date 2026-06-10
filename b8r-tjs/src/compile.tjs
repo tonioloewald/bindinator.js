@@ -1,0 +1,51 @@
+/*#
+## b8r-tjs · the component compiler
+
+The literate heart of b8r-tjs — and the reason it has no `vfs`.
+
+Classic b8r reconstructed an edited component, wrote it to a service-worker
+"virtual file system", and re-`import()`ed it just so the browser's module
+loader would accept the string. tjs removes the need entirely: a component's
+source *is* tjs, tjs transpiles it to runnable JavaScript in-process (injecting
+runtime type-validation and running any inline `test` blocks), and a `data:`
+URL turns that string into a live ES module — no file, no service worker.
+*/
+
+import { tjs } from 'tjs-lang/lang'
+
+/*
+Transpile component source. Returns the emitted JavaScript plus whatever the
+inline `test` blocks reported, so an editor can surface failures inline.
+*/
+export function compile (source: '') {
+  const result = tjs(source)
+  return {
+    code: result.code,
+    tests: result.testResults === undefined ? [] : result.testResults,
+    warnings: result.warnings === undefined ? [] : result.warnings
+  }
+}
+
+/*
+Turn emitted JavaScript into a `data:` URL that `import()` accepts. This is the
+single line that replaces b8r's whole `vfs` round-trip.
+*/
+export function toModuleUrl (code: '') {
+  return 'data:text/javascript,' + encodeURIComponent(code)
+}
+
+/*
+Compile component source and import it as a live ES module. Self-contained
+components (the common case for a live editor) need nothing else; components
+with bare imports resolve those through the page's import map / CDN, exactly as
+any other module would.
+*/
+export async function load (source: '') {
+  const compiled = compile(source)
+  const module = await import(toModuleUrl(compiled.code))
+  return {
+    module,
+    tests: compiled.tests,
+    warnings: compiled.warnings
+  }
+}

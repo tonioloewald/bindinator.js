@@ -1,0 +1,24 @@
+{
+  "name": "b8r-tjs",
+  "version": "0.0.1",
+  "description": "A literate, runtime-type-safe reactive UI framework: tosijs primitives expressed in the tjs language, with no service-worker vfs.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node build.mjs && node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "tjs",
+    "tosijs",
+    "bindinator",
+    "web-components",
+    "reactive",
+    "literate",
+    "runtime-types"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "tjs-lang": "^0.8.1",
+    "tosijs": "^1.6.1"
+  }
+}
