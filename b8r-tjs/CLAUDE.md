@@ -72,6 +72,21 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
 4. **Port, don't depend.** The tosijs *ideas* (proxy state, element creator, css
    vars) are reimplemented in tjs. The only runtime dependency is `tjs-lang`.
 
+5. **Safe by default, fast where it counts.** Validated typed boundaries are the
+   default — that is what makes running edited/untrusted code safe. Don't scatter
+   `!` unsafe markers. *If* profiling shows the binding-apply / DOM-update inner
+   loop is hot, make that one layer an explicit unsafe cutout (`!` /
+   `safety none`) and batch DOM writes. A fenced exception, never the norm.
+   ("Bindings are wiring" already removes the VDOM-diff cost, so the only thing
+   left to cut is per-apply validation.)
+
+6. **The renderer runs headless and hydrates.** Build the render path on a
+   headless DOM (`linkedom`) so it works in Node, not just a browser. This is one
+   capability serving three needs: unit tests without a browser; **static
+   generation** (pre-render component definitions to HTML for SEO + TTFI); and
+   **hydration** — the same render must be able to *adopt* existing DOM and wire
+   bindings to it, never blow it away and rebuild.
+
 ## Layout
 
 - `src/` — framework source, authored in `.tjs`.

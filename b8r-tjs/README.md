@@ -77,6 +77,22 @@ Because the definition is owned and mutable:
 Shadow DOM is available when you want encapsulation, but it is opt-in, not the
 model.
 
+## Safe by default, fast where it counts
+
+Every typed boundary is validated at runtime. That is the default, and it is the
+whole reason b8r-tjs can run edited — eventually *untrusted* — component code
+without flinching. Validation is not free, but "bindings are wiring" already
+removes the expensive part (there is no VDOM diff), so the only cost left is
+per-apply type checks.
+
+If and when profiling shows the DOM-apply inner loop is hot, tjs lets us cut it
+without giving up the rule: a `!`-marked function skips validation, and a whole
+module can opt out via `safety none` / `TjsCompat`. The plan is therefore: keep
+authoring and public APIs safe; turn *only* the binding-apply layer into an
+explicit, well-tested unsafe cutout, and batch/coalesce DOM writes (an async
+update queue) so we touch the DOM as little as possible. The fast path is a
+fenced exception, never the default.
+
 ## What tjs makes first-class (the hacks b8r faked)
 
 | b8r hack | b8r-tjs |
@@ -133,14 +149,21 @@ npm test         # build, then run Node tests against dist/
 1. **Compiler** ✅ — vfs-free `compile`/`load` of literate tjs components.
 2. **Observed state** ✅ — path observers; stable by default.
 3. **Element creator + CSS variables** — port tosijs's `elements`/`css`/`vars`
-   ideas into tjs (no HTML/CSS slabs).
+   ideas into tjs (no HTML/CSS slabs). Renderer runs **headless in Node** so it
+   can both unit-test without a browser and pre-render HTML (see #5).
 4. **Component model** — a redefinable definition registry (not custom
    elements): tjs-typed state (examples become validation), element-creator
    views, bindings as wiring, instances re-rendered when a definition is swapped.
-5. **Hydration** — adopt existing server-rendered HTML rather than replacing it.
-6. **Live editor** — the payoff loop: edit a component's tjs source → `compile()`
+5. **Static generation + hydration** — render component definitions to static
+   HTML at build time (the same literate sources that define the doc examples),
+   ship that markup plus a hydrating `<script>` that **adopts** the existing DOM
+   and wires bindings to it. Content paints before JS → SEO + fast TTFI; the
+   "no HTML slabs" rule means the static markup is generated, never maintained.
+6. **Performance cutouts** — if profiling demands it, make the binding-apply
+   layer an explicit unsafe (`!`) fast path and batch DOM writes. Off by default.
+7. **Live editor** — the payoff loop: edit a component's tjs source → `compile()`
    → install the new definition → live instances update, no vfs, no reload.
-7. **Untrusted components** — load community components through AJS.
+8. **Untrusted components** — load community components through AJS.
 
 [b8r]: https://github.com/tonioloewald/bindinator.js
 [tosijs]: https://tosijs.net
