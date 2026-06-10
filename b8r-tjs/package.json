@@ -1,7 +1,7 @@
 {
   "name": "b8r-tjs",
   "version": "0.0.1",
-  "description": "A literate, runtime-type-safe reactive UI framework: tosijs primitives expressed in the tjs language, with no service-worker vfs.",
+  "description": "A literate, runtime-type-safe UI framework: b8r's light-DOM model and tosijs's primitives ported into the tjs language. Stable by default, no service-worker vfs.",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
@@ -18,7 +18,6 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "tjs-lang": "^0.8.1",
-    "tosijs": "^1.6.1"
+    "tjs-lang": "^0.8.1"
   }
 }

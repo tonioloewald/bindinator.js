@@ -1,0 +1,83 @@
+/*#
+## b8r-tjs · observed state
+
+Path-observed application state — the b8r/xin registry idea, ported into tjs.
+
+This is **not** "reactive". The view is never a function of this state and
+nothing re-renders wholesale. State is **stable by default**: `set`ting a path to
+the value it already holds notifies no one. Bindings are *wiring* — an observer
+watches a path and, when (and only when) that path actually changes, runs the one
+small update it was wired to do. Mutating an object in place notifies no one
+until you `touch` its path, on purpose.
+*/
+
+const registry = {}
+const observers = []
+
+// walk the registry along a pre-split path, stopping safely at any gap
+function valueAtParts (parts: ['app', 'foo']) {
+  let node = registry
+  for (const part of parts) {
+    if (node === null || node === undefined) return undefined
+    node = node[part]
+  }
+  return node
+}
+
+// register a named root of state. This is the initial wiring-up; it does not
+// notify observers (there is nothing yet wired to it).
+export function register (name: 'app', value) {
+  registry[name] = value
+  return registry[name]
+}
+
+// read the value at a dotted path (undefined for any missing segment)
+export function get (path: 'app.foo') {
+  return valueAtParts(path.split('.'))
+}
+
+// an observer of `observed` should fire for a change at `changed` when either
+// path contains the other: a change to app.foo.bar concerns observers of
+// app.foo and of app.foo.bar.baz alike.
+function pathsOverlap (observed: 'app.foo', changed: 'app.foo') {
+  return (
+    observed === changed ||
+    observed.startsWith(changed + '.') ||
+    changed.startsWith(observed + '.')
+  )
+}
+
+function notify (changed: 'app.foo') {
+  // copy first: a callback may add or remove observers while we iterate
+  for (const observer of [...observers]) {
+    if (pathsOverlap(observer.path, changed)) observer.callback(changed)
+  }
+}
+
+// force-notify observers of a path — use after mutating an object in place
+export function touch (path: 'app.foo') {
+  notify(path)
+}
+
+// set the value at a dotted path. Stable by default: no notification unless the
+// value actually changes (identity for objects — replace, or mutate + touch).
+export function set (path: 'app.foo', value) {
+  const parts = path.split('.')
+  const last = parts.pop()
+  const parent = valueAtParts(parts)
+  if (parent === null || parent === undefined) return undefined
+  if (parent[last] === value) return value
+  parent[last] = value
+  notify(path)
+  return value
+}
+
+// wire a callback to a path. Returns an unobserve function.
+export function observe (path: 'app.foo', callback) {
+  const observer = { path, callback }
+  observers.push(observer)
+  return function unobserve () {
+    const index = observers.indexOf(observer)
+    if (index !== -1) observers.splice(index, 1)
+  }
+}

@@ -39,17 +39,29 @@ tjs is **not** TypeScript. The single biggest trap:
 Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
 `node_modules/tjs-lang/llms.txt`.
 
-## The core idea (don't regress it)
+## Design principles (don't regress these)
 
-`src/compile.tjs` is the reason there is no `vfs`:
+1. **No `vfs`.** `src/compile.tjs` is why: `tjs(source).code` →
+   `data:text/javascript,<encoded>` → `await import(...)`. Edited source becomes
+   a live, type-validated ES module with no file and no service worker.
+   `test/compile.test.mjs` guards it (incl. a wrong-typed call returning a
+   `MonadicError`). Keep that path intact.
 
-```
-tjs(source).code  ->  data:text/javascript,<encoded>  ->  await import(...)
-```
+2. **Not "reactive."** The view is never a function of state; nothing re-renders
+   wholesale. State is **stable by default** (`set` to an unchanged value
+   notifies no one; mutate-in-place + `touch` to force). **Bindings are wiring**:
+   an observer watches a path and does one specific update when it changes. Don't
+   introduce VDOM/diffing/"view = f(state)". The word "reactive" stays out.
 
-Edited component source becomes a live, type-validated ES module with no file
-and no service worker. `test/compile.test.mjs` guards this (including that a
-wrong-typed call returns a `MonadicError`). Keep that path intact.
+3. **Components are redefinable definitions, not custom elements.** A component
+   is a definition in an owned registry, reused by every instance and swappable
+   at runtime. Do **not** build the component model on `customElements` — their
+   definitions are immutable once registered, which kills hot reload / live
+   editing (the payoff loop: edit tjs → `compile()` → reinstall definition → live
+   instances update). Shadow DOM is opt-in, not the model.
+
+4. **Port, don't depend.** The tosijs *ideas* (proxy state, element creator, css
+   vars) are reimplemented in tjs. The only runtime dependency is `tjs-lang`.
 
 ## Layout
 

@@ -1,18 +1,21 @@
 /*#
 # Counter
 
-A sketch of the target authoring model for b8r-tjs components. There are **no
-slabs of HTML or CSS** here: the view is built with the element creator and the
-styles are a plain object keyed off CSS variables. The behaviour is a tjs
-function whose example values (`count: 0`, `by: 1`) are simultaneously its
-types, its docs, and — via inline `test` blocks — its tests.
+A sketch of the target authoring model for b8r-tjs (roadmap #4 — the API here
+does not exist yet). It shows the shape we are building toward:
 
-> This file is illustrative and is not part of the built `src/`. It shows where
-> the framework is going (component model, step 2 on the roadmap), built on the
-> tosijs `Component` / `elements` / `css` primitives.
+- A component is a **definition object**, not a custom element — so it can be
+  redefined at runtime and every live instance updates (hot reload, live edit).
+- **No slabs of HTML or CSS**: the view is built with the element creator and the
+  styles are a plain object keyed off CSS variables.
+- **Bindings are wiring**: `bindText: 'count'` wires that one text node to the
+  `count` path. When `count` changes, that node updates — nothing else re-runs.
+  The view function builds the DOM **once**; it is not re-invoked on every change.
+- Behaviour is plain, typed tjs functions whose example values (`count: 0`,
+  `by: 1`) are simultaneously their types, docs, and tests.
 */
 
-import { Component, elements, css, vars } from 'tosijs'
+import { defineComponent, elements, css, vars } from '../src/index.tjs'
 
 const { div, button, span } = elements
 
@@ -21,28 +24,23 @@ export function step (count: 0, by: 1) {
   return count + by
 }
 
-export class CounterComponent extends Component {
+export const counter = defineComponent({
+  name: 'counter',
+  // initial instance state; `count: 0` is also its type (an integer)
+  state: { count: 0 },
   // styles as data, keyed off CSS variables — no CSS slab
-  static shadowStyleSpec = css({
-    ':host': {
+  style: css({
+    ':scope': {
       display: 'inline-flex',
       alignItems: 'center',
       gap: vars.spacingSmall_100
     },
-    button: {
-      font: 'inherit',
-      cursor: 'pointer'
-    }
-  })
-
-  count = 0
-
-  // the view is real DOM nodes, composed in JavaScript — no HTML slab
-  content = () => div(
-    button('−', { onClick: () => { this.count = step(this.count, -1) } }),
-    span({ dataBind: 'text=count' }),
-    button('+', { onClick: () => { this.count = step(this.count, 1) } })
+    button: { font: 'inherit', cursor: 'pointer' }
+  }),
+  // the view builds real DOM nodes ONCE; bindings wire paths to nodes
+  view: ({ get, set }) => div(
+    button('−', { onClick: () => set('count', step(get('count'), -1)) }),
+    span({ bindText: 'count' }),
+    button('+', { onClick: () => set('count', step(get('count'), 1)) })
   )
-}
-
-export const component = CounterComponent.elementCreator({ tag: 'b8r-counter' })
+})
