@@ -154,7 +154,9 @@ Verified today:
   fuel-metered and capability-isolated in tjs's `AgentVM`.
 - `src/b8r-compat.tjs` — **b8r → tosijs adapter**: hydrates legacy b8r
   `data-bind`/`data-event` markup onto the tosijs binding engine (`bind`/`on`/
-  `xin`), the first piece of the rebase.
+  `xin`), plus **`data-list`** → tosijs list bindings and a new **`data-virtual`**
+  attribute that opts a list into tosijs's virtual (windowed) rendering — a real
+  upgrade over b8r.
 - `src/b8r-component.tjs` — **legacy `.component.html` loader**: runs a real b8r
   component (markup + `data-bind` + `<script>`) on tosijs, with `_component_`
   paths scoped per instance and a b8r-style script context (`get`/`set`/`findOne`…).

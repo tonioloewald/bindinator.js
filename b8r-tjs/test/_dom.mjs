@@ -15,7 +15,7 @@ export function setupDom () {
   const dom = parseHTML('<!DOCTYPE html><html><head></head><body></body></html>')
   const globals = [
     'document', 'HTMLElement', 'Element', 'Node', 'Text', 'Comment',
-    'DocumentFragment', 'customElements', 'MutationObserver', 'getComputedStyle',
+    'DocumentFragment', 'customElements', 'getComputedStyle',
     'NodeFilter', 'HTMLTemplateElement', 'HTMLInputElement', 'HTMLSelectElement',
     'HTMLTextAreaElement', 'HTMLButtonElement', 'HTMLAnchorElement'
   ]
@@ -23,6 +23,12 @@ export function setupDom () {
     try { if (dom[key] !== undefined) globalThis[key] = dom[key] } catch {}
   }
   try { globalThis.window = globalThis } catch {}
+  // linkedom's MutationObserver fires tosijs's list-cleanup callback in a way
+  // that throws; reconciliation runs on tosijs's path observers, not this, so a
+  // no-op stub keeps lists working headlessly (cleanup-on-removal is browser-only).
+  try {
+    globalThis.MutationObserver = class { observe () {} disconnect () {} takeRecords () { return [] } }
+  } catch {}
   if (!globalThis.requestAnimationFrame) {
     globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 0)
   }

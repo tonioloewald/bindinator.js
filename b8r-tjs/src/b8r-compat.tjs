@@ -14,16 +14,32 @@ Supported targets: `text`, `value`, `checked`, `attr(x)`, `prop(x)`, `style(x)`,
 covered: `data-list`, key-qualified / multi-type events, relative (`.foo`) paths.
 */
 
-import { bind, bindings, on, xin, tosiValue } from 'tosijs'
+import { bind, bindings, on, xin, tosiValue, boxedProxy, elements } from 'tosijs'
 
-// resolve a value (e.g. an event handler) at a dotted path through xin
-function valueAtPath (path) {
+// navigate the xin registry to a dotted path
+function nodeAtPath (path) {
   let node = xin
   for (const part of path.split('.')) {
     if (node === null || node === undefined) return undefined
     node = node[part]
   }
-  return tosiValue(node)
+  return node
+}
+
+// navigate within a list item by a relative path like `.name` or `.a.b`
+function itemNode (item, relativePath) {
+  let node = item
+  for (const part of relativePath.split('.')) {
+    if (part === '') continue
+    if (node === null || node === undefined) return undefined
+    node = node[part]
+  }
+  return node
+}
+
+// resolve a value (e.g. an event handler) at a dotted path through xin
+function valueAtPath (path) {
+  return tosiValue(nodeAtPath(path))
 }
 
 // b8r targets expressed as tosijs XinBindings. The parenthesised argument of a
@@ -94,6 +110,87 @@ function applyEvents (element, spec, resolve) {
   }
 }
 
+// --- list bindings: b8r `data-list` (+ `data-virtual`) → tosijs list binding ---
+
+// wire one row element's data-bind/data-event relative to its list `item`
+// (`.field` paths resolve within the item; absolute paths go through `resolve`)
+function bindRowElement (element, item, resolve) {
+  const bindSpec = element.getAttribute('data-bind')
+  if (bindSpec !== null) {
+    for (const entry of bindSpec.split(/;|\n/)) {
+      const trimmed = entry.trim()
+      if (trimmed === '') continue
+      const eq = trimmed.indexOf('=')
+      if (eq === -1) continue
+      const targetPart = trimmed.slice(0, eq).trim()
+      const rawPath = trimmed.slice(eq + 1).trim()
+      const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
+      if (match === null) continue
+      const binding = b8rTargets[match[1]]
+      if (binding === undefined) continue
+      const what = rawPath.startsWith('.') ? itemNode(item, rawPath) : resolve(rawPath)
+      bind(element, what, binding, { arg: match[2] })
+    }
+    element.removeAttribute('data-bind')
+  }
+  const eventSpec = element.getAttribute('data-event')
+  if (eventSpec !== null) {
+    for (const entry of eventSpec.split(/;|\n/)) {
+      const trimmed = entry.trim()
+      if (trimmed === '') continue
+      const colon = trimmed.indexOf(':')
+      if (colon === -1) continue
+      const type = trimmed.slice(0, colon).trim()
+      const rawPath = trimmed.slice(colon + 1).trim()
+      on(element, type, function (event) {
+        const handler = rawPath.startsWith('.')
+          ? tosiValue(itemNode(item, rawPath))
+          : valueAtPath(resolve(rawPath))
+        if (typeof handler === 'function') handler(event, element, item)
+      })
+    }
+    element.removeAttribute('data-event')
+  }
+}
+
+// build one row from the b8r template element, bound to `item`
+function buildRow (templateElement, item, resolve) {
+  const row = templateElement.cloneNode(true)
+  row.removeAttribute('data-list')
+  row.removeAttribute('data-virtual')
+  bindRowElement(row, item, resolve)
+  for (const element of row.querySelectorAll('[data-bind],[data-event]')) {
+    bindRowElement(element, item, resolve)
+  }
+  return row
+}
+
+// replace a b8r `data-list` template's container with a tosijs list binding.
+// `data-list="path:idPath"` selects the array + reconciliation key;
+// `data-virtual="<rowHeight>"` opts into tosijs virtual (windowed) rendering.
+function bindList (templateElement, resolve) {
+  const spec = templateElement.getAttribute('data-list')
+  const colon = spec.indexOf(':')
+  const listPath = resolve((colon === -1 ? spec : spec.slice(0, colon)).trim())
+  const idPath = colon === -1 ? undefined : spec.slice(colon + 1).trim()
+  const arrayProxy = boxedProxy(nodeAtPath(listPath))
+  if (arrayProxy === undefined || typeof arrayProxy.listBinding !== 'function') return
+  const options = { idPath }
+  const virtual = templateElement.getAttribute('data-virtual')
+  if (virtual !== null) options.virtual = { height: Number(virtual) }
+  const container = templateElement.parentElement
+  if (container === null) return
+  const tag = container.tagName.toLowerCase()
+  const tuple = arrayProxy.listBinding(function (_elements, item) {
+    return buildRow(templateElement, item, resolve)
+  }, options)
+  const newContainer = elements[tag](...tuple)
+  for (const attribute of [...container.attributes]) {
+    newContainer.setAttribute(attribute.name, attribute.value)
+  }
+  container.replaceWith(newContainer)
+}
+
 function identity (path) { return path }
 
 // Wire one element's b8r `data-bind` / `data-event` attributes via tosijs.
@@ -110,6 +207,11 @@ export function bindElement (element, resolve = identity) {
 // `options.resolve` (path → path) rewrites paths, e.g. for instance scoping.
 export function hydrateB8r (root, options = {}) {
   const resolve = options.resolve === undefined ? identity : options.resolve
+  // lists first: each `data-list` template owns its subtree and replaces its
+  // container with a tosijs-managed list (whose rows have their attrs consumed).
+  for (const listElement of [...root.querySelectorAll('[data-list]')]) {
+    bindList(listElement, resolve)
+  }
   bindElement(root, resolve)
   for (const element of root.querySelectorAll('[data-bind],[data-event]')) {
     bindElement(element, resolve)
