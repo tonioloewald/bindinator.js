@@ -1,0 +1,111 @@
+/*#
+## b8r-tjs · b8r → tosijs compatibility adapter
+
+Runs legacy **b8r markup on the tosijs binding engine**. It reads b8r's
+`data-bind` / `data-event` attributes and wires them with tosijs `bind` / `on` /
+`xin` — hydrating b8r's targets onto tosijs bindings. The binding *syntax* is
+unchanged, so existing b8r components/markup keep working:
+
+    data-bind="text=app.message; attr(title)=app.tip; class(active)=app.isOn"
+    data-event="click:app.handler"
+
+Supported targets: `text`, `value`, `checked`, `attr(x)`, `prop(x)`, `style(x)`,
+`class(x)`, `showIf[(v)]`, `hideIf[(v)]`, `enabledIf`, `disabledIf`. Not yet
+covered: `data-list`, key-qualified / multi-type events, relative (`.foo`) paths.
+*/
+
+import { bind, bindings, on, xin, tosiValue } from 'tosijs'
+
+// resolve a value (e.g. an event handler) at a dotted path through xin
+function valueAtPath (path) {
+  let node = xin
+  for (const part of path.split('.')) {
+    if (node === null || node === undefined) return undefined
+    node = node[part]
+  }
+  return tosiValue(node)
+}
+
+// b8r targets expressed as tosijs XinBindings. The parenthesised argument of a
+// target (e.g. the attribute name in `attr(title)`) arrives as `options.arg`.
+const b8rTargets = {
+  text: bindings.text,
+  value: bindings.value,
+  enabledIf: bindings.enabled,
+  disabledIf: bindings.disabled,
+  checked: {
+    toDOM (element, value) { element.checked = Boolean(value) },
+    fromDOM (element) { return element.checked }
+  },
+  attr: {
+    toDOM (element, value, options) {
+      if (value === null || value === undefined || value === false) {
+        element.removeAttribute(options.arg)
+      } else {
+        element.setAttribute(options.arg, value === true ? '' : String(value))
+      }
+    }
+  },
+  prop: { toDOM (element, value, options) { element[options.arg] = value } },
+  style: { toDOM (element, value, options) { element.style[options.arg] = value } },
+  class: { toDOM (element, value, options) { element.classList.toggle(options.arg, Boolean(value)) } },
+  showIf: {
+    toDOM (element, value, options) {
+      const show = options.arg === undefined ? Boolean(value) : String(value) === options.arg
+      element.style.display = show ? '' : 'none'
+    }
+  },
+  hideIf: {
+    toDOM (element, value, options) {
+      const hide = options.arg === undefined ? Boolean(value) : String(value) === options.arg
+      element.style.display = hide ? 'none' : ''
+    }
+  }
+}
+
+function applyBindings (element, spec) {
+  for (const entry of spec.split(/;|\n/)) {
+    const trimmed = entry.trim()
+    if (trimmed === '') continue
+    const eq = trimmed.indexOf('=')
+    if (eq === -1) continue
+    const targetPart = trimmed.slice(0, eq).trim()
+    const path = trimmed.slice(eq + 1).trim()
+    const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
+    if (match === null) continue
+    const binding = b8rTargets[match[1]]
+    if (binding === undefined) continue
+    bind(element, path, binding, { arg: match[2] })
+  }
+}
+
+function applyEvents (element, spec) {
+  for (const entry of spec.split(/;|\n/)) {
+    const trimmed = entry.trim()
+    if (trimmed === '') continue
+    const colon = trimmed.indexOf(':')
+    if (colon === -1) continue
+    const type = trimmed.slice(0, colon).trim()
+    const path = trimmed.slice(colon + 1).trim()
+    on(element, type, function (event) {
+      const handler = valueAtPath(path)
+      if (typeof handler === 'function') handler(event, element)
+    })
+  }
+}
+
+// Wire one element's b8r `data-bind` / `data-event` attributes via tosijs.
+export function bindElement (element) {
+  const bindSpec = element.getAttribute('data-bind')
+  if (bindSpec !== null) applyBindings(element, bindSpec)
+  const eventSpec = element.getAttribute('data-event')
+  if (eventSpec !== null) applyEvents(element, eventSpec)
+}
+
+// Hydrate every b8r binding within a root element (inclusive) onto tosijs.
+export function hydrateB8r (root) {
+  bindElement(root)
+  for (const element of root.querySelectorAll('[data-bind],[data-event]')) {
+    bindElement(element)
+  }
+}

@@ -18,7 +18,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "tjs-lang": "^0.8.1"
+    "tjs-lang": "^0.8.1",
+    "tosijs": "^1.6.1"
   },
   "devDependencies": {
     "linkedom": "^0.18.12"

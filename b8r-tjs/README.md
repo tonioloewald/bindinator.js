@@ -77,6 +77,20 @@ Because the definition is owned and mutable:
 Shadow DOM is available when you want encapsulation, but it is opt-in, not the
 model.
 
+## Direction: rebasing on tosijs (in progress)
+
+The pure-tjs primitives below (`observe`/`elements`/`css`/`component`) proved the
+model end to end — but reimplementing all of tosijs, and especially the ~50
+mobile-ready components in **tosijs-ui** (`doc-browser`, `live-example`,
+`side-nav`, `data-table`…), is wheel-reinvention. So the plan is to **build on
+tosijs + tosijs-ui** and keep b8r-tjs's genuinely novel half — the **tjs compile
+/ live-edit / AJS sandbox / SSG+hydration** layer — plus a **b8r→tosijs
+compatibility adapter**. (tosijs's own migration to tjs is already in the tjs test
+suite, so the core gets runtime types over time regardless.)
+
+The first piece of that adapter ships now: `src/b8r-compat.tjs` runs legacy b8r
+`data-bind` / `data-event` markup on the tosijs binding engine.
+
 ## Safe by default, fast where it counts
 
 Every typed boundary is validated at runtime. That is the default, and it is the
@@ -138,6 +152,9 @@ Verified today:
   `(lib) => spec` factory) in-process and redefine, hot-reloading live instances.
 - `src/untrusted.tjs` — `defineUntrusted`: component handlers as AJS source, run
   fuel-metered and capability-isolated in tjs's `AgentVM`.
+- `src/b8r-compat.tjs` — **b8r → tosijs adapter**: hydrates legacy b8r
+  `data-bind`/`data-event` markup onto the tosijs binding engine (`bind`/`on`/
+  `xin`), the first piece of the rebase.
 - `src/index.tjs` — the authoring barrel.
 
 Proven headlessly (bun + linkedom):
@@ -151,6 +168,8 @@ Proven headlessly (bun + linkedom):
   the live instance updates to the new view with state preserved (the payoff loop).
 - `test/untrusted.test.ts` — an AJS handler drives the UI from inside the sandbox;
   the host is unreachable; a starved handler is contained by fuel.
+- `test/b8r-compat.test.ts` — legacy b8r `data-bind`/`data-event` markup
+  (text/value/checked/attr/style/class/showIf + events) driven by tosijs.
 
 ## Layout
 

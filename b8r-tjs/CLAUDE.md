@@ -84,8 +84,13 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
    editing (the payoff loop: edit tjs → `compile()` → reinstall definition → live
    instances update). Shadow DOM is opt-in, not the model.
 
-4. **Port, don't depend.** The tosijs *ideas* (proxy state, element creator, css
-   vars) are reimplemented in tjs. The only runtime dependency is `tjs-lang`.
+4. **Build on tosijs (rebase in progress).** The pure-tjs primitives
+   (`observe`/`elements`/`css`/`component`) proved the model, but the project is
+   rebasing onto **tosijs + tosijs-ui** rather than reinventing them (esp.
+   tosijs-ui's ~50 components). b8r-tjs keeps its novel half — compile / live-edit
+   / AJS / SSG+hydration — and adds a **b8r→tosijs compatibility adapter**
+   (`src/b8r-compat.tjs`). Runtime deps: `tjs-lang` + `tosijs`. The old primitives
+   still build/pass and stay until superseded.
 
 5. **Safe by default, fast where it counts.** Validated typed boundaries are the
    default — that is what makes running edited/untrusted code safe. Don't scatter
@@ -138,8 +143,17 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   transforms: fuel-metered, capability-isolated. `runHandler` never throws —
   parse rejections and fuel exhaustion come back as `{ ok: false, error }`. Imports
   `tjs-lang`, so kept out of the barrel.
+- `src/b8r-compat.tjs` — b8r → tosijs adapter. `hydrateB8r(root)` / `bindElement`
+  walk b8r `data-bind`/`data-event` attributes and wire them with tosijs
+  `bind`/`bindings`/`on`/`xin`. b8r targets (`attr`/`style`/`class`/`showIf`…) are
+  implemented as tosijs `XinBinding`s. Imports `tosijs`; kept out of the barrel.
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).
 - `examples/` — literate example components (not built).
+- `test/_dom.mjs` — shared headless-DOM setup for **tosijs**-backed tests. tosijs
+  needs DOM globals at import (incl. `HTMLInputElement`), updates the DOM on
+  `requestAnimationFrame`, and uses delegated events — so: `setupDom()` before
+  importing tosijs, connect elements to `document`, and `await tick()` after
+  changing state.
 - `test/*.test.ts` — `bun:test`, headless via `linkedom` (a `parseHTML` document
   assigned to `globalThis.document`). For DOM/cross-module/async behaviour;
   self-contained logic is covered by inline tests in the `.tjs` sources.
