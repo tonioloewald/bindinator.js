@@ -5,7 +5,13 @@
 // state. Call setupDom() FIRST, then dynamically import tosijs/the shim.
 import { parseHTML } from 'linkedom'
 
+let theDocument = null
+
+// Idempotent: creates ONE shared linkedom document, installs the globals, and
+// always returns that same document — so every test file (and tosijs, which
+// reads globalThis.document at call time) operate on the same DOM.
 export function setupDom () {
+  if (theDocument) return theDocument
   const dom = parseHTML('<!DOCTYPE html><html><head></head><body></body></html>')
   const globals = [
     'document', 'HTMLElement', 'Element', 'Node', 'Text', 'Comment',
@@ -14,13 +20,14 @@ export function setupDom () {
     'HTMLTextAreaElement', 'HTMLButtonElement', 'HTMLAnchorElement'
   ]
   for (const key of globals) {
-    try { if (dom[key] !== undefined && globalThis[key] === undefined) globalThis[key] = dom[key] } catch {}
+    try { if (dom[key] !== undefined) globalThis[key] = dom[key] } catch {}
   }
-  try { if (!globalThis.window) globalThis.window = globalThis } catch {}
+  try { globalThis.window = globalThis } catch {}
   if (!globalThis.requestAnimationFrame) {
     globalThis.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 0)
   }
-  return dom.document
+  theDocument = dom.document
+  return theDocument
 }
 
 // tosijs flushes DOM updates on the next frame; await this after changing state

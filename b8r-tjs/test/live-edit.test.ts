@@ -2,11 +2,9 @@
 // then *edited as source text*, compiled in-process (no vfs), and redefined —
 // the live instance updates to the new view with its state preserved.
 import { test, expect } from 'bun:test'
-import { parseHTML } from 'linkedom'
+import { setupDom } from './_dom.mjs'
 
-const dom = parseHTML('<!DOCTYPE html><html><head></head><body></body></html>')
-;(globalThis as any).document = dom.document
-const { document } = dom
+const document = setupDom()
 
 const { elements } = await import('../src/elements.tjs')
 const { defineComponent, mount } = await import('../src/component.tjs')

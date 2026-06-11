@@ -3,11 +3,9 @@
 // and that markup is *adopted* in place on hydrate (same nodes, not rebuilt)
 // with bindings and events wired to live state.
 import { test, expect } from 'bun:test'
-import { parseHTML } from 'linkedom'
+import { setupDom } from './_dom.mjs'
 
-const dom = parseHTML('<!DOCTYPE html><html><head></head><body></body></html>')
-;(globalThis as any).document = dom.document
-const { document } = dom
+const document = setupDom()
 
 const { elements } = await import('../src/elements.tjs')
 const { defineComponent, renderToString, hydrate } = await import('../src/component.tjs')

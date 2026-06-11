@@ -1,0 +1,117 @@
+/*#
+## b8r-tjs · legacy b8r-component loader
+
+Runs a legacy b8r `.component.html` (optional `<!-- docs -->` + `<style>` +
+markup + `<script>`) on the **tosijs** engine, so existing components work
+unchanged. The markup's `data-bind` / `data-event` are hydrated through the
+b8r→tosijs adapter with `_component_.x` rewritten to a per-instance scope, and
+the `<script>` runs with a b8r-style instance context (`get`/`set`/`findOne`/
+`find`/`on`/`touch`/`register`/`component`/`data`).
+
+This is **trusted** compatibility code: the legacy script is executed with an
+`AsyncFunction`, exactly as b8r always did. Untrusted components use the AJS
+sandbox instead (see `untrusted.tjs`).
+*/
+
+import { tosi, xin, tosiValue } from 'tosijs'
+import { hydrateB8r } from './b8r-compat.tjs'
+
+const AsyncFunction = (async () => {}).constructor
+let nextId = 0
+let rootReady = false
+
+function ensureRoot () {
+  if (rootReady) return
+  tosi({ _b8r: {} })
+  rootReady = true
+}
+
+// rewrite a b8r `_component_.x` path to this instance's scope
+function scoped (scope, path) {
+  return path.startsWith('_component_') ? scope + path.slice('_component_'.length) : path
+}
+
+function valueAtPath (path) {
+  let node = xin
+  for (const part of path.split('.')) {
+    if (node === null || node === undefined) return undefined
+    node = node[part]
+  }
+  return tosiValue(node)
+}
+
+// split a legacy component into { css, html, script }
+function parseComponent (source) {
+  let remains = source
+  const docMatch = source.match(/^\s*<!--[\s\S]*?-->/)
+  if (docMatch !== null) remains = source.slice(docMatch[0].length)
+  let css = ''
+  const styleParts = remains.split(/<style>|<\/style>/)
+  if (styleParts.length === 3) {
+    css = styleParts[1]
+    remains = styleParts[2]
+  }
+  let html = remains
+  let script = ''
+  const scriptParts = remains.split(/<script[^>\n]*>|<\/script>/)
+  if (scriptParts.length >= 3) {
+    html = scriptParts[0]
+    script = scriptParts[1]
+  }
+  return { css: css.trim(), html: html.trim(), script: script.trim() }
+}
+
+// Load a legacy b8r component source. Returns `mount(target, initialData)`.
+export function loadB8rComponent (source) {
+  ensureRoot()
+  const parts = parseComponent(source)
+  if (parts.css !== '') {
+    const style = document.createElement('style')
+    style.textContent = parts.css
+    document.head.append(style)
+  }
+
+  return async function mount (target, initialData) {
+    const id = 'i' + nextId
+    nextId = nextId + 1
+    const scope = '_b8r.' + id
+    xin._b8r[id] = initialData === undefined ? {} : initialData
+    target.innerHTML = parts.html
+
+    const get = function (key) {
+      const base = tosiValue(xin._b8r[id])
+      return key === undefined ? base : base[key]
+    }
+    const set = function (keyOrObject, value) {
+      if (keyOrObject !== null && typeof keyOrObject === 'object') {
+        for (const key of Object.keys(keyOrObject)) xin._b8r[id][key] = keyOrObject[key]
+      } else {
+        xin._b8r[id][keyOrObject] = value
+      }
+    }
+    const findOne = function (selector) { return target.querySelector(selector) }
+    const find = function (selector) { return [...target.querySelectorAll(selector)] }
+    const touch = function () {}
+    const on = function (types, path) {
+      for (const type of types.split(',')) {
+        target.addEventListener(type.trim(), function (event) {
+          const handler = valueAtPath(scoped(scope, path))
+          if (typeof handler === 'function') handler(event, target)
+        })
+      }
+    }
+    const register = function (name, object) { tosi({ [name]: object }) }
+    const b8r = { get, set, find, findOne, on, touch, register }
+
+    hydrateB8r(target, { resolve: function (path) { return scoped(scope, path) } })
+
+    if (parts.script !== '') {
+      const run = new AsyncFunction(
+        'component', 'b8r', 'get', 'set', 'find', 'findOne', 'on', 'touch', 'data', 'register',
+        parts.script
+      )
+      await run(target, b8r, get, set, find, findOne, on, touch, xin._b8r[id], register)
+    }
+    return id
+  }
+}

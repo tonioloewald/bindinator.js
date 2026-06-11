@@ -147,13 +147,21 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   walk b8r `data-bind`/`data-event` attributes and wire them with tosijs
   `bind`/`bindings`/`on`/`xin`. b8r targets (`attr`/`style`/`class`/`showIf`…) are
   implemented as tosijs `XinBinding`s. Imports `tosijs`; kept out of the barrel.
+- `src/b8r-component.tjs` — legacy `.component.html` loader. `loadB8rComponent`
+  parses docs/`<style>`/markup/`<script>`, returns `mount(target, data)`: creates
+  a per-instance scope (`_b8r.<id>` in `xin`), hydrates the markup (rewriting
+  `_component_.x` → the scope), and runs the `<script>` via `AsyncFunction` (tjs
+  passes it through) with a b8r-style context. Trusted compat code (untrusted →
+  AJS). Imports `tosijs` + `b8r-compat`; kept out of the barrel.
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).
 - `examples/` — literate example components (not built).
-- `test/_dom.mjs` — shared headless-DOM setup for **tosijs**-backed tests. tosijs
-  needs DOM globals at import (incl. `HTMLInputElement`), updates the DOM on
-  `requestAnimationFrame`, and uses delegated events — so: `setupDom()` before
-  importing tosijs, connect elements to `document`, and `await tick()` after
-  changing state.
+- `test/_dom.mjs` — shared headless-DOM setup for **tosijs**-backed tests.
+  `setupDom()` is **idempotent and returns ONE shared document** — every DOM test
+  file must use it (not its own `parseHTML`), because bun shares the module cache
+  and tosijs reads `globalThis.document` at call time; divergent documents make
+  bindings/events silently miss. tosijs also needs DOM globals at import (incl.
+  `HTMLInputElement`), updates on `requestAnimationFrame`, and uses delegated
+  events — so connect elements to `document` and `await tick()` after state changes.
 - `test/*.test.ts` — `bun:test`, headless via `linkedom` (a `parseHTML` document
   assigned to `globalThis.document`). For DOM/cross-module/async behaviour;
   self-contained logic is covered by inline tests in the `.tjs` sources.

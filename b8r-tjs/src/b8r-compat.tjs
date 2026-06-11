@@ -63,14 +63,14 @@ const b8rTargets = {
   }
 }
 
-function applyBindings (element, spec) {
+function applyBindings (element, spec, resolve) {
   for (const entry of spec.split(/;|\n/)) {
     const trimmed = entry.trim()
     if (trimmed === '') continue
     const eq = trimmed.indexOf('=')
     if (eq === -1) continue
     const targetPart = trimmed.slice(0, eq).trim()
-    const path = trimmed.slice(eq + 1).trim()
+    const path = resolve(trimmed.slice(eq + 1).trim())
     const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
     if (match === null) continue
     const binding = b8rTargets[match[1]]
@@ -79,14 +79,14 @@ function applyBindings (element, spec) {
   }
 }
 
-function applyEvents (element, spec) {
+function applyEvents (element, spec, resolve) {
   for (const entry of spec.split(/;|\n/)) {
     const trimmed = entry.trim()
     if (trimmed === '') continue
     const colon = trimmed.indexOf(':')
     if (colon === -1) continue
     const type = trimmed.slice(0, colon).trim()
-    const path = trimmed.slice(colon + 1).trim()
+    const path = resolve(trimmed.slice(colon + 1).trim())
     on(element, type, function (event) {
       const handler = valueAtPath(path)
       if (typeof handler === 'function') handler(event, element)
@@ -94,18 +94,24 @@ function applyEvents (element, spec) {
   }
 }
 
+function identity (path) { return path }
+
 // Wire one element's b8r `data-bind` / `data-event` attributes via tosijs.
-export function bindElement (element) {
+// `resolve` rewrites paths before binding (e.g. `_component_.x` → an instance
+// scope); it defaults to the identity (paths are absolute registry paths).
+export function bindElement (element, resolve = identity) {
   const bindSpec = element.getAttribute('data-bind')
-  if (bindSpec !== null) applyBindings(element, bindSpec)
+  if (bindSpec !== null) applyBindings(element, bindSpec, resolve)
   const eventSpec = element.getAttribute('data-event')
-  if (eventSpec !== null) applyEvents(element, eventSpec)
+  if (eventSpec !== null) applyEvents(element, eventSpec, resolve)
 }
 
 // Hydrate every b8r binding within a root element (inclusive) onto tosijs.
-export function hydrateB8r (root) {
-  bindElement(root)
+// `options.resolve` (path → path) rewrites paths, e.g. for instance scoping.
+export function hydrateB8r (root, options = {}) {
+  const resolve = options.resolve === undefined ? identity : options.resolve
+  bindElement(root, resolve)
   for (const element of root.querySelectorAll('[data-bind],[data-event]')) {
-    bindElement(element)
+    bindElement(element, resolve)
   }
 }
