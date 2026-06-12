@@ -12,7 +12,7 @@ import { setupDom, tick } from './_dom.mjs'
 
 const document = setupDom()
 const { tosi } = await import('tosijs')
-const { hydrateB8r } = await import('../src/b8r-compat.tjs')
+const { hydrateB8r } = await import('../src/b8r-compat.js')
 
 tosi({ listA: { items: [{ id: 1, name: 'Ada' }, { id: 2, name: 'Babbage' }, { id: 3, name: 'Lovelace' }] } })
 

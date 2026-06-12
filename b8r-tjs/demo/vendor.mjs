@@ -13,7 +13,8 @@ await mkdir(out, { recursive: true })
 const files = [
   ['tjs-lang/dist/tjs-lang.js', 'tjs-lang.js'],
   ['acorn/dist/acorn.mjs', 'acorn.mjs'],
-  ['tosijs-schema/dist/index.js', 'tosijs-schema.js']
+  ['tosijs-schema/dist/index.js', 'tosijs-schema.js'],
+  ['tosijs/dist/module.js', 'tosijs.js']
 ]
 for (const [src, dst] of files) {
   await copyFile(join(nm, src), join(out, dst))

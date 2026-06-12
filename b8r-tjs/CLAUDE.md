@@ -147,14 +147,18 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   walk b8r `data-bind`/`data-event` attributes and wire them with tosijs
   `bind`/`bindings`/`on`/`xin`. b8r targets (`attr`/`style`/`class`/`showIf`…) are
   implemented as tosijs `XinBinding`s. Imports `tosijs`; kept out of the barrel.
-- `src/b8r-compat.tjs` also handles **`data-list="path:idPath"`** (→ tosijs list
-  bindings via `boxedProxy(xin.<path>).listBinding(builder, …)`, rebuilding each
-  row from the b8r template with item-relative `.field` paths) and
-  **`data-virtual="<rowHeight>"`** (→ `options.virtual`). Rough edges to know:
-  `boxedProxy` is deprecated (only way found to get a list proxy from a path);
-  tosijs throws if two live list bindings share one array; and its list-cleanup
-  MutationObserver throws under linkedom — so list reactivity/virtualization are
-  verified in a real browser (Haltija), not headless.
+- `src/b8r-compat` is **plain `.js`, not `.tjs`** — it's tosijs-proxy glue, and
+  tjs's value-semantics transforms (`TypeOf`, `toBool`, structural `==`) misread
+  tosijs **boxed proxies** (e.g. `typeof boxedProxy.listBinding` came back wrong).
+  `build.mjs` copies `src/*.js` verbatim (no tjs); author proxy-heavy adapters in
+  `.js`. It also handles **`data-list="path:idPath"`** (→ tosijs list bindings via
+  `boxed.<path>.listBinding(builder, …)` — navigate the exported `boxed` registry,
+  NOT deprecated `boxedProxy(xin.<path>)`) and **`data-virtual="<rowHeight>"`**
+  (→ `options.virtual`). **Known blocker:** in a real browser the list builder
+  runs once (prototype) but rows never stamp when the adapter does
+  `container.replaceWith(elements[tag](...tuple))` — yet every manual replication
+  of those exact steps stamps 5000 rows. Open question for the tosijs author: the
+  supported way to attach a `listBinding` tuple to an *existing* DOM container.
 - `src/b8r-component.tjs` — legacy `.component.html` loader. `loadB8rComponent`
   parses docs/`<style>`/markup/`<script>`, returns `mount(target, data)`: creates
   a per-instance scope (`_b8r.<id>` in `xin`), hydrates the markup (rewriting

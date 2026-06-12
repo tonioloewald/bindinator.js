@@ -14,11 +14,22 @@ Supported targets: `text`, `value`, `checked`, `attr(x)`, `prop(x)`, `style(x)`,
 covered: `data-list`, key-qualified / multi-type events, relative (`.foo`) paths.
 */
 
-import { bind, bindings, on, xin, tosiValue, boxedProxy, elements } from 'tosijs'
+import { bind, bindings, on, xin, boxed, tosiValue, elements } from 'tosijs'
 
 // navigate the xin registry to a dotted path
 function nodeAtPath (path) {
   let node = xin
+  for (const part of path.split('.')) {
+    if (node === null || node === undefined) return undefined
+    node = node[part]
+  }
+  return node
+}
+
+// navigate the BOXED registry to a dotted path — boxed array proxies expose
+// `listBinding` (the xin registry proxy does not)
+function boxedAtPath (path) {
+  let node = boxed
   for (const part of path.split('.')) {
     if (node === null || node === undefined) return undefined
     node = node[part]
@@ -173,8 +184,10 @@ function bindList (templateElement, resolve) {
   const colon = spec.indexOf(':')
   const listPath = resolve((colon === -1 ? spec : spec.slice(0, colon)).trim())
   const idPath = colon === -1 ? undefined : spec.slice(colon + 1).trim()
-  const arrayProxy = boxedProxy(nodeAtPath(listPath))
-  if (arrayProxy === undefined || typeof arrayProxy.listBinding !== 'function') return
+  const arrayProxy = boxedAtPath(listPath)
+  // NB: avoid `typeof` here — tjs rewrites it to a runtime helper that misreports
+  // methods on tosijs boxed proxies. A valid array path yields a list-capable proxy.
+  if (arrayProxy === undefined || arrayProxy === null) return
   const options = { idPath }
   const virtual = templateElement.getAttribute('data-virtual')
   if (virtual !== null) options.virtual = { height: Number(virtual) }
@@ -185,10 +198,12 @@ function bindList (templateElement, resolve) {
     return buildRow(templateElement, item, resolve)
   }, options)
   const newContainer = elements[tag](...tuple)
+  container.replaceWith(newContainer)
+  // carry over the container's attributes AFTER it is connected (copying before
+  // connection prevents tosijs from stamping the list)
   for (const attribute of [...container.attributes]) {
     newContainer.setAttribute(attribute.name, attribute.value)
   }
-  container.replaceWith(newContainer)
 }
 
 function identity (path) { return path }

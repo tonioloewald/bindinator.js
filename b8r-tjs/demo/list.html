@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>b8r-tjs — data-list + data-virtual on tosijs</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 44rem; }
+    .note { color: #555; }
+    .toolbar { display: flex; gap: 12px; align-items: center; margin: 1rem 0; }
+    button { font: inherit; cursor: pointer; padding: 6px 12px; border-radius: 8px; }
+    /* the list container is a fixed-height scroll viewport → tosijs virtualizes it */
+    .people { height: 300px; overflow: auto; border: 1px solid #ccc; border-radius: 8px; }
+    .row { height: 24px; line-height: 24px; padding: 0 10px; border-bottom: 1px solid #eee;
+      white-space: nowrap; overflow: hidden; }
+  </style>
+  <!-- tosijs vendored locally (run `bun demo/vendor.mjs`) so it loads with no network. -->
+  <script type="importmap">
+    { "imports": { "tosijs": "./vendor/tosijs.js" } }
+  </script>
+</head>
+<body>
+  <h1>b8r-tjs — <code>data-list</code> + <code>data-virtual</code></h1>
+  <p class="note">
+    Legacy b8r <code>data-list</code> markup, hydrated onto tosijs's
+    <strong>virtual</strong> (windowed) list binding via the compatibility adapter.
+    The array has thousands of items but only the visible window is in the DOM.
+  </p>
+
+  <div class="toolbar">
+    <button id="add">Add 1 item (reactivity)</button>
+    <span id="status" class="note"></span>
+  </div>
+
+  <div id="app">
+    <ul class="people">
+      <li class="row" data-list="app.items:id" data-virtual="24">
+        <span data-bind="text=.name"></span> &nbsp;·&nbsp; id <span data-bind="text=.id"></span>
+      </li>
+    </ul>
+  </div>
+
+  <script type="module">
+    import { tosi } from 'tosijs'
+    import { hydrateB8r } from '../dist/b8r-compat.js'
+
+    const items = []
+    for (let i = 1; i <= 5000; i++) items.push({ id: i, name: 'Item ' + i })
+    const { app } = tosi({ app: { items } })
+
+    hydrateB8r(document.querySelector('#app'))
+
+    const status = document.querySelector('#status')
+    const report = () => {
+      const rendered = document.querySelectorAll('#app .row').length
+      status.textContent = `${app.items.length} items · ${rendered} rows in the DOM`
+    }
+    report()
+
+    document.querySelector('#add').addEventListener('click', () => {
+      const n = app.items.length + 1
+      app.items.push({ id: n, name: 'Added ' + n })
+      setTimeout(report, 50)
+    })
+
+    // expose for verification
+    window.listDemo = {
+      total: () => app.items.length,
+      rendered: () => document.querySelectorAll('#app .row').length,
+      scrollTo: (y) => { document.querySelector('#app .people').scrollTop = y },
+      firstText: () => document.querySelector('#app .row span')?.textContent
+    }
+    window.b8rTjsReady = true
+  </script>
+</body>
+</html>

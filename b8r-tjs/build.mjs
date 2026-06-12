@@ -18,7 +18,7 @@ async function * walk (dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name)
     if (entry.isDirectory()) yield * walk(full)
-    else if (entry.name.endsWith('.tjs')) yield full
+    else if (entry.name.endsWith('.tjs') || entry.name.endsWith('.js')) yield full
   }
 }
 
@@ -30,6 +30,16 @@ async function build () {
     const source = await readFile(file, 'utf8')
     const rel = relative(srcDir, file).replace(/\.tjs$/, '.js')
     const out = join(distDir, rel)
+    // Plain `.js` source is copied verbatim — no tjs. (Used for tosijs-proxy glue
+    // like the b8r adapter, where tjs's value-semantics transforms — TypeOf,
+    // toBool, structural `==` — break interactions with tosijs boxed proxies.)
+    if (file.endsWith('.js')) {
+      await mkdir(dirname(out), { recursive: true })
+      await writeFile(out, source)
+      console.log(`✓ ${rel} (plain js)`)
+      count++
+      continue
+    }
     let result
     try {
       result = tjs(source, { filename: rel })

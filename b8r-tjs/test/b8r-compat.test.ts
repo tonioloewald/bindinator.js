@@ -5,7 +5,7 @@ import { setupDom, tick } from './_dom.mjs'
 
 const document = setupDom()
 const { tosi } = await import('tosijs')
-const { hydrateB8r } = await import('../src/b8r-compat.tjs')
+const { hydrateB8r } = await import('../src/b8r-compat.js')
 
 const { app } = tosi({
   app: {

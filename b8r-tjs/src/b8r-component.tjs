@@ -14,7 +14,7 @@ sandbox instead (see `untrusted.tjs`).
 */
 
 import { tosi, xin, tosiValue } from 'tosijs'
-import { hydrateB8r } from './b8r-compat.tjs'
+import { hydrateB8r } from './b8r-compat.js'
 
 const AsyncFunction = (async () => {}).constructor
 let nextId = 0
