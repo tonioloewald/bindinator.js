@@ -1,7 +1,8 @@
 # b8r Components on tosijs
 
 Legacy b8r binding features all hydrate onto tosijs: `data-list`, two-way
-`value`, a two-way `checked`, key-qualified events (`keydown(Enter)`),
+`value`, a two-way `checked`, key-qualified events (`keyup(Enter)` — `keyup`, not
+`keydown`, so the handler runs after the field's `change`; see the note below),
 parameterised targets (`class(done)`), and `${path}` string interpolation. Here's
 a to-do component that uses every one of them:
 
@@ -22,7 +23,7 @@ renderB8rExample(preview, {
       )
     )),
     div({ class: 'row' },
-      input({ type: 'text', placeholder: 'new reminder', bindValue: '_component_.text', 'onKeydown(Enter)': '_component_.add' }),
+      input({ type: 'text', placeholder: 'new reminder', bindValue: '_component_.text', 'onKeyup(Enter)': '_component_.add' }),
       button('Add', { onClick: '_component_.add', bindEnabledIf: '_component_.text' })
     )
   ),
@@ -46,3 +47,14 @@ The list rows bind item-relative paths (`text=.text`, `checked=.done`,
 `class(done)=.done`); the header interpolates two `_component_` paths and
 re-renders when either changes; the input is two-way and `Add` is disabled while
 it's empty.
+
+## A note on `keyup` vs `keydown`
+
+The reminder field commits on **`keyup`**, not `keydown`. b8r updated its model
+synchronously; b8r-tjs adopts **tosijs's asynchronous update model** (a better
+design) and does *not* emulate the old synchronous behaviour. Because of that, a
+`keydown` handler fires *before* the field's `change` event — so a handler that
+mutates the bound value (like clearing the input after adding) can read a stale
+value or have its write reverted by that `change`. `keyup` fires *after* `change`,
+so it just works. The adapter logs a deprecation warning if it sees a `keydown`
+(or `keypress`) handler on a two-way-bound field, recommending `keyup`.

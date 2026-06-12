@@ -64,6 +64,37 @@ test('a qualifier list matches any of several keystrokes', async () => {
   expect(hit).toBe(2)
 })
 
+// b8r-tjs adopts tosijs's async update model (it does NOT emulate b8r's
+// synchronous updates), so a `keydown` handler on a two-way-bound field is the
+// deprecated pattern (fires before the field's `change` → stale read / clobbered
+// write). The adapter warns and steers users to `keyup`.
+function captureWarnings (fn: () => void): string[] {
+  const warnings: string[] = []
+  const original = console.warn
+  console.warn = (...args: any[]) => { warnings.push(args.join(' ')) }
+  try { fn() } finally { console.warn = original }
+  return warnings
+}
+
+test('keydown on a two-way-bound field warns and recommends keyup (sync deprecated)', () => {
+  const warnings = captureWarnings(() =>
+    mount('<input data-bind="value=wk.a" data-event="keydown(Enter):wk.go">'))
+  expect(warnings.length).toBe(1)
+  expect(warnings[0]).toContain('keyup')
+})
+
+test('keyup on a two-way-bound field does NOT warn (the recommended pattern)', () => {
+  const warnings = captureWarnings(() =>
+    mount('<input data-bind="value=wk.b" data-event="keyup(Enter):wk.go">'))
+  expect(warnings.length).toBe(0)
+})
+
+test('keydown on a field WITHOUT a two-way binding does NOT warn', () => {
+  const warnings = captureWarnings(() =>
+    mount('<div data-event="keydown(Escape):wk.go"></div>'))
+  expect(warnings.length).toBe(0)
+})
+
 test('modifier keystrokes normalize like b8r (ctrl-KeyS → ctrl-S)', async () => {
   const root = mount('<input class="s" data-event="keydown(ctrl-KeyS):ev.save">')
   await tick()

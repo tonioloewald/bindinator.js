@@ -25,7 +25,7 @@ export default {
       )
     )),
     div({ class: 'row' },
-      input({ type: 'text', placeholder: 'new reminder', bindValue: '_component_.text', 'onKeydown(Enter)': '_component_.add' }),
+      input({ type: 'text', placeholder: 'new reminder', bindValue: '_component_.text', 'onKeyup(Enter)': '_component_.add' }),
       button('Add', { onClick: '_component_.add', bindEnabledIf: '_component_.text' })
     )
   ),

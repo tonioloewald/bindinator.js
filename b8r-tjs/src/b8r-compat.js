@@ -20,6 +20,12 @@ and `${path}` string interpolation (multi-path, via a tosijs TakeDescriptor):
 Known limitation: `${.relative}` interpolation *inside a list row* is not wired
 (tosijs doesn't re-target `^` paths within a TakeDescriptor per stamp) — use a
 plain `text=.field` binding, or absolute/`_component_` paths, in rows.
+
+Update model: b8r-tjs follows **tosijs's asynchronous updates** and does NOT
+emulate b8r's synchronous model. Consequence: a `keydown`/`keypress` handler on a
+two-way-bound field runs *before* the field's `change`, so a value-mutating
+handler can read a stale value or have its write reverted — use **`keyup`**
+instead. The adapter logs a deprecation warning when it sees that pattern.
 */
 
 import { bind, bindings, xin, boxed, tosiValue, elements, getListItem, TAKE_DESCRIPTOR } from 'tosijs'
@@ -60,6 +66,31 @@ function itemNode (item, relativePath) {
 function valueAtPath (path) {
   return tosiValue(nodeAtPath(path))
 }
+
+// --- deprecation: b8r's synchronous-update assumption -------------------------
+//
+// b8r updated its model synchronously; tosijs updates on requestAnimationFrame —
+// a better model, which b8r-tjs adopts (we do NOT emulate b8r's synchronous
+// updates). One consequence: a `keydown`/`keypress` handler fires BEFORE the
+// field's `change` event, so a handler that mutates the bound value can read a
+// stale value or have its write reverted by that `change` (the classic
+// `keydown(Enter):submit` that adds an item but never clears the input). The fix
+// is to use `keyup` (which fires AFTER `change`). We flag the deprecated pattern.
+const twoWayElements = new WeakSet() // elements carrying a two-way (fromDOM) binding
+const warnedKeydown = new Set()
+
+function warnSyncKeydown (eventType, path) {
+  const key = eventType + ':' + path
+  if (warnedKeydown.has(key)) return
+  warnedKeydown.add(key)
+  console.warn(
+    'b8r-tjs: `' + eventType + '` handler (' + path + ') on a two-way-bound field ' +
+    'assumes b8r’s synchronous updates, which b8r-tjs does not emulate — tosijs ' +
+    'updates asynchronously, so the handler may read a stale value or have its ' +
+    'write reverted by the field’s `change` event. Use `keyup` instead.'
+  )
+}
+
 
 // b8r targets WITHOUT a parameter, expressed as tosijs XinBindings. tosijs always
 // calls a binding as `toDOM(element, value)` — there is NO options/arg argument —
@@ -169,7 +200,11 @@ function bindTarget (element, targetName, arg, rawPath, resolve) {
   if (rawPath.indexOf('${') !== -1) {
     bind(element, interpolationSpec(rawPath, resolve), binding)
   } else {
-    bind(element, bindPath(rawPath, resolve), binding)
+    const what = bindPath(rawPath, resolve)
+    bind(element, what, binding)
+    // note two-way (fromDOM) fields so we can flag the deprecated synchronous
+    // `keydown` pattern on them (see warnSyncKeydown).
+    if (binding.fromDOM !== undefined) twoWayElements.add(element)
   }
 }
 
@@ -241,6 +276,9 @@ function wireEvents (element, spec, resolveHandler) {
     const parsed = parseEvent(trimmed)
     if (parsed === null) continue
     for (const type of parsed.types) {
+      if ((type.event === 'keydown' || type.event === 'keypress') && twoWayElements.has(element)) {
+        warnSyncKeydown(type.event, parsed.path)
+      }
       element.addEventListener(type.event, function (event) {
         if (type.keys !== null && type.keys.indexOf(keystroke(event)) === -1) return
         const handler = resolveHandler(parsed.path, event, element)
