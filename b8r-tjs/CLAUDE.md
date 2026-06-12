@@ -115,6 +115,13 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
    **hydration** — the same render must be able to *adopt* existing DOM and wire
    bindings to it, never blow it away and rebuild.
 
+## Compatibility / breakage
+
+See **`COMPATIBILITY.md`** for where b8r-tjs diverges from b8r (deliberate /
+not-yet / hard limits). Keep it current: when you hit or fix a divergence, record
+it there, and prefer a runtime `console.warn` for detectable deprecated patterns
+(so breakage surfaces instead of failing silently) plus a test that asserts it.
+
 ## Disposal / migration
 
 See **`MIGRATION.md`** for the full triage (what to dispose / migrate / keep) and

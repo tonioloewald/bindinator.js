@@ -19,12 +19,21 @@ A component is `{ css?, html?, view?, load?, initialValue?, type? }`:
 bindings are hydrated through the b8r→tosijs adapter with `_component_.x`
 rewritten to a per-instance scope (`_b8r.<id>` in the registry).
 
+`css` mirrors `view`: it may be a string, a tosijs **XinStyleSheet object**, or a
+**function** `({ css, vars, varDefault }) => string | XinStyleSheet` — embracing
+tosijs's CSS-variable proxies (`vars.accentColor` → `var(--accent-color)`,
+`varDefault.gap('8px')` → `var(--gap, 8px)`):
+
+    css: ({ vars, varDefault }) => `
+      ._component_ button { color: ${vars.accentColor}; gap: ${varDefault.gap('8px')}; }
+    `
+
 **Components are redefinable definitions, not custom elements** (a core b8r-tjs
 principle): `defineB8rComponent(name, spec)` (re)registers under `name` and
 re-stamps every live instance, so editing a component hot-reloads its instances.
 */
 
-import { tosi, xin, tosiValue } from 'tosijs'
+import { tosi, xin, tosiValue, css, vars, varDefault } from 'tosijs'
 import { hydrateB8r } from './b8r-compat.js'
 import { elements } from './b8r-elements.js'
 
@@ -55,14 +64,26 @@ function valueAtPath (path) {
   return tosiValue(node)
 }
 
+// resolve a component's `css` to a string. It may be a plain string, a tosijs
+// XinStyleSheet object (run through `css()`), or — mirroring `view(elements)` — a
+// function `({ css, vars, varDefault }) => string | XinStyleSheet`. `vars` /
+// `varDefault` are tosijs's CSS-variable proxies: `vars.accentColor` →
+// `var(--accent-color)`, `varDefault.gap('8px')` → `var(--gap, 8px)`.
+function resolveCss (spec) {
+  let style = spec.css
+  if (typeof style === 'function') style = style({ css, vars, varDefault })
+  if (style !== null && style !== undefined && typeof style === 'object') style = css(style)
+  return style
+}
+
 // scope a component's CSS (`_component_` → `.<name>-component`) and (re)install
 // its single stylesheet, so redefining a component swaps its CSS in place.
-function installStyle (entry, name, css) {
+function installStyle (entry, name, cssText) {
   if (entry.style !== null) entry.style.remove()
-  if (css === undefined || css === null || css === '') { entry.style = null; return }
+  if (cssText === undefined || cssText === null || cssText === '') { entry.style = null; return }
   const className = name + '-component'
   const style = document.createElement('style')
-  style.textContent = css.replace(/_component_/g, '.' + className)
+  style.textContent = cssText.replace(/_component_/g, '.' + className)
   document.head.append(style)
   entry.style = style
 }
@@ -151,7 +172,7 @@ export function defineB8rComponent (name, spec) {
   } else {
     entry.spec = spec
   }
-  installStyle(entry, name, spec.css)
+  installStyle(entry, name, resolveCss(spec))
 
   entry.mount = async function (target, data) {
     const id = 'i' + nextId

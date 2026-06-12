@@ -47,6 +47,36 @@ test('mounts a view-builder component, binds text, and runs methods on events', 
   expect(target.querySelector('.out').textContent).toBe('2')
 })
 
+function installedStyles () {
+  return [...document.querySelectorAll('style')].map((s: any) => s.textContent).join('\n')
+}
+
+test('css may be a function receiving tosijs css/vars/varDefault (like view)', async () => {
+  defineB8rComponent('cssfn', {
+    css: ({ vars, varDefault }: any) =>
+      '._component_ b { color: ' + vars.accentColor + '; padding: ' + varDefault.pad('4px') + '; }',
+    view: ({ b }: any) => b('hi')
+  })
+  await mountB8rComponent(host(), 'cssfn')
+  await tick()
+  const styles = installedStyles()
+  expect(styles).toContain('.cssfn-component b')   // `_component_` still scoped
+  expect(styles).toContain('var(--accent-color)')  // vars proxy (camelCase → kebab)
+  expect(styles).toContain('var(--pad, 4px)')      // varDefault proxy (with fallback)
+})
+
+test('css may be an XinStyleSheet object (stringified via tosijs css())', async () => {
+  defineB8rComponent('cssobj', {
+    css: ({ vars }: any) => ({ '._component_ i': { color: vars.brand } }),
+    view: ({ i }: any) => i('x')
+  })
+  await mountB8rComponent(host(), 'cssobj')
+  await tick()
+  const styles = installedStyles()
+  expect(styles).toContain('.cssobj-component i')
+  expect(styles).toContain('var(--brand)')
+})
+
 test('redefining a component hot-reloads live instances, preserving their data', async () => {
   const v1 = {
     view: ({ span }: any) => span({ class: 'label', bindText: '_component_.n' }),

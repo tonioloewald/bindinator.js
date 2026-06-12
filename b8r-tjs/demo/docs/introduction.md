@@ -12,8 +12,11 @@ edit it: it re-mounts as you type.
 
 ```js
 renderB8rExample(preview, {
-  css: '._component_ { font-size: 1.4rem; display: flex; gap: 12px; align-items: center }' +
-       '._component_ button { font: inherit; padding: 4px 12px; cursor: pointer }',
+  // `css` can be a function of tosijs's css-variable proxies (like `view` is a
+  // function of `elements`); `varDefault.gap('12px')` → `var(--gap, 12px)`.
+  css: ({ varDefault }) =>
+    '._component_ { font-size: 1.4rem; display: flex; gap: ' + varDefault.gap('12px') + '; align-items: center }' +
+    '._component_ button { font: inherit; padding: 4px 12px; cursor: pointer }',
   view: ({ div, button, span }) => div(
     span({ class: 'n', bindText: 'count: ${_component_.count}' }),
     button('+1', { class: 'inc', onClick: '_component_.inc' }),
