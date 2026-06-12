@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>b8r-tjs — blueprint loader (modern b8r component on tosijs)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 44rem; }
+    .note { color: #555; }
+  </style>
+  <!-- tosijs vendored locally (run `bun demo/vendor.mjs`) so it loads with no network. -->
+  <script type="importmap">
+    { "imports": { "tosijs": "./vendor/tosijs.js" } }
+  </script>
+</head>
+<body>
+  <h1>b8r-tjs — blueprint loader</h1>
+  <p class="note">
+    A <strong>modern b8r component</strong> (ESM module whose default export is a
+    <code>{ css, view, initialValue }</code> object) loaded onto the tosijs engine
+    by the blueprint loader — its <code>view(elements)</code> builder, scoped CSS,
+    list binding, two-way input, key-qualified events, and methods all just work.
+  </p>
+
+  <div id="app"></div>
+
+  <script type="module">
+    import 'tosijs'
+    import { loadB8rComponent, mountB8rComponent } from '../dist/b8r-blueprint.js'
+    import * as todo from './todo.component.js'
+
+    loadB8rComponent('todo', todo)
+    await mountB8rComponent(document.querySelector('#app'), 'todo')
+
+    // expose for verification
+    const app = document.querySelector('#app')
+    const input = () => app.querySelector('input[type=text]')
+    window.todoDemo = {
+      type: (t) => { const i = input(); i.value = t; i.dispatchEvent(new Event('input', { bubbles: true })) },
+      add: () => app.querySelector('button').click(),
+      count: () => app.querySelectorAll('li').length,
+      texts: () => [...app.querySelectorAll('li')].map(li => li.textContent.trim()),
+      addDisabled: () => app.querySelector('button').disabled
+    }
+    window.b8rTjsReady = true
+  </script>
+</body>
+</html>

@@ -163,6 +163,14 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   3. **Container attributes go in as PROPS:** `elements[tag](props, ...tuple)`
      (like `div({class}, ...listBinding(...))`). Setting `class` via `setAttribute`
      *after* the list is bound makes tosijs reset the container and drop the rows.
+  4. **Parameterised targets are binding FACTORIES, not `options.arg` readers.**
+     tosijs calls a binding as `toDOM(element, value)` — there is **no options
+     argument** on the list-stamp path (`$.binding.toDOM(f, k[$.path])`). So
+     `attr(x)` / `class(x)` / `style(x)` / `showIf(v)` etc. are `arg => XinBinding`
+     factories that **close over the arg** (matching tosijs's own `attr`/`style`),
+     memoised by `name(arg)` in `bindingFor`. (A direct `bind(el, p, b, {arg})`
+     happened to forward options, so non-list attr/class "worked" — but list rows
+     threw `options.arg` undefined. Don't reintroduce `options.arg`.)
   `data-virtual="<rowHeight>"` → `options.virtual.height`; `data-columns` /
   `data-chunk` → `visibleColumns` / `rowChunkSize`. (linkedom can't fully render
   virtual scroll, but headless still verifies the rows; full virtual is checked in
@@ -182,6 +190,24 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   `_component_.x` → the scope), and runs the `<script>` via `AsyncFunction` (tjs
   passes it through) with a b8r-style context. Trusted compat code (untrusted →
   AJS). Imports `tosijs` + `b8r-compat`; kept out of the barrel.
+- `src/b8r-blueprint.js` — **modern b8r component loader** (the ESM-object form;
+  the b8r analogue of tosijs's blueprint loader). A component is a default export
+  `{ css?, html?|view?, load?, initialValue?, type? }`. `defineB8rComponent(name,
+  spec)` (re)registers it in an **owned, redefinable registry** and re-stamps every
+  live instance (hot reload — **design principle #3**, not `customElements`);
+  `loadB8rComponent(name, module)` takes an imported module namespace;
+  `mountB8rComponent(target, name, data)` instantiates. `view(elements)` builds DOM
+  (via `b8r-elements`) that records `data-bind`/`data-event`, hydrated through the
+  adapter with `_component_.x` → `_b8r.<id>` scope. `initialValue` may be an object
+  or `({ component }) => object`; `component.data` reads the live instance proxy so
+  captured methods mutate current state. Also runs a legacy string `load` body
+  (`<script>`) via `AsyncFunction`. Plain **`.js`** (tosijs-proxy glue); imports
+  `tosijs` + `b8r-compat` + `b8r-elements`; kept out of the barrel.
+- `src/b8r-elements.js` — **ported** b8r `elements` creator (`create` + the
+  `elements` proxy). Builds plain DOM and records binding intent as serializable
+  `data-bind`/`data-event` attributes (`bindX:`→`data-bind="x=…"`, `onX:`→
+  `data-event="x:…"`, `dotted.key`→method binding, `dataList:`→`data-list`). A
+  faithful port (no b8r dependency — "port, don't depend"); plain **`.js`**.
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).
 - `examples/` — literate example components (not built).
 - `test/_dom.mjs` — shared headless-DOM setup for **tosijs**-backed tests.

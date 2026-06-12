@@ -36,6 +36,26 @@ test('data-list renders a row per item with item-relative bindings', async () =>
   expect(root.querySelector('ul').classList.contains('people')).toBe(true)
 })
 
+test('parameterized targets (class/attr) work on list rows', async () => {
+  // regression: tosijs calls a binding as toDOM(el, value) with NO options on the
+  // list-stamp path, so parameterized targets must close over their arg (factory).
+  tosi({ listP: { rows: [{ id: 1, label: 'on', flag: true }, { id: 2, label: 'off', flag: false }] } })
+  const root = document.createElement('div')
+  root.innerHTML =
+    '<ul>' +
+    '  <li class="prow" data-list="listP.rows:id">' +
+    '    <span class="lab" data-bind="text=.label; class(flagged)=.flag; attr(data-id)=.id"></span></li>' +
+    '</ul>'
+  document.body.append(root)
+  hydrateB8r(root)
+  await tick()
+
+  const labels = [...root.querySelectorAll('.lab')] as any[]
+  expect(labels.map(l => l.textContent)).toEqual(['on', 'off'])
+  expect(labels.map(l => l.classList.contains('flagged'))).toEqual([true, false])
+  expect(labels.map(l => l.getAttribute('data-id'))).toEqual(['1', '2'])
+})
+
 test('list-row events resolve a relative handler against the clicked row item', async () => {
   const picked: string[] = []
   // A relative `data-event="click:.select"` resolves the handler on the *row's*

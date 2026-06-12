@@ -54,9 +54,11 @@ function valueAtPath (path) {
   return tosiValue(nodeAtPath(path))
 }
 
-// b8r targets expressed as tosijs XinBindings. The parenthesised argument of a
-// target (e.g. the attribute name in `attr(title)`) arrives as `options.arg`.
-const b8rTargets = {
+// b8r targets WITHOUT a parameter, expressed as tosijs XinBindings. tosijs always
+// calls a binding as `toDOM(element, value)` — there is NO options/arg argument —
+// so a parameterised target (`attr(x)`, `class(x)`…) can't read its argument at
+// apply time; it must be a binding that CLOSES OVER the argument (see below).
+const b8rBindings = {
   text: bindings.text,
   value: bindings.value,
   enabledIf: bindings.enabled,
@@ -64,31 +66,49 @@ const b8rTargets = {
   checked: {
     toDOM (element, value) { element.checked = Boolean(value) },
     fromDOM (element) { return element.checked }
-  },
-  attr: {
-    toDOM (element, value, options) {
+  }
+}
+
+// b8r targets WITH a parameter, as binding FACTORIES `arg => XinBinding` (the
+// tosijs pattern — e.g. its own `attr`/`style` are factories that close over the
+// argument). Memoised per `name(arg)` so repeated applies reuse one binding.
+const b8rBindingFactories = {
+  attr: arg => ({
+    toDOM (element, value) {
       if (value === null || value === undefined || value === false) {
-        element.removeAttribute(options.arg)
+        element.removeAttribute(arg)
       } else {
-        element.setAttribute(options.arg, value === true ? '' : String(value))
+        element.setAttribute(arg, value === true ? '' : String(value))
       }
     }
-  },
-  prop: { toDOM (element, value, options) { element[options.arg] = value } },
-  style: { toDOM (element, value, options) { element.style[options.arg] = value } },
-  class: { toDOM (element, value, options) { element.classList.toggle(options.arg, Boolean(value)) } },
-  showIf: {
-    toDOM (element, value, options) {
-      const show = options.arg === undefined ? Boolean(value) : String(value) === options.arg
+  }),
+  prop: arg => ({ toDOM (element, value) { element[arg] = value } }),
+  style: arg => ({ toDOM (element, value) { element.style[arg] = value } }),
+  class: arg => ({ toDOM (element, value) { element.classList.toggle(arg, Boolean(value)) } }),
+  showIf: arg => ({
+    toDOM (element, value) {
+      const show = arg === undefined ? Boolean(value) : String(value) === arg
       element.style.display = show ? '' : 'none'
     }
-  },
-  hideIf: {
-    toDOM (element, value, options) {
-      const hide = options.arg === undefined ? Boolean(value) : String(value) === options.arg
+  }),
+  hideIf: arg => ({
+    toDOM (element, value) {
+      const hide = arg === undefined ? Boolean(value) : String(value) === arg
       element.style.display = hide ? 'none' : ''
     }
-  }
+  })
+}
+
+// resolve a b8r target name (+ optional parenthesised arg) to a tosijs XinBinding,
+// memoising the parameterised ones by `name(arg)`.
+const bindingCache = {}
+function bindingFor (name, arg) {
+  if (b8rBindings[name] !== undefined) return b8rBindings[name]
+  const factory = b8rBindingFactories[name]
+  if (factory === undefined) return undefined
+  const key = name + '(' + (arg === undefined ? '' : arg) + ')'
+  if (bindingCache[key] === undefined) bindingCache[key] = factory(arg)
+  return bindingCache[key]
 }
 
 function applyBindings (element, spec, resolve) {
@@ -101,9 +121,9 @@ function applyBindings (element, spec, resolve) {
     const path = resolve(trimmed.slice(eq + 1).trim())
     const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
     if (match === null) continue
-    const binding = b8rTargets[match[1]]
+    const binding = bindingFor(match[1], match[2])
     if (binding === undefined) continue
-    bind(element, path, binding, { arg: match[2] })
+    bind(element, path, binding)
   }
 }
 
@@ -253,12 +273,12 @@ function bindRowElement (element, item, resolve) {
       const rawPath = trimmed.slice(eq + 1).trim()
       const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
       if (match === null) continue
-      const binding = b8rTargets[match[1]]
+      const binding = bindingFor(match[1], match[2])
       if (binding === undefined) continue
       // a b8r relative path `.field` IS the tosijs template path `^.field`:
       // tosijs binds `^` to the array item and re-targets it per row on stamp.
       const what = rawPath.startsWith('.') ? '^' + rawPath : resolve(rawPath)
-      bind(element, what, binding, { arg: match[2] })
+      bind(element, what, binding)
     }
     element.removeAttribute('data-bind')
   }
