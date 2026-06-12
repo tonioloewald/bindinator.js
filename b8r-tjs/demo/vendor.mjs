@@ -21,14 +21,23 @@ for (const [src, dst] of files) {
   console.log('vendored', dst)
 }
 
-// The <live-example> demo needs tosijs-ui (extensionless ESM imports) + sucrase,
-// so bundle its entry with bun — one shared tosijs instance, sucrase inlined.
-const entry = join(root, 'live-example.entry.js')
-const bundle = join(out, 'live-example.bundle.js')
-const built = await Bun.build({ entrypoints: [entry], target: 'browser', format: 'esm' })
-if (!built.success) {
-  for (const log of built.logs) console.error(log)
-  throw new Error('live-example bundle failed')
+// The tosijs-ui demos (live-example, doc-browser) use extensionless ESM imports +
+// sucrase, so bundle their entries with bun — one shared tosijs instance, sucrase
+// inlined. The doc-browser demo imports `.md` docs as text (so their `${…}` is
+// literal markdown, not JS interpolation).
+async function bundle (entryName, outName, loader) {
+  const built = await Bun.build({
+    entrypoints: [join(root, entryName)],
+    target: 'browser',
+    format: 'esm',
+    loader
+  })
+  if (!built.success) {
+    for (const log of built.logs) console.error(log)
+    throw new Error(`${entryName} bundle failed`)
+  }
+  await Bun.write(join(out, outName), built.outputs[0])
+  console.log('bundled', outName)
 }
-await Bun.write(bundle, built.outputs[0])
-console.log('bundled live-example.bundle.js')
+await bundle('live-example.entry.js', 'live-example.bundle.js')
+await bundle('docs.entry.js', 'docs.bundle.js', { '.md': 'text' })

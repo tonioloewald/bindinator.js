@@ -107,7 +107,35 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
    **hydration** — the same render must be able to *adopt* existing DOM and wire
    bindings to it, never blow it away and rebuild.
 
-## Module map & conventions
+## Deferred / follow-ups (come back to these)
+
+Two are clean **upstream asks** (tosijs / tosijs-ui), tracked here so we don't lose them:
+
+1. **Use tjs instead of sucrase for the `<live-example>` transform.** tjs already
+   does true TS transpilation and is already a dependency, so it'd collapse the
+   toolchain onto one transformer and drop sucrase + its CDN fallback. The
+   `TransformFn` signature is compatible — `code => ({ code: tjs(code).code })`.
+   Blocker: `LiveExample.refresh()` hardcodes `await loadTransform()` (sucrase) with
+   no injection hook. Fix path: small PR to tosijs-ui to make the transform
+   injectable (`liveExample({ transform })` or `context.transform`); then pass a tjs
+   adapter. Bonus payoff: fiddles would get tjs example-types → runtime validation
+   and inline `test` blocks for free (very on-brand for the literate docs site).
+
+2. **`${.relative}` interpolation inside list rows.** Today it's a documented
+   no-op (see `b8r-compat.js` header): tosijs re-targets a row's relative `^.path`
+   on the binding's single `path` field during stamping, but interpolation routes
+   through a multi-path `TakeDescriptor` whose `paths[]` array isn't part of that
+   rewrite — so `^` entries never resolve to the item. A build-time
+   `tosiPath(item)` rewrite works but is fragile for non-`idPath` lists (index
+   paths break under reordering). **Preferred fix:** have tosijs **expose the
+   relative-binding (`^`) resolution mechanism** that `bind` uses, so a
+   TakeDescriptor's `paths[]` can be re-targeted per row the same way single-path
+   bindings are. Upstream tosijs enhancement.
+
+3. **Box scalars in the tosijs proxy** (`Number`/`String`/`Boolean`) so structural
+   comparison "just works" — long-deferred original goal; revisit when it matters.
+
+
 
 - `src/observe.tjs` — path-observed state (`register`/`get`/`set`/`observe`/
   `touch`). Stable by default. `batch(fn)` is the opt-in perf cutout: coalesces a
@@ -221,6 +249,13 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   (`demo/live-example.html`, bundled by `demo/vendor.mjs`). **NB:** tosijs-ui's ESM
   uses extensionless imports + needs sucrase, so the demo is **bun-bundled** (one
   shared tosijs instance, sucrase inlined) — don't try to serve its dist as raw ESM.
+  The same `b8rExampleContext` wires the **doc-browser** (`demo/docs.html`,
+  `docs.entry.js`): `createDocBrowser({ docs, context: { tosijs, ...b8rExampleContext } })`
+  threads the context into every live-example embedded in the markdown, so a docs
+  page authored with a `renderB8rExample(preview, spec)` code fence becomes a live
+  b8r fiddle. Docs are `.md` files imported as text (bun `.md` loader) so their
+  `${…}` stays literal. The full nav + b8r fiddles (counter + to-do with list,
+  two-way input, interpolation) are Haltija-verified.
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).
 - `examples/` — literate example components (not built).
 - `test/_dom.mjs` — shared headless-DOM setup for **tosijs**-backed tests.
