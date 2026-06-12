@@ -139,7 +139,9 @@ function bindRowElement (element, item, resolve) {
       if (match === null) continue
       const binding = b8rTargets[match[1]]
       if (binding === undefined) continue
-      const what = rawPath.startsWith('.') ? itemNode(item, rawPath) : resolve(rawPath)
+      // a b8r relative path `.field` IS the tosijs template path `^.field`:
+      // tosijs binds `^` to the array item and re-targets it per row on stamp.
+      const what = rawPath.startsWith('.') ? '^' + rawPath : resolve(rawPath)
       bind(element, what, binding, { arg: match[2] })
     }
     element.removeAttribute('data-bind')
@@ -189,21 +191,29 @@ function bindList (templateElement, resolve) {
   // methods on tosijs boxed proxies. A valid array path yields a list-capable proxy.
   if (arrayProxy === undefined || arrayProxy === null) return
   const options = { idPath }
+  // `data-virtual="<rowHeight>"` opts into tosijs's virtual (windowed) rendering;
+  // `data-columns` / `data-chunk` map to its grid `visibleColumns` / `rowChunkSize`.
   const virtual = templateElement.getAttribute('data-virtual')
-  if (virtual !== null) options.virtual = { height: Number(virtual) }
+  if (virtual !== null) {
+    options.virtual = { height: Number(virtual) }
+    const columns = templateElement.getAttribute('data-columns')
+    if (columns !== null) options.virtual.visibleColumns = Number(columns)
+    const chunk = templateElement.getAttribute('data-chunk')
+    if (chunk !== null) options.virtual.rowChunkSize = Number(chunk)
+  }
   const container = templateElement.parentElement
   if (container === null) return
   const tag = container.tagName.toLowerCase()
   const tuple = arrayProxy.listBinding(function (_elements, item) {
     return buildRow(templateElement, item, resolve)
   }, options)
-  const newContainer = elements[tag](...tuple)
+  // carry the container's attributes as PROPS in the creator call (like
+  // `div({ class }, ...listBinding(...))`) — setting them via setAttribute after
+  // the list is bound makes tosijs reset the container and drop the rows.
+  const props = {}
+  for (const attribute of [...container.attributes]) props[attribute.name] = attribute.value
+  const newContainer = elements[tag](props, ...tuple)
   container.replaceWith(newContainer)
-  // carry over the container's attributes AFTER it is connected (copying before
-  // connection prevents tosijs from stamping the list)
-  for (const attribute of [...container.attributes]) {
-    newContainer.setAttribute(attribute.name, attribute.value)
-  }
 }
 
 function identity (path) { return path }

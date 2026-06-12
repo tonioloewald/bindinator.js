@@ -149,16 +149,24 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   implemented as tosijs `XinBinding`s. Imports `tosijs`; kept out of the barrel.
 - `src/b8r-compat` is **plain `.js`, not `.tjs`** — it's tosijs-proxy glue, and
   tjs's value-semantics transforms (`TypeOf`, `toBool`, structural `==`) misread
-  tosijs **boxed proxies** (e.g. `typeof boxedProxy.listBinding` came back wrong).
-  `build.mjs` copies `src/*.js` verbatim (no tjs); author proxy-heavy adapters in
-  `.js`. It also handles **`data-list="path:idPath"`** (→ tosijs list bindings via
-  `boxed.<path>.listBinding(builder, …)` — navigate the exported `boxed` registry,
-  NOT deprecated `boxedProxy(xin.<path>)`) and **`data-virtual="<rowHeight>"`**
-  (→ `options.virtual`). **Known blocker:** in a real browser the list builder
-  runs once (prototype) but rows never stamp when the adapter does
-  `container.replaceWith(elements[tag](...tuple))` — yet every manual replication
-  of those exact steps stamps 5000 rows. Open question for the tosijs author: the
-  supported way to attach a `listBinding` tuple to an *existing* DOM container.
+  tosijs **boxed proxies**. `build.mjs` copies `src/*.js` verbatim; author
+  proxy-heavy adapters in `.js`.
+- **`data-list="path:idPath"` (+ `data-virtual`) → tosijs list bindings**, working
+  (incl. windowed virtual rendering), verified headless and in a real browser.
+  Three things were essential — don't regress them:
+  1. **List proxy:** navigate the exported **`boxed`** registry (`boxed.<path>`),
+     not deprecated `boxedProxy(xin.<path>)`.
+  2. **Item-relative paths are `^`-template paths:** a b8r `text=.name` binds to
+     the string path **`^.name`** (`bind(el, '^.name', binding)`) — tosijs binds
+     `^` to the array item and re-targets per row on stamp. Do NOT pass a
+     navigated item proxy.
+  3. **Container attributes go in as PROPS:** `elements[tag](props, ...tuple)`
+     (like `div({class}, ...listBinding(...))`). Setting `class` via `setAttribute`
+     *after* the list is bound makes tosijs reset the container and drop the rows.
+  `data-virtual="<rowHeight>"` → `options.virtual.height`; `data-columns` /
+  `data-chunk` → `visibleColumns` / `rowChunkSize`. (linkedom can't fully render
+  virtual scroll, but headless still verifies the rows; full virtual is checked in
+  a real browser via Haltija + `demo/list.html`.)
 - `src/b8r-component.tjs` — legacy `.component.html` loader. `loadB8rComponent`
   parses docs/`<style>`/markup/`<script>`, returns `mount(target, data)`: creates
   a per-instance scope (`_b8r.<id>` in `xin`), hydrates the markup (rewriting

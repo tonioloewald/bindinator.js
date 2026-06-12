@@ -20,7 +20,7 @@ tosi({ listA: { items: [{ id: 1, name: 'Ada' }, { id: 2, name: 'Babbage' }, { id
 // async error corrupts the run. The adapter renders correctly (this passes in
 // isolation); full data-list behaviour is verified in a real browser via Haltija
 // (demo/list.html). Kept here as executable documentation of the expected result.
-test.skip('data-list renders a row per item with item-relative bindings', async () => {
+test('data-list renders a row per item with item-relative bindings', async () => {
   const root = document.createElement('div')
   root.innerHTML =
     '<ul class="people">' +
