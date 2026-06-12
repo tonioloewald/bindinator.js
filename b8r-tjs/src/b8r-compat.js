@@ -10,11 +10,12 @@ unchanged, so existing b8r components/markup keep working:
     data-event="click:app.handler"
 
 Supported targets: `text`, `value`, `checked`, `attr(x)`, `prop(x)`, `style(x)`,
-`class(x)`, `showIf[(v)]`, `hideIf[(v)]`, `enabledIf`, `disabledIf`. Not yet
-covered: `data-list`, key-qualified / multi-type events, relative (`.foo`) paths.
+`class(x)`, `showIf[(v)]`, `hideIf[(v)]`, `enabledIf`, `disabledIf`. Also covered:
+`data-list` (+ `data-virtual`), multi-type / key-qualified events, and item-relative
+(`.foo`) bind/event paths in list rows (via `^`-template paths + event delegation).
 */
 
-import { bind, bindings, on, xin, boxed, tosiValue, elements } from 'tosijs'
+import { bind, bindings, xin, boxed, tosiValue, elements, getListItem } from 'tosijs'
 
 // navigate the xin registry to a dotted path
 function nodeAtPath (path) {
@@ -106,17 +107,132 @@ function applyBindings (element, spec, resolve) {
   }
 }
 
-function applyEvents (element, spec, resolve) {
-  for (const entry of spec.split(/;|\n/)) {
-    const trimmed = entry.trim()
+// --- events: b8r `data-event` (multi-type, key-qualified) → addEventListener ---
+
+// normalize a keyboard event to b8r's keystroke form: alt-ctrl-meta-shift-Code
+// (event codes have Key/Digit stripped, so `KeyA` → `A`, `Digit0` → `0`)
+function keystroke (event) {
+  const code = []
+  if (event.altKey) code.push('alt')
+  if (event.ctrlKey) code.push('ctrl')
+  if (event.metaKey) code.push('meta')
+  if (event.shiftKey) code.push('shift')
+  code.push((event.code || event.key || '').replace(/Key|Digit/, ''))
+  return code.join('-')
+}
+
+// split on `sep` at the top level only (commas inside `(...)` are preserved)
+function splitTopLevel (text, sep) {
+  const parts = []
+  let depth = 0
+  let current = ''
+  for (const char of text) {
+    if (char === '(') depth = depth + 1
+    else if (char === ')') depth = depth - 1
+    if (char === sep && depth === 0) { parts.push(current); current = '' } else current = current + char
+  }
+  parts.push(current)
+  return parts
+}
+
+// parse "click,keydown(Space,Enter):path" → { types:[{event,keys}], path }
+function parseEvent (instruction) {
+  const colon = instruction.indexOf(':')
+  if (colon === -1) return null
+  const path = instruction.slice(colon + 1).trim()
+  const types = []
+  for (const part of splitTopLevel(instruction.slice(0, colon).trim(), ',')) {
+    const match = part.trim().match(/^(\w+)(?:\(([^)]*)\))?$/)
+    if (match === null) continue
+    const keys = match[2] === undefined
+      ? null
+      : match[2].split(',').map(k => k.replace(/Key|Digit/g, '').trim())
+    types.push({ event: match[1], keys })
+  }
+  return { types, path }
+}
+
+// wire an element's `data-event` spec. `resolveHandler(path, event, element)`
+// yields the handler function (so list rows can resolve relative `.foo` handlers).
+function wireEvents (element, spec, resolveHandler) {
+  for (const instruction of spec.split(/;|\n/)) {
+    const trimmed = instruction.trim()
     if (trimmed === '') continue
-    const colon = trimmed.indexOf(':')
-    if (colon === -1) continue
-    const type = trimmed.slice(0, colon).trim()
-    const path = resolve(trimmed.slice(colon + 1).trim())
-    on(element, type, function (event) {
-      const handler = valueAtPath(path)
-      if (typeof handler === 'function') handler(event, element)
+    const parsed = parseEvent(trimmed)
+    if (parsed === null) continue
+    for (const type of parsed.types) {
+      element.addEventListener(type.event, function (event) {
+        if (type.keys !== null && type.keys.indexOf(keystroke(event)) === -1) return
+        const handler = resolveHandler(parsed.path, event, element)
+        if (typeof handler === 'function') handler(event, element)
+      })
+    }
+  }
+}
+
+// --- list-row event delegation -------------------------------------------------
+//
+// tosijs stamps each row by cloning the template prototype, and cloneNode does
+// NOT copy addEventListener handlers — so per-row wiring (like bindElement's
+// `wireEvents`) would be lost. Instead we attach ONE listener per event type to
+// the list container and let it dispatch to the originating row element. The
+// handler is resolved per event, so a row's `data-event="click:.select"` finds
+// the *clicked* row's item via `getListItem`.
+
+// collect the distinct DOM event types named in a template's `data-event` specs
+// (including descendants), so we know which listeners the container needs.
+function collectEventTypes (templateElement) {
+  const types = new Set()
+  const sources = [templateElement, ...templateElement.querySelectorAll('[data-event]')]
+  for (const element of sources) {
+    const spec = element.getAttribute('data-event')
+    if (spec === null) continue
+    for (const instruction of spec.split(/;|\n/)) {
+      const parsed = parseEvent(instruction.trim())
+      if (parsed === null) continue
+      for (const type of parsed.types) types.add(type.event)
+    }
+  }
+  return [...types]
+}
+
+// resolve a row handler path. A relative `.foo` path is rooted at the row's list
+// item (looked up from the event's originating element via `getListItem`); an
+// absolute path goes through the binding `resolve` then the xin registry.
+function resolveRowHandler (path, element, resolve) {
+  if (path.startsWith('.')) {
+    const item = getListItem(element)
+    if (item === undefined || item === null) return undefined
+    return itemNode(tosiValue(item), path)
+  }
+  return valueAtPath(resolve(path))
+}
+
+// attach one delegated listener per event type to a freshly-built list container.
+// On an event it walks from the target up to the container; for each element with
+// a `data-event` matching this type (and any key qualifier) it resolves and calls
+// the handler. Resolution is per event, so each row gets its own item.
+function delegateRowEvents (container, eventTypes, resolve) {
+  for (const eventType of eventTypes) {
+    container.addEventListener(eventType, function (event) {
+      let element = event.target
+      while (element !== null && element !== container.parentNode) {
+        const spec = element.getAttribute === undefined ? null : element.getAttribute('data-event')
+        if (spec !== null) {
+          for (const instruction of spec.split(/;|\n/)) {
+            const parsed = parseEvent(instruction.trim())
+            if (parsed === null) continue
+            for (const type of parsed.types) {
+              if (type.event !== eventType) continue
+              if (type.keys !== null && type.keys.indexOf(keystroke(event)) === -1) continue
+              const handler = resolveRowHandler(parsed.path, element, resolve)
+              if (typeof handler === 'function') handler(event, element)
+            }
+          }
+        }
+        if (element === container) break
+        element = element.parentNode
+      }
     })
   }
 }
@@ -146,24 +262,10 @@ function bindRowElement (element, item, resolve) {
     }
     element.removeAttribute('data-bind')
   }
-  const eventSpec = element.getAttribute('data-event')
-  if (eventSpec !== null) {
-    for (const entry of eventSpec.split(/;|\n/)) {
-      const trimmed = entry.trim()
-      if (trimmed === '') continue
-      const colon = trimmed.indexOf(':')
-      if (colon === -1) continue
-      const type = trimmed.slice(0, colon).trim()
-      const rawPath = trimmed.slice(colon + 1).trim()
-      on(element, type, function (event) {
-        const handler = rawPath.startsWith('.')
-          ? tosiValue(itemNode(item, rawPath))
-          : valueAtPath(resolve(rawPath))
-        if (typeof handler === 'function') handler(event, element, item)
-      })
-    }
-    element.removeAttribute('data-event')
-  }
+  // NB: `data-event` is intentionally left on row elements — row events are
+  // handled by ONE delegated listener per type on the list container (see
+  // delegateRowEvents). Per-element listeners wouldn't survive tosijs cloning
+  // the row prototype for each item.
 }
 
 // build one row from the b8r template element, bound to `item`
@@ -213,6 +315,9 @@ function bindList (templateElement, resolve) {
   const props = {}
   for (const attribute of [...container.attributes]) props[attribute.name] = attribute.value
   const newContainer = elements[tag](props, ...tuple)
+  // one delegated listener per event type the rows use (cloneNode drops per-row
+  // listeners; see delegateRowEvents). Relative `.foo` handlers resolve per row.
+  delegateRowEvents(newContainer, collectEventTypes(templateElement), resolve)
   container.replaceWith(newContainer)
 }
 
@@ -225,7 +330,7 @@ export function bindElement (element, resolve = identity) {
   const bindSpec = element.getAttribute('data-bind')
   if (bindSpec !== null) applyBindings(element, bindSpec, resolve)
   const eventSpec = element.getAttribute('data-event')
-  if (eventSpec !== null) applyEvents(element, eventSpec, resolve)
+  if (eventSpec !== null) wireEvents(element, eventSpec, path => valueAtPath(resolve(path)))
 }
 
 // Hydrate every b8r binding within a root element (inclusive) onto tosijs.

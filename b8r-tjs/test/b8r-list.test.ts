@@ -35,3 +35,35 @@ test('data-list renders a row per item with item-relative bindings', async () =>
   // the container element + its attributes are preserved
   expect(root.querySelector('ul').classList.contains('people')).toBe(true)
 })
+
+test('list-row events resolve a relative handler against the clicked row item', async () => {
+  const picked: string[] = []
+  // A relative `data-event="click:.select"` resolves the handler on the *row's*
+  // list item (the same way `text=.name` binds the item's field) — so each item
+  // carries its own `select`, and clicking a row finds that item's method.
+  const note = (name: string) => () => picked.push(name)
+  tosi({
+    listEv: {
+      people: [
+        { id: 1, name: 'Ada', select: note('Ada') },
+        { id: 2, name: 'Babbage', select: note('Babbage') },
+        { id: 3, name: 'Lovelace', select: note('Lovelace') }
+      ]
+    }
+  })
+  const root = document.createElement('div')
+  root.innerHTML =
+    '<ul class="picker">' +
+    '  <li class="prow" data-list="listEv.people:id" data-event="click:.select">' +
+    '    <span data-bind="text=.name"></span></li>' +
+    '</ul>'
+  document.body.append(root)
+  hydrateB8r(root)
+  await tick()
+
+  const rows = [...root.querySelectorAll('.prow')] as any[]
+  expect(rows.length).toBe(3)
+  rows[1].click()           // delegated listener on the container dispatches to this row
+  rows[2].click()
+  expect(picked).toEqual(['Babbage', 'Lovelace'])
+})

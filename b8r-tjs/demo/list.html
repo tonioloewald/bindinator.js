@@ -34,7 +34,7 @@
 
   <div id="app">
     <ul class="people">
-      <li class="row" data-list="app.items:id" data-virtual="24">
+      <li class="row" data-list="app.items:id" data-virtual="24" data-event="click:app.pick">
         <span data-bind="text=.name"></span> &nbsp;·&nbsp; id <span data-bind="text=.id"></span>
       </li>
     </ul>
@@ -46,7 +46,10 @@
 
     const items = []
     for (let i = 1; i <= 5000; i++) items.push({ id: i, name: 'Item ' + i })
-    const { app } = tosi({ app: { items } })
+    let lastPicked = null
+    // an absolute list-row handler: the delegated container listener dispatches
+    // the click to the originating row, and we read it from the element.
+    const { app } = tosi({ app: { items, pick: (event, element) => { lastPicked = element.textContent.trim().replace(/\s+/g, ' ') } } })
 
     hydrateB8r(document.querySelector("#app"))
 
@@ -68,7 +71,9 @@
       total: () => app.items.length,
       rendered: () => document.querySelectorAll('#app .row').length,
       scrollTo: (y) => { document.querySelector('#app .people').scrollTop = y },
-      firstText: () => document.querySelector('#app .row span')?.textContent
+      firstText: () => document.querySelector('#app .row span')?.textContent,
+      clickFirstRow: () => { document.querySelector('#app .row')?.click() },
+      lastPicked: () => lastPicked
     }
     window.b8rTjsReady = true
   </script>

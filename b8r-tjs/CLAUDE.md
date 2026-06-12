@@ -167,6 +167,15 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   `data-chunk` → `visibleColumns` / `rowChunkSize`. (linkedom can't fully render
   virtual scroll, but headless still verifies the rows; full virtual is checked in
   a real browser via Haltija + `demo/list.html`.)
+  - **Row events are delegated, not per-row.** tosijs stamps rows by cloning the
+    template prototype, and `cloneNode` drops `addEventListener` handlers — so
+    `bindRowElement` leaves `data-event` attributes in place and `bindList` attaches
+    ONE listener per event type to the list container (`delegateRowEvents`). On an
+    event it walks target→container, matches the `data-event` type (+ key qualifier),
+    and resolves the handler *per event*: a relative `.foo` path is looked up on the
+    clicked row's item (via tosijs `getListItem`), an absolute path through `resolve`
+    + the xin registry. This survives virtual-list row recycling (verified: after
+    scrolling deep, clicking a recycled row still resolves to the right item).
 - `src/b8r-component.tjs` — legacy `.component.html` loader. `loadB8rComponent`
   parses docs/`<style>`/markup/`<script>`, returns `mount(target, data)`: creates
   a per-instance scope (`_b8r.<id>` in `xin`), hydrates the markup (rewriting
