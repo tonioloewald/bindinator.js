@@ -135,6 +135,16 @@ Two are clean **upstream asks** (tosijs / tosijs-ui), tracked here so we don't l
 3. **Box scalars in the tosijs proxy** (`Number`/`String`/`Boolean`) so structural
    comparison "just works" — long-deferred original goal; revisit when it matters.
 
+4. **A literate docs build on tjs-lang** (bigger idea). The docs site is generated
+   from source by `demo/build-docs.mjs` (extract the first `/*# … */` block per file
+   + curated `.md` pages → a `docs` array) — a pragmatic clone of tosijs-ui's
+   `tosijs-ui-docs` CLI. Since **tjs already parses sources, carries doc comments,
+   and runs inline `test` + signature tests**, a tjs-native version could unify
+   extraction with test execution: emit each page's `testStatus` (the doc-browser
+   `Doc` type already has the field) from the file's inline tests, and validate the
+   fenced examples as it goes. Either leverage `tosijs-ui-docs` or build the small
+   tjs-powered equivalent. For now the extractor is deliberately minimal.
+
 
 
 - `src/observe.tjs` — path-observed state (`register`/`get`/`set`/`observe`/

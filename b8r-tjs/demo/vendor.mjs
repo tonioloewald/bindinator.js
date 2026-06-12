@@ -40,4 +40,7 @@ async function bundle (entryName, outName, loader) {
   console.log('bundled', outName)
 }
 await bundle('live-example.entry.js', 'live-example.bundle.js')
-await bundle('docs.entry.js', 'docs.bundle.js', { '.md': 'text' })
+// generate the docs array from source first, then bundle the doc-browser demo
+const { buildDocs } = await import('./build-docs.mjs')
+await buildDocs()
+await bundle('docs.entry.js', 'docs.bundle.js')
