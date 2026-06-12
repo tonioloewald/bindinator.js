@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "bun ./build.mjs",
-    "test": "bun ./build.mjs && bun test"
+    "test": "bun ./build.mjs && bun test",
+    "demos": "bun ./build.mjs && bun ./demo/vendor.mjs",
+    "start": "bun run demos && bun ./demo/serve.mjs",
+    "serve": "bun ./demo/serve.mjs"
   },
   "keywords": [
     "tjs",

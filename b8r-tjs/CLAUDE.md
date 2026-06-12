@@ -10,7 +10,15 @@ the **tjs** language, runtime-type-safe and literate, with **no `vfs`**. See
 bun install      # tjs-lang (the only dependency)
 bun test         # build.mjs (inline + signature tests) then bun:test integration
 bun run build    # produce distributable dist/ + gate inline/signature tests
+bun start        # build dist + demo bundles, then serve → http://localhost:8030/demo/docs.html
 ```
+
+**Running the demos (this is its own dir):** the b8r-tjs work lives in `b8r-tjs/`;
+the repo-root `bun start` runs the *old* b8r site (`:8017`), not this. From
+`b8r-tjs/`, `bun start` (= `bun run demos` + `demo/serve.mjs`) builds `dist/`, runs
+`demo/vendor.mjs` (vendors tosijs, generates the docs array, bun-bundles the
+tosijs-ui demos), and serves the project root. Demos: `/demo/docs.html`
+(doc-browser), `/demo/live-example.html`, `/demo/blueprint.html`, `/demo/list.html`.
 
 The tooling targets **bun**. `bunfig.toml` preloads `tjs-bun-plugin.ts`, which
 runs every imported `.tjs` file through `tjs()` — so `.tjs` imports directly with
@@ -106,6 +114,16 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
    generation** (pre-render component definitions to HTML for SEO + TTFI); and
    **hydration** — the same render must be able to *adopt* existing DOM and wire
    bindings to it, never blow it away and rebuild.
+
+## Disposal / migration
+
+See **`MIGRATION.md`** for the full triage (what to dispose / migrate / keep) and
+the tree-shaking plan. TL;DR: `src/` is two disconnected clusters — the active
+**tosijs rebase** (`b8r-compat`/`b8r-elements`/`b8r-blueprint`/`b8r-component`/
+`b8r-example`) and the **pre-rebase primitives** (`observe`/`elements`/`css`/
+`component`, exported by the `index.tjs` barrel). The primitives are superseded by
+tosijs and slated for removal; the novel half (`compile`/`live`/`untrusted`) is
+kept but must be re-pointed off the old `component.tjs` first.
 
 ## Deferred / follow-ups (come back to these)
 
