@@ -20,13 +20,19 @@ bindings are hydrated through the b8r→tosijs adapter with `_component_.x`
 rewritten to a per-instance scope (`_b8r.<id>` in the registry).
 
 `css` mirrors `view`: it may be a string, a tosijs **XinStyleSheet object**, or a
-**function** `({ css, vars, varDefault }) => string | XinStyleSheet` — embracing
-tosijs's CSS-variable proxies (`vars.accentColor` → `var(--accent-color)`,
-`varDefault.gap('8px')` → `var(--gap, 8px)`):
+**function** `({ css, vars, varDefault }) => string | XinStyleSheet`. Because these
+are tosijs's *actual* CSS-variable proxies (passed straight through), the full
+computed surface is available: `vars.accentColor` → `var(--accent-color)`,
+`varDefault.gap('8px')` → `var(--gap, 8px)`, `vars.width50` →
+`calc(var(--width) * 0.5)` (and `vars.width_50` → `* -0.5`), plus computed-color
+math via the `b`/`s`/`h`/`o` suffixes.
 
     css: ({ vars, varDefault }) => `
       ._component_ button { color: ${vars.accentColor}; gap: ${varDefault.gap('8px')}; }
+      ._component_ .bar   { width: ${vars.width50}; }
     `
+
+`vars.width50` above resolves to `calc(var(--width) * 0.5)`.
 
 **Components are redefinable definitions, not custom elements** (a core b8r-tjs
 principle): `defineB8rComponent(name, spec)` (re)registers under `name` and

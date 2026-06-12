@@ -54,15 +54,17 @@ function installedStyles () {
 test('css may be a function receiving tosijs css/vars/varDefault (like view)', async () => {
   defineB8rComponent('cssfn', {
     css: ({ vars, varDefault }: any) =>
-      '._component_ b { color: ' + vars.accentColor + '; padding: ' + varDefault.pad('4px') + '; }',
+      '._component_ b { color: ' + vars.accentColor + '; padding: ' + varDefault.pad('4px') +
+      '; width: ' + vars.width50 + '; }',
     view: ({ b }: any) => b('hi')
   })
   await mountB8rComponent(host(), 'cssfn')
   await tick()
   const styles = installedStyles()
-  expect(styles).toContain('.cssfn-component b')   // `_component_` still scoped
-  expect(styles).toContain('var(--accent-color)')  // vars proxy (camelCase → kebab)
-  expect(styles).toContain('var(--pad, 4px)')      // varDefault proxy (with fallback)
+  expect(styles).toContain('.cssfn-component b')        // `_component_` still scoped
+  expect(styles).toContain('var(--accent-color)')       // vars proxy (camelCase → kebab)
+  expect(styles).toContain('var(--pad, 4px)')           // varDefault proxy (with fallback)
+  expect(styles).toContain('calc(var(--width) * 0.5)')  // computed var (width50)
 })
 
 test('css may be an XinStyleSheet object (stringified via tosijs css())', async () => {
