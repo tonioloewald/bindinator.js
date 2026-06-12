@@ -77,6 +77,32 @@ test('data-event dispatches to a handler resolved by path', async () => {
   expect(root.querySelector('.n').textContent).toBe('2')
 })
 
+test('${...} interpolation watches every referenced path and re-renders', async () => {
+  const { who } = tosi({ who: { first: 'Ada', last: 'Lovelace', n: 1 } })
+  const root = mount(
+    '<span class="greet" data-bind="text=Hello ${who.first} ${who.last}!"></span>' +
+    '<span class="cnt" data-bind="text=#${who.n}"></span>' +
+    '<a class="lnk" data-bind="attr(title)=user ${who.first}"></a>'
+  )
+  await tick()
+  expect(root.querySelector('.greet').textContent).toBe('Hello Ada Lovelace!')
+  expect(root.querySelector('.cnt').textContent).toBe('#1')
+  expect(root.querySelector('.lnk').getAttribute('title')).toBe('user Ada')
+  // changing ANY referenced path re-renders the whole template
+  who.last = 'Byron'; who.n = 2; await tick()
+  expect(root.querySelector('.greet').textContent).toBe('Hello Ada Byron!')
+  expect(root.querySelector('.cnt').textContent).toBe('#2')
+})
+
+test('a lone ${path} passes the raw value through (number stays a number)', async () => {
+  const { box } = tosi({ box: { count: 0 } })
+  const root = mount('<span class="v" data-bind="text=${box.count}"></span>')
+  await tick()
+  expect(root.querySelector('.v').textContent).toBe('0')
+  box.count = 42; await tick()
+  expect(root.querySelector('.v').textContent).toBe('42')
+})
+
 test('multiple bindings on one element (semicolon-separated)', async () => {
   const root = mount('<div class="multi" data-bind="text=app.msg; attr(title)=app.tip"></div>')
   await tick()

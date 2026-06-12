@@ -11,11 +11,18 @@ unchanged, so existing b8r components/markup keep working:
 
 Supported targets: `text`, `value`, `checked`, `attr(x)`, `prop(x)`, `style(x)`,
 `class(x)`, `showIf[(v)]`, `hideIf[(v)]`, `enabledIf`, `disabledIf`. Also covered:
-`data-list` (+ `data-virtual`), multi-type / key-qualified events, and item-relative
-(`.foo`) bind/event paths in list rows (via `^`-template paths + event delegation).
+`data-list` (+ `data-virtual`), multi-type / key-qualified events, item-relative
+(`.foo`) bind/event paths in list rows (via `^`-template paths + event delegation),
+and `${path}` string interpolation (multi-path, via a tosijs TakeDescriptor):
+
+    data-bind="text=Hello ${app.first} ${app.last}!"   // re-renders on either path
+
+Known limitation: `${.relative}` interpolation *inside a list row* is not wired
+(tosijs doesn't re-target `^` paths within a TakeDescriptor per stamp) — use a
+plain `text=.field` binding, or absolute/`_component_` paths, in rows.
 */
 
-import { bind, bindings, xin, boxed, tosiValue, elements, getListItem } from 'tosijs'
+import { bind, bindings, xin, boxed, tosiValue, elements, getListItem, TAKE_DESCRIPTOR } from 'tosijs'
 
 // navigate the xin registry to a dotted path
 function nodeAtPath (path) {
@@ -111,6 +118,61 @@ function bindingFor (name, arg) {
   return bindingCache[key]
 }
 
+// resolve a single b8r binding path to a tosijs bind path: an item-relative
+// `.field` becomes the `^`-template path `^.field` (re-targeted per list row on
+// stamp); everything else goes through `resolve` (e.g. `_component_` scoping).
+function bindPath (rawPath, resolve) {
+  return rawPath.startsWith('.') ? '^' + rawPath : resolve(rawPath)
+}
+
+// stringify an interpolated value (boxed-proxy-safe; null/undefined → '')
+function interpText (value) {
+  const v = tosiValue(value)
+  return v === null || v === undefined ? '' : String(v)
+}
+
+// build a tosijs multi-path TakeDescriptor for a b8r `${path}` interpolation, e.g.
+// `clock showing ${_component_.time}` → watch the time path, render the template.
+// A lone `${path}` (no surrounding text) passes the raw value through (so a number
+// or boolean reaches the target unstringified); a mixed template renders a string.
+function interpolationSpec (text, resolve) {
+  const paths = []
+  const parts = []
+  let last = 0
+  const re = /\$\{([^}]+)\}/g
+  let match = re.exec(text)
+  while (match !== null) {
+    parts.push(text.slice(last, match.index))
+    paths.push(bindPath(match[1].trim(), resolve))
+    parts.push({ index: paths.length - 1 })
+    last = re.lastIndex
+    match = re.exec(text)
+  }
+  parts.push(text.slice(last))
+  const lone = paths.length === 1 && parts.length === 3 && parts[0] === '' && parts[2] === ''
+  function transform (...values) {
+    if (lone) return tosiValue(values[0])
+    let out = ''
+    for (const part of parts) out += part !== null && typeof part === 'object' ? interpText(values[part.index]) : part
+    return out
+  }
+  return { [TAKE_DESCRIPTOR]: true, paths, transform }
+}
+
+// wire one b8r target (`text`, `attr(title)`, `class(active)`, …) at `rawPath`
+// onto `element` via tosijs — using a multi-path interpolation binding when the
+// path contains `${…}`, otherwise a single-path binding. Shared by top-level and
+// list-row binding so both get interpolation + relative-path handling.
+function bindTarget (element, targetName, arg, rawPath, resolve) {
+  const binding = bindingFor(targetName, arg)
+  if (binding === undefined) return
+  if (rawPath.indexOf('${') !== -1) {
+    bind(element, interpolationSpec(rawPath, resolve), binding)
+  } else {
+    bind(element, bindPath(rawPath, resolve), binding)
+  }
+}
+
 function applyBindings (element, spec, resolve) {
   for (const entry of spec.split(/;|\n/)) {
     const trimmed = entry.trim()
@@ -118,12 +180,10 @@ function applyBindings (element, spec, resolve) {
     const eq = trimmed.indexOf('=')
     if (eq === -1) continue
     const targetPart = trimmed.slice(0, eq).trim()
-    const path = resolve(trimmed.slice(eq + 1).trim())
+    const rawPath = trimmed.slice(eq + 1).trim()
     const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
     if (match === null) continue
-    const binding = bindingFor(match[1], match[2])
-    if (binding === undefined) continue
-    bind(element, path, binding)
+    bindTarget(element, match[1], match[2], rawPath, resolve)
   }
 }
 
@@ -273,12 +333,9 @@ function bindRowElement (element, item, resolve) {
       const rawPath = trimmed.slice(eq + 1).trim()
       const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
       if (match === null) continue
-      const binding = bindingFor(match[1], match[2])
-      if (binding === undefined) continue
-      // a b8r relative path `.field` IS the tosijs template path `^.field`:
-      // tosijs binds `^` to the array item and re-targets it per row on stamp.
-      const what = rawPath.startsWith('.') ? '^' + rawPath : resolve(rawPath)
-      bind(element, what, binding)
+      // `bindTarget` maps a relative `.field` to the `^.field` template path
+      // (re-targeted per row on stamp) and handles `${…}` interpolation.
+      bindTarget(element, match[1], match[2], rawPath, resolve)
     }
     element.removeAttribute('data-bind')
   }

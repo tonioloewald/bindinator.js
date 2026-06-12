@@ -17,7 +17,7 @@ export default {
     ._component_ button { padding: 6px 12px; }
   `,
   view: ({ div, h3, ul, li, input, label, span, button }) => div(
-    h3({ bindText: '_component_.title' }),
+    h3({ bindText: '${_component_.title} — next #${_component_.nextId}' }),
     ul(li({ dataList: '_component_.todos:id' },
       label(
         input({ type: 'checkbox', bindChecked: '.done' }),
