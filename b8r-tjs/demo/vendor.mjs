@@ -20,3 +20,15 @@ for (const [src, dst] of files) {
   await copyFile(join(nm, src), join(out, dst))
   console.log('vendored', dst)
 }
+
+// The <live-example> demo needs tosijs-ui (extensionless ESM imports) + sucrase,
+// so bundle its entry with bun — one shared tosijs instance, sucrase inlined.
+const entry = join(root, 'live-example.entry.js')
+const bundle = join(out, 'live-example.bundle.js')
+const built = await Bun.build({ entrypoints: [entry], target: 'browser', format: 'esm' })
+if (!built.success) {
+  for (const log of built.logs) console.error(log)
+  throw new Error('live-example bundle failed')
+}
+await Bun.write(bundle, built.outputs[0])
+console.log('bundled live-example.bundle.js')

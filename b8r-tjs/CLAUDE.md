@@ -208,6 +208,19 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
   `data-bind`/`data-event` attributes (`bindX:`→`data-bind="x=…"`, `onX:`→
   `data-event="x:…"`, `dotted.key`→method binding, `dataList:`→`data-list`). A
   faithful port (no b8r dependency — "port, don't depend"); plain **`.js`**.
+- `src/b8r-example.js` — bridge from **tosijs-ui's `<live-example>`** (the docs
+  fiddle component) to the blueprint loader, so b8r components render as live
+  fiddles. `<live-example>` runs its `js` pane as a function with `preview` + its
+  `context` in scope (the transform is internally sucrase, not overridable), so the
+  seam is the **context**: spread `b8rExampleContext` into a live-example's
+  `context` and a b8r fiddle's `js` is one call — `renderB8rExample(preview, spec)`
+  (mounts a `{ css, view, initialValue, … }` spec via `defineB8rComponent` + mount).
+  tosijs examples run unchanged; b8r ones call the helper (or
+  `import … from 'b8r-tjs'`). Imports `b8r-blueprint` + `b8r-compat`; plain **`.js`**;
+  kept out of the barrel. Verified in a real `<live-example>` via Haltija
+  (`demo/live-example.html`, bundled by `demo/vendor.mjs`). **NB:** tosijs-ui's ESM
+  uses extensionless imports + needs sucrase, so the demo is **bun-bundled** (one
+  shared tosijs instance, sucrase inlined) — don't try to serve its dist as raw ESM.
 - `src/index.tjs` — authoring barrel (observe + elements + css + component).
 - `examples/` — literate example components (not built).
 - `test/_dom.mjs` — shared headless-DOM setup for **tosijs**-backed tests.

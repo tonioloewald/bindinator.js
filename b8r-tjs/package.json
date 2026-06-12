@@ -22,6 +22,8 @@
     "tosijs": "^1.6.1"
   },
   "devDependencies": {
-    "linkedom": "^0.18.12"
+    "linkedom": "^0.18.12",
+    "sucrase": "^3.35.1",
+    "tosijs-ui": "^1.5.23"
   }
 }

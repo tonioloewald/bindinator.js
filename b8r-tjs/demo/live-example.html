@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>b8r-tjs — b8r component fiddle in tosijs-ui &lt;live-example&gt;</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 50rem; }
+    .note { color: #555; }
+    live-example { --tosi-example-height: 360px; display: block; margin: 1rem 0; border: 1px solid #ccc; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>b8r-tjs — a b8r fiddle inside <code>&lt;live-example&gt;</code></h1>
+  <p class="note">
+    tosijs-ui's <code>&lt;live-example&gt;</code> (the docs-site fiddle component) running a
+    <strong>b8r component</strong> via the blueprint loader. The example's <code>js</code> calls
+    <code>renderB8rExample(preview, spec)</code> — supplied by <code>b8rExampleContext</code> on the
+    example's <code>context</code> — so b8r and tosijs examples coexist in one docs harness.
+  </p>
+
+  <div id="host"></div>
+
+  <!-- bundled with bun (`bun demo/vendor.mjs`): one shared tosijs instance for the
+       adapter, the loader, AND live-example, with sucrase inlined. -->
+  <script type="module" src="./vendor/live-example.bundle.js"></script>
+</body>
+</html>
