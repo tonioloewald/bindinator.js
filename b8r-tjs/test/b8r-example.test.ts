@@ -30,9 +30,12 @@ test('renderB8rExample mounts a b8r spec into a target (preview) and reacts', as
   expect(preview.querySelector('.n').textContent).toBe('1')
 })
 
-test('b8rExampleContext exposes the loader as a namespace and bare helpers', () => {
-  expect(typeof b8rExampleContext.renderB8rExample).toBe('function')
+test('b8rExampleContext exposes the API only under the `b8r-tjs` namespace', () => {
+  // namespace-only, so `import { makeComponent } from 'b8r-tjs'` doesn't collide
+  // with a bare injected param of the same name (see b8r-example.js).
+  expect(Object.keys(b8rExampleContext)).toEqual(['b8r-tjs'])
   const ns = (b8rExampleContext as any)['b8r-tjs']
+  expect(typeof ns.makeComponent).toBe('function')
   expect(typeof ns.defineB8rComponent).toBe('function')
   expect(typeof ns.mountB8rComponent).toBe('function')
   expect(typeof ns.hydrateB8r).toBe('function')

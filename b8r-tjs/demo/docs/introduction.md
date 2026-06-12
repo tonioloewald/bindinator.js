@@ -11,7 +11,9 @@ live preview by the b8r-tjs blueprint loader. Open the code (the `</>` button) a
 edit it: it re-mounts as you type.
 
 ```js
-renderB8rExample(preview, {
+import { makeComponent } from 'b8r-tjs'
+
+const counter = makeComponent({
   // `css` can be a function of tosijs's css-variable proxies (like `view` is a
   // function of `elements`); `varDefault.gap('12px')` → `var(--gap, 12px)`.
   css: ({ varDefault }) =>
@@ -28,8 +30,9 @@ renderB8rExample(preview, {
     reset: () => { component.data.count = 0 }
   })
 })
+preview.append(counter())
 ```
 
-`renderB8rExample` and the loader come from `b8rExampleContext`, which is spread
-into the doc-browser's `context` — the only wiring needed to make b8r fiddles work
-alongside ordinary tosijs ones.
+`makeComponent` is imported from `b8r-tjs` — in the docs that import resolves to
+`b8rExampleContext`, spread into the doc-browser's `context`. That single context
+spread is the only wiring needed to make b8r fiddles work alongside tosijs ones.

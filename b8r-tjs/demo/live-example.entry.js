@@ -6,8 +6,10 @@ import * as tosijs from 'tosijs'
 import { liveExample } from 'tosijs-ui'
 import { b8rExampleContext } from '../dist/b8r-example.js'
 
-const fiddleJs = `// a b8r component, mounted into the live-example preview via the loader
-renderB8rExample(preview, {
+const fiddleJs = `// a b8r component, instantiated into the live-example preview via the loader
+import { makeComponent } from 'b8r-tjs'
+
+const counter = makeComponent({
   css: '._component_ { font-size: 1.4rem; display: flex; gap: 12px; align-items: center }' +
        '._component_ button { font: inherit; padding: 4px 12px; cursor: pointer }',
   view: ({ div, button, span }) => div(
@@ -20,7 +22,8 @@ renderB8rExample(preview, {
     inc: () => { component.data.count = component.data.count + 1 },
     reset: () => { component.data.count = 0 }
   })
-})`
+})
+preview.append(counter())`
 
 const example = liveExample({ context: { tosijs, ...b8rExampleContext } })
 example.js = fiddleJs

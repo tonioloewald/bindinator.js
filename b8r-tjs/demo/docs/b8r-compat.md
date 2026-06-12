@@ -7,7 +7,9 @@ parameterised targets (`class(done)`), and `${path}` string interpolation. Here'
 a to-do component that uses every one of them:
 
 ```js
-renderB8rExample(preview, {
+import { makeComponent } from 'b8r-tjs'
+
+const todo = makeComponent({
   css: '._component_ { display: block; font-family: system-ui, sans-serif; max-width: 24rem }' +
        '._component_ ul { list-style: none; padding: 0; margin: 0 0 .75rem }' +
        '._component_ li { padding: 6px 2px; border-bottom: 1px solid #eee }' +
@@ -41,6 +43,7 @@ renderB8rExample(preview, {
     }
   })
 })
+preview.append(todo())
 ```
 
 The list rows bind item-relative paths (`text=.text`, `checked=.done`,

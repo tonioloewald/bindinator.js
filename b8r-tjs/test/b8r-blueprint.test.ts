@@ -6,7 +6,7 @@ import { setupDom, tick } from './_dom.mjs'
 
 const document = setupDom()
 await import('tosijs')
-const { defineB8rComponent, mountB8rComponent } = await import('../src/b8r-blueprint.js')
+const { defineB8rComponent, mountB8rComponent, makeComponent } = await import('../src/b8r-blueprint.js')
 
 function host () {
   const el = document.createElement('div')
@@ -65,6 +65,49 @@ test('css may be a function receiving tosijs css/vars/varDefault (like view)', a
   expect(styles).toContain('var(--accent-color)')       // vars proxy (camelCase → kebab)
   expect(styles).toContain('var(--pad, 4px)')           // varDefault proxy (with fallback)
   expect(styles).toContain('calc(var(--width) * 0.5)')  // computed var (width50)
+})
+
+test('makeComponent returns an element creator; the instance reacts', async () => {
+  const counter = makeComponent({
+    view: ({ div, span, button }: any) => div(
+      span({ class: 'n', bindText: '${_component_.count}' }),
+      button('+1', { class: 'inc', onClick: '_component_.inc' })
+    ),
+    initialValue: ({ component }: any) => ({
+      count: 0, inc: () => { component.data.count = component.data.count + 1 }
+    })
+  })
+  expect(typeof counter).toBe('function')   // it's a creator, like elements.div
+  const el = counter()
+  host().append(el)
+  await tick()
+  expect(el.querySelector('.n').textContent).toBe('0')
+  el.querySelector('.inc').click()
+  await tick()
+  expect(el.querySelector('.n').textContent).toBe('1')
+})
+
+test('makeComponent creator applies prop objects to the root (class, attrs)', async () => {
+  const badge = makeComponent({ view: ({ span }: any) => span('hi') })
+  const el = badge({ class: 'big', title: 'a tip' })
+  host().append(el)
+  await tick()
+  expect(el.classList.contains('big')).toBe(true)
+  expect(el.getAttribute('title')).toBe('a tip')
+  expect(el.querySelector('span').textContent).toBe('hi')
+})
+
+test('makeComponent slots child nodes into the view’s [data-children] (b8r composition)', async () => {
+  const panel = makeComponent({
+    view: ({ div }: any) => div({ class: 'panel' }, div({ class: 'body', dataChildren: true }))
+  })
+  const el = panel({ class: 'outer' }, document.createElement('h2'), 'tail text')
+  el.querySelector('h2').textContent = 'Title'
+  host().append(el)
+  await tick()
+  const body = el.querySelector('.body')
+  expect(body.querySelector('h2').textContent).toBe('Title')  // children transcluded
+  expect(body.textContent).toContain('tail text')
 })
 
 test('css may be an XinStyleSheet object (stringified via tosijs css())', async () => {

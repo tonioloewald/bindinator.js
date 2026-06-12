@@ -41,7 +41,7 @@ re-stamps every live instance, so editing a component hot-reloads its instances.
 
 import { tosi, xin, tosiValue, css, vars, varDefault } from 'tosijs'
 import { hydrateB8r } from './b8r-compat.js'
-import { elements } from './b8r-elements.js'
+import { elements, create } from './b8r-elements.js'
 
 const AsyncFunction = (async () => {}).constructor
 let nextId = 0
@@ -210,4 +210,56 @@ export function mountB8rComponent (target, name, data) {
   const entry = registry[name]
   if (entry === undefined) throw new Error('b8r component "' + name + '" is not defined')
   return entry.mount(target, data)
+}
+
+// append a child part (node / string / number / array) to a parent
+function appendPart (parent, part) {
+  if (part === null || part === undefined) return
+  if (Array.isArray(part)) { for (const p of part) appendPart(parent, p); return }
+  if (typeof part === 'string' || typeof part === 'number') { parent.append(String(part)); return }
+  parent.append(part)
+}
+
+// b8r-style composition: move provided children into the view's `[data-children]`
+// (emptied first, as b8r does). No `[data-children]` → children are dropped.
+function slotChildren (root, children) {
+  const dest = root.querySelector('[data-children]')
+  if (dest === null) return
+  dest.textContent = ''
+  for (const child of children) appendPart(dest, child)
+}
+
+let anonSeq = 0
+
+// Make a component **element creator** from a spec — the ergonomic, composable
+// authoring API (mirrors tosijs creators like `elements.div` / `liveExample`).
+// `makeComponent(spec)` registers ONE redefinable definition and returns a creator
+// `(...parts) => element`. Calling the creator builds a component instance:
+//
+//   const counter = makeComponent({ view, initialValue })
+//   preview.append(counter())                          // a fresh instance
+//   preview.append(counter({ class: 'big', bindShowIf: 'app.on' }, h2('Title')))
+//
+// Object parts are applied to the component root (attributes, `bindX`/`onX` →
+// `data-bind`/`data-event`, `style`, `class` — via `b8r-elements`); node/string
+// parts are slotted into the view's `[data-children]` (b8r-style transclusion,
+// like `<b8r-component>…children…</b8r-component>`). Light-DOM, not a custom
+// element — so composition is `data-children`, not a shadow `<slot>`.
+export function makeComponent (spec, options = {}) {
+  const name = options.name === undefined ? 'b8r-anon-' + (anonSeq = anonSeq + 1) : options.name
+  const tag = options.tag === undefined ? 'div' : options.tag
+  const entry = defineB8rComponent(name, spec)
+  return function (...parts) {
+    const props = []
+    const children = []
+    for (const part of parts) {
+      if (part === null || part === undefined) continue
+      if (typeof part === 'object' && part.nodeType === undefined && !Array.isArray(part)) props.push(part)
+      else children.push(part)
+    }
+    const root = create(tag, ...props) // applies bindX/onX/attrs/style/class to the root
+    entry.mount(root, options.data)    // stamp the view (built synchronously; `load` runs after)
+    if (children.length) slotChildren(root, children)
+    return root
+  }
 }
