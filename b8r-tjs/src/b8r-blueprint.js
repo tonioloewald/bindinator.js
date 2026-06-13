@@ -221,10 +221,22 @@ function appendPart (parent, part) {
 }
 
 // b8r-style composition: move provided children into the view's `[data-children]`
-// (emptied first, as b8r does). No `[data-children]` → children are dropped.
-function slotChildren (root, children) {
+// (emptied first, as b8r does). b8r silently drops children when a view has no
+// `[data-children]`; we warn instead (surface breakage — see COMPATIBILITY.md).
+const warnedNoSlot = new Set()
+function slotChildren (name, root, children) {
   const dest = root.querySelector('[data-children]')
-  if (dest === null) return
+  if (dest === null) {
+    if (!warnedNoSlot.has(name)) {
+      warnedNoSlot.add(name)
+      console.warn(
+        'b8r-tjs: component "' + name + '" was given children but its view has no ' +
+        '`[data-children]` element, so they were dropped. Add one to receive them ' +
+        '(e.g. `div({ dataChildren: true })`).'
+      )
+    }
+    return
+  }
   dest.textContent = ''
   for (const child of children) appendPart(dest, child)
 }
@@ -259,7 +271,7 @@ export function makeComponent (spec, options = {}) {
     }
     const root = create(tag, ...props) // applies bindX/onX/attrs/style/class to the root
     entry.mount(root, options.data)    // stamp the view (built synchronously; `load` runs after)
-    if (children.length) slotChildren(root, children)
+    if (children.length) slotChildren(name, root, children)
     return root
   }
 }

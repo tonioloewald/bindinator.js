@@ -53,6 +53,13 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   `b8r.*` will throw. `require` is unsupported (b8r already told users to use
   `import`).
 
+- **[deliberate] Composition warns instead of dropping.** `makeComponent`'s
+  creator slots children into the view's `[data-children]` (b8r-style
+  transclusion). When a view has *no* `[data-children]` but children are passed,
+  b8r dropped them silently; b8r-tjs drops them too but **`console.warn`s** (deduped
+  per component) so the mistake surfaces. Composition is light-DOM `data-children`,
+  not a shadow `<slot>`/`tosiSlot` (our components aren't custom elements).
+
 - **[limit] `initialValue` / `component.data`.** Provided and reactive
   (`component.data` reads the live instance proxy). Edge cases around b8r's exact
   `data` cloning / `get('path.to.deep')` string-path semantics may differ from b8r.

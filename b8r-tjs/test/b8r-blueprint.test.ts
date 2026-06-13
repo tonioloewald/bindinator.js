@@ -110,6 +110,19 @@ test('makeComponent slots child nodes into the view’s [data-children] (b8r com
   expect(body.textContent).toContain('tail text')
 })
 
+test('makeComponent warns when given children but the view has no [data-children]', async () => {
+  const warnings: string[] = []
+  const original = console.warn
+  console.warn = (...args: any[]) => { warnings.push(args.join(' ')) }
+  try {
+    const plain = makeComponent({ name: 'no-slot', view: ({ span }: any) => span('hi') })
+    host().append(plain({}, document.createElement('em')))  // children, but nowhere to put them
+    await tick()
+  } finally { console.warn = original }
+  expect(warnings.length).toBe(1)
+  expect(warnings[0]).toContain('data-children')
+})
+
 test('css may be an XinStyleSheet object (stringified via tosijs css())', async () => {
   defineB8rComponent('cssobj', {
     css: ({ vars }: any) => ({ '._component_ i': { color: vars.brand } }),
