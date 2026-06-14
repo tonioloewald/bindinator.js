@@ -141,6 +141,15 @@ test('unknown target warns once and is skipped', async () => {
   expect(warnings[0]).toContain('bogusTarget')
 })
 
+test('selected is a two-way target', async () => {
+  const { opt } = tosi({ opt: { chosen: true } })
+  const root = mount('<option class="o" data-bind="selected=opt.chosen">x</option>')
+  await tick()
+  expect((root.querySelector('.o') as any).selected).toBe(true)
+  opt.chosen = false; await tick()
+  expect((root.querySelector('.o') as any).selected).toBe(false)
+})
+
 test('registerB8rBindings adds a custom target (tree-shakeable extension point)', async () => {
   registerB8rBindings({ bindings: { upper: { toDOM (element: any, value: any) { element.textContent = String(value).toUpperCase() } } } })
   const root = mount('<span class="up" data-bind="upper=app.msg"></span>')

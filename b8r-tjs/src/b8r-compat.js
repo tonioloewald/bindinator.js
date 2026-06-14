@@ -114,6 +114,10 @@ const b8rBindings = {
   checked: {
     toDOM (element, value) { element.checked = Boolean(value) },
     fromDOM (element) { return element.checked }
+  },
+  selected: {
+    toDOM (element, value) { element.selected = Boolean(value) },
+    fromDOM (element) { return element.selected }
   }
 }
 
@@ -483,6 +487,14 @@ function bindList (templateElement, resolve) {
   // listeners; see delegateRowEvents). Relative `.foo` handlers resolve per row.
   delegateRowEvents(newContainer, collectEventTypes(templateElement), resolve)
   container.replaceWith(newContainer)
+}
+
+// b8r's `getListInstance(element)`: the list item that owns `element` (or one of
+// its ancestors), as the live **boxed proxy** — so a row event handler can read
+// AND mutate the item (`item.done = !item.done` updates the list). Returns
+// undefined outside a list. (tosijs `getListItem` does the lookup.)
+export function getListInstance (element) {
+  return getListItem(element)
 }
 
 function identity (path) { return path }

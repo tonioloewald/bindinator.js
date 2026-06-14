@@ -14,7 +14,7 @@ sandbox instead (see `untrusted.tjs`).
 */
 
 import { tosi, xin, tosiValue } from 'tosijs'
-import { hydrateB8r } from './b8r-compat.js'
+import { hydrateB8r, getListInstance } from './b8r-compat.js'
 
 const AsyncFunction = (async () => {}).constructor
 let nextId = 0
@@ -101,7 +101,7 @@ export function loadB8rComponent (source) {
       }
     }
     const register = function (name, object) { tosi({ [name]: object }) }
-    const b8r = { get, set, find, findOne, on, touch, register }
+    const b8r = { get, set, find, findOne, on, touch, register, getListInstance }
 
     hydrateB8r(target, { resolve: function (path) { return scoped(scope, path) } })
 

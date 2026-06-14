@@ -40,7 +40,7 @@ re-stamps every live instance, so editing a component hot-reloads its instances.
 */
 
 import { tosi, xin, tosiValue, css, vars, varDefault } from 'tosijs'
-import { hydrateB8r } from './b8r-compat.js'
+import { hydrateB8r, getListInstance } from './b8r-compat.js'
 import { elements, create } from './b8r-elements.js'
 
 const AsyncFunction = (async () => {}).constructor
@@ -134,8 +134,10 @@ function makeContext (id, target) {
     }
   }
   const register = function (name, object) { tosi({ [name]: object }) }
+  // b8r's list-row lookup: `getListInstance(evt.target)` → the row's item proxy.
   const component = { element: target, get id () { return id }, get data () { return xin._b8r[id] } }
-  return { component, scope, b8r: { get, set, find, findOne, on, touch, register }, get, set, find, findOne, on, touch, register }
+  const b8r = { get, set, find, findOne, on, touch, register, getListInstance }
+  return { component, scope, b8r, get, set, find, findOne, on, touch, register, getListInstance }
 }
 
 // stamp a defined component into `target` with the given starting data, wiring

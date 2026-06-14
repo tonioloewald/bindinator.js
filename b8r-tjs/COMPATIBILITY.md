@@ -46,8 +46,9 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
     `timestamp`, `json` — registered via `registerExtraB8rTargets()` (a wrapper over
     `registerB8rBindings`). Kept out of core so it's only bundled when imported.
     Still **[todo]:** `href`, `data`, `pointerEventsIf`.
-  - **[todo] Two-way (`fromDOM`):** `value` and `checked` done; `selected` and
-    two-way `text` not yet.
+  - **Two-way (`fromDOM`):** `value`, `checked`, `selected` done; two-way `text`
+    (contenteditable) **[todo]** — deferred because making `text` two-way would mark
+    every text-bound element two-way and over-trigger the sync-`keydown` warning.
 
 ## Components / loader
 
@@ -55,9 +56,10 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   `<script>` runs via `AsyncFunction` (trusted). b8r features the script relied on
   (`b8r.component`, `b8r.json`, ajax helpers, `b8r.register` semantics, the full
   `b8r` object) are **partially** provided — the instance context exposes
-  `get/set/find/findOne/on/touch/register/component/data`; calls to unimplemented
-  `b8r.*` will throw. `require` is unsupported (b8r already told users to use
-  `import`).
+  `get/set/find/findOne/on/touch/register/component/data` + `getListInstance`
+  (the row-item lookup used by list-row handlers); calls to *other* unimplemented
+  `b8r.*` (`component`/`insertComponent`, `call`/`callMethod`, `getComponentData`,
+  list-mutation helpers) will throw. `require` is unsupported (use `import`).
 
 - **[deliberate] Composition warns instead of dropping.** `makeComponent`'s
   creator slots children into the view's `[data-children]` (b8r-style
