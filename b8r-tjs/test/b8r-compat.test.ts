@@ -5,7 +5,7 @@ import { setupDom, tick } from './_dom.mjs'
 
 const document = setupDom()
 const { tosi } = await import('tosijs')
-const { hydrateB8r } = await import('../src/b8r-compat.js')
+const { hydrateB8r, registerB8rBindings } = await import('../src/b8r-compat.js')
 
 const { app } = tosi({
   app: {
@@ -109,4 +109,41 @@ test('multiple bindings on one element (semicolon-separated)', async () => {
   const el = root.querySelector('.multi')
   expect(el.textContent).toBe('world')         // app.msg is 'world' by now
   expect(el.getAttribute('title')).toBe('a tooltip')
+})
+
+test('multi-target binding: one path drives several targets (text,attr(title))', async () => {
+  const root = mount('<a class="mt" data-bind="text,attr(title)=app.tip"></a>')
+  await tick()
+  const el = root.querySelector('.mt')
+  expect(el.textContent).toBe('a tooltip')
+  expect(el.getAttribute('title')).toBe('a tooltip')
+})
+
+test('method binding: a dotted target path is called as fn(element, value)', async () => {
+  const calls: any[] = []
+  tosi({ form: { value: 'v1', render: (element: any, value: any) => { calls.push([element.classList.contains('meth'), value]); element.dataset.rendered = value } } })
+  const root = mount('<div class="meth" data-bind="form.render=form.value"></div>')
+  await tick()
+  expect(calls.length).toBe(1)
+  expect(calls[0]).toEqual([true, 'v1'])   // (element, rawValue)
+  expect(root.querySelector('.meth').dataset.rendered).toBe('v1')
+})
+
+test('unknown target warns once and is skipped', async () => {
+  const warnings: string[] = []
+  const original = console.warn
+  console.warn = (...args: any[]) => { warnings.push(args.join(' ')) }
+  try {
+    mount('<div data-bind="bogusTarget=app.msg"></div>')
+    mount('<div data-bind="bogusTarget=app.tip"></div>') // same target again → deduped
+  } finally { console.warn = original }
+  expect(warnings.length).toBe(1)
+  expect(warnings[0]).toContain('bogusTarget')
+})
+
+test('registerB8rBindings adds a custom target (tree-shakeable extension point)', async () => {
+  registerB8rBindings({ bindings: { upper: { toDOM (element: any, value: any) { element.textContent = String(value).toUpperCase() } } } })
+  const root = mount('<span class="up" data-bind="upper=app.msg"></span>')
+  await tick()
+  expect(root.querySelector('.up').textContent).toBe('WORLD') // app.msg is 'world'
 })

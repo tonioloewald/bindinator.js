@@ -17,6 +17,16 @@ and `${path}` string interpolation (multi-path, via a tosijs TakeDescriptor):
 
     data-bind="text=Hello ${app.first} ${app.last}!"   // re-renders on either path
 
+**Method bindings** (a dotted target path is a function called `fn(element, value)`)
+and **multi-target** bindings (one path → several comma-separated targets) work too:
+
+    data-bind="_component_.render=_component_.data"     // method binding
+    data-bind="text,attr(title)=app.label"              // multi-target
+
+An **unknown** target is skipped with a one-time `console.warn` (so gaps surface).
+Heavier targets (`format`, `img`, …) aren't in the core — register them with
+`registerB8rBindings({ bindings, factories })` so they're only bundled when used.
+
 Known limitation: `${.relative}` interpolation *inside a list row* is not wired
 (tosijs doesn't re-target `^` paths within a TakeDescriptor per stamp) — use a
 plain `text=.field` binding, or absolute/`_component_` paths, in rows.
@@ -149,6 +159,16 @@ function bindingFor (name, arg) {
   return bindingCache[key]
 }
 
+// Extension point (keeps the core small + tree-shakeable): register additional
+// b8r targets. Heavier targets — `format` (markdown), `img`/`bgImg` (lazy images),
+// `bytes`/`timestamp` (formatters) — live in their own module and register here,
+// so they're only bundled when that module is imported. `bindings` is a map of
+// `name → XinBinding`; `factories` is a map of `name → (arg) => XinBinding`.
+export function registerB8rBindings ({ bindings: extraBindings, factories } = {}) {
+  if (extraBindings !== undefined) Object.assign(b8rBindings, extraBindings)
+  if (factories !== undefined) Object.assign(b8rBindingFactories, factories)
+}
+
 // resolve a single b8r binding path to a tosijs bind path: an item-relative
 // `.field` becomes the `^`-template path `^.field` (re-targeted per list row on
 // stamp); everything else goes through `resolve` (e.g. `_component_` scoping).
@@ -190,13 +210,47 @@ function interpolationSpec (text, resolve) {
   return { [TAKE_DESCRIPTOR]: true, paths, transform }
 }
 
-// wire one b8r target (`text`, `attr(title)`, `class(active)`, …) at `rawPath`
-// onto `element` via tosijs — using a multi-path interpolation binding when the
-// path contains `${…}`, otherwise a single-path binding. Shared by top-level and
-// list-row binding so both get interpolation + relative-path handling.
-function bindTarget (element, targetName, arg, rawPath, resolve) {
-  const binding = bindingFor(targetName, arg)
-  if (binding === undefined) return
+// warn once per unknown target name (surface breakage — see COMPATIBILITY.md)
+const warnedTargets = new Set()
+function warnUnknownTarget (target) {
+  if (warnedTargets.has(target)) return
+  warnedTargets.add(target)
+  console.warn(
+    'b8r-tjs: unknown data-bind target "' + target + '" — binding skipped. Not all ' +
+    'b8r targets are ported (see COMPATIBILITY.md); add your own with ' +
+    '`registerB8rBindings`.'
+  )
+}
+
+// a b8r **method binding**: the target is a dotted path to a function, invoked as
+// `fn(element, value)` whenever the bound value changes (e.g.
+// `data-bind="_component_.render=_component_.data"`).
+function methodBinding (methodPath, resolve) {
+  const fnPath = resolve(methodPath)
+  return {
+    toDOM (element, value) {
+      const fn = valueAtPath(fnPath)
+      // b8r hands method bindings the raw value, not a boxed proxy
+      if (typeof fn === 'function') fn(element, tosiValue(value))
+    }
+  }
+}
+
+// bind ONE target token at `rawPath`: a named/parameterised target (`text`,
+// `attr(title)`), or a dotted path → method binding. Uses a multi-path
+// interpolation binding when the path contains `${…}`.
+function bindOneTarget (element, target, rawPath, resolve) {
+  const match = target.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
+  let binding
+  if (match !== null) {
+    binding = bindingFor(match[1], match[2])
+    if (binding === undefined) { warnUnknownTarget(target); return }
+  } else if (target.indexOf('.') !== -1) {
+    binding = methodBinding(target, resolve)
+  } else {
+    warnUnknownTarget(target)
+    return
+  }
   if (rawPath.indexOf('${') !== -1) {
     bind(element, interpolationSpec(rawPath, resolve), binding)
   } else {
@@ -208,6 +262,10 @@ function bindTarget (element, targetName, arg, rawPath, resolve) {
   }
 }
 
+// apply a full `data-bind` spec: entries split by `;`/newline, each `targets=path`
+// where `targets` may be comma-separated (one path → several targets, e.g.
+// `text,attr(title)=app.msg`). Shared by top-level and list-row binding, so both
+// get multi-target, method bindings, interpolation, and relative-path handling.
 function applyBindings (element, spec, resolve) {
   for (const entry of spec.split(/;|\n/)) {
     const trimmed = entry.trim()
@@ -216,9 +274,10 @@ function applyBindings (element, spec, resolve) {
     if (eq === -1) continue
     const targetPart = trimmed.slice(0, eq).trim()
     const rawPath = trimmed.slice(eq + 1).trim()
-    const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
-    if (match === null) continue
-    bindTarget(element, match[1], match[2], rawPath, resolve)
+    for (const target of splitTopLevel(targetPart, ',')) {
+      const token = target.trim()
+      if (token !== '') bindOneTarget(element, token, rawPath, resolve)
+    }
   }
 }
 
@@ -362,19 +421,9 @@ function delegateRowEvents (container, eventTypes, resolve) {
 function bindRowElement (element, item, resolve) {
   const bindSpec = element.getAttribute('data-bind')
   if (bindSpec !== null) {
-    for (const entry of bindSpec.split(/;|\n/)) {
-      const trimmed = entry.trim()
-      if (trimmed === '') continue
-      const eq = trimmed.indexOf('=')
-      if (eq === -1) continue
-      const targetPart = trimmed.slice(0, eq).trim()
-      const rawPath = trimmed.slice(eq + 1).trim()
-      const match = targetPart.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
-      if (match === null) continue
-      // `bindTarget` maps a relative `.field` to the `^.field` template path
-      // (re-targeted per row on stamp) and handles `${…}` interpolation.
-      bindTarget(element, match[1], match[2], rawPath, resolve)
-    }
+    // same applier as top-level: relative `.field` → `^.field` template paths
+    // (re-targeted per row on stamp), plus multi-target / method / interpolation.
+    applyBindings(element, bindSpec, resolve)
     element.removeAttribute('data-bind')
   }
   // NB: `data-event` is intentionally left on row elements — row events are

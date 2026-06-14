@@ -36,12 +36,17 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   stamp. Use a plain `text=.field` binding, or absolute/`_component_` paths, in
   rows. (`b8r-compat.js` header.)
 
-- **[todo] Not every b8r target is ported.** Implemented: `text`, `value`,
-  `checked`, `attr(x)`, `prop(x)`, `style(x)`, `class(x)`, `showIf[(v)]`,
-  `hideIf[(v)]`, `enabledIf`, `disabledIf`. Others b8r ships (e.g. `bytes`,
-  `timestamp`, `format`, `json`, image/`img`, component-method bindings) are **not
-  yet** implemented — an unknown target is currently skipped silently. *(Idea:
-  warn on an unknown target so breakage is visible.)*
+- **Binding targets.** Core (built-in): `text`, `value`, `checked`, `attr(x)`,
+  `prop(x)`, `style(x)`, `class(x)`, `showIf[(v)]`, `hideIf[(v)]`, `enabledIf`,
+  `disabledIf`. Also handled: **method bindings** (dotted target path →
+  `fn(element, value)`) and **multi-target** (`text,attr(title)=path`). An unknown
+  target is **skipped with a one-time `console.warn`** (gaps surface).
+  - **[todo] Heavier targets not in core:** `format` (markdown), `img`/`bgImg`
+    (lazy images), `bytes`, `timestamp`, `json`, `href`, `data`, `pointerEventsIf`.
+    These are meant to ship as a **separate, tree-shakeable module** registered via
+    `registerB8rBindings({ bindings, factories })` — only bundled when imported.
+  - **[todo] Two-way (`fromDOM`):** `value` and `checked` done; `selected` and
+    two-way `text` not yet.
 
 ## Components / loader
 
