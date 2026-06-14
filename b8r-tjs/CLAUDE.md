@@ -271,6 +271,11 @@ Two are clean **upstream asks** (tosijs / tosijs-ui), tracked here so we don't l
   `data-bind`/`data-event` attributes (`bindX:`→`data-bind="x=…"`, `onX:`→
   `data-event="x:…"`, `dotted.key`→method binding, `dataList:`→`data-list`). A
   faithful port (no b8r dependency — "port, don't depend"); plain **`.js`**.
+- `src/b8r-targets-extra.js` — **opt-in, tree-shakeable** extra binding targets
+  (`format`/`img`/`bgImg`/`bytes`/`timestamp`/`json`), registered via
+  `registerExtraB8rTargets()` (over `b8r-compat`'s `registerB8rBindings` extension
+  point). Kept out of the core adapter so it's only bundled when imported — the
+  pattern for any heavier helper. Plain **`.js`**.
 - `src/b8r-example.js` — bridge from **tosijs-ui's `<live-example>`** (the docs
   fiddle component) to the blueprint loader, so b8r components render as live
   fiddles. `<live-example>` runs its `js` pane as a function with `preview` + its

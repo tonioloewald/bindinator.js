@@ -41,10 +41,11 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   `disabledIf`. Also handled: **method bindings** (dotted target path →
   `fn(element, value)`) and **multi-target** (`text,attr(title)=path`). An unknown
   target is **skipped with a one-time `console.warn`** (gaps surface).
-  - **[todo] Heavier targets not in core:** `format` (markdown), `img`/`bgImg`
-    (lazy images), `bytes`, `timestamp`, `json`, `href`, `data`, `pointerEventsIf`.
-    These are meant to ship as a **separate, tree-shakeable module** registered via
-    `registerB8rBindings({ bindings, factories })` — only bundled when imported.
+  - **Heavier targets ship separately (opt-in):** `src/b8r-targets-extra.js`
+    provides `format` (markdown), `img`/`bgImg` (lazy images), `bytes`,
+    `timestamp`, `json` — registered via `registerExtraB8rTargets()` (a wrapper over
+    `registerB8rBindings`). Kept out of core so it's only bundled when imported.
+    Still **[todo]:** `href`, `data`, `pointerEventsIf`.
   - **[todo] Two-way (`fromDOM`):** `value` and `checked` done; `selected` and
     two-way `text` not yet.
 
