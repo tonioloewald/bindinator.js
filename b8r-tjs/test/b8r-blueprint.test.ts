@@ -6,7 +6,8 @@ import { setupDom, tick } from './_dom.mjs'
 
 const document = setupDom()
 await import('tosijs')
-const { defineB8rComponent, mountB8rComponent, makeComponent, loadB8rComponent } = await import('../src/b8r-blueprint.js')
+const { defineB8rComponent, mountB8rComponent, makeComponent, loadB8rComponent, hydrateB8rComponents } = await import('../src/b8r-blueprint.js')
+const { tosi } = await import('tosijs')
 
 function host () {
   const el = document.createElement('div')
@@ -200,6 +201,65 @@ test('the instance context: get/set/find/findOne/on/component', async () => {
   ctx.on('click', '_component_.go')
   target.dispatchEvent(new (document as any).defaultView.Event('click', { bubbles: true }))
   expect(hits).toBe(1)
+})
+
+test('_data_ resolves to the target’s data-path, falling back to the private scope', async () => {
+  const { shared } = tosi({ shared: { title: 'from data-path' } }) as any
+  defineB8rComponent('datapather', {
+    view: ({ span, i }: any) => span(
+      i({ class: 'inh', bindText: '_data_.title' }),
+      i({ class: 'priv', bindText: '_component_.own' })
+    ),
+    initialValue: { own: 'private', title: 'fallback' }
+  })
+  // with data-path: _data_ → shared.*
+  const withPath = host()
+  withPath.setAttribute('data-path', 'shared')
+  await mountB8rComponent(withPath, 'datapather')
+  await tick()
+  expect(withPath.querySelector('.inh').textContent).toBe('from data-path')
+  expect(withPath.querySelector('.priv').textContent).toBe('private')
+  shared.title = 'updated'; await tick()
+  expect(withPath.querySelector('.inh').textContent).toBe('updated')   // live, not copied
+  // without data-path: _data_ falls back to the instance scope
+  const noPath = host()
+  await mountB8rComponent(noPath, 'datapather')
+  await tick()
+  expect(noPath.querySelector('.inh').textContent).toBe('fallback')
+})
+
+test('hydrateB8rComponents mounts declared <b8r-component> / [data-component]', async () => {
+  defineB8rComponent('greet', { view: ({ b }: any) => b({ class: 'g' }, 'hi') })
+  const root = host()
+  root.innerHTML =
+    '<b8r-component name="greet"></b8r-component>' +
+    '<div data-component="greet"></div>'
+  await hydrateB8rComponents(root)
+  await tick()
+  expect(root.querySelectorAll('.g').length).toBe(2)
+  // marked mounted — a second hydrate pass is a no-op
+  await hydrateB8rComponents(root)
+  await tick()
+  expect(root.querySelectorAll('.g').length).toBe(2)
+})
+
+test('a declared component defined LATER mounts when the definition lands', async () => {
+  const root = host()
+  root.innerHTML = '<b8r-component name="late-arrival"></b8r-component>'
+  await hydrateB8rComponents(root)                      // nothing defined yet → pending
+  expect(root.querySelector('.la')).toBe(null)
+  defineB8rComponent('late-arrival', { view: ({ b }: any) => b({ class: 'la' }, 'here') })
+  await tick()
+  expect(root.querySelector('.la').textContent).toBe('here')
+})
+
+test('a declared component with a path is dynamically imported and mounted', async () => {
+  const moduleUrl = new URL('./fixtures/badge.component.js', import.meta.url).href
+  const root = host()
+  root.innerHTML = '<b8r-component name="badge" path="' + moduleUrl + '"></b8r-component>'
+  await hydrateB8rComponents(root)
+  await tick()
+  expect(root.querySelector('.badge').textContent).toBe('imported')
 })
 
 test('css may be an XinStyleSheet object (stringified via tosijs css())', async () => {

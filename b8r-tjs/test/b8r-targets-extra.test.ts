@@ -63,3 +63,30 @@ test('bgImg sets background-image', async () => {
   await tick()
   expect((root.querySelector('.g') as any).style.backgroundImage).toBe('url(cat.png)')
 })
+
+test('href sets/removes the attribute', async () => {
+  const { lnk } = tosi({ lnk: { url: '/docs' } }) as any
+  const root = mount('<a class="l" data-bind="href=lnk.url">x</a>')
+  await tick()
+  expect(root.querySelector('.l').getAttribute('href')).toBe('/docs')
+  lnk.url = ''; await tick()
+  expect(root.querySelector('.l').hasAttribute('href')).toBe(false)
+})
+
+test('pointerEventsIf toggles pointer-events', async () => {
+  const { pe } = tosi({ pe: { on: false } }) as any
+  const root = mount('<div class="pe" data-bind="pointerEventsIf=pe.on"></div>')
+  await tick()
+  expect((root.querySelector('.pe') as any).style.pointerEvents).toBe('none')
+  pe.on = true; await tick()
+  expect((root.querySelector('.pe') as any).style.pointerEvents).toBe('auto')
+})
+
+test('data(key) sets and deletes dataset entries', async () => {
+  const { ds } = tosi({ ds: { tag: 'alpha' } }) as any
+  const root = mount('<div class="ds" data-bind="data(tag)=ds.tag"></div>')
+  await tick()
+  expect((root.querySelector('.ds') as any).dataset.tag).toBe('alpha')
+  ds.tag = null; await tick()
+  expect((root.querySelector('.ds') as any).dataset.tag).toBe(undefined)
+})

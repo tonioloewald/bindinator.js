@@ -41,16 +41,32 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   `disabledIf`. Also handled: **method bindings** (dotted target path →
   `fn(element, value)`) and **multi-target** (`text,attr(title)=path`). An unknown
   target is **skipped with a one-time `console.warn`** (gaps surface).
-  - **Heavier targets ship separately (opt-in):** `src/b8r-targets-extra.js`
+  - **Heavier / rarer targets ship separately (opt-in):** `src/b8r-targets-extra.js`
     provides `format` (markdown), `img`/`bgImg` (lazy images), `bytes`,
-    `timestamp`, `json` — registered via `registerExtraB8rTargets()` (a wrapper over
-    `registerB8rBindings`). Kept out of core so it's only bundled when imported.
-    Still **[todo]:** `href`, `data`, `pointerEventsIf`.
+    `timestamp`, `json`, `href`, `pointerEventsIf`, and `data(key)` — registered via
+    `registerExtraB8rTargets()` (a wrapper over `registerB8rBindings`). Kept out of
+    core so it's only bundled when imported. (`pointerEventsUnless` appears in
+    b8r's docs but was never implemented there — not ported.)
   - **Two-way (`fromDOM`):** `value`, `checked`, `selected` done; two-way `text`
     (contenteditable) **[todo]** — deferred because making `text` two-way would mark
     every text-bound element two-way and over-trigger the sync-`keydown` warning.
 
 ## Components / loader
+
+- **`_data_` scope** works in both loaders: `_data_.x` resolves to the mount
+  target's `data-path` attribute (b8r's inherited-data convention), falling back
+  to the instance's private scope — b8r's exact rule. (b8r resolved these at
+  insertion time, not dynamically; so do we.)
+
+- **Declarative instantiation** works: `hydrateB8rComponents(root)` mounts
+  `<b8r-component name="…">`, `<b8r-component path="…">` (dynamic import of the
+  ESM-object form; name defaults to the filename), and `[data-component]`
+  elements. Undefined names stay **pending** and mount when `defineB8rComponent`
+  lands (markup may precede its components, as in b8r). **[limit]** `path` must
+  point at a modern ESM component — a legacy `.component.html` path is not
+  auto-fetched (load those via `loadB8rComponent` in `b8r-component.tjs`).
+  Declared components inside a `data-list` template are skipped (rows stamp their
+  own content).
 
 - **[todo] Legacy `<script>` bodies vs. modern modules.** `.component.html` with a
   `<script>` runs via `AsyncFunction` (trusted). b8r features the script relied on

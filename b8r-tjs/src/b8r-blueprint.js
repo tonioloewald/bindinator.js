@@ -17,7 +17,11 @@ A component is `{ css?, html?, view?, load?, initialValue?, type? }`:
 `view(elements)` builds DOM that records bindings as `data-bind` / `data-event`
 (see `b8r-elements.js`); `html` is a markup string alternative. Either way the
 bindings are hydrated through the b8r→tosijs adapter with `_component_.x`
-rewritten to a per-instance scope (`_b8r.<id>` in the registry).
+rewritten to a per-instance scope (`_b8r.<id>` in the registry) and `_data_.x`
+to the mount target's `data-path` attribute (falling back to the private scope —
+b8r's inherited-data rule). Markup can also ask for components **declaratively**
+(`<b8r-component name="…">`, `path="…"`, or `[data-component]`) — see
+`hydrateB8rComponents` below.
 
 `css` mirrors `view`: it may be a string, a tosijs **XinStyleSheet object**, or a
 **function** `({ css, vars, varDefault }) => string | XinStyleSheet`. Because these
@@ -56,9 +60,13 @@ function ensureRoot () {
 // the redefinable registry: name → { spec, style, instances:Map<id,{target,data}> }
 const registry = {}
 
-// rewrite a b8r `_component_.x` path to this instance's scope
-function scoped (scope, path) {
-  return path.startsWith('_component_') ? scope + path.slice('_component_'.length) : path
+// rewrite b8r scope prefixes: `_component_.x` → this instance's private scope;
+// `_data_.x` → the inherited data path (the mount target's `data-path` attribute,
+// b8r's convention), falling back to the private scope — exactly b8r's rule.
+function scoped (scope, dataPath, path) {
+  if (path.startsWith('_component_')) return scope + path.slice('_component_'.length)
+  if (path.startsWith('_data_')) return (dataPath || scope) + path.slice('_data_'.length)
+  return path
 }
 
 function valueAtPath (path) {
@@ -111,6 +119,8 @@ function buildView (spec) {
 // definition time mutate current state).
 function makeContext (id, target) {
   const scope = '_b8r.' + id
+  // b8r's inherited data path: carried by a `data-path` attribute on the target
+  const dataPath = target.getAttribute === undefined ? null : target.getAttribute('data-path')
   const get = function (key) {
     const base = tosiValue(xin._b8r[id])
     return key === undefined ? base : base[key]
@@ -128,7 +138,7 @@ function makeContext (id, target) {
   const on = function (types, path) {
     for (const type of types.split(',')) {
       target.addEventListener(type.trim(), function (event) {
-        const handler = valueAtPath(scoped(scope, path))
+        const handler = valueAtPath(scoped(scope, dataPath, path))
         if (typeof handler === 'function') handler(event, target)
       })
     }
@@ -137,7 +147,7 @@ function makeContext (id, target) {
   // b8r's list-row lookup: `getListInstance(evt.target)` → the row's item proxy.
   const component = { element: target, get id () { return id }, get data () { return xin._b8r[id] } }
   const b8r = { get, set, find, findOne, on, touch, register, getListInstance }
-  return { component, scope, b8r, get, set, find, findOne, on, touch, register, getListInstance }
+  return { component, scope, dataPath, b8r, get, set, find, findOne, on, touch, register, getListInstance }
 }
 
 // stamp a defined component into `target` with the given starting data, wiring
@@ -153,7 +163,7 @@ async function stamp (entry, name, id, target, data) {
 
   target.innerHTML = ''
   for (const node of buildView(spec)) target.append(node)
-  hydrateB8r(target, { resolve: path => scoped(ctx.scope, path) })
+  hydrateB8r(target, { resolve: path => scoped(ctx.scope, ctx.dataPath, path) })
 
   if (typeof spec.load === 'function') {
     await spec.load(ctx)
@@ -186,6 +196,7 @@ export function defineB8rComponent (name, spec) {
     const id = 'i' + nextId
     nextId = nextId + 1
     target.classList.add(name + '-component')
+    if (target.dataset !== undefined) target.dataset.componentId = id
     entry.instances.set(id, { target, data })
     await stamp(entry, name, id, target, data)
     return id
@@ -196,6 +207,13 @@ export function defineB8rComponent (name, spec) {
   for (const [id, instance] of entry.instances) {
     const current = tosiValue(xin._b8r[id])
     stamp(entry, name, id, instance.target, current)
+  }
+  // declarative placeholders waiting on this name mount now (b8r's rule:
+  // a definition finds the elements that were already asking for it)
+  const waiting = pendingComponents.get(name)
+  if (waiting !== undefined) {
+    pendingComponents.delete(name)
+    for (const element of waiting) entry.mount(element)
   }
   return entry
 }
@@ -212,6 +230,52 @@ export function mountB8rComponent (target, name, data) {
   const entry = registry[name]
   if (entry === undefined) throw new Error('b8r component "' + name + '" is not defined')
   return entry.mount(target, data)
+}
+
+// --- declarative instantiation: <b8r-component> / [data-component] -------------
+//
+// b8r markup asks for components declaratively:
+//
+//   <b8r-component name="counter"></b8r-component>            // from the registry
+//   <b8r-component path="./counter.component.js">             // dynamic import
+//   <b8r-component name="doc" data-path="app.current">        // `_data_` scope
+//   <div data-component="counter"></div>                      // attribute form
+//
+// `hydrateB8rComponents(root)` scans and mounts. A `path` is dynamically imported
+// (its default export is the spec; the name defaults to the filename). A name with
+// no definition yet is left PENDING — `defineB8rComponent` mounts the waiters when
+// the definition lands, matching b8r (markup can precede its components).
+const pendingComponents = new Map() // name → Set<element>
+
+function declaredName (element) {
+  const name = element.getAttribute('name') || element.getAttribute('data-component')
+  if (name) return name
+  const path = element.getAttribute('path')
+  return path === null ? null : path.split('/').pop().split('.').shift()
+}
+
+export function hydrateB8rComponents (root) {
+  ensureRoot()
+  const found = [...root.querySelectorAll('b8r-component,[data-component]')]
+  if (root.matches !== undefined && root.matches('b8r-component,[data-component]')) found.unshift(root)
+  const mounts = []
+  for (const element of found) {
+    if (element.dataset.componentId !== undefined) continue          // already mounted
+    if (element.closest('[data-list]') !== null) continue            // list templates stamp rows themselves
+    const name = declaredName(element)
+    if (name === null) continue
+    const path = element.getAttribute('path')
+    if (registry[name] !== undefined) {
+      mounts.push(registry[name].mount(element))
+    } else if (path !== null) {
+      mounts.push(import(path).then(module => loadB8rComponent(name, module).mount(element)))
+    } else {
+      let waiting = pendingComponents.get(name)
+      if (waiting === undefined) { waiting = new Set(); pendingComponents.set(name, waiting) }
+      waiting.add(element)
+    }
+  }
+  return Promise.all(mounts)
 }
 
 // append a child part (node / string / number / array) to a parent

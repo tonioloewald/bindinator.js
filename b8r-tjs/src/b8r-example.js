@@ -35,7 +35,7 @@ examples run unchanged. (`renderB8rExample(target, spec)` is a thin
 append-one-instance helper kept for the bridge's own convenience.)
 */
 
-import { defineB8rComponent, loadB8rComponent, mountB8rComponent, makeComponent } from './b8r-blueprint.js'
+import { defineB8rComponent, loadB8rComponent, mountB8rComponent, makeComponent, hydrateB8rComponents } from './b8r-blueprint.js'
 import { hydrateB8r } from './b8r-compat.js'
 
 // Render a modern b8r component `spec` into `target` — a thin helper over
@@ -55,5 +55,5 @@ export function renderB8rExample (target, spec, name) {
 // as bare context params — that would collide with the rewritten import (`const`
 // vs a parameter of the same name → "already declared").
 export const b8rExampleContext = {
-  'b8r-tjs': { makeComponent, defineB8rComponent, loadB8rComponent, mountB8rComponent, hydrateB8r, renderB8rExample }
+  'b8r-tjs': { makeComponent, defineB8rComponent, loadB8rComponent, mountB8rComponent, hydrateB8r, hydrateB8rComponents, renderB8rExample }
 }

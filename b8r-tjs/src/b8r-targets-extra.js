@@ -75,10 +75,34 @@ export const extraB8rBindings = {
         ? ''
         : 'url(' + value + ')'
     }
+  },
+  href: {
+    toDOM (element, value) {
+      if (value) element.setAttribute('href', value)
+      else element.removeAttribute('href')
+    }
+  },
+  // very simple enable/disable of an element's content (b8r's pointerEventsIf)
+  pointerEventsIf: {
+    toDOM (element, value) { element.style.pointerEvents = value ? 'auto' : 'none' }
   }
+}
+
+// parameterised extra targets (arg-closing factories, like core attr/class)
+export const extraB8rBindingFactories = {
+  // `data(key)=path` → element.dataset[key] (deleted on null/undefined/false)
+  data: arg => ({
+    toDOM (element, value) {
+      if (value === undefined || value === null || value === false) {
+        delete element.dataset[arg]
+      } else {
+        element.dataset[arg] = value
+      }
+    }
+  })
 }
 
 // Register every extra target with the adapter. Call once at startup.
 export function registerExtraB8rTargets () {
-  registerB8rBindings({ bindings: extraB8rBindings })
+  registerB8rBindings({ bindings: extraB8rBindings, factories: extraB8rBindingFactories })
 }

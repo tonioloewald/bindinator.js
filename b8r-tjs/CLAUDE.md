@@ -264,18 +264,24 @@ Two are clean **upstream asks** (tosijs / tosijs-ui), tracked here so we don't l
   adapter with `_component_.x` → `_b8r.<id>` scope. `initialValue` may be an object
   or `({ component }) => object`; `component.data` reads the live instance proxy so
   captured methods mutate current state. Also runs a legacy string `load` body
-  (`<script>`) via `AsyncFunction`. Plain **`.js`** (tosijs-proxy glue); imports
-  `tosijs` + `b8r-compat` + `b8r-elements`; kept out of the barrel.
+  (`<script>`) via `AsyncFunction`. `_data_.x` resolves to the mount target's
+  `data-path` attribute, falling back to the private scope (both loaders).
+  `hydrateB8rComponents(root)` mounts **declarative** markup —
+  `<b8r-component name>`, `path` (dynamic ESM import), `[data-component]` —
+  with undefined names pending until their definition lands. Plain **`.js`**
+  (tosijs-proxy glue); imports `tosijs` + `b8r-compat` + `b8r-elements`; kept out
+  of the barrel.
 - `src/b8r-elements.js` — **ported** b8r `elements` creator (`create` + the
   `elements` proxy). Builds plain DOM and records binding intent as serializable
   `data-bind`/`data-event` attributes (`bindX:`→`data-bind="x=…"`, `onX:`→
   `data-event="x:…"`, `dotted.key`→method binding, `dataList:`→`data-list`). A
   faithful port (no b8r dependency — "port, don't depend"); plain **`.js`**.
 - `src/b8r-targets-extra.js` — **opt-in, tree-shakeable** extra binding targets
-  (`format`/`img`/`bgImg`/`bytes`/`timestamp`/`json`), registered via
-  `registerExtraB8rTargets()` (over `b8r-compat`'s `registerB8rBindings` extension
-  point). Kept out of the core adapter so it's only bundled when imported — the
-  pattern for any heavier helper. Plain **`.js`**.
+  (`format`/`img`/`bgImg`/`bytes`/`timestamp`/`json`/`href`/`pointerEventsIf` +
+  the `data(key)` factory), registered via `registerExtraB8rTargets()` (over
+  `b8r-compat`'s `registerB8rBindings` extension point). Kept out of the core
+  adapter so it's only bundled when imported — the pattern for any heavier helper.
+  Plain **`.js`**.
 - `src/b8r-example.js` — bridge from **tosijs-ui's `<live-example>`** (the docs
   fiddle component) to the blueprint loader, so b8r components render as live
   fiddles. `<live-example>` runs its `js` pane as a function with `preview` + its

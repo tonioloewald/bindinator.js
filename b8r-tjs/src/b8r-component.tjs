@@ -26,9 +26,13 @@ function ensureRoot () {
   rootReady = true
 }
 
-// rewrite a b8r `_component_.x` path to this instance's scope
-function scoped (scope, path) {
-  return path.startsWith('_component_') ? scope + path.slice('_component_'.length) : path
+// rewrite b8r scope prefixes: `_component_.x` → this instance's private scope;
+// `_data_.x` → the inherited data path (the target's `data-path` attribute),
+// falling back to the private scope — b8r's rule.
+function scoped (scope, dataPath, path) {
+  if (path.startsWith('_component_')) return scope + path.slice('_component_'.length)
+  if (path.startsWith('_data_')) return (dataPath || scope) + path.slice('_data_'.length)
+  return path
 }
 
 function valueAtPath (path) {
@@ -75,6 +79,7 @@ export function loadB8rComponent (source) {
     const id = 'i' + nextId
     nextId = nextId + 1
     const scope = '_b8r.' + id
+    const dataPath = target.getAttribute === undefined ? null : target.getAttribute('data-path')
     xin._b8r[id] = initialData === undefined ? {} : initialData
     target.innerHTML = parts.html
 
@@ -95,7 +100,7 @@ export function loadB8rComponent (source) {
     const on = function (types, path) {
       for (const type of types.split(',')) {
         target.addEventListener(type.trim(), function (event) {
-          const handler = valueAtPath(scoped(scope, path))
+          const handler = valueAtPath(scoped(scope, dataPath, path))
           if (typeof handler === 'function') handler(event, target)
         })
       }
@@ -103,7 +108,7 @@ export function loadB8rComponent (source) {
     const register = function (name, object) { tosi({ [name]: object }) }
     const b8r = { get, set, find, findOne, on, touch, register, getListInstance }
 
-    hydrateB8r(target, { resolve: function (path) { return scoped(scope, path) } })
+    hydrateB8r(target, { resolve: function (path) { return scoped(scope, dataPath, path) } })
 
     if (parts.script !== '') {
       const run = new AsyncFunction(
