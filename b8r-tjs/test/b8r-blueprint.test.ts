@@ -6,7 +6,7 @@ import { setupDom, tick } from './_dom.mjs'
 
 const document = setupDom()
 await import('tosijs')
-const { defineB8rComponent, mountB8rComponent, makeComponent } = await import('../src/b8r-blueprint.js')
+const { defineB8rComponent, mountB8rComponent, makeComponent, loadB8rComponent } = await import('../src/b8r-blueprint.js')
 
 function host () {
   const el = document.createElement('div')
@@ -121,6 +121,85 @@ test('makeComponent warns when given children but the view has no [data-children
   } finally { console.warn = original }
   expect(warnings.length).toBe(1)
   expect(warnings[0]).toContain('data-children')
+})
+
+test('makeComponent options: name, tag, and initial data', async () => {
+  const item = makeComponent(
+    { view: ({ b }: any) => b({ class: 'v', bindText: '_component_.label' }) },
+    { name: 'named-item', tag: 'section', data: { label: 'seeded' } }
+  )
+  const el = item()
+  host().append(el)
+  await tick()
+  expect(el.tagName).toBe('SECTION')
+  expect(el.classList.contains('named-item-component')).toBe(true)
+  expect(el.querySelector('.v').textContent).toBe('seeded')
+})
+
+test('instances are isolated: each mount gets its own state', async () => {
+  const counter = makeComponent({
+    view: ({ span, button }: any) => span(
+      span({ class: 'n', bindText: '_component_.count' }),
+      button({ class: 'inc', onClick: '_component_.inc' })
+    ),
+    initialValue: ({ component }: any) => ({
+      count: 0, inc: () => { component.data.count = component.data.count + 1 }
+    })
+  })
+  const a = counter()
+  const b = counter()
+  host().append(a, b)
+  await tick()
+  a.querySelector('.inc').click()
+  a.querySelector('.inc').click()
+  await tick()
+  expect(a.querySelector('.n').textContent).toBe('2')
+  expect(b.querySelector('.n').textContent).toBe('0')   // untouched
+})
+
+test('redefining swaps the stylesheet in place (no duplicates)', async () => {
+  defineB8rComponent('restyle', { css: '._component_ { color: red }', view: ({ i }: any) => i('x') })
+  defineB8rComponent('restyle', { css: '._component_ { color: blue }', view: ({ i }: any) => i('x') })
+  const styles = installedStyles()
+  expect(styles).toContain('.restyle-component { color: blue }')
+  expect(styles).not.toContain('.restyle-component { color: red }')  // old sheet removed
+})
+
+test('loadB8rComponent accepts a module namespace (default export)', async () => {
+  const module = { default: { view: ({ em }: any) => em({ class: 'm' }, 'mod') } }
+  loadB8rComponent('from-module', module)
+  const target = host()
+  await mountB8rComponent(target, 'from-module')
+  await tick()
+  expect(target.querySelector('.m').textContent).toBe('mod')
+})
+
+test('the instance context: get/set/find/findOne/on/component', async () => {
+  let ctx: any
+  defineB8rComponent('ctxprobe', {
+    view: ({ input }: any) => input({ class: 'f' }),
+    initialValue: { a: 1 },
+    load: (c: any) => { ctx = c }
+  })
+  const target = host()
+  const id = await mountB8rComponent(target, 'ctxprobe')
+  await tick()
+  expect(ctx.get('a')).toBe(1)
+  ctx.set('a', 2)
+  expect(ctx.get('a')).toBe(2)
+  ctx.set({ a: 3, b: 4 })                       // object form
+  expect(ctx.get()).toMatchObject({ a: 3, b: 4 })
+  expect(ctx.findOne('.f')).toBe(target.querySelector('.f'))
+  expect(ctx.find('.f').length).toBe(1)
+  expect(ctx.component.element).toBe(target)
+  expect(ctx.component.id).toBe(id)
+  expect(typeof ctx.getListInstance).toBe('function')
+  // on(): delegated handler resolves through the instance scope
+  let hits = 0
+  ctx.set('go', () => { hits = hits + 1 })
+  ctx.on('click', '_component_.go')
+  target.dispatchEvent(new (document as any).defaultView.Event('click', { bubbles: true }))
+  expect(hits).toBe(1)
 })
 
 test('css may be an XinStyleSheet object (stringified via tosijs css())', async () => {

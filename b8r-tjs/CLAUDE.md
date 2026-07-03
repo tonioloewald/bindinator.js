@@ -308,4 +308,14 @@ Two are clean **upstream asks** (tosijs / tosijs-ui), tracked here so we don't l
 - `test/*.test.ts` — `bun:test`, headless via `linkedom` (a `parseHTML` document
   assigned to `globalThis.document`). For DOM/cross-module/async behaviour;
   self-contained logic is covered by inline tests in the `.tjs` sources.
+  Measure with **`bun test --coverage`** (b8r modules are held at ~100% lines; when
+  adding adapter features, add the behavioral test in the matching file).
+  Notable coverage facts: **two-way DOM→state works headless** (tosijs's delegated
+  input/change listeners function under linkedom — dispatch a bubbling
+  `input`/`change` event and `await tick()`); **virtual lists do NOT stamp
+  headless** (they need real layout — rows/windowing are browser-verified via
+  `demo/list.html` + Haltija; headless only asserts option parsing/no-throw).
+- `test/dist-smoke.test.ts` — imports the **built `dist/`** (what demos/consumers
+  use) to catch build-pipeline breakage; auto-skips if `dist/` isn't built
+  (`bun run test` builds first, so the gate always runs it).
 - `build.mjs` — `.tjs` → `dist/` transpiler + inline/signature-test gate.

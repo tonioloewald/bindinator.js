@@ -56,6 +56,21 @@ test('parameterized targets (class/attr) work on list rows', async () => {
   expect(labels.map(l => l.getAttribute('data-id'))).toEqual(['1', '2'])
 })
 
+test('data-virtual (+ data-columns/data-chunk) options parse without error', async () => {
+  // Virtual (windowed) rendering needs real layout, which linkedom can't provide —
+  // rows/windowing are browser-verified via demo/list.html (Haltija). Headless we
+  // verify the option-parsing path runs cleanly and the DOM is left intact.
+  tosi({ virt: { rows: [{ id: 1, name: 'A' }, { id: 2, name: 'B' }] } })
+  const root = document.createElement('div')
+  root.innerHTML =
+    '<ul class="vlist"><li data-list="virt.rows:id" data-virtual="24" data-columns="2" data-chunk="4">' +
+    '<span class="n" data-bind="text=.name"></span></li></ul>'
+  document.body.append(root)
+  expect(() => hydrateB8r(root)).not.toThrow()
+  await tick()
+  expect(root.querySelector('.vlist')).not.toBe(null)
+})
+
 test('getListInstance returns the row item proxy for an element (b8r helper)', async () => {
   tosi({ gli: { rows: [{ id: 1, name: 'Ada' }, { id: 2, name: 'Grace' }] } })
   const root = document.createElement('div')

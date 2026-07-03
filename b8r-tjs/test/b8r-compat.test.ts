@@ -150,6 +150,92 @@ test('selected is a two-way target', async () => {
   expect((root.querySelector('.o') as any).selected).toBe(false)
 })
 
+test('two-way value: an input event writes DOM → state', async () => {
+  const { tw } = tosi({ tw: { text: 'start' } })
+  const root = mount('<input class="w" data-bind="value=tw.text">')
+  await tick()
+  const input: any = root.querySelector('.w')
+  expect(input.value).toBe('start')
+  input.value = 'typed'
+  input.dispatchEvent(new (document as any).defaultView.Event('input', { bubbles: true }))
+  await tick()
+  expect((tw.text as any).valueOf()).toBe('typed')
+})
+
+test('two-way checked: a change event writes DOM → state', async () => {
+  const { cb } = tosi({ cb: { on: false } })
+  const root = mount('<input type="checkbox" class="cb" data-bind="checked=cb.on">')
+  await tick()
+  const box: any = root.querySelector('.cb')
+  expect(box.checked).toBe(false)
+  box.checked = true
+  box.dispatchEvent(new (document as any).defaultView.Event('change', { bubbles: true }))
+  await tick()
+  expect((cb.on as any).valueOf()).toBe(true)
+})
+
+test('hideIf / enabledIf / disabledIf / prop targets', async () => {
+  const { st } = tosi({ st: { hide: true, ok: false, tabIndex: 3 } })
+  const root = mount(
+    '<div class="h" data-bind="hideIf=st.hide"></div>' +
+    '<button class="e" data-bind="enabledIf=st.ok"></button>' +
+    '<button class="d" data-bind="disabledIf=st.ok"></button>' +
+    '<div class="p" data-bind="prop(tabIndex)=st.tabIndex"></div>'
+  )
+  await tick()
+  expect((root.querySelector('.h') as any).style.display).toBe('none')
+  expect((root.querySelector('.e') as any).disabled).toBe(true)   // not ok → disabled
+  expect((root.querySelector('.d') as any).disabled).toBe(false)
+  expect((root.querySelector('.p') as any).tabIndex).toBe(3)
+  st.hide = false; st.ok = true; await tick()
+  expect((root.querySelector('.h') as any).style.display).toBe('')
+  expect((root.querySelector('.e') as any).disabled).toBe(false)
+  expect((root.querySelector('.d') as any).disabled).toBe(true)
+})
+
+test('showIf(value) / hideIf(value) match against a specific value', async () => {
+  const { mode } = tosi({ mode: { current: 'edit' } })
+  const root = mount(
+    '<div class="se" data-bind="showIf(edit)=mode.current"></div>' +
+    '<div class="hv" data-bind="hideIf(view)=mode.current"></div>'
+  )
+  await tick()
+  expect((root.querySelector('.se') as any).style.display).toBe('')     // current === edit
+  expect((root.querySelector('.hv') as any).style.display).toBe('')     // current !== view
+  mode.current = 'view'; await tick()
+  expect((root.querySelector('.se') as any).style.display).toBe('none')
+  expect((root.querySelector('.hv') as any).style.display).toBe('none')
+})
+
+test('attr removes the attribute on null/false and sets empty on true', async () => {
+  const { at } = tosi({ at: { title: 'tip', flag: true } })
+  const root = mount('<a class="at" data-bind="attr(title)=at.title; attr(data-flag)=at.flag"></a>')
+  await tick()
+  const el = root.querySelector('.at')
+  expect(el.getAttribute('title')).toBe('tip')
+  expect(el.getAttribute('data-flag')).toBe('')     // true → present, empty
+  at.title = null; at.flag = false; await tick()
+  expect(el.hasAttribute('title')).toBe(false)
+  expect(el.hasAttribute('data-flag')).toBe(false)
+})
+
+test('newline-separated data-bind specs work (b8r markup convention)', async () => {
+  const root = mount('<div class="nl" data-bind="text=app.msg\nattr(title)=app.tip"></div>')
+  await tick()
+  const el = root.querySelector('.nl')
+  expect(el.textContent).toBe('world')
+  expect(el.getAttribute('title')).toBe('a tooltip')
+})
+
+test('registerB8rBindings accepts factories (parameterised custom targets)', async () => {
+  registerB8rBindings({
+    factories: { suffix: (arg: string) => ({ toDOM (element: any, value: any) { element.textContent = value + arg } }) }
+  })
+  const root = mount('<span class="sfx" data-bind="suffix(!)=app.msg"></span>')
+  await tick()
+  expect(root.querySelector('.sfx').textContent).toBe('world!')
+})
+
 test('registerB8rBindings adds a custom target (tree-shakeable extension point)', async () => {
   registerB8rBindings({ bindings: { upper: { toDOM (element: any, value: any) { element.textContent = String(value).toUpperCase() } } } })
   const root = mount('<span class="up" data-bind="upper=app.msg"></span>')
