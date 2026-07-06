@@ -39,8 +39,14 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
 - **Binding targets.** Core (built-in): `text`, `value`, `checked`, `attr(x)`,
   `prop(x)`, `style(x)`, `class(x)`, `showIf[(v)]`, `hideIf[(v)]`, `enabledIf`,
   `disabledIf`. Also handled: **method bindings** (dotted target path →
-  `fn(element, value)`) and **multi-target** (`text,attr(title)=path`). An unknown
-  target is **skipped with a one-time `console.warn`** (gaps surface).
+  `fn(element, value)`, and the explicit `method(path.to.fn)=path` form),
+  **multi-target** (`text,attr(title)=path`), and **snake_case names** camelized
+  exactly as b8r does (`show_if` → `showIf`). An unknown target is **skipped with
+  a one-time `console.warn`** (gaps surface).
+  - **`{{mustache}}` is not interpolation** — never was in b8r either (real
+    components use it aspirationally; b8r bound the whole string as a bogus path
+    and silently emptied the element). b8r-tjs **warns and skips** the binding so
+    static content survives. Use `${path}`.
   - **Heavier / rarer targets ship separately (opt-in):** `src/b8r-targets-extra.js`
     provides `format` (markdown), `img`/`bgImg` (lazy images), `bytes`,
     `timestamp`, `json`, `href`, `pointerEventsIf`, and `data(key)` — registered via
@@ -70,12 +76,35 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
 
 - **[todo] Legacy `<script>` bodies vs. modern modules.** `.component.html` with a
   `<script>` runs via `AsyncFunction` (trusted). b8r features the script relied on
-  (`b8r.component`, `b8r.json`, ajax helpers, `b8r.register` semantics, the full
-  `b8r` object) are **partially** provided — the instance context exposes
-  `get/set/find/findOne/on/touch/register/component/data` + `getListInstance`
-  (the row-item lookup used by list-row handlers); calls to *other* unimplemented
-  `b8r.*` (`component`/`insertComponent`, `call`/`callMethod`, `getComponentData`,
-  list-mutation helpers) will throw. `require` is unsupported (use `import`).
+  (`b8r.component`, `b8r.json`, ajax helpers, the full `b8r` object) are
+  **partially** provided — the instance context exposes
+  `get/set/find/findOne/on/touch/register/component/data` + `getListInstance`.
+  **The two get/set scopes match real b8r:** bare `get`/`set` are
+  component-scoped; `b8r.get`/`b8r.set` take **absolute registry paths**
+  (`b8r.set('example4.clicks', …)`). Calls to *other* unimplemented `b8r.*`
+  (`component`/`insertComponent`, `call`/`callMethod`, `trigger`,
+  `getComponentData`, list-mutation helpers) will throw. `require` is
+  unsupported (use `import`).
+
+- **[limit] Relative dynamic imports in legacy scripts.** A `<script>` doing
+  `await import('../lib/color.js')` resolved relative to the page in b8r; our
+  `AsyncFunction` has no module base URL, so relative specifiers won't resolve.
+  Use absolute URLs/paths in legacy scripts, or port the component to the
+  ESM-object form (whose module carries its own base URL).
+
+## Findings from running REAL parent-repo components (test/real-component.test.ts)
+
+- `components/todo-simple.js` (modern form) runs **unmodified**: view builder,
+  `dataList` without an idPath, relative row `text=.text`, two-way value,
+  `enabledIf`, `component.data` destructuring, `+= 1` on the instance proxy, and
+  push-reconciliation all work. Two warnings fire, both correct: its
+  `onKeydown(Enter)` is the deprecated sync pattern (Enter adds but can't clear
+  the field — use keyup), and its `{{…}}` button label was never real b8r.
+- `components/events.component.html` (legacy form) runs **unmodified**:
+  `b8r.register`, absolute-path `b8r.get`/`b8r.set`, `${path}` interpolation, and
+  `show_if` all work.
+- `components/color.component.html` needs two things we don't provide: relative
+  dynamic imports (above) and `b8r.trigger` — a faithful port target if wanted.
 
 - **[deliberate] Composition warns instead of dropping.** `makeComponent`'s
   creator slots children into the view's `[data-children]` (b8r-style

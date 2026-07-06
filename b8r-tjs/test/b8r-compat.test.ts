@@ -129,6 +129,38 @@ test('method binding: a dotted target path is called as fn(element, value)', asy
   expect(root.querySelector('.meth').dataset.rendered).toBe('v1')
 })
 
+test('snake_case target names camelize like b8r (show_if → showIf)', async () => {
+  const { sn } = tosi({ sn: { on: false } }) as any
+  const root = mount('<div class="sn" data-bind="show_if=sn.on"></div>')
+  await tick()
+  expect((root.querySelector('.sn') as any).style.display).toBe('none')
+  sn.on = true; await tick()
+  expect((root.querySelector('.sn') as any).style.display).toBe('')
+})
+
+test('method(path) is the explicit form of the dotted-LHS method binding', async () => {
+  const got: any[] = []
+  tosi({ mfn: { value: 'v2', paint: (element: any, value: any) => { got.push(value); element.dataset.painted = value } } })
+  const root = mount('<div class="mf" data-bind="method(mfn.paint)=mfn.value"></div>')
+  await tick()
+  expect(got).toEqual(['v2'])
+  expect((root.querySelector('.mf') as any).dataset.painted).toBe('v2')
+})
+
+test('{{mustache}} in a bind value warns and is skipped (static content kept)', async () => {
+  const warnings: string[] = []
+  const original = console.warn
+  console.warn = (...args: any[]) => { warnings.push(args.join(' ')) }
+  let root: any
+  try {
+    root = mount('<button class="mu" data-bind="text=Add #{{app.n}}">Static</button>')
+    await tick()
+  } finally { console.warn = original }
+  expect(root.querySelector('.mu').textContent).toBe('Static')  // not emptied
+  expect(warnings.length).toBe(1)
+  expect(warnings[0]).toContain('${path}')
+})
+
 test('unknown target warns once and is skipped', async () => {
   const warnings: string[] = []
   const original = console.warn

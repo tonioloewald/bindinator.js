@@ -244,10 +244,33 @@ function methodBinding (methodPath, resolve) {
 // `attr(title)`), or a dotted path → method binding. Uses a multi-path
 // interpolation binding when the path contains `${…}`.
 function bindOneTarget (element, target, rawPath, resolve) {
+  // `{{path}}` mustache is NOT a b8r mechanism (some legacy components use it
+  // aspirationally — b8r treated the whole string as a bogus path and rendered
+  // nothing, silently emptying the element). Warn and skip so static content
+  // survives; the working syntax is `${path}`.
+  if (rawPath.indexOf('{{') !== -1) {
+    if (!warnedTargets.has(rawPath)) {
+      warnedTargets.add(rawPath)
+      console.warn(
+        'b8r-tjs: `{{…}}` in a data-bind value is not b8r interpolation — binding ' +
+        'skipped (static content kept). Use `${path}` interpolation instead: ' + rawPath
+      )
+    }
+    return
+  }
+  // NB: the name part `[\w-]+` can't contain dots, so a dotted-LHS method
+  // binding fails this match entirely (while `method(path.with.dots)` passes —
+  // dots are fine in the parenthesised arg).
   const match = target.match(/^([\w-]+)(?:\(([^)]*)\))?$/)
   let binding
   if (match !== null) {
-    binding = bindingFor(match[1], match[2])
+    // b8r's exact normalization (bindings.js): snake_case → camelCase, so
+    // `show_if` is `showIf`; and `method(path.to.fn)` is the explicit form of
+    // the dotted-LHS method binding.
+    const name = match[1].replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+    binding = name === 'method' && match[2] !== undefined
+      ? methodBinding(match[2], resolve)
+      : bindingFor(name, match[2])
     if (binding === undefined) { warnUnknownTarget(target); return }
   } else if (target.indexOf('.') !== -1) {
     binding = methodBinding(target, resolve)

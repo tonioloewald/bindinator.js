@@ -106,7 +106,21 @@ export function loadB8rComponent (source) {
       }
     }
     const register = function (name, object) { tosi({ [name]: object }) }
-    const b8r = { get, set, find, findOne, on, touch, register, getListInstance }
+    // real b8r distinguishes the two scopes: the script's bare `get`/`set` are
+    // component-scoped, but `b8r.get`/`b8r.set` take ABSOLUTE registry paths
+    // (`b8r.set('example4.clicks', …)`). Mirror that: path-walk the xin registry.
+    const b8rGet = function (path) { return valueAtPath(scoped(scope, dataPath, path)) }
+    const b8rSet = function (path, value) {
+      const absolute = scoped(scope, dataPath, path)
+      const parts = absolute.split('.')
+      let node = xin
+      for (let i = 0; i < parts.length - 1; i = i + 1) {
+        if (node === null || node === undefined) return
+        node = node[parts[i]]
+      }
+      if (node !== null && node !== undefined) node[parts[parts.length - 1]] = value
+    }
+    const b8r = { get: b8rGet, set: b8rSet, find, findOne, on, touch, register, getListInstance }
 
     hydrateB8r(target, { resolve: function (path) { return scoped(scope, dataPath, path) } })
 
