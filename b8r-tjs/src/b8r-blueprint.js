@@ -161,8 +161,15 @@ async function stamp (entry, name, id, target, data) {
   if (typeof initial === 'function') initial = initial(ctx)
   xin._b8r[id] = Object.assign({}, initial === undefined ? {} : initial, data === undefined ? {} : data)
 
+  // capture the target's pre-existing markup children — a declarative
+  // `<b8r-component>…children…</b8r-component>` transcludes them into the
+  // view's `[data-children]` (b8r's rule), same as makeComponent's arg children
+  const markupChildren = [...target.childNodes]
   target.innerHTML = ''
   for (const node of buildView(spec)) target.append(node)
+  if (markupChildren.length && markupChildren.some(n => n.nodeType === 1 || (n.textContent || '').trim() !== '')) {
+    slotChildren(name, target, markupChildren)
+  }
   hydrateB8r(target, { resolve: path => scoped(ctx.scope, ctx.dataPath, path) })
 
   if (typeof spec.load === 'function') {
@@ -175,6 +182,9 @@ async function stamp (entry, name, id, target, data) {
     )
     await run(ctx.component, ctx.b8r, ctx.get, ctx.set, ctx.find, ctx.findOne, ctx.on, ctx.touch, xin._b8r[id], ctx.register)
   }
+  // components compose: mount any declared components in the stamped subtree
+  // (including ones that arrived inside the transcluded children)
+  await hydrateB8rComponents(target)
 }
 
 // Define (or redefine) a b8r component. `spec` is the component's default export
@@ -213,7 +223,7 @@ export function defineB8rComponent (name, spec) {
   const waiting = pendingComponents.get(name)
   if (waiting !== undefined) {
     pendingComponents.delete(name)
-    for (const element of waiting) entry.mount(element)
+    for (const element of waiting) { if (element.dataset.componentId === undefined) entry.mount(element) }
   }
   return entry
 }
@@ -254,7 +264,64 @@ function declaredName (element) {
   return path === null ? null : path.split('/').pop().split('.').shift()
 }
 
-export function hydrateB8rComponents (root) {
+// Register a component under `name` with a CUSTOM mount function — how the
+// legacy `.component.html` loader joins THIS registry, so legacy and modern
+// components share declarative instantiation and the pending mechanism.
+export function defineExternalComponent (name, mount) {
+  ensureRoot()
+  let entry = registry[name]
+  if (entry === undefined) {
+    entry = { spec: null, style: null, instances: new Map() }
+    registry[name] = entry
+  }
+  entry.mount = async function (target, data) {
+    if (target.dataset !== undefined) target.dataset.componentId = 'x' + (nextId = nextId + 1)
+    target.classList.add(name + '-component')
+    return mount(target, data)
+  }
+  const waiting = pendingComponents.get(name)
+  if (waiting !== undefined) {
+    pendingComponents.delete(name)
+    for (const element of waiting) { if (element.dataset.componentId === undefined) entry.mount(element) }
+  }
+  return entry
+}
+
+// b8r resolved component paths against the PAGE; the module equivalent is a
+// configurable base URL. Loaders auto-scan with this default; a per-call
+// `{ base }` overrides it. Unset → specifiers pass through as written.
+let componentPathBase
+export function setComponentPathBase (url) { componentPathBase = url }
+
+// The legacy (`.component.html`) loader registers itself here (importing
+// `b8r-component.tjs` installs it); blueprint stays legacy-free when unused.
+let legacyComponentLoader = null
+export function setLegacyComponentLoader (loader) { legacyComponentLoader = loader }
+
+function resolvePath (path, base) {
+  const against = base === undefined ? componentPathBase : base
+  return against === undefined ? path : new URL(path, against).href
+}
+
+// load-by-path: `.js`/`.mjs` → ESM import (default export is the spec);
+// anything else is b8r's html form — `components/hello` means
+// `components/hello.component.html` — routed to the legacy loader.
+async function loadDeclaredPath (name, path, base) {
+  if (/\.m?js$/.test(path)) {
+    const module = await import(resolvePath(path, base))
+    return loadB8rComponent(name, module)
+  }
+  if (legacyComponentLoader === null) {
+    throw new Error(
+      'b8r-tjs: component path "' + path + '" is the legacy html form — import ' +
+      'b8r-component.js (the legacy loader) to enable it'
+    )
+  }
+  const url = resolvePath(/\.component\.html$/.test(path) ? path : path + '.component.html', base)
+  return legacyComponentLoader(name, url)
+}
+
+export function hydrateB8rComponents (root, options = {}) {
   ensureRoot()
   const found = [...root.querySelectorAll('b8r-component,[data-component]')]
   if (root.matches !== undefined && root.matches('b8r-component,[data-component]')) found.unshift(root)
@@ -268,7 +335,10 @@ export function hydrateB8rComponents (root) {
     if (registry[name] !== undefined) {
       mounts.push(registry[name].mount(element))
     } else if (path !== null) {
-      mounts.push(import(path).then(module => loadB8rComponent(name, module).mount(element)))
+      // re-check on resolution: with several same-name declarations in flight, a
+      // sibling's post-mount scan may have already mounted this element
+      mounts.push(loadDeclaredPath(name, path, options.base).then(
+        entry => element.dataset.componentId === undefined ? entry.mount(element) : null))
     } else {
       let waiting = pendingComponents.get(name)
       if (waiting === undefined) { waiting = new Set(); pendingComponents.set(name, waiting) }

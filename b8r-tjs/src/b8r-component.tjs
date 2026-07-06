@@ -15,6 +15,7 @@ sandbox instead (see `untrusted.tjs`).
 
 import { tosi, xin, tosiValue } from 'tosijs'
 import { hydrateB8r, getListInstance } from './b8r-compat.js'
+import { defineExternalComponent, hydrateB8rComponents, setLegacyComponentLoader } from './b8r-blueprint.js'
 
 const AsyncFunction = (async () => {}).constructor
 let nextId = 0
@@ -95,7 +96,19 @@ export function loadB8rComponent (source, options = {}) {
     const scope = '_b8r.' + id
     const dataPath = target.getAttribute === undefined ? null : target.getAttribute('data-path')
     xin._b8r[id] = initialData === undefined ? {} : initialData
+    // b8r composition: the target's pre-existing markup children transclude into
+    // the component's `[data-children]` (warned + dropped if the view has none)
+    const markupChildren = [...target.childNodes]
     target.innerHTML = parts.html
+    if (markupChildren.some(function (n) { return n.nodeType === 1 || (n.textContent || '').trim() !== '' })) {
+      const childrenDest = target.querySelector('[data-children]')
+      if (childrenDest === null) {
+        console.warn('b8r-tjs: component children were provided but its view has no `[data-children]` element — dropped')
+      } else {
+        childrenDest.textContent = ''
+        for (const child of markupChildren) childrenDest.append(child)
+      }
+    }
 
     const get = function (key) {
       const base = tosiValue(xin._b8r[id])
@@ -119,7 +132,16 @@ export function loadB8rComponent (source, options = {}) {
         })
       }
     }
-    const register = function (name, object) { tosi({ [name]: object }) }
+    // in a component script, `register(data)` (single object arg) establishes the
+    // component's PRIVATE scope (seeds instance data — see hello.component.html);
+    // `register(name, object)` registers globally.
+    const register = function (nameOrData, object) {
+      if (object === undefined && nameOrData !== null && typeof nameOrData === 'object') {
+        set(nameOrData)
+        return
+      }
+      tosi({ [nameOrData]: object })
+    }
     // real b8r distinguishes the two scopes: the script's bare `get`/`set` are
     // component-scoped, but `b8r.get`/`b8r.set` take ABSOLUTE registry paths
     // (`b8r.set('example4.clicks', …)`). Mirror that: path-walk the xin registry.
@@ -155,6 +177,28 @@ export function loadB8rComponent (source, options = {}) {
       )
       await run(target, b8r, get, set, find, findOne, on, touch, xin._b8r[id], register, _import)
     }
+    // components compose: mount declared components in the hydrated subtree
+    // (including any that arrived inside transcluded children)
+    await hydrateB8rComponents(target)
     return id
   }
 }
+
+// Register a legacy component under `name` in the SHARED component registry
+// (b8r-blueprint's), so declarative `<b8r-component>` markup, the pending
+// mechanism, and legacy/modern composition all work across both forms.
+export function defineLegacyComponent (name, source, options = {}) {
+  const mount = loadB8rComponent(source, options)
+  return defineExternalComponent(name, mount)
+}
+
+// Importing this module enables the legacy html form for declarative paths:
+// `<b8r-component path="components/hello">` means `components/hello.component.html`,
+// fetched and defined on demand. (Registered as a hook so the blueprint loader
+// stays legacy-free when this module isn't imported.)
+setLegacyComponentLoader(async function (name, url) {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error('b8r-tjs: could not fetch legacy component ' + url + ' (' + response.status + ')')
+  const source = await response.text()
+  return defineLegacyComponent(name, source, { base: url })
+})

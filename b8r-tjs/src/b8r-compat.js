@@ -534,15 +534,35 @@ export function bindElement (element, resolve = identity) {
 
 // Hydrate every b8r binding within a root element (inclusive) onto tosijs.
 // `options.resolve` (path → path) rewrites paths, e.g. for instance scoping.
+// component-boundary check: an element inside `root` belongs to `root`'s scope
+// only if no NESTED component sits between them. Without this, hydrating a parent
+// would re-bind an already-stamped child component's internals against the
+// parent's scope (b8r respected component boundaries; so do we). A boundary is a
+// mounted instance (`data-component-id`) or a declared placeholder
+// (`b8r-component` / `data-component`). The element's own attributes don't count —
+// bindings ON a component element (e.g. `bindShowIf`) belong to the outer scope.
+function ownedByRoot (element, root) {
+  let node = element.parentElement
+  while (node !== null && node !== root) {
+    if (node.getAttribute('data-component-id') !== null ||
+        node.tagName === 'B8R-COMPONENT' ||
+        node.getAttribute('data-component') !== null) return false
+    node = node.parentElement
+  }
+  return true
+}
+
 export function hydrateB8r (root, options = {}) {
   const resolve = options.resolve === undefined ? identity : options.resolve
   // lists first: each `data-list` template owns its subtree and replaces its
   // container with a tosijs-managed list (whose rows have their attrs consumed).
   for (const listElement of [...root.querySelectorAll('[data-list]')]) {
+    if (!ownedByRoot(listElement, root)) continue
     bindList(listElement, resolve)
   }
   bindElement(root, resolve)
   for (const element of root.querySelectorAll('[data-bind],[data-event]')) {
+    if (!ownedByRoot(element, root)) continue
     bindElement(element, resolve)
   }
 }

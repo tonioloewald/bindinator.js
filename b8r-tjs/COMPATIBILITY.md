@@ -111,6 +111,26 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
 - `components/clock.component.html` runs **unmodified** (given `base`): relative
   import of `../lib/dom-timers.js`, `domInterval` driving `set('time', …)` → a
   live text binding.
+- `components/instance-test.component.html` + `hello.component.html` (b8r's own
+  composition demo) run **unmodified**: four nested
+  `<b8r-component path="components/hello">` instances with markup-children
+  transclusion, per-instance `data-greeting`, private scopes via `register({…})`,
+  the `format` target (extras), `show_if`, and legacy-path declarative loading.
+  What this exercise added:
+  - **Component boundaries in hydration** — `hydrateB8r` no longer crosses into a
+    nested component's subtree (b8r's rule); without this a parent re-bound an
+    already-stamped child's internals against the parent's scope.
+  - **A shared registry across both loaders** — `defineLegacyComponent(name,
+    source, options)` registers a legacy component in the blueprint registry
+    (via `defineExternalComponent`), so declarative markup, pending, and
+    legacy/modern composition work uniformly. Importing `b8r-component`
+    additionally enables legacy paths in `<b8r-component path=…>` (extensionless
+    → `.component.html`, fetched on demand); `setComponentPathBase(url)` is the
+    page-equivalent base for those paths.
+  - **Markup-children transclusion in both loaders** (declarative
+    `<b8r-component>…children…</b8r-component>` → `[data-children]`), and
+    single-object `register({…})` in component scripts seeding the instance's
+    private scope (b8r's component-context semantics).
 
 - **[deliberate] Composition warns instead of dropping.** `makeComponent`'s
   creator slots children into the view's `[data-children]` (b8r-style

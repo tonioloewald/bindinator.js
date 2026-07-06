@@ -113,3 +113,51 @@ test('clock.component.html runs unmodified (relative import + domInterval)', asy
   expect(span.textContent.length).toBeGreaterThan(0)   // a rendered time string
   target.remove()   // domInterval self-cleans once disconnected
 })
+
+test('instance-test + hello: real nested composition with transcluded children', async () => {
+  // b8r's own composition demo, unmodified: four <b8r-component path="components/hello">
+  // instances (one nested inside another's children), markup-children transclusion,
+  // per-instance data-greeting, private scopes via register({…}), the `format`
+  // target (from the extras module), show_if, and legacy-path declarative loading.
+  const { registerExtraB8rTargets } = await import('../src/b8r-targets-extra.js')
+  registerExtraB8rTargets()
+  const { setComponentPathBase } = await import('../src/b8r-blueprint.js')
+  const { defineLegacyComponent } = await import('../src/b8r-component.tjs')
+  setComponentPathBase(new URL('../../', import.meta.url).href)   // = the "page" (repo root)
+  ;(globalThis as any).alert = () => {}                            // hello's click alerts
+
+  const url = new URL('../../components/instance-test.component.html', import.meta.url)
+  defineLegacyComponent('instance-test', await readFile(url, 'utf8'), { base: url.href })
+  const target = document.createElement('div')
+  target.setAttribute('data-component', 'instance-test')
+  document.body.append(target)
+  const { hydrateB8rComponents } = await import('../src/b8r-blueprint.js')
+  await hydrateB8rComponents(document.body)
+  await tick(); await tick()
+
+  // all four hello instances mounted (a, b, d top-level + c nested in b's children)
+  const hellos = [...target.querySelectorAll('.hello')]
+  expect(hellos.length).toBe(4)
+
+  // transclusion: instance a's markup child lives in its [data-children]
+  const a: any = target.querySelector('[data-id="a"]')
+  expect(a.querySelector('[data-children] p').textContent).toBe('I am an inherited child')
+
+  // instance c: nested inside b's transcluded children, greeting overridden via data attr
+  const b: any = target.querySelector('[data-id="b"]')
+  const c: any = b.querySelector('[data-id="c"]')
+  expect(c).not.toBe(null)
+  expect(c.querySelector('input').value).toBe('Good-Bye')
+  expect(c.querySelector('h4').innerHTML).toBe('<b>Good-Bye</b> Component')  // format target
+  expect(a.querySelector('h4').innerHTML).toBe('<b>Hello</b> Component')
+
+  // private scopes: clicking a's button twice affects only a
+  const aCount: any = a.querySelector('p [data-bind], p span') || a.querySelector('span')
+  expect((a.querySelector('p') as any).style.display).toBe('none')   // show_if: 0 clicks
+  a.querySelector('button').click()
+  a.querySelector('button').click()
+  await tick()
+  expect((a.querySelector('p') as any).style.display).toBe('')
+  expect(a.querySelector('p span').textContent).toBe('2')
+  expect((b.querySelector('p') as any).style.display).toBe('none')   // b untouched
+})
