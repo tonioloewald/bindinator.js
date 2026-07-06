@@ -66,13 +66,27 @@ function parseComponent (source) {
 }
 
 // Load a legacy b8r component source. Returns `mount(target, initialData)`.
-export function loadB8rComponent (source) {
+// `options.base` (a URL string) gives the component's original location, so
+// RELATIVE dynamic imports in its `<script>` resolve like they did in b8r
+// (relative to the component). Without it, relative specifiers can't resolve —
+// the script's `import(…)` calls are rewritten to a resolving helper.
+export function loadB8rComponent (source, options = {}) {
   ensureRoot()
   const parts = parseComponent(source)
   if (parts.css !== '') {
     const style = document.createElement('style')
     style.textContent = parts.css
     document.head.append(style)
+  }
+  // `AsyncFunction` bodies have no module base URL, so a bare `import('../x')`
+  // inside them cannot resolve. Route dynamic imports through `_import`, which
+  // resolves relative specifiers against options.base when provided.
+  const script = parts.script.replace(/\bimport\s*\(/g, '_import(')
+  const _import = function (specifier) {
+    if (options.base !== undefined && (specifier.startsWith('./') || specifier.startsWith('../'))) {
+      return import(new URL(specifier, options.base).href)
+    }
+    return import(specifier)
   }
 
   return async function mount (target, initialData) {
@@ -120,16 +134,26 @@ export function loadB8rComponent (source) {
       }
       if (node !== null && node !== undefined) node[parts[parts.length - 1]] = value
     }
-    const b8r = { get: b8rGet, set: b8rSet, find, findOne, on, touch, register, getListInstance }
+    // b8r.trigger(type, element): synthesize a native event at the element. b8r
+    // dispatched a plain Event then ran its delegated handling; with our wiring,
+    // a bubbling dispatch reaches both direct and delegated listeners.
+    const trigger = function (type, element) {
+      // use the element's own realm's Event — a foreign Event (e.g. bun's global
+      // in headless runs) dispatches but invokes no linkedom listeners
+      const view = element.ownerDocument === null ? null : element.ownerDocument.defaultView
+      const EventClass = view !== null && view.Event !== undefined ? view.Event : Event
+      element.dispatchEvent(new EventClass(type, { bubbles: true }))
+    }
+    const b8r = { get: b8rGet, set: b8rSet, find, findOne, on, touch, register, trigger, getListInstance }
 
     hydrateB8r(target, { resolve: function (path) { return scoped(scope, dataPath, path) } })
 
-    if (parts.script !== '') {
+    if (script !== '') {
       const run = new AsyncFunction(
-        'component', 'b8r', 'get', 'set', 'find', 'findOne', 'on', 'touch', 'data', 'register',
-        parts.script
+        'component', 'b8r', 'get', 'set', 'find', 'findOne', 'on', 'touch', 'data', 'register', '_import',
+        script
       )
-      await run(target, b8r, get, set, find, findOne, on, touch, xin._b8r[id], register)
+      await run(target, b8r, get, set, find, findOne, on, touch, xin._b8r[id], register, _import)
     }
     return id
   }

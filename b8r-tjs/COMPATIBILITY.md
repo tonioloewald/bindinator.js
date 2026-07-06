@@ -81,16 +81,17 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   `get/set/find/findOne/on/touch/register/component/data` + `getListInstance`.
   **The two get/set scopes match real b8r:** bare `get`/`set` are
   component-scoped; `b8r.get`/`b8r.set` take **absolute registry paths**
-  (`b8r.set('example4.clicks', …)`). Calls to *other* unimplemented `b8r.*`
-  (`component`/`insertComponent`, `call`/`callMethod`, `trigger`,
-  `getComponentData`, list-mutation helpers) will throw. `require` is
-  unsupported (use `import`).
+  (`b8r.set('example4.clicks', …)`). `b8r.trigger(type, element)` synthesizes a
+  bubbling native event at the element. Calls to *other* unimplemented `b8r.*`
+  (`component`/`insertComponent`, `call`/`callMethod`, `getComponentData`,
+  list-mutation helpers) will throw. `require` is unsupported (use `import`).
 
-- **[limit] Relative dynamic imports in legacy scripts.** A `<script>` doing
-  `await import('../lib/color.js')` resolved relative to the page in b8r; our
-  `AsyncFunction` has no module base URL, so relative specifiers won't resolve.
-  Use absolute URLs/paths in legacy scripts, or port the component to the
-  ESM-object form (whose module carries its own base URL).
+- **Relative dynamic imports in legacy scripts** work via
+  `loadB8rComponent(source, { base })`: pass the component's original URL and its
+  `<script>`'s `import('../lib/color.js')` calls resolve against it (they're
+  rewritten to a resolving helper, since `AsyncFunction` bodies have no module
+  base URL). Without `base`, relative specifiers can't resolve — port the
+  component to the ESM-object form, or pass `base`.
 
 ## Findings from running REAL parent-repo components (test/real-component.test.ts)
 
@@ -103,8 +104,13 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
 - `components/events.component.html` (legacy form) runs **unmodified**:
   `b8r.register`, absolute-path `b8r.get`/`b8r.set`, `${path}` interpolation, and
   `show_if` all work.
-- `components/color.component.html` needs two things we don't provide: relative
-  dynamic imports (above) and `b8r.trigger` — a faithful port target if wanted.
+- `components/color.component.html` runs **unmodified** (given
+  `{ base: <component url> }`): the `method(_component_.fn)` target form,
+  `input,change` multi-type events, relative dynamic import of `../lib/color.js`,
+  the `set({…})` object form, and `b8r.trigger` all work.
+- `components/clock.component.html` runs **unmodified** (given `base`): relative
+  import of `../lib/dom-timers.js`, `domInterval` driving `set('time', …)` → a
+  live text binding.
 
 - **[deliberate] Composition warns instead of dropping.** `makeComponent`'s
   creator slots children into the view's `[data-children]` (b8r-style
