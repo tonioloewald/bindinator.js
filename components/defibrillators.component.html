@@ -1,0 +1,362 @@
+<!--
+# Defibrillator Map
+
+Every marker on this map is a publicly-registered **AED** (automated external
+defibrillator). The data comes from [OpenStreetMap](https://www.openstreetmap.org)
+via the free [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API)
+(everything tagged `emergency=defibrillator`), the map tiles are plain
+OpenStreetMap, and the map itself is [Leaflet](https://leafletjs.com). Marker
+clustering is [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster).
+
+**Total cost of the data and infrastructure shown here: €0.** No API keys, no
+paid tiles, no database, no server. It's a single static HTML component talking
+to public endpoints. That's the point — a national "where are the
+defibrillators" map is genuinely an evening's work, not a €50k/year line item.
+
+By default it shows Finland; drag/zoom anywhere and hit **Reload this area** to
+query wherever you're looking. Click a marker for access details and a
+directions link. Use **Find nearest to me** to sort by distance from your
+location.
+
+[View Fullscreen](.?body=components/defibrillators)
+-->
+<style>
+  ._component_ {
+    position: relative;
+    height: 100%;
+    font-family: var(--font-family, sans-serif);
+  }
+
+  body > ._component_ {
+    height: 100vh;
+  }
+
+  ._component_ > .map {
+    width: 100%;
+    min-height: 80vh;
+    height: 100%;
+    background: #aadaff;
+    z-index: 0;
+  }
+
+  ._component_ > .controls {
+    position: absolute;
+    top: 12px;
+    left: 50px;
+    right: 12px;
+    z-index: 401;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  ._component_ > .controls > * {
+    pointer-events: auto;
+  }
+
+  ._component_ .card {
+    background: rgba(255, 255, 255, 0.92);
+    color: #222;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    padding: 6px 10px;
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  ._component_ .controls button {
+    font: inherit;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 12px;
+    background: #d12e2e;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  ._component_ .controls button:hover {
+    background: #b31f1f;
+  }
+
+  ._component_ .controls button:disabled {
+    background: #999;
+    cursor: progress;
+  }
+
+  ._component_ .title {
+    font-weight: bold;
+  }
+
+  ._component_ .count {
+    color: #d12e2e;
+    font-weight: bold;
+  }
+
+  ._component_ .loading {
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+    z-index: 402;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+
+  ._component_ .aed-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: #d12e2e;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  ._component_ .aed-icon > span {
+    transform: rotate(45deg);
+  }
+
+  ._component_ .aed-popup h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+  }
+
+  ._component_ .aed-popup table {
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  ._component_ .aed-popup th {
+    text-align: right;
+    color: #666;
+    font-weight: normal;
+    padding: 1px 6px 1px 0;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  ._component_ .aed-popup .directions {
+    display: inline-block;
+    margin-top: 6px;
+    color: #d12e2e;
+    font-weight: bold;
+    text-decoration: none;
+  }
+</style>
+<div class="map"></div>
+<div class="controls">
+  <div class="card">
+    <span class="title">Defibrillators</span> —
+    <span class="count" data-bind="text=_component_.count"></span> shown
+  </div>
+  <button
+    data-event="click:_component_.reload"
+    data-bind="disabledIf=_component_.loading"
+  >Reload this area</button>
+  <button
+    data-event="click:_component_.locate"
+    data-bind="disabledIf=_component_.loading"
+  >Find nearest to me</button>
+</div>
+<div
+  class="loading"
+  data-bind="show_if=_component_.loading;text=_component_.status"
+></div>
+<script>
+  /* global b8r, get, set, findOne, component */
+  const { viaTag } = await import('../lib/scripts.js')
+  const { viaLink } = await import('../source/makeStylesheet.js')
+  const { parseHash, serializeObj } = await import('../lib/url-utils.js')
+
+  // free, no-token mapping stack, all loaded from CDN
+  viaLink('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css')
+  viaLink('https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css')
+  viaLink('https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css')
+  await viaTag('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js')
+  await viaTag('https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js')
+
+  // default view: all of Finland
+  const settings = { '@': '64.9,26.0,5' }
+  Object.assign(settings, parseHash())
+  const [lat, lng, zoom] = settings['@'].split(',').map(parseFloat)
+
+  const map = L.map(findOne('.map'), { zoomControl: true }).setView([lat, lng], zoom)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map)
+
+  const cluster = L.markerClusterGroup({ maxClusterRadius: 50 })
+  map.addLayer(cluster)
+
+  const icon = L.divIcon({
+    className: '',
+    html: '<div class="aed-icon"><span>♥</span></div>',
+    iconSize: [26, 26],
+    iconAnchor: [13, 26],
+    popupAnchor: [0, -26]
+  })
+
+  const updateHash = b8r.debounce(() => {
+    const c = map.getCenter()
+    settings['@'] = `${c.lat.toFixed(4)},${c.lng.toFixed(4)},${map.getZoom()}`
+    history.replaceState({}, 'defibrillator map', window.location.href.split('#')[0] + '#' + serializeObj(settings))
+  }, 200)
+  map.on('moveend', updateHash)
+
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+
+  // human-readable summary of an AED's most useful tags
+  const detailRows = tags => {
+    const rows = []
+    const add = (label, value) => { if (value) rows.push([label, value]) }
+    add('Location', tags['defibrillator:location'] || tags.description || tags['description:en'])
+    add('Access', { yes: 'Public', permissive: 'Public', customers: 'Customers only', private: 'Private', no: 'No public access' }[tags.access] || tags.access)
+    add('Indoor', tags.indoor === 'yes' ? 'Indoors' : tags.indoor === 'no' ? 'Outdoors' : '')
+    add('Level', tags.level)
+    add('Operator', tags.operator)
+    add('Hours', tags.opening_hours === '24/7' ? 'Always open (24/7)' : tags.opening_hours)
+    add('Phone', tags['emergency:phone'] || tags.phone)
+    return rows
+  }
+
+  const popupHtml = (el) => {
+    const tags = el.tags || {}
+    const rows = detailRows(tags).map(
+      ([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`
+    ).join('')
+    const directions = `https://www.openstreetmap.org/directions?to=${el.lat}%2C${el.lon}`
+    return `<div class="aed-popup">
+      <h4>${esc(tags.name || 'Defibrillator (AED)')}</h4>
+      <table>${rows || '<tr><td>No extra details tagged.</td></tr>'}</table>
+      <a class="directions" href="${directions}" target="_blank" rel="noopener">Directions &rarr;</a>
+    </div>`
+  }
+
+  // Overpass instances rate-limit and go down; try a couple in turn
+  const OVERPASS = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+  ]
+
+  const fetchAeds = async (bounds) => {
+    const s = bounds.getSouth().toFixed(5)
+    const w = bounds.getWest().toFixed(5)
+    const n = bounds.getNorth().toFixed(5)
+    const e = bounds.getEast().toFixed(5)
+    const query = `[out:json][timeout:60];nwr["emergency"="defibrillator"](${s},${w},${n},${e});out center tags;`
+    let lastError
+    for (const endpoint of OVERPASS) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: 'data=' + encodeURIComponent(query)
+        })
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        const { elements } = await response.json()
+        return elements.map(el => ({
+          id: el.id,
+          lat: el.lat != null ? el.lat : el.center.lat,
+          lon: el.lon != null ? el.lon : el.center.lon,
+          tags: el.tags || {}
+        }))
+      } catch (error) {
+        lastError = error
+      }
+    }
+    throw lastError
+  }
+
+  let aeds = []
+
+  const render = () => {
+    cluster.clearLayers()
+    const markers = aeds.map(el => {
+      const marker = L.marker([el.lat, el.lon], { icon })
+      marker.bindPopup(popupHtml(el))
+      return marker
+    })
+    cluster.addLayers(markers)
+    set('count', aeds.length)
+  }
+
+  const load = async () => {
+    set({ loading: true, status: 'Loading defibrillators…' })
+    try {
+      aeds = await fetchAeds(map.getBounds())
+      render()
+      set('status', '')
+    } catch (error) {
+      console.error(error)
+      set('status', 'Could not reach the Overpass API — try again in a moment.')
+      await new Promise(resolve => setTimeout(resolve, 4000))
+      set('status', '')
+    } finally {
+      set('loading', false)
+    }
+  }
+
+  // haversine distance (km) between two lat/lon points
+  const km = (aLat, aLon, bLat, bLon) => {
+    const R = 6371
+    const dLat = (bLat - aLat) * Math.PI / 180
+    const dLon = (bLon - aLon) * Math.PI / 180
+    const s = Math.sin(dLat / 2) ** 2 +
+      Math.cos(aLat * Math.PI / 180) * Math.cos(bLat * Math.PI / 180) * Math.sin(dLon / 2) ** 2
+    return 2 * R * Math.asin(Math.sqrt(s))
+  }
+
+  set({
+    count: 0,
+    loading: false,
+    status: '',
+    reload: load,
+    locate () {
+      if (!navigator.geolocation) {
+        set('status', 'Geolocation is not available in this browser.')
+        return
+      }
+      set({ loading: true, status: 'Locating you…' })
+      navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+        const { latitude, longitude } = coords
+        map.setView([latitude, longitude], 14)
+        L.circleMarker([latitude, longitude], {
+          radius: 8, color: '#1976d2', fillColor: '#1976d2', fillOpacity: 0.6
+        }).addTo(map).bindPopup('You are here')
+        await load()
+        if (aeds.length) {
+          const nearest = aeds
+            .map(el => ({ el, d: km(latitude, longitude, el.lat, el.lon) }))
+            .sort((a, b) => a.d - b.d)[0]
+          set('status', `Nearest AED is ${nearest.d < 1 ? Math.round(nearest.d * 1000) + ' m' : nearest.d.toFixed(1) + ' km'} away`)
+          const found = cluster.getLayers().find(m => {
+            const ll = m.getLatLng()
+            return ll.lat === nearest.el.lat && ll.lng === nearest.el.lon
+          })
+          if (found) cluster.zoomToShowLayer(found, () => found.openPopup())
+          setTimeout(() => set('status', ''), 4000)
+        }
+      }, error => {
+        console.error(error)
+        set({ loading: false, status: 'Could not get your location.' })
+        setTimeout(() => set('status', ''), 4000)
+      })
+    }
+  })
+
+  await load()
+</script>

@@ -656,6 +656,10 @@
         "path": "mapbox.component.html"
       },
       {
+        "name": "Defibrillator Map",
+        "path": "defibrillators.component.html"
+      },
+      {
         "name": "Touch Examples",
         "path": "touch-examples.component.html"
       },
