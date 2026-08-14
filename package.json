@@ -1,6 +1,6 @@
 {
   "name": "b8rjs",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "description": "the even lazier javascript framework",
   "main": "dist/b8r.js",
   "scripts": {
@@ -75,13 +75,10 @@
   },
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
-  "dependencies": {
-  },
   "devDependencies": {
     "@linthtml/linthtml": "^0.4.2",
     "pixelmatch": "^5.2.1",
     "pngjs": "^5.0.0",
-    "puppeteer": "^3.3.0",
     "rollup": "^1.32.1",
     "standard": "^14.3.4",
     "stylelint": "^13.6.1",

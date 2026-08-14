@@ -4,7 +4,18 @@
 const http = require('http')
 const https = require('https')
 const fs = require('fs')
-const puppeteer = require('puppeteer')
+
+// puppeteer is an optional, developer-installed extra used only by /screencap
+// (see lib/test.js "Screenshot Tests (WIP)"). It is deliberately not a
+// dependency: it pulls in a Chromium download and a long transitive tree.
+// `npm i puppeteer` yourself if you want the endpoint.
+const optionalPuppeteer = () => {
+  try {
+    return require('puppeteer')
+  } catch (e) {
+    return null
+  }
+}
 
 const settings = {
   port: 8017,
@@ -60,6 +71,13 @@ on('GET', '/api', (req, res) => {
 
 const screencapRegexp = /^\/screencap(\/.*?)$/
 on('GET', screencapRegexp, async (req, res) => {
+  const puppeteer = optionalPuppeteer()
+  if (!puppeteer) {
+    console.error('/screencap requires puppeteer; run `npm i puppeteer` to enable it')
+    res.writeHead(501)
+    res.end('/screencap requires puppeteer; run `npm i puppeteer` to enable it')
+    return
+  }
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
   const [, capturePath] = req.url.match(screencapRegexp)
