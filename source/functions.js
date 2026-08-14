@@ -78,15 +78,20 @@ the value specified (null by default).
 // title: throttle, debounce, and throttleAndDebounce tests
 const {debounce, delay, throttle, throttleAndDebounce} = await import('../source/functions.js')
 
-await delay(1000)
-
-const start = Date.now()
+// Every assertion below is made against a *snapshot* rather than the live
+// array. `Test(value)` stores the value it is handed and grades it a macrotask
+// later (see Test.run in lib/test.js), so handing it an array that a pending
+// timer is about to push into compares whatever the array holds at grade time,
+// not at call time. That race, plus checkpoints at fixed sub-second sleeps, is
+// what made this test flaky -- background tabs clamp timers to >= 1s, and the
+// doc site runs all of these blocks concurrently.
+const INTERVAL = 100
 const outerA = []
 const outerB = []
 const outerC = []
-const throttled = b8r.throttle(a => { outerA.push(a) }, 1000)
-const debounced = b8r.debounce(b => { outerB.push(b) }, 1000)
-const bothed = b8r.throttleAndDebounce(c => { outerC.push(c) }, 1000)
+const throttled = b8r.throttle(a => { outerA.push(a) }, INTERVAL)
+const debounced = b8r.debounce(b => { outerB.push(b) }, INTERVAL)
+const bothed = b8r.throttleAndDebounce(c => { outerC.push(c) }, INTERVAL)
 
 throttled(1)
 throttled(2)
@@ -98,52 +103,44 @@ bothed(1)
 bothed(2)
 bothed(3)
 
-await delay(500)
+// leading edge -- snapshot taken with no await in between, so no timer can
+// have run yet
+const leading = [[...outerA], [...outerB], [...outerC]]
+await Test(leading[0], 'throttle fires at once, skipping the rest of the window').shouldBeJSON([1])
+await Test(leading[1], 'debounce has not fired yet').shouldBeJSON([])
+await Test(leading[2], 'throttleAndDebounce fires at once').shouldBeJSON([1])
 
-// throttled(1) fired immediately
-// throttled(2) and throttled(3) were skipped
-// debounced(1) and debounced(2)
-// debounced(3) will fire at 100
-// bothed(1) fired immediately
-// bothed(2) was skipped
-// bothed(3) will fire at 1000
+await delay(INTERVAL * 20)
 
-await Test(outerA, 'throttled calls').shouldBeJSON([1])
-await Test(outerB, 'debounced calls').shouldBeJSON([])
-await Test(outerC, 'throttled and debounced calls').shouldBeJSON([1])
+// trailing edge
+const trailing = [[...outerA], [...outerB], [...outerC]]
+await Test(trailing[0], 'throttle never fires a trailing call').shouldBeJSON([1])
+await Test(trailing[1], 'debounce fires once, with the last value').shouldBeJSON([3])
+await Test(trailing[2], 'throttleAndDebounce also fires the trailing call').shouldBeJSON([1,3])
 
-await delay(1000) // 1500ms elapsed
-
-// throttled(3) fired at 1000
-// debounced(3) fired at 1000
-// bothed(3) fired at 1000
-
-await Test(outerA, 'throttled calls').shouldBeJSON([1])
-await Test(outerB, 'debounced calls').shouldBeJSON([3])
-await Test(outerC, 'throttled and debounced calls').shouldBeJSON([1,3])
-
-debounced(4)
-bothed(4)
 throttled(4)
-debounced(5)
-bothed(5)
 throttled(5)
-debounced(6)
-bothed(6)
 throttled(6)
+debounced(4)
+debounced(5)
+debounced(6)
+bothed(4)
+bothed(5)
+bothed(6)
 
-await delay(1000) // 2500ms elapsed
+// the interval has elapsed, so this is a new window and the leading edge fires
+// again
+const leading2 = [[...outerA], [...outerB], [...outerC]]
+await Test(leading2[0], 'throttle opens a new window').shouldBeJSON([1,4])
+await Test(leading2[1], 'debounce still has not fired again').shouldBeJSON([3])
+await Test(leading2[2], 'throttleAndDebounce opens a new window').shouldBeJSON([1,3,4])
 
-// throttled(4) fired at 1500
-// throttled(5) was skipped
-// debounced(4) and debounced(5) were skipped
-// debounced(6) fired at 2000
-// bothed(4) and bothan(5) were skipped
-// both(6) fired at 2000
+await delay(INTERVAL * 20)
 
-Test(outerA, 'throttled calls').shouldBeJSON([1,4])
-Test(outerB, 'debounced calls').shouldBeJSON([3,6])
-Test(outerC, 'throttled and debounced calls').shouldBeJSON([1,3,4,6])
+const trailing2 = [[...outerA], [...outerB], [...outerC]]
+await Test(trailing2[0], 'throttled calls').shouldBeJSON([1,4])
+await Test(trailing2[1], 'debounced calls').shouldBeJSON([3,6])
+await Test(trailing2[2], 'throttled and debounced calls').shouldBeJSON([1,3,4,6])
 ~~~~
 */
 

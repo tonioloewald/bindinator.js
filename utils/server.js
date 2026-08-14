@@ -167,7 +167,11 @@ const handleStaticRequest = (req, res) => {
       } else {
         res.writeHead(200, {
           'Content-Type': mimeType,
-          'Cache-Control': 'public, max-age=15000000',
+          // This is a development server: it must never serve stale source.
+          // It previously sent `public, max-age=15000000` (~173 days), so an
+          // edit to a source file or component wouldn't show up until you
+          // manually blew away the browser cache.
+          'Cache-Control': 'no-cache',
         })
         res.end(data)
       }
