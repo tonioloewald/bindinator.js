@@ -223,7 +223,7 @@ export default {
           let remains
           let docs = 'untitled'
           let css = '/* no styles found */'
-          let html = ''
+          let html
           let js = 'export default {}'
 
           parts = source.split(/-->/)

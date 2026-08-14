@@ -4220,8 +4220,9 @@ var b8r = (function () {
 
     const { style, view } = processComponent({ css, html: content, name });
     /* jshint evil: true */
-    let load = () =>
-      console.debug('b8r-error', 'component', name, 'cannot load properly');
+    // assigned by the try below, which either assigns or throws — the old
+    // "cannot load properly" fallback here was unreachable
+    let load;
     // check for legacy components
     if (
       script &&
@@ -4258,7 +4259,9 @@ var b8r = (function () {
         e,
         script
       );
-      throw new Error(`component ${name} load method could not be created`)
+      throw new Error(`component ${name} load method could not be created`, {
+        cause: e,
+      })
     }
     /* jshint evil: false */
     const component = {
@@ -6244,13 +6247,15 @@ var b8r = (function () {
     var eventType;
     var object;
     var method;
-    var prepend = false;
+    // defaulted at each destructuring below, not here: destructuring a short
+    // args array would otherwise overwrite an initializer with undefined
+    var prepend;
     if (typeof args[2] === 'object') {
       console.debug('b8r-warn', 'b8r.on(element, type, OBJECT) is deprecated')
       ;[element, eventType, object] = args;
       return on(element, eventType, object.model, object.method)
     } else if (args.length > 4 || typeof args[3] === 'string') {
-  [element, eventType, object, method, prepend] = args;
+  [element, eventType, object, method, prepend = false] = args;
       if (typeof object !== 'string' || typeof method !== 'string') {
         console.debug(
           'b8r-error',
@@ -6262,7 +6267,7 @@ var b8r = (function () {
       }
       method = object + '.' + method;
     } else {
-  [element, eventType, method, prepend] = args;
+  [element, eventType, method, prepend = false] = args;
     }
     if (!(element instanceof Element)) {
       console.debug('b8r-error', 'bind bare elements please, not', element);

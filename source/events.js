@@ -17,13 +17,15 @@ const onOffArgs = (args) => {
   var eventType
   var object
   var method
-  var prepend = false
+  // defaulted at each destructuring below, not here: destructuring a short
+  // args array would otherwise overwrite an initializer with undefined
+  var prepend
   if (typeof args[2] === 'object') {
     console.debug('b8r-warn', 'b8r.on(element, type, OBJECT) is deprecated')
     ;[element, eventType, object] = args
     return on(element, eventType, object.model, object.method)
   } else if (args.length > 4 || typeof args[3] === 'string') {
-    ;[element, eventType, object, method, prepend] = args
+    ;[element, eventType, object, method, prepend = false] = args
     if (typeof object !== 'string' || typeof method !== 'string') {
       console.debug(
         'b8r-error',
@@ -35,7 +37,7 @@ const onOffArgs = (args) => {
     }
     method = object + '.' + method
   } else {
-    ;[element, eventType, method, prepend] = args
+    ;[element, eventType, method, prepend = false] = args
   }
   if (!(element instanceof Element)) {
     console.debug('b8r-error', 'bind bare elements please, not', element)
