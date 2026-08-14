@@ -29,8 +29,16 @@ npm run lint       # eslint --fix only
   assertions, should be 52 `.success` / 0 `.failure`. To check programmatically:
   `document.querySelectorAll('.failure').length`.
 - The doc site itself runs the `~~~~` blocks embedded throughout the source as
-  a second suite (51 of them) and reports a pass/fail badge top-right. **3 of
-  those 51 currently fail** — pre-existing, not something you broke.
+  a second suite (51 of them) and reports a pass/fail badge top-right. It
+  should read 0 failures.
+
+When writing a `~~~~` test, **never hand `Test()` a value that is still being
+mutated.** `Test.run` ends in `setTimeout(() => this.grade(result))`, so it
+grades a macrotask after the call; pass a snapshot (`[...arr]`) if a timer or
+later code can still change it. And don't assert against wall-clock
+checkpoints — background tabs clamp timers to ≥1s and all 51 blocks run
+concurrently under `Promise.all`. Both mistakes were live in
+`source/functions.js` and made that suite flaky for a long time.
 
 To run a single test, edit `test/unit-tests.html`; the suite has no filtering.
 
