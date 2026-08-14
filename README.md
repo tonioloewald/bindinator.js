@@ -15,7 +15,7 @@
 [b8r-native](https://github.com/tonioloewald/b8r-native)
 
 ![b8rjs size](https://deno.bundlejs.com/?q=b8rjs,b8rjs&treeshake=[*],[{+default+}]&config={%22analysis%22:undefined}&badge=)
-![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)
+![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)
 
 > **Note** `b8r` is now published to npm as [b8rjs](https://www.npmjs.com/package/b8rjs).
 > You may want to update your dependencies accordingly.
