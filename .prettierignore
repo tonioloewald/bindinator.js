@@ -1,0 +1,24 @@
+# build artifacts — rollup/uglify own this output
+dist/
+
+# vendored third-party — upstream's formatting, so diffs against upstream stay readable
+third-party/
+icomoon/
+
+# separate subproject with its own bun/tjs toolchain and its own formatter config
+b8r-tjs/
+
+# test fixtures and captured assets — several are deliberately malformed
+test/
+
+# HTML stays with linthtml, which owns it via `npm run linthtml`.
+#
+# b8r's .html components are a bespoke fragment format (markup + <script> +
+# <style>), not documents, and prettier's html parser outright rejects four of
+# them (circle, design, mondrian, web-components .component.html). More
+# importantly, these fragments get injected into the live DOM, where reflowing
+# whitespace inside bound inline content can change what actually renders.
+*.html
+
+node_modules/
+package-lock.json

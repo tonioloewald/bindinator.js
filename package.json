@@ -5,10 +5,11 @@
   "main": "dist/b8r.js",
   "scripts": {
     "start": "echo \"http://localhost:8017/index.html\\n\" && node utils/server.js web_root:.",
-    "lint": "npx standard --fix",
+    "lint": "npx eslint . --fix",
+    "format": "npm run lint && npx prettier --write .",
     "stylelint": "npx stylelint css/*.css **/*.html --fix",
     "linthtml": "npx linthtml index.html components/**/*.html",
-    "build": "npm run lint && npm run linthtml && npm run stylelint && ./utils/build.command"
+    "build": "npm run format && npm run linthtml && npm run stylelint && ./utils/build.command"
   },
   "keywords": [
     "javascript",
@@ -76,21 +77,15 @@
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@linthtml/linthtml": "^0.4.2",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
     "pixelmatch": "^5.2.1",
     "pngjs": "^5.0.0",
+    "prettier": "^3.9.6",
     "rollup": "^1.32.1",
-    "standard": "^14.3.4",
     "stylelint": "^13.6.1",
     "uglify-es": "^3.3.9"
-  },
-  "standard": {
-    "ignore": [
-      "/icomoon/",
-      "/test/",
-      "/dist/",
-      "/third-party/",
-      "web-component-test.js"
-    ]
   }
 }

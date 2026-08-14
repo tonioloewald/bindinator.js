@@ -372,7 +372,7 @@ const inRange = (spec, x) => {
   try {
     [, lower, upper] = (spec || '').match(/^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/)
   } catch (e) {
-    throw new Error(`bad range ${spec}`)
+    throw new Error(`bad range ${spec}`, { cause: e })
   }
   if (lower) {
     const min = parseFloatOrInfinity(lower.substr(1))
@@ -433,7 +433,9 @@ export const specificTypeMatch = (type, subject) => {
       try {
         return spec.split('|').map(JSON.parse).includes(subject)
       } catch (e) {
-        throw new Error(`bad enum specification (${spec}), expect JSON strings`)
+        throw new Error(`bad enum specification (${spec}), expect JSON strings`, {
+          cause: e,
+        })
       }
     case 'void':
       return subjectType === 'undefined' || subjectType === 'null'
@@ -594,7 +596,7 @@ const matchKeys = (example, subject, errors = [], path = '') => {
         if (key !== '#') {
           keyTest = new RegExp(`^${key.substr(1)}$`)
         }
-      } catch (e) {
+      } catch (_e) {
         const badKeyError = `illegal regular expression in example key '${key}'`
         errors.push(badKeyError)
         console.error(badKeyError)

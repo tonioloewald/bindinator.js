@@ -131,7 +131,7 @@ export default {
       },
       showState () {
         if (tabSelector.value === 4) {
-
+          // TODO unimplemented: show component state in the state tab
         }
       },
       toggleCodeViews () {
@@ -153,7 +153,7 @@ export default {
           type = source.match(/^\s*</) ? 'html' : 'js'
         }
         if (type === 'js') {
-
+          // TODO unimplemented: load a pure-js component source
         } else {
           // adapted from b8r.makeComponent but actually more robust!
           let parts; let remains; let docs = 'untitled'; let css = '/* no styles found */'; let html = ''; let js = 'export default {}'

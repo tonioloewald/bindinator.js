@@ -21,7 +21,7 @@ window.dump = obj => {
   } else {
     try {
       pre.textContent = JSON.stringify(obj, false, 2)
-    } catch (e) {
+    } catch (_e) {
       pre.textContent = obj.toString()
     }
   }

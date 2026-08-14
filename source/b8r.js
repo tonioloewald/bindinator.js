@@ -437,7 +437,7 @@ function bindList (listTemplate) {
     )
     argPaths = argPaths.split(',').map(s => s.trim())
     listPath = argPaths[0]
-  } catch (e) {
+  } catch (_e) {
     console.debug('b8r-error', 'bindList failed; bad source path', sourcePath)
   }
   const resolvedPath = b8r.resolvePath(listPath, listTemplate)

@@ -335,7 +335,7 @@ export const wrap = (element, wrappingElement, destSelector) => {
     parent.insertBefore(wrappingElement, element)
     destination.appendChild(element)
   } catch (e) {
-    throw new Error('wrap failed')
+    throw new Error('wrap failed', { cause: e })
   }
 }
 
@@ -346,7 +346,7 @@ export const unwrap = (element, wrapperSelector) => {
     parent.insertBefore(element, wrapper)
     wrapper.remove()
   } catch (e) {
-    throw new Error('unwrap failed')
+    throw new Error('unwrap failed', { cause: e })
   }
 }
 

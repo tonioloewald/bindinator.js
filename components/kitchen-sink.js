@@ -531,7 +531,6 @@ body > .kitchen-sink-component {
 </div>
 `,
   async load({component, b8r, data, get, set, on}) {
-          /* global b8r, set, console */
         const {isParent, open} = await import('../lib/windows.js');
         b8r.component('../components/menubar');
         b8r.component('../components/toolbar');

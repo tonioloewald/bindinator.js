@@ -38,7 +38,7 @@ export const webComponentTest = (test, source, ...tags) => {
         () => elt.constructor.name,
         `verify <${tag}> renders`
       )
-      if (! _test instanceof Test) throw new Error('expect test to be instance of Test')
+      if (!(_test instanceof Test)) throw new Error('expect test to be instance of Test')
       _test.shouldNotBe('HTMLElement')
     })
   })

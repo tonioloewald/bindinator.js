@@ -12,7 +12,7 @@ const fs = require('fs')
 const optionalPuppeteer = () => {
   try {
     return require('puppeteer')
-  } catch (e) {
+  } catch (_e) {
     return null
   }
 }
@@ -91,7 +91,7 @@ on('GET', screencapRegexp, async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'image/png' })
     res.end(imageData)
     await browser.close()
-  } catch (e) {
+  } catch (_e) {
     console.error('/screencap', url, 'failed!')
     res.writeHead(500)
     res.end('screen capture failed')

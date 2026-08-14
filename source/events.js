@@ -336,7 +336,7 @@ const callMethod = (...args) => {
       ;[model, method, ...args] = args
     }
   } catch (e) {
-    throw new Error('callMethod has bad arguments')
+    throw new Error('callMethod has bad arguments', { cause: e })
   }
   return call(`${model}.${method}`, ...args)
 }
