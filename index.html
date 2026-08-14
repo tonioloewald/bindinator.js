@@ -14,10 +14,9 @@
   </head>
   <body style="position: relative; height: 100vh;">
     <b8r-component style="position: absolute; bottom: 5px; right: 5px; z-index: 5;" path="../components/darkmode.js"></b8r-component>
-  </body>
-  <script type="module" src="./main.js"></script>
+    <script type="module" src="./main.js"></script>
 
-  <script>
+    <script>
     // for older browsers
     try {
       eval(`import('').catch(() => {})`)
@@ -39,5 +38,6 @@
       const text = JSON.stringify(description, null, 2)
       dump(text)
     }
-  </script>
+    </script>
+  </body>
 </html>

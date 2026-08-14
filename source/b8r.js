@@ -149,7 +149,6 @@ b8r.forceUpdate = () => {
   let updateList
 
   while ((updateList = getUpdateList())) {
-    // eslint-disable-line no-cond-assign
     const lists = b8r
       .find('[data-list]')
       .map((elt) => ({ elt, listBinding: elt.dataset.list }))

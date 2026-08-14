@@ -117,7 +117,10 @@ body {
 
 @media print {
   body {
-    overflow: default;
+    /* `default` is not a valid overflow value, so this declaration was
+       dropped and printing kept the `overflow: hidden` above, clipping
+       content. `visible` is the initial value actually wanted here. */
+    overflow: visible;
   }
 }
 
@@ -263,7 +266,9 @@ em {
   }
 
   to {
-    opacity: 0 !important;
+    /* !important is ignored inside @keyframes per spec, so this declaration
+       was discarded entirely and .fade-out never actually faded. */
+    opacity: 0;
   }
 }
 
@@ -506,8 +511,9 @@ pre {
   background-color: var(--pullquote-bg-color);
   color: var(--code-text-color);
   border-radius: var(--corner-radius-size);
-  overflow: scroll;
-  overflow: overlay;
+  /* was `scroll` then `overlay` as progressive enhancement; `overlay` is
+     deprecated and every browser that supported it now treats it as `auto` */
+  overflow: auto;
 }
 
 code,

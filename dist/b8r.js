@@ -1,31 +1,12 @@
 'use strict';
 
-function _interopNamespace(e) {
-  if (e && e.__esModule) { return e; } else {
-    var n = {};
-    if (e) {
-      Object.keys(e).forEach(function (k) {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n, k, d.get ? d : {
-          enumerable: true,
-          get: function () {
-            return e[k];
-          }
-        });
-      });
-    }
-    n['default'] = e;
-    return n;
-  }
-}
-
 const observerShouldBeRemoved = {};
 const isMacOS = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
 
 var constants = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  observerShouldBeRemoved: observerShouldBeRemoved,
-  isMacOS: isMacOS
+  isMacOS: isMacOS,
+  observerShouldBeRemoved: observerShouldBeRemoved
 });
 
 /**
@@ -99,7 +80,7 @@ const { crypto } = window;
   https://github.com/uuidjs/randomUUID/blob/main/randomUUID.js
 */
 class ERR_INVALID_ARG_TYPE extends TypeError {
-  constructor (name, type, value) {
+  constructor(name, type, value) {
     super(`${name} variable is not of type ${type} (value: '${value}')`);
 
     this.code = 'ERR_INVALID_ARG_TYPE';
@@ -110,11 +91,12 @@ class ERR_INVALID_ARG_TYPE extends TypeError {
 // internal/validators
 //
 
-function validateBoolean (value, name) {
-  if (typeof value !== 'boolean') throw new ERR_INVALID_ARG_TYPE(name, 'boolean', value)
+function validateBoolean(value, name) {
+  if (typeof value !== 'boolean')
+    throw new ERR_INVALID_ARG_TYPE(name, 'boolean', value)
 }
 
-function validateObject (value, name) {
+function validateObject(value, name) {
   if (value === null || Array.isArray(value) || typeof value !== 'object') {
     throw new ERR_INVALID_ARG_TYPE(name, 'Object', value)
   }
@@ -132,7 +114,9 @@ const randomFillSync = crypto.getRandomValues.bind(crypto);
 // and uuid buffers are reused. Each call to randomUUID() consumes
 // 16 bytes from the buffer.
 
-const kHexDigits = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102];
+const kHexDigits = [
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102,
+];
 
 const kBatchSize = 128;
 let uuidData;
@@ -140,7 +124,7 @@ let uuidNotBuffered;
 let _uuid;
 let uuidBatch = 0;
 
-function getBufferedUUID () {
+function getBufferedUUID() {
   if (uuidData === undefined) {
     uuidData = new Uint8Array(16 * kBatchSize);
   }
@@ -150,7 +134,7 @@ function getBufferedUUID () {
   return uuidData.slice(uuidBatch * 16, uuidBatch * 16 + 16)
 }
 
-function randomUUID (options) {
+function randomUUID(options) {
   if (options !== undefined) validateObject(options, 'options');
   const { disableEntropyCache = false } = { ...options };
 
@@ -223,16 +207,24 @@ if (!crypto.randomUUID) {
   crypto.randomUUID = randomUUID;
 }
 
-const now36 = () => new Date(parseInt('1000000000', 36) + Date.now()).valueOf().toString(36).slice(1);
+const now36 = () =>
+  new Date(parseInt('1000000000', 36) + Date.now())
+    .valueOf()
+    .toString(36)
+    .slice(1);
 
 const randId = (length, base = 36) => {
   const squared = base * base;
   const r = new Uint32Array(Math.ceil(length / 2));
   crypto.getRandomValues(r);
-  return [...r].map(bytes => (squared + bytes % squared).toString(base)).slice(1).join('').substr(-length)
+  return [...r]
+    .map((bytes) => (squared + (bytes % squared)).toString(base))
+    .slice(1)
+    .join('')
+    .substr(-length)
 };
 
-const id = () => now36() + randId(11);
+const id$1 = () => now36() + randId(11);
 
 const uuid = crypto.randomUUID.bind(crypto);
 
@@ -428,16 +420,18 @@ Test(() => errors, 'bad list bindings reported').shouldBeJSON(["inconsistent id-
 console.debug = debug
 ~~~~
 */
+/* global console */
+
 
 const _delete_ = {};
 const _newObject_ = {};
 
-function pathSplit (fullPath) {
-  const [, model,, start, path] = fullPath.match(/^(.*?)(([.[])(.*))?$/);
+function pathSplit(fullPath) {
+  const [, model, , start, path] = fullPath.match(/^(.*?)(([.[])(.*))?$/);
   return [model, start === '[' ? '[' + path : path]
 }
 
-function pathParts (path) {
+function pathParts(path) {
   if (!path || path === '/') {
     return []
   }
@@ -470,11 +464,14 @@ function pathParts (path) {
   }
 }
 
-function buildIdPathValueMap (array, idPath) {
+function buildIdPathValueMap(array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath;
   } else if (array._b8r_id_path !== idPath) {
-    console.debug('b8r-error', `inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`);
+    console.debug(
+      'b8r-error',
+      `inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`
+    );
   }
   if (!array._b8r_value_maps) {
     // hide the map of maps in a closure that is returned by a computed property so that
@@ -485,7 +482,7 @@ function buildIdPathValueMap (array, idPath) {
   const map = {};
   if (idPath === '_auto_') {
     array.forEach((item, idx) => {
-      if (item._auto_ === undefined) item._auto_ = id();
+      if (item._auto_ === undefined) item._auto_ = id$1();
       map[item._auto_ + ''] = idx;
     });
   } else {
@@ -497,7 +494,7 @@ function buildIdPathValueMap (array, idPath) {
   return map
 }
 
-function getIdPathMap (array, idPath) {
+function getIdPathMap(array, idPath) {
   if (!array._b8r_value_maps || !array._b8r_value_maps[idPath]) {
     return buildIdPathValueMap(array, idPath)
   } else {
@@ -505,7 +502,7 @@ function getIdPathMap (array, idPath) {
   }
 }
 
-function keyToIndex (array, idPath, idValue) {
+function keyToIndex(array, idPath, idValue) {
   idValue = idValue + '';
   /*
   if (array.length > 200) {
@@ -518,14 +515,14 @@ function keyToIndex (array, idPath, idValue) {
   return idx
 }
 
-function byKey (obj, key, valueToInsert) {
+function byKey(obj, key, valueToInsert) {
   if (!obj[key]) {
     obj[key] = valueToInsert;
   }
   return obj[key]
 }
 
-function byIdPath (array, idPath, idValue, valueToInsert) {
+function byIdPath(array, idPath, idValue, valueToInsert) {
   let idx = idPath ? keyToIndex(array, idPath, idValue) : idValue;
   if (valueToInsert === _delete_) {
     array.splice(idx, 1);
@@ -537,7 +534,10 @@ function byIdPath (array, idPath, idValue, valueToInsert) {
   } else if (valueToInsert) {
     if (idx !== undefined) {
       array[idx] = valueToInsert;
-    } else if (idPath && getByPath(valueToInsert, idPath) + '' === idValue + '') {
+    } else if (
+      idPath &&
+      getByPath(valueToInsert, idPath) + '' === idValue + ''
+    ) {
       array.push(valueToInsert);
       idx = array.length - 1;
     } else {
@@ -547,21 +547,21 @@ function byIdPath (array, idPath, idValue, valueToInsert) {
   return array[idx]
 }
 
-function expectArray (obj) {
+function expectArray(obj) {
   if (!Array.isArray(obj)) {
     console.debug('b8r-error', 'setByPath failed: expected array, found', obj);
     throw new Error('setByPath failed: expected array')
   }
 }
 
-function expectObject (obj) {
+function expectObject(obj) {
   if (!obj || obj.constructor !== Object) {
     console.debug('b8r-error', 'setByPath failed: expected Object, found', obj);
     throw new Error('setByPath failed: expected object')
   }
 }
 
-function getByPath (obj, path) {
+function getByPath(obj, path) {
   const parts = pathParts(path);
   var found = obj;
   var i, iMax, j, jMax;
@@ -591,7 +591,7 @@ function getByPath (obj, path) {
   return found === undefined ? null : found
 }
 
-function setByPath (orig, path, val) {
+function setByPath(orig, path, val) {
   let obj = orig;
   const parts = pathParts(path);
 
@@ -650,7 +650,7 @@ function setByPath (orig, path, val) {
   throw new Error(`setByPath(${orig}, ${path}, ${val}) failed`)
 }
 
-function deleteByPath (orig, path) {
+function deleteByPath(orig, path) {
   if (getByPath(orig, path) !== null) {
     setByPath(orig, path, _delete_);
   }
@@ -782,7 +782,7 @@ Test(() => {
 ~~~~
 */
 
-const makeArray = arrayish => [...arrayish];
+const makeArray = (arrayish) => [...arrayish];
 
 const forEach = (array, method) => {
   for (let i = 0; i < array.length; i++) {
@@ -792,19 +792,19 @@ const forEach = (array, method) => {
   }
 };
 
-const last = array => array.length ? array[array.length - 1] : null;
+const last = (array) => (array.length ? array[array.length - 1] : null);
 
 const forEachKey = (object, method) => {
   const keys = Object.keys(object);
   for (const key of keys) if (method(object[key], key) === false) break
 };
 
-const deepClone = object => {
+const deepClone = (object) => {
   if (typeof object !== 'object' || object === null) {
     return object
   }
   if (Array.isArray(object)) {
-    return object.map(item => deepClone(item))
+    return object.map((item) => deepClone(item))
   }
   const clone = {};
   forEachKey(object, (value, key) => {
@@ -854,7 +854,8 @@ const filterKeys = (object, test) => {
 const filterObject = (object, test) => {
   const keys = Object.keys(object);
   const filtered = {};
-  for (const key of keys) if (test(object[key], key)) filtered[key] = object[key];
+  for (const key of keys)
+    if (test(object[key], key)) filtered[key] = object[key];
   return filtered
 };
 
@@ -878,20 +879,20 @@ const assignValues = (object, ancestor) => {
 
 var _iterators = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  makeArray: makeArray,
-  last: last,
-  forEach: forEach,
-  forEachKey: forEachKey,
+  assignValues: assignValues,
   deepClone: deepClone,
-  mapKeys: mapKeys,
-  mapEachKey: mapEachKey,
-  findKey: findKey,
-  findValue: findValue,
   filterInPlace: filterInPlace,
   filterKeys: filterKeys,
   filterObject: filterObject,
   filterObjectInPlace: filterObjectInPlace,
-  assignValues: assignValues
+  findKey: findKey,
+  findValue: findValue,
+  forEach: forEach,
+  forEachKey: forEachKey,
+  last: last,
+  makeArray: makeArray,
+  mapEachKey: mapEachKey,
+  mapKeys: mapKeys
 });
 
 /**
@@ -1082,7 +1083,11 @@ const create = (tagType, ...contents) => {
   }
   const elt = templates[tagType].cloneNode();
   for (const item of contents) {
-    if (item instanceof HTMLElement || typeof item === 'string' || typeof item === 'number') {
+    if (
+      item instanceof HTMLElement ||
+      typeof item === 'string' ||
+      typeof item === 'number'
+    ) {
       elt.append(item);
     } else {
       const dataBindings = [];
@@ -1103,9 +1108,13 @@ const create = (tagType, ...contents) => {
   (and similarly for events)
 */
           if (key.startsWith('bind')) {
-            dataBindings.push(`${key.substr(4).replace(/[A-Z]/, c => c.toLowerCase())}=${value}`);
+            dataBindings.push(
+              `${key.substr(4).replace(/[A-Z]/, (c) => c.toLowerCase())}=${value}`
+            );
           } else {
-            eventBindings.push(`${key.substr(2).replace(/[A-Z]/, c => c.toLowerCase())}:${value}`);
+            eventBindings.push(
+              `${key.substr(2).replace(/[A-Z]/, (c) => c.toLowerCase())}:${value}`
+            );
           }
         } else if (key === 'style') {
           if (typeof value === 'object') {
@@ -1116,7 +1125,7 @@ const create = (tagType, ...contents) => {
             elt.setAttribute('style', value);
           }
         } else {
-          const attr = key.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
+          const attr = key.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
           if (typeof value === 'boolean') {
             value ? elt.setAttribute(attr, '') : elt.removeAttribute(attr);
           } else {
@@ -1145,20 +1154,25 @@ const _fragment = (...contents) => {
   return frag
 };
 
-const elements = new Proxy({ _comp, _fragment }, {
-  get (target, tagName) {
-    tagName = tagName.replace(/[A-Z]/g, c => `-${c.toLocaleLowerCase()}`);
-    if (!tagName.match(/^\w+(-\w+)*$/)) {
-      throw new Error(`${tagName} does not appear to be a valid element tagName`)
-    } else if (!target[tagName]) {
-      target[tagName] = (...contents) => create(tagName, ...contents);
-    }
-    return target[tagName]
-  },
-  set () {
-    throw new Error('You may not add new properties to elements')
+const elements = new Proxy(
+  { _comp, _fragment },
+  {
+    get(target, tagName) {
+      tagName = tagName.replace(/[A-Z]/g, (c) => `-${c.toLocaleLowerCase()}`);
+      if (!tagName.match(/^\w+(-\w+)*$/)) {
+        throw new Error(
+          `${tagName} does not appear to be a valid element tagName`
+        )
+      } else if (!target[tagName]) {
+        target[tagName] = (...contents) => create(tagName, ...contents);
+      }
+      return target[tagName]
+    },
+    set() {
+      throw new Error('You may not add new properties to elements')
+    },
   }
-});
+);
 
 /**
 # DOM Methods
@@ -1369,29 +1383,36 @@ unwraps the element of its immediate parent or its closest `wrapperSelector` if 
 </script>
 ```
 */
+/* global getComputedStyle */
 
-const isVisible = (element, includeParents) => element &&
+
+const isVisible = (element, includeParents) =>
+  element &&
   getComputedStyle(element).display !== 'none' &&
-  ((!includeParents) || element === document.body || isVisible(element.parentElement, true));
+  (!includeParents ||
+    element === document.body ||
+    isVisible(element.parentElement, true));
 
 const isInView = (element, view) => {
   if (!element || !isVisible(element, true)) {
     return false
   }
   const r = element.getBoundingClientRect();
-  const s = view ? view.getBoundingClientRect()
+  const s = view
+    ? view.getBoundingClientRect()
     : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
   return rectsOverlap(r, s)
 };
 
-const rectsOverlap = (r, s) => !(
-  r.top > s.top + s.height ||
-  r.top + r.height < s.top ||
-  r.left > s.left + s.width ||
-  r.left + r.width < s.left
-);
+const rectsOverlap = (r, s) =>
+  !(
+    r.top > s.top + s.height ||
+    r.top + r.height < s.top ||
+    r.left > s.left + s.width ||
+    r.left + r.width < s.left
+  );
 
-const find = selector => makeArray(document.querySelectorAll(selector));
+const find = (selector) => makeArray(document.querySelectorAll(selector));
 
 const findOne = document.querySelector.bind(document);
 
@@ -1404,18 +1425,25 @@ const findWithin = (element, selector, includeSelf) => {
 };
 
 const findOneWithin = (element, selector, includeSelf) =>
-  includeSelf &&
-  element.matches(selector) ? element : element.querySelector(selector);
+  includeSelf && element.matches(selector)
+    ? element
+    : element.querySelector(selector);
 
 const succeeding = (element, selector) => {
-  while (element.nextElementSibling && !element.nextElementSibling.matches(selector)) {
+  while (
+    element.nextElementSibling &&
+    !element.nextElementSibling.matches(selector)
+  ) {
     element = element.nextElementSibling;
   }
   return element.nextElementSibling
 };
 
 const preceding = (element, selector) => {
-  while (element.previousElementSibling && !element.previousElementSibling.matches(selector)) {
+  while (
+    element.previousElementSibling &&
+    !element.previousElementSibling.matches(selector)
+  ) {
     element = element.previousElementSibling;
   }
   return element.previousElementSibling
@@ -1441,11 +1469,11 @@ const findAbove = (elt, selector, untilElt, includeSelf) => {
   return found
 };
 
-const id$1 = document.getElementById.bind(document);
+const id = document.getElementById.bind(document);
 
-const text = document.createTextNode.bind(document);
+const text$2 = document.createTextNode.bind(document);
 
-const fragment = document.createDocumentFragment.bind(document);
+const fragment$1 = document.createDocumentFragment.bind(document);
 
 const classes = (element, settings) => {
   forEachKey(settings, (onOff, className) => {
@@ -1469,7 +1497,8 @@ const empty = (element) => {
   }
 };
 
-const elementIndex = (element) => [...element.parentElement.children].indexOf(element);
+const elementIndex = (element) =>
+  [...element.parentElement.children].indexOf(element);
 
 const moveChildren = (source, dest) => {
   while (source.firstChild) {
@@ -1488,22 +1517,26 @@ const copyChildren = (source, dest) => {
 const wrap = (element, wrappingElement, destSelector) => {
   try {
     const parent = element.parentElement;
-    const destination = destSelector ? wrappingElement.querySelector(destSelector) : wrappingElement;
+    const destination = destSelector
+      ? wrappingElement.querySelector(destSelector)
+      : wrappingElement;
     parent.insertBefore(wrappingElement, element);
     destination.appendChild(element);
   } catch (e) {
-    throw new Error('wrap failed')
+    throw new Error('wrap failed', { cause: e })
   }
 };
 
 const unwrap = (element, wrapperSelector) => {
   try {
-    const wrapper = wrapperSelector ? element.closest(wrapperSelector) : element.parentElement;
+    const wrapper = wrapperSelector
+      ? element.closest(wrapperSelector)
+      : element.parentElement;
     const parent = wrapper.parentElement;
     parent.insertBefore(element, wrapper);
     wrapper.remove();
   } catch (e) {
-    throw new Error('unwrap failed')
+    throw new Error('unwrap failed', { cause: e })
   }
 };
 
@@ -1523,7 +1556,7 @@ const isInBody = (element) => element && document.body.contains(element);
 const cssVar = (element, name, value) => {
   /* global HTMLElement */
   if (!(element instanceof HTMLElement)) {
-    [element, name, value] = [document.documentElement, element, name];
+[element, name, value] = [document.documentElement, element, name];
   }
   if (value === undefined) {
     const htmlStyles = getComputedStyle(element);
@@ -1536,41 +1569,42 @@ const cssVar = (element, name, value) => {
 /**
     findHighestZ(selector = 'body *') // returns highest z-index of elements matching selector
 */
-const findHighestZ = (selector = 'body *') => [...document.querySelectorAll(selector)]
-  .map(elt => parseFloat(getComputedStyle(elt).zIndex))
-  .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
-    isNaN(z) || z < highest ? highest : z
-  );
+const findHighestZ = (selector = 'body *') =>
+  [...document.querySelectorAll(selector)]
+    .map((elt) => parseFloat(getComputedStyle(elt).zIndex))
+    .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
+      isNaN(z) || z < highest ? highest : z
+    );
 
 var _dom = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  isVisible: isVisible,
-  isInView: isInView,
-  rectsOverlap: rectsOverlap,
-  find: find,
-  findOne: findOne,
-  findWithin: findWithin,
-  findOneWithin: findOneWithin,
-  succeeding: succeeding,
-  preceding: preceding,
-  findAbove: findAbove,
-  id: id$1,
-  text: text,
-  fragment: fragment,
   classes: classes,
-  styles: styles,
-  empty: empty,
-  elementIndex: elementIndex,
-  moveChildren: moveChildren,
   copyChildren: copyChildren,
-  wrap: wrap,
+  create: create,
+  cssVar: cssVar,
+  elementIndex: elementIndex,
+  elements: elements,
+  empty: empty,
+  find: find,
+  findAbove: findAbove,
+  findHighestZ: findHighestZ,
+  findOne: findOne,
+  findOneWithin: findOneWithin,
+  findWithin: findWithin,
+  fragment: fragment$1,
+  id: id,
+  isInBody: isInBody,
+  isInView: isInView,
+  isVisible: isVisible,
+  moveChildren: moveChildren,
+  preceding: preceding,
+  rectsOverlap: rectsOverlap,
+  styles: styles,
+  succeeding: succeeding,
+  text: text$2,
   unwrap: unwrap,
   within: within,
-  isInBody: isInBody,
-  cssVar: cssVar,
-  findHighestZ: findHighestZ,
-  create: create,
-  elements: elements
+  wrap: wrap
 });
 
 /**
@@ -1583,7 +1617,7 @@ Synthesizes a native event. Don't use it for custom events. Use `trigger` instea
 /* global Event */
 
 // TODO -- provide better support for keyboard, mouse, touch events
-const dispatch = (type, target, ...args) => {
+const dispatch$1 = (type, target, ...args) => {
   const event = new Event(type);
   event.args = args;
   target.dispatchEvent(event);
@@ -1636,12 +1670,14 @@ pass a callback to `afterUpdate`:
 
 afterUpdate fires immediately (and synchronously) if there are no pending updates.
 */
+/* global requestAnimationFrame, HTMLElement */
+
 let _updateFrame = null;
 const _updateList = [];
 const _afterUpdateCallbacks = [];
 let _forceUpdate = () => {};
 
-const requestAnimationFrameWithTimeout = callback => {
+const requestAnimationFrameWithTimeout = (callback) => {
   let done = false;
   const finishIt = () => {
     done || callback();
@@ -1652,7 +1688,7 @@ const requestAnimationFrameWithTimeout = callback => {
   return {
     cancel: () => {
       done = true;
-    }
+    },
   }
 };
 
@@ -1683,8 +1719,10 @@ const _afterUpdate = () => {
 
 const asyncUpdate = (path, source) => {
   const item = path
-    ? _updateList.find(item => path.startsWith(item.path))
-    : _updateList.find(item => (!item.path) && item.source && item.source === source);
+    ? _updateList.find((item) => path.startsWith(item.path))
+    : _updateList.find(
+        (item) => !item.path && item.source && item.source === source
+      );
   if (!item) {
     if (!_updateFrame) {
       _updateFrame = requestAnimationFrameWithTimeout(_forceUpdate);
@@ -1696,7 +1734,7 @@ const asyncUpdate = (path, source) => {
   }
 };
 
-const afterUpdate = callback => {
+const afterUpdate = (callback) => {
   if (_updateList.length) {
     if (_afterUpdateCallbacks.indexOf(callback) === -1) {
       _afterUpdateCallbacks.push(callback);
@@ -1706,16 +1744,17 @@ const afterUpdate = callback => {
   }
 };
 
-const touchElement = element => asyncUpdate(false, element);
+const touchElement = (element) => asyncUpdate(false, element);
 
 const touchByPath = (...args) => {
   let fullPath, sourceElement, name, path;
 
   if (args[1] instanceof HTMLElement) {
-    [fullPath, sourceElement] = args;
+[fullPath, sourceElement] = args;
   } else {
-    [name, path, sourceElement] = args;
-    fullPath = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path;
+[name, path, sourceElement] = args;
+    fullPath =
+      !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path;
   }
 
   asyncUpdate(fullPath, sourceElement);
@@ -1726,12 +1765,16 @@ const _setForceUpdate = (fn) => {
 };
 
 const _expectedCustomElements = [];
-const expectCustomElement = async tagName => {
+const expectCustomElement = async (tagName) => {
   tagName = tagName.toLocaleLowerCase();
-  if (window.customElements.get(tagName) || _expectedCustomElements.includes(tagName)) return
+  if (
+    window.customElements.get(tagName) ||
+    _expectedCustomElements.includes(tagName)
+  )
+    return
   _expectedCustomElements.push(tagName);
   await window.customElements.whenDefined(tagName);
-  find(tagName).forEach(elt => {
+  find(tagName).forEach((elt) => {
     delete elt._b8rBoundValues;
     touchElement(elt);
   });
@@ -2016,6 +2059,8 @@ To quickly obtain bound data a list instance from an element inside it:
 
     b8r.getListInstance(elt)
 */
+/* global console */
+
 const UNLOADED_COMPONENT_SELECTOR =
   '[data-component],[data-initializing],b8r-component:not([data-component-id])';
 const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`;
@@ -2024,7 +2069,9 @@ const addDataBinding = (element, toTarget, path) => {
   path = path.replace(/\b_component_\b/g, getComponentId(element));
   const binding = `${toTarget}=${path}`;
   const existing = (element.dataset.bind || '')
-    .split(';').map(s => s.trim()).filter(s => !!s);
+    .split(';')
+    .map((s) => s.trim())
+    .filter((s) => !!s);
   if (existing.indexOf(binding) === -1) {
     existing.push(binding);
     element.dataset.bind = existing.join(';');
@@ -2035,10 +2082,9 @@ const addDataBinding = (element, toTarget, path) => {
 
 const removeDataBinding = (element, toTarget, path) => {
   const binding = `${toTarget}=${path}`;
-  var existing =
-      (element.dataset.bind || '').split(';').map(s => s.trim());
+  var existing = (element.dataset.bind || '').split(';').map((s) => s.trim());
   if (existing.indexOf(binding) > -1) {
-    existing = existing.filter(exists => exists !== binding);
+    existing = existing.filter((exists) => exists !== binding);
     if (existing.length) {
       element.dataset.bind = existing.join(';');
     } else {
@@ -2050,16 +2096,20 @@ const removeDataBinding = (element, toTarget, path) => {
   }
 };
 
-const parseBinding = binding => {
+const parseBinding = (binding) => {
   if (!binding.trim()) {
     throw new Error('empty binding')
   }
   if (binding.indexOf('=') === -1) {
-    throw new Error(`binding "${binding}" is missing = sign; probably need a source or target`)
+    throw new Error(
+      `binding "${binding}" is missing = sign; probably need a source or target`
+    )
   }
-  const [, targetsRaw, path] =
-      binding.trim().match(/^([^=]*?)=([^;]*)$/m).map(s => s.trim());
-  const targets = targetsRaw.split(',').map(_target => {
+  const [, targetsRaw, path] = binding
+    .trim()
+    .match(/^([^=]*?)=([^;]*)$/m)
+    .map((s) => s.trim());
+  const targets = targetsRaw.split(',').map((_target) => {
     var parts = _target.match(/([\w#\-.]+)(\(([^)]+)\))?/);
     if (!parts) {
       console.debug('b8r-error', 'bad target', _target, 'in binding', binding);
@@ -2163,39 +2213,49 @@ Test(() => getBindings(div), 'implicit method binding is parsed correctly').shou
 ~~~~
 */
 
-const splitPaths = paths => paths.match(/(([^,([]+\.?)|(\[[^\]]+\]\.?)|\([^)]+\))+/g);
+const splitPaths = (paths) =>
+  paths.match(/(([^,([]+\.?)|(\[[^\]]+\]\.?)|\([^)]+\))+/g);
 
-const findBindables = element => findWithin(element, '[data-bind]', true);
+const findBindables = (element) => findWithin(element, '[data-bind]', true);
 
-const findLists = element => findWithin(element, '[data-list]', true);
+const findLists = (element) => findWithin(element, '[data-list]', true);
 
-const getBindings = element => {
+const getBindings = (element) => {
   try {
-    return element.dataset.bind
-      // separate bindings with ';' for consistency
-      .replace(/\n\s*([\w#\-.,]+)(\([^)]*\))?=/g, ';$1$2=')
-      .split(';')
-      .filter(s => !!s.trim())
-      .map(parseBinding)
+    return (
+      element.dataset.bind
+        // separate bindings with ';' for consistency
+        .replace(/\n\s*([\w#\-.,]+)(\([^)]*\))?=/g, ';$1$2=')
+        .split(';')
+        .filter((s) => !!s.trim())
+        .map(parseBinding)
+    )
   } catch (e) {
     console.debug('b8r-error', element, e);
     return []
   }
 };
 
-const getDataPath = element => {
-  const dataParent = element ? element.closest('[data-path],[data-list-instance]') : false;
-  const path = dataParent ? (dataParent.dataset.path || dataParent.dataset.listInstance) : '';
-  return ['.', '['].indexOf(path[0]) === -1 ? path : getDataPath(dataParent.parentElement) + path
+const getDataPath = (element) => {
+  const dataParent = element
+    ? element.closest('[data-path],[data-list-instance]')
+    : false;
+  const path = dataParent
+    ? dataParent.dataset.path || dataParent.dataset.listInstance
+    : '';
+  return ['.', '['].indexOf(path[0]) === -1
+    ? path
+    : getDataPath(dataParent.parentElement) + path
 };
 
-const getListPath = element => {
+const getListPath = (element) => {
   const listInstanceElement = element.closest('[data-list-instance]');
-  const listTemplate = listInstanceElement && succeeding(listInstanceElement, '[data-list]');
+  const listTemplate =
+    listInstanceElement && succeeding(listInstanceElement, '[data-list]');
   return listTemplate && listTemplate.dataset.list.split(':')[0]
 };
 
-const getListInstancePath = element => {
+const getListInstancePath = (element) => {
   const component = element.closest('[data-list-instance]');
   return component ? component.dataset.listInstance : null
 };
@@ -2210,21 +2270,23 @@ const getComponentId = (element, type) => {
 
 const replaceInBindings = (element, needle, replacement) => {
   const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g');
-  findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
-    .forEach(elt => {
-      ['data-bind', 'data-list', 'data-path'].forEach(attr => {
-        const val = elt.getAttribute(attr);
-        if (val) {
-          elt.setAttribute(attr, val.replace(needleRegexp, replacement));
-        }
-      });
+  findWithin(
+    element,
+    `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`
+  ).forEach((elt) => {
+['data-bind', 'data-list', 'data-path'].forEach((attr) => {
+      const val = elt.getAttribute(attr);
+      if (val) {
+        elt.setAttribute(attr, val.replace(needleRegexp, replacement));
+      }
     });
+  });
 };
 
 const resolveListInstanceBindings = (instanceElt, instancePath) => {
   findWithin(instanceElt, '[data-bind]', true)
-    .filter(elt => !elt.closest('[data-list]'))
-    .forEach(elt => {
+    .filter((elt) => !elt.closest('[data-list]'))
+    .forEach((elt) => {
       const bindingSource = elt.dataset.bind;
       if (bindingSource.indexOf('=.') > -1) {
         elt.dataset.bind = bindingSource
@@ -2232,8 +2294,10 @@ const resolveListInstanceBindings = (instanceElt, instancePath) => {
           .replace(/=\./g, `=${instancePath}`);
       }
       if (bindingSource.indexOf('${.') > -1) {
-        elt.dataset.bind = bindingSource
-          .replace(/\$\{(\.[^}]+)\}/g, '${' + instancePath + '$1}');
+        elt.dataset.bind = bindingSource.replace(
+          /\$\{(\.[^}]+)\}/g,
+          '${' + instancePath + '$1}'
+        );
       }
     });
 };
@@ -2578,9 +2642,10 @@ The obvious place to use typeSafe functions is when communicating with services,
 and here any overhead is insignificant compared with network or I/O.
 */
 
-const isAsync = func => func && func.constructor === (async () => {}).constructor;
+const isAsync = (func) =>
+  func && func.constructor === (async () => {}).constructor;
 
-const describe = x => {
+const describe$1 = (x) => {
   if (x === null) return 'null'
   if (Array.isArray(x)) return 'array'
   if (typeof x === 'number') {
@@ -2589,14 +2654,12 @@ const describe = x => {
   if (typeof x === 'string' && x.startsWith('#')) return x
   if (x instanceof Promise) return 'promise'
   if (typeof x === 'function') {
-    return x.constructor === (async () => {}).constructor
-      ? 'async'
-      : 'function'
+    return x.constructor === (async () => {}).constructor ? 'async' : 'function'
   }
   return typeof x
 };
 
-const parseFloatOrInfinity = x => {
+const parseFloatOrInfinity = (x) => {
   if (x === '-∞') {
     return -Infinity
   } else if (x[0] === '∞') {
@@ -2610,9 +2673,11 @@ const inRange = (spec, x) => {
   let lower, upper;
   if (spec === undefined) return true
   try {
-    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/);
+    ;[, lower, upper] = (spec || '').match(
+      /^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/
+    );
   } catch (e) {
-    throw new Error(`bad range ${spec}`)
+    throw new Error(`bad range ${spec}`, { cause: e })
   }
   if (lower) {
     const min = parseFloatOrInfinity(lower.substr(1));
@@ -2636,27 +2701,35 @@ const inRange = (spec, x) => {
 const regExps = {};
 
 const regexpTest = (spec, subject) => {
-  const regexp = regExps[spec] ? regExps[spec] : regExps[spec] = new RegExp(spec);
+  const regexp = regExps[spec]
+    ? regExps[spec]
+    : (regExps[spec] = new RegExp(spec));
   return regexp.test(subject)
 };
 
 const specificTypeMatch = (type, subject) => {
-  const [, optional, baseType, , spec] = type.match(/^#([?]?)([^\s]+)(\s(.*))?$/) || [];
+  const [, optional, baseType, , spec] =
+    type.match(/^#([?]?)([^\s]+)(\s(.*))?$/) || [];
   if (optional && (subject === null || subject === undefined)) return true
-  const subjectType = describe(subject);
+  const subjectType = describe$1(subject);
   switch (baseType) {
     case 'forbidden':
       return false
     case 'any':
       return subject !== null && subject !== undefined
     case 'native':
-      if (typeof subject !== 'function' || subject.toString() !== 'function () { [native code] }') {
+      if (
+        typeof subject !== 'function' ||
+        subject.toString() !== 'function () { [native code] }'
+      ) {
         return false
       }
       if (!type) {
         return true
       }
-      return isAsync(subject) ? type.match(/^async\b/) : type.match(/^function\b/)
+      return isAsync(subject)
+        ? type.match(/^async\b/)
+        : type.match(/^function\b/)
     case 'function':
       if (subjectType !== 'function') return false
       // todo allow for typeSafe functions with param/result specified by name
@@ -2665,15 +2738,23 @@ const specificTypeMatch = (type, subject) => {
       if (subjectType !== 'number') return false
       return inRange(spec, subject)
     case 'int':
-      if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
+      if (subjectType !== 'number' || subject !== Math.floor(subject))
+        return false
       return inRange(spec, subject)
     case 'union':
-      return !!spec.split('||').find(type => specificTypeMatch(`#${type}`, subject))
+      return !!spec
+        .split('||')
+        .find((type) => specificTypeMatch(`#${type}`, subject))
     case 'enum':
       try {
         return spec.split('|').map(JSON.parse).includes(subject)
       } catch (e) {
-        throw new Error(`bad enum specification (${spec}), expect JSON strings`)
+        throw new Error(
+          `bad enum specification (${spec}), expect JSON strings`,
+          {
+            cause: e,
+          }
+        )
       }
     case 'void':
       return subjectType === 'undefined' || subjectType === 'null'
@@ -2693,7 +2774,11 @@ const specificTypeMatch = (type, subject) => {
       return !!subject && typeof subject === 'object' && !Array.isArray(subject)
     default:
       if (subjectType !== baseType) {
-        console.error('got', subject, `expected "${type}", "${subjectType}" does not match "${baseType}"`);
+        console.error(
+          'got',
+          subject,
+          `expected "${type}", "${subjectType}" does not match "${baseType}"`
+        );
         return false
       } else {
         return true
@@ -2706,19 +2791,19 @@ const arrowDeclaration = /^((\.\.\.\w+)|(\w+)|\((.*?)\))\s*=>\s*[^\s{]/;
 const returnsValue = /\w+\s*=>\s*[^\s{]|\breturn\b/;
 
 const describeType = (x) => {
-  const scalarType = describe(x);
+  const scalarType = describe$1(x);
   switch (scalarType) {
     case 'array':
       return x.map(describeType)
-    case 'object':
-    {
+    case 'object': {
       const _type = {};
-      Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]); });
+      Object.keys(x).forEach((key) => {
+        _type[key] = describeType(x[key]);
+      });
       return _type
     }
     case 'function':
-    case 'async':
-    {
+    case 'async': {
       const source = x.toString();
       if (source.startsWith('class ')) {
         return 'class'
@@ -2728,10 +2813,14 @@ const describeType = (x) => {
       }
       const functionSource = source.match(functionDeclaration);
       const arrowSource = source.match(arrowDeclaration);
-      const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration);
-      const paramText = ((functionSource && functionSource[3]) ||
-          (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim();
-      const params = paramText.split(',').map(param => {
+      const hasReturnValue =
+        source.match(returnsValue) || source.match(arrowDeclaration);
+      const paramText = (
+        (functionSource && functionSource[3]) ||
+        (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) ||
+        ''
+      ).trim();
+      const params = paramText.split(',').map((param) => {
         const [key] = param.split('=');
         return `${key} #any`
       });
@@ -2745,10 +2834,11 @@ const describeType = (x) => {
 const typeJSON = (x) => JSON.stringify(describeType(x));
 const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:');
 
-const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : (typeof x === 'object' ? describe(x) : x);
+const quoteIfString = (x) =>
+  typeof x === 'string' ? `"${x}"` : typeof x === 'object' ? describe$1(x) : x;
 
 // when checking large arrays, only check a maximum of 111 elements
-function * arraySampler (a) {
+function* arraySampler(a) {
   let i = 0;
   // 101 is a prime number so hopefully we'll avoid sampling fixed patterns
   const increment = Math.ceil(a.length / 101);
@@ -2757,12 +2847,12 @@ function * arraySampler (a) {
     if (i < 5) {
       yield { sample: a[i], i };
       i++;
-    // last five
+      // last five
     } else if (i > a.length - 5) {
       yield { sample: a[i], i };
       i++;
     } else {
-    // ~1% of the ones in the middle
+      // ~1% of the ones in the middle
       yield { sample: a[i], i };
       i = Math.min(i + increment, a.length - 4);
     }
@@ -2770,19 +2860,22 @@ function * arraySampler (a) {
 }
 
 const matchType = (example, subject, errors = [], path = '') => {
-  const exampleType = describe(example);
-  const subjectType = describe(subject);
+  const exampleType = describe$1(example);
+  const subjectType = describe$1(subject);
   const typesMatch = exampleType.startsWith('#')
     ? specificTypeMatch(exampleType, subject)
     : exampleType === subjectType;
   if (!typesMatch) {
-    errors.push(`${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`);
+    errors.push(
+      `${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`
+    );
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
     const sampler = subject.length ? arraySampler(subject) : false;
     if (example.length === 1 && sampler) {
       // assume homogenous array
-      for (const { sample, i } of sampler) matchType(example[0], sample, errors, `${path}[${i}]`);
+      for (const { sample, i } of sampler)
+        matchType(example[0], sample, errors, `${path}[${i}]`);
     } else if (example.length > 1 && sampler) {
       // assume heterogeneous array
       for (const { sample, i } of sampler) {
@@ -2834,15 +2927,22 @@ const matchKeys = (example, subject, errors = [], path = '') => {
         if (key !== '#') {
           keyTest = new RegExp(`^${key.substr(1)}$`);
         }
-      } catch (e) {
+      } catch (_e) {
         const badKeyError = `illegal regular expression in example key '${key}'`;
         errors.push(badKeyError);
         console.error(badKeyError);
       }
-      const matchingKeys = Object.keys(subject).filter(key => keyTest.test(key));
+      const matchingKeys = Object.keys(subject).filter((key) =>
+        keyTest.test(key)
+      );
       for (const k of matchingKeys) {
         if (!testedKeys.has(k)) {
-          matchType(example[key], subject[k], errors, `${path}./^${key.substr(1)}$/:${k}`);
+          matchType(
+            example[key],
+            subject[k],
+            errors,
+            `${path}./^${key.substr(1)}$/:${k}`
+          );
           testedKeys.add(k);
         }
       }
@@ -3074,32 +3174,22 @@ Test(() => safeVectorAdd([1,2], inner([1,2],[1])).toString(), 'short circuit wor
 ~~~~
  */
 
-class TypeError$1 {
-  constructor ({
-    functionName,
-    isParamFailure,
-    expected,
-    found,
-    errors
-  }) {
+let TypeError$1 = class TypeError {
+  constructor({ functionName, isParamFailure, expected, found, errors }) {
     Object.assign(this, {
       functionName,
       isParamFailure,
       expected,
       found,
-      errors
+      errors,
     });
   }
 
-  toString () {
-    const {
-      functionName,
-      isParamFailure,
-      errors
-    } = this;
+  toString() {
+    const { functionName, isParamFailure, errors } = this;
     return `${functionName} failed: bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
   }
-}
+};
 
 const assignReadOnly = (obj, propMap) => {
   propMap = { ...propMap };
@@ -3107,12 +3197,12 @@ const assignReadOnly = (obj, propMap) => {
     const value = propMap[key];
     Object.defineProperty(obj, key, {
       enumerable: true,
-      get () {
+      get() {
         return value
       },
-      set (value) {
+      set(value) {
         throw new Error(`${key} is read-only`)
-      }
+      },
     });
   }
   return obj
@@ -3130,7 +3220,12 @@ const matchParamTypes = (types, params) => {
 
 // TODO async function support
 
-const typeSafe = (func, paramTypes = [], resultType = undefined, functionName = undefined) => {
+const typeSafe = (
+  func,
+  paramTypes = [],
+  resultType = undefined,
+  functionName = undefined
+) => {
   const paramErrors = matchParamTypes(
     ['#function', '#?array', '#?any', '#?string'],
     [func, paramTypes, resultType, functionName]
@@ -3139,50 +3234,53 @@ const typeSafe = (func, paramTypes = [], resultType = undefined, functionName = 
 
   if (!functionName) functionName = func.name || 'anonymous';
   let callCount = 0;
-  return assignReadOnly(function (...params) {
-    callCount += 1;
-    const paramErrors = matchParamTypes(paramTypes, params);
-    // short circuit failures
-    if (paramErrors instanceof TypeError$1) return paramErrors
+  return assignReadOnly(
+    function (...params) {
+      callCount += 1;
+      const paramErrors = matchParamTypes(paramTypes, params);
+      // short circuit failures
+      if (paramErrors instanceof TypeError$1) return paramErrors
 
-    if (paramErrors.length === 0) {
-      const result = func(...params);
-      const resultErrors = matchType(resultType, result);
-      if (resultErrors.length === 0) {
-        return result
-      } else {
-        return new TypeError$1({
-          functionName,
-          isParamFailure: false,
-          expected: resultType,
-          found: result,
-          errors: resultErrors
-        })
+      if (paramErrors.length === 0) {
+        const result = func(...params);
+        const resultErrors = matchType(resultType, result);
+        if (resultErrors.length === 0) {
+          return result
+        } else {
+          return new TypeError$1({
+            functionName,
+            isParamFailure: false,
+            expected: resultType,
+            found: result,
+            errors: resultErrors,
+          })
+        }
       }
+      return new TypeError$1({
+        functionName,
+        isParamFailure: true,
+        expected: paramTypes,
+        found: params,
+        errors: paramErrors,
+      })
+    },
+    {
+      paramTypes,
+      resultType,
+      getCallCount: () => callCount,
     }
-    return new TypeError$1({
-      functionName,
-      isParamFailure: true,
-      expected: paramTypes,
-      found: params,
-      errors: paramErrors
-    })
-  }, {
-    paramTypes,
-    resultType,
-    getCallCount: () => callCount
-  })
+  )
 };
 
-function tsDescribe (x, name) {
-  const b8rType = describe(x);
+function tsDescribe(x, name) {
+  const b8rType = describe$1(x);
   switch (b8rType) {
     case 'array':
       return `Array<${x.length ? tsDescribe(x[0]) : 'any'}>`
     case 'object':
-      return `{${
-        Object.keys(x).map(key => `${key}: ${tsDescribe(x[key], null)}`).join(', ')
-      }}`
+      return `{${Object.keys(x)
+        .map((key) => `${key}: ${tsDescribe(x[key], null)}`)
+        .join(', ')}}`
     case 'null':
     case 'undefined':
       return 'any'
@@ -3200,48 +3298,56 @@ function tsDescribe (x, name) {
   }
 }
 
-function tsFunctionType (func, name) {
+function tsFunctionType(func, name) {
   const source = func.toString();
   const functionSource = source.match(functionDeclaration);
   const arrowSource = source.match(arrowDeclaration);
-  const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration);
-  const paramText = ((functionSource && functionSource[3]) ||
-      (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim();
-  const params = paramText ? paramText.split(',').map(param => {
-    const [key] = param.split('=');
-    return `${key.trim()}: any`
-  }) : [];
+  const hasReturnValue =
+    source.match(returnsValue) || source.match(arrowDeclaration);
+  const paramText = (
+    (functionSource && functionSource[3]) ||
+    (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) ||
+    ''
+  ).trim();
+  const params = paramText
+    ? paramText.split(',').map((param) => {
+        const [key] = param.split('=');
+        return `${key.trim()}: any`
+      })
+    : [];
   return name
     ? `${isAsync(func) ? 'async ' : ''}function ${name} (${params.join(', ')}): ${hasReturnValue ? 'any' : 'void'}`
     : `(${params.join(', ')}) => ${hasReturnValue ? 'any' : 'void'}`
 }
 
-function tsDeclaration (module) {
+function tsDeclaration(module) {
   const members = Object.keys(module).sort();
-  return members.map(name => {
-    const member = module[name];
-    if (typeof member === 'function') {
-      return `declare ${tsDescribe(member, name)}`
-    } else {
-      return `declare const ${name}: ${tsDescribe(member)}`
-    }
-  }).join('\n')
+  return members
+    .map((name) => {
+      const member = module[name];
+      if (typeof member === 'function') {
+        return `declare ${tsDescribe(member, name)}`
+      } else {
+        return `declare const ${name}: ${tsDescribe(member)}`
+      }
+    })
+    .join('\n')
 }
 
 var _byExample = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  isAsync: isAsync,
-  describe: describe,
-  specificTypeMatch: specificTypeMatch,
-  describeType: describeType,
-  typeJSON: typeJSON,
-  typeJS: typeJS,
-  matchType: matchType,
-  exampleAtPath: exampleAtPath,
   TypeError: TypeError$1,
+  describe: describe$1,
+  describeType: describeType,
+  exampleAtPath: exampleAtPath,
+  isAsync: isAsync,
   matchParamTypes: matchParamTypes,
-  typeSafe: typeSafe,
-  tsDeclaration: tsDeclaration
+  matchType: matchType,
+  specificTypeMatch: specificTypeMatch,
+  tsDeclaration: tsDeclaration,
+  typeJS: typeJS,
+  typeJSON: typeJSON,
+  typeSafe: typeSafe
 });
 
 /**
@@ -3287,18 +3393,18 @@ If you want to add your own observers for requests you can use:
 const _requestsInFlight = [];
 
 const observers = [];
-const onRequest = method => {
+const onRequest = (method) => {
   if (observers.indexOf(method) === -1) observers.push(method);
 };
-const offRequest = method => {
+const offRequest = (method) => {
   const index = observers.indexOf(method);
   if (index > -1) observers.splice(index, 1);
 };
 const triggerObservers = () => {
-  observers.forEach(observer => observer());
+  observers.forEach((observer) => observer());
 };
 
-const _removeInFlightRequest = request => {
+const _removeInFlightRequest = (request) => {
   const idx = _requestsInFlight.indexOf(request);
   if (idx > -1) {
     _requestsInFlight.splice(idx, 1);
@@ -3360,7 +3466,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpReq
 /* global DOMParser */
 const xml = (url, method, requestData, config) => {
   return new Promise(function (resolve, reject) {
-    ajax(url, method, requestData, config).then(data => {
+    ajax(url, method, requestData, config).then((data) => {
       try {
         resolve(new DOMParser().parseFromString(data, 'text/xml'));
       } catch (e) {
@@ -3373,7 +3479,7 @@ const xml = (url, method, requestData, config) => {
 
 const json = (url, method, requestData, config) => {
   return new Promise(function (resolve, reject) {
-    ajax(url, method, requestData, config).then(data => {
+    ajax(url, method, requestData, config).then((data) => {
       try {
         resolve(JSON.parse(data || 'null'));
       } catch (e) {
@@ -3416,12 +3522,12 @@ const ajaxRequestsInFlight = () => _requestsInFlight;
 var _ajax = /*#__PURE__*/Object.freeze({
   __proto__: null,
   ajax: ajax,
-  xml: xml,
+  ajaxRequestsInFlight: ajaxRequestsInFlight,
   json: json,
   jsonp: jsonp,
-  ajaxRequestsInFlight: ajaxRequestsInFlight,
+  offRequest: offRequest,
   onRequest: onRequest,
-  offRequest: offRequest
+  xml: xml
 });
 
 /**
@@ -3454,12 +3560,13 @@ in the document <head> if (and only if) no such `<link>` tag is already present 
 might lead to duplicate links.)
 */
 
+
 const makeStyleSheet = (source, title) => {
   const style = source ? create('style') : false;
   if (style) {
     style.type = 'text/css';
     style.id = title;
-    style.appendChild(text(source));
+    style.appendChild(text$2(source));
     document.head.appendChild(style);
   }
   return style
@@ -3647,9 +3754,10 @@ the last calls.
 A simple utility function (mostly for testing).
 */
 
-const delay = (delayMs, value = null) => new Promise((resolve, reject) => {
-  setTimeout(() => resolve(value), delayMs);
-});
+const delay = (delayMs, value = null) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => resolve(value), delayMs);
+  });
 
 const debounce = (origFn, minInterval) => {
   let debounceId;
@@ -3699,13 +3807,15 @@ const throttleAndDebounce = (origFn, minInterval) => {
 
 const AsyncFunction = async function () {}.constructor;
 
-const memoize = f => {
+const memoize = (f) => {
   if (f._isMemoized) return f
   let previousArgs = [];
   let previousResult;
   const memoized = function (...args) {
     const newArgs = [this, ...args];
-    const differences = previousResult === undefined || newArgs.filter((item, index) => item !== previousArgs[index]).length;
+    const differences =
+      previousResult === undefined ||
+      newArgs.filter((item, index) => item !== previousArgs[index]).length;
     if (differences) {
       previousArgs = newArgs;
       previousResult = f.call(this, ...args);
@@ -3721,9 +3831,9 @@ var _functions = /*#__PURE__*/Object.freeze({
   AsyncFunction: AsyncFunction,
   debounce: debounce,
   delay: delay,
+  memoize: memoize,
   throttle: throttle,
-  throttleAndDebounce: throttleAndDebounce,
-  memoize: memoize
+  throttleAndDebounce: throttleAndDebounce
 });
 
 /**
@@ -3981,6 +4091,7 @@ If a component has a method named `destroy` it will be called just before the in
 is removed from the registry.
 */
 
+
 const components = {};
 const componentTimeouts = [];
 const componentPromises = {};
@@ -3992,10 +4103,14 @@ const processComponent = ({ name, css, html, view }) => {
     view.innerHTML = html || '';
   } else {
     const contents = view(elements);
-    view = Array.isArray(contents) ? elements.div(...contents) : elements.div(contents);
+    view = Array.isArray(contents)
+      ? elements.div(...contents)
+      : elements.div(contents);
   }
   const className = `${name}-component`;
-  const style = css ? makeStyleSheet(css.replace(/_component_/g, className), className) : false;
+  const style = css
+    ? makeStyleSheet(css.replace(/_component_/g, className), className)
+    : false;
   for (const elt of findWithin(view, '[class*="_component_"]')) {
     elt.setAttribute(
       'class',
@@ -4005,12 +4120,12 @@ const processComponent = ({ name, css, html, view }) => {
   return { style, view }
 };
 
-const makeComponentNoEval = function (name, { css, html, view, load, initialValue, type }) {
-  let style;
-  ({
-    style,
-    view
-  } = processComponent({ name, css, html, view }));
+const makeComponentNoEval = function (
+  name,
+  { css, html, view, load, initialValue, type }
+) {
+  let style
+  ;({ style, view } = processComponent({ name, css, html, view }));
   const component = {
     version: 2,
     name,
@@ -4018,7 +4133,7 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
     view,
     path: `inline-${name}`,
     initialValue,
-    type
+    type,
   };
 
   if (type) {
@@ -4030,8 +4145,29 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
 
   if (load) {
     // _register is masked because it shouldn't be used any more
-    component.load = async (_component, b8r, find, findOne, data, _register, get, set, on, touch) => {
-      load({ component: _component, b8r, data, find, findOne, get, set, on, touch });
+    component.load = async (
+      _component,
+      b8r,
+      find,
+      findOne,
+      data,
+      _register,
+      get,
+      set,
+      on,
+      touch
+    ) => {
+      load({
+        component: _component,
+        b8r,
+        data,
+        find,
+        findOne,
+        get,
+        set,
+        on,
+        touch,
+      });
     };
   }
 
@@ -4039,14 +4175,15 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
     clearInterval(componentTimeouts[name]);
   }
 
-  find(`[data-component="${name}"]`).forEach(element => {
+  find(`[data-component="${name}"]`).forEach((element) => {
     // somehow things can happen in between find() and here so the
     // second check is necessary to prevent race conditions
     if (!element.closest('[data-list]') && element.dataset.component === name) {
       asyncUpdate(false, element);
     }
   });
-  if (components[name]) console.debug('b8r-warn', 'component %s has been redefined', name);
+  if (components[name])
+    console.debug('b8r-warn', 'component %s has been redefined', name);
   components[name] = component;
   return component
 };
@@ -4058,53 +4195,68 @@ const makeComponent = (name, source, url, preserveSource) => {
   } else if (typeof source === 'object' && url === undefined) {
     return makeComponentNoEval(name, source)
   }
-  let css = false; let content; let script = false; let parts; let remains;
+  let css = false;
+  let content;
+  let script = false;
+  let parts;
+  let remains;
 
   if (!url) url = uuid();
 
   parts = source.split(/<style>|<\/style>/);
   if (parts.length === 3) {
-    [, css, remains] = parts;
+[, css, remains] = parts;
   } else {
     remains = source;
   }
 
   parts = remains.split(/<script[^>\n]*>|<\/script>/);
   if (parts.length >= 3) {
-    [content, script] = parts;
+[content, script] = parts;
   } else {
     content = remains;
   }
 
-  const {
-    style,
-    view
-  } = processComponent({ css, html: content, name });
+  const { style, view } = processComponent({ css, html: content, name });
   /* jshint evil: true */
-  let load = () => console.debug('b8r-error', 'component', name, 'cannot load properly');
+  let load = () =>
+    console.debug('b8r-error', 'component', name, 'cannot load properly');
   // check for legacy components
-  if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
-    console.debug('b8r-error', `in component "${name}" replace require with await import()`);
+  if (
+    script &&
+    script.match(/[\b_]require\b/) &&
+    !script.match(/\belectron-require\b/)
+  ) {
+    console.debug(
+      'b8r-error',
+      `in component "${name}" replace require with await import()`
+    );
     script = false;
   }
   try {
     load = script
       ? new AsyncFunction(
-        'component',
-        'b8r',
-        'find',
-        'findOne',
-        'data',
-        'register',
-        'get',
-        'set',
-        'on',
-        'touch',
-        `${script}\n//# sourceURL=${name}(component)`
-      )
+          'component',
+          'b8r',
+          'find',
+          'findOne',
+          'data',
+          'register',
+          'get',
+          'set',
+          'on',
+          'touch',
+          `${script}\n//# sourceURL=${name}(component)`
+        )
       : false;
   } catch (e) {
-    console.debug('b8r-error', 'error creating load method for component', name, e, script);
+    console.debug(
+      'b8r-error',
+      'error creating load method for component',
+      name,
+      e,
+      script
+    );
     throw new Error(`component ${name} load method could not be created`)
   }
   /* jshint evil: false */
@@ -4113,7 +4265,7 @@ const makeComponent = (name, source, url, preserveSource) => {
     style,
     view,
     load,
-    path: url.split('/').slice(0, -1).join('/')
+    path: url.split('/').slice(0, -1).join('/'),
   };
   if (component.path === 'undefined') {
     debugger // eslint-disable-line no-debugger
@@ -4133,7 +4285,7 @@ const makeComponent = (name, source, url, preserveSource) => {
   }
   components[name] = component;
 
-  find(`[data-component="${name}"]`).forEach(element => {
+  find(`[data-component="${name}"]`).forEach((element) => {
     // somehow things can happen in between find() and here so the
     // second check is necessary to prevent race conditions
     if (!element.closest('[data-list]') && element.dataset.component === name) {
@@ -4144,7 +4296,7 @@ const makeComponent = (name, source, url, preserveSource) => {
 };
 
 // path/to/../foo -> path/foo
-const collapse = path => {
+const collapse = (path) => {
   while (path.match(/([^/]+\/\.\.\/)/)) {
     path = path.replace(/([^/]+\/\.\.\/)/g, '');
   }
@@ -4170,7 +4322,7 @@ Test(async () => {
 ~~~~
 */
 
-const component = (name, url, preserveSource = false) => {
+const component$1 = (name, url, preserveSource = false) => {
   if (url === undefined) {
     url = name;
     name = url.split('/').pop().split('.').shift();
@@ -4182,26 +4334,30 @@ const component = (name, url, preserveSource = false) => {
       if (components[name] && !preserveSource) {
         resolve(components[name]);
       } else if (url.match(/\.m?js$/)) {
-        new Promise(function (resolve) { resolve(_interopNamespace(require(url))); }).then(exports => {
-          if (components[name]) {
-            resolve(components[name]);
-          } else if (exports.default && typeof exports.default === 'object') {
-            resolve(makeComponent(name, exports.default));
-          } else {
-            const err = `cannot define component "${name}", ${url} does not export a component definition as default`;
-            console.debug('b8r-error', err);
+        import(url)
+          .then((exports) => {
+            if (components[name]) {
+              resolve(components[name]);
+            } else if (exports.default && typeof exports.default === 'object') {
+              resolve(makeComponent(name, exports.default));
+            } else {
+              const err = `cannot define component "${name}", ${url} does not export a component definition as default`;
+              console.debug('b8r-error', err);
+              reject(err);
+            }
+          })
+          .catch((err) => {
+            delete componentPromises[name];
+            console.debug('b8r-error', err, `failed to import component ${url}`);
             reject(err);
-          }
-        }).catch(err => {
-          delete componentPromises[name];
-          console.debug('b8r-error', err, `failed to import component ${url}`);
-          reject(err);
-        });
+          });
       } else {
         const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`;
         ajax(finalUrl)
-          .then(source => resolve(makeComponent(name, source, url, preserveSource)))
-          .catch(err => {
+          .then((source) =>
+            resolve(makeComponent(name, source, url, preserveSource))
+          )
+          .catch((err) => {
             delete componentPromises[name];
             console.debug('b8r-error', err, `failed to load component ${url}`);
             reject(err);
@@ -4228,21 +4384,22 @@ You can use them the obvious way:
     _b8r_.stopEvent // use this to simply catch an event silently
     _b8r_._update_ // this is used by b8r to update models automatically
 */
-let set;
-const _insertSet = f => {
-  set = f;
+
+let set$1;
+const _insertSet = (f) => {
+  set$1 = f;
 };
-let fromTargets;
-const _insertFromTargets = t => {
-  fromTargets = t;
+let fromTargets$1;
+const _insertFromTargets = (t) => {
+  fromTargets$1 = t;
 };
 
-const hasFromTarget = t => fromTargets[t.target];
+const hasFromTarget = (t) => fromTargets$1[t.target];
 
 const _b8r_ = {
-  echo: evt => console.log(evt) || true,
+  echo: (evt) => console.log(evt) || true,
   stopEvent: () => {},
-  _update_: evt => {
+  _update_: (evt) => {
     let elements = findAbove(evt.target, '[data-bind]', null, true);
     // update elements with selected fromTarget
     if (evt.target.tagName === 'SELECT') {
@@ -4253,10 +4410,11 @@ const _b8r_ = {
       elements = elements.concat(options);
     }
     elements
-      .filter(elt => !elt.matches('[data-list]'))
-      .forEach(elt => {
+      .filter((elt) => !elt.matches('[data-list]'))
+      .forEach((elt) => {
         if (elt.matches('[data-debug],[data-debug-bind]')) {
-          console.debug('b8r-warn',
+          console.debug(
+            'b8r-warn',
             'Add a conditional breakpoint here to debug changes to the registry triggered by events'
           );
         }
@@ -4264,20 +4422,20 @@ const _b8r_ = {
         for (let i = 0; i < bindings.length; i++) {
           const { targets, path } = bindings[i];
           const boundTargets = targets.filter(hasFromTarget);
-          const processFromTargets = t => {
+          const processFromTargets = (t) => {
             // jshint ignore:line
             // all bets are off on bound values!
-            const value = fromTargets[t.target](elt, t.key);
+            const value = fromTargets$1[t.target](elt, t.key);
             if (value !== undefined) {
               delete elt._b8rBoundValues;
-              set(path, value, elt);
+              set$1(path, value, elt);
             }
           };
           boundTargets.forEach(processFromTargets);
         }
       });
     return true
-  }
+  },
 };
 
 /**
@@ -4758,22 +4916,36 @@ lists).
 > are little more than wrappers for set/get. See the *Registry* docs.
 
 */
+/* jshint latedef:false */
+/* global console */
+
 
 const registry = { _b8r_ };
 const registeredTypes = {};
 const listeners = []; // { path_string_or_test, callback }
-const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/;
+const validPath =
+  /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/;
 
 // list of Array functions that change the array
-const ARRAY_MUTATIONS = ['sort', 'splice', 'copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'unshift'];
+const ARRAY_MUTATIONS = [
+  'sort',
+  'splice',
+  'copyWithin',
+  'fill',
+  'pop',
+  'push',
+  'reverse',
+  'shift',
+  'unshift',
+];
 
-const isValidPath = path => validPath.test(path);
+const isValidPath = (path) => validPath.test(path);
 
 class Listener {
-  constructor (test, callback) {
+  constructor(test, callback) {
     this._orig_test = test; // keep it around for unobserve
     if (typeof test === 'string') {
-      this.test = t => typeof t === 'string' && t.startsWith(test);
+      this.test = (t) => typeof t === 'string' && t.startsWith(test);
     } else if (test instanceof RegExp) {
       this.test = test.test.bind(test);
     } else if (test instanceof Function) {
@@ -4833,7 +5005,8 @@ const _get = (path, element) => {
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]');
     if (!elt && element.closest('body')) {
-      console.debug('b8r-error',
+      console.debug(
+        'b8r-error',
         `relative data-path ${path} used without list instance`,
         element
       );
@@ -4843,7 +5016,7 @@ const _get = (path, element) => {
       : undefined
   } else {
     path = resolvePath(path, element);
-    if ( !isValidPath(path)) {
+    if (!isValidPath(path)) {
       console.debug('b8r-error', `getting invalid path ${path}`);
     } else {
       return getByPath(registry, path)
@@ -5139,7 +5312,7 @@ const get = (path, element) => {
   const paths = splitPaths(path);
   return paths.length === 1
     ? _get(paths[0], element)
-    : paths.map(path => _get(path, element))
+    : paths.map((path) => _get(path, element))
 };
 
 const getJSON = (path, element, pretty) => {
@@ -5164,7 +5337,7 @@ const getJSON = (path, element, pretty) => {
 
 const touch = (path, sourceElement) => {
   listeners
-    .filter(listener => {
+    .filter((listener) => {
       let heard;
       try {
         heard = listener.test(path);
@@ -5177,7 +5350,7 @@ const touch = (path, sourceElement) => {
       }
       return !!heard
     })
-    .forEach(listener => {
+    .forEach((listener) => {
       try {
         if (
           listener.callback(path, sourceElement) === observerShouldBeRemoved
@@ -5191,10 +5364,14 @@ const touch = (path, sourceElement) => {
 };
 
 const _defaultTypeErrorHandler = (errors, action) => {
-  console.debug('b8r-error', `registry type check(s) failed after ${action}`, errors);
+  console.debug(
+    'b8r-error',
+    `registry type check(s) failed after ${action}`,
+    errors
+  );
 };
 let typeErrorHandlers = [_defaultTypeErrorHandler];
-const onTypeError = callback => {
+const onTypeError = (callback) => {
   offTypeError(_defaultTypeErrorHandler);
   if (typeErrorHandlers.indexOf(callback) === -1) {
     typeErrorHandlers.push(callback);
@@ -5204,7 +5381,7 @@ const onTypeError = callback => {
 };
 const offTypeError = (callback, restoreDefault = false) => {
   const handlerCount = typeErrorHandlers.length;
-  typeErrorHandlers = typeErrorHandlers.filter(f => f !== callback);
+  typeErrorHandlers = typeErrorHandlers.filter((f) => f !== callback);
   if (restoreDefault) onTypeError(_defaultTypeErrorHandler);
   return typeErrorHandlers.length !== handlerCount - 1
 };
@@ -5216,15 +5393,15 @@ const checkType = (action, name) => {
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name);
   if (errors.length) {
-    typeErrorHandlers.forEach(f => f(errors, action));
+    typeErrorHandlers.forEach((f) => f(errors, action));
   }
 };
 
-const set$1 = (path, value, sourceElement) => {
+const set = (path, value, sourceElement) => {
   if (value && value._b8r_sourcePath) {
     throw new Error('You cannot put reg proxies into the registry')
   }
-  if ( !isValidPath(path)) {
+  if (!isValidPath(path)) {
     console.debug('b8r-error', `setting invalid path ${path}`);
   }
   const pathParts = path.split(/\.|\[/);
@@ -5232,7 +5409,10 @@ const set$1 = (path, value, sourceElement) => {
   const model = pathParts[0];
   const existing = getByPath(registry, path);
   if (pathParts.length > 1 && !registry[model]) {
-    console.debug('b8r-error', `cannot set ${path} to ${value}, ${model} does not exist`);
+    console.debug(
+      'b8r-error',
+      `cannot set ${path} to ${value}, ${model} does not exist`
+    );
   } else if (pathParts.length === 1 && typeof value !== 'object') {
     throw new Error(
       `cannot set ${path}; you can only register objects at root-level`
@@ -5272,7 +5452,7 @@ const set$1 = (path, value, sourceElement) => {
 
 const replace = (path, value) => {
   if (typeof value === 'object') setByPath(registry, path, null); // skip type checking
-  set$1(path, value);
+  set(path, value);
   return value
 };
 
@@ -5280,7 +5460,7 @@ const types = () =>
   JSON.parse(
     JSON.stringify({
       registeredTypes,
-      componentTypes
+      componentTypes,
     })
   );
 
@@ -5291,7 +5471,10 @@ const registerType = (name, example) => {
 
 const _register = (name, obj) => {
   if (registry[name] && registry[name] !== obj) {
-    console.debug('b8r-warn', `${name} already registered; if intended, remove() it first`);
+    console.debug(
+      'b8r-warn',
+      `${name} already registered; if intended, remove() it first`
+    );
     return
   }
   registry[name] = obj;
@@ -5314,7 +5497,7 @@ const register = (name, obj, blockUpdates) => {
   }
 };
 
-const setJSON = (path, value) => set$1(path, JSON.parse(value));
+const setJSON = (path, value) => set(path, JSON.parse(value));
 
 /**
     push('path.to.array', item [, callback]);
@@ -5353,7 +5536,7 @@ const push = (path, value, callback) => {
       callback(list);
     }
   }
-  set$1(path, list);
+  set(path, list);
 };
 
 const unshift = (path, value) => {
@@ -5361,7 +5544,7 @@ const unshift = (path, value) => {
   if (Array.isArray(list)) {
     list.unshift(value);
   }
-  set$1(path, list);
+  set(path, list);
 };
 
 /**
@@ -5412,7 +5595,7 @@ const sort = (path, comparison) => {
   if (Array.isArray(list)) {
     list.sort(comparison);
   }
-  set$1(path, list);
+  set(path, list);
 };
 
 /**
@@ -5514,7 +5697,7 @@ const observe = (test, callback) => {
   return new Listener(test, callback)
 };
 
-const unobserve = test => {
+const unobserve = (test) => {
   let index;
   let found = false;
   if (test instanceof Listener) {
@@ -5548,7 +5731,7 @@ You can obtain a value using a path.
 
 const models = () => Object.keys(registry);
 
-const registered = path => !!registry[path.split('.')[0]];
+const registered = (path) => !!registry[path.split('.')[0]];
 
 /**
     remove('path.to.property', update=true);
@@ -5616,13 +5799,13 @@ remove('counter-test')
 ~~~~
 */
 
-const zero = path => set$1(path, 0);
+const zero = (path) => set(path, 0);
 
-const increment = path => set$1(path, get(path) + 1);
+const increment = (path) => set(path, get(path) + 1);
 
-const decrement = path => set$1(path, get(path) - 1);
+const decrement = (path) => set(path, get(path) - 1);
 
-const deregister = path => {
+const deregister = (path) => {
   console.debug('b8r-warn', 'deregister is deprecated, use b8r.remove');
   remove(path);
 };
@@ -5643,19 +5826,22 @@ const extendPath = (path, prop) => {
 };
 
 const regHandler = (path = '') => ({
-  get (target, prop) {
+  get(target, prop) {
     if (typeof prop === 'symbol') {
       return target[prop]
     }
-    const compoundProp = prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
-                         prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
-                         prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
-                         prop.match(/^(\[[^\]]+\])\[(.+)$/); // [basePath][subPath
+    const compoundProp =
+      prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
+      prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
+      prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
+      prop.match(/^(\[[^\]]+\])\[(.+)$/); // [basePath][subPath
     if (compoundProp) {
       const [, basePath, subPath] = compoundProp;
       const currentPath = extendPath(path, basePath);
       const value = getByPath(target, basePath);
-      return value && typeof value === 'object' ? new Proxy(value, regHandler(currentPath))[subPath] : value
+      return value && typeof value === 'object'
+        ? new Proxy(value, regHandler(currentPath))[subPath]
+        : value
     }
     if (prop === '_b8r_sourcePath') {
       return path
@@ -5674,7 +5860,7 @@ const regHandler = (path = '') => ({
       if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=');
         value = target.find(
-          candidate => `${getByPath(candidate, idPath)}` === needle
+          (candidate) => `${getByPath(candidate, idPath)}` === needle
         );
       } else {
         value = target[prop];
@@ -5694,61 +5880,61 @@ const regHandler = (path = '') => ({
     } else if (Array.isArray(target)) {
       return typeof target[prop] === 'function'
         ? (...items) => {
-          const result = Array.prototype[prop].apply(target, items);
-          if (ARRAY_MUTATIONS.includes(prop)) {
-            touch(path);
+            const result = Array.prototype[prop].apply(target, items);
+            if (ARRAY_MUTATIONS.includes(prop)) {
+              touch(path);
+            }
+            return result
           }
-          return result
-        }
         : target[prop]
     } else {
       return target ? target[prop] : undefined
     }
   },
-  set (target, prop, value) {
+  set(target, prop, value) {
     if (value && value._b8r_sourcePath) {
       throw new Error('You cannot put reg proxies into the registry')
     }
-    set$1(extendPath(path, prop), value);
+    set(extendPath(path, prop), value);
     return true // success (throws error in strict mode otherwise)
-  }
+  },
 });
 
 const reg = new Proxy(registry, regHandler());
 
 var _registry = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  onTypeError: onTypeError,
-  offTypeError: offTypeError,
-  get: get,
-  getJSON: getJSON,
-  getByPath: _getByPath,
-  set: set$1,
-  replace: replace,
-  setJSON: setJSON,
-  increment: increment,
-  decrement: decrement,
-  zero: zero,
-  push: push,
-  unshift: unshift,
-  sort: sort,
+  _register: _register,
   call: call,
   callIf: callIf,
-  touch: touch,
-  observe: observe,
-  unobserve: unobserve,
-  models: models,
-  _register: _register,
   checkType: checkType,
+  decrement: decrement,
+  deregister: deregister,
+  get: get,
+  getByPath: _getByPath,
+  getJSON: getJSON,
+  increment: increment,
+  isValidPath: isValidPath,
+  models: models,
+  observe: observe,
+  offTypeError: offTypeError,
+  onTypeError: onTypeError,
+  push: push,
   reg: reg,
-  registerType: registerType,
-  types: types,
   register: register,
+  registerType: registerType,
   registered: registered,
   remove: remove,
-  deregister: deregister,
+  replace: replace,
   resolvePath: resolvePath,
-  isValidPath: isValidPath
+  set: set,
+  setJSON: setJSON,
+  sort: sort,
+  touch: touch,
+  types: types,
+  unobserve: unobserve,
+  unshift: unshift,
+  zero: zero
 });
 
 /**
@@ -5760,7 +5946,7 @@ const render = (color) => {
   c.width = 1;
   c.height = 1;
   const g = c.getContext('2d');
-  g.fillStyle = color || 'rgba(255,255,255,0.3)';
+  g.fillStyle = 'rgba(255,255,255,0.3)';
   g.fillRect(0, 0, 1, 1);
   return c.toDataURL()
 };
@@ -5779,11 +5965,12 @@ is loaded.
 
 Returns a promise of an image (used by imgSrc), and it's memoized.
 */
+/* global Image, HTMLImageElement, getComputedStyle, HTMLCanvasElement */
 
 const images = {};
 const pixel = new Image();
 pixel.src = render();
-const pixelPromise = new Promise(resolve => resolve(pixel));
+const pixelPromise = new Promise((resolve) => resolve(pixel));
 
 const imagePromise = (url, cors = true) => {
   if (!url) {
@@ -5791,14 +5978,16 @@ const imagePromise = (url, cors = true) => {
   } else if (images[url]) {
     return images[url]
   } else {
-    images[url] = new Promise(resolve => {
+    images[url] = new Promise((resolve) => {
       const image = new Image();
 
       // Cross-origin is necessary if you want to use the image data from JavaScript, in WebGL
       // for example, but you can't indiscriminately use it on all images. If you use
       // `crossorigin` on images from a source that doesn't reply with the
       // `Access-Control-Allow-Origin` header, the browser won't render them.
-      if (cors) { image.setAttribute('crossorigin', 'anonymous'); }
+      if (cors) {
+        image.setAttribute('crossorigin', 'anonymous');
+      }
 
       image.src = url;
       image.onload = () => {
@@ -5818,7 +6007,7 @@ const imgSrc = (img, url, cors = true) => {
   }
   img.src = pixel.src;
   img.style.opacity = 0.1;
-  imagePromise(url, cors).then(image => {
+  imagePromise(url, cors).then((image) => {
     if (!getComputedStyle(img).transition) {
       img.style.transition = 'var(--hover-transition)';
     }
@@ -5893,7 +6082,8 @@ Also provides `modifierKeys`, a map from the modifier strings (e.g. alt) to
 the relevant unicode glyphs (e.g. '⌥').
 */
 
-const keycode = evt => {
+
+const keycode = (evt) => {
   if (evt.code) {
     return evt.code.replace(/Key|Digit/, '')
   } else {
@@ -5905,7 +6095,7 @@ const keycode = evt => {
   }
 };
 
-const keystroke = evt => {
+const keystroke = (evt) => {
   const code = [];
   if (evt.altKey) {
     code.push('alt');
@@ -5923,19 +6113,21 @@ const keystroke = evt => {
   return code.join('-')
 };
 
-const modifierKeys = isMacOS ? {
-  meta: '⌘',
-  ctrl: '⌃',
-  alt: '⌥',
-  escape: '⎋',
-  shift: '⇧'
-} : {
-  meta: 'Meta',
-  ctrl: 'Ctrl',
-  alt: 'Alt',
-  escape: 'Esc',
-  shift: 'Shift'
-};
+const modifierKeys = isMacOS
+  ? {
+      meta: '⌘',
+      ctrl: '⌃',
+      alt: '⌥',
+      escape: '⎋',
+      shift: '⇧',
+    }
+  : {
+      meta: 'Meta',
+      ctrl: 'Ctrl',
+      alt: 'Alt',
+      escape: 'Esc',
+      shift: 'Shift',
+    };
 
 /**
 ~~~~
@@ -6006,23 +6198,47 @@ To add other types of events, you can call `b8r.implicitlyHandleEventsOfType('ty
 */
 
 var implicitEventTypes = [
-  'mousedown', 'mouseup', 'click', 'dblclick',
-  'mouseleave', 'mouseenter', 'mousemove', 'mouseover', 'mouseout',
-  'mousewheel', 'scroll', // FIXEME passive?!
+  'mousedown',
+  'mouseup',
+  'click',
+  'dblclick',
+  'mouseleave',
+  'mouseenter',
+  'mousemove',
+  'mouseover',
+  'mouseout',
+  'mousewheel',
+  'scroll', // FIXEME passive?!
   'contextmenu',
-  'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
-  'transitionend', 'animationend',
-  'input', 'change',
-  'keydown', 'keyup',
-  'cut', 'copy', 'paste',
-  'focus', 'blur', 'focusin', 'focusout' // more to follow
+  'dragstart',
+  'dragenter',
+  'dragover',
+  'dragleave',
+  'dragend',
+  'drop',
+  'transitionend',
+  'animationend',
+  'input',
+  'change',
+  'keydown',
+  'keyup',
+  'cut',
+  'copy',
+  'paste',
+  'focus',
+  'blur',
+  'focusin',
+  'focusout', // more to follow
 ];
 
 /**
 # Events
 */
+/* jshint latedef:false */
+/* global console, window, KeyboardEvent, Element */
 
-const onOffArgs = args => {
+
+const onOffArgs = (args) => {
   var element;
   var eventType;
   var object;
@@ -6035,7 +6251,12 @@ const onOffArgs = args => {
   } else if (args.length > 4 || typeof args[3] === 'string') {
 [element, eventType, object, method, prepend] = args;
     if (typeof object !== 'string' || typeof method !== 'string') {
-      console.debug('b8r-error', 'implicit bindings are by name, not', object, method);
+      console.debug(
+        'b8r-error',
+        'implicit bindings are by name, not',
+        object,
+        method
+      );
       return
     }
     method = object + '.' + method;
@@ -6049,13 +6270,13 @@ const onOffArgs = args => {
   return { element, eventType, path: method, prepend }
 };
 
-const getEventHandlers = element => {
+const getEventHandlers = (element) => {
   const source = element.dataset.event;
   const existing = source
     ? source
-      .replace(/\s*(^|$|[,:;])\s*/g, '$1')
-      .split(/[;\n]/)
-      .filter(handler => handler.trim())
+        .replace(/\s*(^|$|[,:;])\s*/g, '$1')
+        .split(/[;\n]/)
+        .filter((handler) => handler.trim())
     : [];
   return existing
 };
@@ -6076,21 +6297,23 @@ is returned as
     ]
 */
 
-const getParsedEventHandlers = element => {
+const getParsedEventHandlers = (element) => {
   const handlers = getEventHandlers(element);
   try {
     return handlers.map(function (instruction) {
       const [type, handler] = instruction.split(':');
       if (!handler) {
         if (instruction.indexOf('.')) {
-          console.debug('b8r-error',
+          console.debug(
+            'b8r-error',
             'bad event handler (missing event type)',
             instruction,
             'in',
             element
           );
         } else {
-          console.debug('b8r-error',
+          console.debug(
+            'b8r-error',
             'bad event handler (missing handler)',
             instruction,
             'in',
@@ -6106,8 +6329,8 @@ const getParsedEventHandlers = element => {
       const [, model, method] = handlerParts;
       const types = type.split(',').sort();
       return {
-        types: types.map(s => s.split('(')[0].trim()),
-        typeArgs: types.map(s => {
+        types: types.map((s) => s.split('(')[0].trim()),
+        typeArgs: types.map((s) => {
           if (s.substr(0, 3) === 'key') {
             s = s.replace(/Key|Digit/g, '');
             // Allows for a key to be Cmd in Mac and Ctrl in Windows
@@ -6120,7 +6343,7 @@ const getParsedEventHandlers = element => {
           return args && args[1] ? args[1].split(',') : false
         }),
         model,
-        method
+        method,
       }
     })
   } catch (e) {
@@ -6210,7 +6433,7 @@ Test(() => x).shouldBe(Math.PI)
 */
 
 // TODO use parsed event handlers to do this properly
-function on (...args) {
+function on(...args) {
   const { element, eventType, path, prepend } = onOffArgs(args);
   const handler = makeHandler(eventType, path);
   const existing = getEventHandlers(element);
@@ -6225,7 +6448,7 @@ function on (...args) {
 }
 
 // TODO use parsed event handlers to do this properly
-function off (...args) {
+function off(...args) {
   var element, eventType, object, method;
   if (args.length === 4) {
 [element, eventType, object, method] = args;
@@ -6271,7 +6494,7 @@ const disable = (element, includeChildren) => {
   const elements = includeChildren
     ? findWithin(element, '[data-event]', true)
     : [element];
-  elements.forEach(elt => {
+  elements.forEach((elt) => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event;
       if (elt.dataset.event) {
@@ -6288,7 +6511,7 @@ const enable = (element, includeChildren) => {
   const elements = includeChildren
     ? findWithin(element, '[data-event-disabled]', true)
     : [element];
-  elements.forEach(elt => {
+  elements.forEach((elt) => {
     if (elt.dataset.eventDisabled) {
       elt.dataset.event = elt.dataset.eventDisabled;
       if (elt.dataset.eventDisabled) {
@@ -6303,7 +6526,7 @@ const enable = (element, includeChildren) => {
 
 // add touch events if needed
 if (window.TouchEvent) {
-['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(type =>
+['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach((type) =>
     implicitEventTypes.push(type)
   );
 }
@@ -6346,12 +6569,12 @@ const callMethod = (...args) => {
       ;[model, method, ...args] = args;
     }
   } catch (e) {
-    throw new Error('callMethod has bad arguments')
+    throw new Error('callMethod has bad arguments', { cause: e })
   }
   return call(`${model}.${method}`, ...args)
 };
 
-const handleEvent = evt => {
+const handleEvent = (evt) => {
   // early exit for events triggered on elements inside [data-list] template elements and unloaded components
   if (
     evt.target.closest(
@@ -6361,7 +6584,10 @@ const handleEvent = evt => {
     return
   }
   if (evt.target.closest('[data-debug],[data-debug-event]')) {
-    console.debug('b8r-warn', 'Add a conditional breakpoint to watch events being handled');
+    console.debug(
+      'b8r-warn',
+      'Add a conditional breakpoint to watch events being handled'
+    );
   }
   var target = anyElement;
   var args = evt.args || [];
@@ -6390,7 +6616,12 @@ const handleEvent = evt => {
                 ...args
               );
             } else {
-              console.debug('b8r-warn', `${handler.method} not found`, target, handler);
+              console.debug(
+                'b8r-warn',
+                `${handler.method} not found`,
+                target,
+                handler
+              );
             }
           } else if (!handler.model && handler.method) {
             const listInstancePath = target.closest('[data-list-instance]')
@@ -6446,11 +6677,16 @@ naturally the goal is for them to be handled exactly as if they were "real".
 
 const trigger = (type, target, ...args) => {
   if (typeof type !== 'string' || !(target instanceof Element)) {
-    console.debug('b8r-error', 'expected trigger(eventType, targetElement)', type, target);
+    console.debug(
+      'b8r-error',
+      'expected trigger(eventType, targetElement)',
+      type,
+      target
+    );
     return
   }
   if (target) {
-    const event = dispatch(type, target, ...args);
+    const event = dispatch$1(type, target, ...args);
     if (target instanceof Element && implicitEventTypes.indexOf(type) === -1) {
       handleEvent(event);
     }
@@ -6469,7 +6705,7 @@ to use `data-event` bindings for the seeking `media` event, which you
 could do with `b8r.implicitlyHandleEventsOfType('seeking')`.
 */
 
-const implicitlyHandleEventsOfType = type => {
+const implicitlyHandleEventsOfType = (type) => {
   if (implicitEventTypes.indexOf(type) === -1) {
     implicitEventTypes.push(type);
     document.body.addEventListener(type, handleEvent, true);
@@ -6532,17 +6768,17 @@ Test(() => describe(async function(x,y,z){})).shouldBe('async (x,y,z)=>{...}');
 ~~~~
 */
 
-function describe$1 (x, maxUniques = 4, generic = false) {
+function describe(x, maxUniques = 4, generic = false) {
   if (x === undefined) {
     return 'undefined'
   } else if (Array.isArray(x)) {
     if (x.length === 0) {
       return '[]'
     } else if (x.length === 1 || typeof x[0] === typeof x[1]) {
-      return `[${describe$1(x[0], maxUniques, generic)} × ${x.length}]`
+      return `[${describe(x[0], maxUniques, generic)} × ${x.length}]`
     } else if (typeof x[0] !== typeof x[1]) {
       return x.length <= maxUniques || maxUniques < 0
-        ? '[' + x.map(v => describe$1(v, maxUniques, generic)).join(', ') + ']'
+        ? '[' + x.map((v) => describe(v, maxUniques, generic)).join(', ') + ']'
         : `[* × ${x.length}]`
     }
   } else if (x && x.constructor === Object) {
@@ -6556,10 +6792,15 @@ function describe$1 (x, maxUniques = 4, generic = false) {
     return generic ? 'string' : `"${x}"`
   } else if (x instanceof Function) {
     const source = x.toString();
-    const args = source.match(/^(async\s+)?(function[^(]*\()?\(?(.*?)(\)\s*\{|\)\s*=>|=>)/m)[3].trim();
+    const args = source
+      .match(/^(async\s+)?(function[^(]*\()?\(?(.*?)(\)\s*\{|\)\s*=>|=>)/m)[3]
+      .trim();
     const native = source.match(/\[native code\]/);
     const inside = native ? '[native code]' : '...';
-    let desc = x.prototype || native ? `function(${args}){${inside}}` : `(${args})=>{${inside}}`;
+    let desc =
+      x.prototype || native
+        ? `function(${args}){${inside}}`
+        : `(${args})=>{${inside}}`;
     if (source.startsWith('async')) {
       desc = 'async ' + desc;
     }
@@ -7189,14 +7430,17 @@ These terms are used for comparison to certain values in conditional toTargets.
 * `_null_`
 * `_empty_`
 */
+/* jshint expr: true */
+/* global console, HTMLSelectElement */
+
 
 function _toTargets (b8r) {
   const specialValues = {
-    _true_: v => v === true,
-    _false_: v => v === false,
-    _undefined_: v => v === undefined,
-    _null_: v => v === null,
-    _empty_: v => typeof v === 'string' && !!v.trim()
+    _true_: (v) => v === true,
+    _false_: (v) => v === false,
+    _undefined_: (v) => v === undefined,
+    _null_: (v) => v === null,
+    _empty_: (v) => typeof v === 'string' && !!v.trim(),
   };
 
   const equals = (valueToMatch, value) => {
@@ -7206,20 +7450,24 @@ function _toTargets (b8r) {
     if (Object.prototype.hasOwnProperty.call(specialValues, valueToMatch)) {
       return specialValues[valueToMatch](value)
     } else if (valueToMatch !== undefined) {
-      return value == valueToMatch // eslint-disable-line eqeqeq
+      return value == valueToMatch
     } else {
       return !!value
     }
   };
 
-  const parseOptions = source => {
+  const parseOptions = (source) => {
     if (!source) {
       throw new Error('expected options')
     }
-    return source.split('|').map(s => s.trim()).filter(s => !!s).map(s => {
-      s = s.split(':').map(s => s.trim());
-      return s.length === 1 ? { value: s[0] } : { match: s[0], value: s[1] }
-    })
+    return source
+      .split('|')
+      .map((s) => s.trim())
+      .filter((s) => !!s)
+      .map((s) => {
+        s = s.split(':').map((s) => s.trim());
+        return s.length === 1 ? { value: s[0] } : { match: s[0], value: s[1] }
+      })
   };
 
   return {
@@ -7227,8 +7475,8 @@ function _toTargets (b8r) {
       if (element.dataset.type === 'number') value = parseFloat(value);
       switch (element.getAttribute('type')) {
         case 'radio':
-          if (element.checked !== (element.value == value)) { // eslint-disable-line eqeqeq
-            element.checked = element.value == value; // eslint-disable-line eqeqeq
+          if (element.checked !== (element.value == value)) {
+            element.checked = element.value == value;
           }
           break
         case 'checkbox':
@@ -7241,7 +7489,12 @@ function _toTargets (b8r) {
             if (!value) {
               element.value = '';
             } else {
-              console.debug('b8r-error', 'cannot set file input value except to clear it', element, value);
+              console.debug(
+                'b8r-error',
+                'cannot set file input value except to clear it',
+                element,
+                value
+              );
             }
           } else if (element.value !== undefined) {
             element.value = value;
@@ -7255,7 +7508,12 @@ function _toTargets (b8r) {
             }
           } else {
             if (!element.tagName.includes('-')) {
-              console.debug('b8r-error', 'could not set component value', element, value);
+              console.debug(
+                'b8r-error',
+                'could not set component value',
+                element,
+                value
+              );
             }
           }
       }
@@ -7284,7 +7542,8 @@ function _toTargets (b8r) {
       // only honor formatting if there's no change it's code
       if (content.match(/[*_]/) && !content.match(/<|>/)) {
         template = true;
-        content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
+        content = content
+          .replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
           .replace(/[*_](.*?)[*_]/g, '<i>$1</i>');
       }
       if (content.indexOf('${') > -1) {
@@ -7379,7 +7638,7 @@ function _toTargets (b8r) {
     classMap: function (element, value, map) {
       const classOptions = parseOptions(map);
       let done = false;
-      classOptions.forEach(item => {
+      classOptions.forEach((item) => {
         if (done || (item.match && !equals(item.match, value))) {
           element.classList.remove(item.value);
         } else {
@@ -7449,14 +7708,19 @@ function _toTargets (b8r) {
         element.textContent = JSON.stringify(value, false, 2);
       } catch (_) {
         const obj = {};
-        Object.keys(value).forEach(key => {
-          obj[key] = describe$1(value[key]);
+        Object.keys(value).forEach((key) => {
+          obj[key] = describe(value[key]);
         });
-        element.textContent = '/* partial data -- could not stringify */\n' + JSON.stringify(obj, false, 2);
+        element.textContent =
+          '/* partial data -- could not stringify */\n' +
+          JSON.stringify(obj, false, 2);
       }
     },
     dataPath: function (element, value) {
-      if (!element.dataset.path || (value && element.dataset.path.substr(-value.length) !== value)) {
+      if (
+        !element.dataset.path ||
+        (value && element.dataset.path.substr(-value.length) !== value)
+      ) {
         element.dataset.path = value;
         b8r.bindAll(element);
       }
@@ -7467,7 +7731,9 @@ function _toTargets (b8r) {
     },
     componentMap: function (element, value, map) {
       const componentOptions = parseOptions(map);
-      const option = componentOptions.find(item => !item.match || item.match == value); // eslint-disable-line eqeqeq
+      const option = componentOptions.find(
+        (item) => !item.match || item.match == value
+      );
       if (option) {
         const componentName = option.value;
         const existing = element.dataset.componentId || '';
@@ -7476,7 +7742,7 @@ function _toTargets (b8r) {
           b8r.insertComponent(componentName, element);
         }
       }
-    }
+    },
   }
 }
 
@@ -7519,13 +7785,23 @@ Test(() => beatles[3].name, 'makeDescendingSorter works').shouldBe('george')
 
 const sortAscending = (a, b) =>
   typeof a === 'string' || typeof b === 'string'
-    ? `${a}`.localeCompare(b) : a > b ? 1 : b > a ? -1 : 0;
+    ? `${a}`.localeCompare(b)
+    : a > b
+      ? 1
+      : b > a
+        ? -1
+        : 0;
 
 const sortDescending = (a, b) =>
   typeof a === 'string' || typeof b === 'string'
-    ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0;
+    ? `${b}`.localeCompare(a)
+    : a > b
+      ? -1
+      : b > a
+        ? 1
+        : 0;
 
-const identity = x => x;
+const identity = (x) => x;
 
 const makeAscendingSorter = (getter = identity) => {
   return (a, b) => sortAscending(getter(a), getter(b))
@@ -7537,10 +7813,10 @@ const makeDescendingSorter = (getter = identity) => {
 
 var _sort = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  sortAscending: sortAscending,
-  sortDescending: sortDescending,
   makeAscendingSorter: makeAscendingSorter,
-  makeDescendingSorter: makeDescendingSorter
+  makeDescendingSorter: makeDescendingSorter,
+  sortAscending: sortAscending,
+  sortDescending: sortDescending
 });
 
 /**
@@ -7609,9 +7885,13 @@ const value = (element) => {
   }
   if (element.matches('input[type=radio]')) {
     const name = element.getAttribute('name');
-    const checked = find(`input[type=radio][name=${name}]`).find(elt => elt.checked);
+    const checked = find(`input[type=radio][name=${name}]`).find(
+      (elt) => elt.checked
+    );
     return checked ? checked.value : null
-  } else if (element.matches('[data-type=number],input[type=number],input[type=range]')) {
+  } else if (
+    element.matches('[data-type=number],input[type=number],input[type=range]')
+  ) {
     return parseFloat(element.value)
   } else {
     if (element.dataset.componentId) {
@@ -7622,7 +7902,8 @@ const value = (element) => {
   }
 };
 
-const checked = (element) => element.indeterminate ? null : element.checked;
+const checked = (element) =>
+  element.indeterminate ? null : element.checked;
 
 const selected = (element) => element.selected;
 
@@ -7634,7 +7915,7 @@ const playbackRate = (element) => element.playbackRate;
 
 const prop = (element, property) => element[property];
 
-const component$1 = (element, path) => {
+const component = (element, path) => {
   const componentId = element.dataset.componentId;
   return _getByPath(componentId, path)
 };
@@ -7645,22 +7926,23 @@ const fromMethod = (element, path) => {
   return _getByPath(model, method)(element)
 };
 
-var fromTargets$1 = /*#__PURE__*/Object.freeze({
+var fromTargets = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  value: value,
   checked: checked,
-  selected: selected,
-  text: text$1,
+  component: component,
   currentTime: currentTime,
+  fromMethod: fromMethod,
   playbackRate: playbackRate,
   prop: prop,
-  component: component$1,
-  fromMethod: fromMethod
+  selected: selected,
+  text: text$1,
+  value: value
 });
 
 /**
 # Data for Element
 */
+/* jshint latedef:false */
 
 const dataWaitingForComponents = []; // { targetElement, data }
 
@@ -7723,12 +8005,13 @@ everything else for purposes of propagation.
 
 */
 
-const anyArgs = args => {
+
+const anyArgs = (args) => {
   var eventType, object, method, path;
   if (args.length === 2) {
-    [eventType, path] = args;
+[eventType, path] = args;
   } else {
-    [eventType, object, method] = args;
+[eventType, object, method] = args;
     path = object + '.' + method;
   }
   return { eventType, path }
@@ -7767,23 +8050,27 @@ an element is hidden, `hide` sets `.style.display = "none"` and records its prev
 the `data-orig-display` attribute.
 */
 
+
 const show = (element, ...args) => {
   // used to check if the element was in fact hidden, but that turns out to be expensive
   // probably because of the cost of getComputedStyle
   if (element.dataset.origDisplay === undefined) {
-    element.dataset.origDisplay = element.style.display === 'none' ? '' : element.style.display;
+    element.dataset.origDisplay =
+      element.style.display === 'none' ? '' : element.style.display;
   }
   element.style.display = element.dataset.origDisplay;
-  findWithin(element, '[data-event*="show"]', true)
-    .forEach(elt => trigger('show', elt, ...args));
+  findWithin(element, '[data-event*="show"]', true).forEach((elt) =>
+    trigger('show', elt, ...args)
+  );
 };
 
 const hide = (element, ...args) => {
   if (isVisible(element)) {
     if (element.dataset.origDisplay === undefined) {
       element.dataset.origDisplay = element.style.display;
-      findWithin(element, '[data-event*="hide"]', true)
-        .forEach(elt => trigger('hide', elt, ...args));
+      findWithin(element, '[data-event*="hide"]', true).forEach((elt) =>
+        trigger('hide', elt, ...args)
+      );
     }
     element.style.display = 'none';
   }
@@ -8107,15 +8394,15 @@ reference purposes.
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
-const makeElement = (tagType, {
-  content = false,
-  attributes = {},
-  styles = {},
-  classes = []
-}) => {
+const makeElement = (
+  tagType,
+  { content = false, attributes = {}, styles = {}, classes = [] }
+) => {
   const elt = document.createElement(tagType);
   appendContentToElement(elt, content);
-  Object.keys(attributes).forEach((attributeName) => elt.setAttribute(attributeName, attributes[attributeName]));
+  Object.keys(attributes).forEach((attributeName) =>
+    elt.setAttribute(attributeName, attributes[attributeName])
+  );
   Object.keys(styles).forEach((styleName) => {
     elt.style[styleName] = styles[styleName];
   });
@@ -8123,16 +8410,16 @@ const makeElement = (tagType, {
   return elt
 };
 
-const dispatch$1 = (target, type) => {
+const dispatch = (target, type) => {
   const event = new Event(type);
   target.dispatchEvent(event);
 };
 
 /* global ResizeObserver */
-const resizeObserver = new ResizeObserver(entries => {
+const resizeObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
     const element = entry.target;
-    dispatch$1(element, 'resize');
+    dispatch(element, 'resize');
   }
 });
 
@@ -8142,15 +8429,15 @@ const input = (settings = {}) => makeElement('input', settings);
 const label = (settings = {}) => makeElement('label', settings);
 const slot = (settings = {}) => makeElement('slot', settings);
 const span = (settings = {}) => makeElement('span', settings);
-const text$2 = s => document.createTextNode(s);
+const text = (s) => document.createTextNode(s);
 
 const appendContentToElement = (elt, content) => {
   if (content) {
     if (typeof content === 'string') {
       elt.textContent = content;
     } else if (Array.isArray(content)) {
-      content.forEach(node => {
-        elt.appendChild(node.cloneNode ? node.cloneNode(true) : text$2(node));
+      content.forEach((node) => {
+        elt.appendChild(node.cloneNode ? node.cloneNode(true) : text(node));
       });
     } else if (content.cloneNode) {
       elt.appendChild(content.cloneNode(true));
@@ -8160,13 +8447,13 @@ const appendContentToElement = (elt, content) => {
   }
 };
 
-const fragment$1 = (...elements) => {
+const fragment = (...elements) => {
   const container = document.createDocumentFragment();
-  elements.forEach(element => container.appendChild(element.cloneNode(true)));
+  elements.forEach((element) => container.appendChild(element.cloneNode(true)));
   return container
 };
 
-const _hyphenated = s => s.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
+const _hyphenated = (s) => s.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
 
 const _css = (obj) => {
   if (typeof obj === 'object') {
@@ -8183,88 +8470,103 @@ const _css = (obj) => {
   }
 };
 
-const makeWebComponent = (tagName, {
-  superClass = HTMLElement, // the class you're extending
-  value = false, // expect boolean
-  style = false, // expect object
-  methods = {}, // map names to functions
-  eventHandlers = {}, // map eventTypes to event handlers
-  props = {}, // map of instance properties to defaults
-  attributes = {}, // map attributes to default values
-  content = slot(), // HTMLElement or DocumentFragment
-  role = false // expect string
-}) => {
+const makeWebComponent = (
+  tagName,
+  {
+    superClass = HTMLElement, // the class you're extending
+    value = false, // expect boolean
+    style = false, // expect object
+    methods = {}, // map names to functions
+    eventHandlers = {}, // map eventTypes to event handlers
+    props = {}, // map of instance properties to defaults
+    attributes = {}, // map attributes to default values
+    content = slot(), // HTMLElement or DocumentFragment
+    role = false, // expect string
+  }
+) => {
   let styleNode = null;
   if (style) {
-    style = Object.assign({ ':host([hidden])': { display: 'none !important' } }, style);
+    style = Object.assign(
+      { ':host([hidden])': { display: 'none !important' } },
+      style
+    );
     styleNode = makeElement('style', { content: _css(style) });
   }
   if (methods.render) {
-    methods = Object.assign({
-      queueRender (change = false) {
-        if (!this._changeQueued) this._changeQueued = change;
-        if (!this._renderQueued) {
-          this._renderQueued = true;
-          requestAnimationFrame(() => {
-            if (this._changeQueued) dispatch$1(this, 'change');
-            this._changeQueued = false;
-            this._renderQueued = false;
-            this.render();
-          });
-        }
-      }
-    }, methods);
+    methods = Object.assign(
+      {
+        queueRender(change = false) {
+          if (!this._changeQueued) this._changeQueued = change;
+          if (!this._renderQueued) {
+            this._renderQueued = true;
+            requestAnimationFrame(() => {
+              if (this._changeQueued) dispatch(this, 'change');
+              this._changeQueued = false;
+              this._renderQueued = false;
+              this.render();
+            });
+          }
+        },
+      },
+      methods
+    );
   }
 
   const componentClass = class extends superClass {
-    constructor () {
+    constructor() {
       super();
       for (const prop of Object.keys(props)) {
         let value = props[prop];
         if (typeof value !== 'function') {
           Object.defineProperty(this, prop, {
             enumerable: false,
-            get () {
+            get() {
               return value
             },
-            set (x) {
+            set(x) {
               if (value !== x) {
                 value = x;
                 this.queueRender(true);
               }
-            }
+            },
           });
         } else {
           Object.defineProperty(this, prop, {
             enumerable: false,
-            get () {
+            get() {
               return value.call(this)
             },
-            set (x) {
+            set(x) {
               if (value.length === 1) {
                 value.call(this, x);
               } else {
                 throw new Error(`cannot set ${prop}, it is read-only`)
               }
-            }
+            },
           });
         }
       }
       const self = this;
-      this.elementRefs = new Proxy({}, {
-        get (target, ref) {
-          if (!target[ref]) {
-            const element = self.shadowRoot.querySelector(`[data-id="${ref}"]`);
-            if (!element) throw new Error(`elementRef "${ref}" does not exist!`)
-            element.removeAttribute('data-id');
-            target[ref] = element;
-          }
-          return target[ref]
-        },
-        set () {
-          throw new Error('elementRefs is read-only')
+      this.elementRefs = new Proxy(
+        {},
+        {
+          get(target, ref) {
+            if (!target[ref]) {
+              const element = self.shadowRoot.querySelector(
+                `[data-id="${ref}"]`
+              );
+              if (!element)
+                throw new Error(`elementRef "${ref}" does not exist!`)
+              element.removeAttribute('data-id');
+              target[ref] = element;
+            }
+            return target[ref]
+          },
+          set() {
+            throw new Error('elementRefs is read-only')
+          },
         }
-      });
+      );
       if (styleNode) {
         const shadow = this.attachShadow({ mode: 'open' });
         shadow.appendChild(styleNode.cloneNode(true));
@@ -8272,12 +8574,20 @@ const makeWebComponent = (tagName, {
       } else {
         appendContentToElement(this, content);
       }
-      Object.keys(eventHandlers).forEach(eventType => {
-        const passive = eventType.startsWith('touch') ? { passive: true } : false;
-        this.addEventListener(eventType, eventHandlers[eventType].bind(this), passive);
+      Object.keys(eventHandlers).forEach((eventType) => {
+        const passive = eventType.startsWith('touch')
+          ? { passive: true }
+          : false;
+        this.addEventListener(
+          eventType,
+          eventHandlers[eventType].bind(this),
+          passive
+        );
       });
       if (eventHandlers.childListChange) {
-        const observer = new MutationObserver(eventHandlers.childListChange.bind(this));
+        const observer = new MutationObserver(
+          eventHandlers.childListChange.bind(this)
+        );
         observer.observe(this, { childList: true });
       }
       const attributeNames = Object.keys(attributes);
@@ -8286,15 +8596,17 @@ const makeWebComponent = (tagName, {
         const observer = new MutationObserver((mutationsList) => {
           let triggerRender = false;
           mutationsList.forEach((mutation) => {
-            triggerRender = mutation.attributeName && attributeNames.includes(mutation.attributeName);
+            triggerRender =
+              mutation.attributeName &&
+              attributeNames.includes(mutation.attributeName);
           });
           if (triggerRender && this.queueRender) this.queueRender(false);
         });
         observer.observe(this, { attributes: true });
-        attributeNames.forEach(attributeName => {
+        attributeNames.forEach((attributeName) => {
           Object.defineProperty(this, attributeName, {
             enumerable: false,
-            get () {
+            get() {
               if (typeof attributes[attributeName] === 'boolean') {
                 return this.hasAttribute(attributeName)
               } else {
@@ -8309,7 +8621,7 @@ const makeWebComponent = (tagName, {
                 }
               }
             },
-            set (value) {
+            set(value) {
               if (typeof attributes[attributeName] === 'boolean') {
                 if (value !== this[attributeName]) {
                   if (value) {
@@ -8317,32 +8629,42 @@ const makeWebComponent = (tagName, {
                   } else {
                     this.removeAttribute(attributeName);
                   }
-                  if (this.queueRender) this.queueRender(attributeName === 'value');
+                  if (this.queueRender)
+                    this.queueRender(attributeName === 'value');
                 }
               } else if (typeof attributes[attributeName] === 'number') {
                 if (value !== parseFloat(this[attributeName])) {
                   this.setAttribute(attributeName, value);
-                  if (this.queueRender) this.queueRender(attributeName === 'value');
+                  if (this.queueRender)
+                    this.queueRender(attributeName === 'value');
                 }
               } else {
-                if (typeof value === 'object' || `${value}` !== `${this[attributeName]}`) {
-                  if (value === null || value === undefined || typeof value === 'object') {
+                if (
+                  typeof value === 'object' ||
+                  `${value}` !== `${this[attributeName]}`
+                ) {
+                  if (
+                    value === null ||
+                    value === undefined ||
+                    typeof value === 'object'
+                  ) {
                     this.removeAttribute(attributeName);
                   } else {
                     this.setAttribute(attributeName, value);
                   }
                   attributeValues[attributeName] = value;
-                  if (this.queueRender) this.queueRender(attributeName === 'value');
+                  if (this.queueRender)
+                    this.queueRender(attributeName === 'value');
                 }
               }
-            }
+            },
           });
         });
       }
       if (this.queueRender) this.queueRender();
     }
 
-    connectedCallback () {
+    connectedCallback() {
       // super annoyingly, chrome loses its shit if you set *any* attributes in the constructor
       if (role) this.setAttribute('role', role);
       if (eventHandlers.resize) {
@@ -8351,40 +8673,41 @@ const makeWebComponent = (tagName, {
       if (methods.connectedCallback) methods.connectedCallback.call(this);
     }
 
-    disconnectedCallback () {
+    disconnectedCallback() {
       resizeObserver.unobserve(this);
     }
 
-    static defaultAttributes () {
+    static defaultAttributes() {
       return { ...attributes }
     }
   };
 
-  Object.keys(methods).forEach(methodName => {
+  Object.keys(methods).forEach((methodName) => {
     if (methodName !== 'connectedCallback') {
       componentClass.prototype[methodName] = methods[methodName];
     }
   });
 
   // if-statement is to prevent some node-based "browser" tests from breaking
-  if (window.customElements) window.customElements.define(tagName, componentClass);
+  if (window.customElements)
+    window.customElements.define(tagName, componentClass);
 
   return componentClass
 };
 
 var webComponents = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  fragment: fragment$1,
+  button: button,
+  dispatch: dispatch,
+  div: div,
+  fragment: fragment,
+  input: input,
+  label: label,
   makeElement: makeElement,
   makeWebComponent: makeWebComponent,
-  div: div,
   slot: slot,
-  input: input,
-  button: button,
-  label: label,
   span: span,
-  text: text$2,
-  dispatch: dispatch$1
+  text: text
 });
 
 /**
@@ -8413,10 +8736,13 @@ implement some kind of virtual machine to replace it.
 - [Iterators](?source=source/iterators.js)
 - [Showing and Hiding](?source=source/show.js)
 */
+/* jshint esnext:true, loopfunc:true, latedef:false, curly:false */
+/* global console, Element, HTMLElement */
+
 
 // TODO seal b8r after it's been built
 
-const b8r = { constants, id };
+const b8r = { constants, id: id$1 };
 
 Object.assign(b8r, _dom);
 Object.assign(b8r, _iterators);
@@ -8427,7 +8753,7 @@ Object.assign(b8r, {
   disable,
   trigger,
   callMethod,
-  implicitlyHandleEventsOfType
+  implicitlyHandleEventsOfType,
 });
 Object.assign(b8r, {
   addDataBinding,
@@ -8435,7 +8761,7 @@ Object.assign(b8r, {
   getDataPath,
   getComponentId,
   getListPath,
-  getListInstancePath
+  getListInstancePath,
 });
 Object.assign(b8r, { onAny, offAny, anyListeners });
 Object.assign(b8r, _registry);
@@ -8456,7 +8782,7 @@ b8r.cleanupComponentInstances = b8r.debounce(() => {
       delete _componentInstances[componentId];
     }
   });
-  b8r.models().forEach(model => {
+  b8r.models().forEach((model) => {
     if (model.substr(0, 2) === 'c#' && !_componentInstances[model]) {
       b8r.callIf(`${model}.destroy`);
       b8r.remove(model, false);
@@ -8469,10 +8795,9 @@ b8r.forceUpdate = () => {
   let updateList;
 
   while ((updateList = getUpdateList())) {
-    // eslint-disable-line no-cond-assign
     const lists = b8r
       .find('[data-list]')
-      .map(elt => ({ elt, listBinding: elt.dataset.list }));
+      .map((elt) => ({ elt, listBinding: elt.dataset.list }));
     let binds = false; // avoid collecting elements before big list updates
 
     while (updateList.length) {
@@ -8481,21 +8806,23 @@ b8r.forceUpdate = () => {
         if (path) {
           lists
             .filter(
-              bound => bound.elt !== source && bound.listBinding.includes(path)
+              (bound) =>
+                bound.elt !== source && bound.listBinding.includes(path)
             )
             .forEach(({ elt }) => bindList(elt));
 
           if (!binds) {
-            binds = b8r.find('[data-bind]').map(elt => {
+            binds = b8r.find('[data-bind]').map((elt) => {
               return { elt, data_binding: elt.dataset.bind }
             });
           }
 
           binds
             .filter(
-              bound => bound.elt !== source && bound.data_binding.includes(path)
+              (bound) =>
+                bound.elt !== source && bound.data_binding.includes(path)
             )
-            .forEach(rec => {
+            .forEach((rec) => {
               rec.dirty = true;
             });
         } else {
@@ -8543,12 +8870,15 @@ b8r.setByPath = function (...args) {
       );
     }
   } else {
-    console.debug('b8r-error', `setByPath failed; ${name} is not a registered model`);
+    console.debug(
+      'b8r-error',
+      `setByPath failed; ${name} is not a registered model`
+    );
   }
 };
 
 _insertSet(b8r.set);
-_insertFromTargets(fromTargets$1);
+_insertFromTargets(fromTargets);
 
 const _touchPath = (model, path) => {
   b8r.touch(model + (path.startsWith('[') ? path : '.' + path));
@@ -8570,7 +8900,10 @@ b8r.pushByPath = function (...args) {
     }
     _touchPath(name, path);
   } else {
-    console.debug('b8r-error', `pushByPath failed; ${name} is not a registered model`);
+    console.debug(
+      'b8r-error',
+      `pushByPath failed; ${name} is not a registered model`
+    );
   }
 };
 
@@ -8587,7 +8920,10 @@ b8r.unshiftByPath = function (...args) {
     list.unshift(value);
     _touchPath(name, path);
   } else {
-    console.debug('b8r-error', `unshiftByPath failed; ${name} is not a registered model`);
+    console.debug(
+      'b8r-error',
+      `unshiftByPath failed; ${name} is not a registered model`
+    );
   }
 };
 
@@ -8596,12 +8932,13 @@ b8r.removeListInstance = function (elt) {
   b8r.remove(elt.dataset.listInstance);
 };
 
-b8r.listItems = element =>
+b8r.listItems = (element) =>
   b8r
     .makeArray(element.children)
-    .filter(elt => elt.matches('[data-list-instance]'));
+    .filter((elt) => elt.matches('[data-list-instance]'));
 
-b8r.listIndex = element => b8r.listItems(element.parentElement).indexOf(element);
+b8r.listIndex = (element) =>
+  b8r.listItems(element.parentElement).indexOf(element);
 
 b8r.getComponentData = (elt, type) => {
   const id = getComponentId(elt, type);
@@ -8613,12 +8950,12 @@ b8r.setComponentData = (elt, path, value) => {
   b8r.setByPath(id, path, value);
 };
 
-b8r.getData = elt => {
+b8r.getData = (elt) => {
   const dataPath = b8r.getDataPath(elt);
   return dataPath ? b8r.get(dataPath, elt) : null
 };
 
-b8r.getListInstance = elt => {
+b8r.getListInstance = (elt) => {
   const instancePath = b8r.getListInstancePath(elt);
   return instancePath ? b8r.get(instancePath, elt) : null
 };
@@ -8631,7 +8968,7 @@ b8r.setListInstance = (elt, mutation) => {
   b8r.find(`[data-list-instance="${path}"]`).forEach(b8r.touchElement);
 };
 
-b8r.getListTemplate = elt => {
+b8r.getListTemplate = (elt) => {
   elt = elt.closest('[data-list-instance]');
   do {
     elt = elt.nextElementSibling;
@@ -8640,12 +8977,12 @@ b8r.getListTemplate = elt => {
 };
 
 if (document.body) {
-  implicitEventTypes.forEach(type =>
+  implicitEventTypes.forEach((type) =>
     document.body.addEventListener(type, handleEvent, true)
   );
 } else {
   document.addEventListener('DOMContentLoaded', () => {
-    implicitEventTypes.forEach(type =>
+    implicitEventTypes.forEach((type) =>
       document.body.addEventListener(type, handleEvent, true)
     );
   });
@@ -8660,17 +8997,20 @@ b8r.interpolate = (template, elt) => {
   if (template.match(/\$\{[^{]+\}|\{\{[^{]+\}\}/)) {
     formatted = template;
     do {
-      formatted = formatted.replace(/\$\{([^{]+?)\}|\{\{([^{]+?)\}\}/g, (_, pathA, pathB) => {
-        const value = b8r.get(pathA || pathB, elt);
-        return value !== null ? value : ''
-      });
+      formatted = formatted.replace(
+        /\$\{([^{]+?)\}|\{\{([^{]+?)\}\}/g,
+        (_, pathA, pathB) => {
+          const value = b8r.get(pathA || pathB, elt);
+          return value !== null ? value : ''
+        }
+      );
     } while (formatted.match(/\$\{[^{]+\}|\{\{[^{]+\}\}/))
   } else {
     const paths = splitPaths(template);
     if (paths.indexOf('') > -1) {
       throw new Error(`empty path in binding ${template}`)
     }
-    formatted = paths.map(path => b8r.get(path, elt));
+    formatted = paths.map((path) => b8r.get(path, elt));
     if (formatted.length === 1) {
       formatted = formatted[0];
     }
@@ -8680,7 +9020,7 @@ b8r.interpolate = (template, elt) => {
 
 const _unequal = (a, b) => a !== b || (a && typeof a === 'object');
 
-function bind (element) {
+function bind(element) {
   if (element.tagName.includes('-') && element.constructor === HTMLElement) {
     expectCustomElement(element.tagName);
     return // do not attempt to bind to custom components before they are defined
@@ -8689,7 +9029,8 @@ function bind (element) {
     return
   }
   if (element.matches('[data-debug],[data-debug-bind]')) {
-    console.debug('b8r-warn',
+    console.debug(
+      'b8r-warn',
       'Add a conditional breakpoint here to watch changes to the DOM caused by changes in the registry'
     );
   }
@@ -8706,11 +9047,15 @@ function bind (element) {
       for (const t of targets) {
         if (toTargets[t.target]) {
           _toTargets.push(t);
-        } else if (!fromTargets$1[t.target]) {
-          console.debug('b8r-warn', `unrecognized target ${t.target} in ${element.dataset.bind}`, element);
+        } else if (!fromTargets[t.target]) {
+          console.debug(
+            'b8r-warn',
+            `unrecognized target ${t.target} in ${element.dataset.bind}`,
+            element
+          );
         }
       }
-      _toTargets.forEach(t => {
+      _toTargets.forEach((t) => {
         toTargets[t.target](element, value, t.key);
       });
     }
@@ -8740,7 +9085,7 @@ const forEachItemIn = (obj, idPath, func) => {
   }
 };
 
-function bindList (listTemplate) {
+function bindList(listTemplate) {
   listTemplate.classList.add('-b8r-empty-list');
   if (
     !listTemplate.parentElement || // skip if disembodied
@@ -8748,16 +9093,18 @@ function bindList (listTemplate) {
   ) {
     return
   }
-  const [sourcePath, idPath] = listTemplate.dataset.list.split(':').map(s => s.trim());
+  const [sourcePath, idPath] = listTemplate.dataset.list
+    .split(':')
+    .map((s) => s.trim());
   let methodPath, listPath, argPaths;
   try {
     // parse computed list method if any
     ;[, , methodPath, argPaths] = sourcePath.match(
       /^(([^()]*)\()?([^()]*)(\))?$/
     );
-    argPaths = argPaths.split(',').map(s => s.trim());
+    argPaths = argPaths.split(',').map((s) => s.trim());
     listPath = argPaths[0];
-  } catch (e) {
+  } catch (_e) {
     console.debug('b8r-error', 'bindList failed; bad source path', sourcePath);
   }
   const resolvedPath = b8r.resolvePath(listPath, listTemplate);
@@ -8768,7 +9115,7 @@ function bindList (listTemplate) {
       argPaths.shift();
       argPaths = [
         listPath,
-        ...argPaths.map(path => b8r.resolvePath(path, listTemplate))
+        ...argPaths.map((path) => b8r.resolvePath(path, listTemplate)),
       ];
       listBinding = `${methodPath}(${argPaths.join(',')})`;
     }
@@ -8778,7 +9125,9 @@ function bindList (listTemplate) {
   }
   let list = b8r.get(listPath);
   if (!list) {
-    for (const instance of Object.values(listTemplate._b8rListInstances || {})) {
+    for (const instance of Object.values(
+      listTemplate._b8rListInstances || {}
+    )) {
       instance.remove();
     }
     listTemplate.classList.add('-b8r-empty-list');
@@ -8806,14 +9155,19 @@ function bindList (listTemplate) {
           filteredList.length &&
           list.indexOf(filteredList[0]) === -1
         ) {
-          console.debug('b8r-warn',
+          console.debug(
+            'b8r-warn',
             `list filter ${methodPath} returned a new object` +
               ' (not from original list); this will break updates!'
           );
         }
         list = filteredList;
       } catch (e) {
-        console.debug('b8r-error', `bindList failed, ${methodPath} threw error`, e);
+        console.debug(
+          'b8r-error',
+          `bindList failed, ${methodPath} threw error`,
+          e
+        );
       }
     })();
     if (!list) {
@@ -8826,7 +9180,7 @@ function bindList (listTemplate) {
   if (idPath === '_auto_') {
     for (let i = 0; i < list.length; i++) {
       if (list[i]._auto_ === undefined) {
-        list[i]._auto_ = id();
+        list[i]._auto_ = id$1();
       }
     }
   }
@@ -8858,7 +9212,10 @@ function bindList (listTemplate) {
   listTemplate.classList.toggle('-b8r-empty-list', !list.length);
   forEachItemIn(list, idPath, (item, id) => {
     if (ids[id]) {
-      console.debug('b8r-warn', `${id} not unique ${idPath} in ${listTemplate.dataset.list}`);
+      console.debug(
+        'b8r-warn',
+        `${id} not unique ${idPath} in ${listTemplate.dataset.list}`
+      );
       return
     }
     ids[id] = true;
@@ -8881,7 +9238,7 @@ function bindList (listTemplate) {
     listInstances[itemPath] = instance;
     previousInstance = instance;
   });
-  b8r.forEachKey(existingListInstances, elt => {
+  b8r.forEachKey(existingListInstances, (elt) => {
     listContentChanged = true;
     elt.remove();
   });
@@ -8891,7 +9248,7 @@ function bindList (listTemplate) {
   b8r.hide(listTemplate);
 }
 
-b8r.bindAll = element => {
+b8r.bindAll = (element) => {
   loadAvailableComponents(element);
   findBindables(element).forEach(bind);
   findLists(element).forEach(bindList);
@@ -8908,30 +9265,30 @@ b8r.onRequest(() => {
   }
 });
 
-const _pathRelativeB8r = _path => {
+const _pathRelativeB8r = (_path) => {
   return !_path
     ? b8r
     : Object.assign({}, b8r, {
-      _path,
-      component: (...args) => {
-        const pathIndex = args[1] ? 1 : 0;
-        let url = args[pathIndex];
-        if (url.indexOf('://') === -1) {
-          url = `${_path}/${url}`;
-          args[pathIndex] = url;
-        }
-        return b8r.component(...args)
-      }
-    })
+        _path,
+        component: (...args) => {
+          const pathIndex = args[1] ? 1 : 0;
+          let url = args[pathIndex];
+          if (url.indexOf('://') === -1) {
+            url = `${_path}/${url}`;
+            args[pathIndex] = url;
+          }
+          return b8r.component(...args)
+        },
+      })
 };
-Object.assign(b8r, { component, makeComponent, makeComponentNoEval });
+Object.assign(b8r, { component: component$1, makeComponent, makeComponentNoEval });
 
 b8r.components = () => Object.keys(components);
 
-function loadAvailableComponents (element) {
+function loadAvailableComponents(element) {
   b8r
     .findWithin(element || document.body, UNLOADED_COMPONENT_SELECTOR, true)
-    .forEach(target => {
+    .forEach((target) => {
       if (!target.closest('[data-list]')) {
         const name =
           target.tagName === 'B8R-COMPONENT'
@@ -8943,7 +9300,7 @@ function loadAvailableComponents (element) {
 }
 
 b8r._DEPRECATED_COMPONENTS_PASS_DOWN_DATA = false;
-const inheritData = element => {
+const inheritData = (element) => {
   const reserved = ['destroy']; // reserved lifecycle methods
   const selector = b8r._DEPRECATED_COMPONENTS_PASS_DOWN_DATA
     ? '[data-path],[data-list-instance],[data-component-id]'
@@ -9031,12 +9388,12 @@ b8r.insertComponent = async function (component, element, data) {
       replaceInBindings(element, '_data_', dataPath);
     }
   }
-  b8r.makeArray(element.classList).forEach(c => {
+  b8r.makeArray(element.classList).forEach((c) => {
     if (c.substr(-10) === '-component') {
       element.classList.remove(c);
     }
   });
-  const get = path => b8r.getByPath(componentId, path);
+  const get = (path) => b8r.getByPath(componentId, path);
   const set = (...args) => {
     if (args.length === 1 && args[0] && args[0].constructor === Object) {
       Object.assign(b8r.reg[componentId], args[0]);
@@ -9051,37 +9408,38 @@ b8r.insertComponent = async function (component, element, data) {
       }
     }
   };
-  const register = componentData => {
-    console.debug('b8r-warn',
+  const register = (componentData) => {
+    console.debug(
+      'b8r-warn',
       'use of register withi components is deprecated, use data or set() instead'
     );
     set(componentData);
   };
-  const touch = path => _touchPath(componentId, path);
+  const touch = (path) => _touchPath(componentId, path);
   const on = (...args) => b8r.on(element, ...args);
-  const find = selector => b8r.findWithin(element, selector);
-  const findOne = selector => b8r.findOneWithin(element, selector);
+  const find = (selector) => b8r.findWithin(element, selector);
+  const findOne = (selector) => b8r.findOneWithin(element, selector);
   element.classList.add(className);
   element.setAttribute('data-initializing', '');
   element.dataset.componentId = componentId;
   const initialValue =
     typeof component.initialValue === 'function'
       ? await component.initialValue({
-        b8r,
-        get,
-        set,
-        touch,
-        on,
-        component: element,
-        findOne,
-        find
-      })
+          b8r,
+          get,
+          set,
+          touch,
+          on,
+          component: element,
+          findOne,
+          find,
+        })
       : b8r.deepClone(component.initialValue) || data;
   data = {
     ...(component.type ? b8r.deepClone(component.type) : {}),
     ...initialValue,
     dataPath,
-    componentId
+    componentId,
   };
   b8r.register(componentId, data, true);
   element.removeAttribute('data-initializing');
@@ -9103,7 +9461,13 @@ b8r.insertComponent = async function (component, element, data) {
       );
     } catch (e) {
       debugger // eslint-disable-line no-debugger
-      console.debug('b8r-error', 'component', component.name, 'failed to load', e);
+      console.debug(
+        'b8r-error',
+        'component',
+        component.name,
+        'failed to load',
+        e
+      );
     }
   }
   b8r.bindAll(element);
@@ -9119,14 +9483,14 @@ const instanceReadyPromises = new WeakMap();
 b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
   attributes: {
     name: '',
-    path: ''
+    path: '',
   },
   content: false,
   props: {
-    componentId () {
+    componentId() {
       return this.dataset.componentId
     },
-    value (x) {
+    value(x) {
       if (x === undefined) {
         return this.state.value
       } else {
@@ -9135,31 +9499,27 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
         }
       }
     },
-    data () {
+    data() {
       return b8r.reg[this.dataset.componentId]
-    }
+    },
   },
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       const { path } = this;
       if (path) {
         if (!this.name) {
-          this.name = path
-            .split('/')
-            .pop()
-            .split('.')
-            .shift();
+          this.name = path.split('/').pop().split('.').shift();
         }
         b8r.component(this.name, path);
       }
     },
-    get (path = '.') {
+    get(path = '.') {
       return b8r.getByPath(this.componentId, path)
     },
-    set (...args) {
+    set(...args) {
       b8r.setByPath(this.componentId, ...args);
     },
-    async ready () {
+    async ready() {
       if (this.componentId && this.data) {
         return true
       }
@@ -9176,11 +9536,11 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       }
       return instanceReadyPromises.get(this).promise
     },
-    empty () {
+    empty() {
       this.textContent = '';
       b8r.removeComponent(this);
     },
-    render () {
+    render() {
       if (!this.isConnected) return
       const unready =
         this.parentElement && this.parentElement.closest(UNREADY_SELECTOR);
@@ -9192,8 +9552,8 @@ b8r.Component = b8r.webComponents.makeWebComponent('b8r-component', {
       } else {
         b8r.removeComponent(this);
       }
-    }
-  }
+    },
+  },
 });
 
 b8r.wrapWithComponent = (component, element, data, attributes) => {
@@ -9206,10 +9566,10 @@ b8r.wrapWithComponent = (component, element, data, attributes) => {
   return wrapper
 };
 
-b8r.removeComponent = elt => {
+b8r.removeComponent = (elt) => {
   if (elt.dataset.componentId) {
     delete elt.dataset.componentId;
-    b8r.makeArray(elt.classList).forEach(c => {
+    b8r.makeArray(elt.classList).forEach((c) => {
       if (/-component$/.test(c)) {
         elt.classList.remove(c);
         b8r.empty(elt);

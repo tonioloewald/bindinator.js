@@ -24,7 +24,6 @@ Currently supports `line` and `bar` graphs, with linear (by default) or `logarit
 ```
 */
 
-// eslint-disable-next-line
 import('../web-components/select.js')
 
 const svgns = 'http://www.w3.org/2000/svg'

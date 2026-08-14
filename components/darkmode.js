@@ -1,4 +1,4 @@
-import('../web-components/select.js') // eslint-disable-line
+import('../web-components/select.js')
 
 export default {
   html: `

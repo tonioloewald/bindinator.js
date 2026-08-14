@@ -492,7 +492,7 @@ export default function (b8r) {
     if (Object.prototype.hasOwnProperty.call(specialValues, valueToMatch)) {
       return specialValues[valueToMatch](value)
     } else if (valueToMatch !== undefined) {
-      return value == valueToMatch // eslint-disable-line eqeqeq
+      return value == valueToMatch
     } else {
       return !!value
     }
@@ -518,8 +518,7 @@ export default function (b8r) {
       switch (element.getAttribute('type')) {
         case 'radio':
           if (element.checked !== (element.value == value)) {
-            // eslint-disable-line eqeqeq
-            element.checked = element.value == value // eslint-disable-line eqeqeq
+            element.checked = element.value == value
           }
           break
         case 'checkbox':
@@ -776,7 +775,7 @@ export default function (b8r) {
       const componentOptions = parseOptions(map)
       const option = componentOptions.find(
         (item) => !item.match || item.match == value
-      ) // eslint-disable-line eqeqeq
+      )
       if (option) {
         const componentName = option.value
         const existing = element.dataset.componentId || ''

@@ -1,13 +1,13 @@
 {
   "name": "b8rjs",
-  "version": "0.6.9",
+  "version": "0.6.10",
   "description": "the even lazier javascript framework",
   "main": "dist/b8r.js",
   "scripts": {
     "start": "echo \"http://localhost:8017/index.html\\n\" && node utils/server.js web_root:.",
     "lint": "npx eslint . --fix",
     "format": "npm run lint && npx prettier --write .",
-    "stylelint": "npx stylelint css/*.css **/*.html --fix",
+    "stylelint": "npx stylelint css/*.css --fix",
     "linthtml": "npx linthtml index.html components/**/*.html",
     "build": "npm run format && npm run linthtml && npm run stylelint && ./utils/build.command"
   },
@@ -36,56 +36,25 @@
     "utils/*"
   ],
   "stylelint": {
+    "extends": "stylelint-config-recommended",
     "rules": {
       "block-no-empty": null,
-      "color-no-invalid-hex": true,
-      "comment-empty-line-before": [
-        "always",
-        {
-          "except": [
-            "first-nested"
-          ],
-          "ignore": [
-            "stylelint-commands",
-            "after-comment"
-          ]
-        }
-      ],
-      "declaration-colon-space-after": "always",
-      "indentation": [
-        2,
-        {
-          "except": [
-            "value"
-          ]
-        }
-      ],
-      "max-empty-lines": 2,
-      "rule-empty-line-before": [
-        "always",
-        {
-          "except": [
-            "first-nested"
-          ],
-          "ignore": [
-            "after-comment"
-          ]
-        }
-      ]
+      "no-descending-specificity": null
     }
   },
   "author": "Tonio Loewald (https://bindinator.com)",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@linthtml/linthtml": "^0.4.2",
+    "@linthtml/linthtml": "^0.10.2",
     "eslint": "^10.8.1",
     "globals": "^17.11.0",
     "pixelmatch": "^5.2.1",
     "pngjs": "^5.0.0",
     "prettier": "^3.9.6",
-    "rollup": "^1.32.1",
-    "stylelint": "^13.6.1",
+    "rollup": "^4.62.4",
+    "stylelint": "^17.14.1",
+    "stylelint-config-recommended": "^18.0.0",
     "uglify-es": "^3.3.9"
   }
 }
