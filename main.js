@@ -9,11 +9,12 @@ import { isElectron, isNwjs } from './lib/runtime-environment.js'
 window.b8r = b8r
 // if the # contains 'body=path/to/component' load that
 // otherwise load 'components/documentation'
-const componemtPath = (window.location.href.match(/\bbody=([^=&]+)/) || [])[1] ||
-                      'components/documentation'
+const componemtPath =
+  (window.location.href.match(/\bbody=([^=&]+)/) || [])[1] ||
+  'components/documentation'
 const root = b8r.elements._comp()
 
-window.dump = obj => {
+window.dump = (obj) => {
   const w = window.open()
   const pre = w.document.createElement('pre')
   if (typeof obj === 'string') {
@@ -31,7 +32,8 @@ window.dump = obj => {
 // sometimes document.body doesn't exist yet
 requestAnimationFrame(() => {
   root.path = componemtPath
-  if (componemtPath !== 'components/documentation') document.body.classList.add('fullscreen')
+  if (componemtPath !== 'components/documentation')
+    document.body.classList.add('fullscreen')
   document.body.append(root)
 })
 
@@ -41,7 +43,8 @@ b8r.set('_b8r_.toggleDebug', async () => {
     const win = window.nw.Window.get()
     // bizarrely, isDevToolsOpen requires the SDK build of nwjs but show/close does not
     const showDevTools = !(win.isDevToolsOpen && win.isDevToolsOpen())
-    if (showDevTools) win.showDevTools(); else win.closeDevTools()
+    if (showDevTools) win.showDevTools()
+    else win.closeDevTools()
   } else if (isElectron) {
     await import('./lib/electron-debug.js')
     electron.remote.getCurrentWindow().toggleDevTools()

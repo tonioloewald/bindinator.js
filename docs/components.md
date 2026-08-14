@@ -4,7 +4,7 @@
 
 You can implement components in javascript. Javascript components are
 recommended over HTML because they are better for static analysis, allow
-you to set up stuff (e.g. controllers) before the first component is 
+you to set up stuff (e.g. controllers) before the first component is
 instanced, and support type-checking.
 
 Relative to the earlier HTML components, Javascript components have several
@@ -18,7 +18,7 @@ specific advantages:
 - eventually there will be better **automated testing tools** for javascript components.
 - direct access to the component's `data` object was an anti-pattern and is blocked
 
-Moving forward, **Javascript is the preferred method for implementing 
+Moving forward, **Javascript is the preferred method for implementing
 components**.
 
 There are two ways to define a pure javascript component.
@@ -43,7 +43,7 @@ export default {
     component,           // this is the element that the component is inserted into
     b8r,                 // it's b8r!
     find,                // b8r.findWithin(component, ...)
-    findOne,             // b8r.findOneWithin(component, ...) 
+    findOne,             // b8r.findOneWithin(component, ...)
     get,                 // get (within the component's private data)
     set,                 // set (within the component's private data)
     on,                  // b8r.on(component, ...)
@@ -59,7 +59,7 @@ export default {
     component,           // this is the element that the component is inserted into
     b8r,                 // it's b8r!
     find,                // b8r.findWithin(component, ...)
-    findOne,             // b8r.findOneWithin(component, ...) 
+    findOne,             // b8r.findOneWithin(component, ...)
     get,                 // get (within the component's private data)
     set,                 // set (within the component's private data)
     on,                  // b8r.on(component, ...)
@@ -82,8 +82,8 @@ Each of the properties of the this object are optional.
 
 You can also define components inline using `b8r.makeComponent`.
 
-Using `makeComponent` allows you to pull in dependencies or define multiple components in 
-a single file, which can be useful for creating simple sub-components or families of 
+Using `makeComponent` allows you to pull in dependencies or define multiple components in
+a single file, which can be useful for creating simple sub-components or families of
 related components.
 
 ```
@@ -127,11 +127,11 @@ documentation in markdown
 </script>
 ```
 
-*Each of the four parts is optional*. E.g. a component could just be 
-a stylesheet or just some code (although in the latter case, why not 
+_Each of the four parts is optional_. E.g. a component could just be
+a stylesheet or just some code (although in the latter case, why not
 write a javascript module?).
 
-A component is saved as a single text file using the naming convention 
+A component is saved as a single text file using the naming convention
 `component-name.component.html`.
 
 ## Inserting Components
@@ -153,12 +153,13 @@ For a component named 'baz' defined or loaded elsewhere:
 
     <b8r-component name="baz"></b8r-component>
 
-Note that `b8r` still supports the use of the `data-component="foobar"` attribute 
-but it is *deprecated*. (It's equivalent to `<bar-component name="foobar">`)
+Note that `b8r` still supports the use of the `data-component="foobar"` attribute
+but it is _deprecated_. (It's equivalent to `<bar-component name="foobar">`)
 
 > ### Relative Paths
-> Note that when using *relative* paths, the path to a **javascript**
-> component is relative to that of the script which is executing (so, `path/to/b8r.js` 
+>
+> Note that when using _relative_ paths, the path to a **javascript**
+> component is relative to that of the script which is executing (so, `path/to/b8r.js`
 > by default), while the path to an **html** component is relative to the component
 > in which it is embedded.
 
@@ -166,8 +167,8 @@ You can insert components programmatically using `b8r.insertComponent` and `b8r.
 
 ## Life Cycle
 
-You load a component *asynchronously* using `b8r.component('path/to/name-of-component')`. This returns a
-*promise* of the component. Once the component is loaded, `b8r` will automatically
+You load a component _asynchronously_ using `b8r.component('path/to/name-of-component')`. This returns a
+_promise_ of the component. Once the component is loaded, `b8r` will automatically
 insert an instance of the component into every element that has been given the attribute
 `data-component="name-of-component"` (and the promise will resolve).
 
@@ -204,8 +205,8 @@ styles will never get inserted into the DOM.
 
 ### Construction (`initialValue`)
 
-When a component instance created (i.e. `clone`d from its view template), it is assigned a 
-unique `componentId` that looks like `c#<name>#<number>` where `<name>` is the name assigned to 
+When a component instance created (i.e. `clone`d from its view template), it is assigned a
+unique `componentId` that looks like `c#<name>#<number>` where `<name>` is the name assigned to
 that component and `<number>` is a unique integer (assigned in order, so #14 is the 14th component
 instance of any kind).
 
@@ -225,31 +226,31 @@ The `initialValue` object will be assigned the component's `componentId` and `da
 6. Any currently available sub-components will be inserted.
 7. The component's contents (including the containing element) will be bound to data as appropriate.
 
-And finally, the component's `<script>` (or Javascript components `load` method) will be run as the body of a 
+And finally, the component's `<script>` (or Javascript components `load` method) will be run as the body of a
 function that is passed several useful parameters:
 
-* `component` -- the element into which the component was loaded
-* `b8r` -- a reference to b8r
-* `find` -- find(selector) => b8r.findWithin(component, selector)
-* `findOne` -- findOne(selector) => b8r.findOneWithin(component, selector)
-* `register` -- replace the component's private data, i.e. register(obj) => b8r.set(componentId, obj)
-* `get` -- gets paths within the component object; get(path) => b8r.getByPath(componentId, path)
-* `set` -- sets paths within the component object; set(path, val) => b8r.setByPath(componentId, path, val)
-* `on` -- adds event listeners to the component element; on(type, path) => b8r.on(component, type, path)
-* `touch` -- touches paths within the component object; touch(...args) => b8r.touchByPath(componentId, ...args)
+- `component` -- the element into which the component was loaded
+- `b8r` -- a reference to b8r
+- `find` -- find(selector) => b8r.findWithin(component, selector)
+- `findOne` -- findOne(selector) => b8r.findOneWithin(component, selector)
+- `register` -- replace the component's private data, i.e. register(obj) => b8r.set(componentId, obj)
+- `get` -- gets paths within the component object; get(path) => b8r.getByPath(componentId, path)
+- `set` -- sets paths within the component object; set(path, val) => b8r.setByPath(componentId, path, val)
+- `on` -- adds event listeners to the component element; on(type, path) => b8r.on(component, type, path)
+- `touch` -- touches paths within the component object; touch(...args) => b8r.touchByPath(componentId, ...args)
 
 #### Deprecated
 
 `html` components still receive the `data` parameter as one of the arguments to the `load` method.
 It's better to use `get()`, which is your only option for Javascript components.
 
-* `data` -- the component's private data object, i.e. the output of b8r.get(componentId)
+- `data` -- the component's private data object, i.e. the output of b8r.get(componentId)
 
 > ### Components with special needs… (`load` race condition)
 >
-> One annoying detail that has emerged as `b8r` has been used for more complex projects is 
-> that sometimes you want a component to have an event handler that will be 
-> triggered *before the load script executes*, and the load `<script>` is where that private 
+> One annoying detail that has emerged as `b8r` has been used for more complex projects is
+> that sometimes you want a component to have an event handler that will be
+> triggered _before the load script executes_, and the load `<script>` is where that private
 > event handler is created.
 >
 > Typically this problem manifests as console error spam rather than misbehavior.
@@ -261,7 +262,7 @@ It's better to use `get()`, which is your only option for Javascript components.
 > This allows you to define your component's `initialValue` before the component is inserted
 > into the DOM.
 >
-> Because *a Javascript component is just a Javascript module*, you can also register a (global)
+> Because _a Javascript component is just a Javascript module_, you can also register a (global)
 > controller object in the module that defines the component.
 >
 > #### Workarounds for HTML components
@@ -269,9 +270,9 @@ It's better to use `get()`, which is your only option for Javascript components.
 > For HTML components there are two workarounds we've used in production.
 
 > One is to add the event-bindings in the load script (so that they won't fire until
-> the relevant methods have been defined). 
+> the relevant methods have been defined).
 >
-> The second option is to register a controller object (by convention named *component-name*-controller) 
+> The second option is to register a controller object (by convention named _component-name_-controller)
 > before loading the component and bind to that.
 
 ### Death (`destroy`)
@@ -281,7 +282,7 @@ removed, and if that data includes a `destroy` method, that method will be calle
 
 ## Composing Components: `data-children`
 
-It is possible to *compose* components (including within a component) as though the components are ordinary tags, e.g.
+It is possible to _compose_ components (including within a component) as though the components are ordinary tags, e.g.
 
 ```
 <b8r-component path="path/to/foo">
@@ -293,7 +294,7 @@ It is possible to *compose* components (including within a component) as though 
 ```
 
 To tell a component where to put its children, simply give the element that is to receive them
-the attribute `data-children`, e.g. if `foo.component.html` were `<blockquote data-children></blockquote>` and 
+the attribute `data-children`, e.g. if `foo.component.html` were `<blockquote data-children></blockquote>` and
 `bar.component.html` were `<p data-children></p>` then the result of loading the two would be:
 
 ```
@@ -311,10 +312,10 @@ the attribute `data-children`, e.g. if `foo.component.html` were `<blockquote da
 
 ## Binding within Components
 
-A component instance automatically has private data that is registered against its `componentId`. 
+A component instance automatically has private data that is registered against its `componentId`.
 
-In the component's script you can work with this private data by using paths relative to `componentId` 
-in your scripts, or just use the convenience methods `register` to completely overwrite this data, and 
+In the component's script you can work with this private data by using paths relative to `componentId`
+in your scripts, or just use the convenience methods `register` to completely overwrite this data, and
 `get` and `set` to access and modify paths inside id.
 
 In bindings you can use `_component_` to refer to the `componentId` so if you want a component to
@@ -340,7 +341,7 @@ you could do something like this:
 that are ordinary HTML elements, `b8r` components, or web-components) when it is initialized.
 
 **Event-binding works inside-out**. An event passes through its parent, and so forth, until
-it is handled. (Note, this is *not* how DOM events behave normally, where the behavior of events
+it is handled. (Note, this is _not_ how DOM events behave normally, where the behavior of events
 is not consistent.) If a given event-handler does not return true, the event stops propagating.
 
 This means that in this composition:
@@ -364,8 +365,8 @@ may change if something happens above it in the DOM hierarchy.
 
 ## Communicating with Components
 
-The simplest way to communicate with components is by passing them *data*. And
-the simplest way to pass them data is via *binding*.
+The simplest way to communicate with components is by passing them _data_. And
+the simplest way to pass them data is via _binding_.
 
 E.g. in the following example we will use the same component twice, but bind it
 to two different values:

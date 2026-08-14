@@ -26,19 +26,17 @@ webComponentTest(Test, '../web-components/select.js', 'b8r-select-bar', 'b8r-sel
 ~~~~
 */
 
-import {Test} from '../lib/test.js'
+import { Test } from '../lib/test.js'
 
 export const webComponentTest = (test, source, ...tags) => {
   import(source).then(() => {
     const div = document.createElement('div')
-    tags.forEach(tag => {
+    tags.forEach((tag) => {
       div.innerHTML = `<${tag}></${tag}}`
       const elt = div.children[0]
-      const _test = test(
-        () => elt.constructor.name,
-        `verify <${tag}> renders`
-      )
-      if (!(_test instanceof Test)) throw new Error('expect test to be instance of Test')
+      const _test = test(() => elt.constructor.name, `verify <${tag}> renders`)
+      if (!(_test instanceof Test))
+        throw new Error('expect test to be instance of Test')
       _test.shouldNotBe('HTMLElement')
     })
   })

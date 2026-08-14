@@ -186,7 +186,11 @@ export const create = (tagType, ...contents) => {
   }
   const elt = templates[tagType].cloneNode()
   for (const item of contents) {
-    if (item instanceof HTMLElement || typeof item === 'string' || typeof item === 'number') {
+    if (
+      item instanceof HTMLElement ||
+      typeof item === 'string' ||
+      typeof item === 'number'
+    ) {
       elt.append(item)
     } else {
       const dataBindings = []
@@ -207,9 +211,13 @@ export const create = (tagType, ...contents) => {
   (and similarly for events)
 */
           if (key.startsWith('bind')) {
-            dataBindings.push(`${key.substr(4).replace(/[A-Z]/, c => c.toLowerCase())}=${value}`)
+            dataBindings.push(
+              `${key.substr(4).replace(/[A-Z]/, (c) => c.toLowerCase())}=${value}`
+            )
           } else {
-            eventBindings.push(`${key.substr(2).replace(/[A-Z]/, c => c.toLowerCase())}:${value}`)
+            eventBindings.push(
+              `${key.substr(2).replace(/[A-Z]/, (c) => c.toLowerCase())}:${value}`
+            )
           }
         } else if (key === 'style') {
           if (typeof value === 'object') {
@@ -220,7 +228,7 @@ export const create = (tagType, ...contents) => {
             elt.setAttribute('style', value)
           }
         } else {
-          const attr = key.replace(/[A-Z]/g, c => '-' + c.toLowerCase())
+          const attr = key.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())
           if (typeof value === 'boolean') {
             value ? elt.setAttribute(attr, '') : elt.removeAttribute(attr)
           } else {
@@ -249,17 +257,22 @@ const _fragment = (...contents) => {
   return frag
 }
 
-export const elements = new Proxy({ _comp, _fragment }, {
-  get (target, tagName) {
-    tagName = tagName.replace(/[A-Z]/g, c => `-${c.toLocaleLowerCase()}`)
-    if (!tagName.match(/^\w+(-\w+)*$/)) {
-      throw new Error(`${tagName} does not appear to be a valid element tagName`)
-    } else if (!target[tagName]) {
-      target[tagName] = (...contents) => create(tagName, ...contents)
-    }
-    return target[tagName]
-  },
-  set () {
-    throw new Error('You may not add new properties to elements')
+export const elements = new Proxy(
+  { _comp, _fragment },
+  {
+    get(target, tagName) {
+      tagName = tagName.replace(/[A-Z]/g, (c) => `-${c.toLocaleLowerCase()}`)
+      if (!tagName.match(/^\w+(-\w+)*$/)) {
+        throw new Error(
+          `${tagName} does not appear to be a valid element tagName`
+        )
+      } else if (!target[tagName]) {
+        target[tagName] = (...contents) => create(tagName, ...contents)
+      }
+      return target[tagName]
+    },
+    set() {
+      throw new Error('You may not add new properties to elements')
+    },
   }
-})
+)

@@ -180,9 +180,10 @@ the last calls.
 A simple utility function (mostly for testing).
 */
 
-const delay = (delayMs, value = null) => new Promise((resolve, reject) => {
-  setTimeout(() => resolve(value), delayMs)
-})
+const delay = (delayMs, value = null) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => resolve(value), delayMs)
+  })
 
 const debounce = (origFn, minInterval) => {
   let debounceId
@@ -232,13 +233,15 @@ const throttleAndDebounce = (origFn, minInterval) => {
 
 const AsyncFunction = async function () {}.constructor
 
-const memoize = f => {
+const memoize = (f) => {
   if (f._isMemoized) return f
   let previousArgs = []
   let previousResult
   const memoized = function (...args) {
     const newArgs = [this, ...args]
-    const differences = previousResult === undefined || newArgs.filter((item, index) => item !== previousArgs[index]).length
+    const differences =
+      previousResult === undefined ||
+      newArgs.filter((item, index) => item !== previousArgs[index]).length
     if (differences) {
       previousArgs = newArgs
       previousResult = f.call(this, ...args)
@@ -291,4 +294,11 @@ Test(results, 'memoize does not corrupt output').shouldBeJSON([3, 3, 4, 4, 4, 4,
 ~~~~
 */
 
-export { AsyncFunction, debounce, delay, throttle, throttleAndDebounce, memoize }
+export {
+  AsyncFunction,
+  debounce,
+  delay,
+  throttle,
+  throttleAndDebounce,
+  memoize,
+}

@@ -33,11 +33,11 @@ you set the component's style to "flex-direction: column-reverse" then the bar w
 import { viaTag } from '../lib/scripts.js'
 import { imagePromise } from '../source/imgSrc.js'
 
-function clamp (x, min, max) {
+function clamp(x, min, max) {
   if (max < min) {
-    [max, min] = [min, max]
+    ;[max, min] = [min, max]
   }
-  return x < min ? min : (x > max ? max : x)
+  return x < min ? min : x > max ? max : x
 }
 
 export default {
@@ -95,10 +95,15 @@ export default {
     <div data-children class="row"></div>
     <div class="elastic container" data-event="touchstart,touchmove,touchend:_component_.touchMove"></div>
   `,
-  async initialValue ({ b8r, component, findOne, find, get, set }) {
-    await viaTag('https://cdnjs.cloudflare.com/ajax/libs/fabric.js/521/fabric.min.js')
+  async initialValue({ b8r, component, findOne, find, get, set }) {
+    await viaTag(
+      'https://cdnjs.cloudflare.com/ajax/libs/fabric.js/521/fabric.min.js'
+    )
     /* global fabric */
-    b8r.onAny('keydown(Backspace)', `${component.dataset.componentId}.deleteSelection`)
+    b8r.onAny(
+      'keydown(Backspace)',
+      `${component.dataset.componentId}.deleteSelection`
+    )
     b8r.implicitlyHandleEventsOfType('touchstart')
     b8r.implicitlyHandleEventsOfType('touchmove')
     b8r.implicitlyHandleEventsOfType('touchend')
@@ -120,7 +125,13 @@ export default {
       const { fabricCanvas, zoomToPoint } = get()
       let zoom = fabricCanvas.getZoom()
       zoom *= 0.999 ** delta
-      zoomToPoint(opt.e.offsetX, opt.e.offsetY, -opt.e.deltaX, -opt.e.deltaY, zoom)
+      zoomToPoint(
+        opt.e.offsetX,
+        opt.e.offsetY,
+        -opt.e.deltaX,
+        -opt.e.deltaY,
+        zoom
+      )
 
       if (opt.e.stopPropagation) {
         opt.e.preventDefault()
@@ -129,7 +140,7 @@ export default {
     }
 
     return {
-      async init (image) {
+      async init(image) {
         set({ skipTracking: true })
 
         container.textContent = ''
@@ -139,15 +150,19 @@ export default {
           image = await imagePromise(image)
         }
         let baseImage = null
-        const width = image ? Math.max(image.width, component.offsetWidth) : component.offsetWidth
-        const height = image ? Math.max(image.height, component.offsetHeight) : component.offsetHeight
+        const width = image
+          ? Math.max(image.width, component.offsetWidth)
+          : component.offsetWidth
+        const height = image
+          ? Math.max(image.height, component.offsetHeight)
+          : component.offsetHeight
 
         const fabricCanvas = new fabric.Canvas(canvas, {
           backgroundColor: '#888',
           selectionColor: '#0ff8',
           selectionLineWidth: 2,
           width,
-          height
+          height,
         })
 
         if (image) {
@@ -157,15 +172,19 @@ export default {
             angle: 0,
             opacity: 1,
             selectable: false,
-            hoverCursor: 'default'
+            hoverCursor: 'default',
           })
           fabricCanvas.add(baseImage)
         }
 
         const undoBuffer = [fabricCanvas.toObject()]
 
-        fabricCanvas.on('selection:created', () => { set({ hasSelection: true }) })
-        fabricCanvas.on('selection:cleared', () => { set({ hasSelection: false }) })
+        fabricCanvas.on('selection:created', () => {
+          set({ hasSelection: true })
+        })
+        fabricCanvas.on('selection:cleared', () => {
+          set({ hasSelection: false })
+        })
         fabricCanvas.on('object:modified', trackState)
         fabricCanvas.on('object:added', trackState)
         fabricCanvas.on('object:removed', trackState)
@@ -177,7 +196,7 @@ export default {
           canUndo: false,
           undoDepth: 0,
           baseImage,
-          skipTracking: false
+          skipTracking: false,
         })
       },
       defaultShape: {
@@ -185,28 +204,28 @@ export default {
         height: 100,
         left: 100,
         top: 100,
-        strokeUniform: true
+        strokeUniform: true,
       },
       settings: {
         strokeWidth: 2,
         stroke: '#f008',
-        fill: '#f00d'
+        fill: '#f00d',
       },
       skipTracking: false,
       canUndo: false,
-      addRect () {
+      addRect() {
         const { fabricCanvas } = get()
         get().exitDraw()
         fabricCanvas.discardActiveObject()
         const rect = new fabric.Rect({
           ...get().defaultShape,
           ...get().settings,
-          selectable: true
+          selectable: true,
         })
         fabricCanvas.add(rect)
         fabricCanvas.setActiveObject(rect)
       },
-      addText () {
+      addText() {
         const { fabricCanvas } = get()
         get().exitDraw()
         fabricCanvas.discardActiveObject()
@@ -218,14 +237,14 @@ export default {
           ...get().defaultShape,
           backgroundColor: '#fffd',
           fill: '#11ad',
-          fontFamily: 'Sans-serif'
+          fontFamily: 'Sans-serif',
         })
         fabricCanvas.add(text)
         fabricCanvas.setActiveObject(text)
       },
       hasSelection: false,
       activeTool: false,
-      lockBaseImage () {
+      lockBaseImage() {
         const { baseImage, fabricCanvas } = get()
         if (baseImage) {
           fabricCanvas.getObjects()[0].selectable = false
@@ -233,7 +252,7 @@ export default {
         }
       },
       lastTouch: null,
-      touchMove (evt) {
+      touchMove(evt) {
         const { lastTouch, fabricCanvas, zoomToPoint } = get()
         let zoom = fabricCanvas.getZoom()
         if (evt.touches.length !== 2) {
@@ -245,18 +264,27 @@ export default {
           const touch = {
             x,
             y,
-            size: Math.sqrt(Math.pow(a.clientX - b.clientX, 2) + Math.pow(a.clientY - b.clientY, 2)),
-            scale: zoom
+            size: Math.sqrt(
+              Math.pow(a.clientX - b.clientX, 2) +
+                Math.pow(a.clientY - b.clientY, 2)
+            ),
+            scale: zoom,
           }
           if (lastTouch) {
             zoom *= touch.size / lastTouch.size
-            zoomToPoint(x, y, touch.x - lastTouch.x, touch.y - lastTouch.y, zoom)
+            zoomToPoint(
+              x,
+              y,
+              touch.x - lastTouch.x,
+              touch.y - lastTouch.y,
+              zoom
+            )
           }
           set({ lastTouch: touch })
         }
         return !lastTouch
       },
-      zoomToPoint (x, y, deltaX, deltaY, zoom) {
+      zoomToPoint(x, y, deltaX, deltaY, zoom) {
         const { fabricCanvas } = get()
         const minScale = get().minScale()
         const { width, height } = fabricCanvas
@@ -266,10 +294,18 @@ export default {
         const { offsetWidth, offsetHeight } = container
         const _x = fabricCanvas.viewportTransform[4] + deltaX
         const _y = fabricCanvas.viewportTransform[5] + deltaY
-        fabricCanvas.viewportTransform[4] = clamp(_x, offsetWidth - zoom * width, 0)
-        fabricCanvas.viewportTransform[5] = clamp(_y, offsetHeight - zoom * height, 0)
+        fabricCanvas.viewportTransform[4] = clamp(
+          _x,
+          offsetWidth - zoom * width,
+          0
+        )
+        fabricCanvas.viewportTransform[5] = clamp(
+          _y,
+          offsetHeight - zoom * height,
+          0
+        )
       },
-      undo () {
+      undo() {
         get().exitDraw()
         let { undoDepth, undoBuffer, fabricCanvas, lockBaseImage } = get()
         set({ skipTracking: true })
@@ -279,11 +315,11 @@ export default {
           set({
             undoDepth,
             canUndo: undoDepth < undoBuffer.length - 1,
-            skipTracking: false
+            skipTracking: false,
           })
         })
       },
-      redo () {
+      redo() {
         get().exitDraw()
         let { undoBuffer, fabricCanvas, undoDepth, lockBaseImage } = get()
         set({ skipTracking: true })
@@ -293,14 +329,14 @@ export default {
           set({
             undoDepth,
             canUndo: true,
-            skipTracking: false
+            skipTracking: false,
           })
         })
       },
-      isActive (elt, activeTool) {
+      isActive(elt, activeTool) {
         elt.classList.toggle('active', elt === activeTool)
       },
-      toggleDraw (evt) {
+      toggleDraw(evt) {
         const { fabricCanvas } = get()
         if (evt.target.classList.contains('active')) {
           set({ activeTool: false })
@@ -315,32 +351,38 @@ export default {
           fabricCanvas.isDrawingMode = true
         }
       },
-      minScale () {
+      minScale() {
         const { fabricCanvas } = get()
-        return Math.min(1, container.offsetWidth / fabricCanvas.getWidth(), container.offsetHeight / fabricCanvas.getHeight())
+        return Math.min(
+          1,
+          container.offsetWidth / fabricCanvas.getWidth(),
+          container.offsetHeight / fabricCanvas.getHeight()
+        )
       },
-      zoom (evt) {
+      zoom(evt) {
         const { fabricCanvas } = get()
         let scale = Number(evt.target.dataset.scale)
         if (!scale) {
           scale = get().minScale()
         }
-        const x = (container.offsetWidth - (scale * fabricCanvas.getWidth())) * 0.5
-        const y = (container.offsetHeight - (scale * fabricCanvas.getHeight())) * 0.5
+        const x =
+          (container.offsetWidth - scale * fabricCanvas.getWidth()) * 0.5
+        const y =
+          (container.offsetHeight - scale * fabricCanvas.getHeight()) * 0.5
         fabricCanvas.setZoom(Number(scale))
         fabricCanvas.viewportTransform[4] = x
         fabricCanvas.viewportTransform[5] = y
       },
-      exitDraw () {
+      exitDraw() {
         const { fabricCanvas } = get()
         fabricCanvas.isDrawingMode = false
         set({ drawingMode: false })
       },
-      moveToFront () {
+      moveToFront() {
         const { fabricCanvas } = get()
         fabricCanvas.bringToFront(fabricCanvas.getActiveObject())
       },
-      moveToBack () {
+      moveToBack() {
         const { fabricCanvas, baseImage } = get()
         fabricCanvas.sendToBack(fabricCanvas.getActiveObject())
         if (baseImage) {
@@ -348,15 +390,18 @@ export default {
         }
         fabricCanvas.discardActiveObject()
       },
-      deleteSelection () {
+      deleteSelection() {
         const { fabricCanvas } = get()
         fabricCanvas.remove(fabricCanvas.getActiveObject())
         return true
       },
-      destroy () {
-        b8r.offAny('keydown(Backspace)', `${component.dataset.componentId}.deleteSelection`)
+      destroy() {
+        b8r.offAny(
+          'keydown(Backspace)',
+          `${component.dataset.componentId}.deleteSelection`
+        )
       },
-      export () {
+      export() {
         const { fabricCanvas } = get()
         const savedTransform = [...fabricCanvas.viewportTransform]
         const scale = fabricCanvas.getZoom()
@@ -371,11 +416,11 @@ export default {
         const img = w.document.createElement('img')
         img.src = dataUrl
         w.document.body.append(img)
-      }
+      },
     }
   },
-  async load ({ component, get }) {
+  async load({ component, get }) {
     const { imageUrl } = component.dataset
     get().init(imageUrl)
-  }
+  },
 }

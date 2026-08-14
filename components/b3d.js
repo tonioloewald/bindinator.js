@@ -33,7 +33,7 @@ export default {
   <span data-bind="class(icon-shrink|icon-enlarge)=_component_.isFullscreen"></span>
 </button>
 `,
-  async load ({ component, findOne, get, set }) {
+  async load({ component, findOne, get, set }) {
     const { viaTag } = await import('../lib/scripts.js')
     const { BABYLON } = await viaTag('https://cdn.babylonjs.com/babylon.max.js')
     await viaTag('https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js')
@@ -44,7 +44,11 @@ export default {
       const hemi = new BABYLON.HemisphericLight()
       hemi.intensity = 0.5
       hemi.diffuse = hemi.specular = new BABYLON.Color3(0.3, 0.3, 1)
-      const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(0.5, -1, -1), scene)
+      const sun = new BABYLON.DirectionalLight(
+        'sun',
+        new BABYLON.Vector3(0.5, -1, -1),
+        scene
+      )
       const shadowGenerator = new BABYLON.ShadowGenerator(1024, sun)
       shadowGenerator.bias = 0.001
       shadowGenerator.normalBias = 0.01
@@ -55,10 +59,21 @@ export default {
       shadowGenerator.setDarkness(0.1)
 
       // Adding an Arc Rotate Camera
-      const camera = new BABYLON.ArcRotateCamera('Camera', 0, 0.8, 10, BABYLON.Vector3.Zero(), scene)
+      const camera = new BABYLON.ArcRotateCamera(
+        'Camera',
+        0,
+        0.8,
+        10,
+        BABYLON.Vector3.Zero(),
+        scene
+      )
 
       camera.attachControl(canvas, false)
-      const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene)
+      const light = new BABYLON.HemisphericLight(
+        'light',
+        new BABYLON.Vector3(0, 1, 0),
+        scene
+      )
       const SPS = new BABYLON.SolidParticleSystem('SPS', scene)
       const sphere = BABYLON.MeshBuilder.CreateSphere('s', {})
       const poly = BABYLON.MeshBuilder.CreatePolyhedron('p', { type: 2 })
@@ -88,7 +103,7 @@ export default {
       set({
         camera,
         mesh,
-        light
+        light,
       })
 
       return scene
@@ -98,7 +113,10 @@ export default {
     scene.onPointerDown = (evt, info) => {
       highlightLayer.removeAllMeshes()
       if (info.hit) {
-        highlightLayer.addMesh(info.pickedMesh, BABYLON.Color3.FromHexString('#aaaaff'))
+        highlightLayer.addMesh(
+          info.pickedMesh,
+          BABYLON.Color3.FromHexString('#aaaaff')
+        )
       }
     }
 
@@ -118,11 +136,11 @@ export default {
       fps,
       engine,
       scene,
-      destroy () {
+      destroy() {
         engine.stopRenderLoop(render)
       },
       isFullScreen: false,
-      async toggleFullscreen () {
+      async toggleFullscreen() {
         const { isFullscreen } = get()
         if (isFullscreen) {
           await document.exitFullscreen()
@@ -132,7 +150,7 @@ export default {
           engine.resize()
         }
         set({ isFullscreen: !isFullscreen })
-      }
+      },
     })
-  }
+  },
 }

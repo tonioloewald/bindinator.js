@@ -338,9 +338,10 @@ The obvious place to use typeSafe functions is when communicating with services,
 and here any overhead is insignificant compared with network or I/O.
 */
 
-export const isAsync = func => func && func.constructor === (async () => {}).constructor
+export const isAsync = (func) =>
+  func && func.constructor === (async () => {}).constructor
 
-export const describe = x => {
+export const describe = (x) => {
   if (x === null) return 'null'
   if (Array.isArray(x)) return 'array'
   if (typeof x === 'number') {
@@ -349,14 +350,12 @@ export const describe = x => {
   if (typeof x === 'string' && x.startsWith('#')) return x
   if (x instanceof Promise) return 'promise'
   if (typeof x === 'function') {
-    return x.constructor === (async () => {}).constructor
-      ? 'async'
-      : 'function'
+    return x.constructor === (async () => {}).constructor ? 'async' : 'function'
   }
   return typeof x
 }
 
-const parseFloatOrInfinity = x => {
+const parseFloatOrInfinity = (x) => {
   if (x === '-∞') {
     return -Infinity
   } else if (x[0] === '∞') {
@@ -370,7 +369,9 @@ const inRange = (spec, x) => {
   let lower, upper
   if (spec === undefined) return true
   try {
-    [, lower, upper] = (spec || '').match(/^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/)
+    ;[, lower, upper] = (spec || '').match(
+      /^([[(]-?[\d.∞]+)?,?(-?[\d.∞]+[\])])?$/
+    )
   } catch (e) {
     throw new Error(`bad range ${spec}`, { cause: e })
   }
@@ -396,12 +397,15 @@ const inRange = (spec, x) => {
 const regExps = {}
 
 const regexpTest = (spec, subject) => {
-  const regexp = regExps[spec] ? regExps[spec] : regExps[spec] = new RegExp(spec)
+  const regexp = regExps[spec]
+    ? regExps[spec]
+    : (regExps[spec] = new RegExp(spec))
   return regexp.test(subject)
 }
 
 export const specificTypeMatch = (type, subject) => {
-  const [, optional, baseType, , spec] = type.match(/^#([?]?)([^\s]+)(\s(.*))?$/) || []
+  const [, optional, baseType, , spec] =
+    type.match(/^#([?]?)([^\s]+)(\s(.*))?$/) || []
   if (optional && (subject === null || subject === undefined)) return true
   const subjectType = describe(subject)
   switch (baseType) {
@@ -410,13 +414,18 @@ export const specificTypeMatch = (type, subject) => {
     case 'any':
       return subject !== null && subject !== undefined
     case 'native':
-      if (typeof subject !== 'function' || subject.toString() !== 'function () { [native code] }') {
+      if (
+        typeof subject !== 'function' ||
+        subject.toString() !== 'function () { [native code] }'
+      ) {
         return false
       }
       if (!type) {
         return true
       }
-      return isAsync(subject) ? type.match(/^async\b/) : type.match(/^function\b/)
+      return isAsync(subject)
+        ? type.match(/^async\b/)
+        : type.match(/^function\b/)
     case 'function':
       if (subjectType !== 'function') return false
       // todo allow for typeSafe functions with param/result specified by name
@@ -425,17 +434,23 @@ export const specificTypeMatch = (type, subject) => {
       if (subjectType !== 'number') return false
       return inRange(spec, subject)
     case 'int':
-      if (subjectType !== 'number' || subject !== Math.floor(subject)) return false
+      if (subjectType !== 'number' || subject !== Math.floor(subject))
+        return false
       return inRange(spec, subject)
     case 'union':
-      return !!spec.split('||').find(type => specificTypeMatch(`#${type}`, subject))
+      return !!spec
+        .split('||')
+        .find((type) => specificTypeMatch(`#${type}`, subject))
     case 'enum':
       try {
         return spec.split('|').map(JSON.parse).includes(subject)
       } catch (e) {
-        throw new Error(`bad enum specification (${spec}), expect JSON strings`, {
-          cause: e,
-        })
+        throw new Error(
+          `bad enum specification (${spec}), expect JSON strings`,
+          {
+            cause: e,
+          }
+        )
       }
     case 'void':
       return subjectType === 'undefined' || subjectType === 'null'
@@ -455,7 +470,11 @@ export const specificTypeMatch = (type, subject) => {
       return !!subject && typeof subject === 'object' && !Array.isArray(subject)
     default:
       if (subjectType !== baseType) {
-        console.error('got', subject, `expected "${type}", "${subjectType}" does not match "${baseType}"`)
+        console.error(
+          'got',
+          subject,
+          `expected "${type}", "${subjectType}" does not match "${baseType}"`
+        )
         return false
       } else {
         return true
@@ -472,15 +491,15 @@ export const describeType = (x) => {
   switch (scalarType) {
     case 'array':
       return x.map(describeType)
-    case 'object':
-    {
+    case 'object': {
       const _type = {}
-      Object.keys(x).forEach((key) => { _type[key] = describeType(x[key]) })
+      Object.keys(x).forEach((key) => {
+        _type[key] = describeType(x[key])
+      })
       return _type
     }
     case 'function':
-    case 'async':
-    {
+    case 'async': {
       const source = x.toString()
       if (source.startsWith('class ')) {
         return 'class'
@@ -490,10 +509,14 @@ export const describeType = (x) => {
       }
       const functionSource = source.match(functionDeclaration)
       const arrowSource = source.match(arrowDeclaration)
-      const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration)
-      const paramText = ((functionSource && functionSource[3]) ||
-          (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim()
-      const params = paramText.split(',').map(param => {
+      const hasReturnValue =
+        source.match(returnsValue) || source.match(arrowDeclaration)
+      const paramText = (
+        (functionSource && functionSource[3]) ||
+        (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) ||
+        ''
+      ).trim()
+      const params = paramText.split(',').map((param) => {
         const [key] = param.split('=')
         return `${key} #any`
       })
@@ -507,10 +530,11 @@ export const describeType = (x) => {
 export const typeJSON = (x) => JSON.stringify(describeType(x))
 export const typeJS = (x) => typeJSON(x).replace(/"(\w+)":/g, '$1:')
 
-const quoteIfString = (x) => typeof x === 'string' ? `"${x}"` : (typeof x === 'object' ? describe(x) : x)
+const quoteIfString = (x) =>
+  typeof x === 'string' ? `"${x}"` : typeof x === 'object' ? describe(x) : x
 
 // when checking large arrays, only check a maximum of 111 elements
-function * arraySampler (a) {
+function* arraySampler(a) {
   let i = 0
   // 101 is a prime number so hopefully we'll avoid sampling fixed patterns
   const increment = Math.ceil(a.length / 101)
@@ -519,12 +543,12 @@ function * arraySampler (a) {
     if (i < 5) {
       yield { sample: a[i], i }
       i++
-    // last five
+      // last five
     } else if (i > a.length - 5) {
       yield { sample: a[i], i }
       i++
     } else {
-    // ~1% of the ones in the middle
+      // ~1% of the ones in the middle
       yield { sample: a[i], i }
       i = Math.min(i + increment, a.length - 4)
     }
@@ -538,13 +562,16 @@ export const matchType = (example, subject, errors = [], path = '') => {
     ? specificTypeMatch(exampleType, subject)
     : exampleType === subjectType
   if (!typesMatch) {
-    errors.push(`${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`)
+    errors.push(
+      `${path ? path + ' ' : ''}was ${quoteIfString(subject)}, expected ${exampleType}`
+    )
   } else if (exampleType === 'array') {
     // only checking first element of subject for now
     const sampler = subject.length ? arraySampler(subject) : false
     if (example.length === 1 && sampler) {
       // assume homogenous array
-      for (const { sample, i } of sampler) matchType(example[0], sample, errors, `${path}[${i}]`)
+      for (const { sample, i } of sampler)
+        matchType(example[0], sample, errors, `${path}[${i}]`)
     } else if (example.length > 1 && sampler) {
       // assume heterogeneous array
       for (const { sample, i } of sampler) {
@@ -601,10 +628,17 @@ const matchKeys = (example, subject, errors = [], path = '') => {
         errors.push(badKeyError)
         console.error(badKeyError)
       }
-      const matchingKeys = Object.keys(subject).filter(key => keyTest.test(key))
+      const matchingKeys = Object.keys(subject).filter((key) =>
+        keyTest.test(key)
+      )
       for (const k of matchingKeys) {
         if (!testedKeys.has(k)) {
-          matchType(example[key], subject[k], errors, `${path}./^${key.substr(1)}$/:${k}`)
+          matchType(
+            example[key],
+            subject[k],
+            errors,
+            `${path}./^${key.substr(1)}$/:${k}`
+          )
           testedKeys.add(k)
         }
       }
@@ -837,28 +871,18 @@ Test(() => safeVectorAdd([1,2], inner([1,2],[1])).toString(), 'short circuit wor
  */
 
 export class TypeError {
-  constructor ({
-    functionName,
-    isParamFailure,
-    expected,
-    found,
-    errors
-  }) {
+  constructor({ functionName, isParamFailure, expected, found, errors }) {
     Object.assign(this, {
       functionName,
       isParamFailure,
       expected,
       found,
-      errors
+      errors,
     })
   }
 
-  toString () {
-    const {
-      functionName,
-      isParamFailure,
-      errors
-    } = this
+  toString() {
+    const { functionName, isParamFailure, errors } = this
     return `${functionName} failed: bad ${isParamFailure ? 'parameter' : 'result'}, ${JSON.stringify(errors)}`
   }
 }
@@ -869,12 +893,12 @@ const assignReadOnly = (obj, propMap) => {
     const value = propMap[key]
     Object.defineProperty(obj, key, {
       enumerable: true,
-      get () {
+      get() {
         return value
       },
-      set (value) {
+      set(value) {
         throw new Error(`${key} is read-only`)
-      }
+      },
     })
   }
   return obj
@@ -892,7 +916,12 @@ export const matchParamTypes = (types, params) => {
 
 // TODO async function support
 
-export const typeSafe = (func, paramTypes = [], resultType = undefined, functionName = undefined) => {
+export const typeSafe = (
+  func,
+  paramTypes = [],
+  resultType = undefined,
+  functionName = undefined
+) => {
   const paramErrors = matchParamTypes(
     ['#function', '#?array', '#?any', '#?string'],
     [func, paramTypes, resultType, functionName]
@@ -901,50 +930,53 @@ export const typeSafe = (func, paramTypes = [], resultType = undefined, function
 
   if (!functionName) functionName = func.name || 'anonymous'
   let callCount = 0
-  return assignReadOnly(function (...params) {
-    callCount += 1
-    const paramErrors = matchParamTypes(paramTypes, params)
-    // short circuit failures
-    if (paramErrors instanceof TypeError) return paramErrors
+  return assignReadOnly(
+    function (...params) {
+      callCount += 1
+      const paramErrors = matchParamTypes(paramTypes, params)
+      // short circuit failures
+      if (paramErrors instanceof TypeError) return paramErrors
 
-    if (paramErrors.length === 0) {
-      const result = func(...params)
-      const resultErrors = matchType(resultType, result)
-      if (resultErrors.length === 0) {
-        return result
-      } else {
-        return new TypeError({
-          functionName,
-          isParamFailure: false,
-          expected: resultType,
-          found: result,
-          errors: resultErrors
-        })
+      if (paramErrors.length === 0) {
+        const result = func(...params)
+        const resultErrors = matchType(resultType, result)
+        if (resultErrors.length === 0) {
+          return result
+        } else {
+          return new TypeError({
+            functionName,
+            isParamFailure: false,
+            expected: resultType,
+            found: result,
+            errors: resultErrors,
+          })
+        }
       }
+      return new TypeError({
+        functionName,
+        isParamFailure: true,
+        expected: paramTypes,
+        found: params,
+        errors: paramErrors,
+      })
+    },
+    {
+      paramTypes,
+      resultType,
+      getCallCount: () => callCount,
     }
-    return new TypeError({
-      functionName,
-      isParamFailure: true,
-      expected: paramTypes,
-      found: params,
-      errors: paramErrors
-    })
-  }, {
-    paramTypes,
-    resultType,
-    getCallCount: () => callCount
-  })
+  )
 }
 
-function tsDescribe (x, name) {
+function tsDescribe(x, name) {
   const b8rType = describe(x)
   switch (b8rType) {
     case 'array':
       return `Array<${x.length ? tsDescribe(x[0]) : 'any'}>`
     case 'object':
-      return `{${
-        Object.keys(x).map(key => `${key}: ${tsDescribe(x[key], null)}`).join(', ')
-      }}`
+      return `{${Object.keys(x)
+        .map((key) => `${key}: ${tsDescribe(x[key], null)}`)
+        .join(', ')}}`
     case 'null':
     case 'undefined':
       return 'any'
@@ -962,30 +994,38 @@ function tsDescribe (x, name) {
   }
 }
 
-function tsFunctionType (func, name) {
+function tsFunctionType(func, name) {
   const source = func.toString()
   const functionSource = source.match(functionDeclaration)
   const arrowSource = source.match(arrowDeclaration)
-  const hasReturnValue = source.match(returnsValue) || source.match(arrowDeclaration)
-  const paramText = ((functionSource && functionSource[3]) ||
-      (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) || '').trim()
-  const params = paramText ? paramText.split(',').map(param => {
-    const [key] = param.split('=')
-    return `${key.trim()}: any`
-  }) : []
+  const hasReturnValue =
+    source.match(returnsValue) || source.match(arrowDeclaration)
+  const paramText = (
+    (functionSource && functionSource[3]) ||
+    (arrowSource && (arrowSource[2] || arrowSource[3] || arrowSource[4])) ||
+    ''
+  ).trim()
+  const params = paramText
+    ? paramText.split(',').map((param) => {
+        const [key] = param.split('=')
+        return `${key.trim()}: any`
+      })
+    : []
   return name
     ? `${isAsync(func) ? 'async ' : ''}function ${name} (${params.join(', ')}): ${hasReturnValue ? 'any' : 'void'}`
     : `(${params.join(', ')}) => ${hasReturnValue ? 'any' : 'void'}`
 }
 
-export function tsDeclaration (module) {
+export function tsDeclaration(module) {
   const members = Object.keys(module).sort()
-  return members.map(name => {
-    const member = module[name]
-    if (typeof member === 'function') {
-      return `declare ${tsDescribe(member, name)}`
-    } else {
-      return `declare const ${name}: ${tsDescribe(member)}`
-    }
-  }).join('\n')
+  return members
+    .map((name) => {
+      const member = module[name]
+      if (typeof member === 'function') {
+        return `declare ${tsDescribe(member, name)}`
+      } else {
+        return `declare const ${name}: ${tsDescribe(member)}`
+      }
+    })
+    .join('\n')
 }

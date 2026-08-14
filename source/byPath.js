@@ -188,12 +188,12 @@ import { id } from './uuid.js'
 const _delete_ = {}
 const _newObject_ = {}
 
-function pathSplit (fullPath) {
-  const [, model,, start, path] = fullPath.match(/^(.*?)(([.[])(.*))?$/)
+function pathSplit(fullPath) {
+  const [, model, , start, path] = fullPath.match(/^(.*?)(([.[])(.*))?$/)
   return [model, start === '[' ? '[' + path : path]
 }
 
-function pathParts (path) {
+function pathParts(path) {
   if (!path || path === '/') {
     return []
   }
@@ -226,11 +226,14 @@ function pathParts (path) {
   }
 }
 
-function buildIdPathValueMap (array, idPath) {
+function buildIdPathValueMap(array, idPath) {
   if (array && !array._b8r_id_path) {
     array._b8r_id_path = idPath
   } else if (array._b8r_id_path !== idPath) {
-    console.debug('b8r-error', `inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`)
+    console.debug(
+      'b8r-error',
+      `inconsistent id-path '${idPath}' used for array, expected '${array._b8r_id_path}'`
+    )
   }
   if (!array._b8r_value_maps) {
     // hide the map of maps in a closure that is returned by a computed property so that
@@ -253,7 +256,7 @@ function buildIdPathValueMap (array, idPath) {
   return map
 }
 
-function getIdPathMap (array, idPath) {
+function getIdPathMap(array, idPath) {
   if (!array._b8r_value_maps || !array._b8r_value_maps[idPath]) {
     return buildIdPathValueMap(array, idPath)
   } else {
@@ -261,7 +264,7 @@ function getIdPathMap (array, idPath) {
   }
 }
 
-function keyToIndex (array, idPath, idValue) {
+function keyToIndex(array, idPath, idValue) {
   idValue = idValue + ''
   /*
   if (array.length > 200) {
@@ -274,14 +277,14 @@ function keyToIndex (array, idPath, idValue) {
   return idx
 }
 
-function byKey (obj, key, valueToInsert) {
+function byKey(obj, key, valueToInsert) {
   if (!obj[key]) {
     obj[key] = valueToInsert
   }
   return obj[key]
 }
 
-function byIdPath (array, idPath, idValue, valueToInsert) {
+function byIdPath(array, idPath, idValue, valueToInsert) {
   let idx = idPath ? keyToIndex(array, idPath, idValue) : idValue
   if (valueToInsert === _delete_) {
     array.splice(idx, 1)
@@ -293,7 +296,10 @@ function byIdPath (array, idPath, idValue, valueToInsert) {
   } else if (valueToInsert) {
     if (idx !== undefined) {
       array[idx] = valueToInsert
-    } else if (idPath && getByPath(valueToInsert, idPath) + '' === idValue + '') {
+    } else if (
+      idPath &&
+      getByPath(valueToInsert, idPath) + '' === idValue + ''
+    ) {
       array.push(valueToInsert)
       idx = array.length - 1
     } else {
@@ -303,21 +309,21 @@ function byIdPath (array, idPath, idValue, valueToInsert) {
   return array[idx]
 }
 
-function expectArray (obj) {
+function expectArray(obj) {
   if (!Array.isArray(obj)) {
     console.debug('b8r-error', 'setByPath failed: expected array, found', obj)
     throw new Error('setByPath failed: expected array')
   }
 }
 
-function expectObject (obj) {
+function expectObject(obj) {
   if (!obj || obj.constructor !== Object) {
     console.debug('b8r-error', 'setByPath failed: expected Object, found', obj)
     throw new Error('setByPath failed: expected object')
   }
 }
 
-function getByPath (obj, path) {
+function getByPath(obj, path) {
   const parts = pathParts(path)
   var found = obj
   var i, iMax, j, jMax
@@ -347,7 +353,7 @@ function getByPath (obj, path) {
   return found === undefined ? null : found
 }
 
-function setByPath (orig, path, val) {
+function setByPath(orig, path, val) {
   let obj = orig
   const parts = pathParts(path)
 
@@ -406,7 +412,7 @@ function setByPath (orig, path, val) {
   throw new Error(`setByPath(${orig}, ${path}, ${val}) failed`)
 }
 
-function deleteByPath (orig, path) {
+function deleteByPath(orig, path) {
   if (getByPath(orig, path) !== null) {
     setByPath(orig, path, _delete_)
   }

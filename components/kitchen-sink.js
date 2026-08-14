@@ -530,93 +530,96 @@ body > .kitchen-sink-component {
   </blockquote>
 </div>
 `,
-  async load({component, b8r, data, get, set, on}) {
-        const {isParent, open} = await import('../lib/windows.js');
-        b8r.component('../components/menubar');
-        b8r.component('../components/toolbar');
-        b8r.component('../components/slider-numeric');
-        b8r.component('../components/combo');
-        b8r.component('../components/selector');
-        b8r.component('../components/input');
-        b8r.component('../components/contenteditable');
-        b8r.component('../components/switch');
-        b8r.component('../components/animated-switch');
-        b8r.component('../components/radioset');
-        b8r.component('../components/search-field');
-        b8r.component('../components/date');
-        b8r.component('../components/iso-date');
-        ['seeked', 'loadeddata', 'timeupdate'].forEach(b8r.implicitlyHandleEventsOfType);
-        const video_snapshot = evt => {
-          const video = evt.target;
-          const canvas = evt.target.nextElementSibling;
-          const dw = canvas.offsetWidth;
-          const dh = canvas.offsetHeight;
-          canvas.setAttribute('width', dw);
-          canvas.setAttribute('height', dh);
-          const ctx = canvas.getContext('2d');
-          const sw = video.videoWidth;
-          const sh = video.videoHeight;
-          // ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw, dh);
-          ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw * 0.5, dh * 0.5);
-          ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, 0, dw * 0.5, dh * 0.5);
-          ctx.drawImage(video, 0, 0, sw, sh, 0, dh * 0.5, dw * 0.5, dh * 0.5);
-          ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, dh * 0.5, dw * 0.5, dh * 0.5);
-        };
-        b8r.onAny(['timeupdate'], '_b8r_._update_');
-        // multi-window support, see windows.js
-        if (isParent()) {
-          const spawn_window = () => {
-            open(
-              window.location.href.split('#')[0] + '#body=/components/kitchen-sink.js',
-              { minWidth: 600, minHeight: 400 },
-              ['kitchen-sink-demo']
-            );
-          };
-          // we only want the parent to be able to spawn new child windows
-          set({video_snapshot, spawn_window});
-          // create a fake dataset once for everyone to share
-          b8r.reg['kitchen-sink-demo'] = {
-            fuelrods: 17,
-            single_selection: 'Another Option',
-            input_field: 'edit this text',
-            checked: true,
-            textarea: 'this is a text\narea',
-            test_date: '1976-04-01T08:00:00.000Z',
-            multiselect: [
-              {
-                text: 'Default',
-                selected: false
-              },
-              {
-                text: 'Another Option',
-                selected: true
-              },
-              {
-                text: 'Yet Another Option',
-                selected: false
-              },
-              {
-                text: 'And Yet Another Option',
-                selected: true
-              },
-            ],
-            colors: [
-              {text: 'Yellow', value: 'yellow'},
-              {text: 'Pink', value: 'pink'},
-              {text: 'Blue', value: 'blue'},
-            ],
-            color: 'pink',
-            test: evt => {
-              console.log('menu pick', evt.target.textContent);
-              return true;
-            },
-            video_playhead: 0,
-          };
-        } else {
-          set({video_snapshot});
-          if (! b8r.reg['kitchen-sink-demo']) {
-            b8r.reg['kitchen-sink-demo'] = {};
-          }
-        }
-  }
+  async load({ component, b8r, data, get, set, on }) {
+    const { isParent, open } = await import('../lib/windows.js')
+    b8r.component('../components/menubar')
+    b8r.component('../components/toolbar')
+    b8r.component('../components/slider-numeric')
+    b8r.component('../components/combo')
+    b8r.component('../components/selector')
+    b8r.component('../components/input')
+    b8r.component('../components/contenteditable')
+    b8r.component('../components/switch')
+    b8r.component('../components/animated-switch')
+    b8r.component('../components/radioset')
+    b8r.component('../components/search-field')
+    b8r.component('../components/date')
+    b8r.component('../components/iso-date')
+    ;['seeked', 'loadeddata', 'timeupdate'].forEach(
+      b8r.implicitlyHandleEventsOfType
+    )
+    const video_snapshot = (evt) => {
+      const video = evt.target
+      const canvas = evt.target.nextElementSibling
+      const dw = canvas.offsetWidth
+      const dh = canvas.offsetHeight
+      canvas.setAttribute('width', dw)
+      canvas.setAttribute('height', dh)
+      const ctx = canvas.getContext('2d')
+      const sw = video.videoWidth
+      const sh = video.videoHeight
+      // ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw, dh);
+      ctx.drawImage(video, 0, 0, sw, sh, 0, 0, dw * 0.5, dh * 0.5)
+      ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, 0, dw * 0.5, dh * 0.5)
+      ctx.drawImage(video, 0, 0, sw, sh, 0, dh * 0.5, dw * 0.5, dh * 0.5)
+      ctx.drawImage(video, 0, 0, sw, sh, dw * 0.5, dh * 0.5, dw * 0.5, dh * 0.5)
+    }
+    b8r.onAny(['timeupdate'], '_b8r_._update_')
+    // multi-window support, see windows.js
+    if (isParent()) {
+      const spawn_window = () => {
+        open(
+          window.location.href.split('#')[0] +
+            '#body=/components/kitchen-sink.js',
+          { minWidth: 600, minHeight: 400 },
+          ['kitchen-sink-demo']
+        )
+      }
+      // we only want the parent to be able to spawn new child windows
+      set({ video_snapshot, spawn_window })
+      // create a fake dataset once for everyone to share
+      b8r.reg['kitchen-sink-demo'] = {
+        fuelrods: 17,
+        single_selection: 'Another Option',
+        input_field: 'edit this text',
+        checked: true,
+        textarea: 'this is a text\narea',
+        test_date: '1976-04-01T08:00:00.000Z',
+        multiselect: [
+          {
+            text: 'Default',
+            selected: false,
+          },
+          {
+            text: 'Another Option',
+            selected: true,
+          },
+          {
+            text: 'Yet Another Option',
+            selected: false,
+          },
+          {
+            text: 'And Yet Another Option',
+            selected: true,
+          },
+        ],
+        colors: [
+          { text: 'Yellow', value: 'yellow' },
+          { text: 'Pink', value: 'pink' },
+          { text: 'Blue', value: 'blue' },
+        ],
+        color: 'pink',
+        test: (evt) => {
+          console.log('menu pick', evt.target.textContent)
+          return true
+        },
+        video_playhead: 0,
+      }
+    } else {
+      set({ video_snapshot })
+      if (!b8r.reg['kitchen-sink-demo']) {
+        b8r.reg['kitchen-sink-demo'] = {}
+      }
+    }
+  },
 }

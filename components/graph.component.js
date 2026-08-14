@@ -86,7 +86,7 @@ export default {
             <polyline data-bind="method(_component_.polyline)=."></polyline>
         </g>
     </svg>`,
-  initialValue ({ get, findOne }) {
+  initialValue({ get, findOne }) {
     return {
       title: 'Widgets v. Sprockets',
       subtitle: 'Units (1000s)',
@@ -102,40 +102,46 @@ export default {
         {
           name: 'widgets',
           strokeWidth: 4,
-          cells: [10, 30, 25, 40, 45]
+          cells: [10, 30, 25, 40, 45],
         },
         {
           name: 'sprockets',
           color: 'rgba(0,0,255,0.25)',
-          cells: [15, 20, 23, 20, 22]
-        }
+          cells: [15, 20, 23, 20, 22],
+        },
       ],
-      calculateY (value, min, max) {
+      calculateY(value, min, max) {
         const { height, logarithmic } = get()
         return logarithmic
-          ? height * (Math.log10(value) - Math.log10(min)) / (Math.log10(max) - Math.log10(min))
-          : height * (value - min) / (max - min)
+          ? (height * (Math.log10(value) - Math.log10(min))) /
+              (Math.log10(max) - Math.log10(min))
+          : (height * (value - min)) / (max - min)
       },
-      maxValue () {
+      maxValue() {
         const { marks, data } = get()
-        return Math.max(...marks, ...data.map(datum => datum.cells).flat())
+        return Math.max(...marks, ...data.map((datum) => datum.cells).flat())
       },
-      minValue () {
+      minValue() {
         const { marks, data, logarithmic } = get()
-        return logarithmic ? 1 : Math.min(...marks, ...data.map(datum => datum.cells).flat())
+        return logarithmic
+          ? 1
+          : Math.min(...marks, ...data.map((datum) => datum.cells).flat())
       },
-      viewbox (elt, [width, height]) {
+      viewbox(elt, [width, height]) {
         // offsets to prevent clipping at edges; TODO make them configurable
-        elt.setAttribute('viewBox', `${-20} ${-20} ${width + 40} ${height + 40}`)
+        elt.setAttribute(
+          'viewBox',
+          `${-20} ${-20} ${width + 40} ${height + 40}`
+        )
         elt.style.margin = '-5px'
         elt.setAttribute('width', width + 'px')
       },
-      markLines (element, marks) {
+      markLines(element, marks) {
         element.textContent = ''
         const { width, height, calculateY } = get()
         const max = get().maxValue()
         const min = get().minValue()
-        marks.forEach(value => {
+        marks.forEach((value) => {
           const y = height - calculateY(value, min, max)
           const mark = makeRect()
           mark.setAttribute('x', 0)
@@ -151,7 +157,7 @@ export default {
           element.append(text)
         })
       },
-      bars (element, data) {
+      bars(element, data) {
         element.textContent = ''
         const { width, height, barSpacing, barOffset, axis, calculateY } = get()
         const rowCount = data.length
@@ -173,18 +179,21 @@ export default {
           })
         })
       },
-      polyline (element, { cells, color, strokeWidth, name }) {
+      polyline(element, { cells, color, strokeWidth, name }) {
         if (cells.length < 2) return
         const { width, height, calculateY } = get()
         const max = get().maxValue()
         const min = get().minValue()
         const size = cells.length - 1
-        const points = cells.map(v => height - calculateY(v, min, max)).map((y, idx) => `${idx / size * width},${y}`).join(' ')
+        const points = cells
+          .map((v) => height - calculateY(v, min, max))
+          .map((y, idx) => `${(idx / size) * width},${y}`)
+          .join(' ')
         element.setAttribute('points', points)
         element.setAttribute('aria-label', name)
         if (color) element.setAttribute('stroke', color)
         if (strokeWidth) element.setAttribute('stroke-width', strokeWidth)
-      }
+      },
     }
-  }
+  },
 }

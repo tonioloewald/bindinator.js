@@ -23,11 +23,11 @@ const settings = {
   https: false,
   cert_path: 'localhost-ssl/public.pem',
   key_path: 'localhost-ssl/private.pem',
-  verbose: false
+  verbose: false,
 }
 
-process.argv.slice(2).forEach(arg => {
-  const parts = arg.split(':').map(s => s.trim())
+process.argv.slice(2).forEach((arg) => {
+  const parts = arg.split(':').map((s) => s.trim())
   if (parts[0]) {
     settings[parts[0]] = parts.length === 2 ? parts[1] : true
   }
@@ -37,9 +37,9 @@ console.log(settings)
 
 const options = settings.https
   ? {
-    key: fs.readFileSync(settings.key_path),
-    cert: fs.readFileSync(settings.cert_path)
-  }
+      key: fs.readFileSync(settings.key_path),
+      cert: fs.readFileSync(settings.cert_path),
+    }
   : {}
 
 const handlers = [] // { handler },
@@ -53,9 +53,9 @@ const on = (methods, endpoint, handler) => {
   if (typeof endpoint === 'function') {
     handler.test = endpoint
   } else if (endpoint instanceof RegExp) {
-    handler.test = path => endpoint.test(path)
+    handler.test = (path) => endpoint.test(path)
   } else if (typeof endpoint === 'string') {
-    handler.test = path => path === endpoint
+    handler.test = (path) => path === endpoint
   } else {
     throw new Error('expect endpoint to be a string, RegExp, or test function')
   }
@@ -73,7 +73,9 @@ const screencapRegexp = /^\/screencap(\/.*?)$/
 on('GET', screencapRegexp, async (req, res) => {
   const puppeteer = optionalPuppeteer()
   if (!puppeteer) {
-    console.error('/screencap requires puppeteer; run `npm i puppeteer` to enable it')
+    console.error(
+      '/screencap requires puppeteer; run `npm i puppeteer` to enable it'
+    )
     res.writeHead(501)
     res.end('/screencap requires puppeteer; run `npm i puppeteer` to enable it')
     return
@@ -110,7 +112,7 @@ const mimeTypes = {
   cjs: 'text/javascript',
   html: 'text/html',
   mp4: 'video/mp4',
-  mov: 'video/quicktime'
+  mov: 'video/quicktime',
 }
 
 const getRange = (req, content) => {
@@ -123,13 +125,13 @@ const getRange = (req, content) => {
 
   const start = parseInt(partialstart, 10)
   const end = partialend ? parseInt(partialend, 10) : total
-  const chunksize = (end - start)
+  const chunksize = end - start
 
   return {
     start,
     end,
     total,
-    chunksize
+    chunksize,
   }
 }
 
@@ -154,23 +156,18 @@ const handleStaticRequest = (req, res) => {
       const fileExtension = pathname.split('.').pop()
       const mimeType = mimeTypes[fileExtension] || DEFAULT_MIME_TYPE
       if (range) {
-        const {
-          start,
-          end,
-          total,
-          chunksize
-        } = range
+        const { start, end, total, chunksize } = range
         res.writeHead(206, {
           'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
           'Accept-Ranges': 'bytes',
           'Content-Type': mimeType,
-          'Content-Length': chunksize
+          'Content-Length': chunksize,
         })
         res.end(data.slice(start, end))
       } else {
         res.writeHead(200, {
           'Content-Type': mimeType,
-          'Cache-Control': 'public, max-age=15000000'
+          'Cache-Control': 'public, max-age=15000000',
         })
         res.end(data)
       }
@@ -184,9 +181,11 @@ const handleStaticRequest = (req, res) => {
 const requestHandler = (req, res) => {
   const pathname = req.url.split('?')[0]
   if (settings.verbose) console.log(pathname, req.url)
-  const handler = handlers.find(
-    handler => handler.test(pathname) && handler.methods.indexOf(req.method) !== -1
-  ) || handleStaticRequest
+  const handler =
+    handlers.find(
+      (handler) =>
+        handler.test(pathname) && handler.methods.indexOf(req.method) !== -1
+    ) || handleStaticRequest
   handler(req, res)
 }
 

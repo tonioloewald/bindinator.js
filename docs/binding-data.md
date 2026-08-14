@@ -1,6 +1,6 @@
 # binding data
 
-Keeping data consistent between an underlying data structure (or "model") and 
+Keeping data consistent between an underlying data structure (or "model") and
 a user interface (or "view") is `b8r`'s job one.
 
 `b8r` aims to provide a simple, robust set of tools for doing this.
@@ -16,7 +16,7 @@ The basic form of a data binding is `data-bind="target=path.to.value"`.
 In `b8r` terms, `text` is the **target** (the DOM property you are binding
 data to and/or from), while `path.to.text` is the data **path**.
 
-- [Binding to the DOM](?source=source/toTargets.js) 
+- [Binding to the DOM](?source=source/toTargets.js)
 - [Binding from the DOM](?source=source/fromTargets.js)
 - [Registry](?source=source/registry.js) (see the section on **Paths**)
 
@@ -53,17 +53,17 @@ You can put **multiple values** into a binding, which only makes sense if you're
 
 ### Interpolated Values
 
-Finally, you can put an *interpolated value* on the right side of a data-binding, e.g.
+Finally, you can put an _interpolated value_ on the right side of a data-binding, e.g.
 
 ```
 <div data-bind="text={{user.first}} ${user.last}}"></div>
 ```
 
-This is intended to be familiar to Javascript programmers (it looks like interpolated strings in 
-several templating languages or Javascript) but be aware that all it does values from `b8r` paths -- code 
+This is intended to be familiar to Javascript programmers (it looks like interpolated strings in
+several templating languages or Javascript) but be aware that all it does values from `b8r` paths -- code
 will not be executed.
 
-**Note**: originally, only Javascript-style `${…}` template strings were supported, but this 
+**Note**: originally, only Javascript-style `${…}` template strings were supported, but this
 throws errors in some linters so support for `{{…}}` template strings has been added, and you
 should avoid the former.
 
@@ -77,16 +77,16 @@ A typical path such as `path.to.value` is an absolute path. The first "word" is 
 and the rest of the path drills down into it pretty much as you'd expect.
 
 The main things that differentiate a `b8r` data-path from ordinary javascript variable destructuring
-are array references can include a path lookup, e.g. instead of foo.list[17] you can write foo.list[id=123] 
-as shorthand for `foo.list.find(({id}) => id == '123')` and that `.` always works like the experimental `?.` 
+are array references can include a path lookup, e.g. instead of foo.list[17] you can write foo.list[id=123]
+as shorthand for `foo.list.find(({id}) => id == '123')` and that `.` always works like the experimental `?.`
 operator (so it doesn't blow up if it hits a `null` or `undefined` value).
 
 ### Relative Data Path
 
-A path that begins with a `.` is considered to be `relative` to its *closest data-ancestor*.  
-*Relative bindings only make sense inside a data-ancestor.*
+A path that begins with a `.` is considered to be `relative` to its _closest data-ancestor_.  
+_Relative bindings only make sense inside a data-ancestor._
 
-Say, what? Typically, the *closest data-ancestor* is the *list-instance* containing the binding (which
+Say, what? Typically, the _closest data-ancestor_ is the _list-instance_ containing the binding (which
 may be the bound element itself) or an element with an explicit `data-path` attribute. The former case
 is by far the most common, while the latter requires you to explicitly set the `data-path` at some
 point.
@@ -127,7 +127,7 @@ something like this in the DOM:
 
 ### Component Data Path
 
-A path that begins with `_component_` refers to the component's private instance data. This 
+A path that begins with `_component_` refers to the component's private instance data. This
 is data that can be set and accessed via `register`, `get`, and `set` inside a component's
 `<script>`.
 
@@ -161,8 +161,8 @@ The most commonly used targets are:
 - date -- used to render ISO dates using format strings
 - enabled_if -- enables/disables control based on value
 - disabled_if -- disables/enables control based on value
-- attr -- sets element *markup* attributes (e.g. an `<img>` tag's `alt` attribute)
-- prop -- sets element *javascript* properties (e.g. a `<video>` tag's `position` property)
+- attr -- sets element _markup_ attributes (e.g. an `<img>` tag's `alt` attribute)
+- prop -- sets element _javascript_ properties (e.g. a `<video>` tag's `position` property)
 
 Most targets are "to" only (i.e. when the underlying data changes the DOM is updated -- data goes "to" the view).
 
@@ -170,7 +170,7 @@ Where it makes sense (notably `value`, `checked`) the targets are "two-way", i.e
 model is automatically updated when the user changes the view. This just works.
 
 To learn about out all kinds of targets, as well as get more information about specific targets,
-see the documentation for ["to targets"](?source=source/toTargets.js) 
+see the documentation for ["to targets"](?source=source/toTargets.js)
 and ["from targets"](?source=source/fromTargets.js)
 
 ## The Binding Hierarchy
@@ -192,7 +192,7 @@ a simple example which binds a list of objects, each with a `name` property to a
 list in the DOM.
 
     <ul>
-      <li 
+      <li
         data-list="path.to.list"
         data-bind="text=.name"
       ></li>
@@ -231,7 +231,7 @@ You can bind to a method (by path) so long as the method returns a filtered subs
 of the source list, so:
 
     <ul>
-      <li 
+      <li
         data-list="path.to.filter(path.to.list):id-path"
         data-bind="text=.name"
       ></li>
@@ -245,8 +245,8 @@ id-path is provided, `b8r.bindList` will `throw` an exception.
 
 ### Under the Hood
 
-Under the hood, `b8r` uses the DOM element with the `data-list` attribute as both a 
-__template__ and a __bookmark__ within the DOM. For each element in the bound list
+Under the hood, `b8r` uses the DOM element with the `data-list` attribute as both a
+**template** and a **bookmark** within the DOM. For each element in the bound list
 `b8r` will clone the template, remove its `data-list` attribute, add a `data-list-instance`
 attribute with a `path` to the list element's corresponding data, and then `bindAll` the
 list element.
@@ -262,13 +262,13 @@ If an `id-path` is provided (see below), the path will use the `id-path`.
 
 To help `b8r` update lists more efficiently, you can provide an `id-path` in a list binding.
 Typically, the `id-path` will simply be the name of some guaranteed unique object property
-from a service (e.g. `id`, `uuid`, `fooId`, or `foo_id`). This lets `b8r` ensure it can 
+from a service (e.g. `id`, `uuid`, `fooId`, or `foo_id`). This lets `b8r` ensure it can
 tell exactly which list instance corresponds to a given item in a source `Array`.
 
 The format here is simply `data-list="path.to.list:id-path"`, e.g.
 
     <ul>
-      <li 
+      <li
         data-list="path.to.list:id"
         data-bind="text=.name"
       ></li>
@@ -279,7 +279,7 @@ the user can, for example, add new items to the list without their round-trippin
 service layer). In such cases you can specify an `_auto_` generated id.
 
     <ul>
-      <li 
+      <li
         data-list="path.to.list:_auto_"
         data-bind="text=.name"
       ></li>

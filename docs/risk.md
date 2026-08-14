@@ -40,7 +40,7 @@ Almost all of your investment in time, testing, and QA will be in the bottom two
 layers, which are completely uncoupled from `b8r`.
 
 What's more, the HTML and CSS are so generic that they can probably be reused
-unless you're moving to a framework that requires all your HTML and CSS to be 
+unless you're moving to a framework that requires all your HTML and CSS to be
 written in a custom language.
 
 ## `b8r` allows developers to ramp up insanely fast
@@ -51,7 +51,7 @@ a day, or sometimes a few hours.
 
 One colleague tried `b8r` out for an internal project at Uber ATG, and learned
 the framework and built the app in a couple of days; a veteran React developer,
-he estimated it would have taken him over two weeks to get the same work done 
+he estimated it would have taken him over two weeks to get the same work done
 with React.
 
 At Airtime, I used `b8r` to create a new implementation of our web/desktop
@@ -108,7 +108,7 @@ CPU than its alternatives.
 ## `b8r` both allows and encourages business logic to be generic
 
 THe easiest way to eliminate risk in choosing architectures is to decouple your
-choices. `b8r` doesn't impose any special structure or requirements on your 
+choices. `b8r` doesn't impose any special structure or requirements on your
 model code. Just write generic javascript and import the classes and functions.
 
 By the same token, if you start with `b8r` there is no reason to "infect" your

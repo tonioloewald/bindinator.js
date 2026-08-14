@@ -316,15 +316,15 @@ reference purposes.
 */
 /* global Event, MutationObserver, HTMLElement, requestAnimationFrame */
 
-const makeElement = (tagType, {
-  content = false,
-  attributes = {},
-  styles = {},
-  classes = []
-}) => {
+const makeElement = (
+  tagType,
+  { content = false, attributes = {}, styles = {}, classes = [] }
+) => {
   const elt = document.createElement(tagType)
   appendContentToElement(elt, content)
-  Object.keys(attributes).forEach((attributeName) => elt.setAttribute(attributeName, attributes[attributeName]))
+  Object.keys(attributes).forEach((attributeName) =>
+    elt.setAttribute(attributeName, attributes[attributeName])
+  )
   Object.keys(styles).forEach((styleName) => {
     elt.style[styleName] = styles[styleName]
   })
@@ -338,7 +338,7 @@ const dispatch = (target, type) => {
 }
 
 /* global ResizeObserver */
-const resizeObserver = new ResizeObserver(entries => {
+const resizeObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
     const element = entry.target
     dispatch(element, 'resize')
@@ -351,14 +351,14 @@ const input = (settings = {}) => makeElement('input', settings)
 const label = (settings = {}) => makeElement('label', settings)
 const slot = (settings = {}) => makeElement('slot', settings)
 const span = (settings = {}) => makeElement('span', settings)
-const text = s => document.createTextNode(s)
+const text = (s) => document.createTextNode(s)
 
 const appendContentToElement = (elt, content) => {
   if (content) {
     if (typeof content === 'string') {
       elt.textContent = content
     } else if (Array.isArray(content)) {
-      content.forEach(node => {
+      content.forEach((node) => {
         elt.appendChild(node.cloneNode ? node.cloneNode(true) : text(node))
       })
     } else if (content.cloneNode) {
@@ -371,11 +371,11 @@ const appendContentToElement = (elt, content) => {
 
 const fragment = (...elements) => {
   const container = document.createDocumentFragment()
-  elements.forEach(element => container.appendChild(element.cloneNode(true)))
+  elements.forEach((element) => container.appendChild(element.cloneNode(true)))
   return container
 }
 
-const _hyphenated = s => s.replace(/[A-Z]/g, c => '-' + c.toLowerCase())
+const _hyphenated = (s) => s.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())
 
 const _css = (obj) => {
   if (typeof obj === 'object') {
@@ -392,88 +392,103 @@ const _css = (obj) => {
   }
 }
 
-const makeWebComponent = (tagName, {
-  superClass = HTMLElement, // the class you're extending
-  value = false, // expect boolean
-  style = false, // expect object
-  methods = {}, // map names to functions
-  eventHandlers = {}, // map eventTypes to event handlers
-  props = {}, // map of instance properties to defaults
-  attributes = {}, // map attributes to default values
-  content = slot(), // HTMLElement or DocumentFragment
-  role = false // expect string
-}) => {
+const makeWebComponent = (
+  tagName,
+  {
+    superClass = HTMLElement, // the class you're extending
+    value = false, // expect boolean
+    style = false, // expect object
+    methods = {}, // map names to functions
+    eventHandlers = {}, // map eventTypes to event handlers
+    props = {}, // map of instance properties to defaults
+    attributes = {}, // map attributes to default values
+    content = slot(), // HTMLElement or DocumentFragment
+    role = false, // expect string
+  }
+) => {
   let styleNode = null
   if (style) {
-    style = Object.assign({ ':host([hidden])': { display: 'none !important' } }, style)
+    style = Object.assign(
+      { ':host([hidden])': { display: 'none !important' } },
+      style
+    )
     styleNode = makeElement('style', { content: _css(style) })
   }
   if (methods.render) {
-    methods = Object.assign({
-      queueRender (change = false) {
-        if (!this._changeQueued) this._changeQueued = change
-        if (!this._renderQueued) {
-          this._renderQueued = true
-          requestAnimationFrame(() => {
-            if (this._changeQueued) dispatch(this, 'change')
-            this._changeQueued = false
-            this._renderQueued = false
-            this.render()
-          })
-        }
-      }
-    }, methods)
+    methods = Object.assign(
+      {
+        queueRender(change = false) {
+          if (!this._changeQueued) this._changeQueued = change
+          if (!this._renderQueued) {
+            this._renderQueued = true
+            requestAnimationFrame(() => {
+              if (this._changeQueued) dispatch(this, 'change')
+              this._changeQueued = false
+              this._renderQueued = false
+              this.render()
+            })
+          }
+        },
+      },
+      methods
+    )
   }
 
   const componentClass = class extends superClass {
-    constructor () {
+    constructor() {
       super()
       for (const prop of Object.keys(props)) {
         let value = props[prop]
         if (typeof value !== 'function') {
           Object.defineProperty(this, prop, {
             enumerable: false,
-            get () {
+            get() {
               return value
             },
-            set (x) {
+            set(x) {
               if (value !== x) {
                 value = x
                 this.queueRender(true)
               }
-            }
+            },
           })
         } else {
           Object.defineProperty(this, prop, {
             enumerable: false,
-            get () {
+            get() {
               return value.call(this)
             },
-            set (x) {
+            set(x) {
               if (value.length === 1) {
                 value.call(this, x)
               } else {
                 throw new Error(`cannot set ${prop}, it is read-only`)
               }
-            }
+            },
           })
         }
       }
       const self = this
-      this.elementRefs = new Proxy({}, {
-        get (target, ref) {
-          if (!target[ref]) {
-            const element = self.shadowRoot.querySelector(`[data-id="${ref}"]`)
-            if (!element) throw new Error(`elementRef "${ref}" does not exist!`)
-            element.removeAttribute('data-id')
-            target[ref] = element
-          }
-          return target[ref]
-        },
-        set () {
-          throw new Error('elementRefs is read-only')
+      this.elementRefs = new Proxy(
+        {},
+        {
+          get(target, ref) {
+            if (!target[ref]) {
+              const element = self.shadowRoot.querySelector(
+                `[data-id="${ref}"]`
+              )
+              if (!element)
+                throw new Error(`elementRef "${ref}" does not exist!`)
+              element.removeAttribute('data-id')
+              target[ref] = element
+            }
+            return target[ref]
+          },
+          set() {
+            throw new Error('elementRefs is read-only')
+          },
         }
-      })
+      )
       if (styleNode) {
         const shadow = this.attachShadow({ mode: 'open' })
         shadow.appendChild(styleNode.cloneNode(true))
@@ -481,12 +496,20 @@ const makeWebComponent = (tagName, {
       } else {
         appendContentToElement(this, content)
       }
-      Object.keys(eventHandlers).forEach(eventType => {
-        const passive = eventType.startsWith('touch') ? { passive: true } : false
-        this.addEventListener(eventType, eventHandlers[eventType].bind(this), passive)
+      Object.keys(eventHandlers).forEach((eventType) => {
+        const passive = eventType.startsWith('touch')
+          ? { passive: true }
+          : false
+        this.addEventListener(
+          eventType,
+          eventHandlers[eventType].bind(this),
+          passive
+        )
       })
       if (eventHandlers.childListChange) {
-        const observer = new MutationObserver(eventHandlers.childListChange.bind(this))
+        const observer = new MutationObserver(
+          eventHandlers.childListChange.bind(this)
+        )
         observer.observe(this, { childList: true })
       }
       const attributeNames = Object.keys(attributes)
@@ -495,15 +518,17 @@ const makeWebComponent = (tagName, {
         const observer = new MutationObserver((mutationsList) => {
           let triggerRender = false
           mutationsList.forEach((mutation) => {
-            triggerRender = mutation.attributeName && attributeNames.includes(mutation.attributeName)
+            triggerRender =
+              mutation.attributeName &&
+              attributeNames.includes(mutation.attributeName)
           })
           if (triggerRender && this.queueRender) this.queueRender(false)
         })
         observer.observe(this, { attributes: true })
-        attributeNames.forEach(attributeName => {
+        attributeNames.forEach((attributeName) => {
           Object.defineProperty(this, attributeName, {
             enumerable: false,
-            get () {
+            get() {
               if (typeof attributes[attributeName] === 'boolean') {
                 return this.hasAttribute(attributeName)
               } else {
@@ -518,7 +543,7 @@ const makeWebComponent = (tagName, {
                 }
               }
             },
-            set (value) {
+            set(value) {
               if (typeof attributes[attributeName] === 'boolean') {
                 if (value !== this[attributeName]) {
                   if (value) {
@@ -526,32 +551,42 @@ const makeWebComponent = (tagName, {
                   } else {
                     this.removeAttribute(attributeName)
                   }
-                  if (this.queueRender) this.queueRender(attributeName === 'value')
+                  if (this.queueRender)
+                    this.queueRender(attributeName === 'value')
                 }
               } else if (typeof attributes[attributeName] === 'number') {
                 if (value !== parseFloat(this[attributeName])) {
                   this.setAttribute(attributeName, value)
-                  if (this.queueRender) this.queueRender(attributeName === 'value')
+                  if (this.queueRender)
+                    this.queueRender(attributeName === 'value')
                 }
               } else {
-                if (typeof value === 'object' || `${value}` !== `${this[attributeName]}`) {
-                  if (value === null || value === undefined || typeof value === 'object') {
+                if (
+                  typeof value === 'object' ||
+                  `${value}` !== `${this[attributeName]}`
+                ) {
+                  if (
+                    value === null ||
+                    value === undefined ||
+                    typeof value === 'object'
+                  ) {
                     this.removeAttribute(attributeName)
                   } else {
                     this.setAttribute(attributeName, value)
                   }
                   attributeValues[attributeName] = value
-                  if (this.queueRender) this.queueRender(attributeName === 'value')
+                  if (this.queueRender)
+                    this.queueRender(attributeName === 'value')
                 }
               }
-            }
+            },
           })
         })
       }
       if (this.queueRender) this.queueRender()
     }
 
-    connectedCallback () {
+    connectedCallback() {
       // super annoyingly, chrome loses its shit if you set *any* attributes in the constructor
       if (role) this.setAttribute('role', role)
       if (eventHandlers.resize) {
@@ -560,23 +595,24 @@ const makeWebComponent = (tagName, {
       if (methods.connectedCallback) methods.connectedCallback.call(this)
     }
 
-    disconnectedCallback () {
+    disconnectedCallback() {
       resizeObserver.unobserve(this)
     }
 
-    static defaultAttributes () {
+    static defaultAttributes() {
       return { ...attributes }
     }
   }
 
-  Object.keys(methods).forEach(methodName => {
+  Object.keys(methods).forEach((methodName) => {
     if (methodName !== 'connectedCallback') {
       componentClass.prototype[methodName] = methods[methodName]
     }
   })
 
   // if-statement is to prevent some node-based "browser" tests from breaking
-  if (window.customElements) window.customElements.define(tagName, componentClass)
+  if (window.customElements)
+    window.customElements.define(tagName, componentClass)
 
   return componentClass
 }
@@ -592,5 +628,5 @@ export {
   label,
   span,
   text,
-  dispatch
+  dispatch,
 }

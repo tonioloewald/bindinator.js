@@ -2,7 +2,7 @@
 
 ## App Structure
 
-Setting aside all the cruft we *should* put in a web page, this is basically
+Setting aside all the cruft we _should_ put in a web page, this is basically
 all you need:
 
 ```

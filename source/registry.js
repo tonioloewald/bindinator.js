@@ -490,18 +490,29 @@ const registry = { _b8r_ }
 const registeredTypes = {}
 const listeners = [] // { path_string_or_test, callback }
 const debugPaths = true
-const validPath = /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/
+const validPath =
+  /^\.?([^.[\](),])+(\.[^.[\](),]+|\[\d+\]|\[[^=[\](),]*=[^[\]()]+\])*$/
 
 // list of Array functions that change the array
-const ARRAY_MUTATIONS = ['sort', 'splice', 'copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'unshift']
+const ARRAY_MUTATIONS = [
+  'sort',
+  'splice',
+  'copyWithin',
+  'fill',
+  'pop',
+  'push',
+  'reverse',
+  'shift',
+  'unshift',
+]
 
-const isValidPath = path => validPath.test(path)
+const isValidPath = (path) => validPath.test(path)
 
 class Listener {
-  constructor (test, callback) {
+  constructor(test, callback) {
     this._orig_test = test // keep it around for unobserve
     if (typeof test === 'string') {
-      this.test = t => typeof t === 'string' && t.startsWith(test)
+      this.test = (t) => typeof t === 'string' && t.startsWith(test)
     } else if (test instanceof RegExp) {
       this.test = test.test.bind(test)
     } else if (test instanceof Function) {
@@ -561,7 +572,8 @@ const _get = (path, element) => {
   } else if (path.startsWith('.')) {
     const elt = element && element.closest('[data-list-instance]')
     if (!elt && element.closest('body')) {
-      console.debug('b8r-error',
+      console.debug(
+        'b8r-error',
         `relative data-path ${path} used without list instance`,
         element
       )
@@ -867,7 +879,7 @@ const get = (path, element) => {
   const paths = splitPaths(path)
   return paths.length === 1
     ? _get(paths[0], element)
-    : paths.map(path => _get(path, element))
+    : paths.map((path) => _get(path, element))
 }
 
 const getJSON = (path, element, pretty) => {
@@ -892,7 +904,7 @@ const getJSON = (path, element, pretty) => {
 
 const touch = (path, sourceElement) => {
   listeners
-    .filter(listener => {
+    .filter((listener) => {
       let heard
       try {
         heard = listener.test(path)
@@ -905,7 +917,7 @@ const touch = (path, sourceElement) => {
       }
       return !!heard
     })
-    .forEach(listener => {
+    .forEach((listener) => {
       try {
         if (
           listener.callback(path, sourceElement) === observerShouldBeRemoved
@@ -919,10 +931,14 @@ const touch = (path, sourceElement) => {
 }
 
 const _defaultTypeErrorHandler = (errors, action) => {
-  console.debug('b8r-error', `registry type check(s) failed after ${action}`, errors)
+  console.debug(
+    'b8r-error',
+    `registry type check(s) failed after ${action}`,
+    errors
+  )
 }
 let typeErrorHandlers = [_defaultTypeErrorHandler]
-export const onTypeError = callback => {
+export const onTypeError = (callback) => {
   offTypeError(_defaultTypeErrorHandler)
   if (typeErrorHandlers.indexOf(callback) === -1) {
     typeErrorHandlers.push(callback)
@@ -932,7 +948,7 @@ export const onTypeError = callback => {
 }
 export const offTypeError = (callback, restoreDefault = false) => {
   const handlerCount = typeErrorHandlers.length
-  typeErrorHandlers = typeErrorHandlers.filter(f => f !== callback)
+  typeErrorHandlers = typeErrorHandlers.filter((f) => f !== callback)
   if (restoreDefault) onTypeError(_defaultTypeErrorHandler)
   return typeErrorHandlers.length !== handlerCount - 1
 }
@@ -944,7 +960,7 @@ const checkType = (action, name) => {
   if (!referenceType || !registry[name]) return
   const errors = matchType(referenceType, registry[name], [], name)
   if (errors.length) {
-    typeErrorHandlers.forEach(f => f(errors, action))
+    typeErrorHandlers.forEach((f) => f(errors, action))
   }
 }
 
@@ -960,7 +976,10 @@ const set = (path, value, sourceElement) => {
   const model = pathParts[0]
   const existing = getByPath(registry, path)
   if (pathParts.length > 1 && !registry[model]) {
-    console.debug('b8r-error', `cannot set ${path} to ${value}, ${model} does not exist`)
+    console.debug(
+      'b8r-error',
+      `cannot set ${path} to ${value}, ${model} does not exist`
+    )
   } else if (pathParts.length === 1 && typeof value !== 'object') {
     throw new Error(
       `cannot set ${path}; you can only register objects at root-level`
@@ -1008,7 +1027,7 @@ const types = () =>
   JSON.parse(
     JSON.stringify({
       registeredTypes,
-      componentTypes
+      componentTypes,
     })
   )
 
@@ -1019,7 +1038,10 @@ const registerType = (name, example) => {
 
 const _register = (name, obj) => {
   if (registry[name] && registry[name] !== obj) {
-    console.debug('b8r-warn', `${name} already registered; if intended, remove() it first`)
+    console.debug(
+      'b8r-warn',
+      `${name} already registered; if intended, remove() it first`
+    )
     return
   }
   registry[name] = obj
@@ -1242,7 +1264,7 @@ const observe = (test, callback) => {
   return new Listener(test, callback)
 }
 
-const unobserve = test => {
+const unobserve = (test) => {
   let index
   let found = false
   if (test instanceof Listener) {
@@ -1276,7 +1298,7 @@ You can obtain a value using a path.
 
 const models = () => Object.keys(registry)
 
-const registered = path => !!registry[path.split('.')[0]]
+const registered = (path) => !!registry[path.split('.')[0]]
 
 /**
     remove('path.to.property', update=true);
@@ -1344,13 +1366,13 @@ remove('counter-test')
 ~~~~
 */
 
-const zero = path => set(path, 0)
+const zero = (path) => set(path, 0)
 
-const increment = path => set(path, get(path) + 1)
+const increment = (path) => set(path, get(path) + 1)
 
-const decrement = path => set(path, get(path) - 1)
+const decrement = (path) => set(path, get(path) - 1)
 
-const deregister = path => {
+const deregister = (path) => {
   console.debug('b8r-warn', 'deregister is deprecated, use b8r.remove')
   remove(path)
 }
@@ -1371,19 +1393,22 @@ const extendPath = (path, prop) => {
 }
 
 const regHandler = (path = '') => ({
-  get (target, prop) {
+  get(target, prop) {
     if (typeof prop === 'symbol') {
       return target[prop]
     }
-    const compoundProp = prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
-                         prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
-                         prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
-                         prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
+    const compoundProp =
+      prop.match(/^([^.[]+)\.(.+)$/) || // basePath.subPath (omit '.')
+      prop.match(/^([^\]]+)(\[.+)/) || // basePath[subPath
+      prop.match(/^(\[[^\]]+\])\.(.+)$/) || // [basePath].subPath (omit '.')
+      prop.match(/^(\[[^\]]+\])\[(.+)$/) // [basePath][subPath
     if (compoundProp) {
       const [, basePath, subPath] = compoundProp
       const currentPath = extendPath(path, basePath)
       const value = getByPath(target, basePath)
-      return value && typeof value === 'object' ? new Proxy(value, regHandler(currentPath))[subPath] : value
+      return value && typeof value === 'object'
+        ? new Proxy(value, regHandler(currentPath))[subPath]
+        : value
     }
     if (prop === '_b8r_sourcePath') {
       return path
@@ -1402,7 +1427,7 @@ const regHandler = (path = '') => ({
       if (prop.includes('=')) {
         const [idPath, needle] = prop.split('=')
         value = target.find(
-          candidate => `${getByPath(candidate, idPath)}` === needle
+          (candidate) => `${getByPath(candidate, idPath)}` === needle
         )
       } else {
         value = target[prop]
@@ -1422,24 +1447,24 @@ const regHandler = (path = '') => ({
     } else if (Array.isArray(target)) {
       return typeof target[prop] === 'function'
         ? (...items) => {
-          const result = Array.prototype[prop].apply(target, items)
-          if (ARRAY_MUTATIONS.includes(prop)) {
-            touch(path)
+            const result = Array.prototype[prop].apply(target, items)
+            if (ARRAY_MUTATIONS.includes(prop)) {
+              touch(path)
+            }
+            return result
           }
-          return result
-        }
         : target[prop]
     } else {
       return target ? target[prop] : undefined
     }
   },
-  set (target, prop, value) {
+  set(target, prop, value) {
     if (value && value._b8r_sourcePath) {
       throw new Error('You cannot put reg proxies into the registry')
     }
     set(extendPath(path, prop), value)
     return true // success (throws error in strict mode otherwise)
-  }
+  },
 })
 
 const reg = new Proxy(registry, regHandler())
@@ -1473,5 +1498,5 @@ export {
   remove,
   deregister,
   resolvePath,
-  isValidPath
+  isValidPath,
 }

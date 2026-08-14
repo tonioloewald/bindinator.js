@@ -50,7 +50,7 @@ import {
   fragment,
   div,
   slot,
-  makeWebComponent
+  makeWebComponent,
 } from '../source/web-components.js'
 
 const rectUnion = (r, s) => {
@@ -58,7 +58,7 @@ const rectUnion = (r, s) => {
     left: Math.min(r.left, s.left),
     top: Math.min(r.top, s.top),
     bottom: Math.max(r.bottom, s.bottom),
-    right: Math.max(r.right, s.right)
+    right: Math.max(r.right, s.right),
   }
 
   union.width = union.right - union.left
@@ -71,7 +71,7 @@ export const SelectOption = makeWebComponent('b8r-option', {
   attributes: {
     value: '',
     selected: false,
-    hover: false
+    hover: false,
   },
   style: {
     ':host': {
@@ -84,22 +84,22 @@ export const SelectOption = makeWebComponent('b8r-option', {
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       font: 'var(--ui-font)',
-      textOverflow: 'ellipsis'
-    }
+      textOverflow: 'ellipsis',
+    },
   },
   eventHandlers: {
-    mouseup (evt) {
+    mouseup(evt) {
       this.parentElement.value = this.value
     },
-    mouseenter (evt) {
+    mouseenter(evt) {
       this.hover = true
     },
-    mouseleave (evt) {
+    mouseleave(evt) {
       this.hover = false
-    }
+    },
   },
   methods: {
-    render () {
+    render() {
       if (this.selected) {
         this.style.background = 'var(--selection-color)'
         this.color = 'var(--selected-text-color)'
@@ -111,14 +111,14 @@ export const SelectOption = makeWebComponent('b8r-option', {
         this.color = ''
       }
       this.tabIndex = 0
-    }
+    },
   },
-  role: 'menuitemradio'
+  role: 'menuitemradio',
 })
 
 export const SelectBar = makeWebComponent('b8r-select-bar', {
   attributes: {
-    value: ''
+    value: '',
   },
   style: {
     ':host': {
@@ -131,21 +131,23 @@ export const SelectBar = makeWebComponent('b8r-select-bar', {
       cursor: 'default',
       userSelect: 'none',
       position: 'relative',
-      border: '1px solid transparent'
-    }
+      border: '1px solid transparent',
+    },
   },
   methods: {
-    render () {
+    render() {
       this.style.background = this.background
       this.style.borderColor = this.background
       // x.dataset.list is for b8r list binding support
-      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION')
+      const options = [...this.children].filter(
+        (x) => !x.dataset.list && x.tagName === 'B8R-OPTION'
+      )
       options.forEach((option, idx) => {
         option.selected = `${option.value}` === `${this.value}`
       })
-    }
+    },
   },
-  role: 'menu'
+  role: 'menu',
 })
 
 export const SelectPop = makeWebComponent('b8r-select', {
@@ -153,7 +155,7 @@ export const SelectPop = makeWebComponent('b8r-select', {
     transition: 'var(--hover-transition)',
     open: false,
     width: '100px',
-    value: ''
+    value: '',
   },
   style: {
     ':host': {
@@ -163,19 +165,19 @@ export const SelectPop = makeWebComponent('b8r-select', {
       position: 'relative',
       cursor: 'default',
       borderRadius: '3px',
-      border: '1px solid transparent'
+      border: '1px solid transparent',
     },
     '.selection': {
       display: 'inline-flex',
       position: 'relative',
       flexGrow: '1',
-      overflow: 'hidden'
+      overflow: 'hidden',
     },
     '.selection > *': {
-      flexGrow: '1'
+      flexGrow: '1',
     },
     '.indicator': {
-      padding: '0 4px'
+      padding: '0 4px',
     },
     '.menu': {
       background: 'var(--input-bg-color)',
@@ -189,7 +191,7 @@ export const SelectPop = makeWebComponent('b8r-select', {
       borderRadius: '2px',
       overflow: 'hidden',
       userSelect: 'none',
-      border: '1px solid transparent'
+      border: '1px solid transparent',
     },
     '.outer': {
       display: 'block',
@@ -198,45 +200,48 @@ export const SelectPop = makeWebComponent('b8r-select', {
       left: 0,
       width: 0,
       height: 0,
-      background: 'transparent'
-    }
+      background: 'transparent',
+    },
   },
   eventHandlers: {
-    mouseenter (evt) {
+    mouseenter(evt) {
       if (evt.target === this) this.open = true
     },
-    touchstart (evt) {
+    touchstart(evt) {
       if (evt.target === this) {
         this.open = true
         evt.preventDefault()
       }
     },
-    mouseup () {
+    mouseup() {
       requestAnimationFrame(() => {
         this.open = !this.open
       })
-    }
+    },
   },
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       const select = this
       select._menu = select.shadowRoot.querySelector('.menu')
       select._outer = select.shadowRoot.querySelector('.outer')
       select._outer.addEventListener('mouseleave', (evt) => {
-        select.open = evt.relatedTarget === select._menu ||
-                      select.contains(evt.relatedTarget)
+        select.open =
+          evt.relatedTarget === select._menu ||
+          select.contains(evt.relatedTarget)
       })
       select._slot = this.shadowRoot.querySelector('slot')
       select._slot.addEventListener('slotchange', () => this.render())
     },
-    render () {
+    render() {
       const selection = this.shadowRoot.querySelector('.selection')
       selection.innerHTML = ''
       selection.style.width = this.width
       this.style.background = this.background
       this.style.borderColor = this.background
       // x.dataset.list is for b8r list binding support
-      const options = [...this.children].filter(x => !x.dataset.list && x.tagName === 'B8R-OPTION')
+      const options = [...this.children].filter(
+        (x) => !x.dataset.list && x.tagName === 'B8R-OPTION'
+      )
       options.forEach((option, idx) => {
         option.selected = `${option.value}` === `${this.value}`
         if (option.selected) {
@@ -255,17 +260,17 @@ export const SelectPop = makeWebComponent('b8r-select', {
         const boundsRect = rectUnion(selfRect, menuRect)
 
         this._outer.style.display = ''
-        this._outer.style.left = (boundsRect.left - 20) + 'px'
-        this._outer.style.top = (boundsRect.top - 20) + 'px'
-        this._outer.style.width = (boundsRect.width + 40) + 'px'
-        this._outer.style.height = (boundsRect.height + 40) + 'px'
+        this._outer.style.left = boundsRect.left - 20 + 'px'
+        this._outer.style.top = boundsRect.top - 20 + 'px'
+        this._outer.style.width = boundsRect.width + 40 + 'px'
+        this._outer.style.height = boundsRect.height + 40 + 'px'
       } else {
         if (this._outer) {
           this._outer.style.display = 'none'
           this._menu.style.display = 'none'
         }
       }
-    }
+    },
   },
   content: fragment(
     div({ classes: ['selection'] }),
@@ -273,5 +278,5 @@ export const SelectPop = makeWebComponent('b8r-select', {
     div({ classes: ['outer'] }),
     div({ classes: ['menu'], content: slot() })
   ),
-  role: 'menu'
+  role: 'menu',
 })

@@ -41,10 +41,22 @@ webComponentTest(Test, '../web-components/editable-rect.js', 'b8r-lock-toggle', 
 ~~~~
 */
 
-import { makeWebComponent, slot, div, makeElement, dispatch } from '../source/web-components.js'
+import {
+  makeWebComponent,
+  slot,
+  div,
+  makeElement,
+  dispatch,
+} from '../source/web-components.js'
 import { listenForDragStart, trackDrag } from '../lib/track-drag.js'
 
-const makeSVG = (d, width = 12, height = 12, viewWidth = 16, viewHeight = 16) => {
+const makeSVG = (
+  d,
+  width = 12,
+  height = 12,
+  viewWidth = 16,
+  viewHeight = 16
+) => {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
   svg.setAttribute('version', '1.1')
   svg.setAttribute('width', width)
@@ -57,26 +69,27 @@ const makeSVG = (d, width = 12, height = 12, viewWidth = 16, viewHeight = 16) =>
   return svg
 }
 
-const locked = makeSVG('M10,8 L10,6 C10,4.8954305 9.1045695,4 8,4 C6.8954305,4 6,4.8954305 6,6 L6,8 L10,8 Z M4,8 L4,6 C4,3.790861 5.790861,2 8,2 C10.209139,2 12,3.790861 12,6 L12,8 C12.5522847,8 13,8.44771525 13,9 L13,14 C13,14.5522847 12.5522847,15 12,15 L4,15 C3.44771525,15 3,14.5522847 3,14 L3,9 C3,8.44771525 3.44771525,8 4,8 Z')
-const unlocked = makeSVG('M9,8 C9.55228475,8 10,8.44771525 10,9 L10,14 C10,14.5522847 9.55228475,15 9,15 L1,15 C0.44771525,15 0,14.5522847 0,14 L0,9 C0,8.44771525 0.44771525,8 1,8 L7,8 L7,4 C7,1.790861 8.790861,0 11,0 C13.209139,0 15,1.790861 15,4 L15,7 L13,7 L13,4 C13,2.8954305 12.1045695,2 11,2 C9.8954305,2 9,2.8954305 9,4 L9,8 Z')
+const locked = makeSVG(
+  'M10,8 L10,6 C10,4.8954305 9.1045695,4 8,4 C6.8954305,4 6,4.8954305 6,6 L6,8 L10,8 Z M4,8 L4,6 C4,3.790861 5.790861,2 8,2 C10.209139,2 12,3.790861 12,6 L12,8 C12.5522847,8 13,8.44771525 13,9 L13,14 C13,14.5522847 12.5522847,15 12,15 L4,15 C3.44771525,15 3,14.5522847 3,14 L3,9 C3,8.44771525 3.44771525,8 4,8 Z'
+)
+const unlocked = makeSVG(
+  'M9,8 C9.55228475,8 10,8.44771525 10,9 L10,14 C10,14.5522847 9.55228475,15 9,15 L1,15 C0.44771525,15 0,14.5522847 0,14 L0,9 C0,8.44771525 0.44771525,8 1,8 L7,8 L7,4 C7,1.790861 8.790861,0 11,0 C13.209139,0 15,1.790861 15,4 L15,7 L13,7 L13,4 C13,2.8954305 12.1045695,2 11,2 C9.8954305,2 9,2.8954305 9,4 L9,8 Z'
+)
 
 export const LockToggle = makeWebComponent('b8r-lock-toggle', {
   attributes: {
-    locked: false
+    locked: false,
   },
   style: {},
-  content: [
-    locked.cloneNode(true),
-    unlocked.cloneNode(true)
-  ],
+  content: [locked.cloneNode(true), unlocked.cloneNode(true)],
   eventHandlers: {
-    mouseup () {
+    mouseup() {
       this.locked = !this.locked
       dispatch(this, 'change')
-    }
+    },
   },
   methods: {
-    render () {
+    render() {
       const [locked, unlocked] = this.shadowRoot.querySelectorAll('svg')
       if (this.locked) {
         locked.style.display = ''
@@ -85,13 +98,13 @@ export const LockToggle = makeWebComponent('b8r-lock-toggle', {
         locked.style.display = 'none'
         unlocked.style.display = ''
       }
-    }
-  }
+    },
+  },
 })
 
 const lockToggle = (props = {}) => makeElement('b8r-lock-toggle', props)
 
-const pixelDimension = (number) => isNaN(number) ? '' : number + 'px'
+const pixelDimension = (number) => (isNaN(number) ? '' : number + 'px')
 
 export const EditableRect = makeWebComponent('b8r-editable-rect', {
   attributes: {
@@ -103,12 +116,12 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
     height: 40,
     minWidth: 10,
     minHeight: 10,
-    constraints: false
+    constraints: false,
   },
   style: {
     ':host': {
       display: 'block',
-      position: 'absolute'
+      position: 'absolute',
     },
     '.handle': {
       display: 'block',
@@ -116,53 +129,53 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       height: '8px',
       background: 'rgba(0,128,255,0.25)',
       position: 'absolute',
-      cursor: 'move'
+      cursor: 'move',
     },
     '.handle:hover': {
-      background: 'rgba(0,128,255,0.5)'
+      background: 'rgba(0,128,255,0.5)',
     },
     '.top': {
-      top: '-4px'
+      top: '-4px',
     },
     '.bottom': {
-      bottom: '-4px'
+      bottom: '-4px',
     },
     '.left': {
-      left: '-4px'
+      left: '-4px',
     },
     '.right': {
-      right: '-4px'
+      right: '-4px',
     },
     'b8r-lock-toggle': {
-      position: 'absolute'
+      position: 'absolute',
     },
     'b8r-lock-toggle.left': {
       top: '50%',
       left: '-2px',
-      transform: 'translateX(-100%) translateY(-50%)'
+      transform: 'translateX(-100%) translateY(-50%)',
     },
     'b8r-lock-toggle.right': {
       top: '50%',
       right: '-2px',
-      transform: 'translateX(100%) translateY(-50%)'
+      transform: 'translateX(100%) translateY(-50%)',
     },
     'b8r-lock-toggle.top': {
       top: '-2px',
       left: '50%',
-      transform: 'translateX(-50%) translateY(-100%)'
+      transform: 'translateX(-50%) translateY(-100%)',
     },
     'b8r-lock-toggle.bottom': {
       bottom: '-2px',
       left: '50%',
-      transform: 'translateX(-50%) translateY(100%)'
+      transform: 'translateX(-50%) translateY(100%)',
     },
     '.center': {
       width: '11px',
       height: '11px',
       top: '50%',
       left: '50%',
-      transform: 'translateX(-50%) translateY(-50%) rotateZ(45deg)'
-    }
+      transform: 'translateX(-50%) translateY(-50%) rotateZ(45deg)',
+    },
   },
   content: [
     slot(),
@@ -174,10 +187,10 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
     lockToggle({ classes: ['left'] }),
     lockToggle({ classes: ['top'] }),
     lockToggle({ classes: ['right'] }),
-    lockToggle({ classes: ['bottom'] })
+    lockToggle({ classes: ['bottom'] }),
   ],
   methods: {
-    getBounds () {
+    getBounds() {
       const w = this.offsetParent.offsetWidth
       const h = this.offsetParent.offsetHeight
       return {
@@ -186,11 +199,11 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
         top: isNaN(this.top) ? h - this.bottom - this.height : this.top,
         bottom: isNaN(this.bottom) ? h - this.top - this.height : this.bottom,
         width: isNaN(this.width) ? w - this.left - this.right : this.width,
-        height: isNaN(this.height) ? w - this.top - this.bottom : this.height
+        height: isNaN(this.height) ? w - this.top - this.bottom : this.height,
       }
     },
 
-    connectedCallback () {
+    connectedCallback() {
       if (this.center) return
 
       const editable = this
@@ -202,10 +215,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const topLeft = editable.shadowRoot.querySelector('.top.left')
       listenForDragStart(topLeft, (evt) => {
-        const {
-          left,
-          top
-        } = editable.getBounds()
+        const { left, top } = editable.getBounds()
         trackDrag(evt, left, top, (x, y, dx, dy) => {
           if (!isNaN(editable.left)) editable.left += dx
           if (!isNaN(editable.width)) editable.width -= dx
@@ -216,86 +226,100 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       const topRight = editable.shadowRoot.querySelector('.top.right')
       listenForDragStart(topRight, (evt) => {
-        const {
-          right,
-          top
-        } = editable.getBounds()
-        trackDrag(evt, editable.parentElement.offsetWidth - right, top, (x, y, dx, dy) => {
-          if (!isNaN(editable.right)) editable.right -= dx
-          if (!isNaN(editable.width)) editable.width += dx
-          if (!isNaN(editable.top)) editable.top += dy
-          if (!isNaN(editable.height)) editable.height -= dy
-        })
+        const { right, top } = editable.getBounds()
+        trackDrag(
+          evt,
+          editable.parentElement.offsetWidth - right,
+          top,
+          (x, y, dx, dy) => {
+            if (!isNaN(editable.right)) editable.right -= dx
+            if (!isNaN(editable.width)) editable.width += dx
+            if (!isNaN(editable.top)) editable.top += dy
+            if (!isNaN(editable.height)) editable.height -= dy
+          }
+        )
       })
 
       const bottomLeft = editable.shadowRoot.querySelector('.bottom.left')
       listenForDragStart(bottomLeft, (evt) => {
-        const {
+        const { left, bottom } = editable.getBounds()
+        trackDrag(
+          evt,
           left,
-          bottom
-        } = editable.getBounds()
-        trackDrag(evt, left, editable.parentElement.offsetHeight - bottom, (x, y, dx, dy) => {
-          if (!isNaN(editable.left)) editable.left += dx
-          if (!isNaN(editable.width)) editable.width -= dx
-          if (!isNaN(editable.bottom)) editable.bottom -= dy
-          if (!isNaN(editable.height)) editable.height += dy
-        })
+          editable.parentElement.offsetHeight - bottom,
+          (x, y, dx, dy) => {
+            if (!isNaN(editable.left)) editable.left += dx
+            if (!isNaN(editable.width)) editable.width -= dx
+            if (!isNaN(editable.bottom)) editable.bottom -= dy
+            if (!isNaN(editable.height)) editable.height += dy
+          }
+        )
       })
 
       const bottomRight = editable.shadowRoot.querySelector('.bottom.right')
       listenForDragStart(bottomRight, (evt) => {
-        const {
-          right,
-          bottom
-        } = editable.getBounds()
-        trackDrag(evt, editable.parentElement.offsetWidth - right, editable.parentElement.offsetHeight - bottom, (x, y, dx, dy) => {
-          if (!isNaN(editable.right)) editable.right -= dx
-          if (!isNaN(editable.width)) editable.width += dx
-          if (!isNaN(editable.bottom)) editable.bottom -= dy
-          if (!isNaN(editable.height)) editable.height += dy
-        })
+        const { right, bottom } = editable.getBounds()
+        trackDrag(
+          evt,
+          editable.parentElement.offsetWidth - right,
+          editable.parentElement.offsetHeight - bottom,
+          (x, y, dx, dy) => {
+            if (!isNaN(editable.right)) editable.right -= dx
+            if (!isNaN(editable.width)) editable.width += dx
+            if (!isNaN(editable.bottom)) editable.bottom -= dy
+            if (!isNaN(editable.height)) editable.height += dy
+          }
+        )
       })
 
       const center = editable.shadowRoot.querySelector('.center')
       listenForDragStart(center, (evt) => {
-        const {
-          left,
-          top,
-          width,
-          height
-        } = editable.getBounds()
-        trackDrag(evt, left + width * 0.5, top + height * 0.5, (x, y, dx, dy) => {
-          if (!isNaN(editable.right)) editable.right -= dx
-          if (!isNaN(editable.left)) editable.left += dx
-          if (!isNaN(editable.bottom)) editable.bottom -= dy
-          if (!isNaN(editable.top)) editable.top += dy
-        })
+        const { left, top, width, height } = editable.getBounds()
+        trackDrag(
+          evt,
+          left + width * 0.5,
+          top + height * 0.5,
+          (x, y, dx, dy) => {
+            if (!isNaN(editable.right)) editable.right -= dx
+            if (!isNaN(editable.left)) editable.left += dx
+            if (!isNaN(editable.bottom)) editable.bottom -= dy
+            if (!isNaN(editable.top)) editable.top += dy
+          }
+        )
       })
 
       const lockLeft = editable.shadowRoot.querySelector('b8r-lock-toggle.left')
       lockLeft.addEventListener('change', function (evt) {
         if (this.locked) {
-          editable.left = editable.parentElement.offsetWidth - editable.right - editable.width
+          editable.left =
+            editable.parentElement.offsetWidth - editable.right - editable.width
           editable.width = NaN
         } else if (!isNaN(editable.width)) {
-          editable.right = editable.parentElement.offsetWidth - editable.left - editable.width
+          editable.right =
+            editable.parentElement.offsetWidth - editable.left - editable.width
           editable.left = NaN
         } else {
-          editable.width = editable.parentElement.offsetWidth - editable.left - editable.right
+          editable.width =
+            editable.parentElement.offsetWidth - editable.left - editable.right
           editable.left = NaN
         }
       })
 
-      const lockRight = editable.shadowRoot.querySelector('b8r-lock-toggle.right')
+      const lockRight = editable.shadowRoot.querySelector(
+        'b8r-lock-toggle.right'
+      )
       lockRight.addEventListener('change', function (evt) {
         if (this.locked) {
-          editable.right = editable.parentElement.offsetWidth - editable.left - editable.width
+          editable.right =
+            editable.parentElement.offsetWidth - editable.left - editable.width
           editable.width = NaN
         } else if (!isNaN(editable.width)) {
-          editable.left = editable.parentElement.offsetWidth - editable.right - editable.width
+          editable.left =
+            editable.parentElement.offsetWidth - editable.right - editable.width
           editable.right = NaN
         } else {
-          editable.width = editable.parentElement.offsetWidth - editable.left - editable.right
+          editable.width =
+            editable.parentElement.offsetWidth - editable.left - editable.right
           editable.right = NaN
         }
       })
@@ -303,35 +327,53 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       const lockTop = editable.shadowRoot.querySelector('b8r-lock-toggle.top')
       lockTop.addEventListener('change', function (evt) {
         if (this.locked) {
-          editable.top = editable.parentElement.offsetHeight - editable.bottom - editable.height
+          editable.top =
+            editable.parentElement.offsetHeight -
+            editable.bottom -
+            editable.height
           editable.height = NaN
         } else if (!isNaN(editable.height)) {
-          editable.bottom = editable.parentElement.offsetHeight - editable.top - editable.height
+          editable.bottom =
+            editable.parentElement.offsetHeight - editable.top - editable.height
           editable.top = NaN
         } else {
-          editable.height = editable.parentElement.offsetHeight - editable.top - editable.bottom
+          editable.height =
+            editable.parentElement.offsetHeight - editable.top - editable.bottom
           editable.top = NaN
         }
       })
 
-      const lockBottom = editable.shadowRoot.querySelector('b8r-lock-toggle.bottom')
+      const lockBottom = editable.shadowRoot.querySelector(
+        'b8r-lock-toggle.bottom'
+      )
       lockBottom.addEventListener('change', function (evt) {
         if (this.locked) {
-          editable.bottom = editable.parentElement.offsetHeight - editable.top - editable.height
+          editable.bottom =
+            editable.parentElement.offsetHeight - editable.top - editable.height
           editable.height = NaN
         } else if (!isNaN(editable.height)) {
-          editable.top = editable.parentElement.offsetHeight - editable.bottom - editable.height
+          editable.top =
+            editable.parentElement.offsetHeight -
+            editable.bottom -
+            editable.height
           editable.bottom = NaN
         } else {
-          editable.height = editable.parentElement.offsetHeight - editable.top - editable.bottom
+          editable.height =
+            editable.parentElement.offsetHeight - editable.top - editable.bottom
           editable.bottom = NaN
         }
       })
 
-      Object.assign(editable, { center, lockLeft, lockRight, lockTop, lockBottom })
+      Object.assign(editable, {
+        center,
+        lockLeft,
+        lockRight,
+        lockTop,
+        lockBottom,
+      })
     },
 
-    render () {
+    render() {
       const {
         left,
         top,
@@ -344,7 +386,7 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
         lockRight,
         lockTop,
         lockBottom,
-        constraints
+        constraints,
       } = this
 
       this.style.left = pixelDimension(left)
@@ -356,11 +398,11 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
 
       if (!center) return
       if (!constraints || this.offsetWidth < 20 || this.offsetHeight < 20) {
-        [center, lockLeft, lockRight, lockTop, lockBottom].forEach(elt => {
+        ;[center, lockLeft, lockRight, lockTop, lockBottom].forEach((elt) => {
           elt.style.display = 'none'
         })
       } else {
-        [center, lockLeft, lockRight, lockTop, lockBottom].forEach(elt => {
+        ;[center, lockLeft, lockRight, lockTop, lockBottom].forEach((elt) => {
           elt.style.display = ''
         })
       }
@@ -369,6 +411,6 @@ export const EditableRect = makeWebComponent('b8r-editable-rect', {
       lockRight.locked = !isNaN(this.right)
       lockTop.locked = !isNaN(this.top)
       lockBottom.locked = !isNaN(this.bottom)
-    }
-  }
+    },
+  },
 })

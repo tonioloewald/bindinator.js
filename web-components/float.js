@@ -62,7 +62,11 @@ webComponentTest(Test, '../web-components/float.js', 'b8r-float')
 */
 
 import { makeWebComponent, slot } from '../source/web-components.js'
-import { listenForDragStart, trackDrag, moveEventDiv } from '../lib/track-drag.js'
+import {
+  listenForDragStart,
+  trackDrag,
+  moveEventDiv,
+} from '../lib/track-drag.js'
 import { findHighestZ } from '../source/dom.js'
 
 export const Float = makeWebComponent('b8r-float', {
@@ -70,21 +74,21 @@ export const Float = makeWebComponent('b8r-float', {
     ':host': {
       display: 'block',
       position: 'fixed',
-      cursor: 'grab'
-    }
+      cursor: 'grab',
+    },
   },
   attributes: {
-    drag: false
+    drag: false,
   },
   content: slot(),
   eventHandlers: {
-    mousedown (evt) {
+    mousedown(evt) {
       const target = evt.target.closest('b8r-float')
       target.style.zIndex = findHighestZ() + 1
-    }
+    },
   },
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       const float = this
       float.style.zIndex = findHighestZ() + 1
       listenForDragStart(float, (evt) => {
@@ -101,8 +105,8 @@ export const Float = makeWebComponent('b8r-float', {
         })
       })
     },
-    close () {
+    close() {
       this.remove()
-    }
-  }
+    },
+  },
 })

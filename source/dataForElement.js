@@ -39,7 +39,4 @@ const dataForElement = (targetElement, _default) => {
   return _default
 }
 
-export {
-  saveDataForElement,
-  dataForElement
-}
+export { saveDataForElement, dataForElement }

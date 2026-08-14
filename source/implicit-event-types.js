@@ -31,14 +31,35 @@ To add other types of events, you can call `b8r.implicitlyHandleEventsOfType('ty
 */
 
 export default [
-  'mousedown', 'mouseup', 'click', 'dblclick',
-  'mouseleave', 'mouseenter', 'mousemove', 'mouseover', 'mouseout',
-  'mousewheel', 'scroll', // FIXEME passive?!
+  'mousedown',
+  'mouseup',
+  'click',
+  'dblclick',
+  'mouseleave',
+  'mouseenter',
+  'mousemove',
+  'mouseover',
+  'mouseout',
+  'mousewheel',
+  'scroll', // FIXEME passive?!
   'contextmenu',
-  'dragstart', 'dragenter', 'dragover', 'dragleave', 'dragend', 'drop',
-  'transitionend', 'animationend',
-  'input', 'change',
-  'keydown', 'keyup',
-  'cut', 'copy', 'paste',
-  'focus', 'blur', 'focusin', 'focusout' // more to follow
+  'dragstart',
+  'dragenter',
+  'dragover',
+  'dragleave',
+  'dragend',
+  'drop',
+  'transitionend',
+  'animationend',
+  'input',
+  'change',
+  'keydown',
+  'keyup',
+  'cut',
+  'copy',
+  'paste',
+  'focus',
+  'blur',
+  'focusin',
+  'focusout', // more to follow
 ]

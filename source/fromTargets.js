@@ -68,9 +68,13 @@ export const value = (element) => {
   }
   if (element.matches('input[type=radio]')) {
     const name = element.getAttribute('name')
-    const checked = find(`input[type=radio][name=${name}]`).find(elt => elt.checked)
+    const checked = find(`input[type=radio][name=${name}]`).find(
+      (elt) => elt.checked
+    )
     return checked ? checked.value : null
-  } else if (element.matches('[data-type=number],input[type=number],input[type=range]')) {
+  } else if (
+    element.matches('[data-type=number],input[type=number],input[type=range]')
+  ) {
     return parseFloat(element.value)
   } else {
     if (element.dataset.componentId) {
@@ -81,7 +85,8 @@ export const value = (element) => {
   }
 }
 
-export const checked = (element) => element.indeterminate ? null : element.checked
+export const checked = (element) =>
+  element.indeterminate ? null : element.checked
 
 export const selected = (element) => element.selected
 

@@ -1,10 +1,10 @@
 # b8r overview
 
-`b8r` is a lightweight framework written entirely in modern vanilla Javascript that lets you 
+`b8r` is a lightweight framework written entirely in modern vanilla Javascript that lets you
 build web applications out of reusable, composable components (including web-components),
-and providing robust state management. 
+and providing robust state management.
 
-Unlike similarly capable frameworks, it doesn't require transpilation, domain-specific languages, 
+Unlike similarly capable frameworks, it doesn't require transpilation, domain-specific languages,
 templating languages, boilerplate, or pretty much anything else. On the other hand, it plays
 nicely with most third-party libraries, including legacy libraries that expect to be imported
 by tag.
@@ -15,7 +15,7 @@ The preceding example is a self-contained reusable component implemented as an E
 
 ## paths
 
-*The* central idea in `b8r` is of binding **things** (dom elements, events, values) to **paths**.
+_The_ central idea in `b8r` is of binding **things** (dom elements, events, values) to **paths**.
 
 ```
 <input data-bind="value=path.to.value">
@@ -39,7 +39,7 @@ b8r.get('foo[bar=16]') // will get you the second element of the array
 ```
 
 When you `set` a value (functions are values) at a path, the binding does the work. So, if you
-were to `b8r.set({path: {to: {value: 17, fn(){ alert('hello')}}}})`, it would *just work*.
+were to `b8r.set({path: {to: {value: 17, fn(){ alert('hello')}}}})`, it would _just work_.
 That's the central concept — but there are lots of useful details to handle binding arrays,
 composing components, and handling updates.
 
@@ -56,19 +56,19 @@ You bind values to names by **registering** objects to root **names**.
 b8r.register('root', { test: 17 });
 ```
 
-You can now *retrieve* the value 17 by using its **path** which is `root.test`.
+You can now _retrieve_ the value 17 by using its **path** which is `root.test`.
 
 ```
 b8r.get('root.test') // 17
 ```
 
-You can *update* the value at the path:
+You can _update_ the value at the path:
 
 ```
 b8r.set('root.test', Math.PI)
 ```
 
-And you can *replace* an object inside the registry using `replace`:
+And you can _replace_ an object inside the registry using `replace`:
 
 ```
 b8r.set('root.infinity', Infinity)  // b8r.get('root.test') is still Math.PI
@@ -133,7 +133,7 @@ You bind data to the DOM by:
 The general form is `data-bind="target=path.to.data"`.
 
 Note that it doesn't matter whether you insert DOM elements (presumably within
-components) before you bind the data to the path or vice versa! 
+components) before you bind the data to the path or vice versa!
 b8r is designed for an async world!
 
 <b8r-component name="fiddle">
@@ -147,7 +147,7 @@ b8r.reg['data-binding-example'] = {text: 'edit this text'}
 
 You bind an event to a method by:
 
-- Binding a **method**  to a **path**.
+- Binding a **method** to a **path**.
 - Binding the **path** to a DOM element **event** using the `data-event` attribute.
 
 The general form is `data-event="event_type:path.to.method`.
@@ -211,10 +211,10 @@ b8r.register('simple-list-example', {
 
 ## components
 
-[b8r components](/?source=docs/components.md) are self-contained reusable, composable views. 
+[b8r components](/?source=docs/components.md) are self-contained reusable, composable views.
 
 Typically, a component is defined in a single javascript file and exported
-as an object: 
+as an object:
 
 ```
 /**
@@ -269,7 +269,7 @@ Note that order is not important, and you can insert the element any way you lik
 the `<b8r-component>` element directly and inserting it into the DOM).
 
 If you're not trying to package your app using WebPack or rollup and aren't worried about
-[content security policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you can simply load 
+[content security policies](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP), you can simply load
 the component directly from a `path`:
 
 ```
@@ -285,4 +285,3 @@ For legacy `.component.html` components, you omit the `.component.html` from the
 ```
 <b8r-component path="path/to/some-component"></b8r-component>
 ```
-

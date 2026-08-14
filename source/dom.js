@@ -213,28 +213,33 @@ import { makeArray, forEachKey } from './iterators.js'
 
 export { create, elements } from './elements.js'
 
-export const isVisible = (element, includeParents) => element &&
+export const isVisible = (element, includeParents) =>
+  element &&
   getComputedStyle(element).display !== 'none' &&
-  ((!includeParents) || element === document.body || isVisible(element.parentElement, true))
+  (!includeParents ||
+    element === document.body ||
+    isVisible(element.parentElement, true))
 
 export const isInView = (element, view) => {
   if (!element || !isVisible(element, true)) {
     return false
   }
   const r = element.getBoundingClientRect()
-  const s = view ? view.getBoundingClientRect()
+  const s = view
+    ? view.getBoundingClientRect()
     : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
   return rectsOverlap(r, s)
 }
 
-export const rectsOverlap = (r, s) => !(
-  r.top > s.top + s.height ||
-  r.top + r.height < s.top ||
-  r.left > s.left + s.width ||
-  r.left + r.width < s.left
-)
+export const rectsOverlap = (r, s) =>
+  !(
+    r.top > s.top + s.height ||
+    r.top + r.height < s.top ||
+    r.left > s.left + s.width ||
+    r.left + r.width < s.left
+  )
 
-export const find = selector => makeArray(document.querySelectorAll(selector))
+export const find = (selector) => makeArray(document.querySelectorAll(selector))
 
 export const findOne = document.querySelector.bind(document)
 
@@ -247,18 +252,25 @@ export const findWithin = (element, selector, includeSelf) => {
 }
 
 export const findOneWithin = (element, selector, includeSelf) =>
-  includeSelf &&
-  element.matches(selector) ? element : element.querySelector(selector)
+  includeSelf && element.matches(selector)
+    ? element
+    : element.querySelector(selector)
 
 export const succeeding = (element, selector) => {
-  while (element.nextElementSibling && !element.nextElementSibling.matches(selector)) {
+  while (
+    element.nextElementSibling &&
+    !element.nextElementSibling.matches(selector)
+  ) {
     element = element.nextElementSibling
   }
   return element.nextElementSibling
 }
 
 export const preceding = (element, selector) => {
-  while (element.previousElementSibling && !element.previousElementSibling.matches(selector)) {
+  while (
+    element.previousElementSibling &&
+    !element.previousElementSibling.matches(selector)
+  ) {
     element = element.previousElementSibling
   }
   return element.previousElementSibling
@@ -312,7 +324,8 @@ export const empty = (element) => {
   }
 }
 
-export const elementIndex = (element) => [...element.parentElement.children].indexOf(element)
+export const elementIndex = (element) =>
+  [...element.parentElement.children].indexOf(element)
 
 export const moveChildren = (source, dest) => {
   while (source.firstChild) {
@@ -331,7 +344,9 @@ export const copyChildren = (source, dest) => {
 export const wrap = (element, wrappingElement, destSelector) => {
   try {
     const parent = element.parentElement
-    const destination = destSelector ? wrappingElement.querySelector(destSelector) : wrappingElement
+    const destination = destSelector
+      ? wrappingElement.querySelector(destSelector)
+      : wrappingElement
     parent.insertBefore(wrappingElement, element)
     destination.appendChild(element)
   } catch (e) {
@@ -341,7 +356,9 @@ export const wrap = (element, wrappingElement, destSelector) => {
 
 export const unwrap = (element, wrapperSelector) => {
   try {
-    const wrapper = wrapperSelector ? element.closest(wrapperSelector) : element.parentElement
+    const wrapper = wrapperSelector
+      ? element.closest(wrapperSelector)
+      : element.parentElement
     const parent = wrapper.parentElement
     parent.insertBefore(element, wrapper)
     wrapper.remove()
@@ -366,7 +383,7 @@ export const isInBody = (element) => element && document.body.contains(element)
 export const cssVar = (element, name, value) => {
   /* global HTMLElement */
   if (!(element instanceof HTMLElement)) {
-    [element, name, value] = [document.documentElement, element, name]
+    ;[element, name, value] = [document.documentElement, element, name]
   }
   if (value === undefined) {
     const htmlStyles = getComputedStyle(element)
@@ -379,8 +396,9 @@ export const cssVar = (element, name, value) => {
 /**
     findHighestZ(selector = 'body *') // returns highest z-index of elements matching selector
 */
-export const findHighestZ = (selector = 'body *') => [...document.querySelectorAll(selector)]
-  .map(elt => parseFloat(getComputedStyle(elt).zIndex))
-  .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
-    isNaN(z) || z < highest ? highest : z
-  )
+export const findHighestZ = (selector = 'body *') =>
+  [...document.querySelectorAll(selector)]
+    .map((elt) => parseFloat(getComputedStyle(elt).zIndex))
+    .reduce((z, highest = Number.MIN_SAFE_INTEGER) =>
+      isNaN(z) || z < highest ? highest : z
+    )

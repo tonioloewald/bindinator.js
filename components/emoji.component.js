@@ -141,23 +141,28 @@ export default {
       >
     </div>`,
   load: async ({ b8r, component, on, get, set, find, findOne }) => {
-    const emojiPath = component.dataset.emojiPath || 'https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json'
+    const emojiPath =
+      component.dataset.emojiPath ||
+      'https://raw.githubusercontent.com/tonioloewald/emoji-metadata/master/emoji-metadata.json'
     const show = async (emoji) => {
       if (get('filterText')) set('filterText', '')
       await b8r.afterUpdate(() => {
-        const elt = [...find('div.emoji')].find(elt => elt._b8rListInstance.chars === emoji)
+        const elt = [...find('div.emoji')].find(
+          (elt) => elt._b8rListInstance.chars === emoji
+        )
         elt.scrollIntoView({ behavior: 'smooth' }) // note -- smooth not implemented in Safari
       })
     }
-    b8r.json(emojiPath).then(emoji => {
+    b8r.json(emojiPath).then((emoji) => {
       const categories = emoji.reduce((c, emoji) => {
-        if (!c.find(e => emoji.category === e.category)) c.push(emoji)
+        if (!c.find((e) => emoji.category === e.category)) c.push(emoji)
         return c
       }, [])
       set({ emoji, categories })
       // after the emoji have been rendered, we should scroll the current value into view
-      emoji.forEach(e => {
-        e.searchText = `${e.name} ${e.category} ${e.subcategory}`.toLocaleLowerCase()
+      emoji.forEach((e) => {
+        e.searchText =
+          `${e.name} ${e.category} ${e.subcategory}`.toLocaleLowerCase()
       })
       b8r.afterUpdate(() => {
         const value = get('value')
@@ -166,18 +171,23 @@ export default {
     })
     set({
       show,
-      pickCategory (_, target) {
+      pickCategory(_, target) {
         const instance = b8r.getListInstance(target)
         show(instance.chars)
       },
-      pick (_, target) {
+      pick(_, target) {
         set('value', b8r.getListInstance(target).chars)
       },
       filterText: '',
-      filter (emoji, filterText) {
-        const words = filterText.toLocaleLowerCase().replace(/\s+/g, ' ').split(' ')
-        return filterText ? emoji.filter(e => words.find(w => e.searchText.includes(w))) : emoji
-      }
+      filter(emoji, filterText) {
+        const words = filterText
+          .toLocaleLowerCase()
+          .replace(/\s+/g, ' ')
+          .split(' ')
+        return filterText
+          ? emoji.filter((e) => words.find((w) => e.searchText.includes(w)))
+          : emoji
+      },
     })
-  }
+  },
 }

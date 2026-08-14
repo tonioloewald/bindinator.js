@@ -478,11 +478,11 @@ import '../third-party/date.format.js'
 
 export default function (b8r) {
   const specialValues = {
-    _true_: v => v === true,
-    _false_: v => v === false,
-    _undefined_: v => v === undefined,
-    _null_: v => v === null,
-    _empty_: v => typeof v === 'string' && !!v.trim()
+    _true_: (v) => v === true,
+    _false_: (v) => v === false,
+    _undefined_: (v) => v === undefined,
+    _null_: (v) => v === null,
+    _empty_: (v) => typeof v === 'string' && !!v.trim(),
   }
 
   const equals = (valueToMatch, value) => {
@@ -498,14 +498,18 @@ export default function (b8r) {
     }
   }
 
-  const parseOptions = source => {
+  const parseOptions = (source) => {
     if (!source) {
       throw new Error('expected options')
     }
-    return source.split('|').map(s => s.trim()).filter(s => !!s).map(s => {
-      s = s.split(':').map(s => s.trim())
-      return s.length === 1 ? { value: s[0] } : { match: s[0], value: s[1] }
-    })
+    return source
+      .split('|')
+      .map((s) => s.trim())
+      .filter((s) => !!s)
+      .map((s) => {
+        s = s.split(':').map((s) => s.trim())
+        return s.length === 1 ? { value: s[0] } : { match: s[0], value: s[1] }
+      })
   }
 
   return {
@@ -513,7 +517,8 @@ export default function (b8r) {
       if (element.dataset.type === 'number') value = parseFloat(value)
       switch (element.getAttribute('type')) {
         case 'radio':
-          if (element.checked !== (element.value == value)) { // eslint-disable-line eqeqeq
+          if (element.checked !== (element.value == value)) {
+            // eslint-disable-line eqeqeq
             element.checked = element.value == value // eslint-disable-line eqeqeq
           }
           break
@@ -527,7 +532,12 @@ export default function (b8r) {
             if (!value) {
               element.value = ''
             } else {
-              console.debug('b8r-error', 'cannot set file input value except to clear it', element, value)
+              console.debug(
+                'b8r-error',
+                'cannot set file input value except to clear it',
+                element,
+                value
+              )
             }
           } else if (element.value !== undefined) {
             element.value = value
@@ -541,7 +551,12 @@ export default function (b8r) {
             }
           } else {
             if (!element.tagName.includes('-')) {
-              console.debug('b8r-error', 'could not set component value', element, value)
+              console.debug(
+                'b8r-error',
+                'could not set component value',
+                element,
+                value
+              )
             }
           }
       }
@@ -570,7 +585,8 @@ export default function (b8r) {
       // only honor formatting if there's no change it's code
       if (content.match(/[*_]/) && !content.match(/<|>/)) {
         template = true
-        content = content.replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
+        content = content
+          .replace(/[*_]{2,2}(.*?)[*_]{2,2}/g, '<b>$1</b>')
           .replace(/[*_](.*?)[*_]/g, '<i>$1</i>')
       }
       if (content.indexOf('${') > -1) {
@@ -665,7 +681,7 @@ export default function (b8r) {
     classMap: function (element, value, map) {
       const classOptions = parseOptions(map)
       let done = false
-      classOptions.forEach(item => {
+      classOptions.forEach((item) => {
         if (done || (item.match && !equals(item.match, value))) {
           element.classList.remove(item.value)
         } else {
@@ -735,14 +751,19 @@ export default function (b8r) {
         element.textContent = JSON.stringify(value, false, 2)
       } catch (_) {
         const obj = {}
-        Object.keys(value).forEach(key => {
+        Object.keys(value).forEach((key) => {
           obj[key] = describe(value[key])
         })
-        element.textContent = '/* partial data -- could not stringify */\n' + JSON.stringify(obj, false, 2)
+        element.textContent =
+          '/* partial data -- could not stringify */\n' +
+          JSON.stringify(obj, false, 2)
       }
     },
     dataPath: function (element, value) {
-      if (!element.dataset.path || (value && element.dataset.path.substr(-value.length) !== value)) {
+      if (
+        !element.dataset.path ||
+        (value && element.dataset.path.substr(-value.length) !== value)
+      ) {
         element.dataset.path = value
         b8r.bindAll(element)
       }
@@ -753,7 +774,9 @@ export default function (b8r) {
     },
     componentMap: function (element, value, map) {
       const componentOptions = parseOptions(map)
-      const option = componentOptions.find(item => !item.match || item.match == value) // eslint-disable-line eqeqeq
+      const option = componentOptions.find(
+        (item) => !item.match || item.match == value
+      ) // eslint-disable-line eqeqeq
       if (option) {
         const componentName = option.value
         const existing = element.dataset.componentId || ''
@@ -762,6 +785,6 @@ export default function (b8r) {
           b8r.insertComponent(componentName, element)
         }
       }
-    }
+    },
   }
-};
+}

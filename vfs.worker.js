@@ -15,7 +15,7 @@ const mimeTypes = {
   cjs: 'text/javascript',
   html: 'text/html',
   mp4: 'video/mp4',
-  mov: 'video/quicktime'
+  mov: 'video/quicktime',
 }
 
 const defaultMimeType = 'application/octet-stream'
@@ -49,16 +49,17 @@ self.addEventListener('fetch', (event) => {
           let found
           if (vfsPath === '*' || vfsPath.endsWith('/*')) {
             const basePath = vfsPath.substr(0, vfsPath.length - 1)
-            found = Object.keys(vfs).filter(path => path.startsWith(basePath))
+            found = Object.keys(vfs).filter((path) => path.startsWith(basePath))
           } else if (vfsPath === '' || vfsPath.endsWith('/')) {
             const offset = vfsPath.length
-            found = Object.keys(vfs).filter(path => path.startsWith(vfsPath))
-              .map(path => path.substr(offset).match(/[^/]+($|\/)/))
+            found = Object.keys(vfs)
+              .filter((path) => path.startsWith(vfsPath))
+              .map((path) => path.substr(offset).match(/[^/]+($|\/)/))
               .reduce((uniques, [a]) => {
                 if (!uniques.includes(a)) uniques.push(a)
                 return uniques
               }, [])
-              // .filter(path => path.indexOf('/', vfsPath.length) === -1)
+            // .filter(path => path.indexOf('/', vfsPath.length) === -1)
           } else {
             found = vfs[vfsPath]
           }
@@ -66,7 +67,9 @@ self.addEventListener('fetch', (event) => {
             event.respondWith(new Response('not found', { status: 404 }))
           } else if (typeof found === 'string') {
             const extension = vfsPath.split('.').pop()
-            const headers = { 'Content-Type': mimeTypes[extension] || defaultMimeType }
+            const headers = {
+              'Content-Type': mimeTypes[extension] || defaultMimeType,
+            }
             event.respondWith(new Response(found, { headers }))
           } else {
             const headers = { ContentType: mimeTypes.json }
@@ -79,15 +82,17 @@ self.addEventListener('fetch', (event) => {
           // can't post to a directory
           event.respondWith(new Response('method not allowed', { status: 405 }))
         } else {
-          event.respondWith((async () => {
-            vfs[vfsPath] = await event.request.text()
-            return new Response('ok', { status: 200 })
-          })())
+          event.respondWith(
+            (async () => {
+              vfs[vfsPath] = await event.request.text()
+              return new Response('ok', { status: 200 })
+            })()
+          )
         }
         break
       case 'DELETE':
         if (vfsPath.endsWith('/') || vfsPath.endsWith('/..')) {
-          Object.keys(vfs).forEach(path => {
+          Object.keys(vfs).forEach((path) => {
             if (path.startsWith(vfsPath)) {
               delete vfs[path]
             }

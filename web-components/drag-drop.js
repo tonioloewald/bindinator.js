@@ -187,16 +187,16 @@ const isTypeAllowed = (allowedTypes, type) => {
         return true
       }
     }
-  };
+  }
   return false
 }
 
 const markDroppable = (evt) => {
   const { types } = evt.dataTransfer
   const elements = [...document.querySelectorAll('b8r-dropzone')]
-  elements.forEach(element => {
+  elements.forEach((element) => {
     const dropTypes = element.type.split(';')
-    if (types.find(type => isTypeAllowed(dropTypes, type))) {
+    if (types.find((type) => isTypeAllowed(dropTypes, type))) {
       element.classList.add('drag-target')
     } else {
       element.classList.remove('drag-target')
@@ -207,10 +207,13 @@ const markDroppable = (evt) => {
 const dragstart = (evt, draggable) => {
   if (draggable) {
     const types = draggable.type.split(';')
-    types.forEach(type => {
-      const content = draggable.content !== 'auto'
-        ? draggable.content
-        : (type === 'text/html' ? draggable.innerHTML : draggable.textContent)
+    types.forEach((type) => {
+      const content =
+        draggable.content !== 'auto'
+          ? draggable.content
+          : type === 'text/html'
+            ? draggable.innerHTML
+            : draggable.textContent
       evt.dataTransfer.setData(type, content)
     })
     draggable.classList.add('drag-source')
@@ -224,20 +227,20 @@ const dragstart = (evt, draggable) => {
 export const DragItem = makeWebComponent('b8r-draggable', {
   attributes: {
     type: 'text/plain;text/html',
-    content: 'auto'
+    content: 'auto',
   },
   content: false,
   eventHandlers: {
-    dragstart (evt) {
+    dragstart(evt) {
       this.classList.add('drag-source')
       dragstart(evt, this)
-    }
+    },
   },
   methods: {
-    render () {
+    render() {
       this.setAttribute('draggable', true)
-    }
-  }
+    },
+  },
 })
 
 const drag = (evt) => {
@@ -251,10 +254,16 @@ const drag = (evt) => {
 }
 
 export const dragEnd = () => {
-  elementBeingDragged = null;
-  [...document.querySelectorAll('.drag-source')].forEach(elt => elt.classList.remove('drag-source'));
-  [...document.querySelectorAll('.drag-over')].forEach(elt => elt.classList.remove('drag-over'));
-  [...document.querySelectorAll('.drag-target')].forEach(elt => elt.classList.remove('drag-target'))
+  elementBeingDragged = null
+  ;[...document.querySelectorAll('.drag-source')].forEach((elt) =>
+    elt.classList.remove('drag-source')
+  )
+  ;[...document.querySelectorAll('.drag-over')].forEach((elt) =>
+    elt.classList.remove('drag-over')
+  )
+  ;[...document.querySelectorAll('.drag-target')].forEach((elt) =>
+    elt.classList.remove('drag-target')
+  )
 }
 
 document.body.addEventListener('dragend', dragEnd)
@@ -266,19 +275,19 @@ document.body.addEventListener('dragenter', dragstart)
 export const DropZone = makeWebComponent('b8r-dropzone', {
   attributes: {
     type: 'text/plain;text/html',
-    effect: 'copy'
+    effect: 'copy',
   },
   content: false,
   methods: {
-    handleDrop: evt => false // return explicit `true` to prevent defaults
+    handleDrop: (evt) => false, // return explicit `true` to prevent defaults
   },
   eventHandlers: {
     dragenter: drag,
     dragover: drag,
-    dragleave () {
+    dragleave() {
       this.classList.remove('drag-over')
     },
-    drop (evt) {
+    drop(evt) {
       evt.preventDefault()
       evt.stopPropagation()
       if (this.handleDrop(evt) === true) {
@@ -287,7 +296,7 @@ export const DropZone = makeWebComponent('b8r-dropzone', {
       }
       const target = evt.target.closest('b8r-dropzone')
       const dropTypes = target.type.split(';')
-      dropTypes.forEach(type => {
+      dropTypes.forEach((type) => {
         if (isTypeAllowed(dropTypes, type)) {
           if (type === 'text/html') {
             target.innerHTML = evt.dataTransfer.getData(type)
@@ -297,22 +306,22 @@ export const DropZone = makeWebComponent('b8r-dropzone', {
         }
       })
       dragEnd()
-    }
-  }
+    },
+  },
 })
 
 export const DragSortable = makeWebComponent('b8r-drag-sortable', {
   style: {
     ':host': {
-      display: 'block'
-    }
+      display: 'block',
+    },
   },
   attributes: {
     type: 'text/plain;text/html',
-    outsideEffect: 'copy'
+    outsideEffect: 'copy',
   },
   methods: {
-    handleDrop (evt) {
+    handleDrop(evt) {
       const target = evt.target.closest('b8r-dropzone')
       const container = this
       if (elementBeingDragged.parentElement === container) {
@@ -327,14 +336,14 @@ export const DragSortable = makeWebComponent('b8r-drag-sortable', {
       container.render()
       return true
     },
-    render () {
+    render() {
       const dz = new DropZone()
       const container = this
       const handleDrop = this.handleDrop.bind(this)
       dz.type = container.type
-      dz.effect = 'move';
-      [...this.querySelectorAll('b8r-dropzone')].forEach(elt => elt.remove());
-      [...this.querySelectorAll('b8r-draggable')].forEach(elt => {
+      dz.effect = 'move'
+      ;[...this.querySelectorAll('b8r-dropzone')].forEach((elt) => elt.remove())
+      ;[...this.querySelectorAll('b8r-draggable')].forEach((elt) => {
         const dzClone = dz.cloneNode(true)
         dzClone.handleDrop = handleDrop
         container.insertBefore(dzClone, elt)
@@ -342,6 +351,6 @@ export const DragSortable = makeWebComponent('b8r-drag-sortable', {
       const _dz = dz.cloneNode(true)
       _dz.handleDrop = handleDrop
       container.appendChild(_dz)
-    }
-  }
+    },
+  },
 })

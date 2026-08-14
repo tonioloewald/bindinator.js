@@ -64,7 +64,7 @@ import {
   span,
   label,
   makeElement,
-  makeWebComponent
+  makeWebComponent,
 } from '../source/web-components.js'
 
 const objectNode = (settings = {}) => makeElement('b8r-object', settings)
@@ -74,35 +74,32 @@ const listNode = (settings = {}) => makeElement('b8r-list', settings)
 export const scalar = makeWebComponent('b8r-scalar', {
   attributes: {
     caption: '',
-    value: null
+    value: null,
   },
   content: null,
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       if (this.children.length > 0) return
       this.appendChild(label({ content: [span(), objectNode()] }))
     },
-    render () {
-      const {
-        caption,
-        value
-      } = this
+    render() {
+      const { caption, value } = this
       if (!this.firstElementChild) return
       const [_caption, _object] = this.firstElementChild.childNodes
       _caption.textContent = caption
       _object.value = value
-    }
-  }
+    },
+  },
 })
 
 export const list = makeWebComponent('b8r-list', {
   attributes: {
     value: null,
-    keys: null
+    keys: null,
   },
   content: false,
   methods: {
-    render () {
+    render() {
       const { value, keys } = this
       while (this.childNodes.length > (value || []).length) {
         console.log('removing child')
@@ -116,22 +113,25 @@ export const list = makeWebComponent('b8r-list', {
         this.childNodes[i].value = value[i]
         this.childNodes[i].keys = keys
       }
-    }
-  }
+    },
+  },
 })
 
 export const object = makeWebComponent('b8r-object', {
   attributes: {
     value: null,
-    keys: null
+    keys: null,
   },
   content: false,
   methods: {
-    render () {
+    render() {
       const { value, keys } = this
 
       if (Array.isArray(value)) {
-        if (this.children.length === 0 || this.firstElementChild.tagName !== 'B8R-LIST') {
+        if (
+          this.children.length === 0 ||
+          this.firstElementChild.tagName !== 'B8R-LIST'
+        ) {
           this.textContent = ''
           this.appendChild(listNode())
         }
@@ -147,7 +147,9 @@ export const object = makeWebComponent('b8r-object', {
         } else if (Array.isArray(keys)) {
           _keys = keys
         } else {
-          throw new Error(`b8r-object expects keys to be comma-delimited string or Array (received ${typeof keys})`)
+          throw new Error(
+            `b8r-object expects keys to be comma-delimited string or Array (received ${typeof keys})`
+          )
         }
         while (this.children.length > _keys.length) {
           this.removeChild(this.lastChild)
@@ -162,6 +164,6 @@ export const object = makeWebComponent('b8r-object', {
           this.children[i].value = value[key] || ''
         }
       }
-    }
-  }
+    },
+  },
 })

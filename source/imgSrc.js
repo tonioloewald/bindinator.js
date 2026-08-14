@@ -18,7 +18,7 @@ import { render } from './pixel.js'
 const images = {}
 const pixel = new Image()
 pixel.src = render()
-const pixelPromise = new Promise(resolve => resolve(pixel))
+const pixelPromise = new Promise((resolve) => resolve(pixel))
 
 export const imagePromise = (url, cors = true) => {
   if (!url) {
@@ -26,14 +26,16 @@ export const imagePromise = (url, cors = true) => {
   } else if (images[url]) {
     return images[url]
   } else {
-    images[url] = new Promise(resolve => {
+    images[url] = new Promise((resolve) => {
       const image = new Image()
 
       // Cross-origin is necessary if you want to use the image data from JavaScript, in WebGL
       // for example, but you can't indiscriminately use it on all images. If you use
       // `crossorigin` on images from a source that doesn't reply with the
       // `Access-Control-Allow-Origin` header, the browser won't render them.
-      if (cors) { image.setAttribute('crossorigin', 'anonymous') }
+      if (cors) {
+        image.setAttribute('crossorigin', 'anonymous')
+      }
 
       image.src = url
       image.onload = () => {
@@ -53,7 +55,7 @@ export const imgSrc = (img, url, cors = true) => {
   }
   img.src = pixel.src
   img.style.opacity = 0.1
-  imagePromise(url, cors).then(image => {
+  imagePromise(url, cors).then((image) => {
     if (!getComputedStyle(img).transition) {
       img.style.transition = 'var(--hover-transition)'
     }

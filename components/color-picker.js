@@ -17,7 +17,7 @@ And you can use the `data-open` attribute to keep it open all the time.
 import b8r from '../source/b8r.js'
 import { parse } from '../lib/color.js'
 
-function interpolate (t, pointList) {
+function interpolate(t, pointList) {
   const upperBoundIndex = pointList.findIndex(([x]) => x >= t)
   if (upperBoundIndex === -1) {
     return pointList[pointList.length - 1][1]
@@ -31,12 +31,36 @@ function interpolate (t, pointList) {
   }
 }
 
-function hsva2rgba (hue, saturation = 1, value = 1, opacity = 1) {
+function hsva2rgba(hue, saturation = 1, value = 1, opacity = 1) {
   const grey = (1 - saturation) * value * 255
   saturation *= value
-  const red = interpolate(hue, [[60, 255], [120, 0], [240, 0], [300, 255]]) * saturation + grey
-  const green = interpolate(hue, [[0, 0], [60, 255], [180, 255], [240, 0]]) * saturation + grey
-  const blue = interpolate(hue, [[120, 0], [180, 255], [300, 255], [360, 0]]) * saturation + grey
+  const red =
+    interpolate(hue, [
+      [60, 255],
+      [120, 0],
+      [240, 0],
+      [300, 255],
+    ]) *
+      saturation +
+    grey
+  const green =
+    interpolate(hue, [
+      [0, 0],
+      [60, 255],
+      [180, 255],
+      [240, 0],
+    ]) *
+      saturation +
+    grey
+  const blue =
+    interpolate(hue, [
+      [120, 0],
+      [180, 255],
+      [300, 255],
+      [360, 0],
+    ]) *
+      saturation +
+    grey
   return `rgba(${red},${green},${blue},${opacity})`
 }
 
@@ -48,11 +72,11 @@ b8r.register('color-picker-controller', {
     const componentId = b8r.getComponentId(elt)
     let { h, s, v, a, increments } = b8r.getComponentData(elt)
     const { offsetX, offsetY } = evt
-    const x = Math.floor(offsetX * (increments + 1) / elt.offsetWidth)
-    const y = Math.floor(offsetY * 4 / elt.offsetHeight)
+    const x = Math.floor((offsetX * (increments + 1)) / elt.offsetWidth)
+    const y = Math.floor((offsetY * 4) / elt.offsetHeight)
     switch (y) {
       case 0:
-        h = x / increments * 360
+        h = (x / increments) * 360
         break
       case 1:
         s = x / increments
@@ -76,7 +100,7 @@ b8r.register('color-picker-controller', {
     const g = canvas.getContext('2d')
     g.clearRect(0, 0, width, height)
     for (let x = 0; x <= width; x++) {
-      g.fillStyle = hsva2rgba(x * 360 / increments)
+      g.fillStyle = hsva2rgba((x * 360) / increments)
       g.fillRect(x, 0, 1, 1)
       g.fillStyle = hsva2rgba(h, x / increments)
       g.fillRect(x, 1, 1, 1)
@@ -85,10 +109,11 @@ b8r.register('color-picker-controller', {
       g.fillStyle = hsva2rgba(h, s, v, x / increments)
       g.fillRect(x, 3, 1, 1)
     }
-  }
+  },
 })
 
-const diagonalStripes = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAGAAAAADiNXWtAAAAjklEQVRIDbXTWwrAIAxEUdvtuDIX7HoqI1QQHwnJJCD0o5wbP3xKKV9STs454Win1ppe7c8WXB2w4lhevIEHFwNe/Bpg4McAC98GmPgSYONTIAIfgSi8ByLxEcCHZvD0cbSD5cWX/GMWXB2w4lhOvIEHFwNe/Bpg4McAC98GmPgSYONTIAIfgSi8ByJxBBqcr4/rC7K9hgAAAABJRU5ErkJggg=='
+const diagonalStripes =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAGAAAAADiNXWtAAAAjklEQVRIDbXTWwrAIAxEUdvtuDIX7HoqI1QQHwnJJCD0o5wbP3xKKV9STs454Win1ppe7c8WXB2w4lhevIEHFwNe/Bpg4McAC98GmPgSYONTIAIfgSi8ByLxEcCHZvD0cbSD5cWX/GMWXB2w4lhOvIEHFwNe/Bpg4McAC98GmPgSYONTIAIfgSi8ByJxBBqcr4/rC7K9hgAAAABJRU5ErkJggg=='
 
 export const colorPicker = b8r.makeComponentNoEval('color-picker', {
   css: `
@@ -143,12 +168,16 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
   view: ({ div, span, canvas }) => [
     div(
       { class: 'diagonal-stripes' },
-      span({ class: 'swatch', 'bindStyle(background)': '_component_.value' }, ' '),
+      span(
+        { class: 'swatch', 'bindStyle(background)': '_component_.value' },
+        ' '
+      ),
       canvas({
-        'color-picker-controller.palette': '_component_.h,_component_.s,_component_.v',
-        'onMousedown,mousemove,mouseup': 'color-picker-controller.pickColor'
+        'color-picker-controller.palette':
+          '_component_.h,_component_.s,_component_.v',
+        'onMousedown,mousemove,mouseup': 'color-picker-controller.pickColor',
       })
-    )
+    ),
   ],
   load: async ({
     component, // this is the element that the component is inserted into
@@ -160,7 +189,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
     get, // get (within the component's private data)
     set, // set (within the component's private data)
     on, // b8r.on(component, ...)
-    touch // refresh the component
+    touch, // refresh the component
   }) => {
     component.setAttribute('tabindex', 0)
     const { value } = get()
@@ -172,7 +201,7 @@ export const colorPicker = b8r.makeComponentNoEval('color-picker', {
       h,
       s,
       v,
-      a
+      a,
     })
-  }
+  },
 })

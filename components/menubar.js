@@ -1,4 +1,3 @@
-
 import { update } from '../lib/shortcuts.js'
 
 export default {
@@ -118,16 +117,22 @@ export default {
       dataChildren: true,
       'onMouseup,keydown(Space)': 'menubar.action',
       'onFocus,mouseover,mousedown': 'menubar.open',
-      'onBlur,keydown(Escape)': 'menubar.close'
-    }
+      'onBlur,keydown(Escape)': 'menubar.close',
+    },
   ],
-  load ({ b8r, component, find }) {
-    find('[data-event]').forEach(elt => {
+  load({ b8r, component, find }) {
+    find('[data-event]').forEach((elt) => {
       var handlerDef = elt.dataset.event
       if (elt.dataset.shortcut) {
-        handlerDef = handlerDef.replace(/\bmenuclick\b([^:]*):/, 'shortcut,mouseup,keydown(Space)$1:')
+        handlerDef = handlerDef.replace(
+          /\bmenuclick\b([^:]*):/,
+          'shortcut,mouseup,keydown(Space)$1:'
+        )
       } else {
-        handlerDef = handlerDef.replace(/\bmenuclick\b([^:]*):/, 'mouseup,keydown(Space)$1:')
+        handlerDef = handlerDef.replace(
+          /\bmenuclick\b([^:]*):/,
+          'mouseup,keydown(Space)$1:'
+        )
       }
       if (elt.matches('li')) {
         elt.dataset.event = handlerDef
@@ -139,25 +144,35 @@ export default {
       }
     })
     // keyboard navigation
-    b8r.makeArray(component.querySelectorAll('li:not(.separator)')).forEach(elt => elt.setAttribute('tabindex', 0))
+    b8r
+      .makeArray(component.querySelectorAll('li:not(.separator)'))
+      .forEach((elt) => elt.setAttribute('tabindex', 0))
     update()
-    function closeAllMenus () {
+    function closeAllMenus() {
       b8r.off(document.body, 'mousedown', 'menubar', 'close')
-      b8r.find('.menubar-component.open,.menubar-component .open').forEach(elt => elt.classList.remove('open'))
+      b8r
+        .find('.menubar-component.open,.menubar-component .open')
+        .forEach((elt) => elt.classList.remove('open'))
     }
     b8r.reg.menubar = {
-      action (evt) {
-        if (!evt.target.matches('.menubar-component') && !evt.target.parentElement.matches('.menubar-component')) {
+      action(evt) {
+        if (
+          !evt.target.matches('.menubar-component') &&
+          !evt.target.parentElement.matches('.menubar-component')
+        ) {
           closeAllMenus()
         }
       },
-      open (evt) {
+      open(evt) {
         component.style.zIndex = b8r.findHighestZ()
         const li = evt.target.closest('li')
         if (!li) {
           return
         }
-        if (li.parentElement.matches('.menubar-component.open') && evt.type === 'mousedown') {
+        if (
+          li.parentElement.matches('.menubar-component.open') &&
+          evt.type === 'mousedown'
+        ) {
           closeAllMenus()
           return
         }
@@ -165,18 +180,26 @@ export default {
           const menubar = evt.target.closest('.menubar-component')
           menubar.classList.add('open')
           b8r.on(document.body, 'mousedown', 'menubar', 'close')
-          menubar.querySelectorAll('.open').forEach(elt => elt.classList.remove('open'))
+          menubar
+            .querySelectorAll('.open')
+            .forEach((elt) => elt.classList.remove('open'))
           if (evt.target.matches('li')) {
             evt.target.classList.add('open')
           }
-          b8r.findAbove(evt.target, 'li', '.menubar-component').forEach(elt => elt.classList.add('open'))
+          b8r
+            .findAbove(evt.target, 'li', '.menubar-component')
+            .forEach((elt) => elt.classList.add('open'))
         }
       },
-      close (evt) {
-        if (!evt || !evt.relatedTarget || !evt.relatedTarget.closest('.menubar-component')) {
+      close(evt) {
+        if (
+          !evt ||
+          !evt.relatedTarget ||
+          !evt.relatedTarget.closest('.menubar-component')
+        ) {
           closeAllMenus()
         }
-      }
+      },
     }
-  }
+  },
 }

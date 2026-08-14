@@ -14,27 +14,32 @@ export default {
       object-fit: contain;
     }
   `,
-  view ({ div, h4, img, input }) {
-    const imageBlock = (title, imageProp) => div(
-      { title },
-      h4(title),
-      img({ bindImg: `_component_.${imageProp}` }),
-      input({ type: 'file', accept: 'image/*', onChange: '_component_.handleFile' })
-    )
+  view({ div, h4, img, input }) {
+    const imageBlock = (title, imageProp) =>
+      div(
+        { title },
+        h4(title),
+        img({ bindImg: `_component_.${imageProp}` }),
+        input({
+          type: 'file',
+          accept: 'image/*',
+          onChange: '_component_.handleFile',
+        })
+      )
     return [
       imageBlock('image', 'image'),
       imageBlock('rgb', 'imageRGB'),
-      imageBlock('alpha', 'imageAlpha')
+      imageBlock('alpha', 'imageAlpha'),
     ]
   },
-  initialValue ({ set, findOne }) {
+  initialValue({ set, findOne }) {
     const fileActions = {
-      image (img) {
+      image(img) {
         const canvas = document.createElement('canvas')
         const rgb = findOne('div[title="rgb"] > img')
         const alpha = findOne('div[title="alpha"] > img')
-        const w = canvas.width = img.naturalWidth
-        const h = canvas.height = img.naturalHeight
+        const w = (canvas.width = img.naturalWidth)
+        const h = (canvas.height = img.naturalHeight)
         const ctx = canvas.getContext('2d')
         ctx.drawImage(img, 0, 0)
         const { data } = ctx.getImageData(0, 0, w, h)
@@ -61,19 +66,19 @@ export default {
         }
         rgb.src = canvas.toDataURL('image/png')
       },
-      imageRGB () {
+      imageRGB() {
         // todo: rebuild image with new rgb
       },
-      imageAlpha () {
+      imageAlpha() {
         // todo: rebuild image with new alpha
-      }
+      },
     }
 
     return {
       image: null,
       imageRGB: null,
       imageAlpha: null,
-      handleFile (evt) {
+      handleFile(evt) {
         const { files } = evt.target
         const { title } = evt.target.closest('div[title]')
         const img = findOne('div[title="' + title + '"] > img')
@@ -86,7 +91,7 @@ export default {
           }
           fr.readAsDataURL(files[0])
         }
-      }
+      },
     }
-  }
+  },
 }

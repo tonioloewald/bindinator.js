@@ -52,14 +52,16 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
   attributes: {
     country: 'us',
     value: '',
-    placeholder: 'enter phone number'
+    placeholder: 'enter phone number',
   },
   props: {
-    dialCode () {
-      const country = countries.find(c => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase())
+    dialCode() {
+      const country = countries.find(
+        (c) => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase()
+      )
       return country.dialCode
     },
-    phoneNumber: ''
+    phoneNumber: '',
   },
   style: {
     ':host': {
@@ -74,34 +76,40 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
       boxShadow: 'var(--shadow-outline)',
       transition: 'var(--hover-transition)',
       lineHeight: 'var(--body-line-height)',
-      outline: 'var(--focus-outline)'
+      outline: 'var(--focus-outline)',
     },
     input: {
       border: 0,
       background: 'transparent',
       padding: 'var(--input-padding-edges)',
-      color: 'var(--text-color)'
-    }
+      color: 'var(--text-color)',
+    },
   },
   eventHandlers: {
-    change (evt) {
+    change(evt) {
       if (evt.target !== this) {
         return
       }
       const phone = this.value
-      const country = countries.find(c => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase())
+      const country = countries.find(
+        (c) => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase()
+      )
       if (!phone.startsWith('+')) {
         this.phoneNumber = phone.replace(notAllowed, '')
       } else if (phone.startsWith(country.dialCode)) {
-        this.phoneNumber = phone.substr(country.dialCode.length).replace(notAllowed, '')
+        this.phoneNumber = phone
+          .substr(country.dialCode.length)
+          .replace(notAllowed, '')
       } else {
-        const country = countries.find(c => phone.startsWith(c.dialCode))
+        const country = countries.find((c) => phone.startsWith(c.dialCode))
         if (country) {
           this.country = country.code.toLocaleLowerCase()
-          this.phoneNumber = phone.substr(country.dialCode.length).replace(notAllowed, '')
+          this.phoneNumber = phone
+            .substr(country.dialCode.length)
+            .replace(notAllowed, '')
         }
       }
-    }
+    },
   },
   content: _fragment(
     span(
@@ -112,8 +120,8 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
           width: '70px',
           display: 'flex',
           alignItems: 'center',
-          padding: '0 5px'
-        }
+          padding: '0 5px',
+        },
       },
       span({ dataId: 'flag', style: 'flex: 0 0' }),
       span({ dataId: 'dialcode', style: 'flex: 1 1 auto; text-align: right' }),
@@ -131,40 +139,48 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
             top: 0,
             left: 0,
             width: '100%',
-            height: '100%'
-          }
+            height: '100%',
+          },
         },
-        ...countries.map(({ code, name, flag }) => option(name, { value: code }))
+        ...countries.map(({ code, name, flag }) =>
+          option(name, { value: code })
+        )
       )
     ),
-    input(
-      {
-        dataId: 'phoneNumber',
-        inputmode: 'numeric',
-        style: {
-          flex: '1 1 auto'
-        }
-      }
-    )
+    input({
+      dataId: 'phoneNumber',
+      inputmode: 'numeric',
+      style: {
+        flex: '1 1 auto',
+      },
+    })
   ),
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       const { countrySelect, phoneNumber } = this.elementRefs
       countrySelect.addEventListener('change', () => {
-        this.country = countries.find(c => c.code === countrySelect.value).code.toLocaleLowerCase()
+        this.country = countries
+          .find((c) => c.code === countrySelect.value)
+          .code.toLocaleLowerCase()
       })
       phoneNumber.addEventListener('input', () => {
         this.phoneNumber = phoneNumber.value.replace(notAllowed, '')
         this.value = this.dialCode + this.phoneNumber
       })
-      phoneNumber.addEventListener('keydown', evt => {
-        if (!evt.code.match(/Backspace|Digit\d|Tab|Arrow/) && !evt.ctrlKey && !evt.metaKey) {
+      phoneNumber.addEventListener('keydown', (evt) => {
+        if (
+          !evt.code.match(/Backspace|Digit\d|Tab|Arrow/) &&
+          !evt.ctrlKey &&
+          !evt.metaKey
+        ) {
           evt.preventDefault()
         }
       })
     },
-    render () {
-      const country = countries.find(c => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase())
+    render() {
+      const country = countries.find(
+        (c) => c.code.toLocaleLowerCase() === this.country.toLocaleLowerCase()
+      )
       const { countrySelect, phoneNumber, flag, dialcode } = this.elementRefs
       phoneNumber.placeholder = this.placeholder
       countrySelect.value = country.code
@@ -174,6 +190,6 @@ export const PhoneNumber = makeWebComponent('b8r-input-phone', {
         phoneNumber.value = this.phoneNumber
       }
       this.value = country.dialCode + this.phoneNumber
-    }
-  }
+    },
+  },
 })

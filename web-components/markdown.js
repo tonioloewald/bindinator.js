@@ -19,23 +19,21 @@ webComponentTest(Test, '../web-components/markdown.js', 'b8r-markdown')
 
 import { md } from '../lib/text-render.js'
 
-import {
-  makeWebComponent
-} from '../source/web-components.js'
+import { makeWebComponent } from '../source/web-components.js'
 
 export const MarkdownArea = makeWebComponent('b8r-markdown', {
   attributes: {
-    value: ''
+    value: '',
   },
   style: {
     ':host': {
-      display: 'block'
-    }
+      display: 'block',
+    },
   },
   methods: {
-    render () {
+    render() {
       md({ elt: this, source: this.value })
-    }
+    },
   },
-  role: 'rich text'
+  role: 'rich text',
 })

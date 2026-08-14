@@ -113,6 +113,4 @@ which will attempt to load `configuration`, `examples`, and `a11yExceptions`.
 
 In order to derive the most benefit from component-test
 */
-export default {
-
-}
+export default {}

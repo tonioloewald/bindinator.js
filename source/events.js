@@ -12,7 +12,7 @@ import { pathSplit } from './byPath.js'
 import implicitEventTypes from './implicit-event-types.js'
 import { dispatch } from './dispatch.js'
 
-const onOffArgs = args => {
+const onOffArgs = (args) => {
   var element
   var eventType
   var object
@@ -25,7 +25,12 @@ const onOffArgs = args => {
   } else if (args.length > 4 || typeof args[3] === 'string') {
     ;[element, eventType, object, method, prepend] = args
     if (typeof object !== 'string' || typeof method !== 'string') {
-      console.debug('b8r-error', 'implicit bindings are by name, not', object, method)
+      console.debug(
+        'b8r-error',
+        'implicit bindings are by name, not',
+        object,
+        method
+      )
       return
     }
     method = object + '.' + method
@@ -39,13 +44,13 @@ const onOffArgs = args => {
   return { element, eventType, path: method, prepend }
 }
 
-const getEventHandlers = element => {
+const getEventHandlers = (element) => {
   const source = element.dataset.event
   const existing = source
     ? source
-      .replace(/\s*(^|$|[,:;])\s*/g, '$1')
-      .split(/[;\n]/)
-      .filter(handler => handler.trim())
+        .replace(/\s*(^|$|[,:;])\s*/g, '$1')
+        .split(/[;\n]/)
+        .filter((handler) => handler.trim())
     : []
   return existing
 }
@@ -66,21 +71,23 @@ is returned as
     ]
 */
 
-const getParsedEventHandlers = element => {
+const getParsedEventHandlers = (element) => {
   const handlers = getEventHandlers(element)
   try {
     return handlers.map(function (instruction) {
       const [type, handler] = instruction.split(':')
       if (!handler) {
         if (instruction.indexOf('.')) {
-          console.debug('b8r-error',
+          console.debug(
+            'b8r-error',
             'bad event handler (missing event type)',
             instruction,
             'in',
             element
           )
         } else {
-          console.debug('b8r-error',
+          console.debug(
+            'b8r-error',
             'bad event handler (missing handler)',
             instruction,
             'in',
@@ -96,8 +103,8 @@ const getParsedEventHandlers = element => {
       const [, model, method] = handlerParts
       const types = type.split(',').sort()
       return {
-        types: types.map(s => s.split('(')[0].trim()),
-        typeArgs: types.map(s => {
+        types: types.map((s) => s.split('(')[0].trim()),
+        typeArgs: types.map((s) => {
           if (s.substr(0, 3) === 'key') {
             s = s.replace(/Key|Digit/g, '')
             // Allows for a key to be Cmd in Mac and Ctrl in Windows
@@ -110,7 +117,7 @@ const getParsedEventHandlers = element => {
           return args && args[1] ? args[1].split(',') : false
         }),
         model,
-        method
+        method,
       }
     })
   } catch (e) {
@@ -200,7 +207,7 @@ Test(() => x).shouldBe(Math.PI)
 */
 
 // TODO use parsed event handlers to do this properly
-function on (...args) {
+function on(...args) {
   const { element, eventType, path, prepend } = onOffArgs(args)
   const handler = makeHandler(eventType, path)
   const existing = getEventHandlers(element)
@@ -215,7 +222,7 @@ function on (...args) {
 }
 
 // TODO use parsed event handlers to do this properly
-function off (...args) {
+function off(...args) {
   var element, eventType, object, method
   if (args.length === 4) {
     ;[element, eventType, object, method] = args
@@ -261,7 +268,7 @@ const disable = (element, includeChildren) => {
   const elements = includeChildren
     ? findWithin(element, '[data-event]', true)
     : [element]
-  elements.forEach(elt => {
+  elements.forEach((elt) => {
     if (elt.dataset.event) {
       elt.dataset.eventDisabled = elt.dataset.event
       if (elt.dataset.event) {
@@ -278,7 +285,7 @@ const enable = (element, includeChildren) => {
   const elements = includeChildren
     ? findWithin(element, '[data-event-disabled]', true)
     : [element]
-  elements.forEach(elt => {
+  elements.forEach((elt) => {
     if (elt.dataset.eventDisabled) {
       elt.dataset.event = elt.dataset.eventDisabled
       if (elt.dataset.eventDisabled) {
@@ -293,7 +300,7 @@ const enable = (element, includeChildren) => {
 
 // add touch events if needed
 if (window.TouchEvent) {
-  ;['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach(type =>
+  ;['touchstart', 'touchcancel', 'touchmove', 'touchend'].forEach((type) =>
     implicitEventTypes.push(type)
   )
 }
@@ -341,7 +348,7 @@ const callMethod = (...args) => {
   return call(`${model}.${method}`, ...args)
 }
 
-const handleEvent = evt => {
+const handleEvent = (evt) => {
   // early exit for events triggered on elements inside [data-list] template elements and unloaded components
   if (
     evt.target.closest(
@@ -351,7 +358,10 @@ const handleEvent = evt => {
     return
   }
   if (evt.target.closest('[data-debug],[data-debug-event]')) {
-    console.debug('b8r-warn', 'Add a conditional breakpoint to watch events being handled')
+    console.debug(
+      'b8r-warn',
+      'Add a conditional breakpoint to watch events being handled'
+    )
   }
   var target = anyElement
   var args = evt.args || []
@@ -380,7 +390,12 @@ const handleEvent = evt => {
                 ...args
               )
             } else {
-              console.debug('b8r-warn', `${handler.method} not found`, target, handler)
+              console.debug(
+                'b8r-warn',
+                `${handler.method} not found`,
+                target,
+                handler
+              )
             }
           } else if (!handler.model && handler.method) {
             const listInstancePath = target.closest('[data-list-instance]')
@@ -436,7 +451,12 @@ naturally the goal is for them to be handled exactly as if they were "real".
 
 const trigger = (type, target, ...args) => {
   if (typeof type !== 'string' || !(target instanceof Element)) {
-    console.debug('b8r-error', 'expected trigger(eventType, targetElement)', type, target)
+    console.debug(
+      'b8r-error',
+      'expected trigger(eventType, targetElement)',
+      type,
+      target
+    )
     return
   }
   if (target) {
@@ -459,7 +479,7 @@ to use `data-event` bindings for the seeking `media` event, which you
 could do with `b8r.implicitlyHandleEventsOfType('seeking')`.
 */
 
-const implicitlyHandleEventsOfType = type => {
+const implicitlyHandleEventsOfType = (type) => {
   if (implicitEventTypes.indexOf(type) === -1) {
     implicitEventTypes.push(type)
     document.body.addEventListener(type, handleEvent, true)
@@ -480,5 +500,5 @@ export {
   implicitlyHandleEventsOfType,
   implicitEventTypes,
   getComponentWithMethod,
-  handleEvent
+  handleEvent,
 }

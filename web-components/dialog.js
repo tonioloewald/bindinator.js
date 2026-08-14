@@ -158,42 +158,44 @@ import {
   makeWebComponent,
   div,
   input,
-  button
+  button,
 } from '../source/web-components.js'
 
 export const DialogModal = makeWebComponent('b8r-modal', {
   attributes: {
     value: null,
-    active: false
+    active: false,
   },
   props: {
-    callbacks: []
+    callbacks: [],
   },
   methods: {
-    addCallback (fn) {
+    addCallback(fn) {
       this.callbacks.push(fn)
     },
-    close (value) {
+    close(value) {
       if (value !== undefined) this.value = value
-      this.callbacks.forEach(callback => callback(this.value))
+      this.callbacks.forEach((callback) => callback(this.value))
       this.active = false
     },
-    show () {
+    show() {
       this.active = true
     },
-    hide () {
+    hide() {
       this.active = false
     },
-    handleShortcut (evt) {
+    handleShortcut(evt) {
       const { key } = evt
-      const button = this.querySelector(`.b8r-modal-button[data-shortcut="${key}"]`)
+      const button = this.querySelector(
+        `.b8r-modal-button[data-shortcut="${key}"]`
+      )
       if (button) {
         button.click()
         evt.stopPropagation()
         evt.preventDefault()
       }
     },
-    render () {
+    render() {
       let display = 'none'
       if (!this.hasAttribute('tabindex')) {
         this.setAttribute('tabindex', 0)
@@ -202,13 +204,15 @@ export const DialogModal = makeWebComponent('b8r-modal', {
       if (this.active) {
         display = 'block'
         requestAnimationFrame(() => {
-          const elt = this.querySelector('input,textarea,button,select,[tabindex]')
+          const elt = this.querySelector(
+            'input,textarea,button,select,[tabindex]'
+          )
           if (elt) elt.focus()
         })
       }
       this.shadowRoot.querySelector('slot').style.display = display
       this.style.display = display
-    }
+    },
   },
   style: {
     ':host': {
@@ -219,7 +223,7 @@ export const DialogModal = makeWebComponent('b8r-modal', {
       right: 0,
       top: 0,
       bottom: 0,
-      zIndex: 100
+      zIndex: 100,
     },
     slot: {
       display: 'block',
@@ -230,68 +234,90 @@ export const DialogModal = makeWebComponent('b8r-modal', {
       transform: 'translateX(-50%) translateY(-50%)',
       borderRadius: '4px',
       boxShadow: '0 10px 20px 0 rgba(0,0,0,0.5)',
-      overflow: 'hidden'
-    }
-  }
+      overflow: 'hidden',
+    },
+  },
 })
 
 const _okButton = { name: 'OK', shortcut: 'Enter' }
 
-const _confirmButtons = [
-  _okButton,
-  { name: 'Cancel', shortcut: 'Escape' }
-]
+const _confirmButtons = [_okButton, { name: 'Cancel', shortcut: 'Escape' }]
 
 const _makeButtons = (buttons) =>
-  buttons.map(({ name, shortcut }) => button({
-    content: name,
-    classes: ['b8r-modal-button'],
-    attributes: {
-      title: `[${shortcut}] ${name}`,
-      'data-shortcut': shortcut
-    }
-  }))
+  buttons.map(({ name, shortcut }) =>
+    button({
+      content: name,
+      classes: ['b8r-modal-button'],
+      attributes: {
+        title: `[${shortcut}] ${name}`,
+        'data-shortcut': shortcut,
+      },
+    })
+  )
 
-export const dialogAlert = (message, title = window.location.host) => dialogConfirm(message, title, [_okButton])
+export const dialogAlert = (message, title = window.location.host) =>
+  dialogConfirm(message, title, [_okButton])
 
-export const dialogConfirm = (message, title = window.location.host, buttons = _confirmButtons) =>
+export const dialogConfirm = (
+  message,
+  title = window.location.host,
+  buttons = _confirmButtons
+) =>
   new Promise((resolve, reject) => {
     const dialog = new DialogModal()
     const _title = div({ content: title, classes: ['b8r-modal-title'] })
     const _message = div({ content: message, classes: ['b8r-modal-message'] })
-    const _buttonSet = div({ content: _makeButtons(buttons), classes: ['b8r-modal-button-set'] })
+    const _buttonSet = div({
+      content: _makeButtons(buttons),
+      classes: ['b8r-modal-button-set'],
+    })
     const _frame = div({
       content: [_title, _message, _buttonSet],
-      classes: ['b8r-modal-frame']
+      classes: ['b8r-modal-frame'],
     })
     const _action = (evt) => {
       dialog.remove()
       resolve(evt.target.textContent)
     }
-    dialog.appendChild(_frame);
-    [...dialog.querySelectorAll('.b8r-modal-button')].forEach(_button => _button.addEventListener('click', _action))
+    dialog.appendChild(_frame)
+    ;[...dialog.querySelectorAll('.b8r-modal-button')].forEach((_button) =>
+      _button.addEventListener('click', _action)
+    )
     document.body.appendChild(dialog)
     dialog.show()
   })
 
-export const dialogPrompt = (message = 'Enter some text', text = '', title = window.location.host) =>
+export const dialogPrompt = (
+  message = 'Enter some text',
+  text = '',
+  title = window.location.host
+) =>
   new Promise((resolve, reject) => {
     const dialog = new DialogModal()
     const _title = div({ content: title, classes: ['b8r-modal-title'] })
     const _message = div({ content: message, classes: ['b8r-modal-message'] })
     const _input = input({ classes: ['b8r-modal-input'] })
     _input.value = text
-    const _buttonSet = div({ content: _makeButtons(_confirmButtons), classes: ['b8r-modal-button-set'] })
+    const _buttonSet = div({
+      content: _makeButtons(_confirmButtons),
+      classes: ['b8r-modal-button-set'],
+    })
     const _frame = div({
       content: [_title, _message, _input, _buttonSet],
-      classes: ['b8r-modal-frame']
+      classes: ['b8r-modal-frame'],
     })
     dialog.appendChild(_frame)
     const _action = (evt) => {
       dialog.remove()
-      resolve(evt.target.textContent === 'OK' ? dialog.querySelector('input').value : null)
-    };
-    [...dialog.querySelectorAll('button')].forEach(_button => _button.addEventListener('click', _action))
+      resolve(
+        evt.target.textContent === 'OK'
+          ? dialog.querySelector('input').value
+          : null
+      )
+    }
+    ;[...dialog.querySelectorAll('button')].forEach((_button) =>
+      _button.addEventListener('click', _action)
+    )
     document.body.appendChild(dialog)
     dialog.show()
     dialog.querySelector('input').setSelectionRange(0, 32000)

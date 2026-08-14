@@ -273,10 +273,14 @@ const processComponent = ({ name, css, html, view }) => {
     view.innerHTML = html || ''
   } else {
     const contents = view(elements)
-    view = Array.isArray(contents) ? elements.div(...contents) : elements.div(contents)
+    view = Array.isArray(contents)
+      ? elements.div(...contents)
+      : elements.div(contents)
   }
   const className = `${name}-component`
-  const style = css ? makeStylesheet(css.replace(/_component_/g, className), className) : false
+  const style = css
+    ? makeStylesheet(css.replace(/_component_/g, className), className)
+    : false
   for (const elt of findWithin(view, '[class*="_component_"]')) {
     elt.setAttribute(
       'class',
@@ -286,12 +290,12 @@ const processComponent = ({ name, css, html, view }) => {
   return { style, view }
 }
 
-const makeComponentNoEval = function (name, { css, html, view, load, initialValue, type }) {
+const makeComponentNoEval = function (
+  name,
+  { css, html, view, load, initialValue, type }
+) {
   let style
-  ({
-    style,
-    view
-  } = processComponent({ name, css, html, view }))
+  ;({ style, view } = processComponent({ name, css, html, view }))
   const component = {
     version: 2,
     name,
@@ -299,7 +303,7 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
     view,
     path: `inline-${name}`,
     initialValue,
-    type
+    type,
   }
 
   if (type) {
@@ -311,8 +315,29 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
 
   if (load) {
     // _register is masked because it shouldn't be used any more
-    component.load = async (_component, b8r, find, findOne, data, _register, get, set, on, touch) => {
-      load({ component: _component, b8r, data, find, findOne, get, set, on, touch })
+    component.load = async (
+      _component,
+      b8r,
+      find,
+      findOne,
+      data,
+      _register,
+      get,
+      set,
+      on,
+      touch
+    ) => {
+      load({
+        component: _component,
+        b8r,
+        data,
+        find,
+        findOne,
+        get,
+        set,
+        on,
+        touch,
+      })
     }
   }
 
@@ -320,14 +345,15 @@ const makeComponentNoEval = function (name, { css, html, view, load, initialValu
     clearInterval(componentTimeouts[name])
   }
 
-  find(`[data-component="${name}"]`).forEach(element => {
+  find(`[data-component="${name}"]`).forEach((element) => {
     // somehow things can happen in between find() and here so the
     // second check is necessary to prevent race conditions
     if (!element.closest('[data-list]') && element.dataset.component === name) {
       asyncUpdate(false, element)
     }
   })
-  if (components[name]) console.debug('b8r-warn', 'component %s has been redefined', name)
+  if (components[name])
+    console.debug('b8r-warn', 'component %s has been redefined', name)
   components[name] = component
   return component
 }
@@ -339,54 +365,69 @@ const makeComponent = (name, source, url, preserveSource) => {
   } else if (typeof source === 'object' && url === undefined) {
     return makeComponentNoEval(name, source)
   }
-  let css = false; let content; let script = false; let parts; let remains
+  let css = false
+  let content
+  let script = false
+  let parts
+  let remains
 
   if (!url) url = uuid()
   componentPreloadMap[name] = url
 
   parts = source.split(/<style>|<\/style>/)
   if (parts.length === 3) {
-    [, css, remains] = parts
+    ;[, css, remains] = parts
   } else {
     remains = source
   }
 
   parts = remains.split(/<script[^>\n]*>|<\/script>/)
   if (parts.length >= 3) {
-    [content, script] = parts
+    ;[content, script] = parts
   } else {
     content = remains
   }
 
-  const {
-    style,
-    view
-  } = processComponent({ css, html: content, name })
+  const { style, view } = processComponent({ css, html: content, name })
   /* jshint evil: true */
-  let load = () => console.debug('b8r-error', 'component', name, 'cannot load properly')
+  let load = () =>
+    console.debug('b8r-error', 'component', name, 'cannot load properly')
   // check for legacy components
-  if (script && script.match(/[\b_]require\b/) && !script.match(/\belectron-require\b/)) {
-    console.debug('b8r-error', `in component "${name}" replace require with await import()`)
+  if (
+    script &&
+    script.match(/[\b_]require\b/) &&
+    !script.match(/\belectron-require\b/)
+  ) {
+    console.debug(
+      'b8r-error',
+      `in component "${name}" replace require with await import()`
+    )
     script = false
   }
   try {
     load = script
       ? new AsyncFunction(
-        'component',
-        'b8r',
-        'find',
-        'findOne',
-        'data',
-        'register',
-        'get',
-        'set',
-        'on',
-        'touch',
-        `${script}\n//# sourceURL=${name}(component)`
-      )
+          'component',
+          'b8r',
+          'find',
+          'findOne',
+          'data',
+          'register',
+          'get',
+          'set',
+          'on',
+          'touch',
+          `${script}\n//# sourceURL=${name}(component)`
+        )
       : false
   } catch (e) {
-    console.debug('b8r-error', 'error creating load method for component', name, e, script)
+    console.debug(
+      'b8r-error',
+      'error creating load method for component',
+      name,
+      e,
+      script
+    )
     throw new Error(`component ${name} load method could not be created`)
   }
   /* jshint evil: false */
@@ -395,7 +436,7 @@ const makeComponent = (name, source, url, preserveSource) => {
     style,
     view,
     load,
-    path: url.split('/').slice(0, -1).join('/')
+    path: url.split('/').slice(0, -1).join('/'),
   }
   if (component.path === 'undefined') {
     debugger // eslint-disable-line no-debugger
@@ -415,7 +456,7 @@ const makeComponent = (name, source, url, preserveSource) => {
   }
   components[name] = component
 
-  find(`[data-component="${name}"]`).forEach(element => {
+  find(`[data-component="${name}"]`).forEach((element) => {
     // somehow things can happen in between find() and here so the
     // second check is necessary to prevent race conditions
     if (!element.closest('[data-list]') && element.dataset.component === name) {
@@ -426,7 +467,7 @@ const makeComponent = (name, source, url, preserveSource) => {
 }
 
 // path/to/../foo -> path/foo
-const collapse = path => {
+const collapse = (path) => {
   while (path.match(/([^/]+\/\.\.\/)/)) {
     path = path.replace(/([^/]+\/\.\.\/)/g, '')
   }
@@ -464,27 +505,31 @@ const component = (name, url, preserveSource = false) => {
       if (components[name] && !preserveSource) {
         resolve(components[name])
       } else if (url.match(/\.m?js$/)) {
-        import(url).then(exports => {
-          if (components[name]) {
-            resolve(components[name])
-          } else if (exports.default && typeof exports.default === 'object') {
-            resolve(makeComponent(name, exports.default))
-          } else {
-            const err = `cannot define component "${name}", ${url} does not export a component definition as default`
-            console.debug('b8r-error', err)
+        import(url)
+          .then((exports) => {
+            if (components[name]) {
+              resolve(components[name])
+            } else if (exports.default && typeof exports.default === 'object') {
+              resolve(makeComponent(name, exports.default))
+            } else {
+              const err = `cannot define component "${name}", ${url} does not export a component definition as default`
+              console.debug('b8r-error', err)
+              reject(err)
+            }
+          })
+          .catch((err) => {
+            delete componentPromises[name]
+            console.debug('b8r-error', err, `failed to import component ${url}`)
             reject(err)
-          }
-        }).catch(err => {
-          delete componentPromises[name]
-          console.debug('b8r-error', err, `failed to import component ${url}`)
-          reject(err)
-        })
+          })
       } else {
         const finalUrl = url.match(/\.\w+$/) ? url : `${url}.component.html`
         componentPreloadMap[name] = finalUrl
         ajax(finalUrl)
-          .then(source => resolve(makeComponent(name, source, url, preserveSource)))
-          .catch(err => {
+          .then((source) =>
+            resolve(makeComponent(name, source, url, preserveSource))
+          )
+          .catch((err) => {
             delete componentPromises[name]
             console.debug('b8r-error', err, `failed to load component ${url}`)
             reject(err)
@@ -502,5 +547,5 @@ export {
   componentTimeouts,
   componentPreloadMap,
   makeComponent,
-  makeComponentNoEval
+  makeComponentNoEval,
 }

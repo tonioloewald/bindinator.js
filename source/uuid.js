@@ -69,7 +69,7 @@ const { crypto } = window
   https://github.com/uuidjs/randomUUID/blob/main/randomUUID.js
 */
 class ERR_INVALID_ARG_TYPE extends TypeError {
-  constructor (name, type, value) {
+  constructor(name, type, value) {
     super(`${name} variable is not of type ${type} (value: '${value}')`)
 
     this.code = 'ERR_INVALID_ARG_TYPE'
@@ -80,11 +80,12 @@ class ERR_INVALID_ARG_TYPE extends TypeError {
 // internal/validators
 //
 
-function validateBoolean (value, name) {
-  if (typeof value !== 'boolean') throw new ERR_INVALID_ARG_TYPE(name, 'boolean', value)
+function validateBoolean(value, name) {
+  if (typeof value !== 'boolean')
+    throw new ERR_INVALID_ARG_TYPE(name, 'boolean', value)
 }
 
-function validateObject (value, name) {
+function validateObject(value, name) {
   if (value === null || Array.isArray(value) || typeof value !== 'object') {
     throw new ERR_INVALID_ARG_TYPE(name, 'Object', value)
   }
@@ -102,7 +103,9 @@ const randomFillSync = crypto.getRandomValues.bind(crypto)
 // and uuid buffers are reused. Each call to randomUUID() consumes
 // 16 bytes from the buffer.
 
-const kHexDigits = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102]
+const kHexDigits = [
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102,
+]
 
 const kBatchSize = 128
 let uuidData
@@ -110,7 +113,7 @@ let uuidNotBuffered
 let _uuid
 let uuidBatch = 0
 
-function getBufferedUUID () {
+function getBufferedUUID() {
   if (uuidData === undefined) {
     uuidData = new Uint8Array(16 * kBatchSize)
   }
@@ -120,7 +123,7 @@ function getBufferedUUID () {
   return uuidData.slice(uuidBatch * 16, uuidBatch * 16 + 16)
 }
 
-function randomUUID (options) {
+function randomUUID(options) {
   if (options !== undefined) validateObject(options, 'options')
   const { disableEntropyCache = false } = { ...options }
 
@@ -193,13 +196,21 @@ if (!crypto.randomUUID) {
   crypto.randomUUID = randomUUID
 }
 
-export const now36 = () => new Date(parseInt('1000000000', 36) + Date.now()).valueOf().toString(36).slice(1)
+export const now36 = () =>
+  new Date(parseInt('1000000000', 36) + Date.now())
+    .valueOf()
+    .toString(36)
+    .slice(1)
 
 export const randId = (length, base = 36) => {
   const squared = base * base
   const r = new Uint32Array(Math.ceil(length / 2))
   crypto.getRandomValues(r)
-  return [...r].map(bytes => (squared + bytes % squared).toString(base)).slice(1).join('').substr(-length)
+  return [...r]
+    .map((bytes) => (squared + (bytes % squared)).toString(base))
+    .slice(1)
+    .join('')
+    .substr(-length)
 }
 
 export const id = () => now36() + randId(11)

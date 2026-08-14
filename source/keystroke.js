@@ -45,7 +45,7 @@ the relevant unicode glyphs (e.g. '⌥').
 
 import { isMacOS } from './constants.js'
 
-const keycode = evt => {
+const keycode = (evt) => {
   if (evt.code) {
     return evt.code.replace(/Key|Digit/, '')
   } else {
@@ -57,7 +57,7 @@ const keycode = evt => {
   }
 }
 
-const keystroke = evt => {
+const keystroke = (evt) => {
   const code = []
   if (evt.altKey) {
     code.push('alt')
@@ -75,19 +75,21 @@ const keystroke = evt => {
   return code.join('-')
 }
 
-const modifierKeys = isMacOS ? {
-  meta: '⌘',
-  ctrl: '⌃',
-  alt: '⌥',
-  escape: '⎋',
-  shift: '⇧'
-} : {
-  meta: 'Meta',
-  ctrl: 'Ctrl',
-  alt: 'Alt',
-  escape: 'Esc',
-  shift: 'Shift'
-}
+const modifierKeys = isMacOS
+  ? {
+      meta: '⌘',
+      ctrl: '⌃',
+      alt: '⌥',
+      escape: '⎋',
+      shift: '⇧',
+    }
+  : {
+      meta: 'Meta',
+      ctrl: 'Ctrl',
+      alt: 'Alt',
+      escape: 'Esc',
+      shift: 'Shift',
+    }
 
 export { keystroke, keycode, modifierKeys }
 

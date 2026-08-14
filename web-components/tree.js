@@ -49,42 +49,42 @@ export const Tree = makeWebComponent('b8r-tree', {
   style: {
     ':host': {
       display: 'block',
-      cursor: 'default'
-    }
+      cursor: 'default',
+    },
   },
   attributes: {
     disclosed: true,
     leaf: false,
-    childProp: 'children'
+    childProp: 'children',
   },
   props: {
     value: null,
-    describer (f) {
+    describer(f) {
       if (f) {
         this._describer = f
       } else {
         return this._describer
       }
-    }
+    },
   },
   eventHandlers: {
-    click (evt) {
+    click(evt) {
       if (this.value[this.childProp] && this.value[this.childProp].length) {
         this.toggleDisclose()
       }
       evt.stopPropagation()
-    }
+    },
   },
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       this.showChildren()
     },
-    toggleDisclose () {
+    toggleDisclose() {
       // TODO: implement option-clicking to disclose / collapse sub-hierarchy
       this.disclosed = !this.disclosed
       this.showChildren()
     },
-    showChildren () {
+    showChildren() {
       const children = this.disclosed ? this.value[this.childProp] || [] : []
       while (this.childNodes.length > children.length) {
         this.removeChild(this.lastChild)
@@ -99,19 +99,17 @@ export const Tree = makeWebComponent('b8r-tree', {
         this.childNodes.childProp = this.childProp
       }
     },
-    render () {
-      this.leaf = !this.value[this.childProp] || !this.value[this.childProp].length
+    render() {
+      this.leaf =
+        !this.value[this.childProp] || !this.value[this.childProp].length
       if (this.describer) {
         this.shadowRoot.querySelector('.description').textContent = ''
-        this.shadowRoot.querySelector('.description').append(this.describer(this.value))
+        this.shadowRoot
+          .querySelector('.description')
+          .append(this.describer(this.value))
       }
-    }
+    },
   },
-  content: [
-    span(
-      span('no description', { class: 'description' })
-    ),
-    slot()
-  ],
-  role: 'tree'
+  content: [span(span('no description', { class: 'description' })), slot()],
+  role: 'tree',
 })

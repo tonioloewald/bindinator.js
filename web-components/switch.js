@@ -20,10 +20,7 @@ webComponentTest(Test, '../web-components/switch.js', 'b8r-switch')
 */
 /* global requestAnimationFrame */
 
-import {
-  span,
-  makeWebComponent
-} from '../source/web-components.js'
+import { span, makeWebComponent } from '../source/web-components.js'
 
 export const CheckboxSwitch = makeWebComponent('b8r-switch', {
   attributes: {
@@ -35,42 +32,42 @@ export const CheckboxSwitch = makeWebComponent('b8r-switch', {
     height: '16px',
     thumbSize: '24px',
     disabled: false,
-    value: false
+    value: false,
   },
   style: {
     ':host': {
       position: 'relative',
       display: 'none',
       borderRadius: '99px',
-      cursor: 'default'
+      cursor: 'default',
     },
     '.thumb': {
       position: 'absolute',
       display: 'block',
       borderRadius: '99px',
-      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)'
-    }
+      boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)',
+    },
   },
   content: span({ classes: ['thumb'] }),
   eventHandlers: {
-    mouseup (evt) {
+    mouseup(evt) {
       if (!this.disabled) {
         this.value = !this.value
       }
     },
-    keydown (evt) {
+    keydown(evt) {
       evt.preventDefault()
     },
-    keyup (evt) {
+    keyup(evt) {
       if (!this.disabled && evt.code === 'Space') this.value = !this.value
       evt.preventDefault()
-    }
+    },
   },
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       this.tabIndex = 0
     },
-    render () {
+    render() {
       this.style.display = this.hidden ? 'none' : 'inline-block'
       const thumb = this.shadowRoot.querySelector('.thumb')
       thumb.style.transition = this.transition
@@ -88,8 +85,10 @@ export const CheckboxSwitch = makeWebComponent('b8r-switch', {
       this.style.height = this.height
       this.style.transition = this.transition
       requestAnimationFrame(() => {
-        thumb.style.left = this.value ? `${this.offsetWidth - inset - thumbSize}px` : `${inset}px`
+        thumb.style.left = this.value
+          ? `${this.offsetWidth - inset - thumbSize}px`
+          : `${inset}px`
       })
-    }
-  }
+    },
+  },
 })

@@ -124,36 +124,50 @@ const toBindings = (elt) => {
 export const BinderyModel = makeWebComponent('b8r-bindery', {
   attributes: {
     value: null,
-    events: ''
+    events: '',
   },
   eventHandlers: {
-    change (evt) {
+    change(evt) {
       this.handleChange(evt)
     },
-    input (evt) {
+    input(evt) {
       this.handleChange(evt)
-    }
+    },
   },
   createShadow: false,
   methods: {
-    connectedCallback () {
+    connectedCallback() {
       if (this._observer) return
 
-      implicitEventTypes.forEach(type => this.addEventListener(type, this.handleEvent, { capture: true }))
+      implicitEventTypes.forEach((type) =>
+        this.addEventListener(type, this.handleEvent, { capture: true })
+      )
 
       // automatic binding of elements added or modified dynamically
       // but it may be a performance issue
-      this._observer = new MutationObserver(mutationsList => {
-        if (mutationsList.reduce((a, b) => a || !b.attributeName || b.attributeName.match(/^data-to|data-from$/), false)) {
+      this._observer = new MutationObserver((mutationsList) => {
+        if (
+          mutationsList.reduce(
+            (a, b) =>
+              a ||
+              !b.attributeName ||
+              b.attributeName.match(/^data-to|data-from$/),
+            false
+          )
+        ) {
           this.updateBindings()
         }
       })
-      this._observer.observe(this, { subtree: true, attributes: true, childList: true })
+      this._observer.observe(this, {
+        subtree: true,
+        attributes: true,
+        childList: true,
+      })
     },
-    get (path) {
+    get(path) {
       return this.value[path]
     },
-    handleEvent (evt) {
+    handleEvent(evt) {
       const bindery = evt.target.closest('b8r-bindery') || evt.fromElement
       const model = bindery.value
       const { type, target } = evt
@@ -163,52 +177,56 @@ export const BinderyModel = makeWebComponent('b8r-bindery', {
         model[handler].call(bindery, evt, eventTarget, model)
       }
     },
-    handleChange (evt) {
+    handleChange(evt) {
       const { target } = evt
       const changeTarget = target.closest('[data-from]')
       if (changeTarget) {
         const [target, path] = changeTarget.dataset.from.split('=')
         this.update({
           ...this.value,
-          [path]: changeTarget[target]
+          [path]: changeTarget[target],
         })
       } else if (target === this) {
         this.update(this.value)
       }
     },
-    updateBindings () {
-      this.subscribers = [...this.querySelectorAll('[data-to],[data-from]')]
-        .map(elt => {
-          const [prop, path] = (elt.dataset.to || elt.dataset.from).split('=')
-          return { prop, path, elt }
-        })
+    updateBindings() {
+      this.subscribers = [
+        ...this.querySelectorAll('[data-to],[data-from]'),
+      ].map((elt) => {
+        const [prop, path] = (elt.dataset.to || elt.dataset.from).split('=')
+        return { prop, path, elt }
+      })
       this.update(this.value)
     },
-    update (newValue) {
+    update(newValue) {
       if (!this.subscribers) this.updateBindings()
       const { subscribers, value } = this
       let dirty = false
-      Object.keys(newValue || {}).forEach(path => {
+      Object.keys(newValue || {}).forEach((path) => {
         if (newValue[path] !== value[path]) dirty = true
-        subscribers
-          .forEach((subscriber) => {
-            if (subscriber.path === path && subscriber.elt[subscriber.prop] !== newValue[subscriber.path]) {
-              dirty = true
-              subscriber.elt[subscriber.prop] = newValue[subscriber.path]
-            }
-          })
+        subscribers.forEach((subscriber) => {
+          if (
+            subscriber.path === path &&
+            subscriber.elt[subscriber.prop] !== newValue[subscriber.path]
+          ) {
+            dirty = true
+            subscriber.elt[subscriber.prop] = newValue[subscriber.path]
+          }
+        })
       })
       if (dirty) this.value = newValue
     },
-    render () {
-      this.events.split(',')
-        .filter(type => type && !implicitEventTypes.includes(type))
-        .forEach(type => {
+    render() {
+      this.events
+        .split(',')
+        .filter((type) => type && !implicitEventTypes.includes(type))
+        .forEach((type) => {
           this.removeEventListener(type, this.handleEvent, { capture: true })
           this.addEventListener(type, this.handleEvent, { capture: true })
         })
 
       this.update(this.value)
-    }
-  }
+    },
+  },
 })

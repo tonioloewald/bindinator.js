@@ -54,7 +54,7 @@ Test(() => describe(async function(x,y,z){})).shouldBe('async (x,y,z)=>{...}');
 ~~~~
 */
 
-export function describe (x, maxUniques = 4, generic = false) {
+export function describe(x, maxUniques = 4, generic = false) {
   if (x === undefined) {
     return 'undefined'
   } else if (Array.isArray(x)) {
@@ -64,7 +64,7 @@ export function describe (x, maxUniques = 4, generic = false) {
       return `[${describe(x[0], maxUniques, generic)} × ${x.length}]`
     } else if (typeof x[0] !== typeof x[1]) {
       return x.length <= maxUniques || maxUniques < 0
-        ? '[' + x.map(v => describe(v, maxUniques, generic)).join(', ') + ']'
+        ? '[' + x.map((v) => describe(v, maxUniques, generic)).join(', ') + ']'
         : `[* × ${x.length}]`
     }
   } else if (x && x.constructor === Object) {
@@ -78,10 +78,15 @@ export function describe (x, maxUniques = 4, generic = false) {
     return generic ? 'string' : `"${x}"`
   } else if (x instanceof Function) {
     const source = x.toString()
-    const args = source.match(/^(async\s+)?(function[^(]*\()?\(?(.*?)(\)\s*\{|\)\s*=>|=>)/m)[3].trim()
+    const args = source
+      .match(/^(async\s+)?(function[^(]*\()?\(?(.*?)(\)\s*\{|\)\s*=>|=>)/m)[3]
+      .trim()
     const native = source.match(/\[native code\]/)
     const inside = native ? '[native code]' : '...'
-    let desc = x.prototype || native ? `function(${args}){${inside}}` : `(${args})=>{${inside}}`
+    let desc =
+      x.prototype || native
+        ? `function(${args}){${inside}}`
+        : `(${args})=>{${inside}}`
     if (source.startsWith('async')) {
       desc = 'async ' + desc
     }

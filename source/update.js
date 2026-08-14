@@ -50,7 +50,7 @@ const _updateList = []
 const _afterUpdateCallbacks = []
 let _forceUpdate = () => {}
 
-const requestAnimationFrameWithTimeout = callback => {
+const requestAnimationFrameWithTimeout = (callback) => {
   let done = false
   const finishIt = () => {
     done || callback()
@@ -61,7 +61,7 @@ const requestAnimationFrameWithTimeout = callback => {
   return {
     cancel: () => {
       done = true
-    }
+    },
   }
 }
 
@@ -96,7 +96,7 @@ const _triggerChanges = () => {
   }
 }
 
-const _triggerChange = element => {
+const _triggerChange = (element) => {
   if (element instanceof HTMLElement) {
     if (!_changeList.length) {
       requestAnimationFrame(_triggerChanges)
@@ -109,8 +109,10 @@ const _triggerChange = element => {
 
 const asyncUpdate = (path, source) => {
   const item = path
-    ? _updateList.find(item => path.startsWith(item.path))
-    : _updateList.find(item => (!item.path) && item.source && item.source === source)
+    ? _updateList.find((item) => path.startsWith(item.path))
+    : _updateList.find(
+        (item) => !item.path && item.source && item.source === source
+      )
   if (!item) {
     if (!_updateFrame) {
       _updateFrame = requestAnimationFrameWithTimeout(_forceUpdate)
@@ -122,7 +124,7 @@ const asyncUpdate = (path, source) => {
   }
 }
 
-const afterUpdate = callback => {
+const afterUpdate = (callback) => {
   if (_updateList.length) {
     if (_afterUpdateCallbacks.indexOf(callback) === -1) {
       _afterUpdateCallbacks.push(callback)
@@ -132,16 +134,17 @@ const afterUpdate = callback => {
   }
 }
 
-const touchElement = element => asyncUpdate(false, element)
+const touchElement = (element) => asyncUpdate(false, element)
 
 const touchByPath = (...args) => {
   let fullPath, sourceElement, name, path
 
   if (args[1] instanceof HTMLElement) {
-    [fullPath, sourceElement] = args
+    ;[fullPath, sourceElement] = args
   } else {
-    [name, path, sourceElement] = args
-    fullPath = !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path
+    ;[name, path, sourceElement] = args
+    fullPath =
+      !path || path === '/' ? name : name + (path[0] !== '[' ? '.' : '') + path
   }
 
   asyncUpdate(fullPath, sourceElement)
@@ -152,12 +155,16 @@ const _setForceUpdate = (fn) => {
 }
 
 const _expectedCustomElements = []
-const expectCustomElement = async tagName => {
+const expectCustomElement = async (tagName) => {
   tagName = tagName.toLocaleLowerCase()
-  if (window.customElements.get(tagName) || _expectedCustomElements.includes(tagName)) return
+  if (
+    window.customElements.get(tagName) ||
+    _expectedCustomElements.includes(tagName)
+  )
+    return
   _expectedCustomElements.push(tagName)
   await window.customElements.whenDefined(tagName)
-  find(tagName).forEach(elt => {
+  find(tagName).forEach((elt) => {
     delete elt._b8rBoundValues
     touchElement(elt)
   })
@@ -173,5 +180,5 @@ export {
   afterUpdate,
   touchElement,
   touchByPath,
-  expectCustomElement
+  expectCustomElement,
 }

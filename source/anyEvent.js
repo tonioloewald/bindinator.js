@@ -27,12 +27,12 @@ everything else for purposes of propagation.
 import { on, off, getEventHandlers } from './events.js'
 import anyElement from './anyElement.js'
 
-const anyArgs = args => {
+const anyArgs = (args) => {
   var eventType, object, method, path
   if (args.length === 2) {
-    [eventType, path] = args
+    ;[eventType, path] = args
   } else {
-    [eventType, object, method] = args
+    ;[eventType, object, method] = args
     path = object + '.' + method
   }
   return { eventType, path }
@@ -50,9 +50,4 @@ const offAny = function (...args) {
 
 const anyListeners = () => getEventHandlers(anyElement)
 
-export {
-  anyListeners,
-  anyArgs,
-  onAny,
-  offAny
-}
+export { anyListeners, anyArgs, onAny, offAny }

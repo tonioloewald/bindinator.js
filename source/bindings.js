@@ -282,7 +282,8 @@ To quickly obtain bound data a list instance from an element inside it:
 import { findWithin, succeeding } from './dom.js'
 import { touchElement } from './update.js'
 
-export const COMPONENT_SELECTOR = '[data-component],[data-component-id],b8r-component'
+export const COMPONENT_SELECTOR =
+  '[data-component],[data-component-id],b8r-component'
 export const UNLOADED_COMPONENT_SELECTOR =
   '[data-component],[data-initializing],b8r-component:not([data-component-id])'
 export const UNREADY_SELECTOR = `[data-list],${UNLOADED_COMPONENT_SELECTOR}`
@@ -291,7 +292,9 @@ const addDataBinding = (element, toTarget, path) => {
   path = path.replace(/\b_component_\b/g, getComponentId(element))
   const binding = `${toTarget}=${path}`
   const existing = (element.dataset.bind || '')
-    .split(';').map(s => s.trim()).filter(s => !!s)
+    .split(';')
+    .map((s) => s.trim())
+    .filter((s) => !!s)
   if (existing.indexOf(binding) === -1) {
     existing.push(binding)
     element.dataset.bind = existing.join(';')
@@ -302,10 +305,9 @@ const addDataBinding = (element, toTarget, path) => {
 
 const removeDataBinding = (element, toTarget, path) => {
   const binding = `${toTarget}=${path}`
-  var existing =
-      (element.dataset.bind || '').split(';').map(s => s.trim())
+  var existing = (element.dataset.bind || '').split(';').map((s) => s.trim())
   if (existing.indexOf(binding) > -1) {
-    existing = existing.filter(exists => exists !== binding)
+    existing = existing.filter((exists) => exists !== binding)
     if (existing.length) {
       element.dataset.bind = existing.join(';')
     } else {
@@ -317,16 +319,20 @@ const removeDataBinding = (element, toTarget, path) => {
   }
 }
 
-const parseBinding = binding => {
+const parseBinding = (binding) => {
   if (!binding.trim()) {
     throw new Error('empty binding')
   }
   if (binding.indexOf('=') === -1) {
-    throw new Error(`binding "${binding}" is missing = sign; probably need a source or target`)
+    throw new Error(
+      `binding "${binding}" is missing = sign; probably need a source or target`
+    )
   }
-  const [, targetsRaw, path] =
-      binding.trim().match(/^([^=]*?)=([^;]*)$/m).map(s => s.trim())
-  const targets = targetsRaw.split(',').map(_target => {
+  const [, targetsRaw, path] = binding
+    .trim()
+    .match(/^([^=]*?)=([^;]*)$/m)
+    .map((s) => s.trim())
+  const targets = targetsRaw.split(',').map((_target) => {
     var parts = _target.match(/([\w#\-.]+)(\(([^)]+)\))?/)
     if (!parts) {
       console.debug('b8r-error', 'bad target', _target, 'in binding', binding)
@@ -430,39 +436,49 @@ Test(() => getBindings(div), 'implicit method binding is parsed correctly').shou
 ~~~~
 */
 
-const splitPaths = paths => paths.match(/(([^,([]+\.?)|(\[[^\]]+\]\.?)|\([^)]+\))+/g)
+const splitPaths = (paths) =>
+  paths.match(/(([^,([]+\.?)|(\[[^\]]+\]\.?)|\([^)]+\))+/g)
 
-const findBindables = element => findWithin(element, '[data-bind]', true)
+const findBindables = (element) => findWithin(element, '[data-bind]', true)
 
-const findLists = element => findWithin(element, '[data-list]', true)
+const findLists = (element) => findWithin(element, '[data-list]', true)
 
-const getBindings = element => {
+const getBindings = (element) => {
   try {
-    return element.dataset.bind
-      // separate bindings with ';' for consistency
-      .replace(/\n\s*([\w#\-.,]+)(\([^)]*\))?=/g, ';$1$2=')
-      .split(';')
-      .filter(s => !!s.trim())
-      .map(parseBinding)
+    return (
+      element.dataset.bind
+        // separate bindings with ';' for consistency
+        .replace(/\n\s*([\w#\-.,]+)(\([^)]*\))?=/g, ';$1$2=')
+        .split(';')
+        .filter((s) => !!s.trim())
+        .map(parseBinding)
+    )
   } catch (e) {
     console.debug('b8r-error', element, e)
     return []
   }
 }
 
-const getDataPath = element => {
-  const dataParent = element ? element.closest('[data-path],[data-list-instance]') : false
-  const path = dataParent ? (dataParent.dataset.path || dataParent.dataset.listInstance) : ''
-  return ['.', '['].indexOf(path[0]) === -1 ? path : getDataPath(dataParent.parentElement) + path
+const getDataPath = (element) => {
+  const dataParent = element
+    ? element.closest('[data-path],[data-list-instance]')
+    : false
+  const path = dataParent
+    ? dataParent.dataset.path || dataParent.dataset.listInstance
+    : ''
+  return ['.', '['].indexOf(path[0]) === -1
+    ? path
+    : getDataPath(dataParent.parentElement) + path
 }
 
-const getListPath = element => {
+const getListPath = (element) => {
   const listInstanceElement = element.closest('[data-list-instance]')
-  const listTemplate = listInstanceElement && succeeding(listInstanceElement, '[data-list]')
+  const listTemplate =
+    listInstanceElement && succeeding(listInstanceElement, '[data-list]')
   return listTemplate && listTemplate.dataset.list.split(':')[0]
 }
 
-const getListInstancePath = element => {
+const getListInstancePath = (element) => {
   const component = element.closest('[data-list-instance]')
   return component ? component.dataset.listInstance : null
 }
@@ -477,21 +493,23 @@ const getComponentId = (element, type) => {
 
 const replaceInBindings = (element, needle, replacement) => {
   const needleRegexp = new RegExp(`\\b${needle}\\b`, 'g')
-  findWithin(element, `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`)
-    .forEach(elt => {
-      ['data-bind', 'data-list', 'data-path'].forEach(attr => {
-        const val = elt.getAttribute(attr)
-        if (val) {
-          elt.setAttribute(attr, val.replace(needleRegexp, replacement))
-        }
-      })
+  findWithin(
+    element,
+    `[data-bind*="${needle}"],[data-list*="${needle}"],[data-path*="${needle}"]`
+  ).forEach((elt) => {
+    ;['data-bind', 'data-list', 'data-path'].forEach((attr) => {
+      const val = elt.getAttribute(attr)
+      if (val) {
+        elt.setAttribute(attr, val.replace(needleRegexp, replacement))
+      }
     })
+  })
 }
 
 const resolveListInstanceBindings = (instanceElt, instancePath) => {
   findWithin(instanceElt, '[data-bind]', true)
-    .filter(elt => !elt.closest('[data-list]'))
-    .forEach(elt => {
+    .filter((elt) => !elt.closest('[data-list]'))
+    .forEach((elt) => {
       const bindingSource = elt.dataset.bind
       if (bindingSource.indexOf('=.') > -1) {
         elt.dataset.bind = bindingSource
@@ -499,8 +517,10 @@ const resolveListInstanceBindings = (instanceElt, instancePath) => {
           .replace(/=\./g, `=${instancePath}`)
       }
       if (bindingSource.indexOf('${.') > -1) {
-        elt.dataset.bind = bindingSource
-          .replace(/\$\{(\.[^}]+)\}/g, '${' + instancePath + '$1}')
+        elt.dataset.bind = bindingSource.replace(
+          /\$\{(\.[^}]+)\}/g,
+          '${' + instancePath + '$1}'
+        )
       }
     })
 }
@@ -518,5 +538,5 @@ export {
   getBindings,
   replaceInBindings,
   resolveListInstanceBindings,
-  splitPaths
+  splitPaths,
 }

@@ -41,5 +41,5 @@ export default {
     =
     <input>
     <span class="tag">id=123<button class="icon-cross iconic"></button></span>
-  `
+  `,
 }

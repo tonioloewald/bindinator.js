@@ -15,18 +15,18 @@ export default {
       { onClick: '_component_.edit' },
       span({ class: 'icon-home' }, ' '),
       span({ bindText: '_component_.caption' })
-    )
+    ),
   ],
   // construct initialValue before element is inserted into component
   initialValue: async ({ b8r, get, set }) => {
     return {
-      edit () {
+      edit() {
         /* global prompt */
         const caption = prompt('edit caption', get().caption)
         if (typeof caption === 'string') {
           set({ caption })
         }
-      }
+      },
     }
   },
   load: async ({
@@ -38,11 +38,11 @@ export default {
     get, // get (within the component's private data)
     set, // set (within the component's private data)
     on, // b8r.on(component, ...)
-    touch // force updates of paths inside the component
+    touch, // force updates of paths inside the component
   }) => {
     // your javascript goes here
   },
   type: {
-    caption: 'click me'
-  } // specify the component's type
+    caption: 'click me',
+  }, // specify the component's type
 }

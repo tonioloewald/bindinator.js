@@ -138,96 +138,101 @@ const monadicArgs = Object.freeze({
   defaultInput: {},
   inputType: {},
   outputType: {},
-  func: obj => obj
+  func: (obj) => obj,
 })
-export function monadic (config = monadicArgs, ...extraArgs) {
+export function monadic(config = monadicArgs, ...extraArgs) {
   if (config === monadicArgs) {
     return new Error('monadic was called with no arguments')
   }
-  let { defaultInput, inputType, outputType, func } = Object.assign({}, monadicArgs, config)
+  let { defaultInput, inputType, outputType, func } = Object.assign(
+    {},
+    monadicArgs,
+    config
+  )
   if (defaultInput && !Object.keys(inputType).length) {
     inputType = deepClone(defaultInput)
   }
   if (config instanceof Error) {
     return config
   } else if (
-    !inputType || !outputType ||
-    typeof inputType !== 'object' || typeof outputType !== 'object' ||
+    !inputType ||
+    !outputType ||
+    typeof inputType !== 'object' ||
+    typeof outputType !== 'object' ||
     typeof func !== 'function'
   ) {
     console.error('monadic received', config)
-    return new Error('monadic should be passed {defaultInput: {}, inputType: {}, outputType:{}, func(){}}')
+    return new Error(
+      'monadic should be passed {defaultInput: {}, inputType: {}, outputType:{}, func(){}}'
+    )
   } else if (extraArgs.length) {
     return new Error('monadic received more than one argument')
   }
   const monad = isAsync(func)
     ? async (input = {}, ...extraArgs) => {
-      input = await input
-      if (input instanceof Error) {
-        return Error
-      }
-      input = Object.assign({}, defaultInput, input)
-      if (extraArgs.length) {
-        return new Error('monad received more than one argument')
-      } else if (!input || typeof input !== 'object') {
-        return new Error('monad non-object argument')
-      }
-      if (inputType) {
-        const inputErrors = matchType(inputType, input)
-        if (inputErrors.length) {
-          const errorString = 'input error: ' + inputErrors.join(', ')
-          console.error(errorString)
-          return new Error(errorString)
+        input = await input
+        if (input instanceof Error) {
+          return Error
         }
-      }
-      const output = await func(Object.assign(
-        {},
-        defaultInput,
-        input
-      ))
-      if (outputType) {
-        const outputErrors = matchType(outputType, output)
-        if (outputErrors.length) {
-          const errorString = 'output error: ' + outputErrors.join(', ')
-          console.error(errorString)
-          return new Error(errorString)
+        input = Object.assign({}, defaultInput, input)
+        if (extraArgs.length) {
+          return new Error('monad received more than one argument')
+        } else if (!input || typeof input !== 'object') {
+          return new Error('monad non-object argument')
         }
+        if (inputType) {
+          const inputErrors = matchType(inputType, input)
+          if (inputErrors.length) {
+            const errorString = 'input error: ' + inputErrors.join(', ')
+            console.error(errorString)
+            return new Error(errorString)
+          }
+        }
+        const output = await func(Object.assign({}, defaultInput, input))
+        if (outputType) {
+          const outputErrors = matchType(outputType, output)
+          if (outputErrors.length) {
+            const errorString = 'output error: ' + outputErrors.join(', ')
+            console.error(errorString)
+            return new Error(errorString)
+          }
+        }
+        return output
       }
-      return output
-    }
     : (input, ...extraArgs) => {
-      if (input instanceof Error) {
-        return Error
-      }
-      input = Object.assign({}, defaultInput, input)
-      if (extraArgs.length) {
-        return new Error('monad received more than one argument')
-      } else if (!input || typeof input !== 'object') {
-        return new Error('monad non-object argument')
-      }
-      if (inputType) {
-        const inputErrors = matchType(inputType, input)
-        if (inputErrors.length) {
-          return new Error('input error: ' + inputErrors.join(', '))
+        if (input instanceof Error) {
+          return Error
         }
-      }
-      const output = func(input)
-      if (outputType) {
-        const outputErrors = matchType(outputType, output)
-        if (outputErrors.length) {
-          return new Error('output error: ' + outputErrors.join(', '))
+        input = Object.assign({}, defaultInput, input)
+        if (extraArgs.length) {
+          return new Error('monad received more than one argument')
+        } else if (!input || typeof input !== 'object') {
+          return new Error('monad non-object argument')
         }
+        if (inputType) {
+          const inputErrors = matchType(inputType, input)
+          if (inputErrors.length) {
+            return new Error('input error: ' + inputErrors.join(', '))
+          }
+        }
+        const output = func(input)
+        if (outputType) {
+          const outputErrors = matchType(outputType, output)
+          if (outputErrors.length) {
+            return new Error('output error: ' + outputErrors.join(', '))
+          }
+        }
+        return output
       }
-      return output
-    }
 
   monad.type = {
     isAsync,
     inputType: describeType(inputType),
     outputType: describeType(outputType),
-    description: `${isAsync ? 'async ' : ''}` +
+    description:
+      `${isAsync ? 'async ' : ''}` +
       `(${JSON.stringify(describeType(inputType), false, 2)}) => ` +
-      `${JSON.stringify(describeType(outputType), false, 2)}`
+      `${JSON.stringify(describeType(outputType), false, 2)}`,
   }
 
   return monad

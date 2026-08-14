@@ -9,7 +9,7 @@
 ## A Javascript Library for Creating Apps
 
 [b8rjs.com](https://b8rjs.com) | [bindinator.com](https://bindinator.com/) |
-[github](https://github.com/tonioloewald/bindinator.js) | 
+[github](https://github.com/tonioloewald/bindinator.js) |
 [npm](https://www.npmjs.com/package/b8rjs) |
 [cdn] (https://www.jsdelivr.com/package/npm/b8rjs) |
 [b8r-native](https://github.com/tonioloewald/b8r-native)
@@ -21,8 +21,8 @@
 > You may want to update your dependencies accordingly.
 
 Bindinator (`b8r`) is a fairly small (~22kB gzipped) "front-end" javascript library
-with *no transitive dependencies*  that implements the model-view-controller (MVC) design pattern
-along with [state-management](/?source=source/b8r.registry.js) ("reactive programming") 
+with _no transitive dependencies_ that implements the model-view-controller (MVC) design pattern
+along with [state-management](/?source=source/b8r.registry.js) ("reactive programming")
 and separation of concerns.
 
 || Model || View || Controller
@@ -40,20 +40,20 @@ load `iife`-style libraries (traditionally loaded via `<script>` tags) as promis
 It's **bind** because `b8r` lets you use HTML **data-attributes** to
 bind data from the model and event-handlers from the controller code with the views.
 
-And it's **inator** because once you *register* an object, bindings are managed automatically and efficiently.
+And it's **inator** because once you _register_ an object, bindings are managed automatically and efficiently.
 
-In a nutshell, `b8r` does what [React](https://reactjs.org), [Redux](https://redux.js.org/), 
-[LitElement](https://lit.dev), and a whole passel of other libraries do, plays [nicely](/?source=babylonjs.component.html) 
-[with](/?source=mapbox.component.html#@=48.9591590,31.3392433,5.0,9) [others](), doesn't expose you to 
-hundreds of transitive dependencies do or require a specific set of tools to build (import it via `<script>` tag and write 
+In a nutshell, `b8r` does what [React](https://reactjs.org), [Redux](https://redux.js.org/),
+[LitElement](https://lit.dev), and a whole passel of other libraries do, plays [nicely](/?source=babylonjs.component.html)
+[with](/?source=mapbox.component.html#@=48.9591590,31.3392433,5.0,9) [others](<>), doesn't expose you to
+hundreds of transitive dependencies do or require a specific set of tools to build (import it via `<script>` tag and write
 your app in Notepad) or debug (it leverages the Web Inspector rather than require its own custom debugger).
 It's deeply asynchronous. It's stupidly [fast and lean](/test/benchmark-data-table.html), and it's just JavaScript.
 
 <b8r-component path="components/fiddle" data-source="components/minimal-mvc"></b8r-component>
 
 So, in this simple example, if the user edits the text in the `<input>` field, then `model.text` will
-be updated as will the text in the `<p>`, and if you update the registry, e.g. b8r.reg.model.text = "foo", 
-then the `<input>` field and `<p>` will be updated, which is also how the `clear()` function in the 
+be updated as will the text in the `<p>`, and if you update the registry, e.g. b8r.reg.model.text = "foo",
+then the `<input>` field and `<p>` will be updated, which is also how the `clear()` function in the
 controller works.
 
 > You can use the console to see how `b8r.reg.model` is updated and how modifying it automatically
@@ -63,7 +63,7 @@ controller works.
 > `b8r` updates the DOM.
 >
 > Oh, and don't worry, the documentation site intentionally exposes `b8r` as a global otherwise you wouldn't
-> be able to do this. Normally `b8r` is hidden in a *closure* in production.
+> be able to do this. Normally `b8r` is hidden in a _closure_ in production.
 
 ### Library or Framework?
 
@@ -98,23 +98,24 @@ they've operated in a world where these are filtered by React and its associated
 - uses less memory, and thus…
 - runs faster
 
-This is 360° laziness. *Everyone* does less work to get smaller, faster, cheaper results. 
+This is 360° laziness. _Everyone_ does less work to get smaller, faster, cheaper results.
 
 Wait what? It's not that you can pick all three from "good, fast, cheap", it's
 that you're operating within a better framework (philosophy, not code library)
-that lets you spend more time on what's important to *your* app.
+that lets you spend more time on what's important to _your_ app.
 
-*Laziness drives every design decision in b8r*.
+_Laziness drives every design decision in b8r_.
 
 And `b8r` is lazy too.
 
 - It doesn't do things for the browser that the browser knows how to do (like
-parse HTML).
+  parse HTML).
 - Nor implement a new templating language.
 - Nor require special debugging tools.
-- Or add zillions of runtime dependencies. Actually, *it doesn't add any*.
+- Or add zillions of runtime dependencies. Actually, _it doesn't add any_.
 
 ## Basic Principles
+
 ### Put data into b8r's registry to bind it to a path
 
     b8r.reg.foo = {bar: 17, baz: {lurman: 'hello world'}}
@@ -146,7 +147,7 @@ Here's all of the above in a live "fiddle". Try adding this above the `<script>`
 
     <div data-bind="text=foo.baz.lurman"></div>
 
-Now try editing the text in the text field. You could also try replacing the binding in the 
+Now try editing the text in the text field. You could also try replacing the binding in the
 `<input>` with `data-bind="value=foo.list[id=3].name"`. Try editing that!
 
 Or try entering this in the debugger console:
@@ -160,10 +161,10 @@ Or try entering this in the debugger console:
 
 There's no magic!
 
-A web application comprises DOM elements styled with CSS (*views*), and wired up to *behaviors*
-implemented in Javascript (or, moving forward, Webassembly), and using *data* obtained from services.
+A web application comprises DOM elements styled with CSS (_views_), and wired up to _behaviors_
+implemented in Javascript (or, moving forward, Webassembly), and using _data_ obtained from services.
 
-With `b8r`, you **bind paths to DOM elements** using the `data-bind` attribute, and 
+With `b8r`, you **bind paths to DOM elements** using the `data-bind` attribute, and
 you bind **javascript objects to paths** using `b8r.reg...`, and `b8r` does the rest.
 
 When you assign objects to `b8r.reg` you are binding data to paths, e.g.
@@ -173,20 +174,20 @@ When you assign objects to `b8r.reg` you are binding data to paths, e.g.
 Now, the object `{bar: 'hello'}` is bound to the path `foo`, so `foo.bar` points to 'hello',
 `b8r.reg.foo.bar` and `b8r.get('foo.bar')` will both yield 'hello'.
 
-When you assign new values to the registry, you are in fact altering values inside an 
-object bound to the "root" of the path. `b8r.reg.foo.path.to.whatever = ...` changes 
-values inside the object bound to `foo`. Using the `reg` to set values also 
+When you assign new values to the registry, you are in fact altering values inside an
+object bound to the "root" of the path. `b8r.reg.foo.path.to.whatever = ...` changes
+values inside the object bound to `foo`. Using the `reg` to set values also
 tells `b8r` that the values have been changed, allowing it to perform updates.
 
 You must register an object to a name before you can change values inside it. But
-*you can always bind to a path*.
+_you can always bind to a path_.
 
 <b8r-component path="components/fiddle" data-source="components/drumpf"></b8r-component>
 
 In this example `text` is the **target**, `example.name` is the **data-path**. The root **name**
 (`example`) is bound to the path via `b8r.register`.
 
-Note the use of a handlebars-*like* interpolated string (it doesn't do `eval`, it just looks up paths).
+Note the use of a handlebars-_like_ interpolated string (it doesn't do `eval`, it just looks up paths).
 Usually bindings won't contain `{{...}}` and are treated as bare data-paths. You can try to change the
 binding to `data-bind="text=example.name"` or `data-bind="text={{example.name}} says “hi”"`.
 
@@ -206,10 +207,10 @@ Unlike typical "fiddles" `b8r`'s inline examples are not isolated in their own
 `<iframe>`s—it's all happily running in the same `body`. By default, `b8r` doesn't
 leave anything at all in global namespace.
 
-In the `b8r` documentation app I've exposed `b8r` to let you play around. This is 
+In the `b8r` documentation app I've exposed `b8r` to let you play around. This is
 generally useful for debugging.
 
-If `b8r` weren't exposed you could enter something like the line below in the browser 
+If `b8r` weren't exposed you could enter something like the line below in the browser
 console:
 
     import('./path/to/b8r.js').then(({default}) => {window.b8r = default});
@@ -268,9 +269,9 @@ Components can be nested exactly as you would expect.
 
 ### Supports Web-Components
 
-`b8r` provides [convenience methods](?source=source/web-components) for creating 
-[Web Components](https://www.webcomponents.org/), a.k.a. Custom Elements, and its bindings 
-play nice with them (e.g. waiting for a custom-element's  definition before attempting to bind 
+`b8r` provides [convenience methods](?source=source/web-components) for creating
+[Web Components](https://www.webcomponents.org/), a.k.a. Custom Elements, and its bindings
+play nice with them (e.g. waiting for a custom-element's definition before attempting to bind
 values to it).
 
 Oh yeah, `b8r` components are themselves instances of the `<b8r-component>` web-component.
@@ -356,7 +357,7 @@ life-cycle.
     }
 
 When you want to get into the details of building components, there are sections on
-[components](?source=docs/components.md) and on 
+[components](?source=docs/components.md) and on
 [`b8r`'s component API](?source=source/component.js).
 
 ### Add components with `<b8r-component>`
@@ -376,7 +377,7 @@ You can build a **To Do List** app like this:
 <b8r-component path="components/fiddle" data-source="components/todo"></b8r-component>
 
 > **Note**: the to-do list component in the preceding example is bound to a global path,
-> as is the one below. So the two share data automatically. This is *not* an accident.
+> as is the one below. So the two share data automatically. This is _not_ an accident.
 > If you want a component to have its own unique data, you can bind to `_component_`.
 
 ### Composing Components [data-children]
@@ -391,7 +392,7 @@ E.g. in the snippet below:
 </b8r-component>
 ```
 
-If the `parent` component has an element with the `data-children` attribute, when it loads, the 
+If the `parent` component has an element with the `data-children` attribute, when it loads, the
 child will be moved into it. In the example below, the `tab-selector` component creates one
 tab for each child.
 
@@ -399,8 +400,8 @@ tab for each child.
 
 ### Dog Food!
 
-[bindinator.com](https://bindinator.com) is built using `b8r` (along with numerous third-party 
-libraries, none of which are global dependencies). The inline 
+[bindinator.com](https://bindinator.com) is built using `b8r` (along with numerous third-party
+libraries, none of which are global dependencies). The inline
 [fiddle component](?source=fiddle.component.html) used
 to display interactive examples is 343 lines including comments, styles, markup, and code.
 `b8r` isolates component internals so cleanly from the rest of the page that the fiddle doesn't
@@ -408,8 +409,8 @@ need to use an iframe.
 
 ## b8r with npm in five minutes
 
-Here's a really quick start to working with `b8r` to build a web app. (If you're 
-interested in building a desktop app, you can try 
+Here's a really quick start to working with `b8r` to build a web app. (If you're
+interested in building a desktop app, you can try
 [b8r-native](https://github.com/tonioloewald/b8r-native).)
 
 ```
@@ -472,8 +473,8 @@ npx http-server .
 
 And open [http://localhost:8080](http://localhost:8080) in your browser.
 
-Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Safari*, 
-`Cmd+Option+I` in *Firefox*) and try:
+Go into your dev tools console (`Cmd+Shift+J` in _Chrome_, `Cmd+Option+C` in _Safari_,
+`Cmd+Option+I` in _Firefox_) and try:
 
     b8r.reg.app.message                     // should print "hello world"
     b8r.reg.app.message = 'laziness rules!' // updates the value in the input
@@ -489,7 +490,7 @@ Go into your dev tools console (`Cmd+Shift+J` in *Chrome*, `Cmd+Option+C` in *Sa
 - bind components to the DOM using `<b8r-component>`.
 - use [web-components](https://www.webcomponents.org/) without worrying about binding.
 
-We can register data (*models* and *controllers*) and load components (*views*) asynchronously.
+We can register data (_models_ and _controllers_) and load components (_views_) asynchronously.
 If the user clicks the button before the controller is registered, the controller method will be
 called when it becomes available.
 

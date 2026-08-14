@@ -18,21 +18,21 @@ You can use them the obvious way:
 import { getBindings } from './bindings.js'
 import { findAbove, findWithin } from './dom.js'
 let set
-export const _insertSet = f => {
+export const _insertSet = (f) => {
   set = f
 }
 let fromTargets
-export const _insertFromTargets = t => {
+export const _insertFromTargets = (t) => {
   fromTargets = t
 }
 export default {}
 
-const hasFromTarget = t => fromTargets[t.target]
+const hasFromTarget = (t) => fromTargets[t.target]
 
 export const _b8r_ = {
-  echo: evt => console.log(evt) || true,
+  echo: (evt) => console.log(evt) || true,
   stopEvent: () => {},
-  _update_: evt => {
+  _update_: (evt) => {
     let elements = findAbove(evt.target, '[data-bind]', null, true)
     // update elements with selected fromTarget
     if (evt.target.tagName === 'SELECT') {
@@ -43,10 +43,11 @@ export const _b8r_ = {
       elements = elements.concat(options)
     }
     elements
-      .filter(elt => !elt.matches('[data-list]'))
-      .forEach(elt => {
+      .filter((elt) => !elt.matches('[data-list]'))
+      .forEach((elt) => {
         if (elt.matches('[data-debug],[data-debug-bind]')) {
-          console.debug('b8r-warn',
+          console.debug(
+            'b8r-warn',
             'Add a conditional breakpoint here to debug changes to the registry triggered by events'
           )
         }
@@ -54,7 +55,7 @@ export const _b8r_ = {
         for (let i = 0; i < bindings.length; i++) {
           const { targets, path } = bindings[i]
           const boundTargets = targets.filter(hasFromTarget)
-          const processFromTargets = t => {
+          const processFromTargets = (t) => {
             // jshint ignore:line
             // all bets are off on bound values!
             const value = fromTargets[t.target](elt, t.key)
@@ -67,5 +68,5 @@ export const _b8r_ = {
         }
       })
     return true
-  }
+  },
 }

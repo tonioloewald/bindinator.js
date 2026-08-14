@@ -59,7 +59,7 @@ export default {
   </g>
 </svg>
 `,
-  initialValue ({ component, get, set }) {
+  initialValue({ component, get, set }) {
     const update = () => {
       if (component.closest('body')) {
         if (get().updateActive) {
@@ -80,7 +80,7 @@ export default {
       }
     }
     const interval = setInterval(update, 66)
-    const angles = time => {
+    const angles = (time) => {
       const h = time.getHours()
       const m = time.getMinutes()
       const s = time.getSeconds()
@@ -88,7 +88,7 @@ export default {
       return {
         hourAngle: h * 30 + m * 0.5,
         minuteAngle: m * 6 + s * 0.1,
-        secondAngle: s * 6 + ms * 0.006
+        secondAngle: s * 6 + ms * 0.006,
       }
     }
     const time = new Date()
@@ -98,15 +98,15 @@ export default {
       minutes,
       hours,
       ...angles(time),
-      setTime (time) {
+      setTime(time) {
         set({
           time,
-          ...angles(time)
+          ...angles(time),
         })
       },
-      rotate (element, angle) {
+      rotate(element, angle) {
         element.setAttribute('transform', `rotate(${angle}, 300, 300)`)
-      }
+      },
     }
-  }
+  },
 }

@@ -16,25 +16,25 @@
 it had to happen sometime.
 
 - `require` has been abolished in favor of `import`.
-- `require.viaTag`, `require.lazy` and misc. support for legacy libraries has been 
+- `require.viaTag`, `require.lazy` and misc. support for legacy libraries has been
   replaced with the much simpler `viaTag` from `scripts.js`.
 - The `<script>` tag of components is implemented as an `AsyncFunction`.
-- `data-component`  is being phased out in favor of `<b8r-component>`. (instead of
-  `<div data-component="foo">...</div>` you can now write 
+- `data-component` is being phased out in favor of `<b8r-component>`. (instead of
+  `<div data-component="foo">...</div>` you can now write
   `<b8r-component name="foo"></b8r-component>` and in fact you can write
   `<b8r-component path="path/to/foo"></b8r-component>` and the component will automatically
   be loaded)
 - extensive support for `web-components` (a.k.a. "Custom Elements") is now available.
 
 If you want to use `b8r` from a `<script>` tag, change it to `<script type="module">`
-which will allow you to use `import` in any modern browser (i.e. not IE or Edge before 
-Microsoft gave up and adopted Chromium, and not some other browsers that `b8r` already 
+which will allow you to use `import` in any modern browser (i.e. not IE or Edge before
+Microsoft gave up and adopted Chromium, and not some other browsers that `b8r` already
 didn't care about).
 
 Replace `require` with `import` throughout. Replace `module.exports = ...` with `export`.
 
-You'll probably want this documentation on 
-[import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) 
+You'll probably want this documentation on
+[import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)
 and [export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export).
 
 If you'd prefer a potted summary, read on…
@@ -101,8 +101,8 @@ You can also export something you've imported in one step, e.g.
 
 ### Dynamic Import
 
-Finally, there's **dynamic import**. You can only use `import` within a module context. 
-In particular, code loaded at runtime and evaled inside a function is not such a 
+Finally, there's **dynamic import**. You can only use `import` within a module context.
+In particular, code loaded at runtime and evaled inside a function is not such a
 context. (In `b8r` this means "component scripts".) Here, you need to use
 the dynamic import pseudo-function, which works a bit like `require` but not really.
 
@@ -172,13 +172,13 @@ To something like this:
 
     const {foo} = await import('../path/to/foo.js');
 
-(**Note**: right now, the import base path will be that of the context 
+(**Note**: right now, the import base path will be that of the context
 from which b8r.component was called, rather than the directory the component is in.)
 
 ### Legacy Libraries and `viaTag`
 
-`lib/scripts.js` provides a `viaTag` function replaces `require.viaTag` 
-and imports libraries as scripts when they do not support modules 
+`lib/scripts.js` provides a `viaTag` function replaces `require.viaTag`
+and imports libraries as scripts when they do not support modules
 (which is most of them as of 2019).
 
 E.g. to use `three.js`:

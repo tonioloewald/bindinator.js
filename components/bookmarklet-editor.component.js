@@ -41,7 +41,7 @@ export default {
       border-color: var(--black-40);
     }
   `,
-  view ({ div, a, b8rDropzone, b8rCodeEditor }) {
+  view({ div, a, b8rDropzone, b8rCodeEditor }) {
     const paddingStyle = { style: 'padding: 5px 0' }
     return [
       div(
@@ -58,18 +58,18 @@ export default {
         b8rDropzone(
           {
             type: 'text/uri-list',
-            onDrop: '_component_.handleDrop'
+            onDrop: '_component_.handleDrop',
           },
           'drop a bookmarklet here to edit it (does not work in Safari)'
         )
       ),
       b8rCodeEditor({
         bindValue: '_component_.script',
-        onChange: '_component_.build'
-      })
+        onChange: '_component_.build',
+      }),
     ]
   },
-  async initialValue ({ findOne, set, get }) {
+  async initialValue({ findOne, set, get }) {
     await import('../web-components/code-editor.js')
     await import('../web-components/drag-drop.js')
     const bookmarklet = findOne('.bookmarklet')
@@ -77,20 +77,20 @@ export default {
     return {
       name: '',
       script: '//!untitled\n(() => {\n  alert("it works")\n})()',
-      build () {
+      build() {
         const script = get().script
         const name = (script.match(NAME_REGEX) || [null, 'untitled'])[1]
         set({ name })
         bookmarklet.setAttribute('href', 'javascript:' + escape(script))
       },
-      handleDrop (evt) {
+      handleDrop(evt) {
         const text = evt.dataTransfer.getData('text/plain')
         if (text.startsWith('javascript:')) {
           const script = unescape(text.substr(11))
           const name = (script.match(NAME_REGEX) || [null, 'untitled'])[1]
           set({ name, script })
         }
-      }
+      },
     }
-  }
+  },
 }

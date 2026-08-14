@@ -256,7 +256,7 @@ within the object.
 
 `initialValue` simply returns the initial private state of the component. It
 is passed an object with lots of useful stuff in it, but `component` is simply
-the `element` hosting the component, and `data` is a *registry proxy* of the
+the `element` hosting the component, and `data` is a _registry proxy_ of the
 component's private data.
 
 Registry proxies are syntax-sugar for registry `get()` and `set()` calls.
@@ -305,7 +305,7 @@ bindings from being unnecessarily called (if something is bound to `path.to.foo(
 An earlier version of the `b8r` example used a `<form>` simply to mirror what
 the React example does.
 
-The form allows the user to hit "enter" to "submit" the form (saving an event handler?) 
+The form allows the user to hit "enter" to "submit" the form (saving an event handler?)
 but really `<form>` elements have a bunch of behavior dating back to before Web 2.0
 that aren't really desireable, e.g. by default, submitting a form reloads the page…
 

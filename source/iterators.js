@@ -124,7 +124,7 @@ Test(() => {
 ~~~~
 */
 
-const makeArray = arrayish => [...arrayish]
+const makeArray = (arrayish) => [...arrayish]
 
 const forEach = (array, method) => {
   for (let i = 0; i < array.length; i++) {
@@ -134,19 +134,19 @@ const forEach = (array, method) => {
   }
 }
 
-const last = array => array.length ? array[array.length - 1] : null
+const last = (array) => (array.length ? array[array.length - 1] : null)
 
 const forEachKey = (object, method) => {
   const keys = Object.keys(object)
   for (const key of keys) if (method(object[key], key) === false) break
 }
 
-const deepClone = object => {
+const deepClone = (object) => {
   if (typeof object !== 'object' || object === null) {
     return object
   }
   if (Array.isArray(object)) {
-    return object.map(item => deepClone(item))
+    return object.map((item) => deepClone(item))
   }
   const clone = {}
   forEachKey(object, (value, key) => {
@@ -196,7 +196,8 @@ const filterKeys = (object, test) => {
 const filterObject = (object, test) => {
   const keys = Object.keys(object)
   const filtered = {}
-  for (const key of keys) if (test(object[key], key)) filtered[key] = object[key]
+  for (const key of keys)
+    if (test(object[key], key)) filtered[key] = object[key]
   return filtered
 }
 
@@ -232,5 +233,5 @@ export {
   filterKeys,
   filterObject,
   filterObjectInPlace,
-  assignValues
+  assignValues,
 }

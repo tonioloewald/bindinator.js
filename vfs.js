@@ -80,20 +80,30 @@ Test(() => b8r.ajax(test_dir)).shouldBe('[]')
 ~~~~
 */
 
-const serviceWorkerUrl = window.location.hostname === 'tonioloewald.github.io' ? '/bindinator.js/vfs.worker.js' : '/vfs.worker.js'
+const serviceWorkerUrl =
+  window.location.hostname === 'tonioloewald.github.io'
+    ? '/bindinator.js/vfs.worker.js'
+    : '/vfs.worker.js'
 
 export const vfs = (async () => {
   const { navigator } = window
   if ('serviceWorker' in navigator) {
-    return navigator.serviceWorker.register(serviceWorkerUrl).then(registration => {
-      if (navigator.serviceWorker.controller === null) window.location.reload()
-      // Registration was successful
-      console.log('vfs service worker registration successful with scope: ' + registration.scope)
-      return 'ok'
-    }, err => {
-      // registration failed :(
-      throw new Error('ServiceWorker registration failed: ' + err)
-    })
+    return navigator.serviceWorker.register(serviceWorkerUrl).then(
+      (registration) => {
+        if (navigator.serviceWorker.controller === null)
+          window.location.reload()
+        // Registration was successful
+        console.log(
+          'vfs service worker registration successful with scope: ' +
+            registration.scope
+        )
+        return 'ok'
+      },
+      (err) => {
+        // registration failed :(
+        throw new Error('ServiceWorker registration failed: ' + err)
+      }
+    )
   } else {
     throw new Error('ServiceWorker not supported.')
   }

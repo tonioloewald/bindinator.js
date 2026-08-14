@@ -2,7 +2,8 @@
 
 :root {
   --body-font-size: 14px;
-  --ui-font: var(--body-font-size) system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
+  --ui-font:
+    var(--body-font-size) system-ui, Sans-serif; /* Firefox doesn't support system-ui yet */
   --code-font: 100% Menlo, Monaco, Monospace;
   --heading-weight: 200;
 
@@ -90,7 +91,6 @@
   --link-active-color: #64f;
   --default-bg-color: #186040;
   --cancel-bg-color: #6a6d1d;
-
 
   --warning-bg: rgb(214, 121, 0);
   --ok-bg: green;
@@ -388,7 +388,7 @@ input[type='number'] {
   display: inline-block;
 }
 
-input[type=search],
+input[type='search'],
 input.search {
   border-radius: var(--rounded-radius-size);
   padding: var(--narrowest-spacing-size) var(--spacing-size);

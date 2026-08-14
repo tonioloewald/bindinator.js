@@ -15,19 +15,23 @@ export default {
     const darkmodeQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const setDarkmode = () => {
       const { preference } = get()
-      const darkmode = preference === 'dark' || (darkmodeQuery.matches && preference === 'auto')
+      const darkmode =
+        preference === 'dark' ||
+        (darkmodeQuery.matches && preference === 'auto')
       document.body.classList.toggle('darkmode', darkmode)
     }
-    const [,, mode] = window.location.href.match(/(&|\?)darkmode=(true|false)/) || []
-    const preference = typeof mode !== 'string' ? 'auto' : (mode === 'true' ? 'dark' : 'light')
+    const [, , mode] =
+      window.location.href.match(/(&|\?)darkmode=(true|false)/) || []
+    const preference =
+      typeof mode !== 'string' ? 'auto' : mode === 'true' ? 'dark' : 'light'
     darkmodeQuery.addListener(setDarkmode)
     return {
       active: false,
       preference,
-      setDarkmode
+      setDarkmode,
     }
   },
   load: ({ get }) => {
     get().setDarkmode()
-  }
+  },
 }

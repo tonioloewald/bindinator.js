@@ -24,7 +24,7 @@ const alphaBase = (n) => {
 const makeSheet = (cols, rows) => new SpreadSheet(cols, rows)
 
 class SpreadSheet {
-  constructor (colCount, rowCount) {
+  constructor(colCount, rowCount) {
     const rows = []
     const columns = []
     for (let row = 0; row < rowCount; row++) {
@@ -32,30 +32,34 @@ class SpreadSheet {
       cells[colCount - 1] = null
       rows.push({
         name: row + 1,
-        cells
+        cells,
       })
     }
     for (let col = 0; col < colCount; col++) {
       columns.push({
         title: alphaBase(col),
-        width: 100
+        width: 100,
       })
     }
     Object.assign(this, {
       columns,
       rows,
       colCount,
-      rowCount
+      rowCount,
     })
   }
 
-  setCell (col, row, value) {
-    const type = !isNaN(parseFloat(value)) ? 'number' : (value[0] === '=' ? 'formula' : 'text')
+  setCell(col, row, value) {
+    const type = !isNaN(parseFloat(value))
+      ? 'number'
+      : value[0] === '='
+        ? 'formula'
+        : 'text'
     console.log({ col, row, value, type })
     this.rows[row].cells[col] = { value, type }
   }
 
-  getCell (col, row) {
+  getCell(col, row) {
     return (this.rows[row].cells[col] || {}).value
   }
 }
@@ -172,7 +176,11 @@ export default {
       rowHead.style.transform = `translateY(-${grid.scrollTop}px)`
     }
     const cssGrid = function (gridElt, columns) {
-      b8r.cssVar(gridElt.parentElement, '--columns', (columns || []).map(({ width }) => `${width}px`).join(' '))
+      b8r.cssVar(
+        gridElt.parentElement,
+        '--columns',
+        (columns || []).map(({ width }) => `${width}px`).join(' ')
+      )
     }
     const sheet = makeSheet(50, 100)
     sheet.setCell(2, 2, 1)
@@ -183,7 +191,7 @@ export default {
     return {
       sheet,
       scrollSync,
-      cssGrid
+      cssGrid,
     }
-  }
+  },
 }

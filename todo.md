@@ -1,6 +1,7 @@
 # TODO(me)
 
 ## Goals
+
 - to be able to create layouts either directly from designer-tools (e.g. figma, Sketch)
   or via a decent user interface, or (preferably) leverage an existing component
 - to be able to work on a front-end project directly from the browser
@@ -15,11 +16,12 @@
   - demo/test harness for viewing/testing/debugging use-cases and server-side golden testing
 
 ## Short-Term To Do List
+
 - fiddle lets you create new templates
 - fiddle should recognize custom-elements
 - better component editor
   - easily load existing components, from internal list, url, file
-  - save components to server, file, window, 
+  - save components to server, file, window,
   - support for new javascript components
   - support for custom-elements
     - allow user to write `html` for the element's content and convert it to code on-the-fly

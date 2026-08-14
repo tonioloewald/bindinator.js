@@ -14,8 +14,16 @@ export default {
   view: ({ h3, ol, li, input, button }) => [
     h3('To Do List'),
     ol(li({ dataList: '_component_.todos', bindText: '.text' })),
-    input({ placeholder: 'enter reminder', bindValue: '_component_.text', 'onKeydown(Enter)': '_component_.add' }),
-    button('Add to List', { onClick: '_component_.add', bindEnabledIf: '_component_.text', bindText: 'Add #{{_component_.nextItem}}' })
+    input({
+      placeholder: 'enter reminder',
+      bindValue: '_component_.text',
+      'onKeydown(Enter)': '_component_.add',
+    }),
+    button('Add to List', {
+      onClick: '_component_.add',
+      bindEnabledIf: '_component_.text',
+      bindText: 'Add #{{_component_.nextItem}}',
+    }),
   ],
   initialValue: ({ component }) => ({
     todos: [],
@@ -28,6 +36,6 @@ export default {
         component.data.text = ''
         component.data.nextItem += 1
       }
-    }
-  })
+    },
+  }),
 }

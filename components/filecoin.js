@@ -56,83 +56,73 @@ export default {
   `,
   view: ({ head, label, span, input, textarea, img, h4, div, a, button }) => [
     head(
-      img({ src: 'https://w3s.link/ipfs/bafybeid7p25n6motbkrida32a7ftuf2jtcrpsabiir3drtpxdonwl3pgva/bindinator-logo.svg' }),
+      img({
+        src: 'https://w3s.link/ipfs/bafybeid7p25n6motbkrida32a7ftuf2jtcrpsabiir3drtpxdonwl3pgva/bindinator-logo.svg',
+      }),
       label(
         {
-          class: 'column elastic'
+          class: 'column elastic',
         },
         span('web3.storage API Key'),
         textarea({
           placeholder: 'paste your filecoin api key here',
           class: 'elastic',
-          bindValue: '_component_.apiKey'
+          bindValue: '_component_.apiKey',
         }),
-        button(
-          'List Files',
-          {
-            bindEnabledIf: '_component_.apiKey',
-            onClick: '_component_.listUploads'
-          }
-        )
+        button('List Files', {
+          bindEnabledIf: '_component_.apiKey',
+          onClick: '_component_.listUploads',
+        })
       )
     ),
     h4(
       {
-        bindShowIf: '_component_.uploads'
+        bindShowIf: '_component_.uploads',
       },
       span('Files')
     ),
-    div(
-      span({ class: 'icon-spinner' }),
-      {
-        style: 'text-align: center',
-        bindShowIf: '_component_.loading'
-      }
-    ),
+    div(span({ class: 'icon-spinner' }), {
+      style: 'text-align: center',
+      bindShowIf: '_component_.loading',
+    }),
     a(
       span({
         class: 'name',
-        bindText: '.name'
+        bindText: '.name',
       }),
       {
         target: '_blank',
         bindList: '_component_.uploads',
-        bindHref: 'https://w3s.link/ipfs/{{.cid}}'
+        bindHref: 'https://w3s.link/ipfs/{{.cid}}',
       },
       span({
-        class: 'elastic'
+        class: 'elastic',
       }),
       span({
-        '_component_.setIcon': '.type'
+        '_component_.setIcon': '.type',
       })
     ),
     label(
       {
-        bindShowIf: '_component_.uploads'
+        bindShowIf: '_component_.uploads',
       },
-      span(
-        'Upload a File',
-        {
-          style: 'display: block'
-        }
-      ),
+      span('Upload a File', {
+        style: 'display: block',
+      }),
       input({
         type: 'file',
         class: 'elastic',
         bindDisabledIf: '_component_.uploading',
-        bindValue: '_component_.file'
+        bindValue: '_component_.file',
       }),
-      button(
-        'Upload',
-        {
-          bindEnabledIf: '_component_.file',
-          onClick: '_component_.upload'
-        }
-      )
-    )
+      button('Upload', {
+        bindEnabledIf: '_component_.file',
+        onClick: '_component_.upload',
+      })
+    ),
   ],
 
-  async initialValue ({ b8r, component, findOne }) {
+  async initialValue({ b8r, component, findOne }) {
     const fileInput = findOne('input[type="file"]')
     return {
       uploads: null,
@@ -140,18 +130,18 @@ export default {
       uploading: false,
       file: null,
       apiKey: '',
-      async listUploads () {
+      async listUploads() {
         component.data.loading = true
         const request = await fetch('https://api.web3.storage/user/uploads', {
           method: 'GET',
           headers: {
-            authorization: `Bearer ${component.data.apiKey}`
-          }
+            authorization: `Bearer ${component.data.apiKey}`,
+          },
         })
         component.data.uploads = request.ok ? await request.json() : null
         component.data.loading = false
       },
-      setIcon (elt, type) {
+      setIcon(elt, type) {
         switch (type) {
           case 'Car':
             elt.classList.add('icon-folder')
@@ -160,7 +150,7 @@ export default {
             elt.classList.add('icon-file-empty')
         }
       },
-      async upload () {
+      async upload() {
         if (!fileInput.value) {
           throw new Error('no file available to upload')
         }
@@ -169,14 +159,14 @@ export default {
           method: 'POST',
           headers: {
             authorization: `Bearer ${component.data.apiKey}`,
-            'X-NAME': escape(fileInput.files[0].name)
+            'X-NAME': escape(fileInput.files[0].name),
           },
-          body: fileInput.files[0]
+          body: fileInput.files[0],
         })
         component.data.uploading = false
         fileInput.value = null
         component.data.listUploads()
-      }
+      },
     }
-  }
+  },
 }

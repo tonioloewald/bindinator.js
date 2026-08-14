@@ -37,13 +37,23 @@ Test(() => beatles[3].name, 'makeDescendingSorter works').shouldBe('george')
 
 export const sortAscending = (a, b) =>
   typeof a === 'string' || typeof b === 'string'
-    ? `${a}`.localeCompare(b) : a > b ? 1 : b > a ? -1 : 0
+    ? `${a}`.localeCompare(b)
+    : a > b
+      ? 1
+      : b > a
+        ? -1
+        : 0
 
 export const sortDescending = (a, b) =>
   typeof a === 'string' || typeof b === 'string'
-    ? `${b}`.localeCompare(a) : a > b ? -1 : b > a ? 1 : 0
+    ? `${b}`.localeCompare(a)
+    : a > b
+      ? -1
+      : b > a
+        ? 1
+        : 0
 
-const identity = x => x
+const identity = (x) => x
 
 export const makeAscendingSorter = (getter = identity) => {
   return (a, b) => sortAscending(getter(a), getter(b))

@@ -229,7 +229,7 @@ setup in the example.
 import { trackDrag } from '../lib/track-drag.js'
 import { slice, scrollToIndex } from '../lib/biggrid.js'
 
-const makeSortFunction = column => {
+const makeSortFunction = (column) => {
   const { sortable, sortDirection } = column
   if (sortDirection === 'ascending') {
     return (a, b) => sortable(a, b)
@@ -240,14 +240,14 @@ const makeSortFunction = column => {
 
 const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
-const cell = path => {
+const cell = (path) => {
   const span = document.createElement('span')
   span.classList.add('nowrap')
   span.dataset.bind = `text=${path}`
   return span
 }
 
-const clamp = (min, x, max) => x < min ? min : (x > max ? max : x)
+const clamp = (min, x, max) => (x < min ? min : x > max ? max : x)
 
 const columnDefaults = {
   name: null,
@@ -259,7 +259,7 @@ const columnDefaults = {
   sortable: false,
   path: '',
   headerCell: false,
-  contentCell: false
+  contentCell: false,
 }
 
 export default {
@@ -469,9 +469,15 @@ export default {
     </div>
     `,
   load: ({ b8r, component, findOne, get }) => {
-    const { config: { rowHeight } } = get()
+    const {
+      config: { rowHeight },
+    } = get()
     const rowTemplate = findOne('.t-body > .t-row[data-list]')
-    b8r.addDataBinding(component, 'method(_component_.renderGrid)', '_component_.config.columns')
+    b8r.addDataBinding(
+      component,
+      'method(_component_.renderGrid)',
+      '_component_.config.columns'
+    )
     rowTemplate.parentElement.dataset.biggridItemSize = `100,${rowHeight}`
   },
   initialValue: ({ b8r, get, set, touch, component, on, findOne, find }) => {
@@ -479,19 +485,22 @@ export default {
       columnName: (column) => {
         return column.name !== null ? column.name : column.path.split('.').pop()
       },
-      visibleColumns (/* ignore */) {
+      visibleColumns(/* ignore */) {
         if (!get().config) return []
         const columns = get().config.columns
         columns.forEach((column, idx) => {
           columns[idx] = {
             ...columnDefaults,
-            ...column
+            ...column,
           }
         })
         return columns.filter(({ visible }) => !!visible)
       },
-      scrollToItem (item, durationMs = 1000) {
-        const { config: { virtual }, _previous: { sorted } } = get()
+      scrollToItem(item, durationMs = 1000) {
+        const {
+          config: { virtual },
+          _previous: { sorted },
+        } = get()
         if (!virtual) {
           console.error('scrollToItem only works for virtual tables')
         }
@@ -502,10 +511,10 @@ export default {
           console.warn('scrollToItem failed (not visible)', item)
         }
       },
-      toggleEditVisibleColumns () {
+      toggleEditVisibleColumns() {
         set({ editVisibleColumns: !get().editVisibleColumns })
       },
-      updateVisibleColumns () {
+      updateVisibleColumns() {
         // because we're changing the list template (something b8r does not understand)
         // we're going to blow away all the list instances by setting the list to empty
         // and then after b8r cleans everything up, putting them back again
@@ -517,69 +526,93 @@ export default {
           set({ rows })
         })
       },
-      resizeColumn (evt) {
-        const { config: { virtual, maxRowsForLiveColumnResize }, rows } = get()
+      resizeColumn(evt) {
+        const {
+          config: { virtual, maxRowsForLiveColumnResize },
+          rows,
+        } = get()
         const edgeIndex = b8r.elementIndex(evt.target.closest('.t-row > *'))
         const columns = get().visibleColumns()
         if (columns.length < 1) return
         columns.pop()
         const liveResize = virtual || rows.length <= maxRowsForLiveColumnResize
         const thead = findOne('.t-head')
-        trackDrag(evt, columns[edgeIndex].width, 0, (w, _y, _dx, _dy, dragEnded) => {
-          columns[edgeIndex].width = clamp(columns[edgeIndex].minWidth, w, columns[edgeIndex].maxWidth)
-          const gridSpec = columns.map(c => c.width + 'px').join(' ') + ' auto'
-          if (liveResize || dragEnded) {
-            b8r.cssVar(thead, '--columns', '')
-            b8r.cssVar(component, '--columns', gridSpec)
-          } else {
-            b8r.cssVar(thead, '--columns', gridSpec)
+        trackDrag(
+          evt,
+          columns[edgeIndex].width,
+          0,
+          (w, _y, _dx, _dy, dragEnded) => {
+            columns[edgeIndex].width = clamp(
+              columns[edgeIndex].minWidth,
+              w,
+              columns[edgeIndex].maxWidth
+            )
+            const gridSpec =
+              columns.map((c) => c.width + 'px').join(' ') + ' auto'
+            if (liveResize || dragEnded) {
+              b8r.cssVar(thead, '--columns', '')
+              b8r.cssVar(component, '--columns', gridSpec)
+            } else {
+              b8r.cssVar(thead, '--columns', gridSpec)
+            }
           }
-        })
+        )
       },
-      renderGrid (table, columns) {
-        const widths = get().visibleColumns().map(col => col.width + 'px')
+      renderGrid(table, columns) {
+        const widths = get()
+          .visibleColumns()
+          .map((col) => col.width + 'px')
         widths[widths.length - 1] = 'auto'
         const gridSpec = widths.join(' ')
         b8r.cssVar(component, '--columns', gridSpec)
       },
-      renderRow (tableBody) {
+      renderRow(tableBody) {
         const rowTemplate = findOne('.t-body > .t-row[data-list]')
         rowTemplate.textContent = ''
-        get().visibleColumns().forEach(async ({ path, contentCell }) => {
-          rowTemplate.append(contentCell ? contentCell.cloneNode(true) : cell(path))
-        })
+        get()
+          .visibleColumns()
+          .forEach(async ({ path, contentCell }) => {
+            rowTemplate.append(
+              contentCell ? contentCell.cloneNode(true) : cell(path)
+            )
+          })
         b8r.bindAll(rowTemplate)
       },
-      replaceElement (element, replacement) {
+      replaceElement(element, replacement) {
         /* global HTMLElement */
         if (replacement instanceof HTMLElement) {
           element.parentElement.replaceChild(replacement, element)
         }
       },
-      sortColumn (evt) {
+      sortColumn(evt) {
         const { _auto_ } = b8r.getListInstance(evt.target)
-        const { config: { columns } } = get()
-        columns.forEach(column => {
+        const {
+          config: { columns },
+        } = get()
+        columns.forEach((column) => {
           if (column._auto_ === _auto_) {
             switch (column.sortDirection) {
               case 'ascending':
                 column.sortDirection = 'descending'
                 break
               case 'descending':
-                delete (column.sortDirection)
+                delete column.sortDirection
                 break
               default:
                 column.sortDirection = 'ascending'
             }
           } else {
-            delete (column.sortDirection)
+            delete column.sortDirection
           }
         })
         touch('config')
       },
-      sortAndFilterRows (rows, filter, listTemplate) {
-        const { config: { virtual, sliceModulus, columns, rowFilter }, _previous } = get()
-        const column = columns.find(col => col.sortDirection)
+      sortAndFilterRows(rows, filter, listTemplate) {
+        const {
+          config: { virtual, sliceModulus, columns, rowFilter },
+          _previous,
+        } = get()
+        const column = columns.find((col) => col.sortDirection)
         if (_previous.rows !== rows || !eq(_previous.filter, filter)) {
           _previous.filtered = null
         }
@@ -591,7 +624,9 @@ export default {
         ) {
           _previous.sorted = null
         }
-        const sorted = _previous.sorted || (column ? filtered.sort(makeSortFunction(column)) : filtered)
+        const sorted =
+          _previous.sorted ||
+          (column ? filtered.sort(makeSortFunction(column)) : filtered)
         if (!virtual) {
           return sorted
         }
@@ -600,7 +635,7 @@ export default {
           sorted,
           rows,
           filter,
-          column
+          column,
         })
         return slice(sorted, listTemplate, true, sliceModulus)
       },
@@ -610,19 +645,19 @@ export default {
         sorted: null,
         rows: [],
         filter: null,
-        column: null
+        column: null,
       },
       config: {
-        rowFilter: list => list,
+        rowFilter: (list) => list,
         filter: null,
         virtual: true,
         rowHeight: 24,
         sliceModulus: false,
         userCanEditColumns: true,
         maxRowsForLiveColumnResize: 100,
-        columns: []
+        columns: [],
       },
-      rows: []
+      rows: [],
     }
-  }
+  },
 }

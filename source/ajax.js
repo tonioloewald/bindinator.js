@@ -41,18 +41,18 @@ If you want to add your own observers for requests you can use:
 const _requestsInFlight = []
 
 const observers = []
-const onRequest = method => {
+const onRequest = (method) => {
   if (observers.indexOf(method) === -1) observers.push(method)
 }
-const offRequest = method => {
+const offRequest = (method) => {
   const index = observers.indexOf(method)
   if (index > -1) observers.splice(index, 1)
 }
 const triggerObservers = () => {
-  observers.forEach(observer => observer())
+  observers.forEach((observer) => observer())
 }
 
-const _removeInFlightRequest = request => {
+const _removeInFlightRequest = (request) => {
   const idx = _requestsInFlight.indexOf(request)
   if (idx > -1) {
     _requestsInFlight.splice(idx, 1)
@@ -114,7 +114,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpReq
 /* global DOMParser */
 const xml = (url, method, requestData, config) => {
   return new Promise(function (resolve, reject) {
-    ajax(url, method, requestData, config).then(data => {
+    ajax(url, method, requestData, config).then((data) => {
       try {
         resolve(new DOMParser().parseFromString(data, 'text/xml'))
       } catch (e) {
@@ -127,7 +127,7 @@ const xml = (url, method, requestData, config) => {
 
 const json = (url, method, requestData, config) => {
   return new Promise(function (resolve, reject) {
-    ajax(url, method, requestData, config).then(data => {
+    ajax(url, method, requestData, config).then((data) => {
       try {
         resolve(JSON.parse(data || 'null'))
       } catch (e) {

@@ -72,20 +72,20 @@ import {
   span,
   slot,
   button,
-  makeWebComponent
+  makeWebComponent,
 } from '../source/web-components.js'
 
 export const TabSelector = makeWebComponent('b8r-tab-selector', {
   attributes: {
     value: 0,
-    closeable: false
+    closeable: false,
   },
   style: {
     ':host': {
       display: 'flex',
       flexDirection: 'column',
       position: 'relatve',
-      overflow: 'hidden'
+      overflow: 'hidden',
     },
     slot: {
       position: 'relative',
@@ -95,14 +95,14 @@ export const TabSelector = makeWebComponent('b8r-tab-selector', {
       borderRadius: '2px',
       flexGrow: 1,
       flexShrink: 1,
-      overflow: 'hidden'
+      overflow: 'hidden',
     },
     '.tabs': {
       borderColor: 'var(--accent-color)',
       padding: '5px 5px 0 5px',
       display: 'flex',
       flexShrink: 0,
-      position: 'relative'
+      position: 'relative',
     },
     '.tabs > span': {
       flex: '1 1 50%',
@@ -116,13 +116,13 @@ export const TabSelector = makeWebComponent('b8r-tab-selector', {
       borderBottom: '1px solid transparent',
       cursor: 'default',
       margin: '-1px',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
     },
     '.tabs > span > span': {
       flexGrow: 1,
       whitespace: 'nowrap',
       overflow: 'hidden',
-      textOverflow: 'ellipsis'
+      textOverflow: 'ellipsis',
     },
     '.tabs > span > span+button': {
       border: 0,
@@ -131,10 +131,10 @@ export const TabSelector = makeWebComponent('b8r-tab-selector', {
       flexShrink: 0,
       margin: '0 -5px',
       opacity: 0.5,
-      color: 'var(--text-color)'
+      color: 'var(--text-color)',
     },
     '.tabs > span > span+button:hover': {
-      opacity: 1.0
+      opacity: 1.0,
     },
     '.tabs > .selected': {
       color: 'var(--text-color)',
@@ -142,34 +142,41 @@ export const TabSelector = makeWebComponent('b8r-tab-selector', {
       zIndex: '2',
       border: '1px solid var(--black-20)',
       borderBottom: '1px solid var(--content-bg-color)',
-      transform: 'translateY(1px)'
-    }
+      transform: 'translateY(1px)',
+    },
   },
   eventHandlers: {
-    childListChange () {
-      this.buildTabs()
-    }
-  },
-  methods: {
-    connectedCallback () {
+    childListChange() {
       this.buildTabs()
     },
-    pickTab (idx) {
+  },
+  methods: {
+    connectedCallback() {
+      this.buildTabs()
+    },
+    pickTab(idx) {
       this.value = idx
       const tab = this.shadowRoot.querySelector('.tabs').children[idx]
       requestAnimationFrame(() => tab.focus())
     },
-    buildTabs () {
+    buildTabs() {
       const tabs = this.shadowRoot.querySelector('.tabs')
       // note that this is explicitly supporting b8r list bindings,
       // but should cause no problems for vanilla js.
-      const bodies = [...this.children].filter(body => !body.dataset.list)
+      const bodies = [...this.children].filter((body) => !body.dataset.list)
       tabs.innerHTML = ''
       const attributes = { tabIndex: 0 }
-      const closeButtonAttributes = { title: 'close tab', display: this.closeable ? '' : 'none' }
+      const closeButtonAttributes = {
+        title: 'close tab',
+        display: this.closeable ? '' : 'none',
+      }
       bodies.forEach((body, idx) => {
-        const name = body.getAttribute('title') || body.getAttribute('name') || 'untitled'
-        const closeButton = button({ attributes: closeButtonAttributes, content: '×' })
+        const name =
+          body.getAttribute('title') || body.getAttribute('name') || 'untitled'
+        const closeButton = button({
+          attributes: closeButtonAttributes,
+          content: '×',
+        })
         const content = [span({ content: name }), closeButton]
         const tab = span({ attributes, content })
         body._tab = tab
@@ -203,24 +210,20 @@ export const TabSelector = makeWebComponent('b8r-tab-selector', {
       })
       this._bodies = bodies
     },
-    render () {
+    render() {
       if (!this._bodies) return
-      const value = this.value >= 0 && this.value <= this._bodies.length
-        ? this.value
-        : 0
+      const value =
+        this.value >= 0 && this.value <= this._bodies.length ? this.value : 0
       const closeButtonDisplay = this.closeable ? '' : 'none'
       this._bodies.forEach((body, idx) => {
         const selected = parseInt(idx, 10) === parseInt(value, 10)
         body.style.display = selected ? '' : 'none'
         body._tab.classList.toggle('selected', selected)
-        body._tab.querySelector('button').style.display = closeButtonDisplay ||
-          (body.hasAttribute('data-closeable'))
+        body._tab.querySelector('button').style.display =
+          closeButtonDisplay || body.hasAttribute('data-closeable')
       })
-    }
+    },
   },
-  content: fragment(
-    div({ classes: ['tabs'] }),
-    slot()
-  ),
-  role: 'tab set'
+  content: fragment(div({ classes: ['tabs'] }), slot()),
+  role: 'tab set',
 })

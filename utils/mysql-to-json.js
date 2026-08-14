@@ -31,35 +31,40 @@ to **table** objects.
 ```
 */
 
-const parseFields = source => (source + ',')
-  .match(/([^',]+|'([^'\\]|\\')*'),/g)
-  .map(s => s[0] === "'" ? s.substr(1, s.length - 3) : s.substr(0, s.length - 1).trim())
+const parseFields = (source) =>
+  (source + ',')
+    .match(/([^',]+|'([^'\\]|\\')*'),/g)
+    .map((s) =>
+      s[0] === "'"
+        ? s.substr(1, s.length - 3)
+        : s.substr(0, s.length - 1).trim()
+    )
 
-const parseColumns = source => {
+const parseColumns = (source) => {
   const columns = []
-  source
-    .split('\n')
-    .forEach(col => {
-      const name = col.match(/`([^`]+)`/)[1]
-      if (col.match(/PRIMARY KEY/)) {
-        (columns.find(col => col.name === name) || {}).primaryKey = true
-      } else if (col.match(/KEY/)) {
-        (columns.find(col => col.name === name) || {}).key = true
-      } else {
-        columns.push({
-          name,
-          meta: col.match(/`([^`]*)$/)[1]
-        })
-      }
-    })
+  source.split('\n').forEach((col) => {
+    const name = col.match(/`([^`]+)`/)[1]
+    if (col.match(/PRIMARY KEY/)) {
+      ;(columns.find((col) => col.name === name) || {}).primaryKey = true
+    } else if (col.match(/KEY/)) {
+      ;(columns.find((col) => col.name === name) || {}).key = true
+    } else {
+      columns.push({
+        name,
+        meta: col.match(/`([^`]*)$/)[1],
+      })
+    }
+  })
   return columns
 }
 
-export const convert = source => {
+export const convert = (source) => {
   const tables = {}
-  source = source.replace(/#[^\n]*\n/mg, '')
-  source = source.replace(/^\s*\n/mg, '')
-  const commands = source.match(/(DROP TABLE IF EXISTS (`[^`]*?`);\n|CREATE TABLE (`[^`]*?`) \(([\s\S]*?)\) ([^;]+) ;\n|INSERT INTO (`[^`]*?`) VALUES \((.*?)\);\s*?\n)/mg)
+  source = source.replace(/#[^\n]*\n/gm, '')
+  source = source.replace(/^\s*\n/gm, '')
+  const commands = source.match(
+    /(DROP TABLE IF EXISTS (`[^`]*?`);\n|CREATE TABLE (`[^`]*?`) \(([\s\S]*?)\) ([^;]+) ;\n|INSERT INTO (`[^`]*?`) VALUES \((.*?)\);\s*?\n)/gm
+  )
   /* \n|CREATE TABLE (\`[^`]*?\`) \(.*?\) ([^;]+);\n|INSERT INTO (\`[^`]*?\`) VALUES \(.*?\));\n */
   for (const command of commands) {
     const type = command.match(/DROP|CREATE|INSERT/)[0]
@@ -72,17 +77,16 @@ export const convert = source => {
         {
           const [, cols, meta] = command.match(/\(\n([\s\S]*?)\n\) ([^;]+) ;\n/)
           const columns = parseColumns(cols)
-          const primaryKey = columns.findIndex(col => col.primaryKey)
+          const primaryKey = columns.findIndex((col) => col.primaryKey)
           tables[table] = {
             columns,
             primaryKey,
             meta,
-            rows: []
+            rows: [],
           }
         }
         break
-      case 'INSERT':
-      {
+      case 'INSERT': {
         const source = command.match(/VALUES \((.*)\);\s*$/)[1]
         const row = parseFields(source)
         tables[table].rows.push(row)
