@@ -256,7 +256,11 @@ em {
 }
 
 .fade-out {
-  opacity: 0 !important;
+  /* NOT !important: author `!important` outranks animations in the cascade, so
+     an important opacity here overrides `animation` and the element snaps to
+     0 instead of fading. Plain `opacity: 0` loses to the animation while it
+     runs, then holds the element at 0 once it finishes. */
+  opacity: 0;
   animation: fade-out 0.5s ease-out;
 }
 
