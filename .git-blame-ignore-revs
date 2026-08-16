@@ -1,0 +1,14 @@
+# Revisions to skip in `git blame` — bulk reformats with no behavioural change.
+#
+# Enable locally with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# (GitHub reads this file automatically.)
+#
+# Add a commit here only if it is PURELY mechanical. Verify before adding —
+# for the commit below, every changed .js file was parsed before and after and
+# the ASTs compared: all were identical once ASI punctuation (the leading
+# semicolons prettier adds under `semi: false`) and regex-flag reordering
+# (/x/mg -> /x/gm) were normalised out.
+
+# apply prettier to js/css/md (mechanical) — 129 files, standard -> prettier migration
+114a5357f3647e49564789566ec5946555b937d0
