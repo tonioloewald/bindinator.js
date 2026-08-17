@@ -7,7 +7,8 @@ the **tjs** language, runtime-type-safe and literate, with **no `vfs`**. See
 ## Commands (bun-first)
 
 ```bash
-bun install      # tjs-lang (the only dependency)
+bun install      # tjs-lang (only true dependency); tosijs is an optional PEER
+
 bun test         # build.mjs (inline + signature tests) then bun:test integration
 bun run build    # produce distributable dist/ + gate inline/signature tests
 bun start        # build dist + demo bundles, then serve → http://localhost:8030/demo/docs.html
@@ -25,6 +26,36 @@ runs every imported `.tjs` file through `tjs()` — so `.tjs` imports directly w
 **no build step** for development or tests. (tjs also does true TypeScript
 transpilation, so `.ts` works too; we author framework source in `.tjs` to get
 the example-types → runtime-validation + signature tests.)
+
+## Entry points (`exports` map)
+
+Subpaths exist so a consumer taking the b8r adapter never drags in `tjs-lang` or
+the AJS VM. The split is enforced by the dependency graph, not convention —
+**re-check it if you add an import** (walk `dist/` transitively; `MIGRATION.md`
+has the table):
+
+| subpath | what | pulls |
+| --- | --- | --- |
+| `.` | native authoring barrel (observe/elements/css/component) | nothing |
+| `./b8r` | **compat barrel** — blueprint + compat + elements | tosijs |
+| `./compat` `./blueprint` `./elements` | the adapter pieces individually | tosijs (except `elements`: nothing) |
+| `./component` | legacy `.component.html` loader | tosijs |
+| `./targets-extra` `./example` | opt-in extras | tosijs |
+| `./compile` `./live` `./untrusted` | the tjs-powered surfaces | tjs-lang (+ VM) |
+
+`tosijs` is an **optional peer dependency**, not a dependency. Its registry
+(`xin`/`boxed`) is a module singleton, so a consumer with its own copy would
+otherwise end up with two registries whose bindings silently can't see each
+other's state — the same hazard the bun-bundled demos work around. b8r-tjs
+re-exports *no* tosijs symbols: consumers import `Component`, `makeComponent`,
+`elements`, `css` straight from `tosijs`. (Note tosijs's `Component` is a
+`customElements` base class, so it does **not** give you design principle #3's
+redefinability — use `defineB8rComponent` when you need hot reload.)
+
+`sideEffects` is an **array, not `false`** — two modules do load-time work and
+must not be tree-shaken: `component.js` seeds its state root, and
+`b8r-component.js` registers the legacy-path loader (importing it *is* the
+opt-in). Adding a module with import-time effects means adding it to that list.
 
 ## How the build / loaders work
 
