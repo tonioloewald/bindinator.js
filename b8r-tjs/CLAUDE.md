@@ -65,11 +65,28 @@ opt-in). Adding a module with import-time effects means adding it to that list.
   `src/**/*.tjs`, runs each through `tjs(source)` with tests on, fails the build
   on any failure, and writes standalone JS to `dist/` (gitignored). This is the
   test gate for self-contained logic and the distributable emitter. No bundler.
-- **Loading compiled source (the vfs killer):** `src/compile.tjs` `toModuleUrl`
-  builds a **base64** `data:` URL — *not* percent-encoded. Why: bun's data:
-  loader misclassifies a percent-encoded module as CJS when it assigns metadata
-  to an exported binding (tjs emits `fn.__tjs = {…}`), collapsing named exports
-  to `{default,__esModule}`. base64 is read as ESM correctly (and is UTF-8 safe).
+- **Loading compiled source (the vfs killer):** `src/compile.tjs` `load()`
+  prefers a **`blob:` URL** (`toModuleBlobUrl`) and falls back to a `data:` URL
+  (`toModuleUrl`). Neither scheme works everywhere, hence both:
+  - **bun** cannot import a long `data:` URL — it routes it through *package*
+    resolution and throws `NameTooLong` past a few kB, which every tjs module
+    exceeds once the runtime preamble is prepended. `blob:` works at any size
+    (the URL is a constant ~41 chars; the code lives in the object store).
+  - **node** is the mirror image: its ESM loader accepts only file/data/node
+    schemes, so `blob:` throws and it takes the `data:` path (fine at any size).
+  - **browsers** do both; `blob:` also dodges `data:` URL length ceilings.
+
+  Support is **probed once** with a throwaway module and cached — deliberately
+  not a try/catch around the real import, so a genuine error inside a compiled
+  component can never be misread as "blob URLs unsupported" and silently
+  retried. Node has `URL.createObjectURL` but *can't import the result*, so an
+  existence check would have been wrong. The object URL is revoked once
+  `import()` resolves (verified safe in Chrome: the module keeps working).
+
+  The `data:` fallback stays **base64**, not percent-encoded: bun's data: loader
+  misclassifies a percent-encoded module as CJS when it assigns metadata to an
+  exported binding (tjs emits `fn.__tjs = {…}`), collapsing named exports to
+  `{default,__esModule}`. base64 is read as ESM correctly (and is UTF-8 safe).
   Node and browsers handle either form; base64 is the portable choice (raw/
   unencoded URLs are also unsafe — `#` parses as a fragment, `%` as an escape).
   Don't revert it. Full write-up + minimal repro: `docs/bun-data-url-esm-bug.md`.
@@ -104,9 +121,10 @@ Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
 
 ## Design principles (don't regress these)
 
-1. **No `vfs`.** `src/compile.tjs` is why: `tjs(source).code` →
-   `data:text/javascript,<encoded>` → `await import(...)`. Edited source becomes
-   a live, type-validated ES module with no file and no service worker.
+1. **No `vfs`.** `src/compile.tjs` is why: `tjs(source).code` → a `blob:` URL
+   (or `data:` where blob imports aren't supported) → `await import(...)`.
+   Edited source becomes a live, type-validated ES module with no file and no
+   service worker.
    `test/compile.test.ts` guards it (incl. a wrong-typed call returning a
    `MonadicError`). Keep that path intact.
 

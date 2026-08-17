@@ -43,14 +43,72 @@ export function toModuleUrl (code: '') {
 }
 
 /*
+Turn emitted JavaScript into a `blob:` URL — the preferred form, because the
+code travels in the object store instead of in the URL itself, so the URL is a
+constant ~41 characters no matter how large the module is.
+
+That matters: a `data:` URL carries the whole base64 payload inline, and bun
+routes long ones through *package* resolution and throws `NameTooLong` once the
+module exceeds a few kB (which every tjs module does, since tjs prepends its
+runtime preamble). Browsers also cap `data:` URL length. Returns `null` where
+`Blob`/`createObjectURL` don't exist.
+*/
+export function toModuleBlobUrl (code: '') {
+  if (globalThis.URL === undefined) return null
+  if (globalThis.URL.createObjectURL === undefined) return null
+  if (globalThis.Blob === undefined) return null
+  return globalThis.URL.createObjectURL(
+    new globalThis.Blob([code], { type: 'text/javascript' })
+  )
+}
+
+/*
+Whether this runtime's `import()` accepts a `blob:` URL. Probed once with a
+tiny throwaway module and cached, rather than try/catch around the real import
+— that way a genuine error *inside* a compiled component is never mistaken for
+"blob URLs are unsupported" and silently retried.
+
+Browsers and bun: yes. Node: no — its ESM loader accepts only file/data/node
+schemes, so it falls back to `data:` (which node handles at any size).
+*/
+let blobImportSupported = null
+
+async function canImportBlobUrl () {
+  if (blobImportSupported !== null) return blobImportSupported
+  const url = toModuleBlobUrl('export default 1')
+  if (url === null) {
+    blobImportSupported = false
+    return false
+  }
+  try {
+    await import(url)
+    blobImportSupported = true
+  } catch (_e) {
+    blobImportSupported = false
+  }
+  globalThis.URL.revokeObjectURL(url)
+  return blobImportSupported
+}
+
+/*
 Compile component source and import it as a live ES module. Self-contained
 components (the common case for a live editor) need nothing else; components
 with bare imports resolve those through the page's import map / CDN, exactly as
 any other module would.
+
+Relative imports inside a compiled component resolve against an opaque origin
+and won't work — true of both URL forms, which is why `live.tjs` injects the
+primitives it needs as `lib` rather than importing them.
 */
 export async function load (source: '') {
   const compiled = compile(source)
-  const module = await import(toModuleUrl(compiled.code))
+  const useBlob = await canImportBlobUrl()
+  const url = useBlob ? toModuleBlobUrl(compiled.code) : toModuleUrl(compiled.code)
+  const module = await import(url)
+  // Safe to revoke once import() has resolved: the module is already fetched
+  // and instantiated, and these modules have no relative sub-imports to hang
+  // off the base URL.
+  if (useBlob) globalThis.URL.revokeObjectURL(url)
   return {
     module,
     tests: compiled.tests,
