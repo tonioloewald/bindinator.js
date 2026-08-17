@@ -6,13 +6,19 @@
       "name": "b8r-tjs",
       "dependencies": {
         "tjs-lang": "^0.8.1",
-        "tosijs": "^1.6.1",
       },
       "devDependencies": {
         "linkedom": "^0.18.12",
         "sucrase": "^3.35.1",
+        "tosijs": "^1.6.1",
         "tosijs-ui": "^1.5.23",
       },
+      "peerDependencies": {
+        "tosijs": "^1.6.1",
+      },
+      "optionalPeers": [
+        "tosijs",
+      ],
     },
   },
   "packages": {
