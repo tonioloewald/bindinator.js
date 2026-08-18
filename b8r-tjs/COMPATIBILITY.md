@@ -93,6 +93,18 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   base URL). Without `base`, relative specifiers can't resolve — port the
   component to the ESM-object form, or pass `base`.
 
+- **[fixed] Hot-reload replaces methods, not just the view.** b8r keeps a
+  component's methods *inside* its instance state (functions returned by
+  `initialValue`), and `stamp` overlays preserved state on top of the new
+  `initialValue` — so redefining a component carried the OLD functions across and
+  a stale method shadowed the edited one. Live-editing a method body silently did
+  nothing: the view updated, the behaviour didn't. `defineB8rComponent` now strips
+  function-valued keys from the preserved state before re-stamping
+  (`withoutMethods`), so data persists and behaviour comes from the new
+  definition. Caught by `test/live-edit.test.ts` ("an edited method BODY takes
+  effect"); verified in a browser via `demo/live.html` — edit `inc` from `+1` to
+  `+10`, and a count of 2 goes to 12, not 3.
+
 ## Findings from running REAL parent-repo components (test/real-component.test.ts)
 
 - `components/todo-simple.js` (modern form) runs **unmodified**: view builder,

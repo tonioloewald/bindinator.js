@@ -103,6 +103,14 @@ than as a side effect of the deletions.
 **Pass B — the migration (the real decisions)**
 3. Migrate `live.tjs` + `untrusted.tjs` off `component.tjs` onto the blueprint
    loader + tosijs.
+   - ✅ **`live.tjs` done.** `lib` now injects b8r's `elements` plus tosijs's
+     `css`/`vars`/`varDefault`; `applyEdit(source, name)` calls
+     `defineB8rComponent`. Ported `test/live-edit.test.ts` and re-pointed
+     `demo/live.html` (its import map needed `tosijs`). The port surfaced a real
+     hot-reload bug — see COMPATIBILITY.md, methods were being shadowed by
+     preserved state.
+   - ⏳ **`untrusted.tjs` remaining** — needs the handler-attachment decision
+     (see "The one open design question in the re-point" below).
 4. ~~Rehome `renderToString`/SSG onto a `b8r-elements` + `hydrateB8r` renderer.~~
    **Cancelled** — `renderToString` is deleted with the rest, not rehomed. No b8r
    user has it today (classic b8r has `bindAll`, i.e. hydrate authored HTML, which

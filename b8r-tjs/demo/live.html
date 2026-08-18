@@ -26,6 +26,7 @@
     {
       "imports": {
         "b8r-tjs": "../dist/index.js",
+        "tosijs": "./vendor/tosijs.js",
         "tjs-lang/lang": "./vendor/tjs-lang.js",
         "acorn": "./vendor/acorn.mjs",
         "tosijs-schema": "./vendor/tosijs-schema.js"
@@ -42,20 +43,17 @@
     preserved</em>. No <code>vfs</code>, no reload.
   </p>
 
-  <textarea id="src">export default ({ elements }) => {
-  const { div, span, button } = elements
-  return {
-    name: 'live-counter',
-    state: { count: 0 },
-    methods: {
-      inc: (c) => c.set('count', c.get('count') + 1)
-    },
-    view: () => div({ class: 'box' },
-      span({ class: 'n', bindText: 'count' }),
-      button('+', { onClick: 'inc' })
-    )
-  }
-}</textarea>
+  <textarea id="src">export default ({ elements }) => ({
+  css: '._component_ .box { display: inline-flex; gap: 8px; align-items: center }',
+  view: ({ div, span, button }) => div({ class: 'box' },
+    span({ class: 'n', bindText: '_component_.count' }),
+    button('+', { onClick: '_component_.inc' })
+  ),
+  initialValue: ({ component }) => ({
+    count: 0,
+    inc () { component.data.count = component.data.count + 1 }
+  })
+})</textarea>
 
   <div class="row">
     <button class="apply" id="apply">Apply (compile &amp; hot-reload)</button>
@@ -66,7 +64,7 @@
   <div id="app"></div>
 
   <script type="module">
-    import { mount } from 'b8r-tjs'
+    import { mountB8rComponent } from '../dist/b8r-blueprint.js'
     import { applyEdit } from '../dist/live.js'
 
     const status = document.querySelector('#status')
@@ -77,8 +75,8 @@
       status.textContent = 'compiling…'
       window.lastApply = 'pending'
       try {
-        const { tests } = await applyEdit(srcEl.value)
-        if (!mounted) { mount('live-counter', document.querySelector('#app')); mounted = true }
+        const { tests } = await applyEdit(srcEl.value, 'live-counter')
+        if (!mounted) { await mountB8rComponent(document.querySelector('#app'), 'live-counter'); mounted = true }
         const failed = (tests || []).filter(t => !t.passed).length
         status.textContent = `applied ✓  (inline tests: ${(tests || []).length}, ${failed} failed)`
         window.lastApply = 'ok'
