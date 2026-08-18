@@ -24,6 +24,7 @@
     "./dist/b8r-component.js"
   ],
   "scripts": {
+    "prepublishOnly": "bun run build",
     "build": "bun ./build.mjs",
     "test": "bun ./build.mjs && bun test",
     "demos": "bun ./build.mjs && bun ./demo/vendor.mjs",
@@ -56,5 +57,8 @@
     "sucrase": "^3.35.1",
     "tosijs": "^1.6.1",
     "tosijs-ui": "^1.5.23"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
