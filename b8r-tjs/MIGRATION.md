@@ -5,8 +5,8 @@ keep. The goal: ship a lean, tree-shakeable **b8r → tosijs** compatibility lay
 loaders, drop the primitives tosijs already provides, and keep b8r-tjs's genuinely
 novel half (literate compile / live-edit / AJS sandbox / SSG+hydrate).
 
-Status: **plan only — nothing destructive done yet.** Pass A is safe to land now;
-Pass B is the real migration.
+Status: **Pass A landed; direction decided (see "Decided" at the end — read that
+first, it is the north star).** Pass B is the real migration and is now unblocked.
 
 ## The shape of `src/` today — two disconnected clusters
 
@@ -38,7 +38,7 @@ removing Cluster A cannot break Cluster B.
 | `observe.tjs` | **Dispose** | = tosijs `xin`/`boxed`/`observe`/`touch`. |
 | `elements.tjs` | **Dispose** | = tosijs `elements` (+ `b8r-elements` for b8r style). |
 | `css.tjs` | **Dispose** | = tosijs `css`/`vars`. |
-| `component.tjs` | **Dispose, after rehoming SSG** | Redefinable registry → blueprint loader; hydration → `hydrateB8r`. Its `renderToString` (SSG, design principle #6) needs a home first — a small renderer over `b8r-elements` + `hydrateB8r`. |
+| `component.tjs` | **Dispose** | Redefinable registry → blueprint loader; hydration → `hydrateB8r`. `renderToString` goes with it — decided, not rehomed (see "Decided"). |
 | `index.tjs` (barrel) | **Rewrite** | Today it exports only Cluster A. Re-point at the kept surface (see tree-shaking). |
 | `lib/exemplar.js` (parent b8r repo) | **Dispose** | "Gradual typing by example" — exactly what tjs-lang's example-types do natively. No b8r-tjs dependency; parent-repo cleanup for when b8r-tjs supersedes b8r. |
 
@@ -103,15 +103,67 @@ than as a side effect of the deletions.
 **Pass B — the migration (the real decisions)**
 3. Migrate `live.tjs` + `untrusted.tjs` off `component.tjs` onto the blueprint
    loader + tosijs.
-4. Rehome `renderToString`/SSG onto a `b8r-elements` + `hydrateB8r` renderer.
+4. ~~Rehome `renderToString`/SSG onto a `b8r-elements` + `hydrateB8r` renderer.~~
+   **Cancelled** — `renderToString` is deleted with the rest, not rehomed. No b8r
+   user has it today (classic b8r has `bindAll`, i.e. hydrate authored HTML, which
+   `hydrateB8r` already provides). Re-filed as a possible future *feature*; see
+   "Note kept" below.
 5. Delete `observe.tjs`, `elements.tjs`, `css.tjs`, `component.tjs`.
 6. Retire/port the Cluster-A tests (`component.test`, `ssg-hydrate.test`,
    `live-edit.test`; `compile.test` stays).
 7. (Separate) remove `lib/exemplar.*` from the parent repo when b8r-tjs supersedes b8r.
 
-## Open question
-Whether b8r-tjs keeps a "native authoring" surface at all (its own
-`observe`/`elements`/`css`/`component`) or is *purely* a compatibility +
-loader layer on top of tosijs. The rebase decision points at the latter — in which
-case Cluster A goes entirely except the novel `compile`/`live`/`untrusted`, which
-get re-pointed at tosijs.
+## Decided (2026-08-18)
+
+**Drop the second component API.** `component.tjs` + `observe`/`elements`/`css`
+go; b8r-tjs is purely a compatibility + loader layer over tosijs, and
+`compile`/`live`/`untrusted` get re-pointed at `defineB8rComponent`.
+
+Why, in the owner's words: *"I'd prefer not to support b8rjs in perpetuity and
+basically zero in on a tjs-powered tosijs as our end goal."*
+
+That is the north star, and it settles more than this one question:
+
+- **b8r compatibility is a bridge, not a destination.** Its job is to carry
+  existing b8r components and their authors onto tosijs. It is not a surface to
+  grow features on, and b8rjs itself is not supported forever.
+- **tosijs (powered by tjs) is the destination.** Anything that would be a
+  *third* way to author a component works against that, which is exactly what
+  `component.tjs` was — an API b8r-tjs invented, competing with both the thing
+  we are migrating from and the thing we are migrating to.
+- So when a change could land in the compat layer or upstream in tosijs,
+  **prefer upstream.**
+
+### Note kept: `renderToString` / static pre-rendering
+
+The one capability only the dropped model had. Worth recording rather than
+losing:
+
+- It baked bound state into markup (`<span data-bind="text:count">3</span>`) and
+  `hydrate` then adopted that DOM in place instead of rebuilding it. Tests
+  `ssg-hydrate.test.ts` and `demo/hydrate.html` show it working.
+- **No b8r user is losing anything.** Classic b8r has no `renderToString` at all
+  — it has `b8r.bindAll(element)`, i.e. hydrate *authored* HTML, and the compat
+  layer's `hydrateB8r` already does that. Static pre-rendering would have been a
+  new capability for them, not a restored one.
+- So it is deleted as a *migration* obligation and re-filed as a possible
+  *feature*: if static rendering is wanted later, build it on `b8r-elements` +
+  `hydrateB8r` (or better, upstream in tosijs) rather than reviving a second
+  component model to get it.
+
+### The one open design question in the re-point
+
+`live.tjs` is mechanical — inject b8r primitives as `lib`, call
+`defineB8rComponent`. But the editable source contract changes: today the
+factory returns a native spec (`{ name, state, methods, view }`); it would
+return a b8r spec (`{ css, view, initialValue, … }`).
+
+`untrusted.tjs` is the real one. `defineUntrusted` maps AJS handler sources to
+`methods[name](ctx, event)` closures using `ctx.snapshot()` / `ctx.set()`. The
+b8r model has **no `methods` concept** — event handlers are `data-event` strings
+resolving to paths in the instance scope, and functions live *inside* the state
+object returned by `initialValue`. So the AJS sandbox needs a decision about how
+handlers attach: most likely as functions seeded into `initialValue`'s object and
+referenced as `_component_.<name>`, with the fuel-metered `runHandler` call
+inside. Settle that before writing it.
+

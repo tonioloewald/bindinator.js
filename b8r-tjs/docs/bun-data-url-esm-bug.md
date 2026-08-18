@@ -62,3 +62,67 @@ statements).
 - Raw/unencoded data URLs are independently unsafe (a `#` in the source is parsed
   as a URL fragment; `%` as an escape), so base64 is the correct portable choice
   regardless of this bug.
+
+---
+
+# bun bug 2: long `data:` modules fail to resolve — `NameTooLong`
+
+**Status:** Not yet filed. Worked around: `src/compile.tjs` `load()` now prefers a
+`blob:` URL and only falls back to `data:`.
+
+## Summary
+
+A **second, independent** bun defect in the same subsystem. Above is about
+*encoding*; this one is about *length*. Under bun, `import()` of a `data:` URL
+fails once the payload passes a few kB — bun routes the URL through **package**
+resolution and hits the OS filename limit:
+
+```
+error: NameTooLong while resolving package 'data:text/javascript;base64,…'
+```
+
+Base64 vs percent-encoding makes no difference, so the workaround for bug 1 does
+not help here. This bites b8r-tjs on every real component, because tjs prepends
+its runtime preamble (the `MonadicError`/`typeError` boilerplate) to every module,
+pushing even a trivial component well past the threshold.
+
+## Environment
+
+- bun 1.3.14 (macOS arm64)
+- node v22.22.1 — unaffected at any size
+- Chrome — unaffected; a 533 kB `data:` URL imports fine
+
+## Minimal reproduction
+
+```js
+const mk = (n) => `export const hi = () => 42\n// ${'x'.repeat(n)}`
+const asData = (code) =>
+  'data:text/javascript;base64,' + Buffer.from(code).toString('base64')
+
+await import(asData(mk(100)))    // ok
+await import(asData(mk(5000)))   // bun: NameTooLong  |  node: ok
+```
+
+### Expected
+
+Import succeeds regardless of payload size (as in node and browsers).
+
+### Actual (bun)
+
+| payload | `data:` | `blob:` |
+| --- | --- | --- |
+| ~100 B | ok | ok |
+| ~5 kB | **NameTooLong** | ok |
+| ~200 kB | **NameTooLong** | ok |
+
+## Notes
+
+- **`blob:` is immune** because the code lives in the object store, not the URL —
+  the URL is a constant ~41 chars at any module size. That is why `load()` prefers
+  it.
+- **The inverse holds in node**, which is why both paths are kept: node's ESM
+  loader accepts only `file`/`data`/`node` schemes, so `blob:` throws there and
+  `data:` (fine at any size) is the fallback.
+- **Don't feature-detect `URL.createObjectURL` to choose.** Node *has* it but
+  cannot import the result; `compile.tjs` probes by actually importing a tiny
+  throwaway blob module once and caching the answer.
