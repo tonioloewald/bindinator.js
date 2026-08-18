@@ -89,7 +89,9 @@ opt-in). Adding a module with import-time effects means adding it to that list.
   `{default,__esModule}`. base64 is read as ESM correctly (and is UTF-8 safe).
   Node and browsers handle either form; base64 is the portable choice (raw/
   unencoded URLs are also unsafe — `#` parses as a fragment, `%` as an escape).
-  Don't revert it. Full write-up + minimal repro: `docs/bun-data-url-esm-bug.md`.
+  Don't revert it. Full write-up + minimal repros for **both** bun data:-URL bugs
+  (the ESM→CJS collapse, filed as oven-sh/bun#32057; and the `NameTooLong`
+  length limit that motivated the blob: path): `docs/bun-data-url-esm-bug.md`.
 
 ## Writing tjs (read before editing `.tjs`)
 
@@ -118,6 +120,24 @@ tjs is **not** TypeScript. The single biggest trap:
 
 Reference (in the installed package): `node_modules/tjs-lang/CLAUDE.md` and
 `node_modules/tjs-lang/llms.txt`.
+
+## North star (read before proposing anything structural)
+
+**tosijs, powered by tjs, is the destination. b8r compatibility is a bridge.**
+The owner's framing: *"I'd prefer not to support b8rjs in perpetuity and
+basically zero in on a tjs-powered tosijs as our end goal."*
+
+Consequences that should shape every change here:
+
+- The compat layer exists to carry existing b8r components and their authors
+  onto tosijs. It is **not** a surface to grow new features on.
+- **Never add a third way to author a component.** That is precisely what
+  `component.tjs` is, and why it is being dropped (Pass B — still present as of
+  this writing; check `MIGRATION.md` for status).
+- When something could land in the compat layer *or* upstream in tosijs,
+  **prefer upstream.**
+- Decided 2026-08-18; see `MIGRATION.md` "Decided" for the full reasoning and
+  the `renderToString` note kept from it.
 
 ## Design principles (don't regress these)
 
@@ -185,15 +205,16 @@ kept but must be re-pointed off the old `component.tjs` first.
 
 Two are clean **upstream asks** (tosijs / tosijs-ui), tracked here so we don't lose them:
 
-1. **Use tjs instead of sucrase for the `<live-example>` transform.** tjs already
-   does true TS transpilation and is already a dependency, so it'd collapse the
-   toolchain onto one transformer and drop sucrase + its CDN fallback. The
-   `TransformFn` signature is compatible — `code => ({ code: tjs(code).code })`.
-   Blocker: `LiveExample.refresh()` hardcodes `await loadTransform()` (sucrase) with
-   no injection hook. Fix path: small PR to tosijs-ui to make the transform
-   injectable (`liveExample({ transform })` or `context.transform`); then pass a tjs
-   adapter. Bonus payoff: fiddles would get tjs example-types → runtime validation
-   and inline `test` blocks for free (very on-brand for the literate docs site).
+1. ~~**Use tjs instead of sucrase for the `<live-example>` transform.**~~
+   **RESOLVED UPSTREAM — this is now an upgrade, not a PR.** tosijs-ui moved to
+   tjs: as of 1.9.4 there is no sucrase anywhere in the package, and
+   `live-example/code-transform.js` exposes `loadTransform(dialect)` running on
+   tjs-lang (`js` / `tjs` / `ts`, with the TS compiler loaded lazily) plus
+   `loadTjsTestApi()` for inline `test` blocks in fiddles — the "bonus payoff"
+   this note hoped for. `tjs-lang` is a peer dependency there.
+   **Action:** b8r-tjs is pinned at tosijs-ui **1.5.23** (latest 1.10.0). Bump it,
+   then drop the `sucrase` devDependency and its CDN fallback from the demo
+   bundling. Re-verify `demo/live-example.html` after.
 
 2. **`${.relative}` interpolation inside list rows.** Today it's a documented
    no-op (see `b8r-compat.js` header): tosijs re-targets a row's relative `^.path`
