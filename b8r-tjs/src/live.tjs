@@ -7,44 +7,57 @@ bundler, no page reload, and the edited code is type-checked (and its inline
 tests run) on the way in.
 
 The editable unit is a **factory**: `export default (lib) => spec`. It takes no
-imports — the b8r-tjs primitives (`elements`, `css`, `vars`) are injected as
-`lib` — so the compiled module is self-contained and loads from a `data:` URL in
-any runtime (and, for untrusted components later, could run under AJS). The
-returned `spec` is fed straight to `defineComponent`, whose redefinition
-re-renders mounted instances with their state preserved.
+imports — the primitives (`elements`, `css`, `vars`, `varDefault`) are injected
+as `lib` — so the compiled module is self-contained and loads from a `blob:`
+(or `data:`) URL in any runtime, and could later run under AJS for untrusted
+components. The returned `spec` is a **b8r component spec** fed to
+`defineB8rComponent`, whose redefinition re-stamps mounted instances with their
+state preserved.
 
     applyEdit(`
-      export default ({ elements }) => {
-        const { div, span, button } = elements
-        return {
-          name: 'counter',
-          state: { count: 0 },
-          methods: { inc: (ctx) => ctx.set('count', ctx.get('count') + 1) },
-          view: () => div(
-            span({ bindText: 'count' }),
-            button('+', { onClick: 'inc' })
-          )
-        }
-      }
-    `)
+      export default ({ elements }) => ({
+        css: '._component_ button { font: inherit }',
+        view: ({ div, span, button }) => div(
+          span({ bindText: '_component_.count' }),
+          button('+', { onClick: '_component_.inc' })
+        ),
+        initialValue: ({ component }) => ({
+          count: 0,
+          inc () { component.data.count += 1 }
+        })
+      })
+    `, 'counter')
+
+`lib.elements` is b8r's element creator (`b8r-elements`), and `css`/`vars`/
+`varDefault` are **tosijs's own** — `defineB8rComponent` accepts a `css`
+function `({ css, vars, varDefault }) => …` and passes those through, so an
+edited component gets the real CSS-variable proxies.
 */
 
 import { load } from './compile.tjs'
-import { elements } from './elements.tjs'
-import { css, vars } from './css.tjs'
-import { defineComponent } from './component.tjs'
+import { elements } from './b8r-elements.js'
+import { css, vars, varDefault } from 'tosijs'
+import { defineB8rComponent } from './b8r-blueprint.js'
 
-const lib = { elements, css, vars }
+const lib = { elements, css, vars, varDefault }
 
 // Compile editable component source (a `(lib) => spec` factory), run it with the
 // injected primitives, and install the definition — hot-reloading live instances.
 // Returns the definition plus any inline test/warning results from the source,
 // so an editor can surface them.
-export async function applyEdit (source: '') {
+//
+// `name` identifies the definition to redefine; it may also come from the spec
+// (`spec.name`) so a single self-describing source can be edited on its own.
+export async function applyEdit (source: '', name) {
   const result = await load(source)
   const spec = result.module.default(lib)
+  const componentName =
+    name === undefined || name === null || name === ''
+      ? (spec.name === undefined ? 'live-edit' : spec.name)
+      : name
   return {
-    definition: defineComponent(spec),
+    definition: defineB8rComponent(componentName, spec),
+    name: componentName,
     tests: result.tests,
     warnings: result.warnings
   }

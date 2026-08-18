@@ -191,6 +191,19 @@ async function stamp (entry, name, id, target, data) {
 // (`{ css, html|view, load, initialValue, type }`). Redefining re-installs the
 // stylesheet and re-stamps every live instance (hot reload). Returns the entry,
 // whose `mount(target, data)` instantiates the component.
+// Shallow copy without function-valued own properties. Used on hot-reload so a
+// redefinition's methods replace the running instance's, rather than being
+// shadowed by the ones preserved in its state. Shallow on purpose: b8r's
+// convention is methods at the top level of the instance object.
+function withoutMethods (value) {
+  if (value === null || typeof value !== 'object') return value
+  const out = {}
+  for (const key of Object.keys(value)) {
+    if (typeof value[key] !== 'function') out[key] = value[key]
+  }
+  return out
+}
+
 export function defineB8rComponent (name, spec) {
   ensureRoot()
   let entry = registry[name]
@@ -214,8 +227,14 @@ export function defineB8rComponent (name, spec) {
 
   // hot-reload: re-stamp every live instance against the new definition,
   // preserving each instance's current data (re-seeded from its proxy).
+  //
+  // Methods are deliberately NOT carried over. b8r keeps a component's methods
+  // inside its state object, and `stamp` overlays the preserved data on top of
+  // the new `initialValue` — so carrying functions across would let a stale
+  // method shadow an edited one, and live-editing a method body would silently
+  // do nothing. Data persists; behaviour comes from the new definition.
   for (const [id, instance] of entry.instances) {
-    const current = tosiValue(xin._b8r[id])
+    const current = withoutMethods(tosiValue(xin._b8r[id]))
     stamp(entry, name, id, instance.target, current)
   }
   // declarative placeholders waiting on this name mount now (b8r's rule:
