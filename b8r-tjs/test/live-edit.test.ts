@@ -12,6 +12,7 @@ const document = setupDom()
 
 const { defineB8rComponent, mountB8rComponent } = await import('../src/b8r-blueprint.js')
 const { applyEdit } = await import('../src/live.tjs')
+const { xin, tosiValue } = await import('tosijs')
 
 const target = document.createElement('div')
 document.body.append(target)
@@ -132,4 +133,59 @@ test('a type error in edited source is caught at compile time (returned, not thr
     threw = true // tjs fails the compile of source whose inline test fails
   }
   expect(threw).toBe(true)
+})
+
+test('hot reload warns (once per component) about functions it did not carry over', async () => {
+  const el = document.createElement('div')
+  document.body.append(el)
+  const warnings: string[] = []
+  const realWarn = console.warn
+  console.warn = (...args: any[]) => { warnings.push(args.join(' ')) }
+  try {
+    defineB8rComponent('warns', {
+      view: ({ div, span }: any) => div(span({ class: 'w', bindText: '_component_.n' })),
+      initialValue: () => ({ n: 1, act () {} })
+    })
+    await mountB8rComponent(el, 'warns')
+    await tick()
+    defineB8rComponent('warns', {
+      view: ({ div, span }: any) => div(span({ class: 'w', bindText: '_component_.n' })),
+      initialValue: () => ({ n: 1, act () {} })
+    })
+    await tick()
+    defineB8rComponent('warns', {
+      view: ({ div, span }: any) => div(span({ class: 'w', bindText: '_component_.n' })),
+      initialValue: () => ({ n: 1, act () {} })
+    })
+    await tick()
+  } finally {
+    console.warn = realWarn
+  }
+  const carried = warnings.filter((w) => w.includes('did not carry over'))
+  expect(carried.length).toBe(1)          // deduped per component, not per redefine
+  expect(carried[0]).toContain('"warns"')
+  expect(carried[0]).toContain('act')     // names the function it dropped
+})
+
+test('class instances and Dates DO survive hot reload (they are not serialized)', async () => {
+  // Counterpoint to the function case: tosijs carries exotic values by
+  // reference, so prototypes survive a redefinition. Only serializing paths
+  // (structuredClone) are lossy — pinned here so the distinction is not lost.
+  class Point { x: number; constructor (x: number) { this.x = x } dist () { return this.x * 2 } }
+  const el = document.createElement('div')
+  document.body.append(el)
+  const spec = (label: string) => ({
+    view: ({ div, span }: any) => div(span({ class: 'p', bindText: '_component_.label' })),
+    initialValue: () => ({ label, pt: new Point(3), when: new Date(0) })
+  })
+  defineB8rComponent('exotic', spec('v1'))
+  const id = await mountB8rComponent(el, 'exotic')
+  await tick()
+  defineB8rComponent('exotic', spec('v2'))
+  await tick()
+  const after: any = tosiValue(xin._b8r[id])
+  expect(after.pt instanceof Point).toBe(true)
+  expect(after.pt.dist()).toBe(6)
+  expect(after.when instanceof Date).toBe(true)
+  expect(after.label).toBe('v1') // data preserved, not reset by the new initialValue
 })

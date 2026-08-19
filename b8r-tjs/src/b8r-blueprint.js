@@ -191,15 +191,46 @@ async function stamp (entry, name, id, target, data) {
 // (`{ css, html|view, load, initialValue, type }`). Redefining re-installs the
 // stylesheet and re-stamps every live instance (hot reload). Returns the entry,
 // whose `mount(target, data)` instantiates the component.
-// Shallow copy without function-valued own properties. Used on hot-reload so a
-// redefinition's methods replace the running instance's, rather than being
-// shadowed by the ones preserved in its state. Shallow on purpose: b8r's
-// convention is methods at the top level of the instance object.
-function withoutMethods (value) {
+const warnedDroppedFns = new Set()
+
+// Shallow copy without function-valued own properties, for the hot-reload path.
+//
+// b8r keeps a component's methods INSIDE its instance state, and `stamp`
+// overlays preserved state on top of the new `initialValue` — so carrying
+// functions across lets a stale method shadow an edited one, and editing a
+// method body silently does nothing. Behaviour must come from the new
+// definition; only data is preserved.
+//
+// This is a real limitation of hot reload, not a detail: **functions are never
+// carried across a redefinition, in either direction.** Scope state accordingly
+// — keep behaviour in the definition, keep data in state. We say so out loud
+// rather than dropping them silently.
+//
+// Note class instances, Date/Set/Map and other exotic values ARE preserved
+// intact here (tosijs carries them by reference; prototypes survive), so they
+// need no warning on this path. They are only lossy where something tries to
+// *serialize* state — e.g. `structuredClone`, which de-prototypes a class
+// instance and throws outright on a function.
+//
+// Shallow on purpose: b8r's convention is methods at the top level of the
+// instance object, and this runs on every redefinition.
+function withoutMethods (value, name) {
   if (value === null || typeof value !== 'object') return value
   const out = {}
+  const dropped = []
   for (const key of Object.keys(value)) {
-    if (typeof value[key] !== 'function') out[key] = value[key]
+    if (typeof value[key] === 'function') dropped.push(key)
+    else out[key] = value[key]
+  }
+  if (dropped.length !== 0 && !warnedDroppedFns.has(name)) {
+    warnedDroppedFns.add(name)
+    console.warn(
+      'b8r-tjs: hot-reloading component "' + name + '" did not carry over ' +
+      dropped.length + ' function(s) from its state (' + dropped.join(', ') +
+      '). This is deliberate — behaviour comes from the new definition, so an ' +
+      'edited method takes effect. If you are storing a callback as *data*, it ' +
+      'will not survive a redefinition; keep it in the definition instead.'
+    )
   }
   return out
 }
@@ -234,7 +265,7 @@ export function defineB8rComponent (name, spec) {
   // method shadow an edited one, and live-editing a method body would silently
   // do nothing. Data persists; behaviour comes from the new definition.
   for (const [id, instance] of entry.instances) {
-    const current = withoutMethods(tosiValue(xin._b8r[id]))
+    const current = withoutMethods(tosiValue(xin._b8r[id]), name)
     stamp(entry, name, id, instance.target, current)
   }
   // declarative placeholders waiting on this name mount now (b8r's rule:

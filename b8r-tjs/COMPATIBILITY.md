@@ -93,17 +93,47 @@ Legend: **[deliberate]** we won't change it · **[todo]** intended, not done ·
   base URL). Without `base`, relative specifiers can't resolve — port the
   component to the ESM-object form, or pass `base`.
 
-- **[fixed] Hot-reload replaces methods, not just the view.** b8r keeps a
-  component's methods *inside* its instance state (functions returned by
+- **[fixed + documented] Hot reload preserves DATA, never BEHAVIOUR.** b8r keeps
+  a component's methods *inside* its instance state (functions returned by
   `initialValue`), and `stamp` overlays preserved state on top of the new
-  `initialValue` — so redefining a component carried the OLD functions across and
-  a stale method shadowed the edited one. Live-editing a method body silently did
-  nothing: the view updated, the behaviour didn't. `defineB8rComponent` now strips
-  function-valued keys from the preserved state before re-stamping
-  (`withoutMethods`), so data persists and behaviour comes from the new
-  definition. Caught by `test/live-edit.test.ts` ("an edited method BODY takes
-  effect"); verified in a browser via `demo/live.html` — edit `inc` from `+1` to
-  `+10`, and a count of 2 goes to 12, not 3.
+  `initialValue` — so redefining carried the OLD functions across and a stale
+  method shadowed the edited one. Live-editing a method body silently did
+  nothing: the view updated, the behaviour didn't.
+
+  `defineB8rComponent` now strips function-valued keys from the preserved state
+  before re-stamping, **and warns once per component naming what it dropped** —
+  a silent strip is its own trap for anyone deliberately keeping a callback in
+  state.
+
+  **The rule for consumers: keep behaviour in the definition, keep data in
+  state.** A function stored as data will not survive a redefinition, in either
+  direction. Scope state accordingly.
+
+  What is *not* a problem, measured rather than assumed: **class instances,
+  `Date`, `Set`, `Map` all survive hot reload intact** — tosijs carries them by
+  reference and prototypes are preserved (`pt instanceof Point` and `pt.dist()`
+  both hold after a redefine). Hot reload does not serialize, so it is not lossy
+  for exotic values.
+
+  Loss only appears where something *serializes* state, which is a different
+  path with sharper edges:
+
+  | value | hot reload | `structuredClone` |
+  | --- | --- | --- |
+  | plain data, `Date`/`Set`/`Map` | preserved | ok |
+  | class instance | **preserved, prototype intact** | **silently de-prototyped** |
+  | function | dropped, with a warning | **throws** |
+
+  That matters for `defineUntrusted`, which `structuredClone`s the snapshot it
+  hands the sandbox: in the b8r model instance state *always* contains handler
+  functions, so cloning it would throw every time. Any port must filter
+  functions out of the snapshot first — not optional. And a class instance in
+  state reaches the sandbox de-prototyped, silently, which deserves a loud
+  complaint at that boundary.
+
+  Pinned by `test/live-edit.test.ts` (the shadowing case, the deduped warning,
+  and the class-instance/Date survival counterpoint); verified in a browser via
+  `demo/live.html`.
 
 ## Findings from running REAL parent-repo components (test/real-component.test.ts)
 
