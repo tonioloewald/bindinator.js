@@ -109,8 +109,15 @@ than as a side effect of the deletions.
      `demo/live.html` (its import map needed `tosijs`). The port surfaced a real
      hot-reload bug — see COMPATIBILITY.md, methods were being shadowed by
      preserved state.
-   - ⏳ **`untrusted.tjs` remaining** — needs the handler-attachment decision
-     (see "The one open design question in the re-point" below).
+   - ✅ **`untrusted.tjs` done.** Handlers are seeded into the instance object
+     (b8r's convention — behaviour lives in the registry beside data), so a view
+     binds them as `_component_.<name>`; `ctx.get()` is the snapshot and
+     `ctx.set(diff)` the merge. Three boundaries the old separate-`methods`
+     design had structurally are now explicit and tested: functions are stripped
+     before `structuredClone` (mandatory — it throws on them, and b8r state
+     always holds the wrappers), a class instance in state warns that the
+     sandbox will receive it de-prototyped, and the returned diff is filtered
+     against handler names so untrusted code can't replace behaviour.
 4. ~~Rehome `renderToString`/SSG onto a `b8r-elements` + `hydrateB8r` renderer.~~
    **Cancelled** — `renderToString` is deleted with the rest, not rehomed. No b8r
    user has it today (classic b8r has `bindAll`, i.e. hydrate authored HTML, which
@@ -159,7 +166,7 @@ losing:
   `hydrateB8r` (or better, upstream in tosijs) rather than reviving a second
   component model to get it.
 
-### The one open design question in the re-point
+### The re-point's design question — RESOLVED, kept for the reasoning
 
 `live.tjs` is mechanical — inject b8r primitives as `lib`, call
 `defineB8rComponent`. But the editable source contract changes: today the
