@@ -114,6 +114,13 @@ tjs is **not** TypeScript. The single biggest trap:
   express — async `import()`, the `data:`-URL load path, cross-module behaviour.
   (Inline tests run at transpile time, before imports resolve, so a module that
   imports another can't inline-test code that calls the import.)
+- **`typeof obj[key]` is MIS-COMPILED — hoist it.** tjs emits
+  `TypeOf(obj)[key]`, i.e. `(typeof obj)[key]`, which is `undefined` — so any
+  guard of that shape silently becomes always-true. Dot access (`typeof x.foo`)
+  is fine; only *computed* access breaks. Write `const v = obj[key]; typeof v
+  …`. This cost real time once already (it disabled a security filter in
+  `untrusted.tjs`); repro + suggested fix in
+  `docs/tjs-typeof-computed-member.md`.
 - Errors are **returned** as `MonadicError`, not thrown (`isMonadicError(v)` /
   check `v?.name === 'MonadicError'`).
 - Style matches tjs/tosijs/standard: single quotes, no semicolons, 2-space.

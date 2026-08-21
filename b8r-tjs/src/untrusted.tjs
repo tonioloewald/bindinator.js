@@ -8,17 +8,39 @@ never hangs) and **capability isolation** (no DOM, no network, no host globals �
 only atoms you inject). So an untrusted event handler can transform its own
 state and nothing else.
 
-`defineUntrusted` is `defineComponent` whose `handlers` are AJS **source
-strings** instead of JS methods. Each runs as a pure
+`defineUntrusted` is `defineB8rComponent` whose `handlers` are AJS **source
+strings** instead of JS functions. Each runs as a pure
 `function agent({ state, event }) { … return newState }` transform in the
-sandbox; the returned keys are applied to the instance's state (which then drives
-the wiring as usual). The view/markup is still trusted host code — only the
-behaviour is sandboxed.
+sandbox; the returned keys are applied to the instance's state, which drives the
+wiring as usual. The view/markup is still trusted host code — only the behaviour
+is sandboxed.
+
+Handlers are seeded into the instance object (b8r's convention: behaviour lives
+in the registry alongside data), so a view binds them exactly like any other b8r
+component — `onClick: '_component_.inc'`.
+
+### The three boundaries this maintains
+
+Sharing one registry object between data and behaviour is convenient, but it
+removes structural guarantees the old separate-`methods` design had for free.
+They are re-established explicitly here:
+
+1. **Functions never reach the sandbox.** The snapshot is stripped of them
+   before `structuredClone` — which is not merely tidiness: cloning a function
+   *throws*, and in the b8r model instance state always contains the handler
+   wrappers, so an unfiltered clone would fail on every single event.
+2. **A value the sandbox cannot faithfully receive is reported, loudly.**
+   `structuredClone` silently de-prototypes a class instance (`x instanceof
+   Point` becomes false inside the handler). Silent corruption at a security
+   boundary is worse than an error, so we warn and name the path.
+3. **A handler cannot overwrite a handler.** The returned diff is filtered
+   against the declared handler names (and `__proto__`-style keys), so untrusted
+   code cannot replace behaviour — only its own data.
 */
 
 import { ajs } from 'tjs-lang/lang'
 import { AgentVM } from 'tjs-lang/vm'
-import { defineComponent } from './component.tjs'
+import { defineB8rComponent } from './b8r-blueprint.js'
 
 const vm = new AgentVM()
 
@@ -44,27 +66,119 @@ export async function runHandler (source: '', input, fuel) {
   return { ok: true, result, fuelUsed: out.fuelUsed }
 }
 
-// defineComponent whose event handlers are untrusted AJS source strings.
-export function defineUntrusted (spec, fuel) {
-  const methods = {}
-  for (const name of Object.keys(spec.handlers)) {
-    const source = spec.handlers[name]
-    methods[name] = async function (ctx, event) {
-      const input = {
-        state: structuredClone(ctx.snapshot()),
-        event: { type: event === undefined || event === null ? '' : event.type }
-      }
-      const outcome = await runHandler(source, input, fuel)
-      if (outcome.ok && outcome.result !== null && typeof outcome.result === 'object') {
-        for (const key of Object.keys(outcome.result)) ctx.set(key, outcome.result[key])
+// Keys that must never be written through a merge, however they arrive.
+const FORBIDDEN_KEYS = ['__proto__', 'constructor', 'prototype']
+
+// Shallow copy without functions — boundary #1. structuredClone throws on a
+// function, and b8r instance state always holds the handler wrappers.
+function withoutFunctions (value) {
+  if (value === null || typeof value !== 'object') return value
+  const out = {}
+  for (const key of Object.keys(value)) {
+    // NB: hoisted deliberately. `typeof value[key]` mis-compiles under tjs —
+    // it emits `TypeOf(value)[key]`, i.e. (typeof value)[key], which is always
+    // undefined so nothing is ever filtered. See docs/tjs-typeof-computed-member.md
+    const item = value[key]
+    if (typeof item !== 'function') out[key] = value[key]
+  }
+  return out
+}
+
+// True for values structuredClone reproduces faithfully.
+function isCloneable (value) {
+  if (Array.isArray(value)) return true
+  if (value instanceof Date) return true
+  if (value instanceof Map) return true
+  if (value instanceof Set) return true
+  if (value instanceof RegExp) return true
+  if (ArrayBuffer.isView(value)) return true
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
+}
+
+// Find the first value the sandbox cannot receive faithfully — boundary #2.
+// Returns { path, name } or null. Stops at the first offender.
+function findUncloneable (value, path, seen) {
+  if (value === null || typeof value !== 'object') return null
+  if (seen.has(value)) return null
+  seen.add(value)
+  if (!isCloneable(value)) {
+    const proto = Object.getPrototypeOf(value)
+    const ctor = proto === null || proto === undefined ? null : proto.constructor
+    const name = ctor === null || ctor === undefined ? 'object' : ctor.name
+    return { path: path === '' ? '(root)' : path, name }
+  }
+  for (const key of Object.keys(value)) {
+    const child = path === '' ? key : path + '.' + key
+    const found = findUncloneable(value[key], child, seen)
+    if (found !== null) return found
+  }
+  return null
+}
+
+const warnedUncloneable = new Set()
+
+// defineB8rComponent whose event handlers are untrusted AJS source strings.
+// `spec` is a b8r component spec (`css`/`view`/`html`/`initialValue`) plus a
+// `handlers` map of AJS sources; the wrappers are seeded into the instance so
+// the view can bind them as `_component_.<name>`.
+export function defineUntrusted (name: 'counter', spec, fuel) {
+  const handlerNames = Object.keys(spec.handlers)
+
+  function makeHandlers (ctx) {
+    const seeded = {}
+    for (const handlerName of handlerNames) {
+      const source = spec.handlers[handlerName]
+      seeded[handlerName] = async function (event) {
+        const raw = ctx.get()
+        const state = withoutFunctions(raw)
+
+        const offender = findUncloneable(state, '', new Set())
+        if (offender !== null && !warnedUncloneable.has(name + ':' + offender.path)) {
+          warnedUncloneable.add(name + ':' + offender.path)
+          console.warn(
+            'b8r-tjs: untrusted component "' + name + '" has a ' + offender.name +
+            ' at state.' + offender.path + '. The sandbox receives a structured ' +
+            'clone, which strips prototypes — the handler will see a plain ' +
+            'object, not a ' + offender.name + '. Pass plain data across this ' +
+            'boundary.'
+          )
+        }
+
+        const input = {
+          state: structuredClone(state),
+          event: { type: event === undefined || event === null ? '' : event.type }
+        }
+        const outcome = await runHandler(source, input, fuel)
+        if (!outcome.ok) return outcome
+        const result = outcome.result
+        if (result === null || typeof result !== 'object') return outcome
+
+        // boundary #3 — untrusted code writes data, never behaviour
+        const diff = {}
+        for (const key of Object.keys(result)) {
+          if (FORBIDDEN_KEYS.indexOf(key) !== -1) continue
+          if (handlerNames.indexOf(key) !== -1) continue
+          const value = result[key] // hoisted: see the note in withoutFunctions
+          if (typeof value === 'function') continue
+          diff[key] = result[key]
+        }
+        ctx.set(diff)
+        return outcome
       }
     }
+    return seeded
   }
-  return defineComponent({
-    name: spec.name,
-    state: spec.state,
-    methods,
-    style: spec.style,
-    view: spec.view
+
+  const initial = spec.initialValue === undefined ? spec.state : spec.initialValue
+
+  return defineB8rComponent(name, {
+    css: spec.css === undefined ? spec.style : spec.css,
+    view: spec.view,
+    html: spec.html,
+    initialValue: function (ctx) {
+      const base = typeof initial === 'function' ? initial(ctx) : initial
+      return Object.assign({}, base === undefined ? {} : base, makeHandlers(ctx))
+    }
   })
 }
