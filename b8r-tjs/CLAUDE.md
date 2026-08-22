@@ -36,8 +36,8 @@ has the table):
 
 | subpath | what | pulls |
 | --- | --- | --- |
-| `.` | native authoring barrel (observe/elements/css/component) | nothing |
-| `./b8r` | **compat barrel** — blueprint + compat + elements | tosijs |
+| `.` | **the package** — same module as `./b8r` | tosijs |
+| `./b8r` | compat barrel — blueprint + compat + elements (explicit alias of `.`) | tosijs |
 | `./compat` `./blueprint` `./elements` | the adapter pieces individually | tosijs (except `elements`: nothing) |
 | `./component` | legacy `.component.html` loader | tosijs |
 | `./targets-extra` `./example` | opt-in extras | tosijs |
@@ -52,10 +52,11 @@ re-exports *no* tosijs symbols: consumers import `Component`, `makeComponent`,
 `customElements` base class, so it does **not** give you design principle #3's
 redefinability — use `defineB8rComponent` when you need hot reload.)
 
-`sideEffects` is an **array, not `false`** — two modules do load-time work and
-must not be tree-shaken: `component.js` seeds its state root, and
-`b8r-component.js` registers the legacy-path loader (importing it *is* the
-opt-in). Adding a module with import-time effects means adding it to that list.
+`sideEffects` is an **array, not `false`** — `b8r-component.js` registers the
+legacy-path loader at module scope, and that registration *is* the opt-in for
+`<b8r-component path="components/hello">`. Tree-shake it and declarative legacy
+loading silently stops working. Adding a module with import-time effects means
+adding it to that list.
 
 ## How the build / loaders work
 
@@ -139,8 +140,8 @@ Consequences that should shape every change here:
 - The compat layer exists to carry existing b8r components and their authors
   onto tosijs. It is **not** a surface to grow new features on.
 - **Never add a third way to author a component.** That is precisely what
-  `component.tjs` is, and why it is being dropped (Pass B — still present as of
-  this writing; check `MIGRATION.md` for status).
+  `component.tjs` was, and why it was deleted (Pass B, done). There is one
+  component model here: b8r's, loaded by `defineB8rComponent`.
 - When something could land in the compat layer *or* upstream in tosijs,
   **prefer upstream.**
 - Decided 2026-08-18; see `MIGRATION.md` "Decided" for the full reasoning and

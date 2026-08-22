@@ -123,9 +123,17 @@ than as a side effect of the deletions.
    user has it today (classic b8r has `bindAll`, i.e. hydrate authored HTML, which
    `hydrateB8r` already provides). Re-filed as a possible future *feature*; see
    "Note kept" below.
-5. Delete `observe.tjs`, `elements.tjs`, `css.tjs`, `component.tjs`.
-6. Retire/port the Cluster-A tests (`component.test`, `ssg-hydrate.test`,
-   `live-edit.test`; `compile.test` stays).
+5. ~~Delete `observe.tjs`, `elements.tjs`, `css.tjs`, `component.tjs`.~~ ✅ Done,
+   plus `index.tjs` — the barrel they fed. `.` now resolves to `dist/b8r.js`
+   (same module as `./b8r`), and `sideEffects` drops `component.js`.
+6. ~~Retire/port the Cluster-A tests.~~ ✅ Done — `component.test` and
+   `ssg-hydrate.test` retired; `live-edit.test` and `untrusted.test` were ported
+   in step 3; `compile.test` stays.
+   Also rewritten rather than deleted: `examples/counter.component.tjs` (now a
+   b8r component with a typed tjs helper), `demo/index.html`, and
+   `demo/hydrate.html` — the last reframed around its surviving half, adopting
+   **authored** markup with `hydrateB8r`, which is the hydration story b8r users
+   actually have.
 7. (Separate) remove `lib/exemplar.*` from the parent repo when b8r-tjs supersedes b8r.
 
 ## Decided (2026-08-18)
