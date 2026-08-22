@@ -6,73 +6,72 @@
   <title>b8r-tjs — hydration</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 44rem; }
-    .note { color: #555; }
-    code { background: #f3f3f3; padding: 0 4px; border-radius: 4px; }
-    pre { background: #f7f7f7; padding: 12px; border-radius: 8px; overflow:auto; }
+    p.note { color: #555; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 8px; overflow-x: auto; }
+    .counter { display: inline-flex; align-items: center; gap: 12px;
+      padding: 8px 14px; border: 1px solid #ccc; border-radius: 10px; }
+    .counter button { font: inherit; cursor: pointer; width: 2em; height: 2em;
+      border-radius: 50%; border: 1px solid #999; }
+    .counter .n { min-width: 3ch; text-align: center; font-weight: bold; font-size: 1.25rem; }
   </style>
   <script type="importmap">
-    { "imports": { "b8r-tjs": "../dist/index.js" } }
+    {
+      "imports": {
+        "b8r-tjs": "../dist/b8r.js",
+        "tosijs": "./vendor/tosijs.js"
+      }
+    }
   </script>
 </head>
 <body>
   <h1>b8r-tjs — hydration</h1>
   <p class="note">
-    Server-rendered markup (with <code>data-bind</code>/<code>data-event</code>
-    baked in and content pre-filled) is <strong>adopted in place</strong> by
-    <code>hydrate()</code> — the existing DOM nodes are wired to live state, not
-    rebuilt. <em>(For the demo the markup is produced client-side with
-    <code>renderToString</code>; in production your server sends it, so content
-    paints before JS — SEO + TTFI.)</em>
+    Markup that is <strong>already in the page</strong> — hand-authored here,
+    server-delivered in production — is <strong>adopted in place</strong> by
+    <code>hydrateB8r()</code>. The existing DOM nodes are wired to live state,
+    not rebuilt, so content paints before any JavaScript runs. This is b8r's
+    original model (<code>b8r.bindAll</code>), unchanged.
   </p>
 
-  <h3>Server markup (what <code>renderToString</code> emits)</h3>
+  <h3>The authored markup</h3>
   <pre id="markup"></pre>
 
   <h3>Live (hydrated — click it)</h3>
-  <div id="server"></div>
+  <!-- note the content is pre-filled: a reader (or crawler) sees "3" with JS off -->
+  <div id="server">
+    <div class="counter">
+      <button data-event="click:app.dec">−</button>
+      <span class="n" data-bind="text=app.count">3</span>
+      <button data-event="click:app.inc">+</button>
+    </div>
+  </div>
 
   <script type="module">
-    import { defineComponent, renderToString, hydrate, elements, css } from 'b8r-tjs'
-    const { div, span, button } = elements
+    import { hydrateB8r } from 'b8r-tjs'
+    import { tosi, xin } from 'tosijs'
 
-    defineComponent({
-      name: 'counter',
-      state: { count: 0 },
-      methods: {
-        inc: (c) => c.set('count', c.get('count') + 1),
-        dec: (c) => c.set('count', c.get('count') - 1)
-      },
-      style: css({
-        '.counter': { display: 'inline-flex', alignItems: 'center', gap: '12px',
-          padding: '8px 14px', border: '1px solid #ccc', borderRadius: '10px' },
-        '.counter button': { font: 'inherit', cursor: 'pointer', width: '2em',
-          height: '2em', borderRadius: '50%', border: '1px solid #999' },
-        '.counter .n': { minWidth: '3ch', textAlign: 'center', fontWeight: 'bold',
-          fontSize: '1.25rem' }
-      }),
-      view: () => div({ class: 'counter' },
-        button('−', { onClick: 'dec' }),
-        span({ class: 'n', bindText: 'count' }),
-        button('+', { onClick: 'inc' })
-      )
+    // show the markup exactly as authored, before we touch it
+    const host = document.querySelector('#server')
+    document.querySelector('#markup').textContent = host.innerHTML.trim()
+
+    // the model the markup already refers to by path
+    tosi({
+      app: {
+        count: 3,
+        inc () { xin.app.count = xin.app.count + 1 },
+        dec () { xin.app.count = xin.app.count - 1 }
+      }
     })
 
-    // 1) the "server" produces static HTML with state baked in
-    const serverHTML = renderToString('counter', { count: 3 })
-    document.querySelector('#markup').textContent = serverHTML
-
-    const host = document.querySelector('#server')
-    host.innerHTML = serverHTML // as if delivered by the server
-
-    // 2) prove adoption: stamp an existing node, then hydrate over it
-    const serverNode = host.querySelector('.n')
-    serverNode.__fromServer = true
-    hydrate('counter', host, { count: 3 })
+    // prove adoption rather than replacement: tag a node, then hydrate over it
+    const authoredNode = host.querySelector('.n')
+    authoredNode.__authored = true
+    hydrateB8r(host)
 
     window.hydrateDemo = {
-      markupHasBinding: serverHTML.includes('data-bind="text:count"'),
-      markupHasEvent: serverHTML.includes('data-event="click:inc"'),
-      adoptedSameNode: host.querySelector('.n').__fromServer === true,
+      markupHasBinding: host.innerHTML.includes('data-bind'),
+      markupHasEvent: host.innerHTML.includes('data-event'),
+      adoptedSameNode: host.querySelector('.n').__authored === true,
       shown: host.querySelector('.n').textContent
     }
     window.b8rTjsReady = true

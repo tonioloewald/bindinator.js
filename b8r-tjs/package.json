@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "A literate, runtime-type-safe UI framework: b8r's light-DOM model and tosijs's primitives ported into the tjs language. Stable by default, no service-worker vfs.",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "main": "./dist/b8r.js",
+  "module": "./dist/b8r.js",
   "exports": {
-    ".": "./dist/index.js",
+    ".": "./dist/b8r.js",
     "./b8r": "./dist/b8r.js",
     "./compat": "./dist/b8r-compat.js",
     "./blueprint": "./dist/b8r-blueprint.js",
@@ -20,7 +20,6 @@
     "./package.json": "./package.json"
   },
   "sideEffects": [
-    "./dist/component.js",
     "./dist/b8r-component.js"
   ],
   "scripts": {

@@ -13,61 +13,64 @@
   </style>
   <!-- the framework is loaded as plain ES modules — no bundler -->
   <script type="importmap">
-    { "imports": { "b8r-tjs": "../dist/index.js" } }
+    {
+      "imports": {
+        "b8r-tjs": "../dist/b8r.js",
+        "tosijs": "./vendor/tosijs.js"
+      }
+    }
   </script>
 </head>
 <body>
   <h1>b8r-tjs</h1>
   <p>
-    A counter component: element-creator view, CSS-variable styling, events as
-    named methods, bindings as wiring. Click to update only the wired node;
-    each instance is independent.
+    A <strong>b8r component</strong> running on tosijs: element-creator view,
+    CSS-variable styling, behaviour bound by path (<code>_component_.inc</code>),
+    bindings as wiring. Click to update only the wired node; each instance is
+    independent.
   </p>
   <div id="app"></div>
   <button class="add" id="more">+ mount another instance</button>
 
   <script type="module">
-    import { defineComponent, mount, elements, css } from 'b8r-tjs'
+    import { defineB8rComponent, mountB8rComponent } from 'b8r-tjs'
 
-    const { div, span, button } = elements
-
-    defineComponent({
-      name: 'counter',
-      state: { count: 0 },
-      methods: {
-        inc: (ctx) => ctx.set('count', ctx.get('count') + 1),
-        dec: (ctx) => ctx.set('count', ctx.get('count') - 1)
-      },
-      style: css({
-        '.counter': {
-          display: 'inline-flex', alignItems: 'center', gap: '12px',
-          padding: '8px 14px', margin: '4px 0',
-          border: '1px solid #ccc', borderRadius: '10px'
-        },
-        '.counter button': {
-          font: 'inherit', cursor: 'pointer', width: '2em', height: '2em',
-          borderRadius: '50%', border: '1px solid #999'
-        },
-        '.counter .n': { minWidth: '3ch', textAlign: 'center', fontWeight: 'bold', fontSize: '1.25rem' }
-      }),
-      view: () => div(
+    defineB8rComponent('counter', {
+      css: `
+        ._component_ .counter {
+          display: inline-flex; align-items: center; gap: 12px;
+          padding: 8px 14px; border: 1px solid #ccc; border-radius: 10px;
+        }
+        ._component_ button {
+          font: inherit; cursor: pointer; width: 2em; height: 2em;
+          border-radius: 50%; border: 1px solid #999;
+        }
+        ._component_ .n {
+          min-width: 3ch; text-align: center; font-weight: bold; font-size: 1.25rem;
+        }
+      `,
+      view: ({ div, span, button }) => div(
         { class: 'counter' },
-        button('−', { onClick: 'dec' }),
-        span({ class: 'n', bindText: 'count' }),
-        button('+', { onClick: 'inc' })
-      )
+        button('−', { onClick: '_component_.dec' }),
+        span({ class: 'n', bindText: '_component_.count' }),
+        button('+', { onClick: '_component_.inc' })
+      ),
+      initialValue: ({ component }) => ({
+        count: 0,
+        inc () { component.data.count = component.data.count + 1 },
+        dec () { component.data.count = component.data.count - 1 }
+      })
     })
 
     const app = document.querySelector('#app')
-    mount('counter', app)
+    await mountB8rComponent(app, 'counter')
 
-    document.querySelector('#more').addEventListener('click', () => {
+    document.querySelector('#more').addEventListener('click', async () => {
       const host = document.createElement('div')
-      app.append(host)
-      mount('counter', host)
+      app.after(host)
+      await mountB8rComponent(host, 'counter')
     })
 
-    // expose for quick console / automation checks
     window.b8rTjsReady = true
   </script>
 </body>
