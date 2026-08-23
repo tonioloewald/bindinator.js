@@ -69,10 +69,12 @@ adding it to that list.
 - **Loading compiled source (the vfs killer):** `src/compile.tjs` `load()`
   prefers a **`blob:` URL** (`toModuleBlobUrl`) and falls back to a `data:` URL
   (`toModuleUrl`). Neither scheme works everywhere, hence both:
-  - **bun** cannot import a long `data:` URL — it routes it through *package*
-    resolution and throws `NameTooLong` past a few kB, which every tjs module
-    exceeds once the runtime preamble is prepended. `blob:` works at any size
-    (the URL is a constant ~41 chars; the code lives in the object store).
+  - **bun before 1.4** cannot import a long `data:` URL — it routed it through
+    *package* resolution and threw `NameTooLong` past a few kB, which every tjs
+    module exceeds once the runtime preamble is prepended. **Fixed in bun
+    1.4.0**, but the `blob:` preference stays: bun < 1.4 is still out there,
+    browsers cap `data:` URL length, and `blob:` is a constant ~41 chars at any
+    module size.
   - **node** is the mirror image: its ESM loader accepts only file/data/node
     schemes, so `blob:` throws and it takes the `data:` path (fine at any size).
   - **browsers** do both; `blob:` also dodges `data:` URL length ceilings.
