@@ -1,7 +1,9 @@
 # bun bug: `data:` JS modules collapse ESM → CJS when an exported binding gets a property
 
 **Status:** Filed upstream — [oven-sh/bun#32057](https://github.com/oven-sh/bun/issues/32057).
-Workaround in place: `src/compile.tjs` `toModuleUrl` base64-encodes the `data:` URL.
+**Still present in bun 1.4.0** (re-checked: a percent-encoded module still
+collapses to `["__esModule","default"]`). Workaround in place: `src/compile.tjs`
+`toModuleUrl` base64-encodes the `data:` URL.
 
 ## Summary
 
@@ -67,8 +69,14 @@ statements).
 
 # bun bug 2: long `data:` modules fail to resolve — `NameTooLong`
 
-**Status:** Not yet filed. Worked around: `src/compile.tjs` `load()` now prefers a
-`blob:` URL and only falls back to `data:`.
+**Status:** **FIXED in bun 1.4.0** — not filed, no longer needed. Re-verified on
+1.4.0: a 2 MB `data:` module imports fine, as does a real tjs-emitted component
+over `data:` directly. It failed past a few kB on 1.3.14.
+
+The `blob:` preference in `src/compile.tjs` **stays** regardless:
+- anyone on bun < 1.4 still needs it;
+- browsers cap `data:` URL length, and `blob:` is a constant ~41 chars;
+- it costs nothing — the `data:` path remains as the fallback node requires.
 
 ## Summary
 
@@ -88,7 +96,8 @@ pushing even a trivial component well past the threshold.
 
 ## Environment
 
-- bun 1.3.14 (macOS arm64)
+- bun 1.3.14 (macOS arm64) — **broken**
+- bun 1.4.0 — **fixed** (verified to 2 MB)
 - node v22.22.1 — unaffected at any size
 - Chrome — unaffected; a 533 kB `data:` URL imports fine
 

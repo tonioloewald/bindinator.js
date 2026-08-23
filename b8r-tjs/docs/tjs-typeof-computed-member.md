@@ -1,7 +1,7 @@
 # tjs bug: `typeof obj[key]` compiles to `(typeof obj)[key]`
 
-**Status:** Not yet filed (tjs-lang). Worked around in `src/untrusted.tjs` by
-hoisting the member access into a local.
+**Status:** Filed — [tonioloewald/tjs-lang#29](https://github.com/tonioloewald/tjs-lang/issues/29).
+Worked around in `src/untrusted.tjs` by hoisting the member access into a local.
 
 ## Summary
 
@@ -32,7 +32,10 @@ Dot access is lowered correctly, which makes the bug easy to miss:
 
 ## Environment
 
-- tjs-lang 0.8.1 (as pinned by b8r-tjs)
+Reproduces on **0.13.2 (latest)**, 0.10.1 and 0.8.1 — not a regression, it has
+always been there. Verified behaviourally, not just by reading the emitted text:
+`keep({ a: 1, fn: () => {}, b: 2 })` returns `["a","fn","b"]` instead of
+`["a","b"]`, while the dot form (`typeof x.n === 'number'`) is correct.
 
 ## Minimal reproduction
 
