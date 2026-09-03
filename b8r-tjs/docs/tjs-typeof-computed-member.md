@@ -1,7 +1,30 @@
 # tjs bug: `typeof obj[key]` compiles to `(typeof obj)[key]`
 
-**Status:** Filed — [tonioloewald/tjs-lang#29](https://github.com/tonioloewald/tjs-lang/issues/29).
-Worked around in `src/untrusted.tjs` by hoisting the member access into a local.
+**Status:** **FIXED upstream in tjs-lang 0.13.3.**
+[tonioloewald/tjs-lang#29](https://github.com/tonioloewald/tjs-lang/issues/29),
+closed 2026-08-24. Verified independently against 0.13.9 — the original case and
+five variants (nested computed `a[b][c]`, computed-then-dot, dot-then-computed,
+call on computed, and ternary position) all lower correctly, so the fix is not
+narrow.
+
+**b8r-tjs is still pinned at 0.8.1, where the bug is live**, so the hoisting
+workaround in `src/untrusted.tjs` must stay until we upgrade.
+
+### Why we haven't upgraded yet
+
+0.8.1 → 0.13.9 is not a drop-in. Attempted, and it fails 5 of 100 tests with a
+single root cause: `AgentVM.run()` now rejects our arguments —
+
+    Input validation failed: args do not match expected schema (op: vm.run)
+
+The signature is unchanged (`run(astOrToken, args?, options?)`), so it is the
+**args validation that tightened**: `{ state, event }` no longer satisfies it
+for an agent declared `function agent({ state })`. That is a real migration of
+how untrusted handlers receive their input, not a version bump, and it wants
+doing deliberately with the sandbox's three boundaries re-verified afterwards.
+
+The other failure is `compile.test.ts`'s "type error in edited source is caught
+at compile time", which is likely related but was not investigated.
 
 ## Summary
 
