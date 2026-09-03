@@ -41,7 +41,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "tjs-lang": "^0.8.1"
+    "tjs-lang": "^0.13.9"
   },
   "peerDependencies": {
     "tosijs": "^1.6.1"

@@ -118,21 +118,57 @@ test('an edited method BODY takes effect — old state must not shadow new behav
   expect(el.querySelector('.v').textContent).toBe('11') // NEW body ran, not the old +1
 })
 
-test('a type error in edited source is caught at compile time (returned, not thrown)', async () => {
-  // increment is typed (count: 0 -> integer); calling it with a string in an
-  // inline test makes the edited source fail to compile — surfaced, not crashed.
-  const badSource = `
-    export function inc(count: 0) { return count + 1 }
-    test 'oops' { expect(inc('not a number')).toBe(1) }
-    export default () => ({ view: () => null })
-  `
+test('a conclusive inline-test failure in edited source is caught at compile time', async () => {
+  // `inc` is typed (count: 0 -> integer); calling it with a string in an inline
+  // test makes the edited source fail to compile — surfaced, not crashed.
+  // NB the source is FLUSH-LEFT and the factory is a NAMED function. Both matter;
+  // see the two tests below.
+  const badSource = [
+    "export function inc(count: 0) { return count + 1 }",
+    "test 'oops' { expect(inc('not a number')).toBe(1) }",
+    'function factory () { return { view: () => null } }',
+    'export default factory'
+  ].join('\n')
   let threw = false
   try {
     await applyEdit(badSource, 'never')
   } catch (e) {
-    threw = true // tjs fails the compile of source whose inline test fails
+    threw = true // tjs throws on transpile-time test failures
   }
   expect(threw).toBe(true)
+})
+
+// --- two ways inline tests silently DON'T run -------------------------------
+// In both, the test comes back `inconclusive` rather than failing, and nothing
+// throws. An editor must surface `tests[].inconclusive` — a green run is not a
+// pass. Reported upstream; see docs/tjs-inline-tests-inconclusive.md.
+
+test('inline tests do not run when the default export is an arrow', async () => {
+  // This is b8r-tjs's OWN live-edit contract (`export default (lib) => spec`),
+  // so inline tests in an edited component are inconclusive by construction.
+  const arrowSource = [
+    "export function inc(count: 0) { return count + 1 }",
+    "test 'oops' { expect(inc('not a number')).toBe(1) }",
+    'export default () => ({ view: () => null })'
+  ].join('\n')
+  const { tests } = await applyEdit(arrowSource, 'arrow-limitation')
+  expect(tests.length).toBe(1)
+  expect(tests[0].passed).toBe(false)
+  expect(tests[0].inconclusive).toBe(true) // never ran — not a genuine failure
+})
+
+test('inline tests do not run when the source is indented', async () => {
+  // Any source embedded in a template literal inside indented code is indented,
+  // which is the common case for a live editor or a docs fixture.
+  const indentedSource = `
+    export function inc(count: 0) { return count + 1 }
+    test 'oops' { expect(inc('not a number')).toBe(1) }
+    function factory () { return { view: () => null } }
+    export default factory
+  `
+  const { tests } = await applyEdit(indentedSource, 'indent-limitation')
+  expect(tests.length).toBe(1)
+  expect(tests[0].inconclusive).toBe(true)
 })
 
 test('hot reload warns (once per component) about functions it did not carry over', async () => {

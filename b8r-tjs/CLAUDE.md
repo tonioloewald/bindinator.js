@@ -124,10 +124,17 @@ tjs is **not** TypeScript. The single biggest trap:
   …`. This cost real time once already (it disabled a security filter in
   `untrusted.tjs`).
 
-  **Fixed upstream in tjs-lang 0.13.3** (tjs-lang#29), verified against 0.13.9.
-  But **we are pinned at 0.8.1, where it is still live**, so keep hoisting. The
-  upgrade is not a drop-in — `AgentVM.run()` tightened its args validation and
-  breaks the untrusted sandbox; see `docs/tjs-typeof-computed-member.md`.
+  **Fixed upstream in tjs-lang 0.13.3** (tjs-lang#29) and we are now on
+  **^0.13.9**, so this no longer bites. The hoisting in `untrusted.tjs` is kept
+  anyway — it reads fine and costs nothing — but new code needn't bother.
+  History in `docs/tjs-typeof-computed-member.md`.
+- **Inline `test` blocks silently DON'T RUN for indented sources or a module
+  whose default export is an arrow** — they come back `inconclusive`, and
+  nothing throws. Both are the normal case for live-edit and docs fixtures, so
+  a caller that only checks "did it throw?" sees a green run that never
+  executed. Write fixtures flush-left with a named default export, and surface
+  `tests[].inconclusive`. Repro in `docs/tjs-inline-tests-inconclusive.md`;
+  pinned by three tests in `test/live-edit.test.ts`.
 - Errors are **returned** as `MonadicError`, not thrown (`isMonadicError(v)` /
   check `v?.name === 'MonadicError'`).
 - Style matches tjs/tosijs/standard: single quotes, no semicolons, 2-space.
