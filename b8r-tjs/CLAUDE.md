@@ -122,8 +122,12 @@ tjs is **not** TypeScript. The single biggest trap:
   guard of that shape silently becomes always-true. Dot access (`typeof x.foo`)
   is fine; only *computed* access breaks. Write `const v = obj[key]; typeof v
   …`. This cost real time once already (it disabled a security filter in
-  `untrusted.tjs`); repro + suggested fix in
-  `docs/tjs-typeof-computed-member.md`.
+  `untrusted.tjs`).
+
+  **Fixed upstream in tjs-lang 0.13.3** (tjs-lang#29), verified against 0.13.9.
+  But **we are pinned at 0.8.1, where it is still live**, so keep hoisting. The
+  upgrade is not a drop-in — `AgentVM.run()` tightened its args validation and
+  breaks the untrusted sandbox; see `docs/tjs-typeof-computed-member.md`.
 - Errors are **returned** as `MonadicError`, not thrown (`isMonadicError(v)` /
   check `v?.name === 'MonadicError'`).
 - Style matches tjs/tosijs/standard: single quotes, no semicolons, 2-space.

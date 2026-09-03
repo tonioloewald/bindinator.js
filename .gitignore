@@ -35,3 +35,7 @@ CVS
 tonioloewald-b8r-*.tgz
 build-temp
 bun.lockb
+
+# macOS Spotlight markers (dist/ is deliberately tracked, so these get swept up)
+.metadata_never_index
+.DS_Store
