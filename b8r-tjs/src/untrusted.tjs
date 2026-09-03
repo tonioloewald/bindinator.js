@@ -47,11 +47,33 @@ const vm = new AgentVM()
 // Run untrusted AJS source as a sandboxed, fuel-metered state transform.
 // Always returns { ok, result|error } — parse rejections (e.g. forbidden atoms)
 // and fuel exhaustion are reported, never thrown into the host.
+// AJS compiles an agent's declared parameters into an `inputSchema` with
+// `additionalProperties: false`, so the host must pass *exactly* what the agent
+// asked for — handing `{ state, event }` to a `function agent({ state })` is
+// rejected outright. Rather than force every handler to declare `event` it
+// doesn't use, narrow the input to the keys the agent actually declares. A
+// missing/!unrecognised schema passes through untouched, and a *required* key we
+// cannot supply is left to the VM to report.
+function narrowToSchema (ast, input) {
+  if (ast === null || ast === undefined) return input
+  const schema = ast.inputSchema
+  if (schema === null || schema === undefined) return input
+  const properties = schema.properties
+  if (properties === null || properties === undefined) return input
+  if (input === null || typeof input !== 'object') return input
+  const out = {}
+  for (const key of Object.keys(properties)) {
+    if (Object.prototype.hasOwnProperty.call(input, key)) out[key] = input[key]
+  }
+  return out
+}
+
 export async function runHandler (source: '', input, fuel) {
   const budget = fuel === undefined ? 1000 : fuel
   let out
   try {
-    out = await vm.run(ajs(source), input, { fuel: budget })
+    const ast = ajs(source)
+    out = await vm.run(ast, narrowToSchema(ast, input), { fuel: budget })
   } catch (parseError) {
     return { ok: false, error: { message: String(parseError) } }
   }
@@ -75,9 +97,10 @@ function withoutFunctions (value) {
   if (value === null || typeof value !== 'object') return value
   const out = {}
   for (const key of Object.keys(value)) {
-    // NB: hoisted deliberately. `typeof value[key]` mis-compiles under tjs —
-    // it emits `TypeOf(value)[key]`, i.e. (typeof value)[key], which is always
-    // undefined so nothing is ever filtered. See docs/tjs-typeof-computed-member.md
+    // Hoisted. This was once mandatory: `typeof value[key]` mis-compiled to
+    // `(typeof value)[key]`, so this filter silently passed everything (fixed in
+    // tjs-lang 0.13.3, tjs-lang#29). Kept because it reads no worse, and this
+    // particular filter is what keeps functions out of the sandbox snapshot.
     const item = value[key]
     if (typeof item !== 'function') out[key] = value[key]
   }

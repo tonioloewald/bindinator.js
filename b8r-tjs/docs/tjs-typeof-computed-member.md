@@ -7,96 +7,25 @@ five variants (nested computed `a[b][c]`, computed-then-dot, dot-then-computed,
 call on computed, and ternary position) all lower correctly, so the fix is not
 narrow.
 
-**b8r-tjs is still pinned at 0.8.1, where the bug is live**, so the hoisting
-workaround in `src/untrusted.tjs` must stay until we upgrade.
+**b8r-tjs now runs ^0.13.9**, so the bug no longer applies here. The hoisting in
+`src/untrusted.tjs` is kept for readability, not necessity.
 
-### Why we haven't upgraded yet
+### The upgrade that this unblocked
 
-0.8.1 → 0.13.9 is not a drop-in. Attempted, and it fails 5 of 100 tests with a
-single root cause: `AgentVM.run()` now rejects our arguments —
+0.8.1 → 0.13.9 was not a drop-in; it needed one real change. `ajs()` now emits an
+`inputSchema` from the agent's declared parameters with
+`additionalProperties: false`, so `AgentVM.run()` rejects arguments the agent did
+not declare — passing `{ state, event }` to a `function agent({ state })` fails
+with *"Input validation failed: args do not match expected schema"*.
 
-    Input validation failed: args do not match expected schema (op: vm.run)
+That is a good tightening, so `runHandler` adapts to it rather than forcing every
+handler to declare `event`: it reads the compiled `inputSchema` and narrows the
+input to the keys the agent actually declares (`narrowToSchema`). A missing or
+unrecognised schema passes through untouched.
 
-The signature is unchanged (`run(astOrToken, args?, options?)`), so it is the
-**args validation that tightened**: `{ state, event }` no longer satisfies it
-for an agent declared `function agent({ state })`. That is a real migration of
-how untrusted handlers receive their input, not a version bump, and it wants
-doing deliberately with the sandbox's three boundaries re-verified afterwards.
-
-The other failure is `compile.test.ts`'s "type error in edited source is caught
-at compile time", which is likely related but was not investigated.
-
-## Summary
-
-tjs lowers `typeof` to a `TypeOf()` call, but binds it to the **object** rather
-than to the full member expression when the access is **computed**:
-
-```js
-typeof obj[key] !== 'function'      // source
-TypeOf(obj)[key] !== 'function'     // emitted   ← wrong
-```
-
-`TypeOf(obj)` is the string `'object'`, so `'object'[key]` is `undefined`, and
-the comparison is `undefined !== 'function'` — **always true**. Every guard of
-this shape silently inverts to "always pass".
-
-This is quiet in the worst way: no parse error, no type error, no warning. The
-code reads correctly and does the opposite of what it says.
-
-## Scope — computed access only
-
-Dot access is lowered correctly, which makes the bug easy to miss:
-
-| source | emitted | correct? |
-| --- | --- | --- |
-| `typeof x` | `TypeOf(x)` | yes |
-| `typeof x.foo` | `TypeOf(x.foo)` | yes |
-| `typeof x[k]` | `TypeOf(x)[k]` | **no** |
-
-## Environment
-
-Reproduces on **0.13.2 (latest)**, 0.10.1 and 0.8.1 — not a regression, it has
-always been there. Verified behaviourally, not just by reading the emitted text:
-`keep({ a: 1, fn: () => {}, b: 2 })` returns `["a","fn","b"]` instead of
-`["a","b"]`, while the dot form (`typeof x.n === 'number'`) is correct.
-
-## Minimal reproduction
-
-```js
-// keep.tjs
-export function keep (obj) {
-  const out = []
-  for (const k of Object.keys(obj)) {
-    if (typeof obj[k] !== 'function') out.push(k)
-  }
-  return out
-}
-```
-
-```js
-import { tjs } from 'tjs-lang/lang'
-console.log(tjs(source).code)
-// …  if (__tjs.toBool(TypeOf(obj)[k] !== 'function')) out.push(k)
-```
-
-### Expected
-
-`keep({ a: 1, fn: () => {} })` → `['a']`
-
-### Actual
-
-`['a', 'fn']` — the filter never removes anything.
-
-## How it surfaced
-
-`src/untrusted.tjs` strips functions from a component's state before handing it
-to `structuredClone` for the AJS sandbox. With the filter silently disabled, the
-handler wrappers stayed in the snapshot and **every** sandboxed event threw
-`DataCloneError` (structuredClone cannot clone a function).
-
-So the failure was loud *here* only by luck — the very next operation happened
-to reject the un-filtered value. A guard of this shape in front of anything more
-forgiving would just be wrong, quietly.
+The upgrade also surfaced a separate problem — inline tests silently not running
+for indented or arrow-default sources. See
+`docs/tjs-inline-tests-inconclusive.md`.
 
 ## Workaround
 
