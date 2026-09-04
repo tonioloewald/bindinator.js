@@ -1,7 +1,9 @@
 # bun bug: `data:` JS modules collapse ESM → CJS when an exported binding gets a property
 
 **Status:** Filed upstream — [oven-sh/bun#32057](https://github.com/oven-sh/bun/issues/32057).
-**Still present in bun 1.4.0** (re-checked: a percent-encoded module still
+**Still present in bun 1.4.0**, confirmed on the issue
+([comment](https://github.com/oven-sh/bun/issues/32057#issuecomment-5536476084)).
+(Re-checked: a percent-encoded module still
 collapses to `["__esModule","default"]`). Workaround in place: `src/compile.tjs`
 `toModuleUrl` base64-encodes the `data:` URL.
 

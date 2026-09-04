@@ -237,7 +237,8 @@ Two are clean **upstream asks** (tosijs / tosijs-ui), tracked here so we don't l
    then drop the `sucrase` devDependency and its CDN fallback from the demo
    bundling. Re-verify `demo/live-example.html` after.
 
-2. **`${.relative}` interpolation inside list rows.** Today it's a documented
+2. **`${.relative}` interpolation inside list rows.** *(Filed as
+   [tosijs#37](https://github.com/tonioloewald/tosijs/issues/37).)* Today it's a documented
    no-op (see `b8r-compat.js` header): tosijs re-targets a row's relative `^.path`
    on the binding's single `path` field during stamping, but interpolation routes
    through a multi-path `TakeDescriptor` whose `paths[]` array isn't part of that

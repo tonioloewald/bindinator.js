@@ -1,6 +1,7 @@
 # tjs: inline `test` blocks silently don't run for indented or arrow-default sources
 
-**Status:** Not yet filed (tjs-lang). Found while upgrading b8r-tjs to 0.13.9.
+**Status:** Filed — [tonioloewald/tjs-lang#50](https://github.com/tonioloewald/tjs-lang/issues/50).
+Found while upgrading b8r-tjs to 0.13.9.
 Pinned by three tests in `test/live-edit.test.ts`.
 
 ## Summary
