@@ -49,6 +49,29 @@ feature the README advertises. Never add a runtime dependency. A practical
 consequence: every `npm audit` finding here is dev-only and reaches no
 consumer of the published package.
 
+### Don't run `npm audit fix --force` here
+
+As of 2026-10, 8 high advisories remain and **all 8 are unfixable, not
+neglected.** They are one chain — `braces` → `micromatch` → `fast-glob` →
+`globby` — reaching the tree through **stylelint**, which is already at its
+latest release (17.16.0), which is why npm reports `fixAvailable: false` for
+it. `braces`' advisory range is `*` and its newest published version _is_ the
+installed 3.0.3, so there is nothing to upgrade to.
+
+`npm audit fix --force` nonetheless offers a fix, and it oscillates: on
+linthtml 0.10.2 it proposes downgrading to 0.9.6, and on 0.9.6 it proposes
+upgrading back to 0.10.2, calling each a breaking change. The apparent 8 → 7
+improvement from the downgrade is pure bookkeeping — 0.10.2 ships
+`@linthtml/core` as a separate package, so it occupies its own line in the
+chain; 0.9.6 has no such package. Same exposure, one fewer name. Taking it
+would cost two major versions of the linter that owns the `.component.html`
+files for zero security benefit. Measured both ways: 87 files / 0 problems and
+an identical 7-violation probe on each.
+
+So leave the 8 standing and re-check when stylelint ships a `micromatch` bump.
+Plain `npm audit fix` (no `--force`) is still fine and is how the lockfile-only
+bumps land.
+
 ## Architecture
 
 `source/b8r.js` is the entry point and assembles ~25 sibling modules into one
